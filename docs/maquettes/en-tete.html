@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette header</title>
+<style>
+  .t-trail { --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --accent2:#ffd400; --text:#eef3fa; --muted:#8fa8c9; }
+  .t-route { --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --accent2:#B76E78; --text:#EDF2E9; --muted:#8FA391; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', system-ui, sans-serif; }
+  .mono { font-family: 'Space Mono', ui-monospace, monospace; }
+  header { position: relative; padding: 3.4rem 1.5rem 0; }
+  .wrap { max-width: 960px; margin: 0 auto; position: relative; }
+  .brand { position: absolute; top: -2.3rem; right: 0; display: flex; align-items: center; gap: 0.55rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+  .brand svg { width: 15px; height: 15px; stroke: var(--muted); }
+  h1 { font-weight: 700; letter-spacing: -0.02em; }
+  h1 .kind { display: block; color: var(--text); }
+  h1 em { display: block; font-style: normal; color: var(--accent); }
+  .lbl { font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+  .val { font-family: 'Space Mono', monospace; color: var(--accent); font-weight: 700; }
+  .next { font-size: 0.78rem; color: var(--muted); }
+  .next b { color: var(--text); font-weight: 600; }
+  .bar { height: 4px; margin-top: 1.6rem; border-radius: 2px; background: linear-gradient(90deg, var(--surface2), var(--accent) 12%, var(--surface2) 24%, var(--accent2) 40%, var(--surface2) 55%, var(--accent) 70%, var(--surface2) 85%, var(--accent2)); opacity: 0.85; }
+  nav { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-top: 1.4rem; }
+  nav .wrap { display: flex; gap: 2rem; overflow: hidden; white-space: nowrap; }
+  nav span { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0.9rem 0; }
+  nav span.on { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+  .badge { display: inline-block; margin-top: 0.45rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0.15rem 0.5rem; }
+  /* ===== Proposition A · éditoriale ===== */
+  .v-a .grid { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start; }
+  .v-a .cd { margin-top: 0.1rem; }
+  .v-a .next-line { margin-top: 1.1rem; }
+  .v-a h1 { font-size: 3.4rem; line-height: 1.04; }
+  .v-a .stats { display: flex; gap: 2.4rem; margin-top: 1.6rem; flex-wrap: wrap; }
+  .v-a .stat .val { font-size: 1.15rem; display: block; }
+  .v-a .stat .lbl { font-size: 0.62rem; display: block; margin-top: 0.3rem; }
+  .v-a .cd { text-align: right; }
+  .v-a .cd .days { font-family: 'Space Mono', monospace; font-size: 4.6rem; line-height: 1; color: var(--accent); font-weight: 700; }
+  .v-a .cd .lbl { font-size: 0.7rem; display: block; margin-top: 0.4rem; }
+  .v-a .cd .hms { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--accent2); margin-top: 0.7rem; }
+  .v-a .cd .next { margin-top: 0.5rem; }
+  .v-a .inline-stats { display: none; }
+
+  /* ===== Proposition B · tableau de bord ===== */
+  .v-b .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; }
+  .v-b h1 { font-size: 2.6rem; line-height: 1.05; }
+  .v-b .cd { text-align: right; }
+  .v-b .tiles { display: flex; gap: 0.45rem; }
+  .v-b .tile { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; min-width: 70px; padding: 0.55rem 0.5rem; text-align: center; }
+  .v-b .tile .n { font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--accent); display: block; line-height: 1.1; }
+  .v-b .tile .lbl { font-size: 0.55rem; display: block; margin-top: 0.2rem; }
+  .v-b .cd .next { margin-top: 0.55rem; }
+  .v-b .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-top: 1.4rem; }
+  .v-b .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 0.9rem; }
+  .v-b .stat .lbl { font-size: 0.58rem; display: block; }
+  .v-b .stat .val { font-size: 1.05rem; display: block; margin-top: 0.3rem; }
+  .v-b .day-only { display: none; }
+
+  /* ===== Téléphone ===== */
+  @media (max-width: 600px) {
+    header { padding: 1.9rem 1rem 0; }
+    .brand { top: -1.15rem; font-size: 0.55rem; }
+    nav { margin-top: 1rem; }
+    nav .wrap { gap: 1.4rem; padding: 0 1rem; }
+    nav span { font-size: 0.68rem; padding: 0.75rem 0; }
+    .bar { margin-top: 1rem; height: 3px; }
+
+    .v-a .grid { grid-template-columns: 1fr auto; gap: 0.8rem; align-items: start; }
+    .v-a h1 { font-size: 1.15rem; line-height: 1.15; }
+    .v-a h1 em { font-size: 2rem; line-height: 1.05; }
+    .v-a .cd .days { font-size: 2.3rem; }
+    .v-a .cd .lbl { font-size: 0.58rem; margin-top: 0.2rem; }
+    .v-a .cd .hms { font-size: 0.68rem; margin-top: 0.3rem; }
+    .v-a .cd .next { display: none; }
+    .v-a .stats { display: none; }
+    .v-a .inline-stats { display: block; margin-top: 0.8rem; font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+    .v-a .inline-stats b { font-family: 'Space Mono', monospace; color: var(--accent); font-weight: 700; }
+    .v-a .next-m { display: block; margin-top: 0.4rem; }
+    .v-a .inline-stats .next b { font-family: inherit; color: var(--text); font-weight: 600; }
+
+    .v-b .top { align-items: center; gap: 0.8rem; }
+    .v-b h1 { font-size: 1.05rem; line-height: 1.15; }
+    .v-b h1 em { font-size: 1.85rem; line-height: 1.05; }
+    .v-b .tiles .tile:not(.day-only) { display: none; }
+    .v-b .day-only { display: block; min-width: 78px; padding: 0.5rem 0.5rem; }
+    .v-b .day-only .n { font-size: 1.6rem; }
+    .v-b .cd .next { display: none; }
+    .v-b .stats { grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-top: 0.85rem; }
+    .v-b .stat { padding: 0.45rem 0.65rem; }
+    .v-b .stat .lbl { font-size: 0.52rem; }
+    .v-b .stat .val { font-size: 0.86rem; margin-top: 0.15rem; }
+    .v-b .next-m { display: block; margin-top: 0.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.65rem; }
+  }
+  @media (min-width: 601px) { .next-m { display: none; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  const P = {
+    trail: { kind: 'Trail long', name: 'UTMB OCC', goal: '2028-08-24T08:00:00',
+           stats: [['Distance', '55–57 km'], ['D+', '3,5 km'], ['Objectif', 'Finisher'], ['Date', 'Août 2028']],
+           next: { name: 'Clam Trail', date: '2026-10-18T09:00:00' },
+           tabs: ['Cette semaine', 'Objectif', 'Nutrition', 'Palmarès', 'Profil', 'Guide'], on: 1 },
+    route: { kind: 'Marathon', name: 'Rome.', goal: '2028-03-19T09:00:00',
+           stats: [['Distance', '42,195 km'], ['D+', '—'], ['Objectif', 'Sub 4 h'], ['Date', 'Mi-mars 2028']],
+           next: { name: 'Trail du Béret', date: '2026-11-15T09:00:00' },
+           tabs: ['Objectif', 'Cette semaine', 'Logistique', 'Palmarès', 'Guide'], on: 0 }
+  };
+  const q = new URLSearchParams(location.search);
+  const who = q.get('t') || 'route', v = q.get('v') || 'a', d = P[who];
+  document.body.className = 't-' + who + ' v-' + v;
+  const now = new Date('2026-10-04T19:26:45');
+  const ms = new Date(d.goal) - now, days = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60;
+  const jn = Math.ceil((new Date(d.next.date) - now) / 864e5);
+  const pad = n => String(n).padStart(2, '0');
+  const gear = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+  const brand = '<div class="brand">Nom de l\'app ' + gear + '</div>';
+  const title = '<h1><span class="kind">Objectif ' + d.kind + '</span><em>' + d.name + '</em></h1>' + (d.badge ? '<span class="badge">' + d.badge + '</span>' : '');
+  const nextTxt = 'prochaine étape · <b>' + d.next.name + '</b> · J-' + jn;
+  const nav = '<nav><div class="wrap">' + d.tabs.map((t, i) => '<span class="' + (i === d.on ? 'on' : '') + '">' + t + '</span>').join('') + '</div></nav>';
+  let body;
+  if (v === 'a') {
+    body = '<div class="grid"><div>' + title +
+      '<div class="stats">' + d.stats.map(([l, x]) => '<div class="stat"><span class="val">' + x + '</span><span class="lbl">' + l + '</span></div>').join('') + '</div>' +
+      '<div class="next next-line">' + nextTxt + '</div>' +
+      '</div><div class="cd"><div class="days">' + days + '</div><span class="lbl">jours</span><div class="hms">' + h + 'h ' + pad(m) + 'm ' + pad(s) + 's</div></div></div>' +
+      '<div class="inline-stats">' + d.stats.map(([l, x]) => (l === 'D+' ? '<b>' + x + '</b> D+' : '<b>' + x + '</b>')).join(' · ') + '<span class="next next-m">' + nextTxt + '</span></div>';
+  } else {
+    body = '<div class="top">' + title + '<div class="cd"><div class="tiles">' +
+      '<div class="tile day-only"><span class="n">' + days + '</span><span class="lbl">jours</span></div>' +
+      [[days, 'Jours'], [pad(h), 'Heures'], [pad(m), 'Minutes'], [pad(s), 'Secondes']].map(([n, l]) => '<div class="tile"><span class="n">' + n + '</span><span class="lbl">' + l + '</span></div>').join('') +
+      '</div><div class="next">' + nextTxt + '</div></div></div>' +
+      '<div class="stats">' + d.stats.map(([l, x]) => '<div class="stat"><span class="lbl">' + l + '</span><span class="val">' + x + '</span></div>').join('') + '</div>' +
+      '<div class="next next-m">' + nextTxt + '</div>';
+  }
+  if (q.get('nonext')) body = body.replace(/<(div|span) class="next next-line">[\s\S]*?<\/\1>/, '');
+  document.getElementById('root').innerHTML = '<header><div class="wrap">' + brand + body + '<div class="bar"></div></div></header>' + nav;
+</script>
+</body>
+</html>

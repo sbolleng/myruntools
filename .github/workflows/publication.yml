@@ -1,0 +1,36 @@
+# Publication sur GitHub Pages à chaque mise à jour de main.
+# Le numéro de version des liens CSS/JS et de la balise site-version
+# (__VERSION__ dans les pages) est remplacé par celui du commit : les
+# navigateurs rechargent les fichiers modifiés, sans rien incrémenter à la main.
+name: Publication
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Numéro de version
+        run: find . -name '*.html' -not -path './.git/*' -exec sed -i "s/__VERSION__/${GITHUB_SHA::7}/g" {} +
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deploiement
+        uses: actions/deploy-pages@v4
