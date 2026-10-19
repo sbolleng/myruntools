@@ -1,0 +1,126 @@
+/* ===== PALMARÈS V2 · tableau triable et filtrable (palmares.js) ===== */
+.pv2-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-bottom: 0.9rem; }
+.pv2-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 20px;
+  cursor: pointer;
+}
+.pv2-btn:hover { background: var(--accent2); border-color: var(--accent2); }
+.pv2-btn.is-on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
+.pv2-ico { width: 0.95rem; height: 0.95rem; flex: none; }
+.pv2-chev { width: 0.85rem; height: 0.85rem; flex: none; transition: transform 0.15s; }
+.pv2-btn[aria-expanded="true"] .pv2-chev, .pv2-clear .pv2-chev { transform: rotate(180deg); }
+.pv2-clear .pv2-chev { width: 0.8rem; height: 0.8rem; margin-left: 0.3rem; vertical-align: -0.12em; }
+.pv2-count { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+.pv2-clear { background: none; border: none; padding: 0; font: inherit; font-size: 0.75rem; color: var(--accent); text-decoration: underline; cursor: pointer; }
+.pv2-clear[hidden] { display: none; }
+.pv2-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
+.pv2-panel[hidden] { display: none; }
+.pv2-cols { grid-template-columns: 1fr; }
+.pv2-field { border: none; margin: 0; padding: 0; min-width: 0; }
+.pv2-legend {
+  display: block;
+  padding: 0;
+  margin-bottom: 0.45rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pv2-row + .pv2-row { margin-top: 0.45rem; }
+.pv2-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem; font-size: 0.8rem; color: var(--muted); }
+.pv2-panel input[type="text"], .pv2-panel input[type="search"], .pv2-panel input[type="date"], .pv2-panel select {
+  min-width: 0;
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color-scheme: dark;
+}
+.pv2-panel input[type="search"] { width: 100%; }
+.pv2-panel input.pv2-num { width: 6.5rem; }
+.pv2-panel input[aria-invalid="true"] { border-color: var(--red); }
+.pv2-check { display: inline-flex; align-items: center; gap: 0.35rem; margin-right: 0.6rem; font-size: 0.8rem; color: var(--text); cursor: pointer; }
+.pv2-check input { accent-color: var(--accent); }
+.pv2-table th { padding: 0; vertical-align: bottom; }
+.pv2-table td { padding: 0.6rem 0.45rem; }
+.pv2-sort {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.45rem;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  white-space: normal;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.pv2-sort:hover { color: var(--text); }
+.pv2-table th[aria-sort="ascending"] .pv2-sort, .pv2-table th[aria-sort="descending"] .pv2-sort { color: var(--accent); }
+.pv2-nw { white-space: nowrap; }
+.pv2-sort-ico { display: inline-block; width: 0.6rem; height: 0.85rem; margin-left: 0.4rem; vertical-align: -0.15em; }
+.pv2-sort-ico path { fill: currentColor; opacity: 0.45; }
+.pv2-table th[aria-sort="ascending"] .pv2-up, .pv2-table th[aria-sort="descending"] .pv2-down { opacity: 1; }
+.pv2-table th[aria-sort="ascending"] .pv2-down, .pv2-table th[aria-sort="descending"] .pv2-up { opacity: 0.2; }
+.pv2-table th.pv2-more-cell { width: 1%; padding: 0 0.3rem; text-align: center; vertical-align: middle; }
+.pv2-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.pv2-more:hover, .pv2-more[aria-expanded="true"] { color: var(--bg); background: var(--accent); }
+.pv2-panel-foot { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+/* Défilement horizontal, quand il faut : barre fine aux couleurs du thème */
+.pv2 .table-scroll { margin-bottom: 0; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.pv2 .table-scroll::-webkit-scrollbar { height: 6px; }
+.pv2 .table-scroll::-webkit-scrollbar-track { background: transparent; }
+.pv2 .table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.pv2-sort:focus-visible, .pv2-more:focus-visible, .pv2-btn:focus-visible, .pv2-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pv2-table td.pv2-n { white-space: nowrap; }
+.pv2-table td.pv2-t { min-width: 8.5rem; }
+.pv2-table.pv2-wide { width: max-content; }
+.pv2-table.pv2-wide td { white-space: nowrap; }
+.pv2-table td.pv2-pad { padding: 0; }
+.pv2-rec { margin-left: 0.3rem; }
+.pv2-table td.pv2-none { padding: 1.4rem; text-align: center; color: var(--muted); }
+@media (max-width: 600px) {
+  .pv2-panel { grid-template-columns: 1fr; }
+}

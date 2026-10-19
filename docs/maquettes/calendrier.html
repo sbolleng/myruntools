@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette calendrier annuel</title>
+<style>
+  .t-trail { --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --accent2:#ffd400; --text:#eef3fa; --muted:#8fa8c9; --cell:#0f2240; --cellwe:#15305a; }
+  .t-route { --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --accent2:#B76E78; --text:#EDF2E9; --muted:#8FA391; --cell:#152B26; --cellwe:#1C3832; }
+  :root { --race:#ff4d4f; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', system-ui, sans-serif; }
+  .mono { font-family: 'Space Mono', ui-monospace, monospace; }
+  main { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem 2.5rem; }
+  .eyebrow { font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+  h2 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 0.35rem; }
+  .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
+  .seg { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .seg span { font-family: 'Space Mono', monospace; font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.45rem 0.9rem; color: var(--muted); }
+  .seg span.on { background: var(--surface2); color: var(--text); }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; margin: 1.3rem 0 1.2rem; font-size: 0.78rem; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .k { display: inline-block; width: 14px; height: 14px; border-radius: 3px; }
+  .k-race { background: var(--race); }
+  .k-goal { background: var(--race); box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+  .k-cand { border: 2px solid var(--race); }
+  .k-prep { width: 22px; height: 5px; border-radius: 3px; background: var(--accent); }
+  .k-rec { width: 22px; height: 0; border-top: 3px dotted var(--muted); border-radius: 0; }
+  .k-over { width: 22px; height: 5px; border-radius: 3px; background: repeating-linear-gradient(45deg, var(--race) 0 4px, transparent 4px 7px); }
+  .k-free { background: var(--cell); border: 1px solid var(--border); }
+  .k-busy { background: color-mix(in srgb, var(--accent) 22%, var(--cell)); }
+  .k-today { border: 2px solid var(--text); background: var(--cell); }
+
+  .cal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.2rem 0.8rem; }
+  .row { display: grid; grid-template-columns: 64px auto 1fr; align-items: start; gap: 0 14px; padding: 0.42rem 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent); }
+  .row:last-child { border-bottom: none; }
+  .mlab { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 5px; }
+  .mlab b { color: var(--text); font-weight: 700; }
+  .days { position: relative; display: grid; grid-template-columns: repeat(31, var(--c)); column-gap: var(--g); }
+  .d { width: var(--c); height: var(--c); border-radius: 4px; background: var(--cell); position: relative; }
+  .d.we { background: var(--cellwe); }
+  .d.none { visibility: hidden; }
+  .d.inprep { background: color-mix(in srgb, var(--accent) 22%, var(--cell)); }
+  .d.inrec { background: color-mix(in srgb, var(--muted) 16%, var(--cell)); }
+  .d.past { opacity: 0.38; }
+  .d.today { outline: 2px solid var(--text); outline-offset: -2px; }
+  .d.race { background: var(--race); }
+  .d.goal { background: var(--race); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); z-index: 2; }
+  .d.cand { background: transparent; border: 2px solid var(--race); }
+  .lanes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(31, var(--c)); column-gap: var(--g); row-gap: 2px; margin-top: 4px; }
+  .seg-b { height: 5px; }
+  .seg-b.prep { background: var(--accent); }
+  .seg-b.over { background: repeating-linear-gradient(45deg, var(--race) 0 4px, transparent 4px 7px); }
+  .seg-b.rec { height: 0; border-top: 3px dotted var(--muted); margin-top: 1px; }
+  .seg-b.l { border-top-left-radius: 3px; border-bottom-left-radius: 3px; }
+  .seg-b.r { border-top-right-radius: 3px; border-bottom-right-radius: 3px; }
+  /* le trait comble aussi l'espace entre deux jours consécutifs */
+  .seg-b.fill { margin-right: calc(-1 * var(--g)); }
+  .chips { display: flex; flex-direction: column; gap: 3px; padding-top: 3px; min-width: 0; }
+  .chip { font-size: 0.74rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip i { font-style: normal; font-family: 'Space Mono', monospace; color: var(--muted); margin-right: 0.35rem; }
+  .chip.c { color: var(--muted); }
+  .chip.g { color: var(--accent); font-weight: 600; }
+
+  .notes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.1rem; }
+  .note { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1.1rem; }
+  .note h4 { font-family: 'Space Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 400; margin-bottom: 0.55rem; }
+  .note li { list-style: none; font-size: 0.82rem; line-height: 1.55; }
+  .note li b { color: var(--accent); font-weight: 600; }
+  .note.warn li b { color: var(--race); }
+  .foot { margin-top: 0.9rem; font-size: 0.72rem; color: var(--muted); }
+
+  body.m main { padding: 1.1rem 1rem 1.6rem; }
+  body.m h2 { font-size: 1.3rem; }
+  body.m .legend { gap: 0.45rem 0.9rem; font-size: 0.68rem; margin: 0.9rem 0; }
+  body.m .cal { padding: 0.7rem 0.6rem 0.4rem; border-radius: 12px; }
+  body.m .row { grid-template-columns: 30px auto; gap: 0 6px; padding: 0.35rem 0; }
+  body.m .mlab { font-size: 0.58rem; padding-top: 0; }
+  body.m .mlab b { display: block; }
+  body.m .chips { grid-column: 2; padding-top: 4px; }
+  body.m .chip { font-size: 0.66rem; }
+  body.m .d { border-radius: 2px; }
+  body.m .seg-b { height: 3px; }
+  body.m .seg-b.rec { border-top-width: 2px; }
+  body.m .notes { grid-template-columns: 1fr; gap: 0.6rem; }
+  body.m .note li { font-size: 0.72rem; }
+  body.m .seg span { font-size: 0.56rem; padding: 0.35rem 0.6rem; }
+</style>
+</head>
+<body>
+<main id="root"></main>
+<script>
+  // Courses réelles des deux profils. kind : race | goal (objectif ou objectif intermédiaire) | cand (candidat à choisir).
+  const P = {
+    trail: { title: 'Profil trail', races: [
+      { d: '2026-10-18', n: 'Clam Trail', ke: 11.9, kind: 'race' },
+      { d: '2026-12-05', n: "Rock'Angel", ke: 29.6, kind: 'race' },
+      { d: '2027-01-17', n: 'D2B', ke: 28, kind: 'race' },
+      { d: '2027-03-07', n: 'Forez Trails', ke: 49.5, kind: 'goal' },
+      { d: '2027-05-30', n: 'Maxi-Race', kind: 'cand' },
+      { d: '2027-06-26', n: 'Bois des Côtes', kind: 'cand' },
+      { d: '2027-06-28', n: 'Trail des 3 Pics', kind: 'cand' },
+      { d: '2027-07-18', n: 'Trail des 4×1800', kind: 'cand' },
+      { d: '2027-09-12', n: 'Gergo Trail', ke: 35.5, kind: 'race' }
+    ] },
+    route: { title: 'Profil route', races: [
+      { d: '2026-10-04', n: 'Semi de San Sebastián', ke: 21.1, kind: 'race' },
+      { d: '2026-11-15', n: 'Trail du Béret', ke: 35.9, kind: 'race' },
+      { d: '2027-01-16', n: 'Nocturne des Rois', ke: 14, kind: 'race' },
+      { d: '2027-03-07', n: "L'Augerolloise", ke: 49.5, kind: 'goal' }
+    ] }
+  };
+  // Durées ILLUSTRATIVES (à définir) : préparation et récupération selon le km-effort.
+  const prepDays = ke => ke < 15 ? 28 : ke < 35 ? 42 : 56;
+  const recDays = ke => ke < 15 ? 3 : ke < 35 ? 7 : 14;
+
+  const q = new URLSearchParams(location.search);
+  const who = q.get('t') || 'trail', mob = q.get('w') === 'm', prof = P[who];
+  document.body.className = 't-' + who + (mob ? ' m' : '');
+  document.documentElement.style.setProperty('--c', mob ? '7.4px' : '24px');
+  document.documentElement.style.setProperty('--g', mob ? '2.2px' : '3px');
+
+  const TODAY = '2026-10-07';
+  const START = new Date(Date.UTC(2026, 9, 1));
+  const MONTHS = ['Janv.', 'Févr.', 'Mars', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'];
+  const iso = dt => dt.toISOString().slice(0, 10);
+  const addDays = (s, n) => { const t = new Date(s + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return iso(t); };
+  const dayDiff = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 864e5);
+  const fmt = s => Number(s.slice(8)) + ' ' + MONTHS[Number(s.slice(5, 7)) - 1].toLowerCase();
+
+  // Intervalles de préparation et de récupération, répartis sur des couloirs (1 ou 2).
+  const firm = prof.races.filter(r => r.kind !== 'cand');
+  const spans = [];
+  firm.forEach(r => {
+    spans.push({ type: 'prep', race: r, a: addDays(r.d, -prepDays(r.ke)), b: addDays(r.d, -1) });
+    spans.push({ type: 'rec', race: r, a: addDays(r.d, 1), b: addDays(r.d, recDays(r.ke)) });
+  });
+  spans.sort((x, y) => x.a.localeCompare(y.a));
+  const laneEnd = [];
+  spans.forEach(s => {
+    let l = laneEnd.findIndex(e => e < s.a);
+    if (l === -1) { l = laneEnd.length; laneEnd.push(''); }
+    laneEnd[l] = s.b; s.lane = l;
+  });
+  const nLanes = Math.max(1, laneEnd.length);
+  // Chevauchements de préparations.
+  const overlaps = [];
+  const preps = spans.filter(s => s.type === 'prep');
+  preps.forEach((s, i) => preps.slice(i + 1).forEach(t => {
+    const a = s.a > t.a ? s.a : t.a, b = s.b < t.b ? s.b : t.b;
+    if (a <= b && b >= TODAY) overlaps.push({ a, b, x: s.race, y: t.race });
+  }));
+  const inOverlap = day => overlaps.some(o => day >= o.a && day <= o.b);
+  const raceOn = day => prof.races.find(r => r.d === day);
+
+  let rows = '';
+  for (let mi = 0; mi < 12; mi++) {
+    const m0 = new Date(Date.UTC(START.getUTCFullYear(), START.getUTCMonth() + mi, 1));
+    const y = m0.getUTCFullYear(), m = m0.getUTCMonth();
+    const nDays = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    let cells = '', lanes = '';
+    for (let dd = 1; dd <= 31; dd++) {
+      if (dd > nDays) { cells += '<div class="d none"></div>'; continue; }
+      const day = iso(new Date(Date.UTC(y, m, dd)));
+      const wd = new Date(day + 'T00:00:00Z').getUTCDay();
+      const r = raceOn(day);
+      const cls = ['d'];
+      if (wd === 0 || wd === 6) cls.push('we');
+      if (spans.some(x => x.type === 'prep' && day >= x.a && day <= x.b)) cls.push('inprep');
+      else if (spans.some(x => x.type === 'rec' && day >= x.a && day <= x.b)) cls.push('inrec');
+      if (day < TODAY) cls.push('past');
+      if (day === TODAY) cls.push('today');
+      if (r) cls.push(r.kind === 'goal' ? 'goal' : r.kind === 'cand' ? 'cand' : 'race');
+      cells += '<div class="' + cls.join(' ') + '"></div>';
+    }
+    for (let l = 0; l < nLanes; l++) {
+      for (let dd = 1; dd <= 31; dd++) {
+        const day = dd <= nDays ? iso(new Date(Date.UTC(y, m, dd))) : null;
+        const s = day && spans.find(x => x.lane === l && day >= x.a && day <= x.b);
+        if (!s) { lanes += '<div></div>'; continue; }
+        const c = ['seg-b', s.type === 'prep' ? (inOverlap(day) ? 'over' : 'prep') : 'rec'];
+        if (day === s.a || dd === 1) c.push('l');
+        if (day === s.b || dd === nDays) c.push('r'); else c.push('fill');
+        lanes += '<div class="' + c.join(' ') + '"></div>';
+      }
+    }
+    const chips = prof.races.filter(r => r.d.slice(0, 7) === iso(m0).slice(0, 7))
+      .map(r => '<div class="chip' + (r.kind === 'cand' ? ' c' : r.kind === 'goal' ? ' g' : '') + '"><i>' + Number(r.d.slice(8)) + '</i>' + r.n + '</div>').join('');
+    rows += '<div class="row"><div class="mlab"><b>' + MONTHS[m] + '</b> ' + String(y).slice(2) + '</div>' +
+      '<div class="days">' + cells + '<div class="lanes">' + lanes + '</div></div>' +
+      '<div class="chips">' + chips + '</div></div>';
+  }
+
+  // Plages libres : jours sans course, préparation ni récupération, à partir d'aujourd'hui.
+  const busy = d => spans.some(s => d >= s.a && d <= s.b) || prof.races.some(r => r.kind !== 'cand' && r.d === d);
+  const END = '2027-09-30';
+  const free = [];
+  let cur = null;
+  for (let d = TODAY; d <= END; d = addDays(d, 1)) {
+    if (!busy(d)) { if (!cur) cur = { a: d, b: d }; else cur.b = d; }
+    else if (cur) { free.push(cur); cur = null; }
+  }
+  if (cur) free.push(cur);
+  const freeTxt = free.filter(f => dayDiff(f.a, f.b) + 1 >= 10)
+    .map(f => '<li><b>' + (dayDiff(f.a, f.b) + 1) + ' jours</b> · du ' + fmt(f.a) + ' au ' + fmt(f.b) + '</li>').join('') || '<li>Aucune plage de 10 jours ou plus.</li>';
+  const overTxt = overlaps.map(o => '<li><b>' + (dayDiff(o.a, o.b) + 1) + ' jours</b> · prépa ' + o.y.n + ' commencée avant ' + o.x.n + ' (' + fmt(o.a) + ' → ' + fmt(o.b) + ')</li>').join('') || '<li>Aucun chevauchement.</li>';
+
+  document.getElementById('root').innerHTML =
+    '<div class="top"><div><div class="eyebrow">Calendrier · ' + prof.title + '</div><h2>' + (mob ? 'Oct. 2026 → sept. 2027' : 'Octobre 2026 → septembre 2027') + '</h2></div>' +
+    '<div class="seg"><span class="on">12 mois glissants</span><span>Année civile</span></div></div>' +
+    '<div class="legend">' +
+      '<span><i class="k k-race"></i>Course</span>' +
+      '<span><i class="k k-goal"></i>Objectif</span>' +
+      '<span><i class="k k-cand"></i>Candidat à choisir</span>' +
+      '<span><i class="k k-prep"></i>Préparation</span>' +
+      '<span><i class="k k-rec"></i>Récupération</span>' +
+      '<span><i class="k k-over"></i>Chevauchement</span>' +
+      '<span><i class="k k-busy"></i>Jour de prépa</span>' +
+      '<span><i class="k k-free"></i>Jour libre</span>' +
+      '<span><i class="k k-today"></i>Aujourd\'hui</span>' +
+    '</div>' +
+    '<div class="cal">' + rows + '</div>' +
+    '<div class="notes">' +
+      '<div class="note warn"><h4>Chevauchements de préparation</h4><ul>' + overTxt + '</ul></div>' +
+      '<div class="note"><h4>Plages libres de 10 jours ou plus (hors candidats)</h4><ul>' + freeTxt + '</ul></div>' +
+    '</div>' +
+    '<p class="foot">Maquette · durées de préparation (4, 6 ou 8 semaines) et de récupération (3, 7 ou 14 jours) illustratives, selon le km-effort : à définir.</p>';
+</script>
+</body>
+</html>
