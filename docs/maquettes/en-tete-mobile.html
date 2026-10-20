@@ -3,102 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maquette header mobile</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<title>Maquette en-tête téléphone</title>
 <style>
-  .t-trail { --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --accent2:#ffd400; --text:#eef3fa; --muted:#8fa8c9; }
-  .t-route { --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --accent2:#B76E78; --text:#EDF2E9; --muted:#8FA391; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', system-ui, sans-serif; }
-  header { padding: 0.9rem 1rem 0; }
-  .brand { margin-bottom: 1rem; display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.55rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
-  .brand svg { width: 14px; height: 14px; stroke: var(--muted); }
-  h1 { font-weight: 700; letter-spacing: -0.02em; margin-top: 0.4rem; }
-  h1 .kind { display: block; font-size: 1.25rem; line-height: 1.15; }
-  h1 em { display: block; font-style: normal; color: var(--accent); font-size: 2.15rem; line-height: 1.05; }
-  .lbl { font-family: 'Space Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
-  .val { font-family: 'Space Mono', monospace; color: var(--accent); font-weight: 700; }
-  .days { font-family: 'Space Mono', monospace; color: var(--accent); font-weight: 700; line-height: 1; }
-  .hms { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--accent2); }
-  .next { font-size: 0.76rem; color: var(--muted); }
-  .next b { color: var(--text); font-weight: 600; }
-  .bar { height: 3px; margin-top: 1.1rem; border-radius: 2px; background: linear-gradient(90deg, var(--surface2), var(--accent) 12%, var(--surface2) 24%, var(--accent2) 40%, var(--surface2) 55%, var(--accent) 70%, var(--surface2) 85%, var(--accent2)); opacity: 0.85; }
-  nav { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-top: 1rem; }
-  nav .wrap { display: flex; gap: 1.4rem; overflow: hidden; white-space: nowrap; padding: 0 1rem; }
-  nav span { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0.75rem 0; }
-  nav span.on { color: var(--accent); border-bottom: 2px solid var(--accent); }
-
-  .badge { display: inline-block; margin-top: 0.45rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0.15rem 0.5rem; }
-  .stats2 { display: grid; grid-template-columns: max-content max-content; justify-content: start; gap: 0.85rem 2.4rem; margin-top: 1rem; }
-  .stats2 .val { display: block; font-size: 1rem; }
-  .stats2 .lbl { display: block; margin-top: 0.2rem; }
-
-  /* 1 · empilée : titre, chiffres, compteur */
-  .m1 .cd { display: flex; align-items: center; justify-content: flex-end; gap: 0.8rem; margin-top: 1.1rem; padding-top: 0.9rem; border-top: 1px solid var(--border); }
-  .m1 .days { font-size: 2.6rem; }
-  .m1 .cd .txt { text-align: right; }
-  .m1 .cd .lbl { display: block; }
-  .m1 .cd .hms { display: block; margin-top: 0.25rem; }
-  .m1 .next { margin-top: 0.5rem; }
-
-  /* 2 · côte à côte : titre | compteur, puis chiffres */
-  .m2 .row { display: grid; grid-template-columns: 1fr auto; gap: 0.8rem; align-items: start; }
-  .m2 .cd { text-align: right; margin-top: 0.4rem; }
-  .m2 .days { font-size: 2.4rem; }
-  .m2 .cd .lbl { display: block; margin-top: 0.2rem; }
-  .m2 .cd .hms { display: block; margin-top: 0.2rem; }
-  .m2 .next { text-align: right; margin-top: 0.45rem; }
-  .m2 .stats2 { margin-top: 1.1rem; }
-  .m2 .next-line { margin-top: 0.9rem; text-align: left; }
-
-  /* 3 · fiche : titre, bandeau compteur, chiffres en lignes */
-  .m3 .cd { margin-top: 1rem; padding: 0.75rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .m3 .cd .line { display: flex; align-items: baseline; gap: 0.6rem; }
-  .m3 .days { font-size: 2.3rem; }
-  .m3 .next { margin-top: 0.4rem; }
-  .m3 .sheet { margin-top: 0.3rem; }
-  .m3 .sheet div { display: flex; justify-content: space-between; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--border); }
-  .m3 .sheet div:last-child { border-bottom: none; }
-  .m3 .sheet .val { font-size: 0.95rem; }
+  body { margin: 0; padding: 1.5rem 1rem; background: #111; color: #ddd; font-family: system-ui, sans-serif; }
+  p { margin: 0 0 1rem; font-size: 0.85rem; }
+  a { color: #9cf; }
+  .row { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+  figure { margin: 0; }
+  figcaption { font-size: 0.75rem; margin-bottom: 0.4rem; }
+  iframe { width: 390px; max-width: calc(100vw - 2rem); height: 560px; border: 1px solid #333; border-radius: 12px; background: #000; }
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script>
-  const P = {
-    trail: { kind: 'Trail long', name: 'UTMB OCC', goal: '2028-08-24T08:00:00',
-           stats: [['Distance', '55–57 km'], ['D+', '3,5 km'], ['Objectif', 'Finisher'], ['Date', 'Août 2028']],
-           next: { name: 'Clam Trail', date: '2026-10-18T09:00:00' },
-           tabs: ['Cette semaine', 'Objectif', 'Nutrition', 'Palmarès', 'Profil', 'Guide'], on: 1 },
-    route: { kind: 'Marathon', name: 'Rome.', goal: '2028-03-19T09:00:00',
-           stats: [['Distance', '42,195 km'], ['D+', '—'], ['Objectif', 'Sub 4 h'], ['Date', 'Mi-mars 2028']],
-           next: { name: 'Trail du Béret', date: '2026-11-15T09:00:00' },
-           tabs: ['Objectif', 'Cette semaine', 'Logistique', 'Palmarès', 'Guide'], on: 0 }
-  };
-  const q = new URLSearchParams(location.search);
-  const who = q.get('t') || 'route', m = q.get('m') || '1', d = P[who];
-  document.body.className = 't-' + who + ' m' + m;
-  const now = new Date('2026-10-04T19:26:45');
-  const ms = new Date(d.goal) - now, days = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, mi = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60;
-  const jn = Math.ceil((new Date(d.next.date) - now) / 864e5);
-  const pad = n => String(n).padStart(2, '0');
-  const hms = h + 'h ' + pad(mi) + 'm ' + pad(s) + 's';
-  const gear = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
-  const brand = '<div class="brand">Nom de l\'app ' + gear + '</div>';
-  const title = '<div class="ttl"><h1><span class="kind">Objectif ' + d.kind + '</span><em>' + d.name + '</em></h1>' + (d.badge ? '<span class="badge">' + d.badge + '</span>' : '') + '</div>';
-  const next = '<div class="next">prochaine étape · <b>' + d.next.name + '</b> · J-' + jn + '</div>';
-  const stats2 = '<div class="stats2">' + d.stats.map(([l, x]) => '<div><span class="val">' + x + '</span><span class="lbl">' + l + '</span></div>').join('') + '</div>';
-  const nav = '<nav><div class="wrap">' + d.tabs.map((t, i) => '<span class="' + (i === d.on ? 'on' : '') + '">' + t + '</span>').join('') + '</div></nav>';
-  let body;
-  if (m === '1') {
-    body = title + stats2 + '<div class="cd"><div class="txt"><span class="lbl">jours</span><span class="hms">' + hms + '</span></div><span class="days">' + days + '</span></div>';
-  } else if (m === '2') {
-    body = '<div class="row">' + title + '<div class="cd"><span class="days">' + days + '</span><span class="lbl">jours</span><span class="hms">' + hms + '</span></div></div>' + stats2 + next.replace('class="next"', 'class="next next-line"');
-  } else {
-    body = title + '<div class="cd"><div class="line"><span class="days">' + days + '</span><span class="lbl">jours</span><span class="hms">' + hms + '</span></div>' + next + '</div>' +
-      '<div class="sheet">' + d.stats.map(([l, x]) => '<div><span class="lbl">' + l + '</span><span class="val">' + x + '</span></div>').join('') + '</div>';
-  }
-  if (q.get('nonext')) body = body.replace(/<(div|span) class="next next-line">[\s\S]*?<\/\1>/, '');
-  document.getElementById('root').innerHTML = '<header>' + brand + body + '<div class="bar"></div></header>' + nav;
-</script>
+<p>L'en-tête sur un écran de 390 px, dans les trois thèmes. <a href="en-tete.html">Vue ordinateur</a>.</p>
+<div class="row">
+  <figure><figcaption>Trail</figcaption><iframe src="en-tete.html?t=trail" title="Trail"></iframe></figure>
+  <figure><figcaption>Route</figcaption><iframe src="en-tete.html?t=route" title="Route"></iframe></figure>
+  <figure><figcaption>Essai</figcaption><iframe src="en-tete.html?t=test" title="Essai"></iframe></figure>
+</div>
 </body>
 </html>

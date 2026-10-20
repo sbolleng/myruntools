@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<title>Préférences · MyRunTools</title>
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+</head>
+<body>
+<main>
+  <div class="card">
+    <h2>Préférences utilisateur</h2>
+    <p class="muted">Page à venir : thème, modules du menu et leur ordre, course de l'en-tête, objectif cible, mot de passe.</p>
+  </div>
+</main>
+<script src="donnees/demo.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script>renderEnTete(Object.assign({}, MRT_PROFIL, { courant: 'preferences.html' }));</script>
+</body>
+</html>

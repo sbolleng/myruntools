@@ -142,7 +142,7 @@ Les nouvelles entrées sont saisies à la main.
 | Temps | Minutes et secondes ; heures en plus au-delà d'une heure | 49'18 · 1h56'05 |
 | Allure | Minutes:secondes par kilomètre | 5:24 /km |
 | Vitesse | Kilomètres par heure, une décimale | 11,1 km/h |
-| Classement | Place, suivie de l'effectif quand il est connu | 1 951e · 476e / 873 |
+| Classement | Place, suivie de l'effectif quand il est connu ; première place « 1re » pour une coureuse (sexe renseigné dans le Profil), « 1er » sinon | 1 951e · 476e / 873 · 1re |
 | FC | Battements par minute | 150 bpm |
 
 ## 11. Contrôles
