@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.1 · 20 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.2 · 20 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -57,6 +57,7 @@ Liste fermée, commune à toute l'application : on choisit une valeur, on ne la 
 
 - **Données de la course** : distance et D+ annoncés par l'organisateur ; temps, allure et place saisis par l'utilisateur.
 - **Course sans classement officiel** : la colonne Classement reste vide.
+- **Course non terminée** : « DNF » dans la colonne Temps ; elle n'entre pas dans les records ; au tri par temps, elle se range avec les valeurs vides, en fin de liste.
 - **Données montre** : facultatives, elles servent d'information.
 - **Allure et vitesse** : deux façons d'écrire la même donnée (vitesse en km/h = 3 600 ÷ allure en secondes par km). Quand une seule des deux est renseignée, la page calcule l'autre, en italique, avec la mention « calculée » au survol ; quand les deux le sont, chacune est affichée telle que saisie. Même règle pour l'allure et la vitesse montre. Arrondis : allure à la seconde, vitesse au dixième. Tri et filtres utilisent aussi les valeurs calculées.
 - **Valeur absente** : « — ». En dehors de l'allure et de la vitesse, aucune valeur n'est estimée ni recalculée.
@@ -149,6 +150,7 @@ Les nouvelles entrées sont saisies à la main.
 | Donnée | Format | Exemple |
 | --- | --- | --- |
 | Valeur absente | Tiret | — |
+| Course non terminée | Dans la colonne Temps | DNF |
 | Date | Jour, mois abrégé, année | 4 oct. 2026 |
 | Distance | Kilomètres, une décimale | 21,1 km |
 | D+ | Mètres | 932 m |
@@ -194,3 +196,4 @@ Résultats attendus :
 - Groupé, filtre sur l'année 2025 : 2 courses dans chaque groupe, compteur « 4 courses sur 7 ».
 - Toucher l'intertitre Trail : ses lignes disparaissent, l'intertitre reste ; le toucher à nouveau les fait revenir.
 - Recharger la page : le regroupement est toujours actif. Le désactiver : retour à la vue globale, colonne Type comprise.
+- Une course marquée non terminée affiche « DNF » dans Temps, sans 🥇, et se range en fin de liste au tri par temps.

@@ -1,8 +1,8 @@
 # Modèle de données
 
-Brouillon v0.1 · 20 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.2 · 20 octobre 2026 · [Retour au sommaire](README.md)
 
-Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) ; les autres modules ajouteront leurs tables quand ils seront spécifiés.
+Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) ; les autres modules (chaussures, nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
 ## 1. Principes
 
@@ -45,7 +45,7 @@ Poids et date de naissance sont des données de santé ou d'identité : elles ne
 | `utilisateur` | Profil concerné | — |
 | `theme` | Bleu et orange, vert et rose, violet et turquoise | Selon la pratique |
 | `modules` | Modules du menu, dans l'ordre choisi | Tous les modules construits |
-| `course_entete` | Course affichée dans l'en-tête | La prochaine course marquée « objectif » |
+| `course_entete` | Course affichée dans l'en-tête ; son champ `objectif` alimente l'indicateur « Objectif » | La prochaine course marquée « objectif » |
 | `palmares_colonnes` | Colonnes affichées dans le Palmarès | Colonnes par défaut |
 | `palmares_groupe` | Regroupement par type activé ou non | Non |
 
@@ -78,7 +78,9 @@ Durées (`temps`, `allure`, `montre_temps`, `montre_allure`, `objectif` quand c'
 | Horizon | Objectif | Échéance lointaine |
 | Objectif | Objectif | Course finale |
 | Courue | Palmarès | Course faite, avec son résultat |
+| Courue, non terminée | Palmarès | Course abandonnée en route : « DNF » dans la colonne Temps |
 | Abandonnée | Aucune | Course retirée du plan, gardée pour mémoire |
+| À surveiller | Courses à surveiller | Envie de course, pas encore dans le plan (module à venir) ; passe à « Confirmée » le jour où elle y entre |
 
 Cocher une course comme faite la fait passer au statut « Courue » : elle quitte la page Objectif et rejoint le Palmarès (spécification du Palmarès, § 10).
 

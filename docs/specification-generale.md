@@ -59,7 +59,7 @@ L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pou
 | Distance | Distance officielle de la course objectif | Course objectif |
 | D+ | Dénivelé positif officiel ; indicateur affiché seulement pour un trail | Course objectif |
 | Date | Date de la course objectif | Course objectif |
-| Objectif | Texte libre (« Finisher », « Moins de 4 h »…) | Préférences utilisateur |
+| Objectif | Temps visé ou intention (« Finisher », « Moins de 4 h »…) | Champ « objectif » de la course de l'en-tête, saisi sur la page Objectif |
 | D'ici là | Nombre de courses prévues avant l'objectif | Calculé : nombre de blocs de course de la page Objectif |
 
 ### Formats
@@ -120,7 +120,6 @@ Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les ré
 | Thème | Couleurs du site (§ 6) |
 | Modules | Modules affichés dans le menu, et leur ordre |
 | Course de l'en-tête | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) |
-| Objectif | Texte libre de l'indicateur « Objectif » |
 | Mot de passe | Changement du mot de passe du compte |
 
 La page sera construite avec la base de données ; d'ici là, ces réglages sont écrits en dur.
