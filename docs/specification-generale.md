@@ -45,10 +45,10 @@ L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pou
 | Élément | Règle |
 | --- | --- |
 | Titre | « Objectif » sur une ligne, puis le nom officiel de la course objectif, en couleur d'accent, sur la ligne suivante |
-| Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, D+ (trail seulement), Date, D'ici là, Objectif cible |
+| Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, D+ (trail seulement), Date, Objectif cible, D'ici là |
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde |
 | Prochaine course | Sous le compte à rebours : « prochaine course · nom · J-n » |
-| Nom de l'application | « MyRunTools », en petites capitales, tout en haut à droite |
+| Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
 | Engrenage ⚙️ | À droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |
 
@@ -59,8 +59,8 @@ L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pou
 | Distance | Distance officielle de la course objectif | Course objectif |
 | D+ | Dénivelé positif officiel ; indicateur affiché seulement pour un trail | Course objectif |
 | Date | Date de la course objectif | Course objectif |
-| D'ici là | Nombre de courses prévues avant l'objectif | Calculé : nombre de blocs de course de la page Objectif |
 | Objectif cible | Texte libre (« Finisher », « Moins de 4 h »…) | Préférences utilisateur |
+| D'ici là | Nombre de courses prévues avant l'objectif | Calculé : nombre de blocs de course de la page Objectif |
 
 ### Formats
 
@@ -161,7 +161,7 @@ Jeu d'essai : un objectif de trail, « Trail des Crêtes », 60 km, 3 500 m D+, 
 Résultats attendus :
 
 - Titre : « Objectif » puis « Trail des Crêtes » en couleur d'accent.
-- Indicateurs, dans l'ordre : « 60 km » Distance, « 3 500 m » D+, « août 2029 » Date, « 12 courses » D'ici là, « Finisher » Objectif cible.
+- Indicateurs, dans l'ordre : « 60 km » Distance, « 3 500 m » D+, « août 2029 » Date, « Finisher » Objectif cible, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Ligne sous le compteur : « prochaine course · Trail du Lac · J-26 ».
 - Même objectif passé en route (42,195 km, sans D+) : l'indicateur D+ disparaît, Distance affiche « 42,195 km ».

@@ -57,20 +57,21 @@
       ['Distance', o.distance != null ? nf.format(o.distance) + ' km' : dash],
       o.dplus != null ? ['D+', nf.format(o.dplus) + ' m'] : null, // trail seulement
       ['Date', o.date ? fmtDate(o.date) : dash],
-      ["D'ici là", o.dIciLa != null ? o.dIciLa + (o.dIciLa > 1 ? ' courses' : ' course') : dash],
-      ['Objectif cible', o.cible || dash]
+      ['Objectif cible', o.cible || dash],
+      ["D'ici là", o.dIciLa != null ? o.dIciLa + (o.dIciLa > 1 ? ' courses' : ' course') : dash]
     ].filter(Boolean);
 
     const header = document.createElement('header');
     header.className = 'mrt-header';
     header.innerHTML =
-      '<div class="mrt-brand"><a href="' + withTheme('index.html') + '">MyRunTools</a>' +
-        '<a class="mrt-gear" href="' + withTheme('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
       '<div class="mrt-grid">' +
         '<h1>Objectif<em>' + esc(o.nom || dash) + '</em></h1>' +
         '<div class="mrt-stats">' + stats.map(s =>
           '<div class="mrt-stat"><span class="mrt-stat-val">' + esc(s[1]) + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
-        '<div class="mrt-count"><span class="mrt-days">—</span><span class="mrt-days-label">jours</span>' +
+        '<div class="mrt-count">' +
+          '<div class="mrt-brand"><a href="' + withTheme('index.html') + '">MyRunTools</a>' +
+          '<a class="mrt-gear" href="' + withTheme('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
+          '<span class="mrt-days">—</span><span class="mrt-days-label">jours</span>' +
           '<div class="mrt-hms"></div><div class="mrt-next"></div></div>' +
       '</div>' +
       '<div class="mrt-bar"></div>';
