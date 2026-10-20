@@ -36,6 +36,30 @@ Une application web modulaire pour les coureurs sur piste, sur route et en trail
 
 Chaque module suit le même cycle : spécification, validation, modèle de données si besoin, construction, contrôles, mise en ligne. Maquette seulement à la demande.
 
+## À faire
+
+Points en attente, par sujet. Une ligne cochée quand c'est fait.
+
+### Palmarès
+
+- [ ] Valider le tableau récapitulatif des courses de test : noms officiels, distances et D+ officiels.
+- [ ] Ekiden (30 mai 2026) et La Bressolaise (11 mai 2025) : réponses attendues (nom, ville, type, D+, données montre), puis ajout au jeu de test.
+- [ ] Place 1 au classement : afficher « 1re » plutôt que « 1er » quand le classement concerne les femmes ?
+
+### Préférences utilisateur (page à créer, plus tard)
+
+- [ ] Créer la page, ouverte par l'engrenage de l'en-tête.
+- [ ] Choix des couleurs parmi les thèmes proposés.
+- [ ] État civil, poids, taille, pointure, chaussures.
+- [ ] Changement de mot de passe.
+- [ ] Choix de la course affichée dans le titre de l'en-tête (écrite en dur en attendant).
+- [ ] Champ libre « objectif cible » de l'en-tête (écrit en dur en attendant).
+
+### Objectif
+
+- [ ] Spécifier les blocs de la page Objectif : l'indicateur « d'ici là » de l'en-tête en compte le nombre.
+- [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (écrite en dur en attendant).
+
 ## Journal des décisions
 
 La plus récente en haut.
