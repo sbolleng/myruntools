@@ -38,7 +38,7 @@ Règles transverses :
 
 ## 4. En-tête
 
-L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pour l'en-tête, dans les Préférences utilisateur ou en la marquant sur la page Objectif ; ses chiffres clés et le temps qui reste.
+L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les Préférences utilisateur ou depuis la page Objectif, par défaut la dernière de la page Objectif (la plus lointaine à venir) ; ses chiffres clés et le temps qui reste. Si cette course est courue ou abandonnée, l'en-tête revient au cap par défaut.
 
 ### Contenu
 
@@ -119,7 +119,7 @@ Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les ré
 | --- | --- |
 | Thème | Couleurs du site (§ 6) |
 | Modules | Modules affichés dans le menu, et leur ordre |
-| Course de l'en-tête | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) |
+| Cap | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) ; par défaut la plus lointaine |
 | Mot de passe | Changement du mot de passe du compte |
 
 La page sera construite avec la base de données ; d'ici là, ces réglages sont écrits en dur.
