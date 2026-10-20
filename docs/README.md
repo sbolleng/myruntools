@@ -103,6 +103,9 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 oct. 2026 | Modèle de données | Version 0.2 validée : une seule table `courses` (prévue puis courue), profils, préférences, candidats, points de passage, repères, listes de référence ; règles par ligne. Statuts « Courue, non terminée » (DNF), « Abandonnée » et, plus tard, « À surveiller ». Chaussures, nutrition et séances viendront avec leur module. |
+| 20 oct. 2026 | En-tête | L'indicateur « Objectif » reprend l'objectif de la course de l'en-tête ; plus de champ libre dans les Préférences. |
+| 20 oct. 2026 | Palmarès | Course non terminée : « DNF » dans la colonne Temps, hors records (spécification 1.2). |
 | 20 oct. 2026 | En-tête | Titre « Cap sur » ; l'indicateur « Objectif cible » devient « Objectif » ; en-tête remonté. |
 | 20 oct. 2026 | Palmarès | Interrupteur « Grouper par type » (spécification 1.1) : un groupe par type avec intertitre repliable, tri dans chaque groupe, colonne Type masquée ; dernier choix retenu. |
 | 20 oct. 2026 | Documentation | La section « À faire » du README devient la todo globale : tout ce qui reste à faire y est noté, ce qui est fait en disparaît. |
