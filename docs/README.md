@@ -10,8 +10,9 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | --- | --- | --- |
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, thèmes, modules, préférences utilisateur, données | Version 0.2 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête et du menu | Version 0.1 |
+| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, ce qui est calculé | Version 0.2 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.1 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.2 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -43,8 +44,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Prochaines étapes
 
-- [ ] Étape 2 de la feuille de route : modèle de données.
-- [ ] Étape 3 : Supabase, deux comptes créés à la main, import des données des anciens sites.
+- [ ] Étape 3 : créer le projet Supabase (par toi, guidé pas à pas), puis les tables et règles du modèle de données, les deux comptes, et l'import des données des anciens sites.
 - [ ] Socle, suite : connexion et profils, une fois Supabase en place.
 
 ### Préférences utilisateur (page à créer)
@@ -53,7 +53,6 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Choix du thème parmi ceux proposés.
 - [ ] Changement de mot de passe.
 - [ ] Choix de la course affichée dans le titre de l'en-tête (écrite en dur en attendant).
-- [ ] Champ libre de l'indicateur « Objectif » de l'en-tête (écrit en dur en attendant).
 - [ ] Choix des modules affichés dans le menu, et de leur ordre.
 
 ### Profil et Matériel
