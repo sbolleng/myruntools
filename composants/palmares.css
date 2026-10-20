@@ -124,3 +124,43 @@
 @media (max-width: 600px) {
   .pv2-panel { grid-template-columns: 1fr; }
 }
+
+/* Regroupement par type : interrupteur et intertitres de groupe */
+.pv2-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+}
+.pv2-toggle::before { content: ''; width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 1.5px solid currentColor; }
+.pv2-toggle:hover { color: var(--text); }
+.pv2-toggle[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.pv2-toggle[aria-pressed="true"]::before { background: currentColor; }
+.pv2-table tr.pv2-group-row th { text-align: left; padding: 1rem 0 0.35rem; border-bottom: 1px solid var(--accent); }
+.pv2-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.pv2-group .pv2-chev { transition: transform 0.15s; }
+.pv2-group[aria-expanded="false"] .pv2-chev { transform: rotate(-90deg); }
+.pv2-table tbody tr.pv2-group-row:first-child th { padding-top: 0.4rem; }

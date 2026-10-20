@@ -11,7 +11,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, thèmes, modules, préférences utilisateur, données | Version 0.2 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête et du menu | Version 0.1 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, édition | Version 1.0 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.1 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -43,7 +43,6 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Prochaines étapes
 
-- [ ] Palmarès : option « Grouper par type » (solution B) ; spécification 1.1 à valider, puis construction.
 - [ ] Étape 2 de la feuille de route : modèle de données.
 - [ ] Étape 3 : Supabase, deux comptes créés à la main, import des données des anciens sites.
 - [ ] Socle, suite : connexion et profils, une fois Supabase en place.
@@ -106,7 +105,7 @@ La plus récente en haut.
 | Date | Sujet | Décision |
 | --- | --- | --- |
 | 20 oct. 2026 | En-tête | Titre « Cap sur » ; l'indicateur « Objectif cible » devient « Objectif » ; en-tête remonté. |
-| 20 oct. 2026 | Palmarès | Regroupement par type retenu : option « Grouper par type » dans la vue globale (solution B), spécification à rédiger. |
+| 20 oct. 2026 | Palmarès | Interrupteur « Grouper par type » (spécification 1.1) : un groupe par type avec intertitre repliable, tri dans chaque groupe, colonne Type masquée ; dernier choix retenu. |
 | 20 oct. 2026 | Documentation | La section « À faire » du README devient la todo globale : tout ce qui reste à faire y est noté, ce qui est fait en disparaît. |
 | 20 oct. 2026 | En-tête | « MyRunTools » aligné sur le haut de « Objectif », compte à rebours dessous ; Objectif cible avant D'ici là. |
 | 20 oct. 2026 | Socle | En-tête et menu en composant partagé (`composants/en-tete.*`), thème par `?t=trail`, `?t=route` ou `?t=test` ; profil de démonstration en dur dans `donnees/demo.js` ; modules pas encore construits grisés dans le menu ; page Préférences en attente. |

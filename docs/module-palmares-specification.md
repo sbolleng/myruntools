@@ -1,12 +1,12 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.0 · 20 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.1 · 20 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
 Le Palmarès liste les courses déjà courues par l'utilisateur, avec leurs résultats. Il sert à retrouver une course, à comparer ses résultats et à repérer ses records.
 
-- **Deux temps** : d'abord la consultation (tri, filtres, choix des colonnes) ; puis, quand la base de données sera en place, l'édition (§ 9).
+- **Deux temps** : d'abord la consultation (tri, filtres, regroupement par type, choix des colonnes) ; puis, quand la base de données sera en place, l'édition (§ 10).
 - **Hors périmètre** : la présentation visuelle (document séparé) ; l'import automatique de données (montre, applications de sport).
 
 ## 2. Colonnes
@@ -24,7 +24,7 @@ Affichées par défaut, de gauche à droite :
 | 7 | Temps | Temps réalisé | Durée |
 | 8 | Allure | Allure moyenne, par km | Durée |
 
-Facultatives, affichées à la demande depuis le bouton « + » (§ 8) :
+Facultatives, affichées à la demande depuis le bouton « + » (§ 9) :
 
 | # | Colonne | Contenu | Saisie |
 | --- | --- | --- | --- |
@@ -110,9 +110,22 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 - Une course sans valeur dans une colonne filtrée est écartée.
 - Le tri s'applique aux courses filtrées.
 - Masquer une colonne retire son filtre.
-- Tri et filtres ne sont pas gardés en mémoire : chaque ouverture revient à la vue par défaut.
+- Tri et filtres ne sont pas gardés en mémoire : chaque ouverture revient à la vue par défaut (seul le regroupement est retenu, § 8).
 
-## 8. Plus d'infos : choix des colonnes
+## 8. Regroupement par type
+
+Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
+
+- Un interrupteur « Grouper par type », à côté du bouton « Filtres ». Désactivé : la vue globale, un seul tableau.
+- Activé : le tableau est découpé en groupes, un par type présent, dans l'ordre de la liste de référence (§ 3). Chaque groupe s'ouvre par un intertitre sur toute la largeur, « Trail · 4 courses » ; le toucher replie ou déplie le groupe.
+- Un seul tableau : les colonnes restent alignées d'un groupe à l'autre.
+- **Tri** : à l'intérieur de chaque groupe ; les groupes gardent l'ordre de référence.
+- **Filtres** : appliqués à tous les groupes ; un groupe vide est masqué ; le compteur reste global (« 4 courses sur 7 »).
+- **Colonne Type** : masquée tant que le regroupement est actif, redondante avec les intertitres ; elle revient quand on le désactive. Son filtre reste disponible.
+- **Records 🥇** : inchangés.
+- **Mémoire** : le dernier choix (groupé ou non) est retenu d'une visite à l'autre, sur l'appareil en attendant la base de données, puis dans le compte.
+
+## 9. Plus d'infos : choix des colonnes
 
 - Un bouton « + », en bout de ligne d'en-tête, ouvre la liste de toutes les colonnes (§ 2), chacune avec une case à cocher ; il devient « − » tant que la liste est ouverte.
 - Au départ, les colonnes affichées par défaut sont cochées, les facultatives décochées.
@@ -120,7 +133,7 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 - Cocher une colonne l'affiche, la décocher la masque. Masquer une colonne retire son filtre et, si elle était triée, ramène le tri par date.
 - Avec la base de données, le choix de chaque utilisateur est retenu d'une visite à l'autre.
 
-## 9. Édition (avec la base de données)
+## 10. Édition (avec la base de données)
 
 Les nouvelles entrées sont saisies à la main.
 
@@ -131,7 +144,7 @@ Les nouvelles entrées sont saisies à la main.
 - **Contrôles de saisie** : seules les sous-catégories du type choisi sont proposées ; durées au format h:mm:ss ou mm:ss ; nombres positifs.
 - **Depuis la page Objectif** : cocher une course comme faite ouvre une fenêtre qui invite à remplir sa fiche. Les champs que la page Objectif connaît déjà (date, nom, distance, D+…) sont pré-remplis. À l'enregistrement, la course rejoint le Palmarès et quitte la page Objectif.
 
-## 10. Formats
+## 11. Formats
 
 | Donnée | Format | Exemple |
 | --- | --- | --- |
@@ -145,7 +158,7 @@ Les nouvelles entrées sont saisies à la main.
 | Classement | Place, suivie de l'effectif quand il est connu ; première place « 1re » pour une coureuse (sexe renseigné dans le Profil), « 1er » sinon | 1 951e · 476e / 873 · 1re |
 | FC | Battements par minute | 150 bpm |
 
-## 11. Contrôles
+## 12. Contrôles
 
 Jeu d'essai de sept courses :
 
@@ -176,3 +189,8 @@ Résultats attendus :
 - Décocher D+ dans la liste des colonnes : la colonne disparaît ; la recocher : elle revient. Date et Course n'ont pas de case à décocher.
 - Colonne Vitesse affichée : 11,1 km/h en italique pour le semi-marathon de Sète, calculée depuis 5:24 /km ; 12,2 km/h pour le 10 km de Montauban 2026, calculée depuis 4:55 /km.
 - Un classement saisi 476 sur 873 s'affiche « 476e / 873 » et se trie comme 476.
+- « Grouper par type » activé : intertitre « Course sur route · 4 courses », puis « Trail · 3 courses » ; la colonne Type disparaît.
+- Groupé, tri par temps : groupe route 49'18, 51'46, 1h53'12, 1h56'05 ; groupe trail 1h04'24, 2h02'30, 3h00'23.
+- Groupé, filtre sur l'année 2025 : 2 courses dans chaque groupe, compteur « 4 courses sur 7 ».
+- Toucher l'intertitre Trail : ses lignes disparaissent, l'intertitre reste ; le toucher à nouveau les fait revenir.
+- Recharger la page : le regroupement est toujours actif. Le désactiver : retour à la vue globale, colonne Type comprise.

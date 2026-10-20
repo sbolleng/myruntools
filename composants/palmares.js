@@ -3,8 +3,8 @@
 // Composant partagé, en prototype. renderPalmares(élément, config) dessine le
 // tableau décrit par docs/module-palmares-specification.md, partie consultation :
 // tri en touchant l'en-tête d'une colonne, panneau de filtres repliable,
-// colonnes facultatives (bouton « + ») et records 🥇 calculés. L'édition
-// viendra avec la base de données.
+// regroupement par type, colonnes facultatives (bouton « + ») et records 🥇
+// calculés. L'édition viendra avec la base de données.
 //
 // config.races : une course = { date: 'AAAA-MM-JJ', course, type, sub } avec,
 //   quand on les connaît : dist (km), dplus (m), time (temps réalisé, 'h:mm:ss'
@@ -184,6 +184,11 @@
     return (f.min == null || val >= f.min) && (f.max == null || val <= f.max);
   }
 
+  // Dernier choix de regroupement, gardé sur l'appareil en attendant la base.
+  const GROUP_KEY = 'mrt-palmares-groupe';
+  function readGroup() { try { return localStorage.getItem(GROUP_KEY) === '1'; } catch (e) { return false; } }
+  function saveGroup(on) { try { localStorage.setItem(GROUP_KEY, on ? '1' : '0'); } catch (e) { /* stockage indisponible */ } }
+
   window.renderPalmares = function (root, cfg) {
     const uid = root.id || 'pv2';
     firstPlace = cfg.feminin ? '1re' : '1er';
@@ -194,9 +199,14 @@
     const state = {
       shown: new Set(COLUMNS.filter(c => !c.optional).map(c => c.key)),
       sort: { key: 'date', dir: 'desc' },
-      filters: {}
+      filters: {},
+      group: readGroup(), // regroupement par type, retenu d'une visite à l'autre
+      folded: new Set()   // groupes repliés
     };
     const shownCols = () => COLUMNS.filter(c => state.shown.has(c.key));
+    // Colonnes du tableau : groupé, la colonne Type est redondante avec les
+    // intertitres ; elle reste filtrable.
+    const tableCols = () => shownCols().filter(c => !(state.group && c.key === 'type'));
     const colOf = key => COLUMNS.find(c => c.key === key);
 
     function compare(a, b) {
@@ -230,6 +240,7 @@
       '<div class="pv2-bar">' +
         '<button type="button" class="pv2-btn" data-act="filters" aria-expanded="false" aria-controls="' + uid + '-filters">' +
           FUNNEL + '<span class="pv2-btn-label">Filtres</span>' + CHEVRON + '</button>' +
+        '<button type="button" class="pv2-toggle" data-act="group" aria-pressed="false">Grouper par type</button>' +
         '<span class="pv2-count" aria-live="polite"></span>' +
         '<button type="button" class="pv2-clear" data-act="clear" hidden>Effacer les filtres</button>' +
       '</div>' +
@@ -277,7 +288,7 @@
     }
 
     function renderTable() {
-      const cols = shownCols();
+      const cols = tableCols();
       const list = visibleRows();
       const focused = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.sort;
 
@@ -292,14 +303,31 @@
       }).join('') +
         '<th class="pv2-more-cell"><button type="button" class="pv2-more" data-act="cols" aria-expanded="' + !colsPanel.hidden + '" aria-controls="' + uid + '-cols" aria-label="Plus d\'infos : choix des colonnes" title="Plus d\'infos">' + (colsPanel.hidden ? '+' : '−') + '</button></th></tr>';
 
-      $('tbody').innerHTML = list.length ? list.map(r => '<tr>' + cols.map(c => {
+      const line = r => '<tr>' + cols.map(c => {
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
         const cls = c.kind === 'text' ? ' class="pv2-t"' : c.kind === 'choice' ? '' : ' class="pv2-n"';
         return '<td' + cls + '>' + fmtCell(c, r.v[c.key], r) + rec + '</td>';
-      }).join('') + '<td class="pv2-pad"></td></tr>').join('')
-        : '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">Aucune course ne correspond aux filtres.</td></tr>';
+      }).join('') + '<td class="pv2-pad"></td></tr>';
+      let body;
+      if (!list.length) body = '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">Aucune course ne correspond aux filtres.</td></tr>';
+      else if (!state.group) body = list.map(line).join('');
+      else {
+        // Un groupe par type présent, dans l'ordre de la liste de référence ;
+        // le tri s'applique à l'intérieur de chaque groupe.
+        const types = Array.from(new Set(list.map(r => r.v.type)));
+        const rank = t => { const i = Object.keys(TYPES).indexOf(t); return i === -1 ? Infinity : i; };
+        types.sort((a, b) => rank(a) - rank(b) || collator.compare(String(a), String(b)));
+        body = types.map(t => {
+          const items = list.filter(r => r.v.type === t), open = !state.folded.has(String(t));
+          return '<tr class="pv2-group-row"><th colspan="' + (cols.length + 1) + '"><button type="button" class="pv2-group" data-group="' + esc(t) + '" aria-expanded="' + open + '">' +
+            CHEVRON + esc(t == null ? 'Sans type' : t) + ' · ' + items.length + (items.length > 1 ? ' courses' : ' course') + '</button></th></tr>' +
+            (open ? items.map(line).join('') : '');
+        }).join('');
+      }
+      $('tbody').innerHTML = body;
+      $('[data-act="group"]').setAttribute('aria-pressed', String(state.group));
 
-      const n = cols.filter(c => isActive(c, state.filters[c.key])).length;
+      const n = shownCols().filter(c => isActive(c, state.filters[c.key])).length;
       $('.pv2-count').textContent = list.length + (list.length > 1 ? ' courses' : ' course') + ' sur ' + total;
       $('.pv2-btn-label').textContent = n ? 'Filtres · ' + n : 'Filtres';
       $('.pv2-btn').classList.toggle('is-on', n > 0);
@@ -349,12 +377,26 @@
         renderTable();
         return;
       }
+      const grp = e.target.closest('[data-group]');
+      if (grp) {
+        const t = grp.dataset.group;
+        if (state.folded.has(t)) state.folded.delete(t); else state.folded.add(t);
+        renderTable();
+        root.querySelector('[data-group="' + CSS.escape(t) + '"]').focus();
+        return;
+      }
       const act = e.target.closest('[data-act]');
       if (!act) return;
       if (act.dataset.act === 'filters') setPanel(panel.hidden);
       if (act.dataset.act === 'filters-close') { setPanel(false); $('.pv2-btn').focus(); }
       if (act.dataset.act === 'cols') setCols(colsPanel.hidden);
       if (act.dataset.act === 'clear') { state.filters = {}; renderPanel(); renderTable(); }
+      if (act.dataset.act === 'group') {
+        state.group = !state.group;
+        if (state.group && state.sort.key === 'type') state.sort = { key: 'date', dir: 'desc' };
+        saveGroup(state.group);
+        renderTable();
+      }
     });
 
     function onFilter(e) {
