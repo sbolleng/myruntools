@@ -33,12 +33,12 @@ Règles transverses :
 
 - **Priorité au téléphone** : la mise en page est conçue d'abord pour un écran de 390 px de large, puis élargie. Seuil de bascule téléphone / ordinateur : 600 px.
 - **Rechargement automatique** : quand une nouvelle version du site est en ligne, la page se recharge d'elle-même, une seule fois par version (utile sur iPhone, qui garde les pages en cache).
-- **Fonctions avancées actives par défaut** : une brique dynamique (suivi en course, météo, graphique) s'affiche dès que les données nécessaires existent, sans réglage.
+- **Affichage automatique** : un bloc qui dépend de données (météo, suivi en course, graphique) apparaît de lui-même dès que ces données existent ; l'utilisateur n'a rien à activer. Chaque bloc est décrit dans la spécification de son module.
 - **Aucune donnée inventée** : un champ sans valeur n'est pas affiché, ou affiche « — ».
 
 ## 4. En-tête
 
-L'en-tête présente l'objectif de l'utilisateur : la course qu'il prépare, ses chiffres clés et le temps qui reste.
+L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pour l'en-tête, dans les Préférences utilisateur ou en la marquant sur la page Objectif ; ses chiffres clés et le temps qui reste.
 
 ### Contenu
 
@@ -81,7 +81,7 @@ L'en-tête présente l'objectif de l'utilisateur : la course qu'il prépare, ses
 - Aucune course à venir : la ligne « prochaine course » est masquée.
 - Aucune course avant l'objectif : D'ici là affiche « — ».
 - Objectif passé : le compteur affiche « Course courue » jusqu'à la définition d'un nouvel objectif.
-- Valeur absente (pas d'objectif cible, distance inconnue) : l'indicateur est masqué.
+- Valeur absente (pas d'objectif cible, distance inconnue) : l'indicateur affiche « — ».
 
 ## 5. Menu
 
@@ -119,7 +119,7 @@ Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les ré
 | --- | --- |
 | Thème | Couleurs du site (§ 6) |
 | Modules | Modules affichés dans le menu, et leur ordre |
-| Course objectif | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif |
+| Course de l'en-tête | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) |
 | Objectif cible | Texte libre de l'indicateur « Objectif cible » |
 | Mot de passe | Changement du mot de passe du compte |
 
@@ -167,6 +167,6 @@ Résultats attendus :
 - Même objectif passé en route (42,195 km, sans D+) : l'indicateur D+ disparaît, Distance affiche « 42,195 km ».
 - Date connue au jour près (30 août 2029) : Date affiche « 30 août 2029 », le compteur vise le 30 août.
 - Une seule course avant l'objectif : « 1 course ».
-- Sans objectif cible : l'indicateur est masqué.
+- Sans objectif cible : l'indicateur affiche « — ».
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
 - L'engrenage ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.

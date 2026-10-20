@@ -41,26 +41,42 @@ Chaque module suit le même cycle : spécification, validation, modèle de donn�
 
 Points en attente, par sujet. Une ligne cochée quand c'est fait.
 
+### Socle (en cours)
+
+- [x] Spécification générale 0.2 et document de design 0.1 validés.
+- [ ] Composant partagé en-tête et menu (`composants/en-tete.js` et `.css`), trois thèmes.
+- [ ] Page d'accueil sous l'en-tête et le menu ; Palmarès comme premier module.
+- [ ] Maquettes de l'en-tête mises à jour.
+- [ ] Jeu d'essai de la spécification générale rejoué, puis mise en ligne.
+
 ### Palmarès
 
-- [ ] Valider le tableau récapitulatif des courses de test : noms officiels, distances et D+ officiels.
-- [ ] Ekiden (30 mai 2026) et La Bressolaise (11 mai 2025) : réponses attendues (nom, ville, type, D+, données montre), puis ajout au jeu de test.
+- [x] Distances, D+ et classements officiels du jeu de test ; Ekiden et La Bressolaise ajoutées.
+- [ ] Noms officiels à confirmer : semi de San Sebastián, Forez Trails · L'Olmetoise.
+- [ ] Biscatrail : distance officielle (18 km selon le web, à confirmer).
+- [ ] La Bressolaise, « course nature » : classée Trail · Trail découverte, à confirmer.
+- [ ] Ekiden : relais d'un marathon en équipe ; où ranger le temps de l'équipe (3h37'09) ? Une colonne « Note » ?
 - [ ] Place 1 au classement : afficher « 1re » plutôt que « 1er » quand le classement concerne les femmes ?
 
 ### Préférences utilisateur (page à créer, plus tard)
 
 - [ ] Créer la page, ouverte par l'engrenage de l'en-tête.
 - [ ] Choix des couleurs parmi les thèmes proposés.
-- [ ] État civil, poids, taille, pointure, chaussures.
 - [ ] Changement de mot de passe.
 - [ ] Choix de la course affichée dans le titre de l'en-tête (écrite en dur en attendant).
 - [ ] Champ libre « objectif cible » de l'en-tête (écrit en dur en attendant).
 - [ ] Choix des modules affichés dans le menu, et de leur ordre.
 
+### Profil et Matériel
+
+- [ ] Profil : état civil, poids, taille, pointure.
+- [ ] Matériel : chaussures et leur usure.
+
 ### Objectif
 
 - [ ] Spécifier les blocs de la page Objectif : l'indicateur « d'ici là » de l'en-tête en compte le nombre.
 - [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (écrite en dur en attendant).
+- [ ] Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête.
 
 ## Journal des décisions
 
