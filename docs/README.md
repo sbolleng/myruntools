@@ -10,7 +10,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | --- | --- | --- |
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, thèmes, modules, préférences utilisateur, données | Version 0.2 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête et du menu | Version 0.1 |
-| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, ce qui est calculé | Version 0.2 |
+| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, ce qui est calculé | Version 0.3 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.2 |
 
@@ -103,6 +103,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 oct. 2026 | Modèle de données | Version 0.3 : statut (À surveiller, Option, Confirmée), rôle (Préparatoire, Plaisir, Objectif intermédiaire, Objectif) et état (À venir, Abandonnée, Courue) séparés ; DNF dans le résultat ; groupes d'options à la place d'« À choisir » ; « Horizon » supprimé ; cap choisi dans les Préférences, par défaut la course la plus lointaine ; description (1 000 caractères) et lien d'inscription ; passages et chronos de référence en listes dans la course ; profil avec nom, FC repos et max, VMA, VO2 max, sans historique ; table `equipements`. |
 | 20 oct. 2026 | Modèle de données | Version 0.2 validée : une seule table `courses` (prévue puis courue), profils, préférences, candidats, points de passage, repères, listes de référence ; règles par ligne. Statuts « Courue, non terminée » (DNF), « Abandonnée » et, plus tard, « À surveiller ». Chaussures, nutrition et séances viendront avec leur module. |
 | 20 oct. 2026 | En-tête | L'indicateur « Objectif » reprend l'objectif de la course de l'en-tête ; plus de champ libre dans les Préférences. |
 | 20 oct. 2026 | Palmarès | Course non terminée : « DNF » dans la colonne Temps, hors records (spécification 1.2). |
