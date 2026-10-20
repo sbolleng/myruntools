@@ -44,8 +44,8 @@ L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pou
 
 | Élément | Règle |
 | --- | --- |
-| Titre | « Objectif » sur une ligne, puis le nom officiel de la course objectif, en couleur d'accent, sur la ligne suivante |
-| Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, D+ (trail seulement), Date, Objectif cible, D'ici là |
+| Titre | « Cap sur » sur une ligne, puis le nom officiel de la course objectif, en couleur d'accent, sur la ligne suivante |
+| Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, D+ (trail seulement), Date, Objectif, D'ici là |
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde |
 | Prochaine course | Sous le compte à rebours : « prochaine course · nom · J-n » |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
@@ -59,7 +59,7 @@ L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pou
 | Distance | Distance officielle de la course objectif | Course objectif |
 | D+ | Dénivelé positif officiel ; indicateur affiché seulement pour un trail | Course objectif |
 | Date | Date de la course objectif | Course objectif |
-| Objectif cible | Texte libre (« Finisher », « Moins de 4 h »…) | Préférences utilisateur |
+| Objectif | Texte libre (« Finisher », « Moins de 4 h »…) | Préférences utilisateur |
 | D'ici là | Nombre de courses prévues avant l'objectif | Calculé : nombre de blocs de course de la page Objectif |
 
 ### Formats
@@ -74,14 +74,14 @@ L'en-tête présente l'objectif de l'utilisateur : la course qu'il a choisie pou
 
 - **Compte à rebours** : jusqu'au jour de la course objectif, à minuit. Si seul le mois est connu, jusqu'au premier jour du mois.
 - **Prochaine course** : la première course à venir de la page Objectif.
-- **En attendant les modules concernés** : course objectif, objectif cible et prochaine course sont écrits en dur dans la page de démonstration.
+- **En attendant les modules concernés** : course de l'en-tête, objectif et prochaine course sont écrits en dur dans la page de démonstration.
 
 ### Cas limites
 
 - Aucune course à venir : la ligne « prochaine course » est masquée.
 - Aucune course avant l'objectif : D'ici là affiche « — ».
 - Objectif passé : le compteur affiche « Course courue » jusqu'à la définition d'un nouvel objectif.
-- Valeur absente (pas d'objectif cible, distance inconnue) : l'indicateur affiche « — ».
+- Valeur absente (pas d'objectif renseigné, distance inconnue) : l'indicateur affiche « — ».
 
 ## 5. Menu
 
@@ -120,7 +120,7 @@ Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les ré
 | Thème | Couleurs du site (§ 6) |
 | Modules | Modules affichés dans le menu, et leur ordre |
 | Course de l'en-tête | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) |
-| Objectif cible | Texte libre de l'indicateur « Objectif cible » |
+| Objectif | Texte libre de l'indicateur « Objectif » |
 | Mot de passe | Changement du mot de passe du compte |
 
 La page sera construite avec la base de données ; d'ici là, ces réglages sont écrits en dur.
@@ -156,17 +156,17 @@ La page sera construite avec la base de données ; d'ici là, ces réglages sont
 
 ## 12. Contrôles
 
-Jeu d'essai : un objectif de trail, « Trail des Crêtes », 60 km, 3 500 m D+, en août 2029, jour inconnu ; 12 courses avant lui ; objectif cible « Finisher » ; prochaine course « Trail du Lac » le 15 novembre 2026 ; date du jour : 20 octobre 2026.
+Jeu d'essai : un objectif de trail, « Trail des Crêtes », 60 km, 3 500 m D+, en août 2029, jour inconnu ; 12 courses avant lui ; objectif « Finisher » ; prochaine course « Trail du Lac » le 15 novembre 2026 ; date du jour : 20 octobre 2026.
 
 Résultats attendus :
 
-- Titre : « Objectif » puis « Trail des Crêtes » en couleur d'accent.
-- Indicateurs, dans l'ordre : « 60 km » Distance, « 3 500 m » D+, « août 2029 » Date, « Finisher » Objectif cible, « 12 courses » D'ici là.
+- Titre : « Cap sur » puis « Trail des Crêtes » en couleur d'accent.
+- Indicateurs, dans l'ordre : « 60 km » Distance, « 3 500 m » D+, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Ligne sous le compteur : « prochaine course · Trail du Lac · J-26 ».
 - Même objectif passé en route (42,195 km, sans D+) : l'indicateur D+ disparaît, Distance affiche « 42,195 km ».
 - Date connue au jour près (30 août 2029) : Date affiche « 30 août 2029 », le compteur vise le 30 août.
 - Une seule course avant l'objectif : « 1 course ».
-- Sans objectif cible : l'indicateur affiche « — ».
+- Sans objectif renseigné : l'indicateur Objectif affiche « — ».
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
 - L'engrenage ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.

@@ -39,29 +39,22 @@ Chaque module suit le même cycle : spécification, validation, modèle de donn�
 
 ## À faire
 
-Points en attente, par sujet. Une ligne cochée quand c'est fait.
+Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne terminée disparaît (la trace reste dans le journal).
 
-### Socle (en cours)
+### Prochaines étapes
 
-- [x] Spécification générale 0.2 et document de design 0.1 validés.
-- [x] Composant partagé en-tête et menu (`composants/en-tete.js` et `.css`), trois thèmes.
-- [x] Page d'accueil sous l'en-tête et le menu ; Palmarès comme premier module ; page Préférences en attente.
-- [x] Maquettes de l'en-tête mises à jour.
-- [x] Jeu d'essai de la spécification générale rejoué, puis mise en ligne.
+- [ ] Palmarès : option « Grouper par type » (solution B) ; spécification 1.1 à valider, puis construction.
+- [ ] Étape 2 de la feuille de route : modèle de données.
+- [ ] Étape 3 : Supabase, deux comptes créés à la main, import des données des anciens sites.
+- [ ] Socle, suite : connexion et profils, une fois Supabase en place.
 
-### Palmarès
-
-- [x] Distances, D+ et classements officiels du jeu de test ; Ekiden et La Bressolaise ajoutées.
-- [x] Noms officiels, distance de Biscatrail, type de La Bressolaise confirmés ; temps d'équipe de l'Ekiden non retenu.
-- [x] Première place « 1re » pour une coureuse.
-
-### Préférences utilisateur (page à créer, plus tard)
+### Préférences utilisateur (page à créer)
 
 - [ ] Créer la page, ouverte par l'engrenage de l'en-tête.
-- [ ] Choix des couleurs parmi les thèmes proposés.
+- [ ] Choix du thème parmi ceux proposés.
 - [ ] Changement de mot de passe.
 - [ ] Choix de la course affichée dans le titre de l'en-tête (écrite en dur en attendant).
-- [ ] Champ libre « objectif cible » de l'en-tête (écrit en dur en attendant).
+- [ ] Champ libre de l'indicateur « Objectif » de l'en-tête (écrit en dur en attendant).
 - [ ] Choix des modules affichés dans le menu, et de leur ordre.
 
 ### Profil et Matériel
@@ -71,9 +64,40 @@ Points en attente, par sujet. Une ligne cochée quand c'est fait.
 
 ### Objectif
 
-- [ ] Spécifier les blocs de la page Objectif : l'indicateur « d'ici là » de l'en-tête en compte le nombre.
+- [ ] Spécifier les blocs de la page Objectif : l'indicateur « D'ici là » de l'en-tête en compte le nombre.
 - [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (écrite en dur en attendant).
 - [ ] Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête.
+
+## Questions ouvertes
+
+- [ ] **Piste** : couverte dès le lancement, ou plus tard faute de profil pilote ?
+- [ ] **Calculatrice** : liste des calculs à valider ; livraison anticipée possible, car elle ne dépend d'aucune donnée.
+- [ ] **Ravitaillement en course** : repères de référence (glucides et eau par heure).
+- [ ] **Matériel** et **Logistique** : périmètre de chaque module.
+- [ ] **Renforcement musculaire** : module dédié, ou intégré à Profil ou à Cette semaine ?
+- [ ] **Types de course** proposés dans l'en-tête : Trail court, Trail, Trail long, Ultra, Marathon, Semi-marathon, 10 km, Piste. Liste complète ?
+
+## Idées de modules
+
+Idées notées pour plus tard, sans jalon.
+
+### Calendrier annuel des courses (idée du 5 oct. 2026)
+
+Une vue de l'année d'un seul tenant, pour voir le planning en un coup d'œil, pas un simple récapitulatif.
+
+- Les 12 mois visibles ensemble, un petit carré par jour.
+- Chaque course est un carré de couleur vive à sa date (par exemple rouge ; l'objectif plus marqué).
+- Un liseré part de chaque course et remonte dans le temps sur la durée de sa préparation : deux liserés qui se superposent signalent deux préparations qui se chevauchent.
+- Les jours sans course ni liseré font apparaître les plages libres pour la récupération et la préparation.
+- Construit à partir de la même liste de courses que la page Objectif, sans double saisie.
+- **Prototype en ligne** depuis le 13 oct. 2026 sur l'ancien site du profil route, onglet Planning (composant `composants/planning.js`), avec des durées provisoires et deux vues : 12 mois glissants, ou jusqu'à l'objectif.
+
+À trancher le moment venu :
+
+- [ ] Durée de préparation : fixée par type de course, ou saisie course par course ?
+- [ ] Liseré de récupération après chaque course, d'une autre couleur ?
+- [ ] Période affichée : année civile, ou 12 mois glissants ?
+- [ ] Module à part (« Calendrier »), ou bloc de la page Objectif ?
 
 ## Journal des décisions
 
@@ -81,6 +105,9 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 oct. 2026 | En-tête | Titre « Cap sur » ; l'indicateur « Objectif cible » devient « Objectif » ; en-tête remonté. |
+| 20 oct. 2026 | Palmarès | Regroupement par type retenu : option « Grouper par type » dans la vue globale (solution B), spécification à rédiger. |
+| 20 oct. 2026 | Documentation | La section « À faire » du README devient la todo globale : tout ce qui reste à faire y est noté, ce qui est fait en disparaît. |
 | 20 oct. 2026 | En-tête | « MyRunTools » aligné sur le haut de « Objectif », compte à rebours dessous ; Objectif cible avant D'ici là. |
 | 20 oct. 2026 | Socle | En-tête et menu en composant partagé (`composants/en-tete.*`), thème par `?t=trail`, `?t=route` ou `?t=test` ; profil de démonstration en dur dans `donnees/demo.js` ; modules pas encore construits grisés dans le menu ; page Préférences en attente. |
 | 20 oct. 2026 | Palmarès | Première place « 1re » pour une coureuse. |
@@ -111,34 +138,3 @@ La plus récente en haut.
 | 3 oct. 2026 | Thèmes | Trail en bleu et orange, route en vert et rose. |
 | 3 oct. 2026 | Vision | Application modulaire, activation des modules par utilisateur ; deux profils pilotes, ouverture possible ; application web, sans installation. |
 | Oct. 2026 | Données | Supabase retenu ; trois automatisations prioritaires : import Strava, bilan hebdomadaire, suivi du plan nutritionnel. |
-
-## Idées de modules
-
-Idées notées pour plus tard, sans jalon.
-
-### Calendrier annuel des courses (idée du 5 oct. 2026)
-
-Une vue de l'année d'un seul tenant, pour voir le planning en un coup d'œil, pas un simple récapitulatif.
-
-- Les 12 mois visibles ensemble, un petit carré par jour.
-- Chaque course est un carré de couleur vive à sa date (par exemple rouge ; l'objectif plus marqué).
-- Un liseré part de chaque course et remonte dans le temps sur la durée de sa préparation : deux liserés qui se superposent signalent deux préparations qui se chevauchent.
-- Les jours sans course ni liseré font apparaître les plages libres pour la récupération et la préparation.
-- Construit à partir de la même liste de courses que la page Objectif, sans double saisie.
-- **Prototype en ligne** depuis le 13 oct. 2026 sur l'ancien site du profil route, onglet Planning (composant `composants/planning.js`), avec des durées provisoires et deux vues : 12 mois glissants, ou jusqu'à l'objectif.
-
-À trancher le moment venu :
-
-- [ ] Durée de préparation : fixée par type de course, ou saisie course par course ?
-- [ ] Liseré de récupération après chaque course, d'une autre couleur ?
-- [ ] Période affichée : année civile, ou 12 mois glissants ?
-- [ ] Module à part (« Calendrier »), ou bloc de la page Objectif ?
-
-## Questions ouvertes
-
-- [ ] **Piste** : couverte dès le lancement, ou plus tard faute de profil pilote ?
-- [ ] **Calculatrice** : liste des calculs à valider ; livraison anticipée possible, car elle ne dépend d'aucune donnée.
-- [ ] **Ravitaillement en course** : repères de référence (glucides et eau par heure).
-- [ ] **Matériel** et **Logistique** : périmètre de chaque module.
-- [ ] **Renforcement musculaire** : module dédié, ou intégré à Profil ou à Cette semaine ?
-- [ ] **Types de course** proposés dans l'en-tête : Trail court, Trail, Trail long, Ultra, Marathon, Semi-marathon, 10 km, Piste. Liste complète ?

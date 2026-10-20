@@ -57,7 +57,7 @@
       ['Distance', o.distance != null ? nf.format(o.distance) + ' km' : dash],
       o.dplus != null ? ['D+', nf.format(o.dplus) + ' m'] : null, // trail seulement
       ['Date', o.date ? fmtDate(o.date) : dash],
-      ['Objectif cible', o.cible || dash],
+      ['Objectif', o.cible || dash],
       ["D'ici là", o.dIciLa != null ? o.dIciLa + (o.dIciLa > 1 ? ' courses' : ' course') : dash]
     ].filter(Boolean);
 
@@ -65,7 +65,7 @@
     header.className = 'mrt-header';
     header.innerHTML =
       '<div class="mrt-grid">' +
-        '<h1>Objectif<em>' + esc(o.nom || dash) + '</em></h1>' +
+        '<h1>Cap sur<em>' + esc(o.nom || dash) + '</em></h1>' +
         '<div class="mrt-stats">' + stats.map(s =>
           '<div class="mrt-stat"><span class="mrt-stat-val">' + esc(s[1]) + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
         '<div class="mrt-count">' +
