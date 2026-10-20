@@ -32,15 +32,17 @@ De haut en bas :
 2. **Graphique de difficulté** (§ 5.2), affiché pour tous, repliable.
 3. **Feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier.
 
-### Statuts d'une étape
+### Statut, rôle et état d'une étape
 
-| Statut | Signification | Rendu |
+La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1).
+
+| Cas | Signification | Rendu |
 | --- | --- | --- |
-| Confirmée | Course retenue | Trait plein, pastille standard |
-| Objectif intermédiaire | Course clé de la saison (« objectif B », répétition générale) | Trait et pastille en couleur d'accent |
-| À choisir | Créneau à pourvoir parmi plusieurs candidats | Trait pointillé ; les candidats listés dans l'étape |
-| Horizon | Échéance lointaine, détails à venir | Rendu atténué |
-| Objectif | La course finale | Mise en avant |
+| Confirmée | Course retenue (rôle Préparatoire ou Plaisir) | Trait plein, pastille standard |
+| Rôle Objectif intermédiaire | Course clé de la saison | Trait et pastille en couleur d'accent |
+| Rôle Objectif | Une course visée ; il peut y en avoir plusieurs | Mise en avant |
+| Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait pointillé ; les candidates listées dans l'étape |
+| Option isolée | Course envisagée, pas encore retenue | Trait pointillé |
 
 ### Cellules d'une étape
 
@@ -63,7 +65,7 @@ Chaque cellule n'est affichée que si elle est remplie.
 | Identité | Nom, événement, lien officiel, lieu, coordonnées (latitude, longitude) | Affichage, météo |
 | Date | Jour et heure de départ | Comptes à rebours, météo, ordre de la feuille de route |
 | Profil | Distance, D+, D−, route ou trail, label et index UTMB | Graphique de difficulté, badges |
-| Statut | Confirmée, objectif intermédiaire, à choisir (et ses candidats), horizon, objectif | Rendu de l'étape |
+| Place dans le plan | Statut, rôle, état, groupe d'options ([modèle de données](modele-donnees.md), § 4.1) | Rendu de l'étape |
 | Dossard | Inscrit, numéro, prix, ouverture des inscriptions | Cellule Dossard |
 | Préparation | Temps cible, rôle, enchaînement, stratégie, logistique | Cellules de l'étape |
 | Stratégie de course | Points de passage (distance, temps visé), objectifs chiffrés, lien des résultats en direct | Suivi en course |
