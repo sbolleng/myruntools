@@ -8,7 +8,8 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, thèmes, modules, administration par l'utilisateur, données | Brouillon v0.1 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, thèmes, modules, préférences utilisateur, données | Version 0.2 |
+| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête et du menu | Version 0.1 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, édition | Version 1.0 |
 
@@ -54,6 +55,7 @@ Points en attente, par sujet. Une ligne cochée quand c'est fait.
 - [ ] Changement de mot de passe.
 - [ ] Choix de la course affichée dans le titre de l'en-tête (écrite en dur en attendant).
 - [ ] Champ libre « objectif cible » de l'en-tête (écrit en dur en attendant).
+- [ ] Choix des modules affichés dans le menu, et de leur ordre.
 
 ### Objectif
 
@@ -66,6 +68,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 oct. 2026 | Spécification générale | En-tête : « Objectif » et nom officiel de la course ; indicateurs Distance, D+ (trail), Date, D'ici là, Objectif cible ; « prochaine course » sous le compteur ; nom de l'application et engrenage des Préférences utilisateur. Une page par module, en-tête et menu partagés. Trois thèmes, dont un d'essai. Design dans un document séparé. |
 | 20 oct. 2026 | Palmarès | Colonnes Vitesse, Vitesse montre, Classement catégorie et Classement sexe ; effectif facultatif pour chaque classement ; allure et vitesse converties l'une vers l'autre quand une seule est saisie ; toutes les colonnes masquables sauf Date et Course. |
 | 19 oct. 2026 | Organisation | Nouveau dépôt `myruntools` pour l'outil : spécifications et code. Les anciens sites restent dans `plan-entrainement_Seb`, sans développement neuf. Une discussion par chantier : l'outil, l'ancien site du profil route, la mise à jour du plan du profil trail. |
 | 19 oct. 2026 | Nom | MyRunTools. |
