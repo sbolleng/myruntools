@@ -8,8 +8,11 @@
 //
 // config.races : une course = { date: 'AAAA-MM-JJ', course, type, sub } avec,
 //   quand on les connaît : dist (km), dplus (m), time (temps réalisé, 'h:mm:ss'
-//   ou 'mm:ss'), pace (allure, 'm:ss'), rank (place au classement général), et
-//   les données montre wDist, wDplus, wTime, wPace, hr.
+//   ou 'mm:ss'), pace (allure, 'm:ss'), speed (vitesse, km/h), rank, rankCat,
+//   rankSex (places aux classements général, catégorie, sexe) avec leurs
+//   effectifs facultatifs rankTotal, rankCatTotal, rankSexTotal, et les données
+//   montre wDist, wDplus, wTime, wPace, wSpeed, hr.
+//   Allure et vitesse : si une seule est donnée, l'autre est calculée.
 //   type et sub viennent de la liste de référence ci-dessous.
 (function () {
   // Liste de référence des types et sous-catégories, commune à l'application.
@@ -34,16 +37,24 @@
     { key: 'dplus', label: 'D+', kind: 'number', fmt: 'm' },
     { key: 'time', label: 'Temps', kind: 'duration', fmt: 'time' },
     { key: 'pace', label: 'Allure', kind: 'duration', fmt: 'pace' },
+    { key: 'speed', label: 'Vitesse', kind: 'number', fmt: 'kmh', optional: true },
     { key: 'rank', label: 'Classement', kind: 'number', fmt: 'rank', optional: true },
+    { key: 'rankCat', label: 'Classement catégorie', kind: 'number', fmt: 'rank', optional: true },
+    { key: 'rankSex', label: 'Classement sexe', kind: 'number', fmt: 'rank', optional: true },
     { key: 'wDist', label: 'Distance montre', kind: 'number', fmt: 'km', optional: true },
     { key: 'wDplus', label: 'D+ montre', kind: 'number', fmt: 'm', optional: true },
     { key: 'wTime', label: 'Temps montre', kind: 'duration', fmt: 'time', optional: true },
     { key: 'wPace', label: 'Allure montre', kind: 'duration', fmt: 'pace', optional: true },
+    { key: 'wSpeed', label: 'Vitesse montre', kind: 'number', fmt: 'kmh', optional: true },
     { key: 'hr', label: 'FC moyenne', kind: 'number', fmt: 'bpm', optional: true }
   ];
+  // Colonnes toujours affichées : pas de case pour les masquer.
+  const FIXED = new Set(['date', 'course']);
+  // Paires allure / vitesse : quand une seule est saisie, l'autre est calculée.
+  const PACE_SPEED = [['pace', 'speed'], ['wPace', 'wSpeed']];
   // Ordre de tri au premier appui sur un en-tête ; le second appui l'inverse.
   const FIRST_DIR = { date: 'desc', text: 'asc', choice: 'asc', number: 'asc', duration: 'asc' };
-  const UNIT = { km: 'km', m: 'm', bpm: 'bpm' };
+  const UNIT = { km: 'km', m: 'm', bpm: 'bpm', kmh: 'km/h', rank: 'place' };
   const HINT = { time: 'ex. 2h', pace: 'ex. 5:30' };
   // Pas d'entonnoir parmi les emojis : on le dessine, comme les flèches, plus
   // lisibles en icônes qu'en caractères.
@@ -87,14 +98,22 @@
     const p = iso.split('-').map(Number);
     return (p[2] === 1 ? '1er' : p[2]) + ' ' + MONTHS[p[1] - 1] + ' ' + p[0];
   }
-  function fmtCell(col, val) {
+  function fmtCell(col, val, r) {
     if (val == null) return '<span class="muted">—</span>';
+    const out = fmtValue(col, val, r);
+    return r && r.calc.has(col.key) ? '<em title="calculée">' + out + '</em>' : out;
+  }
+  function fmtValue(col, val, r) {
     switch (col.fmt || col.kind) {
       case 'date': return fmtDate(val);
       case 'km': return nf1.format(val) + ' km';
       case 'm': return nf0.format(val) + ' m';
       case 'bpm': return nf0.format(val) + ' bpm';
-      case 'rank': return val === 1 ? '1er' : nf0.format(val) + 'e';
+      case 'kmh': return nf1.format(val) + ' km/h';
+      case 'rank': {
+        const of = r && r.totals[col.key];
+        return (val === 1 ? '1er' : nf0.format(val) + 'e') + (of != null ? ' / ' + nf0.format(of) : '');
+      }
       case 'time': return fmtTime(val);
       case 'pace': return Math.floor(val / 60) + ':' + pad(val % 60) + ' /km';
       default: return esc(val);
@@ -117,7 +136,20 @@
     if (!TYPES[v.type] || TYPES[v.type].indexOf(v.sub) === -1) {
       console.warn('Palmarès : type ou sous-catégorie hors de la liste de référence', race);
     }
-    return { v, record: false };
+    // Allure (s/km) et vitesse (km/h) : vitesse = 3600 / allure. Allure arrondie
+    // à la seconde, vitesse au dixième ; la valeur calculée est notée dans calc.
+    const calc = new Set();
+    PACE_SPEED.forEach(([p, s]) => {
+      if (v[p] == null && v[s] > 0) { v[p] = Math.round(3600 / v[s]); calc.add(p); }
+      else if (v[s] == null && v[p] > 0) { v[s] = Math.round(36000 / v[p]) / 10; calc.add(s); }
+    });
+    // Effectifs des classements, facultatifs : le tri reste sur la place.
+    const totals = {};
+    ['rank', 'rankCat', 'rankSex'].forEach(k => {
+      const n = race[k + 'Total'];
+      totals[k] = n == null || n === '' || isNaN(n) ? null : Number(n);
+    });
+    return { v, calc, totals, record: false };
   }
 
   // Record 🥇, recalculé à chaque affichage : on écarte les courses sans temps
@@ -199,9 +231,9 @@
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
-        '<div class="pv2-field"><div class="pv2-legend">Colonnes facultatives</div><div class="pv2-row">' +
-          COLUMNS.filter(c => c.optional).map(c =>
-            '<label class="pv2-check"><input type="checkbox" data-col="' + c.key + '"> ' + esc(c.label) + '</label>').join('') +
+        '<div class="pv2-field"><div class="pv2-legend">Colonnes</div><div class="pv2-row">' +
+          COLUMNS.filter(c => !FIXED.has(c.key)).map(c =>
+            '<label class="pv2-check"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
         '</div></div>' +
       '</div>' +
       '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table"><thead></thead><tbody></tbody></table></div></div>';
@@ -254,12 +286,12 @@
         const label = esc(c.label.slice(0, cut)) + '<span class="pv2-nw">' + esc(c.label.slice(cut)) + SORT_ICON + '</span>';
         return '<th aria-sort="' + aria + '"><button type="button" class="pv2-sort" data-sort="' + c.key + '">' + label + '</button></th>';
       }).join('') +
-        '<th class="pv2-more-cell"><button type="button" class="pv2-more" data-act="cols" aria-expanded="' + !colsPanel.hidden + '" aria-controls="' + uid + '-cols" aria-label="Plus d\'infos : colonnes facultatives" title="Plus d\'infos">' + (colsPanel.hidden ? '+' : '−') + '</button></th></tr>';
+        '<th class="pv2-more-cell"><button type="button" class="pv2-more" data-act="cols" aria-expanded="' + !colsPanel.hidden + '" aria-controls="' + uid + '-cols" aria-label="Plus d\'infos : choix des colonnes" title="Plus d\'infos">' + (colsPanel.hidden ? '+' : '−') + '</button></th></tr>';
 
       $('tbody').innerHTML = list.length ? list.map(r => '<tr>' + cols.map(c => {
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
         const cls = c.kind === 'text' ? ' class="pv2-t"' : c.kind === 'choice' ? '' : ' class="pv2-n"';
-        return '<td' + cls + '>' + fmtCell(c, r.v[c.key]) + rec + '</td>';
+        return '<td' + cls + '>' + fmtCell(c, r.v[c.key], r) + rec + '</td>';
       }).join('') + '<td class="pv2-pad"></td></tr>').join('')
         : '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">Aucune course ne correspond aux filtres.</td></tr>';
 
@@ -323,9 +355,14 @@
 
     function onFilter(e) {
       const el = e.target;
-      if (el.dataset.col) { // colonne facultative affichée ou masquée
-        if (el.checked) state.shown.add(el.dataset.col);
-        else { state.shown.delete(el.dataset.col); delete state.filters[el.dataset.col]; } // masquer retire le filtre
+      if (el.dataset.col) { // colonne affichée ou masquée
+        const key = el.dataset.col;
+        if (el.checked) state.shown.add(key);
+        else {
+          state.shown.delete(key);
+          delete state.filters[key]; // masquer retire le filtre
+          if (state.sort.key === key) state.sort = { key: 'date', dir: 'desc' }; // et ramène le tri par date
+        }
         renderPanel(); renderTable();
         return;
       }

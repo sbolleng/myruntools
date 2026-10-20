@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 0.9 · 19 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.0 · 20 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -28,12 +28,18 @@ Facultatives, affichées à la demande depuis le bouton « + » (§ 8) :
 
 | # | Colonne | Contenu | Saisie |
 | --- | --- | --- | --- |
-| 9 | Classement | Place au classement général | Nombre |
-| 10 | Distance montre | Distance mesurée par la montre | Nombre |
-| 11 | D+ montre | Dénivelé mesuré par la montre | Nombre |
-| 12 | Temps montre | Durée enregistrée par la montre | Durée |
-| 13 | Allure montre | Allure moyenne affichée par la montre | Durée |
-| 14 | FC moyenne | Fréquence cardiaque moyenne, en bpm | Nombre |
+| 9 | Vitesse | Vitesse moyenne, en km/h | Nombre |
+| 10 | Classement | Place au classement général | Nombre |
+| 11 | Classement catégorie | Place dans sa catégorie d'âge | Nombre |
+| 12 | Classement sexe | Place parmi les coureurs du même sexe | Nombre |
+| 13 | Distance montre | Distance mesurée par la montre | Nombre |
+| 14 | D+ montre | Dénivelé mesuré par la montre | Nombre |
+| 15 | Temps montre | Durée enregistrée par la montre | Durée |
+| 16 | Allure montre | Allure moyenne affichée par la montre | Durée |
+| 17 | Vitesse montre | Vitesse moyenne affichée par la montre | Nombre |
+| 18 | FC moyenne | Fréquence cardiaque moyenne, en bpm | Nombre |
+
+Chaque classement peut porter un effectif, facultatif : le nombre de classés, quand il est connu.
 
 ## 3. Types et sous-catégories
 
@@ -52,7 +58,8 @@ Liste fermée, commune à toute l'application : on choisit une valeur, on ne la 
 - **Données de la course** : distance et D+ annoncés par l'organisateur ; temps, allure et place saisis par l'utilisateur.
 - **Course sans classement officiel** : la colonne Classement reste vide.
 - **Données montre** : facultatives, elles servent d'information.
-- **Valeur absente** : « — ». Aucune valeur n'est estimée ni recalculée.
+- **Allure et vitesse** : deux façons d'écrire la même donnée (vitesse en km/h = 3 600 ÷ allure en secondes par km). Quand une seule des deux est renseignée, la page calcule l'autre, en italique, avec la mention « calculée » au survol ; quand les deux le sont, chacune est affichée telle que saisie. Même règle pour l'allure et la vitesse montre. Arrondis : allure à la seconde, vitesse au dixième. Tri et filtres utilisent aussi les valeurs calculées.
+- **Valeur absente** : « — ». En dehors de l'allure et de la vitesse, aucune valeur n'est estimée ni recalculée.
 
 ## 5. Records 🥇
 
@@ -72,8 +79,10 @@ Toutes les colonnes affichées se trient. L'ordre dépend du type de donnée :
 | --- | --- | --- | --- |
 | Date | Date | Plus récente d'abord | Plus ancienne d'abord |
 | Texte et choix | Course, Type, Sous-catégorie | A → Z | Z → A |
-| Nombre | Distances, D+, Classement, FC | Croissant | Décroissant |
+| Nombre | Distances, D+, vitesses, classements, FC | Croissant | Décroissant |
 | Durée | Temps, allures | Plus court d'abord | Plus long d'abord |
+
+- **Classements** : triés sur la place, pas sur l'effectif (476e / 873 se range comme 476).
 
 - **À l'ouverture** : tri par date, la plus récente en haut.
 - Toucher l'en-tête d'une colonne la trie dans son ordre par défaut ; le toucher à nouveau inverse l'ordre.
@@ -105,8 +114,10 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 
 ## 8. Plus d'infos : choix des colonnes
 
-- Un bouton « + », en bout de ligne d'en-tête, ouvre la liste des colonnes facultatives (§ 2), chacune avec une case à cocher ; il devient « − » tant que la liste est ouverte.
-- Cocher une colonne l'affiche, la décocher la masque. Par défaut, toutes sont masquées.
+- Un bouton « + », en bout de ligne d'en-tête, ouvre la liste de toutes les colonnes (§ 2), chacune avec une case à cocher ; il devient « − » tant que la liste est ouverte.
+- Au départ, les colonnes affichées par défaut sont cochées, les facultatives décochées.
+- Date et Course restent toujours affichées.
+- Cocher une colonne l'affiche, la décocher la masque. Masquer une colonne retire son filtre et, si elle était triée, ramène le tri par date.
 - Avec la base de données, le choix de chaque utilisateur est retenu d'une visite à l'autre.
 
 ## 9. Édition (avec la base de données)
@@ -130,7 +141,8 @@ Les nouvelles entrées sont saisies à la main.
 | D+ | Mètres | 932 m |
 | Temps | Minutes et secondes ; heures en plus au-delà d'une heure | 49'18 · 1h56'05 |
 | Allure | Minutes:secondes par kilomètre | 5:24 /km |
-| Classement | Place | 1 951e |
+| Vitesse | Kilomètres par heure, une décimale | 11,1 km/h |
+| Classement | Place, suivie de l'effectif quand il est connu | 1 951e · 476e / 873 |
 | FC | Battements par minute | 150 bpm |
 
 ## 11. Contrôles
@@ -161,3 +173,6 @@ Résultats attendus :
 - Records 🥇 : le 10 km de Montauban du 29 mars 2026 (49'18) et le semi-marathon de Sète (1h53'12). Aucun pour les trails.
 - Si l'on supprime le 10 km de Montauban du 29 mars 2026, le 🥇 du 10 km passe à celui du 30 mars 2025 (51'46).
 - À l'ouverture, aucune colonne facultative n'est affichée.
+- Décocher D+ dans la liste des colonnes : la colonne disparaît ; la recocher : elle revient. Date et Course n'ont pas de case à décocher.
+- Colonne Vitesse affichée : 11,1 km/h en italique pour le semi-marathon de Sète, calculée depuis 5:24 /km ; 12,2 km/h pour le 10 km de Montauban 2026, calculée depuis 4:55 /km.
+- Un classement saisi 476 sur 873 s'affiche « 476e / 873 » et se trie comme 476.

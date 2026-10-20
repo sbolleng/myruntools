@@ -10,7 +10,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | --- | --- | --- |
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, thèmes, modules, administration par l'utilisateur, données | Brouillon v0.1 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, édition | Version 0.9 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, édition | Version 1.0 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -42,6 +42,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 oct. 2026 | Palmarès | Colonnes Vitesse, Vitesse montre, Classement catégorie et Classement sexe ; effectif facultatif pour chaque classement ; allure et vitesse converties l'une vers l'autre quand une seule est saisie ; toutes les colonnes masquables sauf Date et Course. |
 | 19 oct. 2026 | Organisation | Nouveau dépôt `myruntools` pour l'outil : spécifications et code. Les anciens sites restent dans `plan-entrainement_Seb`, sans développement neuf. Une discussion par chantier : l'outil, l'ancien site du profil route, la mise à jour du plan du profil trail. |
 | 19 oct. 2026 | Nom | MyRunTools. |
 | 19 oct. 2026 | Données | Deux comptes créés à la main. Import initial depuis les anciens sites, puis saisie par chacun. |

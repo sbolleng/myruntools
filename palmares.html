@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="site-version" content="__VERSION__">
+<title>Palmarès · MyRunTools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=Space+Mono&display=swap">
+<link rel="stylesheet" href="composants/palmares.css?v=__VERSION__">
+<style>
+  /* Thèmes : route par défaut, trail avec ?t=trail. */
+  .t-route { --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --accent2:#B76E78; --text:#EDF2E9; --muted:#8FA391; --red:#E07A6F; }
+  .t-trail { --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --accent2:#ffd400; --text:#eef3fa; --muted:#8fa8c9; --red:#ff6b5b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Space Grotesk', system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  .eyebrow { font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin: 0; }
+  h1 { margin: 0.3rem 0 0.4rem; font-size: 1.8rem; }
+  .intro { margin: 0 0 1.4rem; color: var(--muted); font-size: 0.85rem; }
+  .muted { color: var(--muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { text-align: left; padding: 0.6rem 0.75rem; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+</style>
+</head>
+<body class="t-route">
+<main>
+  <p class="eyebrow">MyRunTools · prototype</p>
+  <h1>Palmarès</h1>
+  <p class="intro">Jeu de données de test. Valeurs montre dans les colonnes facultatives (bouton « + »).</p>
+  <div id="palmares" class="pv2"></div>
+</main>
+<script>
+  if (new URLSearchParams(location.search).get('t') === 'trail') document.body.className = 't-trail';
+</script>
+<script src="composants/palmares.js?v=__VERSION__"></script>
+<script>
+  // Jeu de test : résultats officiels (temps, allure ou vitesse publiées,
+  // classements) ; distance et D+ officiels en attente de validation.
+  // Les données montre reprennent les valeurs du premier prototype.
+  renderPalmares(document.getElementById('palmares'), {
+    races: [
+      { date: '2025-03-30', course: '10 km de Montauban', type: 'Course sur route', sub: '10 km',
+        time: '51:46', pace: '5:10', speed: 11.59, rank: 579, rankCat: 10, rankSex: 112,
+        wDist: 10.1, wDplus: 24, wTime: '51:46', wPace: '5:08' },
+      { date: '2025-09-13', course: 'Épicurienne Trail', type: 'Trail', sub: 'Trail découverte',
+        time: '1:04:25', speed: 10.3, rank: 62, rankCat: 2, rankSex: 10,
+        wDist: 10.7, wDplus: 199, wTime: '1:04:24', wPace: '6:00' },
+      { date: '2025-10-05', course: 'Semi-marathon de Sète', type: 'Course sur route', sub: 'Semi-marathon',
+        time: '1:53:12', speed: 11.1, rank: 281, rankCat: 13, rankSex: 74,
+        wDist: 20.8, wDplus: 56, wTime: '1:53:12', wPace: '5:24' },
+      { date: '2025-11-30', course: 'Biscatrail', type: 'Trail', sub: 'Trail découverte',
+        time: '2:02:43', speed: 8.8, rank: 476, rankTotal: 873, rankCat: 19,
+        wDist: 18.3, wDplus: 340, wTime: '2:02:30', wPace: '6:35' },
+      { date: '2026-03-08', course: "Forez Trail · L'Olmetoise", type: 'Trail', sub: 'Trail court',
+        time: '3:00:50', pace: '7:22', speed: 8.13, rank: 99, rankCat: 1, rankSex: 15,
+        wDist: 24.1, wDplus: 932, wTime: '3:00:23', wPace: '7:18' },
+      { date: '2026-03-29', course: '10 km de Montauban', type: 'Course sur route', sub: '10 km',
+        time: '49:18', pace: '4:55', speed: 12.17, rank: 458, rankCat: 11, rankSex: 81,
+        wDist: 10.0, wDplus: 24, wTime: '49:18', wPace: '4:55' },
+      { date: '2026-10-04', course: 'Semi de San Sebastián', type: 'Course sur route', sub: 'Semi-marathon',
+        time: '1:56:05', rank: 1950, rankCat: 178, rankSex: 400,
+        wDist: 21.1, wPace: '5:30' }
+    ]
+  });
+</script>
+</body>
+</html>
