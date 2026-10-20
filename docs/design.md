@@ -43,7 +43,7 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 | --- | --- | --- | --- | --- |
 | Nom de l'application | Space Mono, capitales, espacement 0,15 em | 0,7 rem | Normale | Texte discret |
 | Engrenage ⚙️ | — | 0,9 rem | — | — |
-| Titre, ligne « Objectif » | Space Grotesk, interligne 1,05, espacement −0,02 em | 2 à 3,5 rem selon la largeur d'écran | 700 | Texte |
+| Titre, ligne « Cap sur » | Space Grotesk, interligne 1,05, espacement −0,02 em | 2 à 3,5 rem selon la largeur d'écran | 700 | Texte |
 | Titre, nom de la course | Idem | Idem | 700 | Accent |
 | Valeur d'indicateur | Space Mono | 1,1 rem | 700 | Accent 2 |
 | Libellé d'indicateur | Space Grotesk, capitales, espacement 0,1 em | 0,7 rem | Normale | Texte discret |
@@ -54,8 +54,8 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 
 ### Disposition
 
-- **Marges** : 3 rem en haut, 2 rem sur les côtés et en bas ; 2 rem, 1,25 rem et 1,5 rem sur téléphone. Contenu centré, 960 px de large au plus.
-- **Colonne de droite, toujours à la même place** : le nom de l'application et l'engrenage, leur haut aligné sur le haut de « Objectif », puis le compte à rebours dessous, le tout aligné à droite, à toutes les largeurs d'écran.
+- **Marges** : 1,5 rem en haut, 2 rem sur les côtés et en bas ; 1 rem en haut, 1,25 rem sur les côtés et 1,5 rem en bas sur téléphone. Contenu centré, 960 px de large au plus.
+- **Colonne de droite, toujours à la même place** : le nom de l'application et l'engrenage, leur haut aligné sur le haut de « Cap sur », puis le compte à rebours dessous, le tout aligné à droite, à toutes les largeurs d'écran.
 - **Ordinateur** : deux colonnes. À gauche le titre, puis les indicateurs sur une ligne, espacés de 2 rem, 1,5 rem sous le titre ; à droite le nom de l'application et le compte à rebours.
 - **Téléphone** (600 px et moins) : mêmes deux colonnes, colonne de droite comprise ; les indicateurs passent en grille de deux colonnes, sous le titre et le compte à rebours.
 - **Filet** : barre de 5 px, 2 rem sous le contenu, toute la largeur ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
