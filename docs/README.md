@@ -15,7 +15,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
-Maquettes validées : [maquettes/](maquettes/) (en-tête, calendrier).
+Maquettes : [maquettes/](maquettes/) (en-tête, calendrier). Page de démonstration : en-tête et menu partagés, profil trail écrit en dur (`donnees/demo.js`), Palmarès comme premier module.
 
 ## Le projet en bref
 
@@ -44,19 +44,16 @@ Points en attente, par sujet. Une ligne cochée quand c'est fait.
 ### Socle (en cours)
 
 - [x] Spécification générale 0.2 et document de design 0.1 validés.
-- [ ] Composant partagé en-tête et menu (`composants/en-tete.js` et `.css`), trois thèmes.
-- [ ] Page d'accueil sous l'en-tête et le menu ; Palmarès comme premier module.
-- [ ] Maquettes de l'en-tête mises à jour.
-- [ ] Jeu d'essai de la spécification générale rejoué, puis mise en ligne.
+- [x] Composant partagé en-tête et menu (`composants/en-tete.js` et `.css`), trois thèmes.
+- [x] Page d'accueil sous l'en-tête et le menu ; Palmarès comme premier module ; page Préférences en attente.
+- [x] Maquettes de l'en-tête mises à jour.
+- [x] Jeu d'essai de la spécification générale rejoué, puis mise en ligne.
 
 ### Palmarès
 
 - [x] Distances, D+ et classements officiels du jeu de test ; Ekiden et La Bressolaise ajoutées.
-- [ ] Noms officiels à confirmer : semi de San Sebastián, Forez Trails · L'Olmetoise.
-- [ ] Biscatrail : distance officielle (18 km selon le web, à confirmer).
-- [ ] La Bressolaise, « course nature » : classée Trail · Trail découverte, à confirmer.
-- [ ] Ekiden : relais d'un marathon en équipe ; où ranger le temps de l'équipe (3h37'09) ? Une colonne « Note » ?
-- [ ] Place 1 au classement : afficher « 1re » plutôt que « 1er » quand le classement concerne les femmes ?
+- [x] Noms officiels, distance de Biscatrail, type de La Bressolaise confirmés ; temps d'équipe de l'Ekiden non retenu.
+- [x] Première place « 1re » pour une coureuse.
 
 ### Préférences utilisateur (page à créer, plus tard)
 
@@ -84,6 +81,8 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 oct. 2026 | Socle | En-tête et menu en composant partagé (`composants/en-tete.*`), thème par `?t=trail`, `?t=route` ou `?t=test` ; profil de démonstration en dur dans `donnees/demo.js` ; modules pas encore construits grisés dans le menu ; page Préférences en attente. |
+| 20 oct. 2026 | Palmarès | Première place « 1re » pour une coureuse. |
 | 20 oct. 2026 | Spécification générale | En-tête : « Objectif » et nom officiel de la course ; indicateurs Distance, D+ (trail), Date, D'ici là, Objectif cible ; « prochaine course » sous le compteur ; nom de l'application et engrenage des Préférences utilisateur. Une page par module, en-tête et menu partagés. Trois thèmes, dont un d'essai. Design dans un document séparé. |
 | 20 oct. 2026 | Palmarès | Colonnes Vitesse, Vitesse montre, Classement catégorie et Classement sexe ; effectif facultatif pour chaque classement ; allure et vitesse converties l'une vers l'autre quand une seule est saisie ; toutes les colonnes masquables sauf Date et Course. |
 | 19 oct. 2026 | Organisation | Nouveau dépôt `myruntools` pour l'outil : spécifications et code. Les anciens sites restent dans `plan-entrainement_Seb`, sans développement neuf. Une discussion par chantier : l'outil, l'ancien site du profil route, la mise à jour du plan du profil trail. |

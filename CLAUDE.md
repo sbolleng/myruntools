@@ -29,7 +29,8 @@ Spécification → validation → modèle de données si besoin → construction
 
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
 - Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
-- `composants/` : composants partagés repris des anciens sites (palmarès, planning), avec leur feuille de style.
-- `docs/maquettes/` : maquettes validées (en-tête, calendrier), ouvertes avec `?t=trail` ou `?t=route`.
+- `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), palmarès, planning.
+- `donnees/demo.js` : profil de démonstration écrit en dur, en attendant la base de données.
+- `docs/maquettes/` : maquettes (en-tête, calendrier), ouvertes avec `?t=trail`, `?t=route` ou `?t=test`.
 - Publication : `.github/workflows/publication.yml` publie GitHub Pages à chaque mise à jour de `main` et remplace `__VERSION__` par le numéro du commit dans les liens CSS/JS et la balise `site-version` : rien à incrémenter à la main.
 - Circuit git : travailler sur la branche de la session, fusionner dans `main` (`--no-ff`), pousser les deux. Vérifier une fois, en fin de lot, que la publication a réussi, avant d'annoncer que c'est en ligne.

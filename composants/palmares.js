@@ -13,6 +13,7 @@
 //   effectifs facultatifs rankTotal, rankCatTotal, rankSexTotal, et les données
 //   montre wDist, wDplus, wTime, wPace, wSpeed, hr.
 //   Allure et vitesse : si une seule est donnée, l'autre est calculée.
+// config.feminin : true pour une coureuse (première place « 1re »).
 //   type et sub viennent de la liste de référence ci-dessous.
 (function () {
   // Liste de référence des types et sous-catégories, commune à l'application.
@@ -103,6 +104,8 @@
     const out = fmtValue(col, val, r);
     return r && r.calc.has(col.key) ? '<em title="calculée">' + out + '</em>' : out;
   }
+  // Première place : « 1re » pour une coureuse (config.feminin), « 1er » sinon.
+  let firstPlace = '1er';
   function fmtValue(col, val, r) {
     switch (col.fmt || col.kind) {
       case 'date': return fmtDate(val);
@@ -112,7 +115,7 @@
       case 'kmh': return nf1.format(val) + ' km/h';
       case 'rank': {
         const of = r && r.totals[col.key];
-        return (val === 1 ? '1er' : nf0.format(val) + 'e') + (of != null ? ' / ' + nf0.format(of) : '');
+        return (val === 1 ? firstPlace : nf0.format(val) + 'e') + (of != null ? ' / ' + nf0.format(of) : '');
       }
       case 'time': return fmtTime(val);
       case 'pace': return Math.floor(val / 60) + ':' + pad(val % 60) + ' /km';
@@ -183,6 +186,7 @@
 
   window.renderPalmares = function (root, cfg) {
     const uid = root.id || 'pv2';
+    firstPlace = cfg.feminin ? '1re' : '1er';
     const rows = (cfg.races || []).map(prepare);
     markRecords(rows);
     const total = rows.length;

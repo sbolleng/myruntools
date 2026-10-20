@@ -4,20 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
 <meta name="site-version" content="__VERSION__">
 <title>MyRunTools</title>
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <style>
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0E1D19; color: #EDF2E9; font-family: system-ui, sans-serif; }
-  main { padding: 2rem; text-align: center; }
-  h1 { margin: 0 0 0.5rem; font-size: 2rem; }
-  p { margin: 0; color: #8FA391; }
+  .accueil { text-align: center; padding: 3rem 0; }
+  .accueil h2 { font-size: 2rem; margin-bottom: 0.5rem; }
 </style>
 </head>
 <body>
 <main>
-  <h1>MyRunTools</h1>
-  <p>La boîte à outils du coureur · en construction</p>
-  <p><a href="palmares.html" style="color:#D07B87">Palmarès (prototype)</a></p>
+  <div class="accueil">
+    <h2>MyRunTools</h2>
+    <p class="muted">La boîte à outils du coureur · en construction</p>
+  </div>
 </main>
+<script src="donnees/demo.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script>renderEnTete(Object.assign({}, MRT_PROFIL, { courant: 'index.html' }));</script>
 </body>
 </html>
