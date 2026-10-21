@@ -1,6 +1,6 @@
 # Design
 
-Version 0.3 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.4 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -80,12 +80,19 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 - **Panneau de formulaire** : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes ; sur téléphone, il occupe tout l'écran et défile.
 - **Blocs** : titre en Space Mono, capitales, 0,62 rem, Texte discret, comme les libellés de l'en-tête ; un chevron replie ou déplie le bloc, comme les groupes du Palmarès.
-- **Champs** : ceux de la page de connexion (fond transparent, bordure fine, Accent au focus, 0,85 rem), libellé au-dessus en petites capitales ; deux colonnes sur ordinateur, une sur téléphone.
-- **Boutons** : contour arrondi comme « Grouper par type » ; « Enregistrer » en Accent plein, comme « Filtres » ; « Supprimer » en texte Alerte, souligné, à l'écart des autres.
+- **Champs** : ceux de la page de connexion (fond transparent, bordure fine, Accent au focus, 0,85 rem), libellé au-dessus en petites capitales, exemple en Texte discret dans le champ vide ; deux colonnes sur ordinateur, une sur téléphone ; la date seule sur sa ligne.
+- **Boutons** : contour arrondi, en capitales ; « Enregistrer » en Accent plein, comme « Filtres » ; « Supprimer » en texte Alerte, souligné, à l'écart des autres.
 - **Message d'erreur** : 0,75 rem, couleur Alerte, sous le champ concerné.
 - **Bandeau de lecture seule** : sous le menu, sur toute la largeur, fond Surface 2, texte 0,75 rem ; « Revenir à mon site » en lien Accent.
 
-## 7. Menu
+## 7. Barre et lignes du Palmarès
+
+- **Barre** : « Filtres » (Accent plein), puis un bouton rond de 2 rem « Grouper par type » (icône de couches) ; tout à droite, un bouton rond « + » pour ajouter une course. Boutons ronds en Texte discret avec une bordure fine (Bordure), comme les flèches de tri ; Accent au survol, et pour le regroupement quand il est actif.
+- **Compteur** « X courses sur Y » à droite du regroupement ; sur téléphone, il passe sous les boutons.
+- **Bouton des colonnes** (« + » en bout d'en-tête) : la taille et la couleur des flèches de tri, Accent quand la liste est ouverte.
+- **Crayon** : trait fin, Texte discret comme les flèches de tri, visible seulement au survol de la ligne (Accent sous le pointeur) ; la ligne survolée s'éclaire légèrement (Surface 2). Sur écran tactile : pas de crayon, la ligne entière s'ouvre au toucher.
+
+## 8. Menu
 
 - Onglets en Space Grotesk, capitales, 0,75 rem, graisse 500, espacement 0,1 em ; marges de 0,9 rem en haut et en bas, 1,4 rem sur les côtés.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.

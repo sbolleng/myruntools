@@ -9,10 +9,10 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | Document | Contenu | État |
 | --- | --- | --- |
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données | Version 0.4 |
-| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires et bandeau | Version 0.3 |
-| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.5 |
+| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.4 |
+| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.6 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition | Version 1.7 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -50,7 +50,8 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
 - [ ] Import de Rome : script fourni hors dépôt (37 courses : 9 courues, 7 à venir, 21 à surveiller), à lancer dans l'éditeur SQL.
 - [ ] Socle, suite : profils et préférences lus dans la base.
-- [ ] Base : coller l'évolution 005 (partage) dans l'éditeur SQL, puis essai à deux : Rome partage, tu regardes son site.
+- [ ] Base : coller l'évolution 006 (format, course et parcours) dans l'éditeur SQL, juste avant la mise en ligne du site qui l'utilise.
+- [ ] Essai à deux du partage : Rome partage, tu regardes son site.
 
 ### Préférences utilisateur (page à créer)
 
@@ -108,6 +109,8 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 22 oct. 2026 | Palmarès | « Sous-catégorie » devient « Format » (« Type » reste) ; le nom d'une course : « Course » (obligatoire) et « Parcours » (facultatif) ; exemples dans les champs ; boutons ronds (regroupement à droite de Filtres, ajout tout à droite), crayon au survol dans la nuance des flèches de tri, ligne touchée sur écran tactile (spécification 1.7, design 0.4). |
+| 22 oct. 2026 | Modèle de données | Version 0.6 : `sous_categories` devient `formats`, `courses.sous_categorie` devient `format`, `evenement` et `nom` deviennent `course` et `parcours` (évolution 006). |
 | 21 oct. 2026 | Partage | Partage en lecture seule (spécification générale § 9, modèle 0.5, évolution 005) : par l'e-mail d'un compte existant ; courses, circuits, préférences, prénom, nom et sexe ; jamais les données de santé ni l'équipement ; bandeau « Lecture seule » et retour à son site. |
 | 21 oct. 2026 | Palmarès | Édition dans le site (spécification 1.6, § 10) : formulaire en quatre blocs (`composants/fiche-course.*`), durées en chiffres seuls acceptées, suppression dans le formulaire après confirmation ; rien d'éditable en lecture seule. |
 | 21 oct. 2026 | Import | Rome : 9 courses courues, 7 à venir (Béret et Nocturne en Plaisir, Augerolloise en Objectif intermédiaire, Rome en Objectif), 21 à surveiller (une ligne par format, sans date : « À définir ») ; Tournefeuille dans le Challenge Levy. En-tête : la prochaine course affiche « Événement · Parcours ». |

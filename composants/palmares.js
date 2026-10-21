@@ -25,7 +25,7 @@
     'Fast hiking': ['Ultra-randonnée', 'Randonnée rapide'],
     'Triathlon': ['Triathlon XS', 'Triathlon S', 'Triathlon M', 'Triathlon L', 'Ironman 70.3', 'Triathlon XL', 'Ironman']
   };
-  // Sous-catégories à distance fixe : les seules qui ont un record.
+  // Formats à distance fixe : les seuls qui ont un record.
   const RECORD_SUBS = new Set(['5 km', '10 km', '20 km', 'Semi-marathon', 'Marathon', '100 km'].concat(TYPES['Triathlon']));
   // Les choix des filtres suivent l'ordre de la liste, pas l'alphabet.
   const CHOICE_ORDER = Object.keys(TYPES).concat(...Object.values(TYPES));
@@ -34,7 +34,7 @@
     { key: 'date', label: 'Date', kind: 'date' },
     { key: 'course', label: 'Course', kind: 'text' },
     { key: 'type', label: 'Type', kind: 'choice' },
-    { key: 'sub', label: 'Sous-catégorie', kind: 'choice' },
+    { key: 'sub', label: 'Format', kind: 'choice' },
     { key: 'dist', label: 'Distance', kind: 'number', fmt: 'km' },
     { key: 'dplus', label: 'D+', kind: 'number', fmt: 'm' },
     { key: 'time', label: 'Temps', kind: 'duration', fmt: 'time' },
@@ -60,6 +60,10 @@
   const HINT = { time: 'ex. 2h', pace: 'ex. 5:30' };
   // Pas d'entonnoir parmi les emojis : on le dessine, comme les flèches, plus
   // lisibles en icônes qu'en caractères.
+  // Boutons ronds (regroupement, ajout) et crayon : icônes dessinées, dans les nuances des flèches de tri.
+  const LAYERS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l6 3-6 3-6-3z M2 8l6 3 6-3 M2 11l6 3 6-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  const PLUS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const PENCIL = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
   const FUNNEL = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 2.5h13l-5.2 6v4.7l-2.6 1.3V8.5z" fill="currentColor"/></svg>';
   const CHEVRON = '<svg class="pv2-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // Deux flèches sur chaque en-tête : la colonne se trie ; celle du sens choisi s'allume.
@@ -193,6 +197,8 @@
   function readGroup() { try { return localStorage.getItem(GROUP_KEY) !== '0'; } catch (e) { return true; } }
   function saveGroup(on) { try { localStorage.setItem(GROUP_KEY, on ? '1' : '0'); } catch (e) { /* stockage indisponible */ } }
 
+  const TACTILE = () => !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
+
   window.renderPalmares = function (root, cfg) {
     const uid = root.id || 'pv2';
     firstPlace = cfg.feminin ? '1re' : '1er';
@@ -244,10 +250,10 @@
       '<div class="pv2-bar">' +
         '<button type="button" class="pv2-btn" data-act="filters" aria-expanded="false" aria-controls="' + uid + '-filters">' +
           FUNNEL + '<span class="pv2-btn-label">Filtres</span>' + CHEVRON + '</button>' +
-        '<button type="button" class="pv2-toggle" data-act="group" aria-pressed="false">Grouper par type</button>' +
+        '<button type="button" class="pv2-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
         '<span class="pv2-count" aria-live="polite"></span>' +
         '<button type="button" class="pv2-clear" data-act="clear" hidden>Effacer les filtres</button>' +
-        (cfg.editable ? '<button type="button" class="pv2-add" data-act="add">+ Ajouter une course</button>' : '') +
+        (cfg.editable ? '<button type="button" class="pv2-rond pv2-add" data-act="add" aria-label="Ajouter une course" title="Ajouter une course">' + PLUS + '</button>' : '') +
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
@@ -256,7 +262,7 @@
             '<label class="pv2-check"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
         '</div></div>' +
       '</div>' +
-      '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table"><thead></thead><tbody></tbody></table></div></div>';
+      '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>';
 
     const $ = sel => root.querySelector(sel);
     const panel = $('#' + uid + '-filters'), colsPanel = $('#' + uid + '-cols');
@@ -312,7 +318,7 @@
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
         const cls = c.kind === 'text' ? ' class="pv2-t"' : c.kind === 'choice' ? '' : ' class="pv2-n"';
         return '<td' + cls + '>' + fmtCell(c, r.v[c.key], r) + rec + '</td>';
-      }).join('') + '<td class="pv2-pad">' + (cfg.editable && r.id ? '<button type="button" class="pv2-edit" data-edit="' + esc(r.id) + '" aria-label="Modifier" title="Modifier">✏️</button>' : '') + '</td></tr>';
+      }).join('') + '<td class="pv2-pad">' + (cfg.editable && r.id ? '<button type="button" class="pv2-edit" data-edit="' + esc(r.id) + '" aria-label="Modifier" title="Modifier">' + PENCIL + '</button>' : '') + '</td></tr>';
       let body;
       if (!list.length) body = '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">Aucune course ne correspond aux filtres.</td></tr>';
       else if (!state.group) body = list.map(line).join('');
@@ -384,6 +390,12 @@
       }
       const edit = e.target.closest('[data-edit]');
       if (edit) { if (cfg.onEdit) cfg.onEdit(edit.dataset.edit); return; }
+      // Écran tactile (pas de survol, donc pas de crayon visible) : toucher la ligne l'ouvre.
+      const ligne = e.target.closest('tbody tr');
+      if (ligne && cfg.editable && cfg.onEdit && TACTILE()) {
+        const crayon = ligne.querySelector('[data-edit]');
+        if (crayon) { cfg.onEdit(crayon.dataset.edit); return; }
+      }
       const grp = e.target.closest('[data-group]');
       if (grp) {
         const t = grp.dataset.group;
