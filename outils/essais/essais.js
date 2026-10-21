@@ -71,7 +71,8 @@ const CONTROLES = {
           titre: q('h1 em').textContent,
           stats: [...document.querySelectorAll('.mrt-stat')].map(s => s.querySelector('.mrt-stat-val').textContent.replace(/ /g, ' ') + ' | ' + s.querySelector('.mrt-stat-label').textContent),
           prochaine: q('.mrt-next').textContent,
-          joursVsCourse: Math.round(box('.mrt-days').top - box('h1 em').top),
+          compteurEnBas: Math.round(box('.mrt-count').bottom - box('.mrt-stats').bottom),
+          gauche: Math.round(box('.mrt-count').left - box('.mrt-stats').left),
           marqueVsTitre: Math.round(box('.mrt-brand').top - box('h1').top),
           compteurSousIndicateurs: box('.mrt-count').top >= box('.mrt-stats').bottom,
           droite: Math.round(box('.mrt-count').right - box('.mrt-brand').right),
@@ -84,9 +85,10 @@ const CONTROLES = {
         egal(['60 km / 3 500 m D+ | Distance', 'août 2029 | Date', 'Finisher | Objectif', "12 courses | D'ici là"], r.stats, nom + ', indicateurs'),
         egal('prochaine course · Trail du Lac · J-26', r.prochaine, nom + ', prochaine course'),
         egal(0, r.marqueVsTitre, nom + ', MyRunTools à la hauteur de « Cap sur »'),
-        egal(0, r.droite, nom + ', compteur aligné à droite'),
-        tel ? egal(true, r.compteurSousIndicateurs, nom + ', compteur sous les indicateurs')
-            : egal(0, r.joursVsCourse, nom + ', jours à la hauteur du nom de la course'),
+        ...(tel ? [egal(true, r.compteurSousIndicateurs, nom + ', compteur sous les indicateurs'),
+                   egal(0, r.gauche, nom + ', compteur aligné à gauche')]
+                : [egal(0, r.droite, nom + ', compteur aligné à droite'),
+                   egal(0, r.compteurEnBas, nom + ', bas du compteur au niveau du bas des indicateurs')]),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'en-tete-' + nom + '.png'), clip: { x: 0, y: 0, width: w, height: await p.evaluate(() => document.querySelector('.mrt-nav').getBoundingClientRect().bottom + 10) } });

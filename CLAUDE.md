@@ -43,6 +43,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : en-tête (compteur à droite, nombre de jours aligné sur le nom de la course sur ordinateur ; indicateur Distance / D+) ; journal sorti du README ; banc d'essai.
+- Dernier lot en ligne : disposition de l'en-tête reprise de l'ancien site trail (compteur en bas à droite sur ordinateur, à gauche sous les indicateurs sur téléphone).
 - En cours : rien.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

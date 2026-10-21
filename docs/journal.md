@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 22 oct. 2026 | En-tête | Disposition reprise de l'ancien site trail, éléments inchangés : sur ordinateur, compte à rebours en bas à droite, aligné sur le bas des indicateurs ; sur téléphone, une colonne, compteur sous les indicateurs, à gauche, nombre de jours en pleine taille ; indicateurs qui passent à la ligne ; marges du haut agrandies (3 rem, 2 rem sur téléphone). (Spécification générale 0.9, design 0.9.) |
 | 22 oct. 2026 | Méthode | Pour alléger chaque discussion : journal des décisions sorti du README (`docs/journal.md`) ; banc d'essai versionné (`outils/essais/`, données fictives) ; section « État en cours » dans `CLAUDE.md`. |
 | 22 oct. 2026 | En-tête | Sur ordinateur, le nombre de jours du compte à rebours s'aligne sur le nom de la course ; sur téléphone, compteur inchangé, à droite sous les indicateurs. (Spécification générale 0.8, design 0.8.) |
 | 22 oct. 2026 | En-tête | Distance et D+ fusionnés en un indicateur « Distance » (« 60 km / 3 500 m D+ »), dénivelé en texte discret ; distance seule sans D+. (Spécification générale 0.7, design 0.7.) |

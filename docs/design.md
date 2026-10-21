@@ -1,6 +1,6 @@
 # Design
 
-Version 0.8 · 22 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.9 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -56,10 +56,10 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 
 ### Disposition
 
-- **Marges** : 1,5 rem en haut, 2 rem sur les côtés et en bas ; 1 rem en haut, 1,25 rem sur les côtés et 1,5 rem en bas sur téléphone. Contenu centré, 960 px de large au plus.
+- **Marges** : 3 rem en haut, 2 rem sur les côtés et en bas ; 2 rem en haut, 1,25 rem sur les côtés et 1,5 rem en bas sur téléphone. Contenu centré, 960 px de large au plus.
 - **Nom de l'application et engrenage** : en haut à droite, leur haut aligné sur le haut de « Cap sur », à toutes les largeurs d'écran.
-- **Ordinateur** : deux colonnes. À gauche le titre, puis les indicateurs sur une ligne, espacés de 2 rem, 1,5 rem sous le titre ; à droite, le compte à rebours et la prochaine course, alignés à droite, le haut du nombre de jours au niveau du haut du nom de la course (une ligne de titre sous « Cap sur »).
-- **Téléphone** (600 px et moins) : le titre et le nom de l'application en haut ; les indicateurs en grille de deux colonnes dessous ; puis, 1,4 rem plus bas, le compte à rebours et la prochaine course, alignés à droite.
+- **Ordinateur** : deux colonnes, 2 rem entre elles. À gauche le titre, puis les indicateurs, espacés de 2 rem, 1,5 rem sous le titre, qui passent à la ligne faute de place ; à droite, en haut le nom de l'application, en bas le compte à rebours et la prochaine course, alignés à droite, leur bas au niveau du bas des indicateurs.
+- **Téléphone** (600 px et moins) : une seule colonne. Le titre, avec le nom de l'application à sa droite ; les indicateurs dessous, espacés de 2 rem et qui passent à la ligne faute de place ; puis, 2 rem plus bas, le compte à rebours et la prochaine course, alignés à gauche, le nombre de jours à la même taille que sur ordinateur.
 - **« Cap sur »** ne se coupe jamais : il tient sur une ligne, le nom de la course dessous.
 - **Filet** : barre de 5 px, 2 rem sous le contenu, toute la largeur ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
 - Une ligne fine (Bordure) sépare l'en-tête du menu.
