@@ -46,6 +46,9 @@ html.fc-ouvert { overflow: hidden; }
 .fc-bloc-titre[aria-expanded="false"] .fc-chev { transform: rotate(-90deg); }
 .fc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; padding-top: 0.3rem; }
 .fc-grille[hidden] { display: none; }
+/* La date seule sur sa ligne, à la largeur d'une colonne. */
+.fc-seul { grid-column: 1 / -1; }
+.fc-seul input { max-width: calc(50% - 0.5rem); }
 
 .fc-champ label {
   display: block;
@@ -105,4 +108,5 @@ html.fc-ouvert { overflow: hidden; }
   .fc-voile { padding: 0; place-items: stretch; }
   .fc-panneau { max-width: none; max-height: none; height: 100%; border-radius: 0; border: none; padding: 1rem 1.25rem 1.5rem; }
   .fc-grille { grid-template-columns: 1fr; }
+  .fc-seul input { max-width: none; }
 }
