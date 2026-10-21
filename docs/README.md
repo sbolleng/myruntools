@@ -47,12 +47,9 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Prochaines étapes
 
-- [ ] Compte du pilote route : en attente de son adresse e-mail, puis création comme le premier.
-- [ ] Supabase : désactiver « Allow new users to sign up » (comptes créés à la main seulement).
 - [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
-- [ ] Import de Rome : script fourni hors dépôt (37 courses : 9 courues, 7 à venir, 21 à surveiller), à lancer dans l'éditeur SQL.
-- [ ] Essai à deux du partage : Rome partage, tu regardes son site.
+- [ ] Essai à deux du partage : le compte test Rome partage, tu regardes son site.
 - [ ] Essai réel de la page Préférences avec ton compte (thème, menu, cap), contrôlée jusqu'ici sur le banc d'essai seulement.
 
 ### Préférences utilisateur
@@ -69,6 +66,10 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Spécifier les blocs de la page Objectif : l'indicateur « D'ici là » de l'en-tête en compte le nombre.
 - [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (calculée en attendant : la première course confirmée à venir).
 - [ ] Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête : même réglage que le Cap des Préférences (`course_cap`).
+
+### Calendrier
+
+- [ ] Créer la page Calendrier (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
 
 ## Questions ouvertes
 
