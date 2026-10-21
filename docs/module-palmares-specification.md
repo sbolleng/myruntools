@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.4 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.5 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -16,7 +16,7 @@ Affichées par défaut, de gauche à droite :
 | # | Colonne | Contenu | Saisie |
 | --- | --- | --- | --- |
 | 1 | Date | Jour de la course | Date |
-| 2 | Course | Nom de la course | Texte |
+| 2 | Course | Événement et parcours (« Forez Trails · L'Olmetoise ») ; le seul nom quand ils se confondent | Texte |
 | 3 | Type | Type de course (§ 3) | Choix |
 | 4 | Sous-catégorie | Précision du type (§ 3) | Choix |
 | 5 | Distance | Distance officielle, en km | Nombre |

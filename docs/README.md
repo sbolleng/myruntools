@@ -12,11 +12,11 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu | Version 0.2 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, ce qui est calculé | Version 0.4 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.4 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.5 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
-Maquettes : [maquettes/](maquettes/) (en-tête, connexion, calendrier). Page de démonstration : en-tête et menu partagés, profil trail écrit en dur (`donnees/demo.js`), Palmarès comme premier module.
+Maquettes : [maquettes/](maquettes/) (en-tête, connexion, calendrier). Site : en-tête, menu et Palmarès lus dans la base pour l'utilisateur connecté.
 
 ## Le projet en bref
 
@@ -48,9 +48,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Supabase : désactiver « Allow new users to sign up » (comptes créés à la main seulement).
 - [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
-- [ ] Étape 3.5 : import du profil trail (script fourni hors dépôt, à lancer après l'évolution 004).
 - [ ] Import de Rome, une fois son compte créé : feuille de route (7 courses ; Béret et Nocturne en Plaisir, Augerolloise en Objectif intermédiaire, Rome en Objectif ; Nocturne 260 m D+), Palmarès (9 courses validées), Courses à surveiller (une ligne par format ; sans date : « À définir »).
-- [ ] Palmarès et en-tête lus dans la base (fin de `donnees/demo.js` et des données écrites dans le code).
 - [ ] Socle, suite : profils et préférences lus dans la base.
 - [ ] Partage en lecture seule, juste après l'import : un utilisateur partage son site avec un autre (table `partages`, règles de lecture, sélecteur « Voir le site de… », bandeau « Lecture seule ») ; spécification à valider d'abord.
 
@@ -110,6 +108,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Socle | En-tête, menu et Palmarès lus dans la base (`composants/donnees.js`) ; profil de démonstration et données écrites dans le code retirés du dépôt. Courses du profil trail importées (18). |
 | 21 oct. 2026 | Modèle de données | Version 0.4 : circuits (UTMB, Challenge Levy…) dans une table à part, avec catégorie d'index et Running Stones par course ; course sans date affichée « À définir » (évolution 004). |
 | 21 oct. 2026 | Palmarès | Sous-catégories de trail selon la distance officielle (usage FFA) : découverte < 21 km, court 21–41, long 42–79, ultra ≥ 80 (spécification 1.4). |
 | 21 oct. 2026 | Import | Temps retenu : le temps puce. Terrain et tirage au sort rangés dans la description ; plan B, note dossard et meilleurs efforts Strava laissés de côté. |
