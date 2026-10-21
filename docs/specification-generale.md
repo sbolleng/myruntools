@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.7 · 22 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.8 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -50,7 +50,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | --- | --- |
 | Titre | « Cap sur » sur une ligne, puis le nom officiel de la course objectif, en couleur d'accent, sur la ligne suivante |
 | Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, Date, Objectif, D'ici là |
-| Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. En bas à droite de l'en-tête : à la hauteur des indicateurs sur ordinateur, sous eux sur téléphone |
+| Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. À droite de l'en-tête : sur ordinateur, le nombre de jours à la hauteur du nom de la course ; sur téléphone, sous les indicateurs |
 | Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
 | Engrenage ⚙️ | À droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) |
@@ -186,7 +186,7 @@ Résultats attendus :
 - Indicateurs, dans l'ordre : « 60 km / 3 500 m D+ » Distance, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Ligne sous le compteur : « prochaine course · Trail du Lac · J-26 ».
-- Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; compte à rebours et prochaine course en bas à droite, leur bas aligné sur celui des indicateurs sur ordinateur, sous les indicateurs sur téléphone, alignés à droite.
+- Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; compte à rebours et prochaine course alignés à droite ; sur ordinateur, le haut du nombre de jours au niveau du haut du nom de la course ; sur téléphone, sous les indicateurs.
 - Même objectif sans D+ (42,195 km) : Distance affiche « 42,195 km » seul ; l'en-tête garde 4 indicateurs.
 - Date connue au jour près (30 août 2029) : Date affiche « 30 août 2029 », le compteur vise le 30 août.
 - Une seule course avant l'objectif : « 1 course ».
