@@ -58,7 +58,6 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 ### Préférences utilisateur
 
 - [ ] Changement de mot de passe (connexion par lien magique seulement pour l'instant).
-- [ ] Thème violet et turquoise : proposé à tous dans les Préférences, mais encore dit « réservé aux essais » dans la spécification générale (§ 6) et CLAUDE.md. Le garder, ou le retirer de la liste ?
 
 ### Profil et Matériel
 

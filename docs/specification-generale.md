@@ -93,7 +93,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 ## 6. Thèmes
 
 - Chaque utilisateur choisit un thème parmi ceux proposés ; un thème ne change que les couleurs, jamais la mise en page.
-- Trois thèmes : **Bleu et orange**, **Vert et rose**, et **Violet et turquoise**, réservé aux essais. Valeurs dans le [document de design](design.md).
+- Trois thèmes : **Bleu et orange**, **Vert et rose**, et **Violet et turquoise**, proposés à tous. Valeurs dans le [document de design](design.md).
 - Aucune couleur libre : l'utilisateur choisit un thème, pas des couleurs une à une.
 
 ## 7. Catalogue des modules
