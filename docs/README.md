@@ -12,6 +12,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.9 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
+| [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.0 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition | Version 1.8 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
@@ -51,16 +52,11 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
 - [ ] Import de Rome : script fourni hors dépôt (37 courses : 9 courues, 7 à venir, 21 à surveiller), à lancer dans l'éditeur SQL.
-- [ ] Socle, suite : profils et préférences lus dans la base.
 - [ ] Essai à deux du partage : Rome partage, tu regardes son site.
 
-### Préférences utilisateur (page à créer)
+### Préférences utilisateur
 
-- [ ] Créer la page, ouverte par l'engrenage de l'en-tête.
-- [ ] Choix du thème parmi ceux proposés.
-- [ ] Changement de mot de passe.
-- [ ] Choix de la course affichée dans le titre de l'en-tête (écrite en dur en attendant).
-- [ ] Choix des modules affichés dans le menu, et de leur ordre.
+- [ ] Changement de mot de passe (connexion par lien magique seulement pour l'instant).
 
 ### Profil et Matériel
 

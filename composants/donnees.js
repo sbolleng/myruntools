@@ -16,6 +16,7 @@
     { nom: 'Guide' }
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif
+  window.mrtModules = MODULES;
 
   const pad = n => String(n).padStart(2, '0');
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
@@ -59,10 +60,13 @@
 
   // En-tête depuis les courses : cap choisi, sinon la course à venir la plus
   // lointaine de la page Objectif (modèle de données, § 7).
+  // Courses à venir de la page Objectif, de la plus proche à la plus lointaine :
+  // celles qui peuvent servir de cap.
+  window.mrtCoursesCap = courses => courses.filter(c => PLAN.has(c.statut) && c.etat === 'a_venir' && c.date && c.date >= today())
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+
   function configEnTete(prefs, courses) {
-    const auj = today();
-    const aVenir = courses.filter(c => PLAN.has(c.statut) && c.etat === 'a_venir' && c.date && c.date >= auj)
-      .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    const aVenir = window.mrtCoursesCap(courses);
     prefs = prefs || {};
     const cap = aVenir.find(c => c.id === prefs.course_cap) || aVenir[aVenir.length - 1] || null;
     let objectif = {};
@@ -127,12 +131,13 @@
     }
     let courses = [];
     try { courses = await lireCourses(qui); } catch (err) { console.warn('Courses : lecture impossible', err); }
-    window.renderEnTete(Object.assign(configEnTete(prefs, courses), { courant: opts.courant }));
-    if (prefs && prefs.theme && window.appliquerTheme) window.appliquerTheme(prefs.theme);
+    const dessiner = p => window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant }));
+    dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
     return {
       session, courses, lectureSeule: !!proprietaire, proprietaire,
-      relire: () => lireCourses(qui)
+      relire: () => lireCourses(qui),
+      redessiner: dessiner // en-tête et menu, avec d'autres préférences
     };
   };
 })();

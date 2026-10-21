@@ -115,7 +115,7 @@ Pour que Cette semaine fonctionne, chaque module devra pouvoir dire ce qui compt
 
 ## 8. Préférences utilisateur
 
-Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit.
+Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit. Détail : [spécification des Préférences](module-preferences-specification.md).
 
 | Réglage | Effet |
 | --- | --- |
@@ -123,9 +123,9 @@ Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les ré
 | Modules | Modules affichés dans le menu, et leur ordre |
 | Partage | Personnes avec qui je partage mon site, en lecture seule ; sites partagés avec moi (§ 9) |
 | Cap | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) ; par défaut la plus lointaine |
-| Mot de passe | Changement du mot de passe du compte |
+| Compte | Nom, adresse de connexion, déconnexion |
 
-La page sera construite avec la base de données ; d'ici là, ces réglages sont écrits en dur.
+Changement de mot de passe : plus tard (connexion par lien magique seulement pour l'instant).
 
 ## 9. Partage en lecture seule
 

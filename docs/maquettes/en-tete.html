@@ -16,6 +16,7 @@
 <script>
   renderEnTete({
     racine: '../../',
+    theme: new URLSearchParams(location.search).get('t'), // maquette seulement
     objectif: { nom: 'Trail des Crêtes', distance: 60, dplus: 3500, date: '2029-08', dIciLa: 12, cible: 'Finisher' },
     prochaine: { nom: 'Trail du Lac', date: '2026-11-15' },
     modules: [{ nom: 'Cette semaine' }, { nom: 'Objectif' }, { nom: 'Nutrition' }, { nom: 'Palmarès', page: 'palmares.html' }, { nom: 'Profil' }, { nom: 'Guide' }],

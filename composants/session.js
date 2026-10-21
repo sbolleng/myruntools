@@ -56,7 +56,7 @@
       return;
     }
     document.documentElement.classList.remove('mrt-attente');
-    // Le thème des préférences s'applique, sauf thème imposé par l'adresse (?t=…).
+    // Le thème des préférences s'applique.
     if (s && s.preferences && s.preferences.theme && window.appliquerTheme) window.appliquerTheme(s.preferences.theme);
   });
 })();

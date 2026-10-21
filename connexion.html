@@ -64,9 +64,7 @@
 <script src="composants/en-tete.js?v=__VERSION__"></script>
 <script src="composants/session.js?v=__VERSION__"></script>
 <script>
-  // Pas d'en-tête ici : seul le thème imposé par l'adresse (?t=…) s'applique.
-  const t = new URLSearchParams(location.search).get('t');
-  if (t) document.documentElement.classList.add('t-' + t);
+  // Pas d'en-tête ici : thème par défaut, le visiteur n'est pas encore connu.
   const form = document.getElementById('form-connexion'), msg = document.getElementById('message');
   // Déjà connecté (retour du lien magique) : direction l'accueil.
   mrtSession().then(s => { if (s) location.replace('index.html' + location.search); });

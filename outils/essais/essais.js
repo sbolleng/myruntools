@@ -20,13 +20,26 @@ const LIB = fs.readFileSync(require.resolve('@supabase/supabase-js/dist/umd/supa
 const CAPTURES = process.argv.includes('--captures');
 const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 
-// Base simulée : lecture filtrée par les « eq. » de l'adresse ; les écritures
-// sont acceptées sans rien changer.
+// Base simulée : lecture filtrée par les « eq. » de l'adresse ; fonctions lues
+// dans db.rpc ; les préférences enregistrées (upsert) sont gardées dans db,
+// les autres écritures acceptées sans rien changer ; db.panne : écritures en échec.
 function simulerBase(ctx, db) {
   return ctx.route(PROJET + '/**', route => {
     const req = route.request(), u = new URL(req.url());
-    if (u.pathname.startsWith('/rest/v1/rpc/')) return route.fulfill({ contentType: 'application/json', body: '[]' });
-    if (req.method() !== 'GET') return route.fulfill({ contentType: 'application/json', body: '[]' });
+    if (u.pathname.startsWith('/rest/v1/rpc/')) {
+      const r = (db.rpc || {})[u.pathname.split('/').pop()] || [];
+      return route.fulfill({ contentType: 'application/json', body: JSON.stringify(r) });
+    }
+    if (req.method() !== 'GET') {
+      if (db.panne) return route.fulfill({ status: 500, contentType: 'application/json', body: '{"message":"panne"}' });
+      if (u.pathname.endsWith('/preferences') && req.method() === 'POST') {
+        [].concat(req.postDataJSON()).forEach(l => {
+          const x = db.preferences.find(y => y.utilisateur === l.utilisateur);
+          if (x) Object.assign(x, l); else db.preferences.push(l);
+        });
+      }
+      return route.fulfill({ contentType: 'application/json', body: '[]' });
+    }
     const table = u.pathname.split('/').pop();
     const filtres = [...u.searchParams].filter(([k]) => !['select', 'order'].includes(k));
     const lignes = (db[table] || []).filter(x => filtres.every(([k, v]) => String(x[k]) === v.replace(/^eq\./, '')));
@@ -36,7 +49,8 @@ function simulerBase(ctx, db) {
 }
 
 // Ouvre une page du site, connecté, à la largeur demandée.
-async function ouvrir(navigateur, page, largeur, db) {
+// stockage : valeurs posées dans localStorage avant d'ouvrir la page.
+async function ouvrir(navigateur, page, largeur, db, stockage = {}) {
   const ctx = await navigateur.newContext({ viewport: { width: largeur, height: 900 }, deviceScaleFactor: 2 });
   await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
   await simulerBase(ctx, db);
@@ -48,6 +62,7 @@ async function ouvrir(navigateur, page, largeur, db) {
   const t = Math.floor(AUJOURDHUI / 1000);
   // Palmarès sans regroupement, comme dans son jeu d'essai.
   await p.evaluate(() => localStorage.setItem('mrt-palmares-groupe', '0'));
+  await p.evaluate(st => Object.entries(st).forEach(([k, v]) => localStorage.setItem(k, v)), stockage);
   await p.evaluate(s => localStorage.setItem('sb-gifrpodrwesuhtgkxbuc-auth-token', s), JSON.stringify({
     access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai',
     user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
@@ -119,9 +134,104 @@ const CONTROLES = {
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'palmares.png'), fullPage: true });
     await ctx.close();
     return pb;
+  },
+  // Préférences : thème, menu, cap, lecture seule (module-preferences-specification.md).
+  async preferences(nav, db0) {
+    // Jeu d'essai : Trail du Lac, Course A (option), Trail des Crêtes à venir ; Course B à surveiller ; les courues.
+    const db = JSON.parse(JSON.stringify(db0));
+    const renomme = { '21': ['Course A', 'option'], '23': ['Course B', 'a_surveiller'] };
+    db.courses = db.courses.filter(c => c.etat !== 'a_venir' || /(20|21|23|40)$/.test(c.id));
+    db.courses.forEach(c => { const r = renomme[c.id.slice(-2)]; if (r) [c.course, c.statut] = r; });
+    const pb = [];
+    let { p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, db);
+    const q = (sel, f) => p.evaluate(([s, fn]) => new Function('x', 'return ' + fn)(document.querySelector(s)), [sel, f]);
+    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => t.textContent));
+    // Attend la réponse de la base (vraie attente : la date du jour est figée).
+    const attendre = async () => {
+      for (let i = 0; i < 80; i++) {
+        await p.waitForTimeout(25);
+        if (!(await p.evaluate(() => [...document.querySelectorAll('.pref-msg')].some(m => m.textContent === 'Enregistrement…')))) return;
+      }
+    };
+    const recharger = async () => { await p.reload(); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500); };
+    pb.push(egal(true, await q('.mrt-gear', 'x.getAttribute("href").endsWith("preferences.html")'), 'engrenage vers les Préférences'));
+    pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors du menu'));
+
+    // Thème
+    pb.push(egal('bleu-orange', await q('input[name=theme]:checked', 'x.value'), 'thème coché à l\'ouverture'));
+    await p.click('input[value="vert-rose"]'); await attendre();
+    pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), 'vert et rose appliqué aussitôt'));
+    pb.push(egal('Enregistré.', await q('#bloc-theme .pref-msg', 'x.textContent'), 'thème, message'));
+    await recharger();
+    pb.push(egal('vert-rose', await q('input[name=theme]:checked', 'x.value'), 'thème après rechargement'));
+    await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
+    pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), 'accueil en vert et rose'));
+    await p.goto(RACINE + 'preferences.html?t=violet-turquoise'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
+    pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), '?t=… sans effet'));
+
+    // Menu
+    const catalogue = ['Cette semaine', 'Objectif', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
+    pb.push(egal(catalogue, await menu(), 'menu par défaut'));
+    pb.push(egal(6, await p.locator('.pref-modules input:checked').count(), 'tous les modules cochés'));
+    pb.push(egal(5, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
+    await p.click('[aria-label="Monter Palmarès"]'); await attendre();
+    const monte = ['Cette semaine', 'Objectif', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
+    pb.push(egal(monte, await menu(), 'Palmarès monté, menu aussitôt'));
+    await recharger();
+    pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
+    await p.locator('.pref-modules label', { hasText: 'Guide' }).locator('input').uncheck(); await attendre();
+    pb.push(egal(false, (await menu()).includes('Guide'), 'Guide décoché, absent du menu'));
+    await p.click('.pref-defaut'); await attendre();
+    pb.push(egal(catalogue, await menu(), 'ordre par défaut rétabli'));
+    for (const n of catalogue.slice(1)) { await p.locator('.pref-modules label', { hasText: n }).locator('input').uncheck(); await attendre(); }
+    pb.push(egal(['Cette semaine'], await menu(), 'un seul module affiché'));
+    pb.push(egal(true, await q('.pref-modules input:checked', 'x.disabled'), 'dernière case non décochable'));
+    await p.click('.pref-defaut'); await attendre();
+
+    // Cap
+    const options = await p.evaluate(() => [...document.querySelectorAll('#bloc-cap option')].map(o => o.textContent));
+    pb.push(egal('Par défaut : la plus lointaine (Trail des Crêtes)', options[0], 'cap, premier choix'));
+    pb.push(egal(['Trail du Lac', 'Course A', 'Trail des Crêtes'], options.slice(1).map(o => o.split(' · ')[0]), 'cap, courses proposées'));
+    await p.selectOption('#bloc-cap select', { label: options[1] }); await attendre();
+    pb.push(egal('Trail du Lac', await q('h1 em', 'x.textContent'), 'cap Trail du Lac dans l\'en-tête'));
+    await recharger();
+    pb.push(egal(options[1], await q('#bloc-cap select', 'x.selectedOptions[0].textContent'), 'cap après rechargement'));
+    db.courses.find(c => c.course === 'Trail du Lac').etat = 'abandonnee';
+    await recharger();
+    pb.push(egal('Trail des Crêtes', await q('h1 em', 'x.textContent'), 'cap abandonné : retour au défaut'));
+    pb.push(egal('', await q('#bloc-cap select', 'x.value'), 'cap abandonné : liste sur « Par défaut »'));
+    db.courses.find(c => c.course === 'Trail du Lac').etat = 'a_venir';
+    await recharger();
+    await p.selectOption('#bloc-cap select', ''); await attendre();
+    pb.push(egal('Trail des Crêtes', await q('h1 em', 'x.textContent'), 'cap par défaut'));
+
+    // Échec d'enregistrement
+    db.panne = true;
+    await p.click('input[value="bleu-orange"]'); await attendre();
+    pb.push(egal('Enregistrement impossible pour l\'instant.', await q('#bloc-theme .pref-msg', 'x.textContent'), 'panne, message'));
+    pb.push(egal('vert-rose', await q('input[name=theme]:checked', 'x.value'), 'panne, thème inchangé'));
+    db.panne = false;
+    pb.push(egal([], erreurs, 'erreurs JavaScript'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preferences.png'), fullPage: true });
+    await ctx.close();
+
+    // Site partagé en lecture seule
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    db.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, db, { 'mrt-vue': autre }));
+    const corps = await p.evaluate(() => ['bloc-theme', 'bloc-menu', 'bloc-cap'].map(id => document.querySelector('#' + id + ' .pref-corps').textContent));
+    pb.push(egal(Array(3).fill('Reviens à ton site pour modifier tes réglages.'), corps, 'lecture seule'));
+    pb.push(egal(true, await p.locator('#form-partage input').isEditable(), 'lecture seule, partage utilisable'));
+    await ctx.close();
+
+    // Téléphone
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 390, db));
+    pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone, débordement horizontal'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preferences-telephone.png'), fullPage: true });
+    await ctx.close();
+    return pb;
   }
 };
-
 (async () => {
   if (CAPTURES) fs.mkdirSync(path.join(__dirname, 'captures'), { recursive: true });
   const db = JSON.parse(fs.readFileSync(path.join(__dirname, 'donnees-fictives.json'), 'utf8'));
