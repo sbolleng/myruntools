@@ -85,7 +85,7 @@
     return {
       theme: prefs.theme,
       objectif,
-      prochaine: prochaine ? { nom: window.mrtNomCourse(prochaine), date: prochaine.date } : null,
+      prochaine: prochaine ? { nom: prochaine.course, date: prochaine.date } : null, // le nom de la course, pas du parcours
       modules
     };
   }

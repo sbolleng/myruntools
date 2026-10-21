@@ -144,6 +144,9 @@
   cursor: pointer;
 }
 .pv2-rond:hover, .pv2-toggle[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+/* Regroupement inactif : fond Surface 2 (le bleu du thème bleu et orange). */
+.pv2-toggle[aria-pressed="false"] { color: var(--text); background: var(--surface2); border-color: var(--border); }
+.pv2-toggle[aria-pressed="false"]:hover { color: var(--accent); border-color: var(--accent); }
 .pv2-rond .pv2-ico { width: 0.95rem; height: 0.95rem; }
 .pv2-add { margin-left: auto; }
 .pv2-rond:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
