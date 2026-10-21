@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.0 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.1 · 21 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -11,7 +11,7 @@ La page Préférences rassemble les réglages du site de l'utilisateur connecté
 
 ## 2. Organisation
 
-Un bloc par réglage, dans cet ordre : **Thème**, **Menu**, **Cap**, **Partage**, **Compte**.
+Un bloc par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Partage**.
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
 - **Effet immédiat** : l'en-tête et le menu de la page se mettent à jour sans recharger.
@@ -19,7 +19,7 @@ Un bloc par réglage, dans cet ordre : **Thème**, **Menu**, **Cap**, **Partage*
 
 ## 3. Thème
 
-- Trois choix, un seul actif : **Bleu et orange**, **Vert et rose**, **Violet et turquoise** (mention « essais »).
+- Trois choix, un seul actif : **Bleu et orange**, **Vert et rose**, **Violet et turquoise**.
 - Chaque choix montre un petit aperçu de ses couleurs (fond et accent).
 - Choisir un thème recolore aussitôt la page.
 - Le thème ne se choisit qu'ici : une adresse ne l'impose pas. La page de connexion, avant que l'utilisateur soit connu, est dans le premier thème.
@@ -72,6 +72,7 @@ Résultats attendus :
 
 - L'engrenage de l'en-tête ouvre la page ; elle ne figure pas dans le menu.
 - Sans connexion, la page renvoie vers la connexion sans rien afficher.
+- Les blocs se suivent dans cet ordre : Compte, Cap, Thème, Menu, Partage ; aucun thème ne porte de mention.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
 - Page ouverte avec `?t=violet-turquoise` : sans effet, la page reste en vert et rose.
 - Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés.

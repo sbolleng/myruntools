@@ -10,9 +10,9 @@
 <title>Préférences · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <style>
-  /* Réglages : spécification docs/module-preferences-specification.md. Textes à 0,85 rem, comme le Palmarès et la connexion. */
-  .card { font-size: 0.85rem; }
+  /* Réglages : spécification docs/module-preferences-specification.md ; tailles : docs/design.md § 3. */
   .card h2 { margin-bottom: 0.7rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+  .card b { font-weight: 600; }
   .pref-intro { margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--muted); }
   .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
   .pref-ligne { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
@@ -37,7 +37,6 @@
   .pref-apercu { display: inline-flex; flex: none; }
   .pref-apercu span { width: 1rem; height: 1rem; border-radius: 50%; border: 1px solid var(--border); }
   .pref-apercu span + span { margin-left: -0.3rem; }
-  .pref-note { color: var(--muted); font-size: 0.75rem; }
   /* Menu : case, nom, flèches. */
   .pref-modules li { gap: 0.6rem; }
   .pref-modules label { flex: 1; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
@@ -52,6 +51,15 @@
 </head>
 <body>
 <main>
+  <div class="card" id="bloc-compte">
+    <h2>Compte</h2>
+    <p id="compte" class="muted">Lecture…</p>
+  </div>
+  <div class="card" id="bloc-cap">
+    <h2>Cap</h2>
+    <div class="pref-corps"></div>
+    <p class="pref-msg" aria-live="polite"></p>
+  </div>
   <div class="card" id="bloc-theme">
     <h2>Thème</h2>
     <div class="pref-corps"></div>
@@ -62,14 +70,9 @@
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </div>
-  <div class="card" id="bloc-cap">
-    <h2>Cap</h2>
-    <div class="pref-corps"></div>
-    <p class="pref-msg" aria-live="polite"></p>
-  </div>
   <div class="card" id="partage">
     <h2>Partage</h2>
-    <p class="pref-intro">Montre ton site en lecture seule : la personne voit tes courses et tes réglages, jamais tes données de santé. Tu peux retirer l'accord à tout moment.</p>
+    <p class="pref-intro">Le partage donne à un autre compte un accès en lecture seule à ton site : courses et réglages. Les données de santé ne sont jamais partagées. L'accès peut être retiré à tout moment.</p>
     <div class="pref-legende">Partager mon site avec</div>
     <form class="pref-ligne" id="form-partage">
       <input type="email" id="partage-email" required autocomplete="off" placeholder="adresse e-mail de son compte" aria-label="Adresse e-mail">
@@ -80,10 +83,6 @@
     <ul class="pref-liste" id="mes-partages"></ul>
     <div class="pref-legende">Sites partagés avec moi</div>
     <ul class="pref-liste" id="partages-avec-moi"></ul>
-  </div>
-  <div class="card">
-    <h2>Compte</h2>
-    <p id="compte" class="muted">Lecture…</p>
   </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -97,7 +96,7 @@
   const THEMES = [
     { id: 'bleu-orange', nom: 'Bleu et orange' },
     { id: 'vert-rose', nom: 'Vert et rose' },
-    { id: 'violet-turquoise', nom: 'Violet et turquoise', note: 'essais' }
+    { id: 'violet-turquoise', nom: 'Violet et turquoise' }
   ];
   const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   // « 15 nov. 2026 », ou « août 2029 » si le jour n'est pas connu.
@@ -140,7 +139,7 @@
     blocTheme.querySelector('.pref-corps').innerHTML = '<div class="pref-themes" role="radiogroup" aria-label="Thème">' + THEMES.map(t =>
       '<label class="pref-theme"><input type="radio" name="theme" value="' + t.id + '"' + (t.id === themeActuel() ? ' checked' : '') + '>' +
       '<span class="pref-apercu t-' + t.id + '"><span style="background:var(--bg)"></span><span style="background:var(--accent)"></span></span>' +
-      '<span>' + esc(t.nom) + (t.note ? ' <span class="pref-note">· ' + esc(t.note) + '</span>' : '') + '</span></label>').join('') + '</div>';
+      '<span>' + esc(t.nom) + '</span></label>').join('') + '</div>';
     blocTheme.addEventListener('change', e => {
       const avant = themeActuel();
       enregistrer(blocTheme, { theme: e.target.value }, () => { blocTheme.querySelector('input[value="' + avant + '"]').checked = true; });

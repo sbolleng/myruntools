@@ -156,6 +156,8 @@ const CONTROLES = {
     const recharger = async () => { await p.reload(); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500); };
     pb.push(egal(true, await q('.mrt-gear', 'x.getAttribute("href").endsWith("preferences.html")'), 'engrenage vers les Préférences'));
     pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors du menu'));
+    pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
+    pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise'], await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes, sans mention'));
 
     // Thème
     pb.push(egal('bleu-orange', await q('input[name=theme]:checked', 'x.value'), 'thème coché à l\'ouverture'));
