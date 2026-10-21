@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 0.1 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.0 · 21 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -22,7 +22,7 @@ Un bloc par réglage, dans cet ordre : **Thème**, **Menu**, **Cap**, **Partage*
 - Trois choix, un seul actif : **Bleu et orange**, **Vert et rose**, **Violet et turquoise** (mention « essais »).
 - Chaque choix montre un petit aperçu de ses couleurs (fond et accent).
 - Choisir un thème recolore aussitôt la page.
-- Une page ouverte avec `?t=…` garde ce thème-là pour la visite ; le réglage enregistré ne change pas.
+- Le thème ne se choisit qu'ici : une adresse ne l'impose pas. La page de connexion, avant que l'utilisateur soit connu, est dans le premier thème.
 
 ## 4. Menu
 
@@ -73,7 +73,7 @@ Résultats attendus :
 - L'engrenage de l'en-tête ouvre la page ; elle ne figure pas dans le menu.
 - Sans connexion, la page renvoie vers la connexion sans rien afficher.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
-- Page ouverte avec `?t=violet-turquoise` : la page est en violet et turquoise, le réglage enregistré reste coché.
+- Page ouverte avec `?t=violet-turquoise` : sans effet, la page reste en vert et rose.
 - Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés.
 - Monter Palmarès d'un rang : le menu de la page change aussitôt ; recharger : l'ordre est conservé.
 - Décocher Guide : il disparaît du menu ; « Rétablir l'ordre par défaut » le fait revenir à sa place.

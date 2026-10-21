@@ -33,7 +33,7 @@ Spécification → validation → modèle de données si besoin → construction
 - `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), planning.
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
-- Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise` (essais) ; une page s'ouvre dans un autre thème avec `?t=…`.
+- Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise` (essais), choisis dans les Préférences seulement (plus de `?t=…` sur le site).
 - `docs/maquettes/` : maquettes (en-tête, calendrier) ; le calendrier s'ouvre avec `?t=trail` ou `?t=route` (profils d'exemple).
 - Banc d'essai : `outils/essais/` (`npm install` une fois, puis `node essais.js`, `--captures` pour des images). Chromium, base simulée par `donnees-fictives.json`, date figée au 20 octobre 2026. Chaque module construit y ajoute ses contrôles, tirés de son jeu d'essai. Données fictives seulement.
 - Publication : `.github/workflows/publication.yml` publie GitHub Pages à chaque mise à jour de `main` et remplace `__VERSION__` par le numéro du commit dans les liens CSS/JS et la balise `site-version` : rien à incrémenter à la main.
@@ -43,6 +43,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : disposition de l'en-tête reprise de l'ancien site trail (compteur en bas à droite sur ordinateur, à gauche sous les indicateurs sur téléphone).
+- Dernier lot en ligne : page Préférences (thème, menu, cap), `?t=…` retiré du site.
 - En cours : rien.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

@@ -10,31 +10,66 @@
 <title>Préférences · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <style>
-  .card h2 { font-size: 1.2rem; margin-bottom: 0.6rem; }
+  /* Réglages : spécification docs/module-preferences-specification.md. Textes à 0,85 rem, comme le Palmarès et la connexion. */
+  .card { font-size: 0.85rem; }
+  .card h2 { margin-bottom: 0.7rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+  .pref-intro { margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--muted); }
   .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
   .pref-ligne { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
-  .pref-ligne input { flex: 1 1 14rem; padding: 0.55rem 0.7rem; font: inherit; font-size: 0.85rem; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; }
-  .pref-ligne input:focus { outline: none; border-color: var(--accent); }
+  .pref-ligne input, .pref-select { flex: 1 1 14rem; min-width: 0; padding: 0.55rem 0.7rem; font: inherit; font-size: 0.85rem; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; }
+  .pref-select { width: 100%; max-width: 100%; color-scheme: dark; }
+  .pref-select option { background: var(--surface); color: var(--text); }
+  .pref-ligne input:focus, .pref-select:focus { outline: none; border-color: var(--accent); }
   .pref-btn { padding: 0.5rem 1rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 20px; cursor: pointer; }
   .pref-btn:hover { color: var(--bg); background: var(--accent); }
-  .pref-liste { list-style: none; font-size: 0.85rem; }
+  .pref-liste { list-style: none; }
   .pref-liste li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
   .pref-liste li:last-child { border-bottom: none; }
   .pref-lien { background: none; border: none; padding: 0; font: inherit; font-size: 0.75rem; color: var(--accent); text-decoration: underline; cursor: pointer; }
   .pref-msg { min-height: 1.4em; margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); }
   .pref-msg.erreur { color: var(--red); }
   .pref-vide { font-size: 0.8rem; color: var(--muted); }
+  /* Thème : un choix par ligne, avec ses deux couleurs. */
+  .pref-themes { display: grid; gap: 0.4rem; }
+  .pref-theme { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+  .pref-theme:has(input:checked) { border-color: var(--accent); }
+  .pref-theme input { accent-color: var(--accent); margin: 0; }
+  .pref-apercu { display: inline-flex; flex: none; }
+  .pref-apercu span { width: 1rem; height: 1rem; border-radius: 50%; border: 1px solid var(--border); }
+  .pref-apercu span + span { margin-left: -0.3rem; }
+  .pref-note { color: var(--muted); font-size: 0.75rem; }
+  /* Menu : case, nom, flèches. */
+  .pref-modules li { gap: 0.6rem; }
+  .pref-modules label { flex: 1; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+  .pref-modules input { accent-color: var(--accent); margin: 0; }
+  .pref-modules .bientot { opacity: 0.45; }
+  .pref-fleches { display: flex; gap: 0.3rem; }
+  .pref-rond { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; padding: 0; font: inherit; font-size: 0.75rem; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+  .pref-rond:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+  .pref-rond:disabled { opacity: 0.3; cursor: default; }
+  .pref-defaut { margin-top: 0.6rem; }
 </style>
 </head>
 <body>
 <main>
-  <div class="card">
-    <h2>Préférences utilisateur</h2>
-    <p class="muted">Page à venir : thème, modules du menu et leur ordre, cap de l'en-tête.</p>
+  <div class="card" id="bloc-theme">
+    <h2>Thème</h2>
+    <div class="pref-corps"></div>
+    <p class="pref-msg" aria-live="polite"></p>
+  </div>
+  <div class="card" id="bloc-menu">
+    <h2>Menu</h2>
+    <div class="pref-corps"></div>
+    <p class="pref-msg" aria-live="polite"></p>
+  </div>
+  <div class="card" id="bloc-cap">
+    <h2>Cap</h2>
+    <div class="pref-corps"></div>
+    <p class="pref-msg" aria-live="polite"></p>
   </div>
   <div class="card" id="partage">
     <h2>Partage</h2>
-    <p class="muted" style="font-size:0.8rem">Montre ton site en lecture seule : la personne voit tes courses et tes réglages, jamais tes données de santé. Tu peux retirer l'accord à tout moment.</p>
+    <p class="pref-intro">Montre ton site en lecture seule : la personne voit tes courses et tes réglages, jamais tes données de santé. Tu peux retirer l'accord à tout moment.</p>
     <div class="pref-legende">Partager mon site avec</div>
     <form class="pref-ligne" id="form-partage">
       <input type="email" id="partage-email" required autocomplete="off" placeholder="adresse e-mail de son compte" aria-label="Adresse e-mail">
@@ -57,8 +92,120 @@
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
 <script>
-  mrtPage({ courant: 'preferences.html' }).then(page => afficherPartages(page));
   const db = () => mrtSupabase;
+  const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const THEMES = [
+    { id: 'bleu-orange', nom: 'Bleu et orange' },
+    { id: 'vert-rose', nom: 'Vert et rose' },
+    { id: 'violet-turquoise', nom: 'Violet et turquoise', note: 'essais' }
+  ];
+  const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  // « 15 nov. 2026 », ou « août 2029 » si le jour n'est pas connu.
+  const dateCourte = c => {
+    const p = c.date.split('-').map(Number);
+    return (c.date_approx ? '' : (p[2] === 1 ? '1er' : p[2]) + ' ') + MOIS[p[1] - 1] + ' ' + p[0];
+  };
+
+  mrtPage({ courant: 'preferences.html' }).then(page => {
+    afficherPartages(page);
+    const blocs = ['bloc-theme', 'bloc-menu', 'bloc-cap'].map(id => document.getElementById(id));
+    if (page.lectureSeule) {
+      blocs.forEach(b => { b.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Reviens à ton site pour modifier tes réglages.</p>'; });
+      return;
+    }
+    const prefs = Object.assign({}, page.session.preferences);
+
+    // Enregistre un réglage ; l'en-tête et le menu suivent. En cas d'échec, annuler() remet le bloc en l'état.
+    let attente = {};
+    async function enregistrer(bloc, champs, annuler) {
+      const msg = bloc.querySelector('.pref-msg');
+      clearTimeout(attente[bloc.id]);
+      msg.className = 'pref-msg';
+      msg.textContent = 'Enregistrement…';
+      const { error } = await db().from('preferences').upsert(Object.assign({ utilisateur: page.session.id }, champs));
+      if (error) {
+        msg.className = 'pref-msg erreur';
+        msg.textContent = 'Enregistrement impossible pour l\'instant.';
+        annuler();
+        return;
+      }
+      Object.assign(prefs, champs);
+      page.redessiner(prefs);
+      msg.textContent = 'Enregistré.';
+      attente[bloc.id] = setTimeout(() => { msg.textContent = ''; }, 3000);
+    }
+
+    // ----- Thème
+    const blocTheme = blocs[0], themeActuel = () => (THEMES.find(t => t.id === prefs.theme) || THEMES[0]).id;
+    blocTheme.querySelector('.pref-corps').innerHTML = '<div class="pref-themes" role="radiogroup" aria-label="Thème">' + THEMES.map(t =>
+      '<label class="pref-theme"><input type="radio" name="theme" value="' + t.id + '"' + (t.id === themeActuel() ? ' checked' : '') + '>' +
+      '<span class="pref-apercu t-' + t.id + '"><span style="background:var(--bg)"></span><span style="background:var(--accent)"></span></span>' +
+      '<span>' + esc(t.nom) + (t.note ? ' <span class="pref-note">· ' + esc(t.note) + '</span>' : '') + '</span></label>').join('') + '</div>';
+    blocTheme.addEventListener('change', e => {
+      const avant = themeActuel();
+      enregistrer(blocTheme, { theme: e.target.value }, () => { blocTheme.querySelector('input[value="' + avant + '"]').checked = true; });
+    });
+
+    // ----- Menu : modules affichés dans l'ordre choisi, puis les autres.
+    const blocMenu = blocs[1];
+    const parDefaut = () => mrtModules.map(m => ({ nom: m.nom, affiche: true }));
+    const depuisPrefs = () => {
+      if (!prefs.modules || !prefs.modules.length) return parDefaut();
+      const choisis = prefs.modules.filter(n => mrtModules.some(m => m.nom === n));
+      return choisis.map(nom => ({ nom, affiche: true }))
+        .concat(mrtModules.filter(m => !choisis.includes(m.nom)).map(m => ({ nom: m.nom, affiche: false })));
+    };
+    let liste = depuisPrefs();
+    function dessinerMenu() {
+      const nbAffiches = liste.filter(m => m.affiche).length;
+      blocMenu.querySelector('.pref-corps').innerHTML = '<ul class="pref-liste pref-modules">' + liste.map((m, i) => {
+        const construit = mrtModules.find(x => x.nom === m.nom).page;
+        const seul = m.affiche && nbAffiches === 1;
+        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) + '</label>' +
+          '<span class="pref-fleches"><button type="button" class="pref-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+          '<button type="button" class="pref-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
+      }).join('') + '</ul><button type="button" class="pref-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
+    }
+    function changerMenu(nouvelle, valeur) {
+      const avant = liste;
+      liste = nouvelle;
+      dessinerMenu();
+      enregistrer(blocMenu, { modules: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.nom) }, () => { liste = avant; dessinerMenu(); });
+    }
+    dessinerMenu();
+    blocMenu.addEventListener('change', e => {
+      const i = Number(e.target.dataset.i);
+      changerMenu(liste.map((m, j) => (j === i ? { nom: m.nom, affiche: e.target.checked } : m)));
+    });
+    blocMenu.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.classList.contains('pref-defaut')) return changerMenu(parDefaut(), null);
+      const i = Number(b.dataset.monter != null ? b.dataset.monter : b.dataset.descendre), j = b.dataset.monter != null ? i - 1 : i + 1;
+      const nouvelle = liste.slice();
+      [nouvelle[i], nouvelle[j]] = [nouvelle[j], nouvelle[i]];
+      changerMenu(nouvelle);
+    });
+
+    // ----- Cap : course du titre de l'en-tête, par défaut la plus lointaine.
+    const blocCap = blocs[2], candidates = mrtCoursesCap(page.courses);
+    if (!candidates.length) {
+      blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Aucune course à venir.</p>';
+    } else {
+      const plusLointaine = candidates[candidates.length - 1];
+      const capActuel = () => (candidates.some(c => c.id === prefs.course_cap) ? prefs.course_cap : '');
+      blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Course affichée dans le titre de l\'en-tête.</p>' +
+        '<select class="pref-select" aria-label="Cap"><option value="">Par défaut : la plus lointaine (' + esc(mrtNomCourse(plusLointaine)) + ')</option>' +
+        candidates.map(c => '<option value="' + esc(c.id) + '">' + esc(mrtNomCourse(c)) + ' · ' + esc(dateCourte(c)) + '</option>').join('') + '</select>';
+      const select = blocCap.querySelector('select');
+      select.value = capActuel();
+      select.addEventListener('change', () => {
+        const avant = capActuel();
+        enregistrer(blocCap, { course_cap: select.value || null }, () => { select.value = avant; });
+      });
+    }
+  });
+
   const nomComplet = p => [p.prenom, p.nom].filter(Boolean).join(' ');
   async function afficherPartages(page) {
     const [mes, avec] = await Promise.all([db().rpc('mes_partages'), db().rpc('partages_avec_moi')]);
@@ -103,7 +250,6 @@
     afficherPartages(null);
   });
   const compte = document.getElementById('compte');
-  const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   mrtSession().then(s => {
     if (!s) {
       compte.innerHTML = 'Non connecté. <a href="connexion.html' + location.search + '">Se connecter</a>';
@@ -111,7 +257,6 @@
     }
     const p = s.profil || {};
     compte.innerHTML = 'Connecté : <b>' + esc([p.prenom, p.nom].filter(Boolean).join(' ') || 'profil à créer') + '</b> · ' + esc(s.email) +
-      (s.preferences && s.preferences.theme ? ' · thème ' + esc(s.preferences.theme) : '') +
       '<br><a href="#" id="deconnexion">Se déconnecter</a>';
     document.getElementById('deconnexion').addEventListener('click', async e => {
       e.preventDefault();

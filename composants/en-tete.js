@@ -4,8 +4,7 @@
 // par docs/specification-generale.md (§ 4 et 5) et docs/design.md.
 //
 // config :
-//   theme      'bleu-orange' | 'vert-rose' | 'violet-turquoise' ; ?t=… dans
-//              l'adresse l'emporte
+//   theme      'bleu-orange' | 'vert-rose' | 'violet-turquoise'
 //   objectif   { nom, distance (km), dplus (m, si connu), date
 //                ('AAAA-MM-JJ', ou 'AAAA-MM' si le jour est inconnu), dIciLa
 //                (nombre de courses avant l'objectif), cible (texte libre) }
@@ -39,30 +38,22 @@
     return Math.round((b - a) / DAY);
   }
   const dash = '—';
+  let minuteur = null;
 
-  function themeOf(cfg) {
-    let t = null;
-    try { t = new URLSearchParams(location.search).get('t'); } catch (e) { /* adresse illisible */ }
-    return THEMES.indexOf(t) !== -1 ? t : (THEMES.indexOf(cfg.theme) !== -1 ? cfg.theme : THEMES[0]);
-  }
-
-  // Thème venu des préférences, appliqué après coup ; un thème imposé par
-  // l'adresse (?t=…) garde la priorité.
+  // Thème venu des préférences ; inconnu ou absent : le premier.
   window.appliquerTheme = function (name) {
-    let t = null;
-    try { t = new URLSearchParams(location.search).get('t'); } catch (e) { /* adresse illisible */ }
-    if (THEMES.indexOf(t) !== -1 || THEMES.indexOf(name) === -1) return;
-    THEMES.forEach(x => document.documentElement.classList.toggle('t-' + x, x === name));
+    const t = THEMES.indexOf(name) !== -1 ? name : THEMES[0];
+    THEMES.forEach(x => document.documentElement.classList.toggle('t-' + x, x === t));
   };
 
   window.renderEnTete = function (cfg) {
     const o = cfg.objectif || {};
     const now = () => (cfg.maintenant ? parseDate(cfg.maintenant) : new Date());
-    const theme = themeOf(cfg);
-    THEMES.forEach(t => document.documentElement.classList.toggle('t-' + t, t === theme));
-    // Un thème imposé par l'adresse (?t=…) suit les liens du menu et de l'engrenage.
-    const forced = location.search.indexOf('t=' + theme) !== -1;
-    const withTheme = href => (cfg.racine || '') + (forced ? href + '?t=' + theme : href);
+    // Redessiné (Préférences) : l'ancien en-tête et son compte à rebours disparaissent.
+    document.querySelectorAll('.mrt-header, .mrt-nav').forEach(e => e.remove());
+    clearInterval(minuteur);
+    window.appliquerTheme(cfg.theme);
+    const lien = href => (cfg.racine || '') + href;
 
     const stats = [
       // Le dénivelé, quand il est connu, suit la distance en texte discret.
@@ -83,8 +74,8 @@
             '<div class="mrt-stat"><span class="mrt-stat-val">' + s[1] + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
         '</div>' +
         '<div class="mrt-droite">' +
-          '<div class="mrt-brand"><a href="' + withTheme('index.html') + '">MyRunTools</a>' +
-            '<a class="mrt-gear" href="' + withTheme('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
+          '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' +
+            '<a class="mrt-gear" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
           '<div class="mrt-count">' +
             '<span class="mrt-days">—</span><span class="mrt-days-label">jours</span>' +
             '<div class="mrt-hms"></div><div class="mrt-next"></div></div>' +
@@ -97,7 +88,7 @@
     nav.innerHTML = '<div class="mrt-nav-inner">' + (cfg.modules || []).map(m => {
       if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + esc(m.nom) + '</span>';
       const on = m.page === cfg.courant;
-      return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + withTheme(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
+      return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
     }).join('') + '</div>';
 
     document.body.prepend(header, nav);
@@ -129,7 +120,7 @@
       $('.mrt-next').innerHTML = left >= 0 ? 'prochaine course · <b>' + esc(next.nom) + '</b> · J-' + left : '';
     }
     tick();
-    if (!cfg.maintenant) setInterval(tick, 1000);
+    if (!cfg.maintenant) minuteur = setInterval(tick, 1000);
   };
 
   // ===== Rechargement automatique =====
