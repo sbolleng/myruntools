@@ -10,7 +10,7 @@
 create type statut_course as enum ('a_surveiller', 'option', 'confirmee');
 create type role_course   as enum ('preparatoire', 'plaisir', 'objectif_intermediaire', 'objectif');
 create type etat_course   as enum ('a_venir', 'abandonnee', 'courue');
-create type theme         as enum ('trail', 'route', 'test');
+create type theme         as enum ('bleu-orange', 'vert-rose', 'violet-turquoise');
 create type sexe          as enum ('femme', 'homme', 'non_precise');
 
 -- ----- Listes de référence : des données, modifiées par l'administrateur seul

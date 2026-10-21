@@ -31,6 +31,7 @@ Spécification → validation → modèle de données si besoin → construction
 - Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
 - `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), palmarès, planning.
 - `donnees/demo.js` : profil de démonstration écrit en dur, en attendant la base de données.
-- `docs/maquettes/` : maquettes (en-tête, calendrier), ouvertes avec `?t=trail`, `?t=route` ou `?t=test`.
+- Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise` (essais) ; une page s'ouvre dans un autre thème avec `?t=…`.
+- `docs/maquettes/` : maquettes (en-tête, calendrier) ; le calendrier s'ouvre avec `?t=trail` ou `?t=route` (profils d'exemple).
 - Publication : `.github/workflows/publication.yml` publie GitHub Pages à chaque mise à jour de `main` et remplace `__VERSION__` par le numéro du commit dans les liens CSS/JS et la balise `site-version` : rien à incrémenter à la main.
 - Circuit git : travailler sur la branche de la session, fusionner dans `main` (`--no-ff`), pousser les deux. Vérifier une fois, en fin de lot, que la publication a réussi, avant d'annoncer que c'est en ligne.

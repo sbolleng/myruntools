@@ -44,8 +44,10 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Prochaines étapes
 
-- [ ] Étape 3 : créer le projet Supabase (par toi, guidé pas à pas), puis les tables et règles du modèle de données, les deux comptes, et l'import des données des anciens sites.
-- [ ] Socle, suite : connexion et profils, une fois Supabase en place.
+- [ ] Compte du pilote route : en attente de son adresse e-mail, puis création comme le premier.
+- [ ] Étape 3.4 : connexion par lien magique sur le site (adresse de retour à régler dans Supabase).
+- [ ] Étape 3.5 : import des données des anciens sites (script jamais versionné).
+- [ ] Socle, suite : profils et préférences lus dans la base.
 
 ### Préférences utilisateur (page à créer)
 
@@ -103,6 +105,8 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Thèmes | Nommés par leurs couleurs : `bleu-orange`, `vert-rose`, `violet-turquoise` (au lieu de trail, route, test) ; un thème ne change que les couleurs. |
+| 21 oct. 2026 | Supabase | Projet créé (région Europe du Nord), tables et règles par ligne en place (`supabase/schema.sql`), compte du pilote trail créé ; évolutions de la base dans `supabase/evolutions/`. |
 | 20 oct. 2026 | Modèle de données | Version 0.3 : statut (À surveiller, Option, Confirmée), rôle (Préparatoire, Plaisir, Objectif intermédiaire, Objectif) et état (À venir, Abandonnée, Courue) séparés ; DNF dans le résultat ; groupes d'options à la place d'« À choisir » ; « Horizon » supprimé ; cap choisi dans les Préférences, par défaut la course la plus lointaine ; description (1 000 caractères) et lien d'inscription ; passages et chronos de référence en listes dans la course ; profil avec nom, FC repos et max, VMA, VO2 max, sans historique ; table `equipements`. |
 | 20 oct. 2026 | Modèle de données | Version 0.2 validée : une seule table `courses` (prévue puis courue), profils, préférences, candidats, points de passage, repères, listes de référence ; règles par ligne. Statuts « Courue, non terminée » (DNF), « Abandonnée » et, plus tard, « À surveiller ». Chaussures, nutrition et séances viendront avec leur module. |
 | 20 oct. 2026 | En-tête | L'indicateur « Objectif » reprend l'objectif de la course de l'en-tête ; plus de champ libre dans les Préférences. |

@@ -2,7 +2,7 @@
 // En attendant la base de données et les Préférences utilisateur : course de
 // l'en-tête, objectif cible, prochaine course et modules du menu.
 window.MRT_PROFIL = {
-  theme: 'trail',
+  theme: 'bleu-orange',
   objectif: {
     nom: 'La Boffi Fifty',
     distance: 46.5,
