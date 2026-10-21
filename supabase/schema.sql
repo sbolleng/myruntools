@@ -87,8 +87,6 @@ create table courses (
 
   -- Classement (le type se déduit de la sous-catégorie)
   sous_categorie text references sous_categories (id),
-  label_utmb     text,
-  index_utmb     text,
 
   -- Date, heure locale de la course, sans fuseau
   date        date,
@@ -159,6 +157,25 @@ create table courses (
 
 create index courses_utilisateur_date on courses (utilisateur, date);
 
+-- ----- Circuits : une course peut appartenir à plusieurs circuits
+create table circuits (
+  id      text primary key,
+  libelle text not null unique,
+  lien    text,
+  note    text,
+  ordre   int  not null
+);
+
+create table courses_circuits (
+  utilisateur uuid not null default auth.uid(),
+  course      uuid not null,
+  circuit     text not null references circuits (id),
+  categorie   text,                       -- UTMB : catégorie d'index (20K, 50K…)
+  stones      int check (stones >= 0),    -- Running Stones rapportées
+  primary key (course, circuit),
+  foreign key (utilisateur, course) references courses (utilisateur, id) on delete cascade
+);
+
 -- Date de dernière modification tenue à jour par la base
 create function marquer_modification() returns trigger language plpgsql set search_path = '' as $$
 begin
@@ -189,12 +206,16 @@ alter table equipements      enable row level security;
 alter table types_course     enable row level security;
 alter table sous_categories  enable row level security;
 alter table types_equipement enable row level security;
+alter table circuits         enable row level security;
+alter table courses_circuits enable row level security;
 
 create policy "son profil" on profils for all to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()));
 create policy "ses préférences" on preferences for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses courses" on courses for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "ses circuits" on courses_circuits for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "son équipement" on equipements for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
@@ -204,6 +225,7 @@ create policy "son équipement" on equipements for all to authenticated
 create policy "lecture" on types_course     for select to authenticated using (true);
 create policy "lecture" on sous_categories  for select to authenticated using (true);
 create policy "lecture" on types_equipement for select to authenticated using (true);
+create policy "lecture" on circuits         for select to authenticated using (true);
 
 -- ============================================================================
 -- Listes de référence (spécification du Palmarès, § 3)
@@ -249,3 +271,7 @@ insert into types_equipement (id, libelle, ordre) values
   ('frontale', 'Frontale', 5),
   ('vetement', 'Vêtement', 6),
   ('autre', 'Autre', 7);
+
+insert into circuits (id, libelle, lien, note, ordre) values
+  ('utmb', 'UTMB', 'https://utmb.world', 'Catégorie d''index (20K, 50K, 100K…) ; Running Stones sur les courses UTMB World Series', 1),
+  ('levy', 'Challenge Levy', 'https://chrono-start.com/challenge-levy/', 'Autour de Toulouse, 12 à 15 courses par an ; classé à partir de 5 courses', 2);

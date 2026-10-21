@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.3 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.4 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -52,6 +52,8 @@ Liste fermée, commune à toute l'application : on choisit une valeur, on ne la 
 | Marche | Marche découverte · Marche longue · Marche ultra |
 | Fast hiking | Ultra-randonnée · Randonnée rapide |
 | Triathlon | Triathlon XS · Triathlon S · Triathlon M · Triathlon L · Ironman 70.3 · Triathlon XL · Ironman |
+
+**Trail, selon la distance officielle** (usage de la FFA) : découverte moins de 21 km ; court de 21 à 41 km ; long de 42 à 79 km ; ultra-trail 80 km et plus.
 
 ## 4. Données de la course et données montre
 
