@@ -8,11 +8,11 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, données | Version 0.3 |
-| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu | Version 0.2 |
-| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, ce qui est calculé | Version 0.4 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données | Version 0.4 |
+| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires et bandeau | Version 0.3 |
+| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.5 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.5 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.6 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -50,7 +50,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
 - [ ] Import de Rome : script fourni hors dépôt (37 courses : 9 courues, 7 à venir, 21 à surveiller), à lancer dans l'éditeur SQL.
 - [ ] Socle, suite : profils et préférences lus dans la base.
-- [ ] Partage en lecture seule, juste après l'import : un utilisateur partage son site avec un autre (table `partages`, règles de lecture, sélecteur « Voir le site de… », bandeau « Lecture seule ») ; spécification à valider d'abord.
+- [ ] Base : coller l'évolution 005 (partage) dans l'éditeur SQL, puis essai à deux : Rome partage, tu regardes son site.
 
 ### Préférences utilisateur (page à créer)
 
@@ -108,6 +108,8 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Partage | Partage en lecture seule (spécification générale § 9, modèle 0.5, évolution 005) : par l'e-mail d'un compte existant ; courses, circuits, préférences, prénom, nom et sexe ; jamais les données de santé ni l'équipement ; bandeau « Lecture seule » et retour à son site. |
+| 21 oct. 2026 | Palmarès | Édition dans le site (spécification 1.6, § 10) : formulaire en quatre blocs (`composants/fiche-course.*`), durées en chiffres seuls acceptées, suppression dans le formulaire après confirmation ; rien d'éditable en lecture seule. |
 | 21 oct. 2026 | Import | Rome : 9 courses courues, 7 à venir (Béret et Nocturne en Plaisir, Augerolloise en Objectif intermédiaire, Rome en Objectif), 21 à surveiller (une ligne par format, sans date : « À définir ») ; Tournefeuille dans le Challenge Levy. En-tête : la prochaine course affiche « Événement · Parcours ». |
 | 21 oct. 2026 | Socle | En-tête, menu et Palmarès lus dans la base (`composants/donnees.js`) ; profil de démonstration et données écrites dans le code retirés du dépôt. Courses du profil trail importées (18). |
 | 21 oct. 2026 | Modèle de données | Version 0.4 : circuits (UTMB, Challenge Levy…) dans une table à part, avec catégorie d'index et Running Stones par course ; course sans date affichée « À définir » (évolution 004). |

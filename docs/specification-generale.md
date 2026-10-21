@@ -12,12 +12,14 @@ L'application est une boîte à outils pour coureurs, organisée en **modules**.
 
 Deux profils pilotes au lancement :
 
-| Profil | Pratique | Thème par défaut |
+| Profil | Pratique | Thème |
 | --- | --- | --- |
 | Pilote trail | Trail | Bleu et orange |
 | Pilote route | Route | Vert et rose |
 
-L'application est conçue pour accueillir d'autres coureurs plus tard ; ajouter un utilisateur revient à créer son compte et ses préférences, sans toucher au code des modules.
+- **Comptes créés par l'administrateur** : pas d'inscription libre. Ajouter un coureur revient à créer son compte, son profil et ses préférences dans la base, sans toucher au code des modules.
+- Chaque utilisateur ne voit que ses propres données ; il peut montrer son site à un autre, en lecture seule (§ 9).
+- La pratique ne fixe que le thème proposé au départ (§ 6) ; modules, cap et contenus sont propres à chacun.
 
 ## 3. Structure commune
 
