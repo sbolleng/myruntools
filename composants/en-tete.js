@@ -4,7 +4,8 @@
 // par docs/specification-generale.md (§ 4 et 5) et docs/design.md.
 //
 // config :
-//   theme      'trail' | 'route' | 'test' ; ?t=… dans l'adresse l'emporte
+//   theme      'bleu-orange' | 'vert-rose' | 'violet-turquoise' ; ?t=… dans
+//              l'adresse l'emporte
 //   objectif   { nom, distance (km), dplus (m, trail seulement), date
 //                ('AAAA-MM-JJ', ou 'AAAA-MM' si le jour est inconnu), dIciLa
 //                (nombre de courses avant l'objectif), cible (texte libre) }
@@ -15,7 +16,8 @@
 //   racine     préfixe des liens, pour une page rangée dans un sous-dossier
 (function () {
   const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const THEMES = ['trail', 'route', 'test'];
+  // Thèmes : seules les couleurs changent ; le premier sert par défaut.
+  const THEMES = ['bleu-orange', 'vert-rose', 'violet-turquoise'];
   const DAY = 86400000;
   const pad = n => String(n).padStart(2, '0');
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -41,7 +43,7 @@
   function themeOf(cfg) {
     let t = null;
     try { t = new URLSearchParams(location.search).get('t'); } catch (e) { /* adresse illisible */ }
-    return THEMES.indexOf(t) !== -1 ? t : (THEMES.indexOf(cfg.theme) !== -1 ? cfg.theme : 'trail');
+    return THEMES.indexOf(t) !== -1 ? t : (THEMES.indexOf(cfg.theme) !== -1 ? cfg.theme : THEMES[0]);
   }
 
   window.renderEnTete = function (cfg) {

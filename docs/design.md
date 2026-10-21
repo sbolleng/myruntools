@@ -24,7 +24,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 | Texte discret | `#8fa8c9` | `#8FA391` | `#A49BB8` |
 | Alerte | `#e05c5c` | `#A56269` | `#E0607E` |
 
-Dans les maquettes et la page de démonstration, `?t=trail`, `?t=route` ou `?t=test` choisit le thème.
+Identifiants : `bleu-orange`, `vert-rose`, `violet-turquoise`. Dans les maquettes et la page de démonstration, `?t=bleu-orange`, `?t=vert-rose` ou `?t=violet-turquoise` choisit le thème.
 
 ## 3. Typographies
 
