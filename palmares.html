@@ -21,44 +21,28 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>
-<script src="donnees/demo.js?v=__VERSION__"></script>
 <script src="composants/en-tete.js?v=__VERSION__"></script>
 <script src="composants/session.js?v=__VERSION__"></script>
+<script src="composants/donnees.js?v=__VERSION__"></script>
 <script src="composants/palmares.js?v=__VERSION__"></script>
 <script>
-  renderEnTete(Object.assign({}, MRT_PROFIL, { courant: 'palmares.html' }));
-  // Jeu de test : résultats officiels (distance, D+, temps, allure ou vitesse
-  // publiées, classements) ; les données montre reprennent les valeurs du
-  // premier prototype.
-  renderPalmares(document.getElementById('palmares'), {
-    feminin: true,
-    races: [
-      { date: '2025-03-30', course: '10 km de Montauban', type: 'Course sur route', sub: '10 km',
-        dist: 10, dplus: 24, time: '51:46', pace: '5:10', speed: 11.59, rank: 579, rankCat: 10, rankSex: 112,
-        wDist: 10.1, wDplus: 24, wTime: '51:46', wPace: '5:08' },
-      { date: '2025-05-11', course: 'La Bressolaise', type: 'Trail', sub: 'Trail découverte',
-        dist: 7, dplus: 60, time: '42:37', speed: 9.9, rank: 40, rankCat: 1, rankSex: 5 },
-      { date: '2025-09-13', course: "L'Épicurienne Trail · La Gourmande", type: 'Trail', sub: 'Trail découverte',
-        dist: 11, dplus: 200, time: '1:04:25', speed: 10.3, rank: 62, rankCat: 2, rankSex: 10,
-        wDist: 10.7, wDplus: 199, wTime: '1:04:24', wPace: '6:00' },
-      { date: '2025-10-05', course: 'Semi-marathon de Sète', type: 'Course sur route', sub: 'Semi-marathon',
-        dist: 21.1, dplus: 56, time: '1:53:12', speed: 11.1, rank: 281, rankCat: 13, rankSex: 74,
-        wDist: 20.8, wDplus: 56, wTime: '1:53:12', wPace: '5:24' },
-      { date: '2025-11-30', course: 'Biscatrail', type: 'Trail', sub: 'Trail découverte',
-        dist: 18, dplus: 350, time: '2:02:43', speed: 8.8, rank: 476, rankTotal: 873, rankCat: 19, rankSex: 102,
-        wDist: 18.3, wDplus: 340, wTime: '2:02:30', wPace: '6:35' },
-      { date: '2026-03-08', course: "Forez Trails · L'Olmetoise", type: 'Trail', sub: 'Trail court',
-        dist: 24, dplus: 950, time: '3:00:50', pace: '7:22', speed: 8.13, rank: 99, rankCat: 1, rankSex: 15,
-        wDist: 24.1, wDplus: 932, wTime: '3:00:23', wPace: '7:18' },
-      { date: '2026-03-29', course: '10 km de Montauban', type: 'Course sur route', sub: '10 km',
-        dist: 10, dplus: 24, time: '49:18', pace: '4:55', speed: 12.17, rank: 458, rankCat: 11, rankSex: 81,
-        wDist: 10.0, wDplus: 24, wTime: '49:18', wPace: '4:55' },
-      { date: '2026-05-30', course: 'Ekiden de Montauban · relais 5 km', type: 'Course sur route', sub: '5 km',
-        dist: 5, dplus: 65, time: '24:58', speed: 12, rank: 57, rankCat: 2, rankSex: 16 },
-      { date: '2026-10-04', course: 'Rural Kutxa Semi-Marathon de San Sebastian', type: 'Course sur route', sub: 'Semi-marathon',
-        dist: 21.1, dplus: 38, time: '1:56:05', rank: 1950, rankCat: 178, rankSex: 400,
-        wDist: 21.1, wPace: '5:30' }
-    ]
+  // Les courses courues de l'utilisateur connecté, lues dans la base.
+  const hms = s => (s == null ? null : Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'));
+  const ms = s => (s == null ? null : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
+  const num = v => (v == null ? null : Number(v));
+  mrtPage({ courant: 'palmares.html' }).then(({ session, courses }) => {
+    const races = courses.filter(c => c.etat === 'courue').map(c => ({
+      date: c.date, course: mrtNomCourse(c), type: c.typeLibelle, sub: c.sousLibelle,
+      dist: num(c.distance), dplus: c.dplus, time: hms(c.temps), dnf: c.dnf, pace: ms(c.allure), speed: num(c.vitesse),
+      rank: c.place, rankTotal: c.effectif, rankCat: c.place_categorie, rankCatTotal: c.effectif_categorie,
+      rankSex: c.place_sexe, rankSexTotal: c.effectif_sexe,
+      wDist: num(c.montre_distance), wDplus: c.montre_dplus, wTime: hms(c.montre_temps), wPace: ms(c.montre_allure),
+      wSpeed: num(c.montre_vitesse), hr: c.fc_moyenne
+    }));
+    renderPalmares(document.getElementById('palmares'), {
+      feminin: !!(session.profil && session.profil.sexe === 'femme'),
+      races
+    });
   });
 </script>
 </body>

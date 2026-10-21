@@ -31,7 +31,8 @@ Spécification → validation → modèle de données si besoin → construction
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
 - Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
 - `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), palmarès, planning.
-- `donnees/demo.js` : profil de démonstration écrit en dur, en attendant la base de données.
+- `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
+- Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise` (essais) ; une page s'ouvre dans un autre thème avec `?t=…`.
 - `docs/maquettes/` : maquettes (en-tête, calendrier) ; le calendrier s'ouvre avec `?t=trail` ou `?t=route` (profils d'exemple).
 - Publication : `.github/workflows/publication.yml` publie GitHub Pages à chaque mise à jour de `main` et remplace `__VERSION__` par le numéro du commit dans les liens CSS/JS et la balise `site-version` : rien à incrémenter à la main.
