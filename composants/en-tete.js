@@ -46,6 +46,15 @@
     return THEMES.indexOf(t) !== -1 ? t : (THEMES.indexOf(cfg.theme) !== -1 ? cfg.theme : THEMES[0]);
   }
 
+  // Thème venu des préférences, appliqué après coup ; un thème imposé par
+  // l'adresse (?t=…) garde la priorité.
+  window.appliquerTheme = function (name) {
+    let t = null;
+    try { t = new URLSearchParams(location.search).get('t'); } catch (e) { /* adresse illisible */ }
+    if (THEMES.indexOf(t) !== -1 || THEMES.indexOf(name) === -1) return;
+    THEMES.forEach(x => document.documentElement.classList.toggle('t-' + x, x === name));
+  };
+
   window.renderEnTete = function (cfg) {
     const o = cfg.objectif || {};
     const now = () => (cfg.maintenant ? parseDate(cfg.maintenant) : new Date());

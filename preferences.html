@@ -13,11 +13,37 @@
 <main>
   <div class="card">
     <h2>Préférences utilisateur</h2>
-    <p class="muted">Page à venir : thème, modules du menu et leur ordre, course de l'en-tête, objectif cible, mot de passe.</p>
+    <p class="muted">Page à venir : thème, modules du menu et leur ordre, cap de l'en-tête.</p>
+  </div>
+  <div class="card">
+    <h2>Compte</h2>
+    <p id="compte" class="muted">Lecture…</p>
   </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
 <script src="donnees/demo.js?v=__VERSION__"></script>
 <script src="composants/en-tete.js?v=__VERSION__"></script>
-<script>renderEnTete(Object.assign({}, MRT_PROFIL, { courant: 'preferences.html' }));</script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script>
+  renderEnTete(Object.assign({}, MRT_PROFIL, { courant: 'preferences.html' }));
+  const compte = document.getElementById('compte');
+  const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  mrtSession().then(s => {
+    if (!s) {
+      compte.innerHTML = 'Non connecté. <a href="connexion.html' + location.search + '">Se connecter</a>';
+      return;
+    }
+    const p = s.profil || {};
+    compte.innerHTML = 'Connecté : <b>' + esc([p.prenom, p.nom].filter(Boolean).join(' ') || 'profil à créer') + '</b> · ' + esc(s.email) +
+      (s.preferences && s.preferences.theme ? ' · thème ' + esc(s.preferences.theme) : '') +
+      '<br><a href="#" id="deconnexion">Se déconnecter</a>';
+    document.getElementById('deconnexion').addEventListener('click', async e => {
+      e.preventDefault();
+      await mrtDeconnecter();
+      location.reload();
+    });
+  });
+</script>
 </body>
 </html>

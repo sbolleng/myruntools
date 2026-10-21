@@ -45,7 +45,9 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 ### Prochaines étapes
 
 - [ ] Compte du pilote route : en attente de son adresse e-mail, puis création comme le premier.
-- [ ] Étape 3.4 : connexion par lien magique sur le site (adresse de retour à régler dans Supabase).
+- [ ] Étape 3.4 : premier essai réel de la connexion par lien magique (page « Se connecter » en ligne).
+- [ ] Supabase : désactiver « Allow new users to sign up » (comptes créés à la main seulement).
+- [ ] E-mail de connexion en français (Authentication › Emails).
 - [ ] Étape 3.5 : import des données des anciens sites (script jamais versionné).
 - [ ] Socle, suite : profils et préférences lus dans la base.
 
@@ -105,6 +107,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Connexion | Page « Se connecter » par lien magique, réservée aux comptes existants ; thème lu dans les préférences (un `?t=…` garde la priorité) ; bloc Compte et déconnexion dans les Préférences. Site encore public tant que la connexion n'a pas été essayée pour de vrai. |
 | 21 oct. 2026 | Thèmes | Nommés par leurs couleurs : `bleu-orange`, `vert-rose`, `violet-turquoise` (au lieu de trail, route, test) ; un thème ne change que les couleurs. |
 | 21 oct. 2026 | Supabase | Projet créé (région Europe du Nord), tables et règles par ligne en place (`supabase/schema.sql`), compte du pilote trail créé ; évolutions de la base dans `supabase/evolutions/`. |
 | 20 oct. 2026 | Modèle de données | Version 0.3 : statut (À surveiller, Option, Confirmée), rôle (Préparatoire, Plaisir, Objectif intermédiaire, Objectif) et état (À venir, Abandonnée, Courue) séparés ; DNF dans le résultat ; groupes d'options à la place d'« À choisir » ; « Horizon » supprimé ; cap choisi dans les Préférences, par défaut la course la plus lointaine ; description (1 000 caractères) et lien d'inscription ; passages et chronos de référence en listes dans la course ; profil avec nom, FC repos et max, VMA, VO2 max, sans historique ; table `equipements`. |

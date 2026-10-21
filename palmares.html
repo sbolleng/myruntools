@@ -18,8 +18,11 @@
 <main>
   <div id="palmares" class="pv2"></div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
 <script src="donnees/demo.js?v=__VERSION__"></script>
 <script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/palmares.js?v=__VERSION__"></script>
 <script>
   renderEnTete(Object.assign({}, MRT_PROFIL, { courant: 'palmares.html' }));
