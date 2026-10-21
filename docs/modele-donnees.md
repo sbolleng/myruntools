@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.3 · 20 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.4 · 21 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -19,8 +19,9 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `profils` | Un utilisateur | Compte Supabase |
 | `preferences` | Les réglages d'un utilisateur | `profils`, `courses` (cap) |
 | `courses` | Une course, à surveiller, prévue ou courue | `profils`, `sous_categories`, `equipements` (chaussures) |
+| `courses_circuits` | L'appartenance d'une course à un circuit (UTMB, Challenge Levy…) | `courses`, `circuits` |
 | `equipements` | Un équipement : chaussures, montre, bâtons… | `profils`, `types_equipement` |
-| `types_course`, `sous_categories`, `types_equipement` | Une valeur d'une liste de référence | — |
+| `types_course`, `sous_categories`, `types_equipement`, `circuits` | Une valeur d'une liste de référence | — |
 
 ## 3. Profil et préférences
 
@@ -64,7 +65,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Identité | `nom` (nom officiel), `evenement`, `lieu`, `latitude`, `longitude` | Affichage, météo |
 | Liens | `lien` (site officiel), `inscription` (site d'inscription), `lien_resultats` (résultats en direct) | Liens de l'étape, suivi en course |
 | Description | `description` : texte libre, 1 000 caractères au plus | Quelques infos sur la course |
-| Classement | `sous_categorie` (le type s'en déduit), `label_utmb`, `index_utmb` | Palmarès, records, badges |
+| Classement | `sous_categorie` (le type s'en déduit) ; circuits dans `courses_circuits` (§ 4.3) | Palmarès, records, badges |
 | Date | `date`, `heure` (heure locale), `date_approx` (vrai si seul le mois est connu) | Comptes à rebours, ordre, en-tête |
 | Profil officiel | `distance`, `dplus`, `dmoins` | En-tête, Palmarès, km-effort |
 | Place dans le plan | `statut`, `role`, `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
@@ -89,7 +90,8 @@ Trois réglages indépendants décrivent la place d'une course dans le plan.
 
 - **Options** : plusieurs courses au statut Option qui partagent le même `groupe_options` (« Automne 2027 ») sont des candidates pour un même créneau ; la page Objectif les montre ensemble. Une Option sans groupe est une option isolée. Choisir une candidate la passe en Confirmée.
 - Une course ne passe à Courue que si elle est Confirmée.
-- Une course lointaine dont seul le mois est connu reste Confirmée, avec `date_approx`.
+- Une course lointaine dont seul le mois est connu reste Confirmée, avec `date_approx` (date rangée au 1er du mois).
+- Une course sans date (souvent À surveiller) s'affiche « À définir ».
 
 ### 4.2 Suivi en course
 
@@ -97,6 +99,19 @@ Trois réglages indépendants décrivent la place d'une course dans le plan.
 - **`chronos_reference`** : les chronos dessinés sur la jauge de progression (« Cible 1h50 », « Record 1h53 ») ; la page situe la projection d'arrivée par rapport à eux.
 - Ces listes vivent dans la course : elles sont supprimées avec elle.
 - Les temps saisis pendant la course restent sur l'appareil (spécification Objectif, § 5.3) : ils ne sont pas rangés dans la base.
+
+### 4.3 Circuits
+
+Une course peut appartenir à zéro, un ou plusieurs circuits, chacun avec ses propres informations : d'où une table à part.
+
+| Champ | Contenu |
+| --- | --- |
+| `course` | La course |
+| `circuit` | Le circuit (liste de référence `circuits`) |
+| `categorie` | Catégorie dans le circuit : pour l'UTMB, la catégorie d'index (20K, 50K, 100K…) ; vide si inconnue |
+| `stones` | Running Stones rapportées (courses UTMB World Series), sinon vide |
+
+Supprimer une course supprime ses lignes de circuit.
 
 ## 5. Équipement
 
@@ -123,6 +138,7 @@ Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'
 | `types_course` | Course sur route, Trail, Marche, Fast hiking, Triathlon, avec leur ordre | Administrateur du site |
 | `sous_categories` | Les sous-catégories de chaque type (spécification du Palmarès, § 3), avec leur ordre et l'indication « distance fixe » (records) | Administrateur du site |
 | `types_equipement` | Chaussures, montre, bâtons, sac, frontale, vêtement… | Administrateur du site |
+| `circuits` | UTMB (index et World Series), Challenge Levy…, avec lien et note (« classé à partir de 5 courses ») | Administrateur du site |
 
 ### Listes fermées (gravées dans la base)
 
@@ -162,3 +178,5 @@ Résultats attendus :
 - Une course marquée DNF affiche « DNF » dans le Palmarès et n'entre pas dans les records.
 - Une valeur de statut, de rôle ou d'état inconnue est refusée ; une description de plus de 1 000 caractères aussi.
 - Une sous-catégorie inconnue est refusée ; un utilisateur ne peut pas modifier les listes de référence.
+- A rattache une course au circuit UTMB, catégorie 20K, 1 stone : B ne voit pas ce rattachement ; supprimer la course le supprime.
+- Une course sans date (À surveiller) est acceptée ; elle s'affiche « À définir ».
