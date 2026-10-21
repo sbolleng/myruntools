@@ -9,38 +9,64 @@
 <title>Se connecter · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <style>
-  .connexion { max-width: 26rem; margin: 2rem auto; }
-  .connexion h2 { margin-bottom: 0.4rem; }
-  .connexion p { font-size: 0.85rem; }
-  .connexion label { display: block; margin: 1.2rem 0 0.4rem; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  .connexion input { width: 100%; padding: 0.7rem 0.8rem; font: inherit; font-size: 1rem; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
-  .connexion input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .connexion button { margin-top: 1rem; width: 100%; padding: 0.75rem; font: inherit; font-weight: 600; color: var(--bg); background: var(--accent); border: none; border-radius: 6px; cursor: pointer; }
-  .connexion button:disabled { opacity: 0.6; cursor: default; }
-  .connexion .message { margin-top: 1rem; }
+  /* Page d'accueil des visiteurs non connectés : sobre, sans en-tête ni menu. */
+  body { display: grid; place-items: center; padding: 1.5rem; }
+  .connexion { width: 100%; max-width: 22rem; text-align: center; }
+  .connexion h1 { font-size: 2rem; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+  .connexion .accroche { font-size: 0.85rem; color: var(--muted); margin-bottom: 2.2rem; }
+  .connexion form { text-align: left; }
+  .connexion label { display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .connexion input {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .connexion input:focus { outline: none; border-color: var(--accent); }
+  .connexion button {
+    margin-top: 0.8rem;
+    width: 100%;
+    padding: 0.55rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  .connexion button:hover { color: var(--bg); background: var(--accent); }
+  .connexion button:disabled { opacity: 0.5; cursor: default; }
+  .connexion .message { min-height: 2.6em; margin-top: 1rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
   .connexion .erreur { color: var(--red); }
 </style>
 </head>
 <body>
-<main>
-  <div class="card connexion">
-    <h2>Se connecter</h2>
-    <p class="muted">Saisis ton adresse e-mail : tu recevras un lien de connexion, sans mot de passe.</p>
-    <form id="form-connexion">
-      <label for="email">Adresse e-mail</label>
-      <input type="email" id="email" required autocomplete="email" inputmode="email">
-      <button type="submit">Recevoir le lien</button>
-    </form>
-    <p class="message" id="message" aria-live="polite"></p>
-  </div>
+<main class="connexion">
+  <h1>MyRunTools</h1>
+  <p class="accroche">La boîte à outils du coureur</p>
+  <form id="form-connexion">
+    <label for="email">Adresse e-mail</label>
+    <input type="email" id="email" required autocomplete="email" inputmode="email" placeholder="toi@exemple.fr">
+    <button type="submit">Recevoir le lien de connexion</button>
+  </form>
+  <p class="message" id="message" aria-live="polite">Pas de mot de passe : un lien arrive par e-mail.</p>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>
-<script src="donnees/demo.js?v=__VERSION__"></script>
 <script src="composants/en-tete.js?v=__VERSION__"></script>
 <script src="composants/session.js?v=__VERSION__"></script>
 <script>
-  renderEnTete(Object.assign({}, MRT_PROFIL, { courant: 'connexion.html' }));
+  // Pas d'en-tête ici : seul le thème imposé par l'adresse (?t=…) s'applique.
+  const t = new URLSearchParams(location.search).get('t');
+  if (t) document.documentElement.classList.add('t-' + t);
   const form = document.getElementById('form-connexion'), msg = document.getElementById('message');
   // Déjà connecté (retour du lien magique) : direction l'accueil.
   mrtSession().then(s => { if (s) location.replace('index.html' + location.search); });
@@ -52,12 +78,12 @@
     msg.textContent = 'Envoi en cours…';
     try {
       await mrtEnvoyerLien(document.getElementById('email').value.trim(), location.href.split('#')[0]);
-      msg.textContent = 'C\'est parti : ouvre l\'e-mail reçu et touche le lien. Il peut mettre une minute à arriver.';
+      msg.textContent = 'Lien envoyé : ouvre l\'e-mail et touche le lien. Il peut mettre une minute à arriver.';
     } catch (err) {
       msg.className = 'message erreur';
       msg.textContent = /rate|limit/i.test(err.message || '')
         ? 'Trop de demandes pour l\'instant : réessaie dans quelques minutes.'
-        : 'Lien non envoyé : vérifie l\'adresse. Seuls les comptes créés par l\'administrateur peuvent se connecter.';
+        : 'Lien non envoyé : vérifie l\'adresse. Seuls les comptes existants peuvent se connecter.';
       btn.disabled = false;
     }
   });
