@@ -108,6 +108,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 22 oct. 2026 | Design | Effets de survol réservés aux appareils avec souris : sur iPhone, le bouton de regroupement restait orange après un toucher. |
 | 22 oct. 2026 | Téléphone | En-tête : « Cap sur » sur une ligne, prochaine course en bas à droite et nommée par sa course. Formulaire : tient dans l'écran, « × » toujours visible, case DNF sous le temps, virgule décimale. Regroupement inactif sur fond Surface 2. (Spécification générale 0.5, Palmarès 1.8, design 0.5.) |
 | 22 oct. 2026 | Palmarès | « Sous-catégorie » devient « Format » (« Type » reste) ; le nom d'une course : « Course » (obligatoire) et « Parcours » (facultatif) ; exemples dans les champs ; boutons ronds (regroupement à droite de Filtres, ajout tout à droite), crayon au survol dans la nuance des flèches de tri, ligne touchée sur écran tactile (spécification 1.7, design 0.4). |
 | 22 oct. 2026 | Modèle de données | Version 0.6 : `sous_categories` devient `formats`, `courses.sous_categorie` devient `format`, `evenement` et `nom` deviennent `course` et `parcours` (évolution 006). |
