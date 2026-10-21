@@ -53,10 +53,12 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
 - [ ] Import de Rome : script fourni hors dépôt (37 courses : 9 courues, 7 à venir, 21 à surveiller), à lancer dans l'éditeur SQL.
 - [ ] Essai à deux du partage : Rome partage, tu regardes son site.
+- [ ] Essai réel de la page Préférences avec ton compte (thème, menu, cap), contrôlée jusqu'ici sur le banc d'essai seulement.
 
 ### Préférences utilisateur
 
 - [ ] Changement de mot de passe (connexion par lien magique seulement pour l'instant).
+- [ ] Thème violet et turquoise : proposé à tous dans les Préférences, mais encore dit « réservé aux essais » dans la spécification générale (§ 6) et CLAUDE.md. Le garder, ou le retirer de la liste ?
 
 ### Profil et Matériel
 
@@ -66,8 +68,8 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 ### Objectif
 
 - [ ] Spécifier les blocs de la page Objectif : l'indicateur « D'ici là » de l'en-tête en compte le nombre.
-- [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (écrite en dur en attendant).
-- [ ] Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête.
+- [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (calculée en attendant : la première course confirmée à venir).
+- [ ] Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête : même réglage que le Cap des Préférences (`course_cap`).
 
 ## Questions ouvertes
 
