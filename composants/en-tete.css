@@ -67,6 +67,7 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 .mrt-stats { grid-area: stats; display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.5rem; }
 .mrt-stat { display: flex; flex-direction: column; gap: 0.15rem; max-width: 15rem; }
 .mrt-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent2); }
+.mrt-stat-dplus { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
 .mrt-stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
 .mrt-count { grid-area: compteur; align-self: end; text-align: right; }
 .mrt-days { display: block; font-family: 'Space Mono', monospace; font-size: 3.5rem; font-weight: 700; color: var(--accent); line-height: 1; }

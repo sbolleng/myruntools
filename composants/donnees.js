@@ -73,7 +73,7 @@
       objectif = {
         nom: cap.parcours || cap.course,
         distance: cap.distance != null ? Number(cap.distance) : null,
-        dplus: cap.type === 'trail' && cap.dplus != null ? cap.dplus : null,
+        dplus: cap.dplus != null ? cap.dplus : null,
         date: cap.date_approx ? cap.date.slice(0, 7) : cap.date,
         dIciLa: blocs.size,
         cible: cap.objectif

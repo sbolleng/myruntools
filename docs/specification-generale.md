@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.6 · 22 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.7 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -49,7 +49,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Élément | Règle |
 | --- | --- |
 | Titre | « Cap sur » sur une ligne, puis le nom officiel de la course objectif, en couleur d'accent, sur la ligne suivante |
-| Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, D+ (trail seulement), Date, Objectif, D'ici là |
+| Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, Date, Objectif, D'ici là |
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. En bas à droite de l'en-tête : à la hauteur des indicateurs sur ordinateur, sous eux sur téléphone |
 | Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
@@ -60,16 +60,14 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 | Libellé | Valeur | Source |
 | --- | --- | --- |
-| Distance | Distance officielle de la course objectif | Course objectif |
-| D+ | Dénivelé positif officiel ; indicateur affiché seulement pour un trail | Course objectif |
+| Distance | Distance officielle de la course objectif, suivie de son dénivelé positif quand il est connu (« 60 km / 3 500 m D+ ») ; sinon la distance seule | Course objectif |
 | Date | Date de la course objectif | Course objectif |
 | Objectif | Temps visé ou intention (« Finisher », « Moins de 4 h »…) | Champ « objectif » de la course de l'en-tête, saisi sur la page Objectif |
 | D'ici là | Nombre de courses prévues avant l'objectif | Calculé : nombre de blocs de course de la page Objectif |
 
 ### Formats
 
-- **Distance** : kilomètres, virgule décimale, espace avant l'unité, autant de décimales que la distance officielle (« 60 km », « 42,195 km »).
-- **D+** : mètres, espace pour les milliers (« 3 500 m »).
+- **Distance** : kilomètres, virgule décimale, espace avant l'unité, autant de décimales que la distance officielle (« 60 km », « 42,195 km »). Dénivelé, s'il est connu : « / », puis les mètres avec une espace pour les milliers, puis « D+ » (« 60 km / 3 500 m D+ »).
 - **Date** : jour, mois en toutes lettres, année (« 30 août 2029 »). Jour inconnu : mois et année seulement (« août 2029 »).
 - **D'ici là** : nombre suivi de « course » ou « courses » (« 1 course », « 12 courses »).
 - **J-n** : nombre de jours calendaires jusqu'à la prochaine course.
@@ -185,11 +183,11 @@ Jeu d'essai : un objectif de trail, « Trail des Crêtes », 60 km, 3 500 m D+, 
 Résultats attendus :
 
 - Titre : « Cap sur » puis « Trail des Crêtes » en couleur d'accent.
-- Indicateurs, dans l'ordre : « 60 km » Distance, « 3 500 m » D+, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
+- Indicateurs, dans l'ordre : « 60 km / 3 500 m D+ » Distance, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Ligne sous le compteur : « prochaine course · Trail du Lac · J-26 ».
 - Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; compte à rebours et prochaine course en bas à droite, leur bas aligné sur celui des indicateurs sur ordinateur, sous les indicateurs sur téléphone, alignés à droite.
-- Même objectif passé en route (42,195 km, sans D+) : l'indicateur D+ disparaît, Distance affiche « 42,195 km ».
+- Même objectif sans D+ (42,195 km) : Distance affiche « 42,195 km » seul ; l'en-tête garde 4 indicateurs.
 - Date connue au jour près (30 août 2029) : Date affiche « 30 août 2029 », le compteur vise le 30 août.
 - Une seule course avant l'objectif : « 1 course ».
 - Sans objectif renseigné : l'indicateur Objectif affiche « — ».
