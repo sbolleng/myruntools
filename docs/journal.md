@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Préférences | Version 1.1 : blocs dans l'ordre Compte, Cap, Thème, Menu, Partage ; plus de mention « essais » ; texte du Partage plus neutre. Tailles de texte des pages fixées dans le design (§ 3), contenu à 0,85 rem par défaut. Maquettes : seulement à la demande. |
 | 21 oct. 2026 | Préférences | Spécification 1.0 validée et page construite : thème (aperçu des couleurs), menu (cases, flèches, ordre par défaut, au moins un module), cap (par défaut la plus lointaine) ; enregistrement immédiat ; Thème, Menu et Cap non modifiables sur un site partagé. Mot de passe laissé dans la todo. Textes de la page à 0,85 rem, comme le Palmarès. |
 | 21 oct. 2026 | Thèmes | `?t=…` retiré du site : le thème se choisit dans les Préférences seulement (maquettes exceptées). |
 | 22 oct. 2026 | En-tête | Disposition reprise de l'ancien site trail, éléments inchangés : sur ordinateur, compte à rebours en bas à droite, aligné sur le bas des indicateurs ; sur téléphone, une colonne, compteur sous les indicateurs, à gauche, nombre de jours en pleine taille ; indicateurs qui passent à la ligne ; marges du haut agrandies (3 rem, 2 rem sur téléphone). (Spécification générale 0.9, design 0.9.) |

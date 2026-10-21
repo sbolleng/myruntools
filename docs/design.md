@@ -36,6 +36,19 @@ Identifiants : `bleu-orange`, `vert-rose`, `violet-turquoise`. Dans les maquette
 
 Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 
+**Tailles dans les pages** (sous l'en-tête et le menu) : fixées une fois pour toutes, à reprendre telles quelles dans chaque nouvelle page ou module.
+
+| Élément | Taille | Style |
+| --- | --- | --- |
+| Texte courant, tableaux, champs, listes | 0,85 rem | Space Grotesk, normal ; jamais en gras, sauf un nom mis en avant (600) |
+| Texte secondaire (aide, explication) | 0,8 rem | Texte discret |
+| Messages (« Enregistré », erreurs) | 0,75 rem | Texte discret, ou Alerte |
+| Titre d'un bloc ou d'une carte | 0,7 rem | Space Mono, capitales, Accent |
+| Libellé de champ, sous-titre dans un bloc | 0,62 rem | Space Mono, capitales, Texte discret |
+| Boutons | 0,72 rem | Space Grotesk 600, capitales |
+
+Le contenu des pages (`main`) est à 0,85 rem par défaut, dans la feuille de style commune : un texte sans taille précisée n'est jamais à la taille de base.
+
 ## 4. En-tête
 
 ### Tailles
