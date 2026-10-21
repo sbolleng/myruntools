@@ -16,7 +16,6 @@
   border-radius: 20px;
   cursor: pointer;
 }
-.pv2-btn:hover { background: var(--accent2); border-color: var(--accent2); }
 .pv2-btn.is-on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
 .pv2-ico { width: 0.95rem; height: 0.95rem; flex: none; }
 .pv2-chev { width: 0.85rem; height: 0.85rem; flex: none; transition: transform 0.15s; }
@@ -82,7 +81,6 @@
   border: none;
   cursor: pointer;
 }
-.pv2-sort:hover { color: var(--text); }
 .pv2-table th[aria-sort="ascending"] .pv2-sort, .pv2-table th[aria-sort="descending"] .pv2-sort { color: var(--accent); }
 .pv2-nw { white-space: nowrap; }
 .pv2-sort-ico { display: inline-block; width: 0.6rem; height: 0.85rem; margin-left: 0.4rem; vertical-align: -0.15em; }
@@ -108,7 +106,6 @@
   border-radius: 3px;
   cursor: pointer;
 }
-.pv2-more:hover { color: var(--text); }
 .pv2-more[aria-expanded="true"] { color: var(--accent); }
 .pv2-panel-foot { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
 /* Défilement horizontal, quand il faut : barre fine aux couleurs du thème */
@@ -143,10 +140,9 @@
   border-radius: 50%;
   cursor: pointer;
 }
-.pv2-rond:hover, .pv2-toggle[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.pv2-toggle[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
 /* Regroupement inactif : fond Surface 2 (le bleu du thème bleu et orange). */
 .pv2-toggle[aria-pressed="false"] { color: var(--text); background: var(--surface2); border-color: var(--border); }
-.pv2-toggle[aria-pressed="false"]:hover { color: var(--accent); border-color: var(--accent); }
 .pv2-rond .pv2-ico { width: 0.95rem; height: 0.95rem; }
 .pv2-add { margin-left: auto; }
 .pv2-rond:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -174,10 +170,20 @@
 
 /* Crayon de ligne : nuance des flèches de tri, visible au survol de la ligne */
 .pv2-edit { display: inline-flex; padding: 0.15rem; color: var(--muted); background: none; border: none; border-radius: 3px; cursor: pointer; opacity: 0; }
-.pv2-table tbody tr:hover .pv2-edit, .pv2-edit:focus-visible { opacity: 1; }
-.pv2-edit:hover { color: var(--accent); }
+.pv2-edit:focus-visible { opacity: 1; }
 .pv2-table td.pv2-pad { white-space: nowrap; vertical-align: middle; }
-.pv2-editable tbody tr:not(.pv2-group-row):hover td { background: color-mix(in srgb, var(--surface2) 45%, transparent); }
 @media (hover: none) {
   .pv2-editable tbody tr:not(.pv2-group-row) { cursor: pointer; }
+}
+
+/* Survols : seulement avec une souris. Sur écran tactile, un toucher laisserait
+   l'effet « collé » (bouton qui reste orange). */
+@media (hover: hover) {
+  .pv2-btn:hover { background: var(--accent2); border-color: var(--accent2); }
+  .pv2-sort:hover { color: var(--text); }
+  .pv2-more:hover { color: var(--text); }
+  .pv2-rond:hover { color: var(--accent); border-color: var(--accent); }
+  .pv2-table tbody tr:hover .pv2-edit { opacity: 1; }
+  .pv2-edit:hover { color: var(--accent); }
+  .pv2-editable tbody tr:not(.pv2-group-row):hover td { background: color-mix(in srgb, var(--surface2) 45%, transparent); }
 }

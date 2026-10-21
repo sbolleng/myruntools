@@ -24,7 +24,6 @@ html.fc-ouvert { overflow: hidden; }
 .fc-haut { position: sticky; top: -1.25rem; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin: -1.25rem -1.5rem 0.6rem; padding: 1.25rem 1.5rem 0.6rem; background: var(--surface); }
 .fc-haut h2 { font-size: 1.2rem; }
 .fc-fermer { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; font-size: 1.3rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
-.fc-fermer:hover { color: var(--accent); border-color: var(--accent); }
 /* Listes déroulantes : chevron dessiné, la flèche native étant retirée. */
 .fc-champ select { padding-right: 2rem; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 1rem) 55%, calc(100% - 0.7rem) 55%; background-size: 0.3rem 0.3rem; background-repeat: no-repeat; }
 .fc-champ input[type="date"] { min-height: 2.35rem; text-align: left; }
@@ -45,7 +44,6 @@ html.fc-ouvert { overflow: hidden; }
   border: none;
   cursor: pointer;
 }
-.fc-bloc-titre:hover { color: var(--text); }
 .fc-chev { width: 0.8rem; height: 0.8rem; transition: transform 0.15s; }
 .fc-bloc-titre[aria-expanded="false"] .fc-chev { transform: rotate(-90deg); }
 .fc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; padding-top: 0.3rem; }
@@ -104,15 +102,12 @@ html.fc-ouvert { overflow: hidden; }
   border-radius: 20px;
   cursor: pointer;
 }
-.fc-btn:hover { color: var(--bg); background: var(--accent); }
 .fc-plein { color: var(--bg); background: var(--accent); }
-.fc-plein:hover { background: var(--accent2); border-color: var(--accent2); }
 .fc-btn:disabled { opacity: 0.5; cursor: default; }
 .fc-supprimer { margin-right: auto; padding: 0; font: inherit; font-size: 0.75rem; color: var(--red); text-decoration: underline; background: none; border: none; cursor: pointer; }
 .fc-confirmer { margin-top: 0.4rem; padding: 0.8rem 1rem; border: 1px solid var(--red); border-radius: 8px; }
 .fc-confirmer p { margin-bottom: 0.6rem; font-size: 0.85rem; }
 .fc-danger { color: var(--red); border-color: var(--red); }
-.fc-danger:hover { color: var(--bg); background: var(--red); }
 
 @media (max-width: 600px) {
   .fc-voile { padding: 0; place-items: stretch; grid-template-columns: minmax(0, 1fr); }
@@ -120,4 +115,14 @@ html.fc-ouvert { overflow: hidden; }
   .fc-haut { top: -1rem; margin: -1rem -1.25rem 0.6rem; padding: 1rem 1.25rem 0.6rem; }
   .fc-grille { grid-template-columns: minmax(0, 1fr); }
   .fc-seul input { max-width: none; }
+}
+
+/* Survols : seulement avec une souris. Sur écran tactile, un toucher laisserait
+   l'effet « collé » (bouton qui reste orange). */
+@media (hover: hover) {
+  .fc-fermer:hover { color: var(--accent); border-color: var(--accent); }
+  .fc-bloc-titre:hover { color: var(--text); }
+  .fc-btn:hover { color: var(--bg); background: var(--accent); }
+  .fc-plein:hover { background: var(--accent2); border-color: var(--accent2); }
+  .fc-danger:hover { color: var(--bg); background: var(--red); }
 }

@@ -44,7 +44,6 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   color: var(--muted);
 }
 .mrt-brand a { color: inherit; text-decoration: none; }
-.mrt-brand a:hover { color: var(--text); }
 .mrt-gear { font-size: 0.9rem; letter-spacing: 0; line-height: 1; }
 /* Colonne de droite fixe : nom de l'application aligné sur le haut de « Cap sur », compteur dessous. */
 .mrt-grid {
@@ -106,7 +105,6 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   border-bottom: 2px solid transparent;
   transition: color 0.2s, border-color 0.2s;
 }
-a.mrt-tab:hover { color: var(--text); }
 .mrt-tab.is-on { color: var(--accent); border-bottom-color: var(--accent); }
 .mrt-tab.is-soon { opacity: 0.45; cursor: default; }
 
@@ -134,3 +132,10 @@ a.mrt-tab:hover { color: var(--text); }
   border-bottom: 1px solid var(--border);
 }
 .mrt-bandeau b { color: var(--accent); font-weight: 600; }
+
+/* Survols : seulement avec une souris. Sur écran tactile, un toucher laisserait
+   l'effet « collé » (bouton qui reste orange). */
+@media (hover: hover) {
+  .mrt-brand a:hover { color: var(--text); }
+  a.mrt-tab:hover { color: var(--text); }
+}

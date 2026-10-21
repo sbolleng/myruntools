@@ -9,6 +9,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 - Une seule mise en page pour tous ; seules les couleurs changent d'un thème à l'autre.
 - Fond sombre, chiffres en police à chasse fixe, libellés en petites capitales.
 - Toute couleur passe par un rôle (§ 2) : aucune couleur écrite en dur dans un module.
+- Les effets de survol ne s'appliquent qu'aux appareils avec une souris : sur écran tactile, un toucher les laisserait « collés » (un bouton resterait en couleur d'accent).
 
 ## 2. Thèmes
 
