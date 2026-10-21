@@ -138,7 +138,7 @@ La page sera construite avec la base de données ; d'ici là, ces réglages sont
 ## 10. Données et confidentialité
 
 - **Trois couches** : les modules (affichage), le contenu et les préférences de chaque utilisateur, et entre les deux une couche d'accès aux données. Les modules ne savent pas d'où viennent les données : passer des fichiers à Supabase ne réécrit aucun module.
-- **Protection du site** : par la connexion Supabase. Sans compte, on ne voit qu'un écran de connexion ; des règles par ligne garantissent que chacun n'accède qu'à ses propres données. Tant qu'un contenu n'a pas migré dans Supabase, il reste public.
+- **Protection du site** : par la connexion Supabase. Sans connexion, toute page renvoie vers la page de connexion, sans rien montrer de son contenu ; des règles par ligne garantissent que chacun n'accède qu'à ses propres données. Tant qu'un contenu est écrit dans le code plutôt que rangé dans Supabase, il reste lisible par qui consulte le dépôt public.
 - **Clés** : seule la clé publique de Supabase figure dans le code ; la clé de service et le secret Strava restent côté serveur (fonctions Supabase), jamais dans le dépôt.
 - **Tiers** : aucun nom complet de tiers, aucune référence de réservation.
 - **Ouverture à d'autres coureurs** : poids, repas et séances sont des données de santé au sens du RGPD ; l'ouverture suppose une politique de confidentialité, l'export et la suppression des données sur demande, et la validation de l'application par Strava.
@@ -171,4 +171,5 @@ Résultats attendus :
 - Sans objectif renseigné : l'indicateur Objectif affiche « — ».
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
 - L'engrenage ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
+- Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
 - Page de connexion : ni en-tête ni menu ; une adresse inconnue reçoit le message « Lien non envoyé » ; le lien reçu ramène sur l'accueil, connecté.

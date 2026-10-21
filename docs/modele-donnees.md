@@ -50,7 +50,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `modules` | Modules du menu, dans l'ordre choisi | Tous les modules construits |
 | `course_cap` | La course du cap, affichée dans l'en-tête ; son champ `objectif` alimente l'indicateur « Objectif » | La dernière course de la page Objectif (la plus lointaine à venir) |
 | `palmares_colonnes` | Colonnes affichées dans le Palmarès | Colonnes par défaut |
-| `palmares_groupe` | Regroupement par type activé ou non | Non |
+| `palmares_groupe` | Regroupement par type activé ou non | Oui |
 
 Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par défaut.
 

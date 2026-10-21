@@ -12,7 +12,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu | Version 0.2 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, ce qui est calculé | Version 0.3 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.2 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.3 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -45,11 +45,11 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 ### Prochaines étapes
 
 - [ ] Compte du pilote route : en attente de son adresse e-mail, puis création comme le premier.
-- [ ] Verrouiller le site : sans connexion, seule la page « Se connecter » s'affiche (spécification générale, § 10).
 - [ ] Supabase : désactiver « Allow new users to sign up » (comptes créés à la main seulement).
-- [ ] E-mail de connexion en français (Authentication › Emails).
+- [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
 - [ ] Étape 3.5 : import des données des anciens sites (script jamais versionné).
 - [ ] Socle, suite : profils et préférences lus dans la base.
+- [ ] Partage en lecture seule, juste après l'import : un utilisateur partage son site avec un autre (table `partages`, règles de lecture, sélecteur « Voir le site de… », bandeau « Lecture seule ») ; spécification à valider d'abord.
 
 ### Préférences utilisateur (page à créer)
 
@@ -107,6 +107,8 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Confidentialité | Site privé : sans connexion, toute page renvoie vers la page de connexion sans montrer son contenu. Les données encore écrites dans le code restent lisibles dans le dépôt public jusqu'à leur import dans la base. |
+| 21 oct. 2026 | Palmarès | Groupé par type par défaut (spécification 1.3, évolution de base 002). |
 | 21 oct. 2026 | Connexion | Page de connexion sobre, sans en-tête ni menu (spécification générale 0.3, design 0.2). |
 | 21 oct. 2026 | Confidentialité | Le pilote route est désigné « route » ou « Rome », jamais nommé, ni dans la discussion ni dans le dépôt. |
 | 21 oct. 2026 | Connexion | Premier essai réel réussi : lien magique reçu, retour connecté, profil et thème lus dans la base. |

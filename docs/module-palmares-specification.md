@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.2 · 20 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.3 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -117,7 +117,7 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 
 Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
-- Un interrupteur « Grouper par type », à côté du bouton « Filtres ». Désactivé : la vue globale, un seul tableau.
+- Un interrupteur « Grouper par type », à côté du bouton « Filtres ». **Activé par défaut** à la première visite. Désactivé : la vue globale, un seul tableau.
 - Activé : le tableau est découpé en groupes, un par type présent, dans l'ordre de la liste de référence (§ 3). Chaque groupe s'ouvre par un intertitre sur toute la largeur, « Trail · 4 courses » ; le toucher replie ou déplie le groupe.
 - Un seul tableau : les colonnes restent alignées d'un groupe à l'autre.
 - **Tri** : à l'intérieur de chaque groupe ; les groupes gardent l'ordre de référence.
@@ -176,7 +176,7 @@ Jeu d'essai de sept courses :
 
 Classement (colonne facultative) : 1 951e pour le semi de San Sebastián, vide pour les six autres.
 
-Résultats attendus :
+Résultats attendus (sauf mention contraire, regroupement désactivé) :
 
 - À l'ouverture : le semi de San Sebastián en premier, le 10 km de Montauban du 30 mars 2025 en dernier.
 - Tri par course, de A à Z : 10 km de Montauban (2026, puis 2025), Biscatrail, Épicurienne Trail, Forez Trail · L'Olmetoise, Semi de San Sebastián, Semi-marathon de Sète.
@@ -191,6 +191,7 @@ Résultats attendus :
 - Décocher D+ dans la liste des colonnes : la colonne disparaît ; la recocher : elle revient. Date et Course n'ont pas de case à décocher.
 - Colonne Vitesse affichée : 11,1 km/h en italique pour le semi-marathon de Sète, calculée depuis 5:24 /km ; 12,2 km/h pour le 10 km de Montauban 2026, calculée depuis 4:55 /km.
 - Un classement saisi 476 sur 873 s'affiche « 476e / 873 » et se trie comme 476.
+- Première visite : le tableau s'ouvre groupé par type.
 - « Grouper par type » activé : intertitre « Course sur route · 4 courses », puis « Trail · 3 courses » ; la colonne Type disparaît.
 - Groupé, tri par temps : groupe route 49'18, 51'46, 1h53'12, 1h56'05 ; groupe trail 1h04'24, 2h02'30, 3h00'23.
 - Groupé, filtre sur l'année 2025 : 2 courses dans chaque groupe, compteur « 4 courses sur 7 ».
