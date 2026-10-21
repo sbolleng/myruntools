@@ -8,8 +8,8 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données | Version 0.5 |
-| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.5 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données | Version 0.6 |
+| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.6 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition | Version 1.8 |
@@ -108,6 +108,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 22 oct. 2026 | En-tête | Compte à rebours et prochaine course reviennent en bas à droite (sous les indicateurs sur téléphone) ; « MyRunTools » et l'engrenage restent en haut à droite. (Spécification générale 0.6, design 0.6.) |
 | 22 oct. 2026 | Design | Effets de survol réservés aux appareils avec souris : sur iPhone, le bouton de regroupement restait orange après un toucher. |
 | 22 oct. 2026 | Téléphone | En-tête : « Cap sur » sur une ligne, prochaine course en bas à droite et nommée par sa course. Formulaire : tient dans l'écran, « × » toujours visible, case DNF sous le temps, virgule décimale. Regroupement inactif sur fond Surface 2. (Spécification générale 0.5, Palmarès 1.8, design 0.5.) |
 | 22 oct. 2026 | Palmarès | « Sous-catégorie » devient « Format » (« Type » reste) ; le nom d'une course : « Course » (obligatoire) et « Parcours » (facultatif) ; exemples dans les champs ; boutons ronds (regroupement à droite de Filtres, ajout tout à droite), crayon au survol dans la nuance des flèches de tri, ligne touchée sur écran tactile (spécification 1.7, design 0.4). |
