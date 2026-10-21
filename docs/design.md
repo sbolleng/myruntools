@@ -1,6 +1,6 @@
 # Design
 
-Version 0.1 · 20 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.2 · 21 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -61,7 +61,20 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 - **Filet** : barre de 5 px, 2 rem sous le contenu, toute la largeur ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
 - Une ligne fine (Bordure) sépare l'en-tête du menu.
 
-## 5. Menu
+## 5. Page de connexion
+
+Sobre, sans en-tête ni menu, centrée dans la page, 22 rem de large au plus.
+
+| Élément | Police | Taille | Couleur |
+| --- | --- | --- | --- |
+| « MyRunTools » | Space Grotesk, graisse 700, espacement −0,02 em | 2 rem | Texte |
+| Accroche | Space Grotesk | 0,85 rem | Texte discret |
+| Libellé « Adresse e-mail » | Space Mono, capitales, espacement 0,15 em | 0,62 rem | Texte discret |
+| Champ e-mail | Space Grotesk | 0,85 rem | Texte ; fond transparent, bordure fine (Bordure), Accent au focus |
+| Bouton | Space Grotesk, capitales, graisse 600, espacement 0,08 em | 0,72 rem | Contour et texte Accent, coins arrondis ; rempli d'Accent au survol |
+| Ligne d'aide et messages | Space Grotesk | 0,75 rem | Texte discret ; Alerte pour une erreur |
+
+## 6. Menu
 
 - Onglets en Space Grotesk, capitales, 0,75 rem, graisse 500, espacement 0,1 em ; marges de 0,9 rem en haut et en bas, 1,4 rem sur les côtés.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.

@@ -8,15 +8,15 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, thèmes, modules, préférences utilisateur, données | Version 0.2 |
-| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête et du menu | Version 0.1 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, données | Version 0.3 |
+| [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu | Version 0.2 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, ce qui est calculé | Version 0.3 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et sous-catégories, records, tri, filtres, regroupement par type, édition | Version 1.2 |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
-Maquettes : [maquettes/](maquettes/) (en-tête, calendrier). Page de démonstration : en-tête et menu partagés, profil trail écrit en dur (`donnees/demo.js`), Palmarès comme premier module.
+Maquettes : [maquettes/](maquettes/) (en-tête, connexion, calendrier). Page de démonstration : en-tête et menu partagés, profil trail écrit en dur (`donnees/demo.js`), Palmarès comme premier module.
 
 ## Le projet en bref
 
@@ -107,6 +107,8 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Connexion | Page de connexion sobre, sans en-tête ni menu (spécification générale 0.3, design 0.2). |
+| 21 oct. 2026 | Confidentialité | Le pilote route est désigné « route » ou « Rome », jamais nommé, ni dans la discussion ni dans le dépôt. |
 | 21 oct. 2026 | Connexion | Premier essai réel réussi : lien magique reçu, retour connecté, profil et thème lus dans la base. |
 | 21 oct. 2026 | Connexion | Page « Se connecter » par lien magique, réservée aux comptes existants ; thème lu dans les préférences (un `?t=…` garde la priorité) ; bloc Compte et déconnexion dans les Préférences. Site encore public tant que la connexion n'a pas été essayée pour de vrai. |
 | 21 oct. 2026 | Thèmes | Nommés par leurs couleurs : `bleu-orange`, `vert-rose`, `violet-turquoise` (au lieu de trail, route, test) ; un thème ne change que les couleurs. |
