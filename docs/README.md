@@ -50,7 +50,6 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
 - [ ] Import de Rome : script fourni hors dépôt (37 courses : 9 courues, 7 à venir, 21 à surveiller), à lancer dans l'éditeur SQL.
 - [ ] Socle, suite : profils et préférences lus dans la base.
-- [ ] Base : coller l'évolution 006 (format, course et parcours) dans l'éditeur SQL, juste avant la mise en ligne du site qui l'utilise.
 - [ ] Essai à deux du partage : Rome partage, tu regardes son site.
 
 ### Préférences utilisateur (page à créer)
