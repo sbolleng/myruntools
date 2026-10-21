@@ -10,6 +10,7 @@
 <title>Palmarès · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/palmares.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
 <style>
   .pv2-card { padding: 1rem; }
   .pv2 .table-scroll { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
@@ -25,23 +26,33 @@
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
 <script src="composants/palmares.js?v=__VERSION__"></script>
+<script src="composants/fiche-course.js?v=__VERSION__"></script>
 <script>
   // Les courses courues de l'utilisateur connecté, lues dans la base.
   const hms = s => (s == null ? null : Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'));
   const ms = s => (s == null ? null : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
   const num = v => (v == null ? null : Number(v));
-  mrtPage({ courant: 'palmares.html' }).then(({ session, courses }) => {
-    const races = courses.filter(c => c.etat === 'courue').map(c => ({
-      date: c.date, course: mrtNomCourse(c), type: c.typeLibelle, sub: c.sousLibelle,
-      dist: num(c.distance), dplus: c.dplus, time: hms(c.temps), dnf: c.dnf, pace: ms(c.allure), speed: num(c.vitesse),
-      rank: c.place, rankTotal: c.effectif, rankCat: c.place_categorie, rankCatTotal: c.effectif_categorie,
-      rankSex: c.place_sexe, rankSexTotal: c.effectif_sexe,
-      wDist: num(c.montre_distance), wDplus: c.montre_dplus, wTime: hms(c.montre_temps), wPace: ms(c.montre_allure),
-      wSpeed: num(c.montre_vitesse), hr: c.fc_moyenne
-    }));
-    renderPalmares(document.getElementById('palmares'), {
-      feminin: !!(session.profil && session.profil.sexe === 'femme'),
-      races
+  const versPalmares = courses => courses.filter(c => c.etat === 'courue').map(c => ({
+    id: c.id, date: c.date, course: mrtNomCourse(c), type: c.typeLibelle, sub: c.sousLibelle,
+    dist: num(c.distance), dplus: c.dplus, time: hms(c.temps), dnf: c.dnf, pace: ms(c.allure), speed: num(c.vitesse),
+    rank: c.place, rankTotal: c.effectif, rankCat: c.place_categorie, rankCatTotal: c.effectif_categorie,
+    rankSex: c.place_sexe, rankSexTotal: c.effectif_sexe,
+    wDist: num(c.montre_distance), wDplus: c.montre_dplus, wTime: hms(c.montre_temps), wPace: ms(c.montre_allure),
+    wSpeed: num(c.montre_vitesse), hr: c.fc_moyenne
+  }));
+  mrtPage({ courant: 'palmares.html' }).then(async page => {
+    let courses = page.courses;
+    const references = await mrtReferences();
+    // Après un enregistrement ou une suppression : relire et redessiner.
+    const apres = async () => { courses = await page.relire(); tableau.setRaces(versPalmares(courses)); };
+    const ouvrir = id => mrtFicheCourse({ course: courses.find(c => c.id === id) || null, references, apres });
+    const profil = page.lectureSeule ? page.proprietaire : page.session.profil;
+    const tableau = renderPalmares(document.getElementById('palmares'), {
+      feminin: !!(profil && profil.sexe === 'femme'),
+      editable: !page.lectureSeule,
+      onAdd: () => ouvrir(null),
+      onEdit: ouvrir,
+      races: versPalmares(courses)
     });
   });
 </script>

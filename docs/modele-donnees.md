@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.4 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.5 · 21 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -19,6 +19,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `profils` | Un utilisateur | Compte Supabase |
 | `preferences` | Les réglages d'un utilisateur | `profils`, `courses` (cap) |
 | `courses` | Une course, à surveiller, prévue ou courue | `profils`, `sous_categories`, `equipements` (chaussures) |
+| `partages` | Un accord de partage en lecture seule, d'un utilisateur vers un autre | `profils` (deux fois) |
 | `courses_circuits` | L'appartenance d'une course à un circuit (UTMB, Challenge Levy…) | `courses`, `circuits` |
 | `equipements` | Un équipement : chaussures, montre, bâtons… | `profils`, `types_equipement` |
 | `types_course`, `sous_categories`, `types_equipement`, `circuits` | Une valeur d'une liste de référence | — |
@@ -54,6 +55,18 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `palmares_groupe` | Regroupement par type activé ou non | Oui |
 
 Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par défaut.
+
+### `partages`
+
+| Champ | Contenu |
+| --- | --- |
+| `proprietaire` | Celui qui partage son site |
+| `invite` | Celui qui peut le voir |
+| `cree_le` | Date du partage |
+
+- Créé et supprimé par le propriétaire seul ; l'invité le voit, sans pouvoir le modifier.
+- Partager se fait par l'e-mail d'un compte existant : une fonction de la base retrouve le compte sans dévoiler la liste des utilisateurs.
+- Un partage donne à l'invité la **lecture** des courses, des circuits et des préférences du propriétaire, et, de son profil, du seul prénom, nom et sexe (par une fonction dédiée : les autres champs du profil restent illisibles).
 
 ## 4. Courses
 
@@ -160,6 +173,7 @@ Statut, rôle, état et thème : le fonctionnement en dépend (Courue envoie au 
 
 - Connexion par lien magique ; un compte = un profil.
 - Règle par ligne sur toutes les tables d'utilisateur : lecture et écriture seulement si la ligne appartient à l'utilisateur connecté.
+- Exception, en lecture seulement : courses, circuits et préférences d'un propriétaire qui a partagé son site avec l'utilisateur connecté (`partages`).
 - Listes de référence : lecture pour tout utilisateur connecté, écriture pour l'administrateur seulement.
 - Seule la clé publique de Supabase figure dans le code ; les scripts d'import des données des anciens sites ne sont jamais versionnés.
 
@@ -180,3 +194,4 @@ Résultats attendus :
 - Une sous-catégorie inconnue est refusée ; un utilisateur ne peut pas modifier les listes de référence.
 - A rattache une course au circuit UTMB, catégorie 20K, 1 stone : B ne voit pas ce rattachement ; supprimer la course le supprime.
 - Une course sans date (À surveiller) est acceptée ; elle s'affiche « À définir ».
+- A partage avec B : B lit les courses, circuits et préférences de A, et son prénom, nom et sexe, mais ni son poids ni sa VMA ; B ne peut rien modifier chez A ; A retire le partage, B ne lit plus rien.

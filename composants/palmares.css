@@ -164,3 +164,23 @@
 .pv2-group .pv2-chev { transition: transform 0.15s; }
 .pv2-group[aria-expanded="false"] .pv2-chev { transform: rotate(-90deg); }
 .pv2-table tbody tr.pv2-group-row:first-child th { padding-top: 0.4rem; }
+
+/* Édition : ajout et crayon de ligne */
+.pv2-add {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: 20px;
+  cursor: pointer;
+}
+.pv2-add:hover { color: var(--bg); background: var(--accent); }
+.pv2-edit { padding: 0.1rem 0.25rem; font-size: 0.8rem; line-height: 1; background: none; border: none; border-radius: 4px; cursor: pointer; opacity: 0.55; }
+.pv2-edit:hover, .pv2-edit:focus-visible { opacity: 1; }
+.pv2-table td.pv2-pad { white-space: nowrap; }

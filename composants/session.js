@@ -18,11 +18,13 @@
       const { data } = await client.auth.getSession();
       const session = data && data.session;
       if (!session) return null;
+      // Ses propres lignes seulement : un site partagé rend lisibles d'autres préférences.
+      const id = session.user.id;
       const [profil, preferences] = await Promise.all([
-        client.from('profils').select('*').maybeSingle(),
-        client.from('preferences').select('*').maybeSingle()
+        client.from('profils').select('*').eq('id', id).maybeSingle(),
+        client.from('preferences').select('*').eq('utilisateur', id).maybeSingle()
       ]);
-      return { email: session.user.email, profil: profil.data, preferences: preferences.data };
+      return { id, email: session.user.email, profil: profil.data, preferences: preferences.data };
     })().catch(err => {
       console.warn('Session : lecture impossible', err);
       return null;

@@ -155,7 +155,7 @@
     });
     // Non terminée : pas de temps, donc ni record ni place au tri par temps.
     if (race.dnf) v.time = null;
-    return { v, calc, totals, dnf: !!race.dnf, record: false };
+    return { id: race.id, v, calc, totals, dnf: !!race.dnf, record: false };
   }
 
   // Record 🥇, recalculé à chaque affichage : on écarte les courses sans temps
@@ -196,9 +196,9 @@
   window.renderPalmares = function (root, cfg) {
     const uid = root.id || 'pv2';
     firstPlace = cfg.feminin ? '1re' : '1er';
-    const rows = (cfg.races || []).map(prepare);
+    let rows = (cfg.races || []).map(prepare);
     markRecords(rows);
-    const total = rows.length;
+    let total = rows.length;
 
     const state = {
       shown: new Set(COLUMNS.filter(c => !c.optional).map(c => c.key)),
@@ -247,6 +247,7 @@
         '<button type="button" class="pv2-toggle" data-act="group" aria-pressed="false">Grouper par type</button>' +
         '<span class="pv2-count" aria-live="polite"></span>' +
         '<button type="button" class="pv2-clear" data-act="clear" hidden>Effacer les filtres</button>' +
+        (cfg.editable ? '<button type="button" class="pv2-add" data-act="add">+ Ajouter une course</button>' : '') +
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
@@ -311,7 +312,7 @@
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
         const cls = c.kind === 'text' ? ' class="pv2-t"' : c.kind === 'choice' ? '' : ' class="pv2-n"';
         return '<td' + cls + '>' + fmtCell(c, r.v[c.key], r) + rec + '</td>';
-      }).join('') + '<td class="pv2-pad"></td></tr>';
+      }).join('') + '<td class="pv2-pad">' + (cfg.editable && r.id ? '<button type="button" class="pv2-edit" data-edit="' + esc(r.id) + '" aria-label="Modifier" title="Modifier">✏️</button>' : '') + '</td></tr>';
       let body;
       if (!list.length) body = '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">Aucune course ne correspond aux filtres.</td></tr>';
       else if (!state.group) body = list.map(line).join('');
@@ -381,6 +382,8 @@
         renderTable();
         return;
       }
+      const edit = e.target.closest('[data-edit]');
+      if (edit) { if (cfg.onEdit) cfg.onEdit(edit.dataset.edit); return; }
       const grp = e.target.closest('[data-group]');
       if (grp) {
         const t = grp.dataset.group;
@@ -395,6 +398,7 @@
       if (act.dataset.act === 'filters-close') { setPanel(false); $('.pv2-btn').focus(); }
       if (act.dataset.act === 'cols') setCols(colsPanel.hidden);
       if (act.dataset.act === 'clear') { state.filters = {}; renderPanel(); renderTable(); }
+      if (act.dataset.act === 'add' && cfg.onAdd) cfg.onAdd();
       if (act.dataset.act === 'group') {
         state.group = !state.group;
         if (state.group && state.sort.key === 'type') state.sort = { key: 'date', dir: 'desc' };
@@ -440,5 +444,16 @@
 
     renderPanel();
     renderTable();
+    // Remplace les courses (après un ajout, une modification ou une
+    // suppression) en gardant tri, filtres, colonnes et groupes repliés.
+    return {
+      setRaces(list) {
+        rows = (list || []).map(prepare);
+        markRecords(rows);
+        total = rows.length;
+        renderPanel();
+        renderTable();
+      }
+    };
   };
 })();

@@ -1,6 +1,6 @@
 # Design
 
-Version 0.2 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.3 · 21 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -45,7 +45,7 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 | Engrenage ⚙️ | — | 0,9 rem | — | — |
 | Titre, ligne « Cap sur » | Space Grotesk, interligne 1,05, espacement −0,02 em | 2 à 3,5 rem selon la largeur d'écran | 700 | Texte |
 | Titre, nom de la course | Idem | Idem | 700 | Accent |
-| Valeur d'indicateur | Space Mono | 1,1 rem | 700 | Accent 2 |
+| Valeur d'indicateur (15 rem de large au plus, va à la ligne au-delà) | Space Mono | 1,1 rem | 700 | Accent 2 |
 | Libellé d'indicateur | Space Grotesk, capitales, espacement 0,1 em | 0,7 rem | Normale | Texte discret |
 | Nombre de jours | Space Mono, interligne 1 | 3,5 rem | 700 | Accent |
 | « jours » | Space Grotesk, capitales, espacement 0,12 em | 0,7 rem | Normale | Texte discret |
@@ -74,7 +74,18 @@ Sobre, sans en-tête ni menu, centrée dans la page, 22 rem de large au plus.
 | Bouton | Space Grotesk, capitales, graisse 600, espacement 0,08 em | 0,72 rem | Contour et texte Accent, coins arrondis ; rempli d'Accent au survol |
 | Ligne d'aide et messages | Space Grotesk | 0,75 rem | Texte discret ; Alerte pour une erreur |
 
-## 6. Menu
+## 6. Formulaires et bandeau
+
+Ils reprennent le style du site : rien de nouveau, des éléments déjà présents.
+
+- **Panneau de formulaire** : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes ; sur téléphone, il occupe tout l'écran et défile.
+- **Blocs** : titre en Space Mono, capitales, 0,62 rem, Texte discret, comme les libellés de l'en-tête ; un chevron replie ou déplie le bloc, comme les groupes du Palmarès.
+- **Champs** : ceux de la page de connexion (fond transparent, bordure fine, Accent au focus, 0,85 rem), libellé au-dessus en petites capitales ; deux colonnes sur ordinateur, une sur téléphone.
+- **Boutons** : contour arrondi comme « Grouper par type » ; « Enregistrer » en Accent plein, comme « Filtres » ; « Supprimer » en texte Alerte, souligné, à l'écart des autres.
+- **Message d'erreur** : 0,75 rem, couleur Alerte, sous le champ concerné.
+- **Bandeau de lecture seule** : sous le menu, sur toute la largeur, fond Surface 2, texte 0,75 rem ; « Revenir à mon site » en lien Accent.
+
+## 7. Menu
 
 - Onglets en Space Grotesk, capitales, 0,75 rem, graisse 500, espacement 0,1 em ; marges de 0,9 rem en haut et en bas, 1,4 rem sur les côtés.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.

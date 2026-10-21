@@ -9,12 +9,42 @@
 <script>document.documentElement.classList.add('mrt-attente');</script>
 <title>Préférences · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<style>
+  .card h2 { font-size: 1.2rem; margin-bottom: 0.6rem; }
+  .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .pref-ligne { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+  .pref-ligne input { flex: 1 1 14rem; padding: 0.55rem 0.7rem; font: inherit; font-size: 0.85rem; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; }
+  .pref-ligne input:focus { outline: none; border-color: var(--accent); }
+  .pref-btn { padding: 0.5rem 1rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 20px; cursor: pointer; }
+  .pref-btn:hover { color: var(--bg); background: var(--accent); }
+  .pref-liste { list-style: none; font-size: 0.85rem; }
+  .pref-liste li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
+  .pref-liste li:last-child { border-bottom: none; }
+  .pref-lien { background: none; border: none; padding: 0; font: inherit; font-size: 0.75rem; color: var(--accent); text-decoration: underline; cursor: pointer; }
+  .pref-msg { min-height: 1.4em; margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); }
+  .pref-msg.erreur { color: var(--red); }
+  .pref-vide { font-size: 0.8rem; color: var(--muted); }
+</style>
 </head>
 <body>
 <main>
   <div class="card">
     <h2>Préférences utilisateur</h2>
     <p class="muted">Page à venir : thème, modules du menu et leur ordre, cap de l'en-tête.</p>
+  </div>
+  <div class="card" id="partage">
+    <h2>Partage</h2>
+    <p class="muted" style="font-size:0.8rem">Montre ton site en lecture seule : la personne voit tes courses et tes réglages, jamais tes données de santé. Tu peux retirer l'accord à tout moment.</p>
+    <div class="pref-legende">Partager mon site avec</div>
+    <form class="pref-ligne" id="form-partage">
+      <input type="email" id="partage-email" required autocomplete="off" placeholder="adresse e-mail de son compte" aria-label="Adresse e-mail">
+      <button class="pref-btn" type="submit">Partager</button>
+    </form>
+    <p class="pref-msg" id="partage-msg" aria-live="polite"></p>
+    <div class="pref-legende">Je partage avec</div>
+    <ul class="pref-liste" id="mes-partages"></ul>
+    <div class="pref-legende">Sites partagés avec moi</div>
+    <ul class="pref-liste" id="partages-avec-moi"></ul>
   </div>
   <div class="card">
     <h2>Compte</h2>
@@ -27,7 +57,51 @@
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
 <script>
-  mrtPage({ courant: 'preferences.html' });
+  mrtPage({ courant: 'preferences.html' }).then(page => afficherPartages(page));
+  const db = () => mrtSupabase;
+  const nomComplet = p => [p.prenom, p.nom].filter(Boolean).join(' ');
+  async function afficherPartages(page) {
+    const [mes, avec] = await Promise.all([db().rpc('mes_partages'), db().rpc('partages_avec_moi')]);
+    const ul1 = document.getElementById('mes-partages'), ul2 = document.getElementById('partages-avec-moi');
+    ul1.innerHTML = (mes.data || []).length ? '' : '<li class="pref-vide">Personne pour l\'instant.</li>';
+    (mes.data || []).forEach(p => {
+      const li = document.createElement('li');
+      li.innerHTML = '<span></span><button class="pref-lien" type="button">Retirer</button>';
+      li.querySelector('span').textContent = nomComplet(p);
+      li.querySelector('button').addEventListener('click', async () => {
+        await db().from('partages').delete().eq('invite', p.id);
+        afficherPartages(page);
+      });
+      ul1.appendChild(li);
+    });
+    ul2.innerHTML = (avec.data || []).length ? '' : '<li class="pref-vide">Aucun site partagé avec toi.</li>';
+    (avec.data || []).forEach(p => {
+      const li = document.createElement('li');
+      const regarde = page && page.proprietaire && page.proprietaire.id === p.id;
+      li.innerHTML = '<span></span><button class="pref-lien" type="button"></button>';
+      li.querySelector('span').textContent = nomComplet(p);
+      const b = li.querySelector('button');
+      b.textContent = regarde ? 'Revenir à mon site' : 'Voir son site';
+      b.addEventListener('click', () => (regarde ? mrtRevenir() : mrtVoirSite(p.id)));
+      ul2.appendChild(li);
+    });
+  }
+  document.getElementById('form-partage').addEventListener('submit', async e => {
+    e.preventDefault();
+    const msg = document.getElementById('partage-msg'), champ = document.getElementById('partage-email');
+    msg.className = 'pref-msg';
+    msg.textContent = 'Partage en cours…';
+    const { error } = await db().rpc('partager', { adresse: champ.value });
+    if (error) {
+      msg.className = 'pref-msg erreur';
+      msg.textContent = /Aucun compte/.test(error.message) ? 'Aucun compte avec cette adresse.'
+        : /propre compte/.test(error.message) ? 'C\'est ton propre compte.' : 'Partage impossible pour l\'instant.';
+      return;
+    }
+    msg.textContent = 'Site partagé.';
+    champ.value = '';
+    afficherPartages(null);
+  });
   const compte = document.getElementById('compte');
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   mrtSession().then(s => {
