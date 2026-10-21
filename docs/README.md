@@ -47,6 +47,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Compte du pilote route : en attente de son adresse e-mail, puis création comme le premier.
 - [ ] Supabase : désactiver « Allow new users to sign up » (comptes créés à la main seulement).
 - [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
+- [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
 - [ ] Étape 3.5 : import des données des anciens sites (script jamais versionné).
 - [ ] Socle, suite : profils et préférences lus dans la base.
 - [ ] Partage en lecture seule, juste après l'import : un utilisateur partage son site avec un autre (table `partages`, règles de lecture, sélecteur « Voir le site de… », bandeau « Lecture seule ») ; spécification à valider d'abord.
@@ -107,6 +108,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Connexion | Limite de l'envoi intégré de Supabase : 2 e-mails par heure pour tout le projet ; un service d'envoi SMTP gratuit est prévu pour la lever. |
 | 21 oct. 2026 | Confidentialité | Site privé : sans connexion, toute page renvoie vers la page de connexion sans montrer son contenu. Les données encore écrites dans le code restent lisibles dans le dépôt public jusqu'à leur import dans la base. |
 | 21 oct. 2026 | Palmarès | Groupé par type par défaut (spécification 1.3, évolution de base 002). |
 | 21 oct. 2026 | Connexion | Page de connexion sobre, sans en-tête ni menu (spécification générale 0.3, design 0.2). |
