@@ -26,7 +26,7 @@
     if (refs) return refs;
     const db = window.mrtSupabase;
     const [sous, types] = await Promise.all([
-      db.from('sous_categories').select('id, type, libelle, ordre').order('ordre'),
+      db.from('formats').select('id, type, libelle, ordre').order('ordre'),
       db.from('types_course').select('id, libelle, ordre').order('ordre')
     ]);
     for (const r of [sous, types]) if (r.error) throw r.error;
@@ -46,16 +46,16 @@
     const typeLib = Object.fromEntries(r.types.map(t => [t.id, t.libelle]));
     const sc = Object.fromEntries(r.sous.map(x => [x.id, x]));
     return courses.data.map(c => Object.assign({}, c, {
-      type: c.sous_categorie && sc[c.sous_categorie] ? sc[c.sous_categorie].type : null,
-      typeLibelle: c.sous_categorie && sc[c.sous_categorie] ? typeLib[sc[c.sous_categorie].type] : null,
-      sousLibelle: c.sous_categorie && sc[c.sous_categorie] ? sc[c.sous_categorie].libelle : null,
+      type: c.format && sc[c.format] ? sc[c.format].type : null,
+      typeLibelle: c.format && sc[c.format] ? typeLib[sc[c.format].type] : null,
+      formatLibelle: c.format && sc[c.format] ? sc[c.format].libelle : null,
       circuits: circuits.data.filter(x => x.course === c.id)
     }));
   }
   window.mrtReferences = lireReferences;
 
-  // Nom affiché : « Événement · Parcours », ou le seul nom s'ils se confondent.
-  window.mrtNomCourse = c => (c.evenement && c.evenement !== c.nom ? c.evenement + ' · ' : '') + c.nom;
+  // Nom affiché : « Course · Parcours », ou la course seule.
+  window.mrtNomCourse = c => c.course + (c.parcours && c.parcours !== c.course ? ' · ' + c.parcours : '');
 
   // En-tête depuis les courses : cap choisi, sinon la course à venir la plus
   // lointaine de la page Objectif (modèle de données, § 7).
@@ -71,7 +71,7 @@
       // Un bloc par course confirmée ou option isolée, un par groupe d'options.
       const blocs = new Set(avant.map(c => (c.statut === 'option' && c.groupe_options ? 'g:' + c.groupe_options : c.id)));
       objectif = {
-        nom: cap.nom,
+        nom: cap.parcours || cap.course,
         distance: cap.distance != null ? Number(cap.distance) : null,
         dplus: cap.type === 'trail' && cap.dplus != null ? cap.dplus : null,
         date: cap.date_approx ? cap.date.slice(0, 7) : cap.date,

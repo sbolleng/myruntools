@@ -3,7 +3,7 @@
 // Décrite par docs/module-palmares-specification.md (§ 10) ; style :
 // docs/design.md (§ 6). mrtFicheCourse({ course, references, apres }) ouvre le
 // panneau : course = ligne de la base à modifier, ou rien pour en ajouter une ;
-// references = { types, sous } ; apres() est appelé après chaque
+// references = { types, sous } (types de course et formats) ; apres() est appelé après chaque
 // enregistrement ou suppression. Les écritures passent par la base
 // (window.mrtSupabase) : les règles par ligne n'autorisent que ses propres courses.
 (function () {
@@ -40,10 +40,10 @@
   // Champs : clé de la base, libellé, genre (date, texte, choix, nombre, entier, duree, case), bloc.
   const CHAMPS = [
     ['date', 'Date', 'date', 'course', true],
-    ['evenement', 'Événement', 'texte', 'course'],
-    ['nom', 'Parcours', 'texte', 'course', true],
+    ['course', 'Course', 'texte', 'course', true],
+    ['parcours', 'Parcours', 'texte', 'course'],
     ['type', 'Type', 'choix', 'course', true],
-    ['sous_categorie', 'Sous-catégorie', 'choix', 'course', true],
+    ['format', 'Format', 'choix', 'course', true],
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['role', 'Rôle', 'choix', 'course'],
@@ -65,7 +65,13 @@
     ['fc_moyenne', 'FC moyenne (bpm)', 'entier', 'montre']
   ];
   const BLOCS = [['course', 'Course'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
-  const AIDE = { temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524', montre_temps: 'ex. 49:18 ou 4918', montre_allure: 'ex. 5:24 ou 524' };
+  // Exemples affichés dans les champs vides.
+  const AIDE = {
+    course: 'ex. Forez Trails', parcours: 'ex. L\'Olmetoise (facultatif)', distance: 'ex. 24,4', dplus: 'ex. 933',
+    temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524', vitesse: 'ex. 11,1',
+    place: 'ex. 99', effectif: 'ex. 873', place_categorie: 'ex. 12', effectif_categorie: 'ex. 140', place_sexe: 'ex. 15', effectif_sexe: 'ex. 310',
+    montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', montre_vitesse: 'ex. 8,1', fc_moyenne: 'ex. 163'
+  };
 
   window.mrtFicheCourse = function ({ course, references, apres }) {
     const existe = !!(course && course.id);
@@ -77,7 +83,7 @@
     voile.className = 'fc-voile';
     const champ = ([k, lib, genre, , oblig]) => {
       const id = 'fc-' + k;
-      const val = k === 'type' ? typeDe(c.sous_categorie) : c[k];
+      const val = k === 'type' ? typeDe(c.format) : c[k];
       let input;
       if (genre === 'case') {
         return '<label class="fc-case"><input type="checkbox" id="' + id + '" data-k="' + k + '"' + (val ? ' checked' : '') + '> ' + esc(lib) + '</label>';
@@ -85,7 +91,7 @@
       if (genre === 'choix') {
         const opts = k === 'type' ? references.types.map(t => [t.id, t.libelle])
           : k === 'role' ? ROLES
-          : sousDe(typeDe(c.sous_categorie)).map(s => [s.id, s.libelle]);
+          : sousDe(typeDe(c.format)).map(s => [s.id, s.libelle]);
         const vide = k === 'role' ? '' : '<option value="">—</option>';
         const courant = k === 'role' ? (val || 'preparatoire') : (val || '');
         input = '<select id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
@@ -96,7 +102,7 @@
         const max = genre === 'date' ? ' max="' + today() + '"' : '';
         input = '<input type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + mode + max + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
       }
-      return '<div class="fc-champ"><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
+      return '<div class="fc-champ' + (k === 'date' ? ' fc-seul' : '') + '"><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
     };
     const ouvert = b => existe || b === 'course' || b === 'resultat';
     voile.innerHTML =
@@ -138,15 +144,15 @@
     function clavier(e) { if (e.key === 'Escape') fermer(); }
     document.addEventListener('keydown', clavier);
 
-    // Type → sous-catégories du type ; trail : celle de la distance, modifiable.
+    // Type → formats du type ; trail : celui de la distance, modifiable.
     function remplirSous(choix) {
       const t = val('type').value;
-      val('sous_categorie').innerHTML = '<option value="">—</option>' + sousDe(t).map(s => '<option value="' + esc(s.id) + '">' + esc(s.libelle) + '</option>').join('');
-      if (choix) val('sous_categorie').value = choix;
+      val('format').innerHTML = '<option value="">—</option>' + sousDe(t).map(s => '<option value="' + esc(s.id) + '">' + esc(s.libelle) + '</option>').join('');
+      if (choix) val('format').value = choix;
     }
     function proposerTrail() {
       const km = parseNombre(val('distance').value);
-      if (val('type').value === 'trail' && km > 0) val('sous_categorie').value = trailSelonDistance(km);
+      if (val('type').value === 'trail' && km > 0) val('format').value = trailSelonDistance(km);
     }
     val('type').addEventListener('change', () => { remplirSous(''); proposerTrail(); });
     val('distance').addEventListener('change', proposerTrail);
@@ -179,7 +185,7 @@
           if (v && v > today()) msg = 'La date d\'une course courue ne peut pas être dans le futur.';
         } else if (genre === 'duree') {
           v = parseDuree(el.value);
-          if (Number.isNaN(v)) msg = 'Durée illisible : ' + AIDE[k] + '.';
+          if (Number.isNaN(v)) msg = 'Durée illisible (' + AIDE[k] + ').';
           else if (v === 0) msg = 'La durée doit être positive.';
         } else {
           v = parseNombre(el.value);

@@ -62,7 +62,7 @@ Chaque cellule n'est affichée que si elle est remplie.
 
 | Groupe | Champs | Sert à |
 | --- | --- | --- |
-| Identité | Nom, événement, lien officiel, lieu, coordonnées (latitude, longitude) | Affichage, météo |
+| Identité | Course, parcours, lien officiel, lieu, coordonnées (latitude, longitude) | Affichage, météo |
 | Date | Jour et heure de départ | Comptes à rebours, météo, ordre de la feuille de route |
 | Profil | Distance, D+, D−, route ou trail, label et index UTMB | Graphique de difficulté, badges |
 | Place dans le plan | Statut, rôle, état, groupe d'options ([modèle de données](modele-donnees.md), § 4.1) | Rendu de l'étape |

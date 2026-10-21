@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.6 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.7 · 22 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -16,9 +16,9 @@ Affichées par défaut, de gauche à droite :
 | # | Colonne | Contenu | Saisie |
 | --- | --- | --- | --- |
 | 1 | Date | Jour de la course | Date |
-| 2 | Course | Événement et parcours (« Forez Trails · L'Olmetoise ») ; le seul nom quand ils se confondent | Texte |
+| 2 | Course | Course et parcours (« Forez Trails · L'Olmetoise ») ; la course seule quand elle n'a pas de parcours (« Biscatrail ») | Texte |
 | 3 | Type | Type de course (§ 3) | Choix |
-| 4 | Sous-catégorie | Précision du type (§ 3) | Choix |
+| 4 | Format | Format de la course dans son type (§ 3) : 10 km, Trail court, Triathlon M… | Choix |
 | 5 | Distance | Distance officielle, en km | Nombre |
 | 6 | D+ | Dénivelé positif officiel, en m | Nombre |
 | 7 | Temps | Temps réalisé | Durée |
@@ -41,11 +41,11 @@ Facultatives, affichées à la demande depuis le bouton « + » (§ 9) :
 
 Chaque classement peut porter un effectif, facultatif : le nombre de classés, quand il est connu.
 
-## 3. Types et sous-catégories
+## 3. Types et formats
 
-Liste fermée, commune à toute l'application : on choisit une valeur, on ne la tape pas. La sous-catégorie se choisit à la main, parmi celles du type choisi.
+Liste fermée, commune à toute l'application : on choisit une valeur, on ne la tape pas. Le format se choisit à la main, parmi ceux du type choisi.
 
-| Type | Sous-catégories |
+| Type | Formats |
 | --- | --- |
 | Course sur route | 5 km · 10 km · 20 km · Semi-marathon · Marathon · Ultra-marathon · 100 km · Course en heure |
 | Trail | Trail découverte · Trail court · Trail long · Ultra-trail |
@@ -66,11 +66,11 @@ Liste fermée, commune à toute l'application : on choisit une valeur, on ne la 
 
 ## 5. Records 🥇
 
-- Dans une sous-catégorie à distance fixe, la course au meilleur temps porte 🥇.
-- Distances fixes : 5 km, 10 km, 20 km, semi-marathon, marathon, 100 km et tous les formats de triathlon. Les autres sous-catégories (ultra-marathon, course en heure, trail, marche, fast hiking) n'ont pas de record : les épreuves n'y sont pas comparables d'une course à l'autre.
+- Dans un format à distance fixe, la course au meilleur temps porte 🥇.
+- Distances fixes : 5 km, 10 km, 20 km, semi-marathon, marathon, 100 km et tous les formats de triathlon. Les autres formats (ultra-marathon, course en heure, trail, marche, fast hiking) n'ont pas de record : les épreuves n'y sont pas comparables d'une course à l'autre.
 - **Calcul automatique** par la page (JavaScript), jamais saisi à la main. Il est refait à chaque affichage et après chaque ajout, modification ou suppression :
-  1. écarter les courses sans temps et celles des sous-catégories sans record ;
-  2. regrouper les courses restantes par sous-catégorie ;
+  1. écarter les courses sans temps et celles des formats sans record ;
+  2. regrouper les courses restantes par format ;
   3. dans chaque groupe, retenir le temps le plus court, comparé en secondes ;
   4. marquer 🥇 la course qui a ce temps ; en cas d'égalité, toutes celles qui l'ont.
 
@@ -81,7 +81,7 @@ Toutes les colonnes affichées se trient. L'ordre dépend du type de donnée :
 | Type de donnée | Colonnes | Ordre par défaut | Ordre inverse |
 | --- | --- | --- | --- |
 | Date | Date | Plus récente d'abord | Plus ancienne d'abord |
-| Texte et choix | Course, Type, Sous-catégorie | A → Z | Z → A |
+| Texte et choix | Course, Type, Format | A → Z | Z → A |
 | Nombre | Distances, D+, vitesses, classements, FC | Croissant | Décroissant |
 | Durée | Temps, allures | Plus court d'abord | Plus long d'abord |
 
@@ -119,7 +119,7 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 
 Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
-- Un interrupteur « Grouper par type », à côté du bouton « Filtres ». **Activé par défaut** à la première visite. Désactivé : la vue globale, un seul tableau.
+- Un bouton rond « Grouper par type » (icône de couches), juste à droite du bouton « Filtres » ; il passe en couleur d'accent quand le regroupement est actif. **Activé par défaut** à la première visite. Désactivé : la vue globale, un seul tableau.
 - Activé : le tableau est découpé en groupes, un par type présent, dans l'ordre de la liste de référence (§ 3). Chaque groupe s'ouvre par un intertitre sur toute la largeur, « Trail · 4 courses » ; le toucher replie ou déplie le groupe.
 - Un seul tableau : les colonnes restent alignées d'un groupe à l'autre.
 - **Tri** : à l'intérieur de chaque groupe ; les groupes gardent l'ordre de référence.
@@ -140,20 +140,21 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre outil.
 
-- **Ajouter** : un bouton « + Ajouter une course », au-dessus du tableau, ouvre un formulaire vide.
-- **Modifier** : ✏️, au bout de chaque ligne, ouvre le même formulaire, rempli.
+- **Ajouter** : un bouton rond « + », tout à droite au-dessus du tableau (« Ajouter une course » au survol), ouvre un formulaire vide.
+- **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre le même formulaire, rempli. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
 - **Formulaire**, en panneau par-dessus la page, en quatre blocs ; les deux derniers sont repliés à l'ouverture d'un formulaire vide :
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Date, événement, parcours, type, sous-catégorie, distance, D+ |
+| Course | Date (seule sur sa ligne) ; course et parcours ; type et format ; distance et D+ ; rôle |
 | Résultat | Temps, DNF (case à cocher), allure, vitesse |
 | Classements | Place et effectif : général, catégorie, sexe |
 | Montre | Distance, D+, temps, allure, vitesse, FC moyenne |
 
-- **Obligatoires** : date, parcours, type et sous-catégorie. Les autres champs peuvent rester vides.
+- **Obligatoires** : date, course, type et format. Les autres champs, parcours compris, peuvent rester vides.
+- **Exemples** : chaque champ à saisir montre, en discret, un exemple du format attendu (« ex. Forez Trails », « ex. 24,4 », « ex. 49:18 ou 4918 ») ; il disparaît dès qu'on écrit.
 - **Contrôles de saisie** :
-  - seules les sous-catégories du type choisi sont proposées ; pour un trail, celle qui correspond à la distance (§ 3) est choisie d'office, et reste modifiable ;
+  - seuls les formats du type choisi sont proposés ; pour un trail, celui qui correspond à la distance (§ 3) est choisi d'office, et reste modifiable ;
   - nombres positifs ; date du jour ou passée ;
   - durées : `49:18`, `1:56:05`, `1h56'05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
   - allure ou vitesse : l'une suffit, l'autre se calcule à l'affichage (§ 4).
@@ -161,10 +162,10 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 - **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler** ferme sans rien changer.
 - **Supprimer** : seulement dans le formulaire d'une course existante, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
 - **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire (modifiable dans le formulaire).
-- **Site partagé en lecture seule** : ni bouton d'ajout, ni ✏️ ; le tableau se consulte seulement.
+- **Site partagé en lecture seule** : ni bouton d'ajout, ni crayon, ni ouverture au toucher ; le tableau se consulte seulement.
 - **Depuis la page Objectif** (avec ce module) : cocher une course comme faite ouvre le même formulaire, pré-rempli de ce que la page Objectif connaît ; à l'enregistrement, la course passe à l'état Courue et rejoint le Palmarès.
 
-## 11. Formats
+## 11. Affichage des valeurs
 
 | Donnée | Format | Exemple |
 | --- | --- | --- |
@@ -183,7 +184,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 Jeu d'essai de sept courses :
 
-| Date | Course | Type | Sous-catégorie | Distance | D+ | Temps | Allure |
+| Date | Course | Type | Format | Distance | D+ | Temps | Allure |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 30 mars 2025 | 10 km de Montauban | Course sur route | 10 km | 10,1 km | 24 m | 51'46 | 5:08 /km |
 | 13 sept. 2025 | Épicurienne Trail | Trail | Trail découverte | 10,7 km | 199 m | 1h04'24 | 6:00 /km |
@@ -219,7 +220,10 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Une course marquée non terminée affiche « DNF » dans Temps, sans 🥇, et se range en fin de liste au tri par temps.
 - Ajouter une course « Test », 1er octobre 2026, Course sur route · 10 km, temps saisi `4500` : elle apparaît avec 45'00, et prend le 🥇 du 10 km.
 - Formulaire sans parcours, ou avec une distance négative : « Enregistrer » reste sans effet, l'erreur est signalée sous le champ.
-- Type Trail, distance 24 : la sous-catégorie proposée est Trail court.
+- Type Trail, distance 24 : le format proposé est Trail court.
 - Modifier la course « Test » (temps `5200`) : 52'00, le 🥇 revient au 49'18.
 - Supprimer la course « Test » : une confirmation est demandée ; après accord, elle disparaît.
-- Site partagé en lecture seule : ni « + Ajouter une course » ni ✏️.
+- Site partagé en lecture seule : ni bouton « + » ni crayon ; toucher une ligne n'ouvre rien.
+- Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre son formulaire.
+- Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + ».
+- Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».

@@ -20,7 +20,7 @@ create table types_course (
   ordre   int  not null
 );
 
-create table sous_categories (
+create table formats (
   id            text primary key,
   type          text not null references types_course (id),
   libelle       text not null,
@@ -75,8 +75,8 @@ create table courses (
   utilisateur uuid not null default auth.uid() references profils (id) on delete cascade,
 
   -- Identité et liens
-  nom            text not null,
-  evenement      text,
+  course         text not null, -- ex. Forez Trails
+  parcours       text,          -- ex. L'Olmetoise (facultatif)
   lieu           text,
   latitude       numeric(8,5),
   longitude      numeric(8,5),
@@ -85,8 +85,8 @@ create table courses (
   lien_resultats text,
   description    text check (char_length(description) <= 1000),
 
-  -- Classement (le type se déduit de la sous-catégorie)
-  sous_categorie text references sous_categories (id),
+  -- Classement (le type se déduit du format)
+  format         text references formats (id),
 
   -- Date, heure locale de la course, sans fuseau
   date        date,
@@ -148,9 +148,9 @@ create table courses (
 
   unique (utilisateur, id),
   foreign key (utilisateur, chaussures) references equipements (utilisateur, id) on delete set null (chaussures),
-  -- Seule une course confirmée peut être courue ; une course courue a une date et une sous-catégorie
+  -- Seule une course confirmée peut être courue ; une course courue a une date et un format
   check (etat <> 'courue' or statut = 'confirmee'),
-  check (etat <> 'courue' or (date is not null and sous_categorie is not null)),
+  check (etat <> 'courue' or (date is not null and format is not null)),
   check (passages is null or jsonb_typeof(passages) = 'array'),
   check (chronos_reference is null or jsonb_typeof(chronos_reference) = 'array')
 );
@@ -204,7 +204,7 @@ alter table preferences      enable row level security;
 alter table courses          enable row level security;
 alter table equipements      enable row level security;
 alter table types_course     enable row level security;
-alter table sous_categories  enable row level security;
+alter table formats          enable row level security;
 alter table types_equipement enable row level security;
 alter table circuits         enable row level security;
 alter table courses_circuits enable row level security;
@@ -223,7 +223,7 @@ create policy "son équipement" on equipements for all to authenticated
 -- Listes de référence : lecture pour tout utilisateur connecté, aucune écriture
 -- (l'administrateur les modifie depuis le tableau de bord de Supabase)
 create policy "lecture" on types_course     for select to authenticated using (true);
-create policy "lecture" on sous_categories  for select to authenticated using (true);
+create policy "lecture" on formats          for select to authenticated using (true);
 create policy "lecture" on types_equipement for select to authenticated using (true);
 create policy "lecture" on circuits         for select to authenticated using (true);
 
@@ -237,7 +237,7 @@ insert into types_course (id, libelle, ordre) values
   ('fast_hiking', 'Fast hiking', 4),
   ('triathlon', 'Triathlon', 5);
 
-insert into sous_categories (id, type, libelle, ordre, distance_fixe) values
+insert into formats (id, type, libelle, ordre, distance_fixe) values
   ('route_5km', 'route', '5 km', 1, true),
   ('route_10km', 'route', '10 km', 2, true),
   ('route_20km', 'route', '20 km', 3, true),
