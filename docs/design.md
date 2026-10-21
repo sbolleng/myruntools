@@ -13,7 +13,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 
 ## 2. Thèmes
 
-| Rôle | Bleu et orange | Vert et rose | Violet et turquoise (essais) |
+| Rôle | Bleu et orange | Vert et rose | Violet et turquoise |
 | --- | --- | --- | --- |
 | Fond | `#060b14` | `#0E1D19` | `#14101F` |
 | Surface | `#122a4a` | `#18332E` | `#221A35` |
