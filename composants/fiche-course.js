@@ -96,13 +96,15 @@
         const courant = k === 'role' ? (val || 'preparatoire') : (val || '');
         input = '<select id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
       } else {
-        const v = genre === 'duree' ? fmtDuree(val) : val == null ? '' : String(val);
+        const v = genre === 'duree' ? fmtDuree(val) : val == null ? '' : genre === 'nombre' ? String(val).replace('.', ',') : String(val);
         const type = genre === 'date' ? 'date' : 'text';
         const mode = genre === 'nombre' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' ? ' inputmode="numeric"' : '';
         const max = genre === 'date' ? ' max="' + today() + '"' : '';
         input = '<input type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + mode + max + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
       }
-      return '<div class="fc-champ' + (k === 'date' ? ' fc-seul' : '') + '"><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
+      // La case DNF se range juste sous le temps : les deux vont ensemble.
+      const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
+      return '<div class="fc-champ' + (k === 'date' ? ' fc-seul' : '') + '"><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
     };
     const ouvert = b => existe || b === 'course' || b === 'resultat';
     voile.innerHTML =
@@ -113,7 +115,7 @@
           BLOCS.map(([b, titre]) =>
             '<section class="fc-bloc">' +
               '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
-              '<div class="fc-grille"' + (ouvert(b) ? '' : ' hidden') + '>' + CHAMPS.filter(f => f[3] === b).map(champ).join('') + '</div>' +
+              '<div class="fc-grille"' + (ouvert(b) ? '' : ' hidden') + '>' + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf').map(champ).join('') + '</div>' +
             '</section>').join('') +
           '<p class="fc-msg" aria-live="polite"></p>' +
           '<div class="fc-actions">' +

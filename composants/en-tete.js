@@ -76,14 +76,15 @@
     header.className = 'mrt-header';
     header.innerHTML =
       '<div class="mrt-grid">' +
-        '<h1>Cap sur<em>' + esc(o.nom || dash) + '</em></h1>' +
+        '<h1><span class="mrt-cap">Cap sur</span><em>' + esc(o.nom || dash) + '</em></h1>' +
         '<div class="mrt-stats">' + stats.map(s =>
           '<div class="mrt-stat"><span class="mrt-stat-val">' + esc(s[1]) + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
         '<div class="mrt-count">' +
           '<div class="mrt-brand"><a href="' + withTheme('index.html') + '">MyRunTools</a>' +
           '<a class="mrt-gear" href="' + withTheme('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
           '<span class="mrt-days">—</span><span class="mrt-days-label">jours</span>' +
-          '<div class="mrt-hms"></div><div class="mrt-next"></div></div>' +
+          '<div class="mrt-hms"></div></div>' +
+        '<div class="mrt-next"></div>' +
       '</div>' +
       '<div class="mrt-bar"></div>';
 

@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.7 · 22 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.8 · 22 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -147,7 +147,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 | Bloc | Champs |
 | --- | --- |
 | Course | Date (seule sur sa ligne) ; course et parcours ; type et format ; distance et D+ ; rôle |
-| Résultat | Temps, DNF (case à cocher), allure, vitesse |
+| Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure, vitesse |
 | Classements | Place et effectif : général, catégorie, sexe |
 | Montre | Distance, D+, temps, allure, vitesse, FC moyenne |
 
@@ -159,7 +159,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
   - durées : `49:18`, `1:56:05`, `1h56'05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
   - allure ou vitesse : l'une suffit, l'autre se calcule à l'affichage (§ 4).
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
-- **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler** ferme sans rien changer.
+- **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler**, ou le bouton « × » en haut du formulaire (toujours visible), ferme sans rien changer.
 - **Supprimer** : seulement dans le formulaire d'une course existante, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
 - **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire (modifiable dans le formulaire).
 - **Site partagé en lecture seule** : ni bouton d'ajout, ni crayon, ni ouverture au toucher ; le tableau se consulte seulement.
@@ -227,3 +227,4 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre son formulaire.
 - Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + ».
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
+- Téléphone : le formulaire tient dans la largeur de l'écran ; « × » reste visible quand on fait défiler, et le ferme.

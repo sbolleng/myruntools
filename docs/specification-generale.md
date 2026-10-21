@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.4 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.5 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -51,7 +51,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Titre | « Cap sur » sur une ligne, puis le nom officiel de la course objectif, en couleur d'accent, sur la ligne suivante |
 | Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, D+ (trail seulement), Date, Objectif, D'ici là |
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde |
-| Prochaine course | Sous le compte à rebours : « prochaine course · nom · J-n » |
+| Prochaine course | « prochaine course · nom de la course · J-n » : sous le compte à rebours sur ordinateur, en bas à droite de l'en-tête (sous les indicateurs) sur téléphone. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
 | Engrenage ⚙️ | À droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |

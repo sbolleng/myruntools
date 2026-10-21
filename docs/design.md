@@ -1,6 +1,6 @@
 # Design
 
-Version 0.4 · 22 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.5 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -57,7 +57,8 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 - **Marges** : 1,5 rem en haut, 2 rem sur les côtés et en bas ; 1 rem en haut, 1,25 rem sur les côtés et 1,5 rem en bas sur téléphone. Contenu centré, 960 px de large au plus.
 - **Colonne de droite, toujours à la même place** : le nom de l'application et l'engrenage, leur haut aligné sur le haut de « Cap sur », puis le compte à rebours dessous, le tout aligné à droite, à toutes les largeurs d'écran.
 - **Ordinateur** : deux colonnes. À gauche le titre, puis les indicateurs sur une ligne, espacés de 2 rem, 1,5 rem sous le titre ; à droite le nom de l'application et le compte à rebours.
-- **Téléphone** (600 px et moins) : mêmes deux colonnes, colonne de droite comprise ; les indicateurs passent en grille de deux colonnes, sous le titre et le compte à rebours.
+- **Téléphone** (600 px et moins) : mêmes deux colonnes, colonne de droite comprise ; les indicateurs passent en grille de deux colonnes, sous le titre et le compte à rebours ; la prochaine course passe en bas à droite, sous les indicateurs, pour ne pas allonger la colonne de droite.
+- **« Cap sur »** ne se coupe jamais : il tient sur une ligne, le nom de la course dessous.
 - **Filet** : barre de 5 px, 2 rem sous le contenu, toute la largeur ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
 - Une ligne fine (Bordure) sépare l'en-tête du menu.
 
@@ -78,7 +79,10 @@ Sobre, sans en-tête ni menu, centrée dans la page, 22 rem de large au plus.
 
 Ils reprennent le style du site : rien de nouveau, des éléments déjà présents.
 
-- **Panneau de formulaire** : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes ; sur téléphone, il occupe tout l'écran et défile.
+- **Panneau de formulaire** : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes ; sur téléphone, il occupe tout l'écran et défile, sans jamais déborder sur les côtés.
+- **Fermer** : bouton rond « × » en haut à droite, dans la nuance des flèches de tri, Accent au survol ; le titre et ce bouton restent visibles quand le formulaire défile. « Annuler », en bas, ferme aussi.
+- **Case « Non terminée (DNF) »** : juste sous le champ Temps, en texte discret, pour montrer qu'elle s'y rapporte.
+- **Nombres** : virgule décimale (« 24,4 »).
 - **Blocs** : titre en Space Mono, capitales, 0,62 rem, Texte discret, comme les libellés de l'en-tête ; un chevron replie ou déplie le bloc, comme les groupes du Palmarès.
 - **Champs** : ceux de la page de connexion (fond transparent, bordure fine, Accent au focus, 0,85 rem), libellé au-dessus en petites capitales, exemple en Texte discret dans le champ vide ; deux colonnes sur ordinateur, une sur téléphone ; la date seule sur sa ligne.
 - **Boutons** : contour arrondi, en capitales ; « Enregistrer » en Accent plein, comme « Filtres » ; « Supprimer » en texte Alerte, souligné, à l'écart des autres.
@@ -87,7 +91,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 ## 7. Barre et lignes du Palmarès
 
-- **Barre** : « Filtres » (Accent plein), puis un bouton rond de 2 rem « Grouper par type » (icône de couches) ; tout à droite, un bouton rond « + » pour ajouter une course. Boutons ronds en Texte discret avec une bordure fine (Bordure), comme les flèches de tri ; Accent au survol, et pour le regroupement quand il est actif.
+- **Barre** : « Filtres » (Accent plein), puis un bouton rond de 2 rem « Grouper par type » (icône de couches) ; tout à droite, un bouton rond « + » pour ajouter une course. Boutons ronds en Texte discret avec une bordure fine (Bordure), comme les flèches de tri ; Accent au survol. Regroupement : fond Surface 2 (le bleu du thème bleu et orange) quand il est inactif, Accent quand il est actif.
 - **Compteur** « X courses sur Y » à droite du regroupement ; sur téléphone, il passe sous les boutons.
 - **Bouton des colonnes** (« + » en bout d'en-tête) : la taille et la couleur des flèches de tri, Accent quand la liste est ouverte.
 - **Crayon** : trait fin, Texte discret comme les flèches de tri, visible seulement au survol de la ligne (Accent sous le pointeur) ; la ligne survolée s'éclaire légèrement (Surface 2). Sur écran tactile : pas de crayon, la ligne entière s'ouvre au toucher.
