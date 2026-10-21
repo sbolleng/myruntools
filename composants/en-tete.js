@@ -6,7 +6,7 @@
 // config :
 //   theme      'bleu-orange' | 'vert-rose' | 'violet-turquoise' ; ?t=… dans
 //              l'adresse l'emporte
-//   objectif   { nom, distance (km), dplus (m, trail seulement), date
+//   objectif   { nom, distance (km), dplus (m, si connu), date
 //                ('AAAA-MM-JJ', ou 'AAAA-MM' si le jour est inconnu), dIciLa
 //                (nombre de courses avant l'objectif), cible (texte libre) }
 //   prochaine  { nom, date: 'AAAA-MM-JJ' } ou rien
@@ -65,12 +65,13 @@
     const withTheme = href => (cfg.racine || '') + (forced ? href + '?t=' + theme : href);
 
     const stats = [
-      ['Distance', o.distance != null ? nf.format(o.distance) + ' km' : dash],
-      o.dplus != null ? ['D+', nf.format(o.dplus) + ' m'] : null, // trail seulement
-      ['Date', o.date ? fmtDate(o.date) : dash],
-      ['Objectif', o.cible || dash],
-      ["D'ici là", o.dIciLa != null ? o.dIciLa + (o.dIciLa > 1 ? ' courses' : ' course') : dash]
-    ].filter(Boolean);
+      // Le dénivelé, quand il est connu, suit la distance en texte discret.
+      ['Distance', esc(o.distance != null ? nf.format(o.distance) + ' km' : dash) +
+        (o.dplus != null ? '<span class="mrt-stat-dplus"> / ' + esc(nf.format(o.dplus)) + ' m D+</span>' : '')],
+      ['Date', esc(o.date ? fmtDate(o.date) : dash)],
+      ['Objectif', esc(o.cible || dash)],
+      ["D'ici là", esc(o.dIciLa != null ? o.dIciLa + (o.dIciLa > 1 ? ' courses' : ' course') : dash)]
+    ];
 
     const header = document.createElement('header');
     header.className = 'mrt-header';
@@ -78,7 +79,7 @@
       '<div class="mrt-grid">' +
         '<h1><span class="mrt-cap">Cap sur</span><em>' + esc(o.nom || dash) + '</em></h1>' +
         '<div class="mrt-stats">' + stats.map(s =>
-          '<div class="mrt-stat"><span class="mrt-stat-val">' + esc(s[1]) + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
+          '<div class="mrt-stat"><span class="mrt-stat-val">' + s[1] + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
         '<div class="mrt-brand"><a href="' + withTheme('index.html') + '">MyRunTools</a>' +
           '<a class="mrt-gear" href="' + withTheme('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
         '<div class="mrt-count">' +

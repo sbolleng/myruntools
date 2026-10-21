@@ -1,6 +1,6 @@
 # Design
 
-Version 0.6 · 22 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.7 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -47,6 +47,7 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 | Titre, ligne « Cap sur » | Space Grotesk, interligne 1,05, espacement −0,02 em | 2 à 3,5 rem selon la largeur d'écran | 700 | Texte |
 | Titre, nom de la course | Idem | Idem | 700 | Accent |
 | Valeur d'indicateur (15 rem de large au plus, va à la ligne au-delà) | Space Mono | 1,1 rem | 700 | Accent 2 |
+| Dénivelé dans Distance (« / 3 500 m D+ ») | Space Mono | 0,8 rem | Normale | Texte discret |
 | Libellé d'indicateur | Space Grotesk, capitales, espacement 0,1 em | 0,7 rem | Normale | Texte discret |
 | Nombre de jours | Space Mono, interligne 1 | 3,5 rem | 700 | Accent |
 | « jours » | Space Grotesk, capitales, espacement 0,12 em | 0,7 rem | Normale | Texte discret |
