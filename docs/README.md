@@ -48,7 +48,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Supabase : désactiver « Allow new users to sign up » (comptes créés à la main seulement).
 - [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
-- [ ] Import de Rome, une fois son compte créé : feuille de route (7 courses ; Béret et Nocturne en Plaisir, Augerolloise en Objectif intermédiaire, Rome en Objectif ; Nocturne 260 m D+), Palmarès (9 courses validées), Courses à surveiller (une ligne par format ; sans date : « À définir »).
+- [ ] Import de Rome : script fourni hors dépôt (37 courses : 9 courues, 7 à venir, 21 à surveiller), à lancer dans l'éditeur SQL.
 - [ ] Socle, suite : profils et préférences lus dans la base.
 - [ ] Partage en lecture seule, juste après l'import : un utilisateur partage son site avec un autre (table `partages`, règles de lecture, sélecteur « Voir le site de… », bandeau « Lecture seule ») ; spécification à valider d'abord.
 
@@ -108,6 +108,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 oct. 2026 | Import | Rome : 9 courses courues, 7 à venir (Béret et Nocturne en Plaisir, Augerolloise en Objectif intermédiaire, Rome en Objectif), 21 à surveiller (une ligne par format, sans date : « À définir ») ; Tournefeuille dans le Challenge Levy. En-tête : la prochaine course affiche « Événement · Parcours ». |
 | 21 oct. 2026 | Socle | En-tête, menu et Palmarès lus dans la base (`composants/donnees.js`) ; profil de démonstration et données écrites dans le code retirés du dépôt. Courses du profil trail importées (18). |
 | 21 oct. 2026 | Modèle de données | Version 0.4 : circuits (UTMB, Challenge Levy…) dans une table à part, avec catégorie d'index et Running Stones par course ; course sans date affichée « À définir » (évolution 004). |
 | 21 oct. 2026 | Palmarès | Sous-catégories de trail selon la distance officielle (usage FFA) : découverte < 21 km, court 21–41, long 42–79, ultra ≥ 80 (spécification 1.4). |
