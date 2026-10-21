@@ -70,7 +70,7 @@
     return {
       theme: prefs.theme,
       objectif,
-      prochaine: prochaine ? { nom: prochaine.nom, date: prochaine.date } : null,
+      prochaine: prochaine ? { nom: window.mrtNomCourse(prochaine), date: prochaine.date } : null,
       modules
     };
   }
