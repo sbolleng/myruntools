@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.5 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.6 · 21 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -136,16 +136,33 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 - Cocher une colonne l'affiche, la décocher la masque. Masquer une colonne retire son filtre et, si elle était triée, ramène le tri par date.
 - Avec la base de données, le choix de chaque utilisateur est retenu d'une visite à l'autre.
 
-## 10. Édition (avec la base de données)
+## 10. Édition
 
-Les nouvelles entrées sont saisies à la main.
+Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre outil.
 
-- **Ajouter une entrée** : un bouton ajoute une ligne vide en haut du tableau. Chaque champ s'y remplit avec un contrôle adapté à son type (date, texte, choix, nombre, durée). « Enregistrer » valide la ligne, « Annuler » la retire.
-- **Modifier** : ✏️, en regard de chaque ligne, la rend modifiable avec les mêmes contrôles, puis « Enregistrer » ou « Annuler ».
-- **Supprimer** : 🗑️, en regard de chaque ligne, la supprime après confirmation.
-- **Champs obligatoires** : date, course, type et sous-catégorie. Les autres peuvent rester vides.
-- **Contrôles de saisie** : seules les sous-catégories du type choisi sont proposées ; durées au format h:mm:ss ou mm:ss ; nombres positifs.
-- **Depuis la page Objectif** : cocher une course comme faite ouvre une fenêtre qui invite à remplir sa fiche. Les champs que la page Objectif connaît déjà (date, nom, distance, D+…) sont pré-remplis. À l'enregistrement, la course rejoint le Palmarès et quitte la page Objectif.
+- **Ajouter** : un bouton « + Ajouter une course », au-dessus du tableau, ouvre un formulaire vide.
+- **Modifier** : ✏️, au bout de chaque ligne, ouvre le même formulaire, rempli.
+- **Formulaire**, en panneau par-dessus la page, en quatre blocs ; les deux derniers sont repliés à l'ouverture d'un formulaire vide :
+
+| Bloc | Champs |
+| --- | --- |
+| Course | Date, événement, parcours, type, sous-catégorie, distance, D+ |
+| Résultat | Temps, DNF (case à cocher), allure, vitesse |
+| Classements | Place et effectif : général, catégorie, sexe |
+| Montre | Distance, D+, temps, allure, vitesse, FC moyenne |
+
+- **Obligatoires** : date, parcours, type et sous-catégorie. Les autres champs peuvent rester vides.
+- **Contrôles de saisie** :
+  - seules les sous-catégories du type choisi sont proposées ; pour un trail, celle qui correspond à la distance (§ 3) est choisie d'office, et reste modifiable ;
+  - nombres positifs ; date du jour ou passée ;
+  - durées : `49:18`, `1:56:05`, `1h56'05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
+  - allure ou vitesse : l'une suffit, l'autre se calcule à l'affichage (§ 4).
+- Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
+- **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler** ferme sans rien changer.
+- **Supprimer** : seulement dans le formulaire d'une course existante, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
+- **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire (modifiable dans le formulaire).
+- **Site partagé en lecture seule** : ni bouton d'ajout, ni ✏️ ; le tableau se consulte seulement.
+- **Depuis la page Objectif** (avec ce module) : cocher une course comme faite ouvre le même formulaire, pré-rempli de ce que la page Objectif connaît ; à l'enregistrement, la course passe à l'état Courue et rejoint le Palmarès.
 
 ## 11. Formats
 
@@ -200,3 +217,9 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Toucher l'intertitre Trail : ses lignes disparaissent, l'intertitre reste ; le toucher à nouveau les fait revenir.
 - Recharger la page : le regroupement est toujours actif. Le désactiver : retour à la vue globale, colonne Type comprise.
 - Une course marquée non terminée affiche « DNF » dans Temps, sans 🥇, et se range en fin de liste au tri par temps.
+- Ajouter une course « Test », 1er octobre 2026, Course sur route · 10 km, temps saisi `4500` : elle apparaît avec 45'00, et prend le 🥇 du 10 km.
+- Formulaire sans parcours, ou avec une distance négative : « Enregistrer » reste sans effet, l'erreur est signalée sous le champ.
+- Type Trail, distance 24 : la sous-catégorie proposée est Trail court.
+- Modifier la course « Test » (temps `5200`) : 52'00, le 🥇 revient au 49'18.
+- Supprimer la course « Test » : une confirmation est demandée ; après accord, elle disparaît.
+- Site partagé en lecture seule : ni « + Ajouter une course » ni ✏️.

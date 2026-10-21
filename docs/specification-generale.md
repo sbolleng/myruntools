@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.3 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.4 · 21 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -121,12 +121,33 @@ Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les ré
 | --- | --- |
 | Thème | Couleurs du site (§ 6) |
 | Modules | Modules affichés dans le menu, et leur ordre |
+| Partage | Personnes avec qui je partage mon site, en lecture seule ; sites partagés avec moi (§ 9) |
 | Cap | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) ; par défaut la plus lointaine |
 | Mot de passe | Changement du mot de passe du compte |
 
 La page sera construite avec la base de données ; d'ici là, ces réglages sont écrits en dur.
 
-## 9. Administration : deux temps
+## 9. Partage en lecture seule
+
+Un utilisateur peut montrer son site à un autre, par exemple pour avoir son avis : celui-ci le voit tel quel, sans rien pouvoir modifier. L'accord se retire à tout moment.
+
+**Partager** (Préférences, bloc « Partage ») :
+
+- « Partager mon site avec » : l'e-mail d'un compte existant, puis « Partager ». Adresse sans compte : « Aucun compte avec cette adresse ».
+- Dessous, les personnes avec qui je partage, chacune avec « Retirer ».
+
+**Voir un site partagé** (même bloc) :
+
+- « Sites partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son site ».
+- Dans ce mode, sur toutes les pages, un bandeau sous le menu : « Lecture seule · site de Prénom », avec « Revenir à mon site ».
+- On voit son en-tête (cap, D'ici là, prochaine course), son menu, son thème et ses modules ; rien ne s'y ajoute, ne s'y modifie ni ne s'y supprime.
+- Le mode est retenu sur l'appareil jusqu'à « Revenir à mon site ». Si l'accord est retiré, le site partagé disparaît de la liste et l'on revient à son propre site.
+
+**Ce qui est partagé** : les courses et leurs circuits, les préférences (thème, menu, cap) et, du profil, seulement le prénom, le nom et le sexe. Jamais les données de santé (poids, taille, pointure, fréquences cardiaques, VMA, VO2 max, date de naissance) ni l'équipement.
+
+Le propriétaire du projet Supabase garde, lui, l'accès à toute la base depuis le tableau de bord : le partage ne concerne que le site.
+
+## 10. Administration : deux temps
 
 | Fonction | V1 · fichiers de données | V2 · Supabase |
 | --- | --- | --- |
@@ -135,7 +156,7 @@ La page sera construite avec la base de données ; d'ici là, ces réglages sont
 | Importer ses séances | Saisie via Claude | Import automatique depuis Strava, après autorisation unique |
 | Voir ses données | Visibles de tous | Visibles du seul utilisateur connecté |
 
-## 10. Données et confidentialité
+## 11. Données et confidentialité
 
 - **Trois couches** : les modules (affichage), le contenu et les préférences de chaque utilisateur, et entre les deux une couche d'accès aux données. Les modules ne savent pas d'où viennent les données : passer des fichiers à Supabase ne réécrit aucun module.
 - **Protection du site** : par la connexion Supabase. Sans connexion, toute page renvoie vers la page de connexion, sans rien montrer de son contenu ; des règles par ligne garantissent que chacun n'accède qu'à ses propres données. Tant qu'un contenu est écrit dans le code plutôt que rangé dans Supabase, il reste lisible par qui consulte le dépôt public.
@@ -143,7 +164,7 @@ La page sera construite avec la base de données ; d'ici là, ces réglages sont
 - **Tiers** : aucun nom complet de tiers, aucune référence de réservation.
 - **Ouverture à d'autres coureurs** : poids, repas et séances sont des données de santé au sens du RGPD ; l'ouverture suppose une politique de confidentialité, l'export et la suppression des données sur demande, et la validation de l'application par Strava.
 
-## 11. Technique
+## 12. Technique
 
 | Sujet | Choix |
 | --- | --- |
@@ -155,7 +176,7 @@ La page sera construite avec la base de données ; d'ici là, ces réglages sont
 | Bilan hebdomadaire | Routine Claude |
 | Cache navigateur | Numéro de version posé automatiquement dans les liens CSS et JS à chaque publication |
 
-## 12. Contrôles
+## 13. Contrôles
 
 Jeu d'essai : un objectif de trail, « Trail des Crêtes », 60 km, 3 500 m D+, en août 2029, jour inconnu ; 12 courses avant lui ; objectif « Finisher » ; prochaine course « Trail du Lac » le 15 novembre 2026 ; date du jour : 20 octobre 2026.
 
@@ -173,3 +194,7 @@ Résultats attendus :
 - L'engrenage ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
 - Page de connexion : ni en-tête ni menu ; une adresse inconnue reçoit le message « Lien non envoyé » ; le lien reçu ramène sur l'accueil, connecté.
+- A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son site » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · site de A ».
+- Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
+- A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
+- Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
