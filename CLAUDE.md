@@ -4,7 +4,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 
 ## Le projet
 
-- Lire d'abord `docs/README.md` : sommaire des spécifications, feuille de route, journal des décisions.
+- Lire d'abord `docs/README.md` : sommaire des spécifications, feuille de route, todo globale. Le journal des décisions est à part (`docs/journal.md`) : ne le lire qu'au besoin.
 - Deux profils pilotes au lancement (trail et route), deux comptes créés à la main. Les anciens sites (dépôt `plan-entrainement_Seb`) servent d'inspiration et de source de données ; on n'y développe plus rien de neuf.
 
 ## Règles
@@ -20,11 +20,11 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 - Une par module : `docs/module-<nom>-specification.md`, en tête « Version x.y · date · [Retour au sommaire](README.md) ».
 - Synthétiques, didactiques, compréhensibles par quelqu'un qui n'a jamais vu les anciens sites : aucune référence à l'existant ni aux personnes, pas de design (document séparé).
 - Chaque spécification finit par un jeu d'essai et des résultats attendus, rejoués avant chaque mise en ligne.
-- Chaque décision : une ligne dans le journal de `docs/README.md`, la plus récente en haut.
+- Chaque décision : une ligne dans `docs/journal.md`, la plus récente en haut.
 
 ## Cycle d'un module
 
-Spécification → validation → modèle de données si besoin → construction → contrôles (jeu d'essai) → mise en ligne. Maquette seulement à la demande, ou proposée quand elle aide à trancher.
+Spécification → validation → modèle de données si besoin → construction → contrôles (jeu d'essai, rejoué par le banc d'essai) → mise en ligne. Maquette seulement à la demande, ou proposée quand elle aide à trancher.
 
 ## Technique
 
@@ -35,5 +35,14 @@ Spécification → validation → modèle de données si besoin → construction
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise` (essais) ; une page s'ouvre dans un autre thème avec `?t=…`.
 - `docs/maquettes/` : maquettes (en-tête, calendrier) ; le calendrier s'ouvre avec `?t=trail` ou `?t=route` (profils d'exemple).
+- Banc d'essai : `outils/essais/` (`npm install` une fois, puis `node essais.js`, `--captures` pour des images). Chromium, base simulée par `donnees-fictives.json`, date figée au 20 octobre 2026. Chaque module construit y ajoute ses contrôles, tirés de son jeu d'essai. Données fictives seulement.
 - Publication : `.github/workflows/publication.yml` publie GitHub Pages à chaque mise à jour de `main` et remplace `__VERSION__` par le numéro du commit dans les liens CSS/JS et la balise `site-version` : rien à incrémenter à la main.
 - Circuit git : travailler sur la branche de la session, fusionner dans `main` (`--no-ff`), pousser les deux. Vérifier une fois, en fin de lot, que la publication a réussi, avant d'annoncer que c'est en ligne.
+
+## État en cours
+
+À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
+
+- Dernier lot en ligne : en-tête (compteur à droite, nombre de jours aligné sur le nom de la course sur ordinateur ; indicateur Distance / D+) ; journal sorti du README ; banc d'essai.
+- En cours : rien.
+- Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
