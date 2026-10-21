@@ -175,7 +175,7 @@ create table preferences (
   modules           text[],
   course_cap        uuid, -- vide : cap par défaut (la course la plus lointaine)
   palmares_colonnes text[],
-  palmares_groupe   boolean not null default false,
+  palmares_groupe   boolean not null default true,
   foreign key (utilisateur, course_cap) references courses (utilisateur, id) on delete set null (course_cap)
 );
 

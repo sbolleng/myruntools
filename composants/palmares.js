@@ -189,7 +189,8 @@
 
   // Dernier choix de regroupement, gardé sur l'appareil en attendant la base.
   const GROUP_KEY = 'mrt-palmares-groupe';
-  function readGroup() { try { return localStorage.getItem(GROUP_KEY) === '1'; } catch (e) { return false; } }
+  // Groupé par défaut : seul un « non » explicitement retenu donne la vue globale.
+  function readGroup() { try { return localStorage.getItem(GROUP_KEY) !== '0'; } catch (e) { return true; } }
   function saveGroup(on) { try { localStorage.setItem(GROUP_KEY, on ? '1' : '0'); } catch (e) { /* stockage indisponible */ } }
 
   window.renderPalmares = function (root, cfg) {

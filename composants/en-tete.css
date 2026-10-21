@@ -8,6 +8,8 @@
 .t-violet-turquoise { --bg:#14101F; --surface:#221A35; --surface2:#2D2347; --border:#40335F; --accent:#2EC4B6; --accent2:#5EDDD1; --text:#F1EEF7; --muted:#A49BB8; --red:#E0607E; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+/* Page privée masquée tant que la session n'est pas vérifiée (session.js). */
+html.mrt-attente body { visibility: hidden; }
 html { background: var(--bg); }
 body {
   font-family: 'Space Grotesk', sans-serif;

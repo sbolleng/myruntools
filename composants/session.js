@@ -44,8 +44,17 @@
     if (client) await client.auth.signOut();
   };
 
-  // Le thème des préférences s'applique, sauf thème imposé par l'adresse (?t=…).
+  // Site privé : hors page de connexion, une page reste masquée (classe
+  // mrt-attente posée dans son <head>) jusqu'à la vérification de la session ;
+  // sans session, direction la page de connexion.
+  const surConnexion = /connexion\.html$/.test(location.pathname);
   window.mrtSession().then(s => {
+    if (!s && !surConnexion) {
+      location.replace('connexion.html' + location.search);
+      return;
+    }
+    document.documentElement.classList.remove('mrt-attente');
+    // Le thème des préférences s'applique, sauf thème imposé par l'adresse (?t=…).
     if (s && s.preferences && s.preferences.theme && window.appliquerTheme) window.appliquerTheme(s.preferences.theme);
   });
 })();
