@@ -160,7 +160,7 @@ create table courses (
 create index courses_utilisateur_date on courses (utilisateur, date);
 
 -- Date de dernière modification tenue à jour par la base
-create function marquer_modification() returns trigger language plpgsql as $$
+create function marquer_modification() returns trigger language plpgsql set search_path = '' as $$
 begin
   new.modifie_le := now();
   return new;
