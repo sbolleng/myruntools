@@ -52,6 +52,10 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] Essai à deux du partage : le compte test Rome partage, tu regardes son site.
 - [ ] Essai réel de la page Préférences avec ton compte (thème, menu, cap), contrôlée jusqu'ici sur le banc d'essai seulement.
 
+### Affichage
+
+- [ ] Chargement des pages, surtout sur téléphone : la page apparaît d'abord sans en-tête, puis l'en-tête s'ajoute et pousse le contenu vers le bas (par exemple en ouvrant le Palmarès). À corriger : la page doit s'afficher d'un seul coup, en-tête compris, sans saut pendant la lecture.
+
 ### Préférences utilisateur
 
 - [ ] Changement de mot de passe (connexion par lien magique seulement pour l'instant).
