@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 22 oct. 2026 | Connexion | E-mail du lien de connexion en français, au vouvoiement, sobre : objet « Votre lien de connexion à MyRunTools », lien « Me connecter », lien à usage unique. |
 | 22 oct. 2026 | Préférences | Essai réel de la page Préférences validé (thème, menu, cap). |
 | 22 oct. 2026 | Comptes | Compte du pilote route créé, inscriptions libres désactivées dans Supabase, courses importées ; le pilote route est désormais désigné « le compte test Rome ». Page Calendrier ajoutée à la todo. |
 | 21 oct. 2026 | Thèmes | Violet et turquoise n'est plus réservé aux essais : les trois thèmes sont proposés à tous. |
