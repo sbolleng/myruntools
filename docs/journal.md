@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 22 oct. 2026 | Préférences | Essai réel de la page Préférences validé (thème, menu, cap). |
 | 22 oct. 2026 | Comptes | Compte du pilote route créé, inscriptions libres désactivées dans Supabase, courses importées ; le pilote route est désormais désigné « le compte test Rome ». Page Calendrier ajoutée à la todo. |
 | 21 oct. 2026 | Thèmes | Violet et turquoise n'est plus réservé aux essais : les trois thèmes sont proposés à tous. |
 | 21 oct. 2026 | Préférences | Version 1.1 : blocs dans l'ordre Compte, Cap, Thème, Menu, Partage ; plus de mention « essais » ; texte du Partage plus neutre. Tailles de texte des pages fixées dans le design (§ 3), contenu à 0,85 rem par défaut. Maquettes : seulement à la demande. |

@@ -50,7 +50,6 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 - [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
 - [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
 - [ ] Essai à deux du partage : le compte test Rome partage, tu regardes son site.
-- [ ] Essai réel de la page Préférences avec ton compte (thème, menu, cap), contrôlée jusqu'ici sur le banc d'essai seulement.
 
 ### Affichage
 
