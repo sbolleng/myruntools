@@ -43,6 +43,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : page Préférences (thème, menu, cap), `?t=…` retiré du site.
-- En cours : authentification terminée (domaine `myruntools.fr` sur GitHub Pages, Resend, SMTP, e-mail en français) ; modèle d'e-mail A retenu (`docs/maquettes/email-connexion-a.html`), à coller dans Supabase, puis test de connexion de bout en bout sur le nouveau domaine.
+- Dernier lot en ligne : authentification (domaine `myruntools.fr` sur GitHub Pages, Resend, SMTP, e-mail en français modèle A, testé).
+- En cours : correctif d'affichage (l'en-tête s'ajoute après le contenu et le pousse, mobile et PC).
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
