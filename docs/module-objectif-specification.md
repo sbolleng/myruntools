@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Brouillon v0.1 · 5 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Brouillon v0.2 · 23 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -28,9 +28,17 @@ Aujourd'hui, côté trail, les courses du graphique de difficulté sont saisies 
 
 De haut en bas :
 
-1. **Texte d'introduction** : l'objectif final et le chemin pour y arriver, en quelques phrases.
-2. **Graphique de difficulté** (§ 5.2), affiché pour tous, repliable.
-3. **Feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier.
+1. **Graphique de difficulté** (§ 5.2), affiché pour tous, repliable.
+2. **Feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier.
+
+La page démarre directement sur ces blocs : pas de texte d'introduction.
+
+**Construction en lots.** Premier lot : la feuille de route (étapes, cellules, comptes à rebours). Ensuite, chacun dans son lot : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
+
+### Lien avec l'en-tête
+
+- **D'ici là** : nombre d'étapes de la feuille de route avant la course du cap. Les options d'un même groupe comptent pour une seule étape.
+- **Prochaine course** : la première course Confirmée à venir de la feuille de route, hors course du cap.
 
 ### Statut, rôle et état d'une étape
 
@@ -71,7 +79,7 @@ Chaque cellule n'est affichée que si elle est remplie.
 | Stratégie de course | Points de passage (distance, temps visé), objectifs chiffrés, lien des résultats en direct | Suivi en course |
 | Résultat | Temps réalisé | Comparaison à l'objectif ; plus tard, Palmarès |
 
-En V1, cette liste vit dans un fichier de données par utilisateur ; en V2, dans Supabase. Tant qu'elle est publique, elle ne contient ni réservation ni donnée personnelle de tiers.
+Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réservation ni donnée personnelle de tiers.
 
 ## 5. Briques dynamiques
 
@@ -145,3 +153,4 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans l'étap
 - [ ] Ordre des cellules d'une étape : identique pour tous, ou propre à chaque utilisateur ?
 - [x] Course passée : elle quitte la feuille de route et rejoint le Palmarès (décidé le 19 oct. 2026).
 - [ ] Course à choisir : comment présenter les candidats (liste, comparatif) ?
+- [ ] Choix de la course de l'en-tête (cap) : seulement dans les Préférences, ou aussi depuis la page Objectif ? À revoir une fois la feuille de route construite.
