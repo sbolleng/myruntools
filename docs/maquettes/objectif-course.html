@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<title>Maquette Objectif · page d'une course</title>
+<link rel="stylesheet" href="../../composants/en-tete.css">
+<link rel="stylesheet" href="objectif.css">
+</head>
+<body>
+<main>
+  <p class="mq-note" id="note"></p>
+  <div id="pc"></div>
+</main>
+<script src="../../composants/en-tete.js"></script>
+<script src="objectif-donnees.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const t = q.get('t') ? '&t=' + q.get('t') : '';
+  MQ.entete();
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const C = MQ.COURSES;
+  const c = C.find(x => x.id === +q.get('c')) || C[2];
+  const page = x => 'objectif-course.html?c=' + x.id + t;
+
+  // Rang de l'étape : un groupe d'options compte pour une seule étape.
+  const et = MQ.etapes();
+  const rang = et.findIndex(e => e.course === c || (e.candidates || []).includes(c)) + 1;
+  const i = C.indexOf(c), prec = C[i - 1], suiv = C[i + 1];
+  const autres = c.groupe ? C.filter(x => x.groupe === c.groupe && x !== c) : [];
+  const fmt = n => MQ.nf.format(n);
+
+  const stat = (val, label) => val ? '<div class="pc-stat"><span class="pc-stat-val">' + val + '</span><span class="pc-stat-label">' + label + '</span></div>' : '';
+  const cellule = (titre, html) => html ? '<div class="card pc-cellule"><h3 class="ob-titre-bloc">' + titre + '</h3>' + html + '</div>' : '';
+  const dossard = c.inscrit
+    ? '<p>Inscrit' + (c.dossard ? ' · dossard n° <span class="ob-mono">' + esc(c.dossard) + '</span>' : '') + (c.prix ? ' · <span class="ob-mono">' + c.prix + ' €</span>' : '') + '</p>'
+    : '<p>Pas inscrit' + (c.ouverture ? '</p><p class="muted">Ouverture des inscriptions le ' + MQ.dateLongue({ date: c.ouverture }).replace(/^\S+ /, '') + '</p>' : '</p>');
+  const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => l[0]);
+  const r = c.approx ? null : MQ.rebours(c);
+
+  document.getElementById('pc').innerHTML =
+    '<a class="pc-retour" href="objectif.html?v=a' + t + '">← Feuille de route</a>' +
+    '<div class="pc-sur">Étape ' + rang + ' sur ' + et.length + ' · ' + (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role] + '</div>' +
+    '<h2 class="pc-titre">' + esc(MQ.nom(c)) + (c.lien ? '<a class="ob-ext" href="' + c.lien + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">↗</a>' : '') + '</h2>' +
+    '<div class="pc-info">' + esc(c.lieu) + ' · ' + esc(c.format) + ' · ' + MQ.dateLongue(c) + '</div>' +
+    (c.groupe ? '<div class="pc-groupe">À choisir · ' + esc(c.groupe) + ' · autres candidates : ' + autres.map(x => '<a href="' + page(x) + '">' + esc(MQ.nom(x)) + '</a>').join(', ') + '</div>' : '') +
+    '<div class="mq-place pc-utmb"><b>Badges UTMB</b>Place réservée, lot suivant</div>' +
+    '<div class="pc-stats">' +
+      stat(c.distance != null ? fmt(c.distance) + ' km' + (c.dplus != null ? '<small> / ' + fmt(c.dplus) + ' m D+</small>' : '') : '', 'Distance') +
+      stat(c.dmoins != null ? fmt(c.dmoins) + ' m' : '', 'D−') +
+      stat(c.objectif ? esc(c.objectif) : '', 'Objectif') +
+      stat(c.inscrit ? (c.dossard ? 'n° ' + esc(c.dossard) : '✓') : 'Pas inscrit', 'Dossard') +
+    '</div>' +
+    '<div class="pc-grille">' +
+      '<div class="card">' + '<h3 class="ob-titre-bloc">Départ dans</h3>' +
+        (r ? '<div><span class="pc-jours">' + r.j + '</span><span class="pc-jours-label">jours</span></div><div class="pc-hms">' + r.hms + '</div>'
+           : '<p class="muted">Date à préciser : pas de compte à rebours.</p>') + '</div>' +
+      '<div class="mq-place"><b>Météo du jour J</b>Place réservée, lot suivant : à côté du compte à rebours.</div>' +
+      '<div class="mq-place pc-large"><b>Suivi en course</b>Place réservée, lot suivant : toute la largeur, avant les cellules.</div>' +
+    '</div>' +
+    '<div class="pc-grille">' +
+      cellule('Dossard', dossard) +
+      cellule('Rôle dans la préparation', c.pourquoi && '<p>' + esc(c.pourquoi) + '</p>') +
+      cellule('Stratégie ou enchaînement', c.strategie && '<p>' + esc(c.strategie) + '</p>') +
+      cellule('Logistique', c.logistique && '<p>' + esc(c.logistique) + '</p>') +
+      cellule('Description', c.description && '<p>' + esc(c.description) + '</p>') +
+      cellule('Liens', liens.length && '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + l[0] + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>') +
+    '</div>' +
+    '<nav class="pc-nav">' +
+      (prec ? '<a href="' + page(prec) + '"><span>← Course précédente</span><b>' + esc(prec.course) + '</b></a>' : '') +
+      (suiv ? '<a href="' + page(suiv) + '"><span>Course suivante →</span><b>' + esc(suiv.course) + '</b></a>' : '') +
+    '</nav>';
+
+  const th = (n, l) => '<a href="?c=' + c.id + '&t=' + n + '">' + l + '</a>';
+  document.getElementById('note').innerHTML = 'Maquette, données fictives. Exemples : ' +
+    [[3, 'tout rempli'], [2, 'peu rempli'], [4, 'candidate'], [6, 'date approximative']].map(x => '<a href="?c=' + x[0] + t + '">' + x[1] + '</a>').join(', ') +
+    ' · thèmes : ' + th('bleu-orange', 'bleu et orange') + ', ' + th('vert-rose', 'vert et rose') + ', ' + th('violet-turquoise', 'violet et turquoise') +
+    '. Les cadres en pointillé marquent les places réservées aux modules à venir : la vraie page ne les montre pas.';
+</script>
+</body>
+</html>

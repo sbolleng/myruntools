@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Objectif | Spécification v0.3 : une page dédiée par course (`course.html?id=…`) plutôt qu'une étape dépliée ou une fenêtre ; icône ↗ pour le site officiel ; feuille de route en coup d'œil (date, course, lieu, format, distance, D+, rôle, objectif, inscrit, J-n) ; cellules dans un ordre identique pour tous ; candidates d'un groupe en liste, une ligne chacune ; cartes des modules à venir à place fixe. Maquettes `docs/maquettes/objectif*.html` (feuille de route en variantes A et B, page d'une course). |
 | 23 oct. 2026 | Objectif | Spécification v0.2 : plus de texte d'introduction ; « D'ici là » = étapes avant le cap (un groupe d'options pour une) ; « Prochaine course » = première Confirmée à venir hors cap (spécification générale 0.12) ; construction en lots, feuille de route d'abord, puis graphique, badges UTMB, météo, suivi en course. Choix du cap depuis la page Objectif : à revoir plus tard. |
 | 23 oct. 2026 | Partage | Essai à deux validé en conditions réelles avec le compte test Rome : le partage fonctionne. |
 | 23 oct. 2026 | Todo | Nouvel ordre des prochaines étapes : essai à deux du partage, Objectif, Calendrier, mot de passe, Profil et Matériel. Les lignes terminées (authentification, affichage) sortent de la todo. |

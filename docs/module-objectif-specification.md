@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Brouillon v0.2 · 23 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Brouillon v0.3 · 23 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -26,21 +26,34 @@ Aujourd'hui, côté trail, les courses du graphique de difficulté sont saisies 
 
 ## 3. Contenu de la page
 
-De haut en bas :
+Le module a deux pages :
 
-1. **Graphique de difficulté** (§ 5.2), affiché pour tous, repliable.
-2. **Feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier.
+- **Objectif** (`objectif.html`) : la vue d'ensemble. De haut en bas, le **graphique de difficulté** (§ 5.2), affiché pour tous, repliable, puis la **feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier. Pas de texte d'introduction.
+- **Page d'une course** (`course.html?id=…`) : tout ce qu'il faut savoir sur une course, une page par course (§ 3.4). On l'ouvre en touchant son étape. Elle a sa propre adresse : on peut la garder en favori pour le jour J, et le bouton retour du téléphone ramène à la feuille de route.
 
-La page démarre directement sur ces blocs : pas de texte d'introduction.
+**Construction en lots.** Premier lot : la feuille de route et la page d'une course (cellules, comptes à rebours). Ensuite, chacun dans son lot : graphique de difficulté, badges UTMB, météo du jour J, suivi en course. Chacun est un module qu'on décide d'ajouter ou non, le moment venu.
 
-**Construction en lots.** Premier lot : la feuille de route (étapes, cellules, comptes à rebours). Ensuite, chacun dans son lot : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
+### 3.1 Une étape de la feuille de route (coup d'œil)
 
-### Lien avec l'en-tête
+| Élément | Contenu |
+| --- | --- |
+| Date | Jour, mois, année ; le mois seul si la date est approximative ; « À définir » sans date |
+| Course · Parcours | Le parcours s'il existe ; une icône ↗ à côté ouvre le site officiel dans un nouvel onglet |
+| Lieu, format | « Mont-Clair · Trail long » |
+| Distance, D+ | « 45 km · 2 100 m D+ » |
+| Rôle | Pastille et trait (tableau ci-dessous), libellé du rôle |
+| Objectif | Temps visé ou intention |
+| Dossard | Inscrit ou non |
+| Compte à rebours | J-n (jours calendaires, comme dans l'en-tête) ; rien si la date est approximative |
+
+Toucher l'étape (hors icône ↗) ouvre la page de la course.
+
+### 3.2 Lien avec l'en-tête
 
 - **D'ici là** : nombre d'étapes de la feuille de route avant la course du cap. Les options d'un même groupe comptent pour une seule étape.
 - **Prochaine course** : la première course Confirmée à venir de la feuille de route, hors course du cap.
 
-### Statut, rôle et état d'une étape
+### 3.3 Statut, rôle et état d'une étape
 
 La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1).
 
@@ -49,22 +62,37 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 | Confirmée | Course retenue (rôle Préparatoire ou Plaisir) | Trait plein, pastille standard |
 | Rôle Objectif intermédiaire | Course clé de la saison | Trait et pastille en couleur d'accent |
 | Rôle Objectif | Une course visée ; il peut y en avoir plusieurs | Mise en avant |
-| Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait pointillé ; les candidates listées dans l'étape |
+| Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait pointillé ; une seule étape, titrée du nom du groupe ; les candidates listées dedans, une ligne chacune (date, course ↗, distance, D+) ; chacune ouvre sa propre page |
 | Option isolée | Course envisagée, pas encore retenue | Trait pointillé |
 
-### Cellules d'une étape
+### 3.4 Page d'une course
 
-Chaque cellule n'est affichée que si elle est remplie.
+Sous l'en-tête et le menu du site (onglet Objectif en avant), de haut en bas :
+
+1. **Retour** : « ← Feuille de route ».
+2. **Titre** : rôle et rang de l'étape (« Étape 3 sur 6 · Objectif intermédiaire »), course · parcours avec l'icône ↗, puis lieu, format, date et heure de départ. Pour une candidate d'un groupe d'options : le nom du groupe et des liens vers les autres candidates.
+3. **Chiffres** : Distance (avec le D+), D−, Objectif, Dossard, présentés comme les indicateurs de l'en-tête.
+4. **Compte à rebours** : jours, heures, minutes, secondes jusqu'au départ (§ 5.1).
+5. **Cellules**, toujours dans cet ordre, identique pour tous ; une cellule vide n'est pas affichée :
 
 | Cellule | Contenu |
 | --- | --- |
-| Objectif | Temps cible ou intention (« Finisher ») |
 | Dossard | Inscrit ou non, numéro, prix, date d'ouverture des inscriptions |
 | Rôle dans la préparation | Pourquoi cette course figure dans le plan |
 | Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante |
 | Logistique | Transport, horaires, retrait du dossard |
-| Compte à rebours | Jours, heures, minutes, secondes jusqu'au départ |
-| Liens | Site officiel, page des résultats en direct |
+| Description | Quelques infos sur la course |
+| Liens | Site officiel, inscription, résultats en direct |
+
+6. **Navigation** : « ← course précédente » et « course suivante → » dans la feuille de route.
+
+**Cartes des modules à venir** : chacune a une place fixe, la même sur toutes les pages de course. Une carte sans données n'est pas affichée et ne laisse pas de trou.
+
+| Carte | Place |
+| --- | --- |
+| Badges UTMB | Dans le titre, sous le nom de la course |
+| Météo du jour J | À côté du compte à rebours |
+| Suivi en course | Sous le compte à rebours, toute la largeur, avant les cellules |
 
 ## 4. Données d'une course
 
@@ -85,7 +113,9 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 ### 5.1 Comptes à rebours
 
-- Affichage en jours, heures, minutes et secondes ; mise à jour chaque seconde, un seul minuteur pour toute la page.
+- Feuille de route : J-n, en jours calendaires, comme la prochaine course de l'en-tête.
+- Page d'une course : jours, heures, minutes et secondes ; mise à jour chaque seconde, un seul minuteur pour toute la page.
+- Date approximative (mois seul) : pas de compte à rebours.
 - L'heure de départ est saisie en heure locale de la course, sans fuseau ; elle est lue dans le fuseau du navigateur. Correct tant que la course et le coureur sont dans le même fuseau (France, Espagne, Italie). Une course dans un autre fuseau demandera de préciser le fuseau (à traiter le moment venu).
 - Après le départ, le compteur est remplacé par « Course courue ».
 
@@ -125,11 +155,12 @@ S'active pour toute course qui a des coordonnées et une heure de départ.
 
 ### 5.5 Badges UTMB
 
-Pour les courses labellisées : catégorie et index UTMB, affichés dans l'étape.
+Pour les courses labellisées : catégorie et index UTMB, affichés dans le titre de la page de la course.
 
 ## 6. Téléphone
 
-- Les cellules d'une étape passent sur une colonne.
+- Feuille de route : une étape tient sur trois ou quatre lignes, le J-n à droite.
+- Page d'une course : les cellules et les chiffres passent sur une colonne.
 - Les cartes du suivi en course passent sur deux colonnes ; les libellés secondaires de la jauge sont masqués pour éviter les chevauchements.
 - Les champs de saisie ouvrent le clavier numérique.
 
@@ -141,8 +172,8 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans l'étap
 
 ## 8. Critères d'acceptation (proposés, à valider)
 
-- [ ] La page affiche la feuille de route des deux profils pilotes depuis leur liste de courses, sans contenu écrit en dur dans la page.
-- [ ] Les cinq statuts sont rendus comme décrit au § 3.
+- [ ] La page affiche la feuille de route et la page de chaque course des deux profils pilotes depuis leur liste de courses, sans contenu écrit en dur dans la page.
+- [ ] Les cinq statuts sont rendus comme décrit au § 3.3.
 - [ ] Le graphique de difficulté est calculé depuis la même liste de courses, pour les deux profils.
 - [ ] Le suivi en course et la météo s'activent dès qu'une course a les données nécessaires.
 - [ ] La page fonctionne sur ordinateur et sur iPhone, dans les deux thèmes.
@@ -150,7 +181,8 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans l'étap
 
 ## 9. Questions ouvertes
 
-- [ ] Ordre des cellules d'une étape : identique pour tous, ou propre à chaque utilisateur ?
+- [x] Ordre des cellules : identique pour tous, fixé par la page d'une course (§ 3.4) (décidé le 23 oct. 2026).
 - [x] Course passée : elle quitte la feuille de route et rejoint le Palmarès (décidé le 19 oct. 2026).
-- [ ] Course à choisir : comment présenter les candidats (liste, comparatif) ?
+- [x] Course à choisir : une liste dans l'étape, une ligne par candidate ; chacune ouvre sa page. Le comparatif viendra du graphique de difficulté (décidé le 23 oct. 2026).
+- [x] Détail d'une course : une page dédiée par course plutôt qu'une étape dépliée ou une fenêtre ; icône ↗ pour le site officiel (décidé le 23 oct. 2026).
 - [ ] Choix de la course de l'en-tête (cap) : seulement dans les Préférences, ou aussi depuis la page Objectif ? À revoir une fois la feuille de route construite.

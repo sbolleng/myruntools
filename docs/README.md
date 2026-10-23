@@ -11,7 +11,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.10 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.9 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.3 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition | Version 1.8 |
 
@@ -50,8 +50,9 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - Valider la spécification v0.2 de la page Objectif (sans texte d'introduction ; « D'ici là » et « Prochaine course » définis), puis construire la feuille de route en premier lot ; graphique de difficulté, badges UTMB, météo et suivi en course ensuite.
-   - Avant le jeu d'essai : valider le classement des éléments d'une course (coup d'œil, menu déroulant, cartes à place fixe). Chaque carte supplémentaire (difficulté, UTMB, météo, suivi) est un module à ajouter ou non, plus tard, toujours à la même place.
+   - Choisir une maquette de feuille de route (A chemin ou B tableau, `docs/maquettes/objectif.html`) et valider la page d'une course (`docs/maquettes/objectif-course.html`).
+   - Puis : jeu d'essai de la spécification v0.3, construction de la feuille de route et de la page d'une course en premier lot.
+   - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
 3. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
