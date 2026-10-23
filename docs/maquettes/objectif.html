@@ -21,8 +21,8 @@
 <script src="objectif-donnees.js"></script>
 <script>
   const q = new URLSearchParams(location.search);
-  const m = [1, 2, 3].includes(+q.get('m')) ? +q.get('m') : 1;   // mise en page de la carte
-  const v = [1, 2, 3, 4].includes(+q.get('i')) ? +q.get('i') : 1; // rendu du dossard
+  const m = [1, 2, 3].includes(+q.get('m')) ? +q.get('m') : 2;   // mise en page de la carte
+  const v = [1, 2, 3, 4].includes(+q.get('i')) ? +q.get('i') : (m === 2 ? 3 : 1); // rendu du dossard
   const t = q.get('t') ? '&t=' + q.get('t') : '';
   MQ.entete();
   document.getElementById('fr').className = 'm' + m;
@@ -38,7 +38,6 @@
   function categories(c) {
     const role = (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role];
     if (m === 2) return '<div class="fr-cats">' +
-      '<div class="ob-stat cat-role ' + cls(c) + '"><span class="ob-stat-val">' + role + '</span><span class="ob-stat-label">Rôle</span></div>' +
       (c.objectif ? '<div class="ob-stat"><span class="ob-stat-val">' + esc(c.objectif) + '</span><span class="ob-stat-label">Objectif</span></div>' : '') +
       dos(c) + '</div>';
     if (m === 3) return '<div class="fr-cats">' +
@@ -67,13 +66,16 @@
           '<div class="fr-cats">' + (m === 3 ? '<span class="cat"><span class="cat-l">Dossard</span>' + dos(c) + '</span>' : dos(c)) + '</div></div>').join('') + '</div></div>';
     } else {
       const c = e.course;
-      carte = '<div class="fr-carte"><div class="fr-haut"><span class="ob-date">' + MQ.dateCourte(c) + '</span></div>' + MQ.compteurHtml(c) +
+      // Carte 2 : le rôle au-dessus du compteur, en haut à droite.
+      const droite = m === 2 ? '<div class="fr-droite"><div>' + (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span> ' : '') +
+        '<span class="ob-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span></div>' + MQ.compteurHtml(c) + '</div>' : MQ.compteurHtml(c);
+      carte = '<div class="fr-carte"><div class="fr-haut"><span class="ob-date">' + MQ.dateCourte(c) + '</span></div>' + droite +
         '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
         '<div class="fr-info">' + esc(c.lieu) + ' · ' + esc(c.format) + ' · ' + chiffres(c) + '</div>' + categories(c) + '</div>';
     }
     return '<div class="' + k + '"><div class="fr-rail"><span class="fr-pt"></span></div>' + carte + '</div>';
   }).join('') +
-  '<div class="fr-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span><span><i class="obj"></i>Course objectif</span><span><i class="opt"></i>Option</span></div>';
+  '<div class="fr-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span><span><i class="obj"></i>Objectif principal</span><span><i class="opt"></i>Option</span></div>';
 
   // Planche : les quatre propositions de dossard, dans leurs quatre états.
   const ETATS = [{ inscrit: true, dossard: '412' }, { inscrit: false, ouverture: '2026-09-01', inscription: '#' }, { inscrit: false, ouverture: '2027-01-10' }, { inscrit: false }];
@@ -85,7 +87,7 @@
 
   const lien = (mm, ii, l, on) => on ? '<b>' + l + '</b>' : '<a href="?m=' + mm + '&i=' + ii + t + '">' + l + '</a>';
   document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Carte : ' +
-    [[1, 'étiquettes'], [2, 'indicateurs'], [3, 'ligne de texte']].map(x => lien(x[0], v, x[0] + ' ' + x[1], x[0] === m)).join(', ') +
+    [[1, 'étiquettes'], [2, 'indicateurs, rôle au-dessus du compteur'], [3, 'ligne de texte']].map(x => lien(x[0], v, x[0] + ' ' + x[1], x[0] === m)).join(', ') +
     ' · dossard : ' + [1, 2, 3, 4].map(x => lien(m, x, String(x), x === v)).join(', ') +
     ' · thèmes : ' + ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(n => '<a href="?m=' + m + '&i=' + v + '&t=' + n + '">' + n.replace('-', ' et ') + '</a>').join(', ') +
     ' · <a href="objectif-mobile.html">téléphone</a>.';

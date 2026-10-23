@@ -28,7 +28,7 @@
   const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-  const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif intermédiaire', objectif: 'Course objectif' };
+  const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif intermédiaire', objectif: 'Objectif principal' };
   const nf = new Intl.NumberFormat('fr-FR');
   const parse = c => { const p = c.date.split('-').map(Number); const h = (c.heure || '00:00').split(':').map(Number); return new Date(p[0], p[1] - 1, p[2] || 1, h[0], h[1]); };
   const jour = d => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
