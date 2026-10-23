@@ -48,7 +48,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 ### Prochaines étapes
 
 - [ ] Authentification, dans l'ordre (Supabase n'autorise la modification des e-mails qu'avec un service d'envoi branché) :
-  1. Acheter le nom de domaine `myruntools` (`.fr` ou `.com`) chez un vendeur qui permet de modifier la zone DNS.
+  1. ~~Acheter le nom de domaine~~ : fait (`myruntools.fr`, OVH, 23 oct. 2026).
   2. Créer un compte Resend, y ajouter le domaine, copier ses lignes dans la zone DNS, attendre la vérification.
   3. Brancher Resend dans Supabase (Authentication › SMTP), expéditeur `connexion@` + domaine : lève la limite de 2 e-mails par heure.
   4. Coller le texte de l'e-mail (spécification générale § 3) dans le modèle « Magic Link », au format HTML ; tester depuis la page de connexion.

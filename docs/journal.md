@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Connexion | Domaine `myruntools.fr` acheté chez OVH (domaine seul, sans hébergement ni option e-mail), protection des données activée, zone DNS par défaut. Étape 1 terminée. |
 | 23 oct. 2026 | Connexion | Supabase exige un service d'envoi (SMTP) pour modifier les e-mails : achat du domaine `myruntools`, envoi par Resend avec une adresse du domaine. |
 | 22 oct. 2026 | Connexion | E-mail du lien de connexion en français, au vouvoiement, sobre : objet « Votre lien de connexion à MyRunTools », lien « Me connecter », lien à usage unique. |
 | 22 oct. 2026 | Préférences | Essai réel de la page Préférences validé (thème, menu, cap). |
