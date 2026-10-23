@@ -15,23 +15,40 @@
   <div class="mq-place" style="margin-bottom:1.5rem"><b>Graphique de difficulté</b>Place réservée, lot suivant.</div>
   <h2 class="ob-titre-bloc">Feuille de route</h2>
   <div id="fr"></div>
-  <div class="mq-dossards" id="dossards"></div>
+  <div class="mq-dossards" id="planche"></div>
 </main>
 <script src="../../composants/en-tete.js"></script>
 <script src="objectif-donnees.js"></script>
 <script>
   const q = new URLSearchParams(location.search);
+  const m = [1, 2, 3].includes(+q.get('m')) ? +q.get('m') : 1;   // mise en page de la carte
+  const v = [1, 2, 3, 4].includes(+q.get('i')) ? +q.get('i') : 1; // rendu du dossard
   const t = q.get('t') ? '&t=' + q.get('t') : '';
   MQ.entete();
+  document.getElementById('fr').className = 'm' + m;
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  const page = c => 'objectif-course.html?c=' + c.id + t;
+  const page = c => 'objectif-course.html?c=' + c.id + '&i=' + v + t;
   const ext = c => c.lien ? '<a class="ob-ext" href="' + c.lien + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">↗</a>' : '';
   const cls = c => c.role === 'objectif' ? 'is-obj' : c.role === 'objectif_intermediaire' ? 'is-cle' : '';
   const chiffres = c => (c.distance != null ? '<span class="ob-mono">' + MQ.nf.format(c.distance) + ' km</span>' : '') +
     (c.dplus != null ? ' · <span class="ob-mono">' + MQ.nf.format(c.dplus) + ' m D+</span>' : '');
-  const role = c => (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span>' : '') +
-    '<span class="ob-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span>';
-  const objectif = c => c.objectif ? '<div class="ob-stat"><span class="ob-stat-val">' + esc(c.objectif) + '</span><span class="ob-stat-label">Objectif</span></div>' : '';
+  const dos = c => MQ.dossardHtml(c, v);
+
+  // Ligne des catégories sous le texte : rôle, objectif, dossard.
+  function categories(c) {
+    const role = (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role];
+    if (m === 2) return '<div class="fr-cats">' +
+      '<div class="ob-stat cat-role ' + cls(c) + '"><span class="ob-stat-val">' + role + '</span><span class="ob-stat-label">Rôle</span></div>' +
+      (c.objectif ? '<div class="ob-stat"><span class="ob-stat-val">' + esc(c.objectif) + '</span><span class="ob-stat-label">Objectif</span></div>' : '') +
+      dos(c) + '</div>';
+    if (m === 3) return '<div class="fr-cats">' +
+      '<span class="cat cat-role ' + cls(c) + '"><span class="cat-l">Rôle</span><span class="cat-v">' + role + '</span></span>' +
+      (c.objectif ? '<span class="cat"><span class="cat-l">Objectif</span><span class="cat-v ob-mono">' + esc(c.objectif) + '</span></span>' : '') +
+      '<span class="cat"><span class="cat-l">Dossard</span>' + dos(c) + '</span></div>';
+    return '<div class="fr-cats">' + (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span>' : '') +
+      '<span class="ob-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span>' +
+      (c.objectif ? '<span class="ob-role is-cible">Objectif <b>' + esc(c.objectif) + '</b></span>' : '') + dos(c) + '</div>';
+  }
 
   // Une carte par étape, le long d'un trait ; un groupe d'options fait une seule carte.
   const et = MQ.etapes();
@@ -42,33 +59,36 @@
     const k = ['fr-et', opt ? 'is-opt' : '', suiteOpt ? 'suite-opt' : '', e.course ? cls(e.course) : ''].join(' ');
     let carte;
     if (e.groupe) {
-      carte = '<div class="fr-carte fr-groupe"><div class="fr-tete"><div class="fr-haut"><span class="ob-role is-opt">À choisir</span>' +
-        '<span class="ob-date">' + e.candidates.length + ' candidates</span></div><div class="fr-groupe-titre">' + esc(e.groupe) + '</div></div>' +
-        '<div class="fr-cands">' + e.candidates.map(c => '<div class="fr-cand"><div><span class="ob-date">' + MQ.dateCourte(c) + '</span>' +
+      carte = '<div class="fr-carte fr-groupe"><div class="fr-haut"><span class="ob-date">À choisir · ' + e.candidates.length + ' candidates</span></div>' +
+        '<div class="fr-nom" style="color:var(--text)">' + esc(e.groupe) + '</div>' +
+        '<div class="fr-cands">' + e.candidates.map(c => '<div class="fr-cand"><span class="ob-date">' + MQ.dateCourte(c) + '</span>' + MQ.compteurLigneHtml(c) +
           '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
-          '<div class="fr-info">' + esc(c.lieu) + ' · ' + chiffres(c) + '</div></div>' +
-          '<div class="fr-cote">' + MQ.dossardHtml(c) + MQ.compteurLigneHtml(c) + '</div></div>').join('') + '</div></div>';
+          '<div class="fr-info">' + esc(c.lieu) + ' · ' + chiffres(c) + '</div>' +
+          '<div class="fr-cats">' + (m === 3 ? '<span class="cat"><span class="cat-l">Dossard</span>' + dos(c) + '</span>' : dos(c)) + '</div></div>').join('') + '</div></div>';
     } else {
       const c = e.course;
-      carte = '<div class="fr-carte"><div class="fr-tete"><div class="fr-haut">' + role(c) + '<span class="ob-date">' + MQ.dateCourte(c) + '</span></div>' +
+      carte = '<div class="fr-carte"><div class="fr-haut"><span class="ob-date">' + MQ.dateCourte(c) + '</span></div>' + MQ.compteurHtml(c) +
         '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
-        '<div class="fr-info">' + esc(c.lieu) + ' · ' + esc(c.format) + ' · ' + chiffres(c) + '</div></div>' +
-        '<div class="fr-cote">' + objectif(c) + MQ.dossardHtml(c) + '</div>' + MQ.compteurHtml(c) + '</div>';
+        '<div class="fr-info">' + esc(c.lieu) + ' · ' + esc(c.format) + ' · ' + chiffres(c) + '</div>' + categories(c) + '</div>';
     }
     return '<div class="' + k + '"><div class="fr-rail"><span class="fr-pt"></span></div>' + carte + '</div>';
   }).join('') +
   '<div class="fr-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span><span><i class="obj"></i>Course objectif</span><span><i class="opt"></i>Option</span></div>';
 
-  // Planche : les quatre états du dossard.
-  document.getElementById('dossards').innerHTML = '<p class="ob-titre-bloc">Dossard · les quatre états</p>' +
-    [{ inscrit: true, dossard: '412' }, { inscrit: false, ouverture: '2026-09-01', inscription: '#' }, { inscrit: false, ouverture: '2027-01-10' }, { inscrit: false }]
-      .map(MQ.dossardHtml).join('');
+  // Planche : les quatre propositions de dossard, dans leurs quatre états.
+  const ETATS = [{ inscrit: true, dossard: '412' }, { inscrit: false, ouverture: '2026-09-01', inscription: '#' }, { inscrit: false, ouverture: '2027-01-10' }, { inscrit: false }];
+  const NOMS = [['1 · Étiquette', 'comme le rôle'], ['2 · Pastille', 'comme les points du chemin'], ['3 · Indicateur', 'comme l\'en-tête'], ['4 · Bouton', 'comme le Palmarès']];
+  document.getElementById('planche').innerHTML = '<p class="ob-titre-bloc">Dossard · quatre propositions</p><div class="pl">' +
+    '<span></span>' + ['Inscrit', 'Inscriptions ouvertes', 'Ouvre bientôt', 'Rien de connu'].map(x => '<span class="pl-tete">' + x + '</span>').join('') +
+    NOMS.map((n, i) => '<div class="pl-nom">' + n[0] + '<span>' + n[1] + '</span></div>' + ETATS.map(c => '<div>' + MQ.dossardHtml(c, i + 1) + '</div>').join('')).join('') + '</div>';
   MQ.lancerCompteurs();
 
-  const th = (n, l) => '<a href="?t=' + n + '">' + l + '</a>';
-  document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Thèmes : ' +
-    th('bleu-orange', 'bleu et orange') + ', ' + th('vert-rose', 'vert et rose') + ', ' + th('violet-turquoise', 'violet et turquoise') +
-    ' · <a href="objectif-mobile.html">vue téléphone</a>. Touche une étape pour ouvrir la page de la course.';
+  const lien = (mm, ii, l, on) => on ? '<b>' + l + '</b>' : '<a href="?m=' + mm + '&i=' + ii + t + '">' + l + '</a>';
+  document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Carte : ' +
+    [[1, 'étiquettes'], [2, 'indicateurs'], [3, 'ligne de texte']].map(x => lien(x[0], v, x[0] + ' ' + x[1], x[0] === m)).join(', ') +
+    ' · dossard : ' + [1, 2, 3, 4].map(x => lien(m, x, String(x), x === v)).join(', ') +
+    ' · thèmes : ' + ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(n => '<a href="?m=' + m + '&i=' + v + '&t=' + n + '">' + n.replace('-', ' et ') + '</a>').join(', ') +
+    ' · <a href="objectif-mobile.html">téléphone</a>.';
 </script>
 </body>
 </html>

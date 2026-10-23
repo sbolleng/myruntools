@@ -16,6 +16,8 @@
 .ob-role.is-cle { color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent); }
 .ob-role.is-obj { color: var(--bg); background: var(--accent); }
 .ob-role.is-opt { background: none; border: 1px dashed var(--border); }
+.ob-role.is-cible { color: var(--text); }
+.ob-role.is-cible b { color: var(--accent2); }
 .ob-date { font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent2); white-space: nowrap; }
 .ob-stat { display: flex; flex-direction: column; gap: 0.1rem; }
 .ob-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: var(--accent2); }
@@ -34,22 +36,38 @@
 .cpt.is-grand .cpt-n { font-size: 1.6rem; }
 .cpt.is-grand .cpt-l { font-size: 0.55rem; }
 
-/* Dossard : une étiquette en forme de dossard, quatre épingles aux coins.
-   Inscrit : dossard plein. Ouvertes : à faire maintenant (Alerte, point qui bat).
-   Ouvre bientôt : en attente (pointillé, Accent 2). Rien de connu : discret. */
-.dos { --pin: var(--border); position: relative; display: inline-flex; align-items: baseline; gap: 0.45rem; padding: 0.4rem 0.85rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; text-decoration: none; border: 1px solid var(--border); border-radius: 4px; color: var(--muted);
-  background-image: radial-gradient(circle, var(--pin) 1.6px, transparent 2px), radial-gradient(circle, var(--pin) 1.6px, transparent 2px), radial-gradient(circle, var(--pin) 1.6px, transparent 2px), radial-gradient(circle, var(--pin) 1.6px, transparent 2px);
-  background-size: 8px 8px; background-repeat: no-repeat; background-position: 1px 1px, calc(100% - 1px) 1px, 1px calc(100% - 1px), calc(100% - 1px) calc(100% - 1px); }
-.dos-d { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.02em; }
-.dos.is-inscrit { --pin: var(--surface); color: var(--bg); background-color: var(--text); border-color: var(--text); }
-.dos.is-inscrit .dos-t::before { content: '✓ '; }
-.dos.is-ouvert { --pin: var(--red); color: var(--red); border-color: var(--red); background-color: color-mix(in srgb, var(--red) 12%, transparent); font-weight: 700; }
-.dos.is-bientot { --pin: var(--accent2); color: var(--accent2); border: 1px dashed var(--accent2); }
-.dos.is-bientot .dos-d { font-size: 0.72rem; color: var(--text); }
-.dos.is-inconnu { border-style: dashed; }
-.dos-pouls { align-self: center; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--red); animation: dos-pouls 1.6s ease-in-out infinite; }
-@keyframes dos-pouls { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 60%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
-@media (prefers-reduced-motion: reduce) { .dos-pouls { animation: none; } }
+/* Dossard, quatre propositions (objectif-donnees.js, dossardHtml). */
+.ins { position: relative; z-index: 1; text-decoration: none; white-space: nowrap; }
+/* 1 · Étiquette, comme le rôle */
+.ins-tag { display: inline-block; padding: 0.15rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 3px; color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.ins-tag.is-inscrit { color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent); }
+.ins-tag.is-ouvert { color: var(--red); background: color-mix(in srgb, var(--red) 16%, transparent); }
+.ins-tag.is-bientot { color: var(--text); background: none; border: 1px dashed var(--border); }
+/* 2 · Pastille et texte, comme les pastilles du chemin */
+.ins-pt { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--muted); }
+.ins-pt i { width: 0.6rem; height: 0.6rem; border-radius: 50%; border: 2px solid currentColor; }
+.ins-pt.is-inscrit { color: var(--text); }
+.ins-pt.is-inscrit i { background: var(--accent2); border-color: var(--accent2); }
+.ins-pt.is-ouvert { color: var(--red); text-decoration: underline; text-underline-offset: 0.2em; }
+.ins-pt.is-ouvert i { background: var(--red); }
+.ins-pt.is-bientot i { border-color: var(--accent2); }
+.ins-pt b { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--accent2); }
+/* 3 · Indicateur, comme l'en-tête */
+.ins-ind .ob-stat-val small { font-size: 0.7rem; color: var(--muted); }
+.ins-ind.is-ouvert .ob-stat-val, .ins-ind.is-ouvert .ob-stat-val a { color: var(--red); text-decoration: none; position: relative; z-index: 1; }
+.ins-ind.is-bientot .ob-stat-val { color: var(--text); }
+.ins-ind.is-inconnu .ob-stat-val { color: var(--muted); }
+/* 4 · Bouton, comme le Palmarès : un seul bouton plein, quand il faut agir */
+.ins-btn { display: inline-flex; align-items: center; padding: 0.4rem 0.9rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bg); background: var(--accent); border: 1px solid var(--accent); border-radius: 20px; }
+.ins-btn-inscrit { font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--accent2); }
+.ins-btn-bientot { display: inline-flex; padding: 0.35rem 0.85rem; font-size: 0.72rem; color: var(--muted); border: 1px solid var(--border); border-radius: 20px; }
+.ins-btn-inconnu { font-size: 0.75rem; color: var(--muted); }
+
+/* Planche des propositions de dossard */
+.pl { display: grid; grid-template-columns: 9rem repeat(4, minmax(0, 1fr)); gap: 0.9rem 1rem; align-items: center; margin-top: 0.4rem; }
+.pl-tete { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pl-nom { font-size: 0.8rem; font-weight: 600; }
+.pl-nom span { display: block; font-weight: 400; font-size: 0.7rem; color: var(--muted); }
 
 /* ----- Feuille de route : le chemin ----- */
 .fr-et { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); column-gap: 0.9rem; position: relative; }
@@ -64,30 +82,49 @@
 .fr-et.is-cle .fr-pt { background: var(--accent2); border-color: var(--accent2); }
 .fr-et.is-obj .fr-pt { width: 1rem; height: 1rem; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
 
-.fr-carte { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "tete cote" "cpt cote"; gap: 0.7rem 1.2rem; margin-bottom: 0.9rem; padding: 0.85rem 1rem 0.9rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.fr-carte { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "haut cpt" "nom cpt" "info cpt" "cats cats"; gap: 0 1.2rem; margin-bottom: 0.9rem; padding: 0.85rem 1rem 0.9rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .fr-et.is-opt .fr-carte { border-style: dashed; background: transparent; }
 .fr-et.is-obj .fr-carte { border-color: var(--accent); }
-.fr-tete { grid-area: tete; min-width: 0; }
-.fr-cote { grid-area: cote; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 0.8rem; text-align: right; }
-.fr-carte > .cpt { grid-area: cpt; align-self: end; }
-.fr-haut { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.6rem; }
-.fr-nom { font-size: 1rem; font-weight: 600; line-height: 1.35; margin-top: 0.35rem; }
+.fr-haut { grid-area: haut; }
+.fr-carte > .fr-nom { grid-area: nom; }
+.fr-carte > .fr-info { grid-area: info; }
+.fr-carte > .cpt { grid-area: cpt; align-self: start; width: 15.5rem; }
+.fr-cats { grid-area: cats; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.65rem; }
+.fr-nom { font-size: 1rem; font-weight: 600; line-height: 1.35; margin-top: 0.25rem; }
 .fr-nom a { color: var(--accent); text-decoration: none; }
-/* Toute la carte ouvre la page de la course ; l'icône ↗ et l'inscription restent à part. */
+/* Toute la carte ouvre la page de la course ; l'icône ↗ et le lien d'inscription restent à part. */
 .fr-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
-.fr-carte .dos { position: relative; z-index: 1; }
-.fr-cote > .dos { margin-top: auto; }
 .fr-info { color: var(--muted); font-size: 0.8rem; }
 .fr-info .ob-mono { color: var(--text); font-size: 0.78rem; }
 
-.fr-groupe { grid-template-areas: "tete" "cands"; grid-template-columns: minmax(0, 1fr); }
-.fr-cands { grid-area: cands; }
-.fr-groupe-titre { font-size: 1rem; font-weight: 600; margin-top: 0.35rem; }
-.fr-cand { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.4rem 1rem; align-items: center; padding: 0.65rem 0; border-top: 1px solid var(--border); }
+/* Ligne des catégories : trois mises en page (m). */
+.m2 .fr-cats { gap: 0.6rem 1.8rem; align-items: flex-end; margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid var(--border); }
+.m2 .fr-cats .ob-stat-val { font-size: 0.9rem; }
+.m2 .fr-cats .ob-stat-label { font-size: 0.6rem; }
+.m2 .fr-cats .cat-role .ob-stat-val { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--text); }
+.m2 .fr-cats .cat-role.is-cle .ob-stat-val { color: var(--accent2); }
+.m2 .fr-cats .cat-role.is-obj .ob-stat-val { color: var(--accent); }
+.m3 .fr-cats { gap: 0.3rem 0.55rem; font-size: 0.8rem; }
+.m3 .cat { display: inline-flex; align-items: baseline; gap: 0.4rem; }
+.m3 .cat + .cat::before { content: '·'; margin-right: 0.15rem; color: var(--muted); }
+.m3 .cat-l { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.m3 .cat-v { color: var(--text); }
+.m3 .cat-v.ob-mono { font-weight: 700; color: var(--accent2); }
+.m3 .cat-role.is-cle .cat-v { color: var(--accent2); }
+.m3 .cat-role.is-obj .cat-v { color: var(--accent); font-weight: 600; }
+
+.fr-groupe { grid-template-columns: minmax(0, 1fr); grid-template-areas: "haut" "nom" "cands"; }
+.fr-cands { grid-area: cands; margin-top: 0.4rem; }
+.fr-cand { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "haut cpt" "nom nom" "info info" "cats cats"; column-gap: 1rem; padding: 0.65rem 0; border-top: 1px solid var(--border); }
 .fr-cand:last-child { padding-bottom: 0; }
-.fr-cand .fr-nom { margin-top: 0.1rem; font-size: 0.9rem; }
+.fr-cand > * { grid-area: auto; }
+.fr-cand > .ob-date { grid-area: haut; }
+.fr-cand > .cpt-ligne { grid-area: cpt; }
+.fr-cand > .fr-nom { grid-area: nom; margin-top: 0.1rem; font-size: 0.9rem; }
+.fr-cand > .fr-info { grid-area: info; }
+.fr-cand > .fr-cats { grid-area: cats; margin-top: 0.45rem; }
 .fr-cand .fr-nom a::after { border-radius: 0; }
-.fr-cand .fr-cote { grid-area: auto; gap: 0.4rem; }
+.m2 .fr-cand .fr-cats { border-top: none; padding-top: 0; }
 
 .fr-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); }
 .fr-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -120,15 +157,20 @@
 @media (max-width: 600px) {
   .pc-grille { grid-template-columns: 1fr; }
   .pc-stats { gap: 1rem 1.5rem; }
-  /* Téléphone : l'objectif reste en haut à droite ; compteur puis dossard sur toute la largeur. */
-  .fr-carte { grid-template-areas: "tete obj" "cpt cpt" "dos dos"; gap: 0.7rem 0.8rem; }
-  .fr-carte > .fr-cote { display: contents; }
-  .fr-carte > .fr-cote > .ob-stat { grid-area: obj; text-align: right; }
-  .fr-carte > .fr-cote > .dos { grid-area: dos; justify-self: start; margin: 0; }
-  .fr-groupe { grid-template-areas: "tete" "cands"; }
-  .cpt { max-width: none; }
-  .fr-cand { grid-template-columns: minmax(0, 1fr); }
-  .fr-cand .fr-cote { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; text-align: left; }
+  /* Téléphone : la date à gauche, le compteur en haut à droite, en plus petit. */
+  .fr-carte:not(.fr-groupe) { grid-template-areas: "haut cpt" "nom nom" "info info" "cats cats"; column-gap: 0.6rem; }
+  .fr-carte > .cpt { width: 10.5rem; gap: 0.2rem; }
+  .fr-carte > .cpt .cpt-case { padding: 0.2rem 0 0.15rem; border-radius: 4px; }
+  .fr-carte > .cpt .cpt-n { font-size: 0.85rem; }
+  .fr-carte > .cpt .cpt-l { font-size: 0.42rem; letter-spacing: 0.08em; }
+  .fr-haut { display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  .fr-nom { margin-top: 0.5rem; }
+  .m2 .fr-cats { gap: 0.6rem 1.2rem; }
+  .m3 .fr-cats { column-gap: 1rem; }
+  .m3 .cat + .cat::before { content: none; }
+  .pl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pl-tete { display: none; }
+  .pl-nom { grid-column: 1 / -1; margin-top: 0.6rem; }
 }
 
 @media (hover: hover) {
@@ -136,6 +178,6 @@
   .fr-et.is-opt .fr-carte:not(.fr-groupe):hover { background: var(--surface); }
   .fr-cand:hover .fr-nom a { text-decoration: underline; }
   .ob-ext:hover { color: var(--accent); background: var(--bg); }
-  .dos.is-ouvert:hover { background-color: color-mix(in srgb, var(--red) 22%, transparent); }
+  .ins-btn:hover { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
   .pc-nav a:hover b, .pc-retour:hover { text-decoration: underline; }
 }

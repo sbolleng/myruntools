@@ -66,7 +66,7 @@
       if (!c.ouverture) return { etat: 'inconnu', texte: 'Pas inscrit', detail: '' };
       const p = c.ouverture.split('-').map(Number), o = new Date(p[0], p[1] - 1, p[2]);
       const j = Math.round((jour(o) - jour(MAINTENANT)) / 864e5);
-      if (j > 0) return { etat: 'bientot', texte: 'Ouvre le ' + (p[2] === 1 ? '1er' : p[2]) + ' ' + MOIS[p[1] - 1], detail: 'J-' + j };
+      if (j > 0) return { etat: 'bientot', ouv: (p[2] === 1 ? '1er' : p[2]) + ' ' + MOIS[p[1] - 1], detail: 'J-' + j };
       return { etat: 'ouvert', texte: 'Inscriptions ouvertes', detail: '' };
     },
     // Compteur en quatre cases ; un seul minuteur met à jour toute la page.
@@ -90,13 +90,25 @@
       };
       tic(); setInterval(tic, 1000);
     },
-    // Dossard : une étiquette en forme de dossard, une couleur par état.
-    dossardHtml: c => {
-      const d = MQ.dossard(c);
-      const tag = d.etat === 'ouvert' && c.inscription ? 'a' : 'span';
-      return '<' + tag + ' class="dos is-' + d.etat + '"' + (tag === 'a' ? ' href="' + c.inscription + '" target="_blank" rel="noopener"' : '') + '>' +
-        (d.etat === 'ouvert' ? '<i class="dos-pouls"></i>' : '') +
-        '<span class="dos-t">' + d.texte + (d.etat === 'ouvert' && c.inscription ? ' ↗' : '') + '</span>' + (d.detail ? '<span class="dos-d">' + d.detail + '</span>' : '') + '</' + tag + '>';
+    // Dossard, quatre propositions de rendu (v) pour quatre états.
+    // 1 étiquette (comme le rôle) · 2 pastille et texte · 3 indicateur (comme l'en-tête) · 4 bouton (comme le Palmarès).
+    dossardHtml: (c, v) => {
+      const d = MQ.dossard(c), num = c.dossard ? 'n° ' + c.dossard : '';
+      const lien = d.etat === 'ouvert' && c.inscription;
+      const el = (cls, html) => lien
+        ? '<a class="' + cls + '" href="' + c.inscription + '" target="_blank" rel="noopener">' + html + '</a>'
+        : '<span class="' + cls + '">' + html + '</span>';
+      const fl = lien ? ' ↗' : '';
+      const k = ' is-' + d.etat;
+      if (v === 2) return el('ins ins-pt' + k, '<i></i>' + ({ inscrit: 'Inscrit' + (num ? ' · ' + num : ''), ouvert: 'Inscriptions ouvertes' + fl,
+        bientot: 'Ouvre le ' + d.ouv + ' · <b>' + d.detail + '</b>', inconnu: 'Pas inscrit' })[d.etat]);
+      if (v === 3) return '<div class="ob-stat ins-ind' + k + '"><span class="ob-stat-val">' + ({ inscrit: num || '✓', ouvert: lien ? el('', 'Ouvertes ↗') : 'Ouvertes',
+        bientot: d.ouv + ' <small>' + d.detail + '</small>', inconnu: '—' })[d.etat] + '</span><span class="ob-stat-label">' +
+        ({ inscrit: 'Dossard', ouvert: 'Inscriptions', bientot: 'Ouverture', inconnu: 'Dossard' })[d.etat] + '</span></div>';
+      if (v === 4) return d.etat === 'ouvert' ? el('ins ins-btn', 'S\'inscrire' + fl)
+        : el('ins ins-btn-' + d.etat, ({ inscrit: '✓ Inscrit' + (num ? ' · ' + num : ''), bientot: 'Ouvre le ' + d.ouv + ' · ' + d.detail, inconnu: 'Pas inscrit' })[d.etat]);
+      return el('ins ins-tag' + k, ({ inscrit: '✓ Inscrit' + (num ? ' · ' + num : ''), ouvert: 'Inscriptions ouvertes' + fl,
+        bientot: 'Ouvre le ' + d.ouv + ' · ' + d.detail, inconnu: 'Pas inscrit' })[d.etat]);
     },
     // En-tête du site, dessiné par le vrai composant.
     entete: () => renderEnTete({
