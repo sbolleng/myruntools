@@ -3,7 +3,8 @@
 // À charger après composants/session.js. mrtPage({ courant }) attend la
 // session (sans session, session.js renvoie vers la connexion), lit les
 // courses, dessine l'en-tête et le menu, puis rend { session, courses } pour
-// la suite de la page. Les règles par ligne de la base ne renvoient que les
+// la suite de la page, qui dessine son contenu avant que la page (masquée
+// jusque-là) ne s'affiche d'un seul coup. Les règles par ligne de la base ne renvoient que les
 // lignes de l'utilisateur connecté.
 (function () {
   // Catalogue des modules, dans l'ordre par défaut ; page absente = pas encore construit.
@@ -134,6 +135,8 @@
     const dessiner = p => window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant }));
     dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
+    // La page s'affiche une fois que la suite de la page (then) a dessiné son contenu.
+    setTimeout(window.mrtAfficher, 0);
     return {
       session, courses, lectureSeule: !!proprietaire, proprietaire,
       relire: () => lireCourses(qui),

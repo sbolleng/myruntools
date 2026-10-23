@@ -43,6 +43,5 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : authentification (domaine `myruntools.fr` sur GitHub Pages, Resend, SMTP, e-mail en français modèle A, testé).
-- En cours : correctif d'affichage (l'en-tête s'ajoute après le contenu et le pousse, mobile et PC).
+- Dernier lot en ligne : authentification (domaine `myruntools.fr`, Resend, e-mail modèle A), puis correctif d'affichage (page révélée d'un seul coup, en-tête compris).
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

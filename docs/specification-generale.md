@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.10 · 23 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.11 · 23 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -34,6 +34,8 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 **Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu : le nom de l'application, une accroche (« La boîte à outils du coureur »), un champ « Adresse e-mail », un bouton « Recevoir le lien de connexion » et une ligne d'aide qui accueille aussi les messages (envoi, erreur). Le lien n'est envoyé qu'aux comptes existants ; au retour du lien, l'utilisateur arrive connecté sur l'accueil.
 
 **E-mail du lien**, en français, au vouvoiement. Objet : « Votre lien de connexion à MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour vous connecter sur MyRunTools : Me connecter. Ce lien ne sert qu'une fois. Si vous n'avez rien demandé, ignorez cet e-mail. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
+
+**Affichage d'une page.** Une page privée reste invisible tant que la session n'est pas vérifiée, que l'en-tête n'est pas dessiné et que son contenu n'est pas prêt, puis elle apparaît d'un seul coup : l'en-tête ne s'ajoute jamais après coup en poussant le contenu vers le bas, sur ordinateur comme sur téléphone. Si un chargement échoue, la page apparaît quand même au bout de quelques secondes.
 
 Règles transverses :
 
@@ -201,3 +203,4 @@ Résultats attendus :
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
+- Chargement d'une page (accueil, Palmarès, Préférences ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, l'en-tête est en place et le contenu n'a plus à bouger.
