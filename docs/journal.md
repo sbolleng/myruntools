@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Connexion | Modèle d'e-mail A retenu (carte claire, bouton marine à texte orange) : `docs/maquettes/email-connexion-a.html`, à coller dans le modèle « Magic Link » de Supabase. |
 | 23 oct. 2026 | Domaine | `myruntools.fr` branché sur GitHub Pages : 4 entrées A (GitHub) sur la racine, CNAME `www` vers le compte GitHub, anciennes entrées d'OVH supprimées (courrier OVH et lignes Resend conservés), HTTPS activé. Adresses de retour de Supabase (Site URL, Redirect URLs) mises à jour ; l'ancienne adresse reste autorisée le temps des essais. |
 | 23 oct. 2026 | Connexion | Essai réel de l'e-mail du lien validé (boîte de réception, lien qui connecte). Texte conservé avec « sur MyRunTools » (spécification générale § 3 corrigée). Trois maquettes d'e-mail sobres proposées dans `docs/maquettes/` (`email-connexion-a`, `-b`, `-c`), choix en attente. |
 | 23 oct. 2026 | Connexion | SMTP personnalisé enregistré dans Supabase : Resend (`smtp.resend.com`, port 465), expéditeur « MyRunTools » `connexion@myruntools.fr` ; la clé n'est que dans Supabase. Étape 3 terminée. |
