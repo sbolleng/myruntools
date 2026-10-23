@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Connexion | Supabase exige un service d'envoi (SMTP) pour modifier les e-mails : achat du domaine `myruntools`, envoi par Resend avec une adresse du domaine. |
 | 22 oct. 2026 | Connexion | E-mail du lien de connexion en français, au vouvoiement, sobre : objet « Votre lien de connexion à MyRunTools », lien « Me connecter », lien à usage unique. |
 | 22 oct. 2026 | Préférences | Essai réel de la page Préférences validé (thème, menu, cap). |
 | 22 oct. 2026 | Comptes | Compte du pilote route créé, inscriptions libres désactivées dans Supabase, courses importées ; le pilote route est désormais désigné « le compte test Rome ». Page Calendrier ajoutée à la todo. |
