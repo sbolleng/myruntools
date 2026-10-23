@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Brouillon v0.3 · 23 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Brouillon v0.4 · 23 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -35,16 +35,20 @@ Le module a deux pages :
 
 ### 3.1 Une étape de la feuille de route (coup d'œil)
 
-| Élément | Contenu |
-| --- | --- |
-| Date | Jour, mois, année ; le mois seul si la date est approximative ; « À définir » sans date |
-| Course · Parcours | Le parcours s'il existe ; une icône ↗ à côté ouvre le site officiel dans un nouvel onglet |
-| Lieu, format | « Mont-Clair · Trail long » |
-| Distance, D+ | « 45 km · 2 100 m D+ » |
-| Rôle | Pastille et trait (tableau ci-dessous), libellé du rôle |
-| Objectif | Temps visé ou intention |
-| Dossard | Inscrit ou non |
-| Compte à rebours | J-n (jours calendaires, comme dans l'en-tête) ; rien si la date est approximative |
+Une carte par étape, le long d'un trait vertical (pastille et trait selon le § 3.3).
+
+| Place | Élément | Contenu |
+| --- | --- | --- |
+| En haut à gauche | Rôle, date | Étiquette du rôle (« Option » en plus pour une option) ; date en couleur Accent 2 : jour, mois, année, le mois seul si la date est approximative, « À définir » sans date |
+| Dessous | Course · Parcours | En couleur d'accent ; le parcours s'il existe ; une icône ↗ à côté ouvre le site officiel dans un nouvel onglet |
+| Dessous | Lieu, format, distance, D+ | « Mont-Clair · Trail long · 45 km · 2 100 m D+ » |
+| En haut à droite | Objectif | Temps visé ou intention, présenté comme les indicateurs de l'en-tête (valeur, libellé « Objectif » dessous) ; rien s'il est vide |
+| En bas à droite | Dossard | Étiquette en forme de dossard, quatre états (§ 3.5) |
+| En bas | Compteur | Quatre cases : jours, heures, minutes, secondes (§ 5.1) ; « Date à préciser » si seul le mois est connu |
+
+Sur téléphone, l'objectif reste en haut à droite ; le compteur puis le dossard passent sur toute la largeur.
+
+Un groupe d'options fait une seule carte : « À choisir », le nombre de candidates et le nom du groupe, puis une ligne par candidate (date, course ↗, lieu, distance, D+, dossard, compte à rebours sur une ligne).
 
 Toucher l'étape (hors icône ↗) ouvre la page de la course.
 
@@ -70,14 +74,14 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 Sous l'en-tête et le menu du site (onglet Objectif en avant), de haut en bas :
 
 1. **Retour** : « ← Feuille de route ».
-2. **Titre** : rôle et rang de l'étape (« Étape 3 sur 6 · Objectif intermédiaire »), course · parcours avec l'icône ↗, puis lieu, format, date et heure de départ. Pour une candidate d'un groupe d'options : le nom du groupe et des liens vers les autres candidates.
-3. **Chiffres** : Distance (avec le D+), D−, Objectif, Dossard, présentés comme les indicateurs de l'en-tête.
+2. **Titre** : rôle et rang de l'étape (« Objectif intermédiaire · Étape 3 sur 6 »), course · parcours en couleur d'accent avec l'icône ↗, puis lieu, format, date et heure de départ. Pour une candidate d'un groupe d'options : le nom du groupe et des liens vers les autres candidates.
+3. **Chiffres** : Distance (avec le D+), D−, Objectif, présentés comme les indicateurs de l'en-tête, puis le dossard (§ 3.5).
 4. **Compte à rebours** : jours, heures, minutes, secondes jusqu'au départ (§ 5.1).
 5. **Cellules**, toujours dans cet ordre, identique pour tous ; une cellule vide n'est pas affichée :
 
 | Cellule | Contenu |
 | --- | --- |
-| Dossard | Inscrit ou non, numéro, prix, date d'ouverture des inscriptions |
+| Dossard | Le dossard (§ 3.5), le prix, la date d'ouverture des inscriptions |
 | Rôle dans la préparation | Pourquoi cette course figure dans le plan |
 | Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante |
 | Logistique | Transport, horaires, retrait du dossard |
@@ -93,6 +97,17 @@ Sous l'en-tête et le menu du site (onglet Objectif en avant), de haut en bas :
 | Badges UTMB | Dans le titre, sous le nom de la course |
 | Météo du jour J | À côté du compte à rebours |
 | Suivi en course | Sous le compte à rebours, toute la largeur, avant les cellules |
+
+### 3.5 Dossard
+
+Une étiquette en forme de dossard (quatre épingles aux coins), sur la feuille de route et sur la page de la course. L'état se déduit des champs `inscrit` et `ouverture_inscriptions`, comparés à la date du jour :
+
+| État | Condition | Rendu |
+| --- | --- | --- |
+| Inscrit | `inscrit` vrai | Dossard plein (fond Texte), « ✓ Inscrit » et le numéro s'il est connu |
+| Inscriptions ouvertes | Pas inscrit, ouverture passée ou du jour | Couleur Alerte, point qui bat : c'est à faire maintenant ; lien vers le site d'inscription s'il est connu |
+| Ouvre bientôt | Pas inscrit, ouverture à venir | Pointillé, couleur Accent 2 : « Ouvre le 10 janv. · J-82 » |
+| Pas inscrit | Pas inscrit, ouverture inconnue | Pointillé, discret |
 
 ## 4. Données d'une course
 
@@ -113,8 +128,7 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 ### 5.1 Comptes à rebours
 
-- Feuille de route : J-n, en jours calendaires, comme la prochaine course de l'en-tête.
-- Page d'une course : jours, heures, minutes et secondes ; mise à jour chaque seconde, un seul minuteur pour toute la page.
+- Quatre cases (jours, heures, minutes, secondes), sur chaque étape de la feuille de route et en plus grand sur la page de la course ; sur une ligne pour les candidates d'un groupe. Mise à jour chaque seconde, un seul minuteur pour toute la page.
 - Date approximative (mois seul) : pas de compte à rebours.
 - L'heure de départ est saisie en heure locale de la course, sans fuseau ; elle est lue dans le fuseau du navigateur. Correct tant que la course et le coureur sont dans le même fuseau (France, Espagne, Italie). Une course dans un autre fuseau demandera de préciser le fuseau (à traiter le moment venu).
 - Après le départ, le compteur est remplacé par « Course courue ».
@@ -159,7 +173,7 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 
 ## 6. Téléphone
 
-- Feuille de route : une étape tient sur trois ou quatre lignes, le J-n à droite.
+- Feuille de route : voir § 3.1.
 - Page d'une course : les cellules et les chiffres passent sur une colonne.
 - Les cartes du suivi en course passent sur deux colonnes ; les libellés secondaires de la jauge sont masqués pour éviter les chevauchements.
 - Les champs de saisie ouvrent le clavier numérique.
@@ -185,4 +199,5 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 - [x] Course passée : elle quitte la feuille de route et rejoint le Palmarès (décidé le 19 oct. 2026).
 - [x] Course à choisir : une liste dans l'étape, une ligne par candidate ; chacune ouvre sa page. Le comparatif viendra du graphique de difficulté (décidé le 23 oct. 2026).
 - [x] Détail d'une course : une page dédiée par course plutôt qu'une étape dépliée ou une fenêtre ; icône ↗ pour le site officiel (décidé le 23 oct. 2026).
+- [ ] Inscriptions fermées (ou complet) sans être inscrit : un cinquième état ? Il demanderait un champ de plus (date de clôture ou case « complet »).
 - [ ] Choix de la course de l'en-tête (cap) : seulement dans les Préférences, ou aussi depuis la page Objectif ? À revoir une fois la feuille de route construite.

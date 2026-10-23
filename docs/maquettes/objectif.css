@@ -5,53 +5,89 @@
 .mq-note b { color: var(--text); font-weight: 600; }
 .mq-place { border: 1px dashed var(--border); border-radius: 8px; padding: 0.9rem 1rem; color: var(--muted); font-size: 0.75rem; }
 .mq-place b { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 400; margin-bottom: 0.2rem; }
+.mq-dossards { display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem; align-items: center; margin-top: 2rem; }
+.mq-dossards p { width: 100%; }
 
-/* Communs */
+/* ----- Communs ----- */
 .ob-titre-bloc { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; }
 .ob-mono { font-family: 'Space Mono', monospace; }
-.ob-ext { display: inline-flex; align-items: center; justify-content: center; width: 1.4rem; height: 1.4rem; margin-left: 0.2rem; font-size: 0.8rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; position: relative; z-index: 1; }
-.ob-tag { display: inline-block; padding: 0.05rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--border); border-radius: 20px; white-space: nowrap; }
-.ob-tag.is-cle { color: var(--accent2); border-color: var(--accent2); }
-.ob-tag.is-obj { color: var(--bg); background: var(--accent); border-color: var(--accent); }
-.ob-tag.is-opt { border-style: dashed; }
-.ob-tag.is-ok { color: var(--text); }
+.ob-ext { display: inline-flex; align-items: center; justify-content: center; width: 1.4rem; height: 1.4rem; margin-left: 0.15rem; font-size: 0.8rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; position: relative; z-index: 1; }
+.ob-role { display: inline-block; padding: 0.15rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); border-radius: 3px; white-space: nowrap; }
+.ob-role.is-cle { color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent); }
+.ob-role.is-obj { color: var(--bg); background: var(--accent); }
+.ob-role.is-opt { background: none; border: 1px dashed var(--border); }
+.ob-date { font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent2); white-space: nowrap; }
+.ob-stat { display: flex; flex-direction: column; gap: 0.1rem; }
+.ob-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: var(--accent2); }
+.ob-stat-val small { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+.ob-stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
 
-/* ----- Variante A : le chemin ----- */
+/* Compteur : quatre cases, comme un chronomètre. */
+.cpt { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; max-width: 19rem; }
+.cpt-case { padding: 0.35rem 0.2rem 0.3rem; text-align: center; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
+.cpt-n { display: block; font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.15; color: var(--accent); font-variant-numeric: tabular-nums; }
+.cpt-l { display: block; font-family: 'Space Mono', monospace; font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.cpt.is-vide, .cpt-ligne.is-vide { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.cpt-ligne { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cpt.is-grand { max-width: 26rem; gap: 0.5rem; }
+.cpt.is-grand .cpt-case { padding: 0.55rem 0.2rem 0.45rem; border-radius: 8px; }
+.cpt.is-grand .cpt-n { font-size: 1.6rem; }
+.cpt.is-grand .cpt-l { font-size: 0.55rem; }
+
+/* Dossard : une étiquette en forme de dossard, quatre épingles aux coins.
+   Inscrit : dossard plein. Ouvertes : à faire maintenant (Alerte, point qui bat).
+   Ouvre bientôt : en attente (pointillé, Accent 2). Rien de connu : discret. */
+.dos { --pin: var(--border); position: relative; display: inline-flex; align-items: baseline; gap: 0.45rem; padding: 0.4rem 0.85rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; text-decoration: none; border: 1px solid var(--border); border-radius: 4px; color: var(--muted);
+  background-image: radial-gradient(circle, var(--pin) 1.6px, transparent 2px), radial-gradient(circle, var(--pin) 1.6px, transparent 2px), radial-gradient(circle, var(--pin) 1.6px, transparent 2px), radial-gradient(circle, var(--pin) 1.6px, transparent 2px);
+  background-size: 8px 8px; background-repeat: no-repeat; background-position: 1px 1px, calc(100% - 1px) 1px, 1px calc(100% - 1px), calc(100% - 1px) calc(100% - 1px); }
+.dos-d { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.02em; }
+.dos.is-inscrit { --pin: var(--surface); color: var(--bg); background-color: var(--text); border-color: var(--text); }
+.dos.is-inscrit .dos-t::before { content: '✓ '; }
+.dos.is-ouvert { --pin: var(--red); color: var(--red); border-color: var(--red); background-color: color-mix(in srgb, var(--red) 12%, transparent); font-weight: 700; }
+.dos.is-bientot { --pin: var(--accent2); color: var(--accent2); border: 1px dashed var(--accent2); }
+.dos.is-bientot .dos-d { font-size: 0.72rem; color: var(--text); }
+.dos.is-inconnu { border-style: dashed; }
+.dos-pouls { align-self: center; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--red); animation: dos-pouls 1.6s ease-in-out infinite; }
+@keyframes dos-pouls { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 60%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
+@media (prefers-reduced-motion: reduce) { .dos-pouls { animation: none; } }
+
+/* ----- Feuille de route : le chemin ----- */
 .fr-et { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); column-gap: 0.9rem; position: relative; }
 .fr-rail { position: relative; }
 .fr-rail::before, .fr-rail::after { content: ''; position: absolute; left: calc(50% - 1px); border-left: 2px solid var(--border); }
-.fr-rail::before { top: 0; height: 1.25rem; }
-.fr-rail::after { top: 1.25rem; bottom: 0; }
+.fr-rail::before { top: 0; height: 1.3rem; }
+.fr-rail::after { top: 1.3rem; bottom: 0; }
 .fr-et:first-child .fr-rail::before, .fr-et:last-child .fr-rail::after { display: none; }
 .fr-et.is-opt .fr-rail::before, .fr-et.suite-opt .fr-rail::after { border-left-style: dashed; }
-.fr-pt { position: absolute; z-index: 1; left: 50%; top: 1.25rem; width: 0.85rem; height: 0.85rem; transform: translate(-50%, -50%); border-radius: 50%; background: var(--muted); border: 2px solid var(--muted); }
+.fr-pt { position: absolute; z-index: 1; left: 50%; top: 1.3rem; width: 0.85rem; height: 0.85rem; transform: translate(-50%, -50%); border-radius: 50%; background: var(--muted); border: 2px solid var(--muted); }
 .fr-et.is-opt .fr-pt { background: var(--bg); }
 .fr-et.is-cle .fr-pt { background: var(--accent2); border-color: var(--accent2); }
 .fr-et.is-obj .fr-pt { width: 1rem; height: 1rem; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
 
-.fr-carte { position: relative; margin-bottom: 0.9rem; padding: 0.75rem 1rem 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.fr-carte { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "tete cote" "cpt cote"; gap: 0.7rem 1.2rem; margin-bottom: 0.9rem; padding: 0.85rem 1rem 0.9rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .fr-et.is-opt .fr-carte { border-style: dashed; background: transparent; }
 .fr-et.is-obj .fr-carte { border-color: var(--accent); }
-.fr-haut { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
-.fr-date { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.fr-j { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; color: var(--accent2); white-space: nowrap; }
-.fr-nom { font-size: 0.95rem; font-weight: 600; line-height: 1.35; margin-top: 0.1rem; }
-.fr-nom a { color: var(--text); text-decoration: none; }
-.fr-et.is-obj .fr-nom a { color: var(--accent); }
-/* Toute la carte ouvre la page de la course ; l'icône ↗ reste à part. */
+.fr-tete { grid-area: tete; min-width: 0; }
+.fr-cote { grid-area: cote; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 0.8rem; text-align: right; }
+.fr-carte > .cpt { grid-area: cpt; align-self: end; }
+.fr-haut { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.6rem; }
+.fr-nom { font-size: 1rem; font-weight: 600; line-height: 1.35; margin-top: 0.35rem; }
+.fr-nom a { color: var(--accent); text-decoration: none; }
+/* Toute la carte ouvre la page de la course ; l'icône ↗ et l'inscription restent à part. */
 .fr-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
+.fr-carte .dos { position: relative; z-index: 1; }
+.fr-cote > .dos { margin-top: auto; }
 .fr-info { color: var(--muted); font-size: 0.8rem; }
 .fr-info .ob-mono { color: var(--text); font-size: 0.78rem; }
-.fr-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
-.fr-tags .ob-tag b { color: var(--text); font-weight: 700; }
-.fr-tags .ob-tag.is-obj b { color: var(--bg); }
 
-.fr-groupe-titre { font-size: 0.95rem; font-weight: 600; margin-top: 0.1rem; }
-.fr-cand { position: relative; display: grid; grid-template-columns: 6.2rem minmax(0, 1fr) auto; gap: 0.2rem 0.8rem; align-items: baseline; padding: 0.5rem 0; border-top: 1px solid var(--border); }
-.fr-cand:first-of-type { margin-top: 0.5rem; }
-.fr-cand .fr-nom { margin: 0; font-size: 0.85rem; }
+.fr-groupe { grid-template-areas: "tete" "cands"; grid-template-columns: minmax(0, 1fr); }
+.fr-cands { grid-area: cands; }
+.fr-groupe-titre { font-size: 1rem; font-weight: 600; margin-top: 0.35rem; }
+.fr-cand { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.4rem 1rem; align-items: center; padding: 0.65rem 0; border-top: 1px solid var(--border); }
+.fr-cand:last-child { padding-bottom: 0; }
+.fr-cand .fr-nom { margin-top: 0.1rem; font-size: 0.9rem; }
 .fr-cand .fr-nom a::after { border-radius: 0; }
-.fr-cand .fr-info { grid-column: 2; }
+.fr-cand .fr-cote { grid-area: auto; gap: 0.4rem; }
 
 .fr-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); }
 .fr-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -60,39 +96,18 @@
 .fr-legende i.cle { background: var(--accent2); border-color: var(--accent2); }
 .fr-legende i.obj { background: var(--accent); border-color: var(--accent); }
 
-/* ----- Variante B : le tableau ----- */
-.fb tr.fb-ligne { cursor: pointer; }
-.fb td { vertical-align: middle; }
-.fb .fb-pt { width: 0.7rem; height: 0.7rem; display: inline-block; border-radius: 50%; border: 2px solid var(--muted); background: var(--muted); }
-.fb .is-opt .fb-pt { background: transparent; }
-.fb .is-cle .fb-pt { background: var(--accent2); border-color: var(--accent2); }
-.fb .is-obj .fb-pt { background: var(--accent); border-color: var(--accent); }
-.fb .is-obj .fb-nom { color: var(--accent); font-weight: 600; }
-.fb .fb-groupe td { padding-top: 0.9rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom-style: dashed; }
-.fb .fb-cand td:nth-child(3) { padding-left: 1.4rem; }
-.fb .ob-mono { font-size: 0.8rem; white-space: nowrap; }
-.fb .fr-j { font-size: 0.8rem; }
-
 /* ----- Page d'une course ----- */
 .pc-retour { display: inline-block; margin-bottom: 1.2rem; font-size: 0.75rem; text-decoration: none; }
-.pc-sur { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
-.pc-titre { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin: 0.2rem 0 0.3rem; }
+.pc-titre { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin: 0.45rem 0 0.3rem; color: var(--accent); }
 .pc-titre .ob-ext { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
 .pc-info { color: var(--muted); }
 .pc-groupe { margin-top: 0.5rem; font-size: 0.8rem; color: var(--muted); }
 .pc-groupe a { text-decoration: none; }
 .pc-utmb { margin-top: 0.6rem; display: inline-block; padding: 0.3rem 0.7rem; font-size: 0.7rem; }
-.pc-stats { display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin: 1.5rem 0; }
-.pc-stat { display: flex; flex-direction: column; gap: 0.15rem; }
-.pc-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent2); }
-.pc-stat-val small { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
-.pc-stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.pc-stats { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 2rem; margin: 1.5rem 0; }
 .pc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
 .pc-grille .card, .pc-grille .mq-place { margin: 0; }
 .pc-large { grid-column: 1 / -1; }
-.pc-jours { font-family: 'Space Mono', monospace; font-size: 2.5rem; font-weight: 700; line-height: 1; color: var(--accent); }
-.pc-jours-label { margin-left: 0.4rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.pc-hms { margin-top: 0.3rem; font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--accent2); font-variant-numeric: tabular-nums; }
 .pc-cellule p + p { margin-top: 0.4rem; }
 .pc-liens { list-style: none; }
 .pc-liens li + li { margin-top: 0.3rem; }
@@ -105,15 +120,22 @@
 @media (max-width: 600px) {
   .pc-grille { grid-template-columns: 1fr; }
   .pc-stats { gap: 1rem 1.5rem; }
-  .fr-cand { grid-template-columns: minmax(0, 1fr) auto; }
-  .fr-cand .fr-date { grid-column: 1 / -1; }
-  .fr-cand .fr-info { grid-column: 1 / -1; }
+  /* Téléphone : l'objectif reste en haut à droite ; compteur puis dossard sur toute la largeur. */
+  .fr-carte { grid-template-areas: "tete obj" "cpt cpt" "dos dos"; gap: 0.7rem 0.8rem; }
+  .fr-carte > .fr-cote { display: contents; }
+  .fr-carte > .fr-cote > .ob-stat { grid-area: obj; text-align: right; }
+  .fr-carte > .fr-cote > .dos { grid-area: dos; justify-self: start; margin: 0; }
+  .fr-groupe { grid-template-areas: "tete" "cands"; }
+  .cpt { max-width: none; }
+  .fr-cand { grid-template-columns: minmax(0, 1fr); }
+  .fr-cand .fr-cote { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; text-align: left; }
 }
 
 @media (hover: hover) {
-  .fr-carte:hover { background: var(--surface2); }
-  .fr-et.is-opt .fr-carte:hover { background: var(--surface); }
+  .fr-carte:not(.fr-groupe):hover { background: var(--surface2); }
+  .fr-et.is-opt .fr-carte:not(.fr-groupe):hover { background: var(--surface); }
+  .fr-cand:hover .fr-nom a { text-decoration: underline; }
   .ob-ext:hover { color: var(--accent); background: var(--bg); }
-  .fb tr.fb-ligne:hover td { background: var(--surface2); }
+  .dos.is-ouvert:hover { background-color: color-mix(in srgb, var(--red) 22%, transparent); }
   .pc-nav a:hover b, .pc-retour:hover { text-decoration: underline; }
 }

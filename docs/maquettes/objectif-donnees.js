@@ -6,7 +6,7 @@
       distance: 24, dplus: 650, dmoins: 650, statut: 'confirmee', role: 'preparatoire', objectif: '2:45', inscrit: true, dossard: '412', prix: 32,
       pourquoi: 'Reprise en compétition après la coupure, sur un format court.', logistique: 'Retrait du dossard sur place dès 7 h 30.', lien: '#' },
     { id: 2, course: 'Corrida de Noël', lieu: 'Ville-Haute', format: 'Route', date: '2026-12-13', heure: '18:30',
-      distance: 10, dplus: 40, statut: 'confirmee', role: 'plaisir', inscrit: false, ouverture: '2026-11-01', lien: '#' },
+      distance: 10, dplus: 40, statut: 'confirmee', role: 'plaisir', inscrit: false, ouverture: '2026-11-01', lien: '#', inscription: '#' },
     { id: 3, course: 'Trail des Gorges', lieu: 'Mont-Clair', format: 'Trail long', date: '2027-03-07', heure: '07:30',
       distance: 45, dplus: 2100, dmoins: 2100, statut: 'confirmee', role: 'objectif_intermediaire', objectif: '6:30', inscrit: true, dossard: '1287', prix: 58,
       pourquoi: 'Répétition générale du matériel et de la nutrition sur un format long, six mois avant l\'objectif.',
@@ -14,9 +14,9 @@
       logistique: 'Retrait des dossards la veille de 15 h à 19 h. Navette depuis le parking du stade à 6 h 30.',
       description: 'Boucle par les crêtes et les gorges, trois ravitaillements.', lien: '#', inscription: '#', lien_resultats: '#' },
     { id: 4, course: 'Trail des Cimes', lieu: 'Haut-Val', format: 'Trail long', date: '2027-05-30', distance: 42, dplus: 2500,
-      statut: 'option', role: 'preparatoire', groupe: 'Printemps 2027', inscrit: false, ouverture: '2027-01-10', lien: '#' },
+      statut: 'option', role: 'preparatoire', groupe: 'Printemps 2027', inscrit: false, ouverture: '2027-01-10', lien: '#', inscription: '#' },
     { id: 5, course: 'Ultra du Plateau', parcours: 'Le 55', lieu: 'Plaine-Neuve', format: 'Trail long', date: '2027-06-26', distance: 55, dplus: 2800,
-      statut: 'option', role: 'preparatoire', groupe: 'Printemps 2027', inscrit: false, lien: '#' },
+      statut: 'option', role: 'preparatoire', groupe: 'Printemps 2027', inscrit: false, ouverture: '2026-09-01', prix: 65, lien: '#', inscription: '#' },
     { id: 6, course: 'Trail de la Forêt', lieu: 'Bois-Joli', format: 'Trail court', date: '2027-07', approx: true, distance: 30, dplus: 1200,
       statut: 'option', role: 'preparatoire', inscrit: false },
     { id: 7, course: 'Trail des Crêtes', parcours: 'Le Grand Tour', lieu: 'Mont-Clair', format: 'Trail ultra', date: '2027-08-28', heure: '05:00',
@@ -56,9 +56,47 @@
       return JOURS[d.getDay()] + ' ' + (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS_LONG[d.getMonth()] + ' ' + d.getFullYear() + (c.heure ? ', ' + (+c.heure.slice(0, 2)) + ' h ' + c.heure.slice(3) : '');
     },
     jMoins: c => (c.approx ? null : Math.round((jour(parse(c)) - jour(MAINTENANT)) / 864e5)),
-    rebours: c => {
-      const ms = parse(c) - MAINTENANT, p = n => String(n).padStart(2, '0');
-      return { j: Math.floor(ms / 864e5), hms: p(Math.floor(ms % 864e5 / 36e5)) + 'h ' + p(Math.floor(ms % 36e5 / 6e4)) + 'm ' + p(Math.floor(ms % 6e4 / 1e3)) + 's' };
+    // Compte à rebours en jours, heures, minutes, secondes ; « maintenant » avance depuis la date figée.
+    depart: c => (c.approx ? null : parse(c)),
+    maintenant: (() => { const t0 = Date.now(); return () => new Date(MAINTENANT.getTime() + Date.now() - t0); })(),
+    decompose: ms => ({ j: Math.floor(ms / 864e5), h: Math.floor(ms % 864e5 / 36e5), m: Math.floor(ms % 36e5 / 6e4), s: Math.floor(ms % 6e4 / 1e3) }),
+    // Dossard : inscrit, inscriptions ouvertes, ouverture à venir, ou rien de connu.
+    dossard: c => {
+      if (c.inscrit) return { etat: 'inscrit', texte: 'Inscrit', detail: c.dossard ? 'n° ' + c.dossard : '' };
+      if (!c.ouverture) return { etat: 'inconnu', texte: 'Pas inscrit', detail: '' };
+      const p = c.ouverture.split('-').map(Number), o = new Date(p[0], p[1] - 1, p[2]);
+      const j = Math.round((jour(o) - jour(MAINTENANT)) / 864e5);
+      if (j > 0) return { etat: 'bientot', texte: 'Ouvre le ' + (p[2] === 1 ? '1er' : p[2]) + ' ' + MOIS[p[1] - 1], detail: 'J-' + j };
+      return { etat: 'ouvert', texte: 'Inscriptions ouvertes', detail: '' };
+    },
+    // Compteur en quatre cases ; un seul minuteur met à jour toute la page.
+    compteurHtml: c => c.approx
+      ? '<div class="cpt is-vide">Date à préciser</div>'
+      : '<div class="cpt" data-depart="' + parse(c).getTime() + '">' + [['j', 'Jours'], ['h', 'Heures'], ['m', 'Min'], ['s', 'Sec']]
+        .map(u => '<div class="cpt-case"><span class="cpt-n" data-u="' + u[0] + '">--</span><span class="cpt-l">' + u[1] + '</span></div>').join('') + '</div>',
+    // Compte à rebours sur une ligne, pour les candidates d'un groupe.
+    compteurLigneHtml: c => c.approx ? '' : '<span class="cpt-ligne" data-depart="' + parse(c).getTime() + '"></span>',
+    lancerCompteurs: () => {
+      const p = n => String(n).padStart(2, '0');
+      const tic = () => {
+        const now = MQ.maintenant().getTime();
+        document.querySelectorAll('[data-depart]').forEach(el => {
+          const ms = +el.dataset.depart - now;
+          if (ms <= 0) { el.textContent = 'Course courue'; el.classList.add('is-vide'); return; }
+          const t = MQ.decompose(ms);
+          if (el.classList.contains('cpt-ligne')) { el.textContent = t.j + ' j ' + p(t.h) + ' h ' + p(t.m) + ' min ' + p(t.s) + ' s'; return; }
+          el.querySelectorAll('.cpt-n').forEach(n => { const v = t[n.dataset.u]; n.textContent = n.dataset.u === 'j' ? v : p(v); });
+        });
+      };
+      tic(); setInterval(tic, 1000);
+    },
+    // Dossard : une étiquette en forme de dossard, une couleur par état.
+    dossardHtml: c => {
+      const d = MQ.dossard(c);
+      const tag = d.etat === 'ouvert' && c.inscription ? 'a' : 'span';
+      return '<' + tag + ' class="dos is-' + d.etat + '"' + (tag === 'a' ? ' href="' + c.inscription + '" target="_blank" rel="noopener"' : '') + '>' +
+        (d.etat === 'ouvert' ? '<i class="dos-pouls"></i>' : '') +
+        '<span class="dos-t">' + d.texte + (d.etat === 'ouvert' && c.inscription ? ' ↗' : '') + '</span>' + (d.detail ? '<span class="dos-d">' + d.detail + '</span>' : '') + '</' + tag + '>';
     },
     // En-tête du site, dessiné par le vrai composant.
     entete: () => renderEnTete({

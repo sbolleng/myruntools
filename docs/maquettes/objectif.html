@@ -15,77 +15,59 @@
   <div class="mq-place" style="margin-bottom:1.5rem"><b>Graphique de difficulté</b>Place réservée, lot suivant.</div>
   <h2 class="ob-titre-bloc">Feuille de route</h2>
   <div id="fr"></div>
+  <div class="mq-dossards" id="dossards"></div>
 </main>
 <script src="../../composants/en-tete.js"></script>
 <script src="objectif-donnees.js"></script>
 <script>
   const q = new URLSearchParams(location.search);
-  const variante = q.get('v') === 'b' ? 'b' : 'a';
   const t = q.get('t') ? '&t=' + q.get('t') : '';
   MQ.entete();
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const page = c => 'objectif-course.html?c=' + c.id + t;
   const ext = c => c.lien ? '<a class="ob-ext" href="' + c.lien + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">↗</a>' : '';
   const cls = c => c.role === 'objectif' ? 'is-obj' : c.role === 'objectif_intermediaire' ? 'is-cle' : '';
-  const jn = c => { const j = MQ.jMoins(c); return j == null ? '' : 'J-' + j; };
   const chiffres = c => (c.distance != null ? '<span class="ob-mono">' + MQ.nf.format(c.distance) + ' km</span>' : '') +
     (c.dplus != null ? ' · <span class="ob-mono">' + MQ.nf.format(c.dplus) + ' m D+</span>' : '');
-  const tags = c => {
-    const r = [];
-    if (c.statut === 'option') r.push('<span class="ob-tag is-opt">Option</span>');
-    r.push('<span class="ob-tag ' + (c.role === 'objectif' ? 'is-obj' : c.role === 'objectif_intermediaire' ? 'is-cle' : '') + '">' + MQ.ROLES[c.role] + '</span>');
-    if (c.objectif) r.push('<span class="ob-tag">Objectif <b>' + esc(c.objectif) + '</b></span>');
-    r.push(c.inscrit ? '<span class="ob-tag is-ok">✓ Inscrit</span>' : '<span class="ob-tag">Pas inscrit</span>');
-    return '<div class="fr-tags">' + r.join('') + '</div>';
-  };
+  const role = c => (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span>' : '') +
+    '<span class="ob-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span>';
+  const objectif = c => c.objectif ? '<div class="ob-stat"><span class="ob-stat-val">' + esc(c.objectif) + '</span><span class="ob-stat-label">Objectif</span></div>' : '';
 
-  // Variante A : le chemin, une carte par étape le long d'un trait.
-  function cheminA() {
-    const et = MQ.etapes();
-    return et.map((e, i) => {
-      const suiv = et[i + 1];
-      const opt = e.groupe || e.course.statut === 'option';
-      const suiteOpt = suiv && (suiv.groupe || suiv.course.statut === 'option');
-      const k = ['fr-et', opt ? 'is-opt' : '', suiteOpt ? 'suite-opt' : '', e.course ? cls(e.course) : ''].join(' ');
-      let corps;
-      if (e.groupe) {
-        corps = '<div class="fr-haut"><span class="fr-date">À choisir · ' + e.candidates.length + ' candidates</span></div>' +
-          '<div class="fr-groupe-titre">' + esc(e.groupe) + '</div>' +
-          e.candidates.map(c => '<div class="fr-cand"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' +
-            '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
-            '<span class="fr-j">' + jn(c) + '</span>' +
-            '<div class="fr-info">' + esc(c.lieu) + ' · ' + chiffres(c) + '</div></div>').join('');
-      } else {
-        const c = e.course;
-        corps = '<div class="fr-haut"><span class="fr-date">' + MQ.dateCourte(c) + '</span><span class="fr-j">' + jn(c) + '</span></div>' +
+  // Une carte par étape, le long d'un trait ; un groupe d'options fait une seule carte.
+  const et = MQ.etapes();
+  document.getElementById('fr').innerHTML = et.map((e, i) => {
+    const suiv = et[i + 1];
+    const opt = e.groupe || e.course.statut === 'option';
+    const suiteOpt = suiv && (suiv.groupe || suiv.course.statut === 'option');
+    const k = ['fr-et', opt ? 'is-opt' : '', suiteOpt ? 'suite-opt' : '', e.course ? cls(e.course) : ''].join(' ');
+    let carte;
+    if (e.groupe) {
+      carte = '<div class="fr-carte fr-groupe"><div class="fr-tete"><div class="fr-haut"><span class="ob-role is-opt">À choisir</span>' +
+        '<span class="ob-date">' + e.candidates.length + ' candidates</span></div><div class="fr-groupe-titre">' + esc(e.groupe) + '</div></div>' +
+        '<div class="fr-cands">' + e.candidates.map(c => '<div class="fr-cand"><div><span class="ob-date">' + MQ.dateCourte(c) + '</span>' +
           '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
-          '<div class="fr-info">' + esc(c.lieu) + ' · ' + esc(c.format) + ' · ' + chiffres(c) + '</div>' + tags(c);
-      }
-      return '<div class="' + k + '"><div class="fr-rail"><span class="fr-pt"></span></div><div class="fr-carte">' + corps + '</div></div>';
-    }).join('') +
-    '<div class="fr-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span><span><i class="obj"></i>Objectif</span><span><i class="opt"></i>Option</span></div>';
-  }
+          '<div class="fr-info">' + esc(c.lieu) + ' · ' + chiffres(c) + '</div></div>' +
+          '<div class="fr-cote">' + MQ.dossardHtml(c) + MQ.compteurLigneHtml(c) + '</div></div>').join('') + '</div></div>';
+    } else {
+      const c = e.course;
+      carte = '<div class="fr-carte"><div class="fr-tete"><div class="fr-haut">' + role(c) + '<span class="ob-date">' + MQ.dateCourte(c) + '</span></div>' +
+        '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
+        '<div class="fr-info">' + esc(c.lieu) + ' · ' + esc(c.format) + ' · ' + chiffres(c) + '</div></div>' +
+        '<div class="fr-cote">' + objectif(c) + MQ.dossardHtml(c) + '</div>' + MQ.compteurHtml(c) + '</div>';
+    }
+    return '<div class="' + k + '"><div class="fr-rail"><span class="fr-pt"></span></div>' + carte + '</div>';
+  }).join('') +
+  '<div class="fr-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span><span><i class="obj"></i>Course objectif</span><span><i class="opt"></i>Option</span></div>';
 
-  // Variante B : le tableau, une ligne par course, comme le Palmarès.
-  function tableauB() {
-    const ligne = (c, cand) => '<tr class="fb-ligne ' + (cand ? 'fb-cand is-opt ' : c.statut === 'option' ? 'is-opt ' : '') + cls(c) + '" onclick="location=\'' + page(c) + '\'">' +
-      '<td><span class="fb-pt"></span></td><td class="ob-mono">' + MQ.dateCourte(c) + '</td>' +
-      '<td><span class="fb-nom">' + esc(MQ.nom(c)) + '</span>' + ext(c).replace('<a ', '<a onclick="event.stopPropagation()" ') + '</td>' +
-      '<td class="ob-mono">' + (c.distance != null ? MQ.nf.format(c.distance) + ' km' : '') + '</td>' +
-      '<td class="ob-mono">' + (c.dplus != null ? MQ.nf.format(c.dplus) + ' m' : '') + '</td>' +
-      '<td class="ob-mono">' + esc(c.objectif || '') + '</td>' +
-      '<td>' + (c.inscrit ? '✓' : '') + '</td><td class="fr-j">' + jn(c) + '</td></tr>';
-    const corps = MQ.etapes().map(e => e.groupe
-      ? '<tr class="fb-groupe"><td></td><td colspan="7">À choisir · ' + esc(e.groupe) + '</td></tr>' + e.candidates.map(c => ligne(c, true)).join('')
-      : ligne(e.course)).join('');
-    return '<div class="card" style="padding:0.5rem 1rem"><div class="table-scroll"><table class="fb"><thead><tr><th></th><th>Date</th><th>Course</th><th>Distance</th><th>D+</th><th>Objectif</th><th>Dossard</th><th></th></tr></thead><tbody>' + corps + '</tbody></table></div></div>';
-  }
+  // Planche : les quatre états du dossard.
+  document.getElementById('dossards').innerHTML = '<p class="ob-titre-bloc">Dossard · les quatre états</p>' +
+    [{ inscrit: true, dossard: '412' }, { inscrit: false, ouverture: '2026-09-01', inscription: '#' }, { inscrit: false, ouverture: '2027-01-10' }, { inscrit: false }]
+      .map(MQ.dossardHtml).join('');
+  MQ.lancerCompteurs();
 
-  document.getElementById('fr').innerHTML = variante === 'a' ? cheminA() : tableauB();
-  const th = (n, l) => '<a href="?v=' + variante + '&t=' + n + '">' + l + '</a>';
-  document.getElementById('note').innerHTML = 'Maquette, données fictives, date figée au 20 octobre 2026. Variante <b>' + variante.toUpperCase() + '</b> · ' +
-    (variante === 'a' ? '<a href="?v=b' + t + '">voir B (tableau)</a>' : '<a href="?v=a' + t + '">voir A (chemin)</a>') +
-    ' · thèmes : ' + th('bleu-orange', 'bleu et orange') + ', ' + th('vert-rose', 'vert et rose') + ', ' + th('violet-turquoise', 'violet et turquoise') +
+  const th = (n, l) => '<a href="?t=' + n + '">' + l + '</a>';
+  document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Thèmes : ' +
+    th('bleu-orange', 'bleu et orange') + ', ' + th('vert-rose', 'vert et rose') + ', ' + th('violet-turquoise', 'violet et turquoise') +
     ' · <a href="objectif-mobile.html">vue téléphone</a>. Touche une étape pour ouvrir la page de la course.';
 </script>
 </body>
