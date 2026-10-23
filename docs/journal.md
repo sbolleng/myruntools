@@ -6,6 +6,12 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Connexion | Modèle d'e-mail A retenu (carte claire, bouton marine à texte orange) : `docs/maquettes/email-connexion-a.html`, à coller dans le modèle « Magic Link » de Supabase. |
+| 23 oct. 2026 | Domaine | `myruntools.fr` branché sur GitHub Pages : 4 entrées A (GitHub) sur la racine, CNAME `www` vers le compte GitHub, anciennes entrées d'OVH supprimées (courrier OVH et lignes Resend conservés), HTTPS activé. Adresses de retour de Supabase (Site URL, Redirect URLs) mises à jour ; l'ancienne adresse reste autorisée le temps des essais. |
+| 23 oct. 2026 | Connexion | Essai réel de l'e-mail du lien validé (boîte de réception, lien qui connecte). Texte conservé avec « sur MyRunTools » (spécification générale § 3 corrigée). Trois maquettes d'e-mail sobres proposées dans `docs/maquettes/` (`email-connexion-a`, `-b`, `-c`), choix en attente. |
+| 23 oct. 2026 | Connexion | SMTP personnalisé enregistré dans Supabase : Resend (`smtp.resend.com`, port 465), expéditeur « MyRunTools » `connexion@myruntools.fr` ; la clé n'est que dans Supabase. Étape 3 terminée. |
+| 23 oct. 2026 | Connexion | Compte Resend créé, domaine `myruntools.fr` ajouté (région Europe), 4 lignes DNS (2 CNAME, 2 TXT dont DMARC) ajoutées chez OVH, domaine vérifié. Étape 2 terminée. |
+| 23 oct. 2026 | Connexion | Domaine `myruntools.fr` acheté chez OVH (domaine seul, sans hébergement ni option e-mail), protection des données activée, zone DNS par défaut. Étape 1 terminée. |
 | 23 oct. 2026 | Connexion | Supabase exige un service d'envoi (SMTP) pour modifier les e-mails : achat du domaine `myruntools`, envoi par Resend avec une adresse du domaine. |
 | 22 oct. 2026 | Connexion | E-mail du lien de connexion en français, au vouvoiement, sobre : objet « Votre lien de connexion à MyRunTools », lien « Me connecter », lien à usage unique. |
 | 22 oct. 2026 | Préférences | Essai réel de la page Préférences validé (thème, menu, cap). |

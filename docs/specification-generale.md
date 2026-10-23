@@ -33,7 +33,7 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 
 **Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu : le nom de l'application, une accroche (« La boîte à outils du coureur »), un champ « Adresse e-mail », un bouton « Recevoir le lien de connexion » et une ligne d'aide qui accueille aussi les messages (envoi, erreur). Le lien n'est envoyé qu'aux comptes existants ; au retour du lien, l'utilisateur arrive connecté sur l'accueil.
 
-**E-mail du lien**, en français, au vouvoiement. Objet : « Votre lien de connexion à MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour vous connecter : Me connecter. Ce lien ne sert qu'une fois. Si vous n'avez rien demandé, ignorez cet e-mail. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
+**E-mail du lien**, en français, au vouvoiement. Objet : « Votre lien de connexion à MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour vous connecter sur MyRunTools : Me connecter. Ce lien ne sert qu'une fois. Si vous n'avez rien demandé, ignorez cet e-mail. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
 
 Règles transverses :
 
