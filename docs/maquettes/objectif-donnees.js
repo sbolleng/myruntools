@@ -70,9 +70,10 @@
       return { etat: 'ouvert', texte: 'Inscriptions ouvertes', detail: '' };
     },
     // Compteur en quatre cases ; un seul minuteur met à jour toute la page.
-    compteurHtml: c => c.approx
+    // court : unités abrégées (j, h, min, s) à côté des chiffres.
+    compteurHtml: (c, court) => c.approx
       ? '<div class="cpt is-vide">Date à préciser</div>'
-      : '<div class="cpt" data-depart="' + parse(c).getTime() + '">' + [['j', 'Jours'], ['h', 'Heures'], ['m', 'Min'], ['s', 'Sec']]
+      : '<div class="cpt" data-depart="' + parse(c).getTime() + '">' + (court ? [['j', 'j'], ['h', 'h'], ['m', 'min'], ['s', 's']] : [['j', 'Jours'], ['h', 'Heures'], ['m', 'Min'], ['s', 'Sec']])
         .map(u => '<div class="cpt-case"><span class="cpt-n" data-u="' + u[0] + '">--</span><span class="cpt-l">' + u[1] + '</span></div>').join('') + '</div>',
     // Compte à rebours sur une ligne, pour les candidates d'un groupe.
     compteurLigneHtml: c => c.approx ? '' : '<span class="cpt-ligne" data-depart="' + parse(c).getTime() + '"></span>',

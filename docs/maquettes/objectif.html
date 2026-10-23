@@ -24,6 +24,7 @@
   const m = [1, 2, 3].includes(+q.get('m')) ? +q.get('m') : 3;   // mise en page de la carte
   const v = [1, 2, 3, 4].includes(+q.get('i')) ? +q.get('i') : ({ 1: 1, 2: 3, 3: 2 })[m]; // rendu du dossard
   // Déclinaisons de la carte 3 : 1 rôle au-dessus du compteur, 2 rôle en tête de carte, 3 rôle en tête de ligne ; 0 la carte 3 d'origine.
+  const o = +q.get('o') === 1 ? 1 : 0; // 1 : l'objectif dans la typographie du nom de la course
   const d = m === 3 ? ([0, 1, 2, 3].includes(+(q.get('d') ?? 1)) ? +(q.get('d') ?? 1) : 1) : 0;
   const t = q.get('t') ? '&t=' + q.get('t') : '';
   MQ.entete();
@@ -45,7 +46,7 @@
     if (m === 3) return '<div class="fr-cats">' +
       (d === 0 ? '<span class="cat cat-role ' + cls(c) + '"><span class="cat-l">Rôle</span><span class="cat-v">' + role + '</span></span>' : '') +
       (d === 3 ? '<span class="cat role-fort ' + cls(c) + '">' + role + '</span>' : '') +
-      (c.objectif ? '<span class="cat"><span class="cat-l">Objectif</span><span class="cat-v ob-mono">' + esc(c.objectif) + '</span></span>' : '') +
+      (c.objectif ? '<span class="cat"><span class="cat-l">Objectif</span><span class="cat-v ' + (o ? 'cat-obj-nom' : 'ob-mono') + '">' + esc(c.objectif) + '</span></span>' : '') +
       '<span class="cat"><span class="cat-l">Dossard</span>' + dos(c) + '</span></div>';
     return '<div class="fr-cats">' + (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span>' : '') +
       '<span class="ob-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span>' +
@@ -71,7 +72,7 @@
       const c = e.course;
       // Carte 2 : le rôle au-dessus du compteur, en haut à droite.
       const roleTxt = '<span class="role-txt ' + cls(c) + '">' + (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role] + '</span>';
-      const cpt = d === 1 ? MQ.compteurHtml(c).replace('class="cpt"', 'class="cpt is-discret"')
+      const cpt = d === 1 ? MQ.compteurHtml(c, true).replace('class="cpt"', 'class="cpt is-uni"')
         : d === 2 ? (c.approx ? '<span class="cpt-ligne is-vide">Date à préciser</span>' : MQ.compteurLigneHtml(c))
         : d === 3 ? MQ.compteurHtml(c).replace('class="cpt"', 'class="cpt is-nu"') : MQ.compteurHtml(c);
       const droite = m === 2 ? '<div class="fr-droite"><div>' + (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span> ' : '') +
@@ -98,7 +99,8 @@
   document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Carte : ' +
     [[1, 'étiquettes'], [2, 'indicateurs'], [3, 'ligne de texte']].map(x => lien(x[0], v, x[0] + ' ' + x[1], x[0] === m)).join(', ') +
     (m === 3 ? ' · déclinaison : ' + [[1, 'rôle au-dessus du compteur'], [2, 'rôle en tête de carte'], [3, 'rôle en tête de ligne'], [0, 'origine']]
-      .map(x => x[0] === d ? '<b>' + x[0] + ' ' + x[1] + '</b>' : '<a href="?m=3&d=' + x[0] + '&i=' + v + t + '">' + x[0] + ' ' + x[1] + '</a>').join(', ') : '') +
+      .map(x => x[0] === d ? '<b>' + x[0] + ' ' + x[1] + '</b>' : '<a href="?m=3&d=' + x[0] + '&i=' + v + '&o=' + o + t + '">' + x[0] + ' ' + x[1] + '</a>').join(', ') +
+      ' · objectif : ' + [[0, 'chiffres'], [1, 'typo du nom']].map(x => x[0] === o ? '<b>' + x[1] + '</b>' : '<a href="?m=3&d=' + d + '&i=' + v + '&o=' + x[0] + t + '">' + x[1] + '</a>').join(', ') : '') +
     ' · dossard : ' + [1, 2, 3, 4].map(x => lien(m, x, String(x), x === v)).join(', ') +
     ' · thèmes : ' + ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(n => '<a href="?m=' + m + '&d=' + d + '&i=' + v + '&t=' + n + '">' + n.replace('-', ' et ') + '</a>').join(', ') +
     ' · <a href="objectif-mobile.html">téléphone</a>.';
