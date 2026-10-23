@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Connexion | SMTP personnalisé enregistré dans Supabase : Resend (`smtp.resend.com`, port 465), expéditeur « MyRunTools » `connexion@myruntools.fr` ; la clé n'est que dans Supabase. Étape 3 terminée. |
 | 23 oct. 2026 | Connexion | Compte Resend créé, domaine `myruntools.fr` ajouté (région Europe), 4 lignes DNS (2 CNAME, 2 TXT dont DMARC) ajoutées chez OVH, domaine vérifié. Étape 2 terminée. |
 | 23 oct. 2026 | Connexion | Domaine `myruntools.fr` acheté chez OVH (domaine seul, sans hébergement ni option e-mail), protection des données activée, zone DNS par défaut. Étape 1 terminée. |
 | 23 oct. 2026 | Connexion | Supabase exige un service d'envoi (SMTP) pour modifier les e-mails : achat du domaine `myruntools`, envoi par Resend avec une adresse du domaine. |
