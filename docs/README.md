@@ -50,9 +50,8 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - Spécifier les blocs de la page Objectif : l'indicateur « D'ici là » de l'en-tête en compte le nombre.
-   - « Prochaine course » de l'en-tête reprise de la page Objectif (calculée en attendant : la première course confirmée à venir).
-   - Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête : même réglage que le Cap des Préférences (`course_cap`).
+   - Valider la spécification v0.2 de la page Objectif (sans texte d'introduction ; « D'ici là » et « Prochaine course » définis), puis construire la feuille de route en premier lot ; graphique de difficulté, badges UTMB, météo et suivi en course ensuite.
+   - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
 3. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
 4. [ ] **Profil et Matériel** :
