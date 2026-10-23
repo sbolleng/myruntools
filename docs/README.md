@@ -51,6 +51,7 @@ Dans l'ordre :
 
 1. [ ] **Objectif** :
    - Valider la spécification v0.2 de la page Objectif (sans texte d'introduction ; « D'ici là » et « Prochaine course » définis), puis construire la feuille de route en premier lot ; graphique de difficulté, badges UTMB, météo et suivi en course ensuite.
+   - Avant le jeu d'essai : valider le classement des éléments d'une course (coup d'œil, menu déroulant, cartes à place fixe). Chaque carte supplémentaire (difficulté, UTMB, météo, suivi) est un module à ajouter ou non, plus tard, toujours à la même place.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
 3. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
