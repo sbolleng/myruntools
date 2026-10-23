@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Domaine | `myruntools.fr` branché sur GitHub Pages : 4 entrées A (GitHub) sur la racine, CNAME `www` vers le compte GitHub, anciennes entrées d'OVH supprimées (courrier OVH et lignes Resend conservés), HTTPS activé. Adresses de retour de Supabase (Site URL, Redirect URLs) mises à jour ; l'ancienne adresse reste autorisée le temps des essais. |
 | 23 oct. 2026 | Connexion | Essai réel de l'e-mail du lien validé (boîte de réception, lien qui connecte). Texte conservé avec « sur MyRunTools » (spécification générale § 3 corrigée). Trois maquettes d'e-mail sobres proposées dans `docs/maquettes/` (`email-connexion-a`, `-b`, `-c`), choix en attente. |
 | 23 oct. 2026 | Connexion | SMTP personnalisé enregistré dans Supabase : Resend (`smtp.resend.com`, port 465), expéditeur « MyRunTools » `connexion@myruntools.fr` ; la clé n'est que dans Supabase. Étape 3 terminée. |
 | 23 oct. 2026 | Connexion | Compte Resend créé, domaine `myruntools.fr` ajouté (région Europe), 4 lignes DNS (2 CNAME, 2 TXT dont DMARC) ajoutées chez OVH, domaine vérifié. Étape 2 terminée. |
