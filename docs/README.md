@@ -47,35 +47,18 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Prochaines étapes
 
-- [x] Authentification, dans l'ordre (Supabase n'autorise la modification des e-mails qu'avec un service d'envoi branché) :
-  1. ~~Acheter le nom de domaine~~ : fait (`myruntools.fr`, OVH, 23 oct. 2026).
-  2. ~~Créer un compte Resend, y ajouter le domaine, copier ses lignes dans la zone DNS~~ : fait, domaine vérifié (23 oct. 2026).
-  3. ~~Brancher Resend dans Supabase (Authentication › SMTP)~~ : fait, expéditeur `connexion@myruntools.fr` (23 oct. 2026).
-  4. ~~Coller le texte de l'e-mail dans le modèle « Magic Link »~~ : fait, modèle A, testé sur `myruntools.fr` (23 oct. 2026).
-- [ ] Essai à deux du partage : le compte test Rome partage, tu regardes son site.
+Dans l'ordre :
 
-### Affichage
-
-- [x] Chargement des pages : la page apparaît d'un seul coup, en-tête compris (23 oct. 2026).
-
-### Préférences utilisateur
-
-- [ ] Changement de mot de passe (connexion par lien magique seulement pour l'instant).
-
-### Profil et Matériel
-
-- [ ] Profil : état civil, poids, taille, pointure.
-- [ ] Matériel : chaussures et leur usure.
-
-### Objectif
-
-- [ ] Spécifier les blocs de la page Objectif : l'indicateur « D'ici là » de l'en-tête en compte le nombre.
-- [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (calculée en attendant : la première course confirmée à venir).
-- [ ] Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête : même réglage que le Cap des Préférences (`course_cap`).
-
-### Calendrier
-
-- [ ] Créer la page Calendrier (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
+1. [ ] **Essai à deux du partage** : le compte test Rome partage, tu regardes son site.
+2. [ ] **Objectif** :
+   - Spécifier les blocs de la page Objectif : l'indicateur « D'ici là » de l'en-tête en compte le nombre.
+   - « Prochaine course » de l'en-tête reprise de la page Objectif (calculée en attendant : la première course confirmée à venir).
+   - Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête : même réglage que le Cap des Préférences (`course_cap`).
+3. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
+4. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
+5. [ ] **Profil et Matériel** :
+   - Profil : état civil, poids, taille, pointure.
+   - Matériel : chaussures et leur usure.
 
 ## Questions ouvertes
 
