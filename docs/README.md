@@ -8,7 +8,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données | Version 0.9 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.10 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.9 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
@@ -47,8 +47,11 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Prochaines étapes
 
-- [ ] E-mail du lien de connexion traduit en français (Supabase › Authentication › Emails) ; je fournis le texte.
-- [ ] Service d'envoi d'e-mails (Brevo ou Resend, gratuit) branché en SMTP dans Supabase : lève la limite de 2 e-mails par heure de l'offre gratuite ; à faire avec la traduction (expéditeur, texte).
+- [ ] Authentification, dans l'ordre (Supabase n'autorise la modification des e-mails qu'avec un service d'envoi branché) :
+  1. Acheter le nom de domaine `myruntools` (`.fr` ou `.com`) chez un vendeur qui permet de modifier la zone DNS.
+  2. Créer un compte Resend, y ajouter le domaine, copier ses lignes dans la zone DNS, attendre la vérification.
+  3. Brancher Resend dans Supabase (Authentication › SMTP), expéditeur `connexion@` + domaine : lève la limite de 2 e-mails par heure.
+  4. Coller le texte de l'e-mail (spécification générale § 3) dans le modèle « Magic Link », au format HTML ; tester depuis la page de connexion.
 - [ ] Essai à deux du partage : le compte test Rome partage, tu regardes son site.
 
 ### Affichage

@@ -44,5 +44,5 @@ Spécification → validation → modèle de données si besoin → construction
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
 - Dernier lot en ligne : page Préférences (thème, menu, cap), `?t=…` retiré du site.
-- En cours : rien.
+- En cours : authentification (domaine, Resend, SMTP, e-mail en français), voir la todo.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
