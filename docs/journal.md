@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Partage | Essai à deux validé en conditions réelles avec le compte test Rome : le partage fonctionne. |
 | 23 oct. 2026 | Todo | Nouvel ordre des prochaines étapes : essai à deux du partage, Objectif, Calendrier, mot de passe, Profil et Matériel. Les lignes terminées (authentification, affichage) sortent de la todo. |
 | 23 oct. 2026 | Affichage | Cause du saut (aussi sur ordinateur) : la page était révélée dès la session vérifiée, avant la lecture des courses et le dessin de l'en-tête. Correctif : la page reste masquée jusqu'à ce que l'en-tête et le contenu soient dessinés, avec un filet de 6 s ; spécification générale 0.11 (§ 3, § 13) et contrôle « affichage » ajouté au banc d'essai. |
 | 23 oct. 2026 | Connexion | Modèle d'e-mail A en place dans Supabase et testé sur `myruntools.fr` : authentification terminée. Prochain lot : correctif d'affichage (saut de l'en-tête au chargement, constaté aussi sur PC). |
