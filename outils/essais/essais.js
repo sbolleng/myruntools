@@ -57,6 +57,18 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}) {
   const p = await ctx.newPage();
   const erreurs = [];
   p.on('pageerror', e => erreurs.push(e.message));
+  // État de la page au moment où elle devient visible (classe mrt-attente retirée).
+  await p.addInitScript(() => {
+    let masquee = false;
+    new MutationObserver(() => {
+      const att = document.documentElement.classList.contains('mrt-attente');
+      if (att) masquee = true;
+      else if (masquee && !window.__revelee) {
+        const m = document.querySelector('main');
+        window.__revelee = { entete: !!document.querySelector('.mrt-header'), haut: m ? Math.round(m.getBoundingClientRect().top) : null, contenu: m ? m.textContent.trim().length : 0 };
+      }
+    }).observe(document, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  });
   await p.clock.install({ time: AUJOURDHUI });
   await p.goto(RACINE + 'connexion.html');
   const t = Math.floor(AUJOURDHUI / 1000);
@@ -70,6 +82,22 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}) {
   await p.waitForSelector('.mrt-header');
   await p.clock.runFor(1500);
   return { p, ctx, erreurs };
+}
+
+// Aucun saut au chargement : à l'instant où la page devient visible, l'en-tête
+// est déjà en place et le contenu de la page n'a plus à bouger.
+async function sansSaut(nav, db, page, w, nom) {
+  const { p, ctx, erreurs } = await ouvrir(nav, page, w, db);
+  const r = await p.evaluate(() => ({ revelee: window.__revelee, hautFinal: Math.round(document.querySelector('main').getBoundingClientRect().top),
+    contenuFinal: document.querySelector('main').textContent.trim().length, masquee: document.documentElement.classList.contains('mrt-attente') }));
+  await ctx.close();
+  return [
+    egal(false, r.masquee, nom + ', page encore masquée'),
+    egal(true, !!r.revelee && r.revelee.entete, nom + ', en-tête présent à l\'affichage'),
+    egal(r.hautFinal, r.revelee && r.revelee.haut, nom + ', contenu déjà à sa place à l\'affichage'),
+    // Préférences charge ses listes de partage plus bas dans la page : seul le haut compte.
+    ...(page === 'preferences.html' ? [] : [egal(r.contenuFinal, r.revelee && r.revelee.contenu, nom + ', contenu complet à l\'affichage')]),
+    egal([], erreurs, nom + ', erreurs JavaScript')];
 }
 
 const egal = (attendu, obtenu, quoi) => (JSON.stringify(attendu) === JSON.stringify(obtenu) ? null : quoi + ' : attendu ' + JSON.stringify(attendu) + ', obtenu ' + JSON.stringify(obtenu));
@@ -231,6 +259,15 @@ const CONTROLES = {
     pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone, débordement horizontal'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preferences-telephone.png'), fullPage: true });
     await ctx.close();
+    return pb;
+  },
+
+  // Spécification générale : la page s'affiche d'un seul coup, en-tête compris.
+  async affichage(nav, db) {
+    const pb = [];
+    for (const [nom, w] of Object.entries(LARGEURS))
+      for (const page of ['index.html', 'palmares.html', 'preferences.html'])
+        pb.push(...await sansSaut(nav, db, page, w, page.replace('.html', '') + ' ' + nom));
     return pb;
   }
 };

@@ -47,16 +47,20 @@
   };
 
   // Site privé : hors page de connexion, une page reste masquée (classe
-  // mrt-attente posée dans son <head>) jusqu'à la vérification de la session ;
-  // sans session, direction la page de connexion.
+  // mrt-attente posée dans son <head>) jusqu'à ce que tout soit prêt : session
+  // vérifiée, en-tête et contenu dessinés (mrtPage appelle mrtAfficher). Elle
+  // s'affiche ainsi d'un seul coup, sans saut. Sans session, direction la page
+  // de connexion.
+  window.mrtAfficher = () => document.documentElement.classList.remove('mrt-attente');
   const surConnexion = /connexion\.html$/.test(location.pathname);
   window.mrtSession().then(s => {
     if (!s && !surConnexion) {
       location.replace('connexion.html' + location.search);
       return;
     }
-    document.documentElement.classList.remove('mrt-attente');
     // Le thème des préférences s'applique.
     if (s && s.preferences && s.preferences.theme && window.appliquerTheme) window.appliquerTheme(s.preferences.theme);
   });
+  // Filet : une page ne reste jamais masquée si un chargement échoue.
+  setTimeout(() => { if (!surConnexion) window.mrtAfficher(); }, 6000);
 })();

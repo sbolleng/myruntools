@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Affichage | Cause du saut (aussi sur ordinateur) : la page était révélée dès la session vérifiée, avant la lecture des courses et le dessin de l'en-tête. Correctif : la page reste masquée jusqu'à ce que l'en-tête et le contenu soient dessinés, avec un filet de 6 s ; spécification générale 0.11 (§ 3, § 13) et contrôle « affichage » ajouté au banc d'essai. |
 | 23 oct. 2026 | Connexion | Modèle d'e-mail A en place dans Supabase et testé sur `myruntools.fr` : authentification terminée. Prochain lot : correctif d'affichage (saut de l'en-tête au chargement, constaté aussi sur PC). |
 | 23 oct. 2026 | Connexion | Modèle d'e-mail A retenu (carte claire, bouton marine à texte orange) : `docs/maquettes/email-connexion-a.html`, à coller dans le modèle « Magic Link » de Supabase. |
 | 23 oct. 2026 | Domaine | `myruntools.fr` branché sur GitHub Pages : 4 entrées A (GitHub) sur la racine, CNAME `www` vers le compte GitHub, anciennes entrées d'OVH supprimées (courrier OVH et lignes Resend conservés), HTTPS activé. Adresses de retour de Supabase (Site URL, Redirect URLs) mises à jour ; l'ancienne adresse reste autorisée le temps des essais. |

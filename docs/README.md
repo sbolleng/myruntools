@@ -56,7 +56,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Affichage
 
-- [ ] Chargement des pages, surtout sur téléphone : la page apparaît d'abord sans en-tête, puis l'en-tête s'ajoute et pousse le contenu vers le bas (par exemple en ouvrant le Palmarès). À corriger : la page doit s'afficher d'un seul coup, en-tête compris, sans saut pendant la lecture.
+- [x] Chargement des pages : la page apparaît d'un seul coup, en-tête compris (23 oct. 2026).
 
 ### Préférences utilisateur
 
