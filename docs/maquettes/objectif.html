@@ -15,43 +15,25 @@
   <div class="mq-place" style="margin-bottom:1.5rem"><b>Graphique de difficulté</b>Place réservée, lot suivant.</div>
   <h2 class="ob-titre-bloc">Feuille de route</h2>
   <div id="fr"></div>
-  <div class="mq-dossards" id="planche"></div>
 </main>
 <script src="../../composants/en-tete.js"></script>
 <script src="objectif-donnees.js"></script>
 <script>
   const q = new URLSearchParams(location.search);
-  const m = [1, 2, 3].includes(+q.get('m')) ? +q.get('m') : 3;   // mise en page de la carte
-  const v = [1, 2, 3, 4].includes(+q.get('i')) ? +q.get('i') : ({ 1: 1, 2: 3, 3: 2 })[m]; // rendu du dossard
-  // Déclinaisons de la carte 3 : 1 rôle au-dessus du compteur, 2 rôle en tête de carte, 3 rôle en tête de ligne ; 0 la carte 3 d'origine.
   const o = +q.get('o') === 1 ? 1 : 0; // 1 : l'objectif dans la typographie du nom de la course
-  const d = m === 3 ? ([0, 1, 2, 3].includes(+(q.get('d') ?? 1)) ? +(q.get('d') ?? 1) : 1) : 0;
   const t = q.get('t') ? '&t=' + q.get('t') : '';
   MQ.entete();
-  document.getElementById('fr').className = 'm' + m + (d ? ' d' + d : '');
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  const page = c => 'objectif-course.html?c=' + c.id + '&i=' + v + t;
+  const page = c => 'objectif-course.html?c=' + c.id + t;
   const ext = c => c.lien ? '<a class="ob-ext" href="' + c.lien + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">↗</a>' : '';
   const cls = c => c.role === 'objectif' ? 'is-obj' : c.role === 'objectif_intermediaire' ? 'is-cle' : '';
-  const chiffres = c => (c.distance != null ? '<span class="ob-mono">' + MQ.nf.format(c.distance) + ' km</span>' : '') +
-    (c.dplus != null ? ' · <span class="ob-mono">' + MQ.nf.format(c.dplus) + ' m D+</span>' : '');
-  const dos = c => MQ.dossardHtml(c, v);
-
-  // Ligne des catégories sous le texte : rôle, objectif, dossard.
-  function categories(c) {
-    const role = (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role];
-    if (m === 2) return '<div class="fr-cats">' +
-      (c.objectif ? '<div class="ob-stat"><span class="ob-stat-val">' + esc(c.objectif) + '</span><span class="ob-stat-label">Objectif</span></div>' : '') +
-      dos(c) + '</div>';
-    if (m === 3) return '<div class="fr-cats">' +
-      (d === 0 ? '<span class="cat cat-role ' + cls(c) + '"><span class="cat-l">Rôle</span><span class="cat-v">' + role + '</span></span>' : '') +
-      (d === 3 ? '<span class="cat role-fort ' + cls(c) + '">' + role + '</span>' : '') +
-      (c.objectif ? '<span class="cat"><span class="cat-l">Objectif</span><span class="cat-v ' + (o ? 'cat-obj-nom' : 'ob-mono') + '">' + esc(c.objectif) + '</span></span>' : '') +
-      '<span class="cat"><span class="cat-l">Dossard</span>' + dos(c) + '</span></div>';
-    return '<div class="fr-cats">' + (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span>' : '') +
-      '<span class="ob-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span>' +
-      (c.objectif ? '<span class="ob-role is-cible">Objectif <b>' + esc(c.objectif) + '</b></span>' : '') + dos(c) + '</div>';
-  }
+  const nom = c => '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>';
+  // Espace insécable ordinaire : l'espace fine de Intl est presque invisible en Space Grotesk.
+  const nb = n => MQ.nf.format(n).replace(/\u202f/g, '\u00a0');
+  const info = (c, format) => '<div class="fr-info">' + esc(c.lieu) + (format ? ' · ' + esc(c.format) : '') +
+    (c.distance != null ? ' · <b>' + nb(c.distance) + ' km</b>' : '') + (c.dplus != null ? ' · <b>' + nb(c.dplus) + ' m D+</b>' : '') + '</div>';
+  const dossard = c => '<div class="fr-ligne is-dos"><span class="fr-lib">Dossard</span><span>' + MQ.dossardHtml(c) + '</span></div>';
+  const cpt = c => MQ.compteurHtml(c, true);
 
   // Une carte par étape, le long d'un trait ; un groupe d'options fait une seule carte.
   const et = MQ.etapes();
@@ -62,47 +44,26 @@
     const k = ['fr-et', opt ? 'is-opt' : '', suiteOpt ? 'suite-opt' : '', e.course ? cls(e.course) : ''].join(' ');
     let carte;
     if (e.groupe) {
-      carte = '<div class="fr-carte fr-groupe"><div class="fr-haut"><span class="ob-date">À choisir · ' + e.candidates.length + ' candidates</span></div>' +
-        '<div class="fr-nom" style="color:var(--text)">' + esc(e.groupe) + '</div>' +
-        '<div class="fr-cands">' + e.candidates.map(c => '<div class="fr-cand"><span class="ob-date">' + MQ.dateCourte(c) + '</span>' + MQ.compteurLigneHtml(c) +
-          '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
-          '<div class="fr-info">' + esc(c.lieu) + ' · ' + chiffres(c) + '</div>' +
-          '<div class="fr-cats">' + (m === 3 ? '<span class="cat"><span class="cat-l">Dossard</span>' + dos(c) + '</span>' : dos(c)) + '</div></div>').join('') + '</div></div>';
+      carte = '<div class="fr-carte fr-groupe"><span class="fr-date">À choisir · ' + e.candidates.length + ' candidates</span>' +
+        '<div class="fr-nom">' + esc(e.groupe) + '</div><div class="fr-cands">' +
+        e.candidates.map(c => '<div class="fr-cand"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + cpt(c) + nom(c) + info(c) + dossard(c) + '</div>').join('') +
+        '</div></div>';
     } else {
       const c = e.course;
-      // Carte 2 : le rôle au-dessus du compteur, en haut à droite.
-      const roleTxt = '<span class="role-txt ' + cls(c) + '">' + (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role] + '</span>';
-      const cpt = d === 1 ? MQ.compteurHtml(c, true).replace('class="cpt"', 'class="cpt is-uni"')
-        : d === 2 ? (c.approx ? '<span class="cpt-ligne is-vide">Date à préciser</span>' : MQ.compteurLigneHtml(c))
-        : d === 3 ? MQ.compteurHtml(c).replace('class="cpt"', 'class="cpt is-nu"') : MQ.compteurHtml(c);
-      const droite = m === 2 ? '<div class="fr-droite"><div>' + (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span> ' : '') +
-        '<span class="ob-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span></div>' + cpt + '</div>'
-        : d === 1 ? '<div class="fr-droite">' + roleTxt + cpt + '</div>' : cpt;
-      const haut = d === 2 ? roleTxt + '<span class="ob-date">' + MQ.dateCourte(c) + '</span>' : '<span class="ob-date">' + MQ.dateCourte(c) + '</span>';
-      carte = '<div class="fr-carte"><div class="fr-haut">' + haut + '</div>' + droite +
-        '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>' +
-        '<div class="fr-info">' + esc(c.lieu) + ' · ' + esc(c.format) + ' · ' + chiffres(c) + '</div>' + categories(c) + '</div>';
+      carte = '<div class="fr-carte"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' +
+        '<span class="fr-role ' + cls(c) + '">' + (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role] + '</span>' +
+        cpt(c) + nom(c) + info(c, true) +
+        (c.objectif ? '<div class="fr-ligne is-obj"><span class="fr-lib">Objectif</span><span class="fr-cible' + (o ? ' is-nom' : '') + '">' + esc(c.objectif) + '</span></div>' : '') +
+        dossard(c) + '</div>';
     }
     return '<div class="' + k + '"><div class="fr-rail"><span class="fr-pt"></span></div>' + carte + '</div>';
   }).join('') +
   '<div class="fr-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span><span><i class="obj"></i>Objectif principal</span><span><i class="opt"></i>Option</span></div>';
-
-  // Planche : les quatre propositions de dossard, dans leurs quatre états.
-  const ETATS = [{ inscrit: true, dossard: '412' }, { inscrit: false, ouverture: '2026-09-01', inscription: '#' }, { inscrit: false, ouverture: '2027-01-10' }, { inscrit: false }];
-  const NOMS = [['1 · Étiquette', 'comme le rôle'], ['2 · Pastille', 'comme les points du chemin'], ['3 · Indicateur', 'comme l\'en-tête'], ['4 · Bouton', 'comme le Palmarès']];
-  document.getElementById('planche').innerHTML = '<p class="ob-titre-bloc">Dossard · quatre propositions</p><div class="pl">' +
-    '<span></span>' + ['Inscrit', 'Inscriptions ouvertes', 'Ouvre bientôt', 'Rien de connu'].map(x => '<span class="pl-tete">' + x + '</span>').join('') +
-    NOMS.map((n, i) => '<div class="pl-nom">' + n[0] + '<span>' + n[1] + '</span></div>' + ETATS.map(c => '<div>' + MQ.dossardHtml(c, i + 1) + '</div>').join('')).join('') + '</div>';
   MQ.lancerCompteurs();
 
-  const lien = (mm, ii, l, on) => on ? '<b>' + l + '</b>' : '<a href="?m=' + mm + '&i=' + ii + t + '">' + l + '</a>';
-  document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Carte : ' +
-    [[1, 'étiquettes'], [2, 'indicateurs'], [3, 'ligne de texte']].map(x => lien(x[0], v, x[0] + ' ' + x[1], x[0] === m)).join(', ') +
-    (m === 3 ? ' · déclinaison : ' + [[1, 'rôle au-dessus du compteur'], [2, 'rôle en tête de carte'], [3, 'rôle en tête de ligne'], [0, 'origine']]
-      .map(x => x[0] === d ? '<b>' + x[0] + ' ' + x[1] + '</b>' : '<a href="?m=3&d=' + x[0] + '&i=' + v + '&o=' + o + t + '">' + x[0] + ' ' + x[1] + '</a>').join(', ') +
-      ' · objectif : ' + [[0, 'chiffres'], [1, 'typo du nom']].map(x => x[0] === o ? '<b>' + x[1] + '</b>' : '<a href="?m=3&d=' + d + '&i=' + v + '&o=' + x[0] + t + '">' + x[1] + '</a>').join(', ') : '') +
-    ' · dossard : ' + [1, 2, 3, 4].map(x => lien(m, x, String(x), x === v)).join(', ') +
-    ' · thèmes : ' + ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(n => '<a href="?m=' + m + '&d=' + d + '&i=' + v + '&t=' + n + '">' + n.replace('-', ' et ') + '</a>').join(', ') +
+  document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Objectif : ' +
+    [[0, 'en texte'], [1, 'dans la typo du nom']].map(x => x[0] === o ? '<b>' + x[1] + '</b>' : '<a href="?o=' + x[0] + t + '">' + x[1] + '</a>').join(', ') +
+    ' · thèmes : ' + ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(n => '<a href="?o=' + o + '&t=' + n + '">' + n.replace('-', ' et ') + '</a>').join(', ') +
     ' · <a href="objectif-mobile.html">téléphone</a>.';
 </script>
 </body>

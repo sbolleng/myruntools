@@ -91,25 +91,14 @@
       };
       tic(); setInterval(tic, 1000);
     },
-    // Dossard, quatre propositions de rendu (v) pour quatre états.
-    // 1 étiquette (comme le rôle) · 2 pastille et texte · 3 indicateur (comme l'en-tête) · 4 bouton (comme le Palmarès).
-    dossardHtml: (c, v) => {
-      const d = MQ.dossard(c), num = c.dossard ? 'n° ' + c.dossard : '';
+    // Dossard : une pastille et un texte ; la pastille dit l'état.
+    dossardHtml: c => {
+      const d = MQ.dossard(c), num = c.dossard ? ' · n° ' + c.dossard : '';
       const lien = d.etat === 'ouvert' && c.inscription;
-      const el = (cls, html) => lien
-        ? '<a class="' + cls + '" href="' + c.inscription + '" target="_blank" rel="noopener">' + html + '</a>'
-        : '<span class="' + cls + '">' + html + '</span>';
-      const fl = lien ? ' ↗' : '';
-      const k = ' is-' + d.etat;
-      if (v === 2) return el('ins ins-pt' + k, '<i></i>' + ({ inscrit: 'Inscrit' + (num ? ' · ' + num : ''), ouvert: 'Inscriptions ouvertes' + fl,
-        bientot: 'Ouvre le ' + d.ouv + ' · <b>' + d.detail + '</b>', inconnu: 'Pas inscrit' })[d.etat]);
-      if (v === 3) return '<div class="ob-stat ins-ind' + k + '"><span class="ob-stat-val">' + ({ inscrit: num || '✓', ouvert: lien ? el('', 'Ouvertes ↗') : 'Ouvertes',
-        bientot: d.ouv + ' <small>' + d.detail + '</small>', inconnu: '—' })[d.etat] + '</span><span class="ob-stat-label">' +
-        ({ inscrit: 'Dossard', ouvert: 'Inscriptions', bientot: 'Ouverture', inconnu: 'Dossard' })[d.etat] + '</span></div>';
-      if (v === 4) return d.etat === 'ouvert' ? el('ins ins-btn', 'S\'inscrire' + fl)
-        : el('ins ins-btn-' + d.etat, ({ inscrit: '✓ Inscrit' + (num ? ' · ' + num : ''), bientot: 'Ouvre le ' + d.ouv + ' · ' + d.detail, inconnu: 'Pas inscrit' })[d.etat]);
-      return el('ins ins-tag' + k, ({ inscrit: '✓ Inscrit' + (num ? ' · ' + num : ''), ouvert: 'Inscriptions ouvertes' + fl,
-        bientot: 'Ouvre le ' + d.ouv + ' · ' + d.detail, inconnu: 'Pas inscrit' })[d.etat]);
+      const html = '<i></i>' + ({ inscrit: 'Inscrit' + num, ouvert: 'Inscriptions ouvertes' + (lien ? ' ↗' : ''),
+        bientot: 'Ouvre le ' + d.ouv + ' · ' + d.detail, inconnu: 'Pas inscrit' })[d.etat];
+      return lien ? '<a class="ins is-ouvert" href="' + c.inscription + '" target="_blank" rel="noopener">' + html + '</a>'
+        : '<span class="ins is-' + d.etat + '">' + html + '</span>';
     },
     // En-tête du site, dessiné par le vrai composant.
     entete: () => renderEnTete({

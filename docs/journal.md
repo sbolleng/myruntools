@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 23 oct. 2026 | Objectif | Carte uniformisée : trois styles de texte seulement (nom en Space Grotesk 1 rem ; texte en 0,8 rem ; libellés, date, rôle et compteur en Space Mono 0,62 rem, capitales), un seul interligne (1,5) et un seul écart entre les lignes ; Objectif et Dossard sur deux lignes, libellé à gauche ; même compteur pour les candidates. Maquette réduite à la carte retenue (variantes dans l'historique git). |
 | 23 oct. 2026 | Objectif | Déclinaison 1 retenue (rôle au-dessus du compteur). Bloc de droite uniformisé : Space Mono, une seule graisse, rôle au style de la date, compteur en chiffres simples avec unités abrégées (j, h, min, s). Essai : objectif dans la typographie du nom de la course. |
 | 23 oct. 2026 | Objectif | Choix : carte 3 (ligne de texte) et dossard 2 (pastille). Trois déclinaisons proposées pour mettre le rôle en avant avec un compteur plus discret : rôle au-dessus d'un compteur sans fond, rôle en tête de carte avec compteur en ligne, rôle en tête de ligne avec compteur sans cases. |
 | 23 oct. 2026 | Objectif | Maquette retenue pour essai : carte 2 (indicateurs) ; en haut à droite, le rôle au-dessus d'un compteur plus discret (sans fond, chiffres en Texte) ; sous le texte, Objectif et Dossard en indicateurs. Libellé du rôle Objectif proposé : « Objectif principal ». Rendu du dossard encore à choisir (indicateur par défaut). |

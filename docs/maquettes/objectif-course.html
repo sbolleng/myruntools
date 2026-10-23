@@ -36,13 +36,13 @@
   const cls = c.role === 'objectif' ? 'is-obj' : c.role === 'objectif_intermediaire' ? 'is-cle' : '';
   const cellule = (titre, html) => html ? '<div class="card pc-cellule"><h3 class="ob-titre-bloc">' + titre + '</h3>' + html + '</div>' : '';
   const ouv = c.ouverture ? MQ.dateLongue({ date: c.ouverture }).replace(/^\S+ /, '') : '';
-  const dossard = '<p>' + MQ.dossardHtml(c, +q.get('i') || 1) + '</p>' +
+  const dossard = '<p>' + MQ.dossardHtml(c) + '</p>' +
     (c.prix ? '<p>Prix : <span class="ob-mono">' + c.prix + ' €</span></p>' : '') +
     (!c.inscrit && ouv ? '<p class="muted">Ouverture des inscriptions le ' + ouv + '</p>' : '');
   const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => l[0]);
 
   document.getElementById('pc').innerHTML =
-    '<a class="pc-retour" href="objectif.html?i=' + (+q.get('i') || 1) + t + '">← Feuille de route</a>' +
+    '<a class="pc-retour" href="objectif.html?' + t.slice(1) + '">← Feuille de route</a>' +
     '<div class="fr-haut">' + (c.statut === 'option' ? '<span class="ob-role is-opt">Option</span>' : '') + '<span class="ob-role ' + cls + '">' + MQ.ROLES[c.role] + '</span>' +
       '<span class="ob-date">Étape ' + rang + ' sur ' + et.length + '</span></div>' +
     '<h2 class="pc-titre">' + esc(MQ.nom(c)) + (c.lien ? '<a class="ob-ext" href="' + c.lien + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">↗</a>' : '') + '</h2>' +
@@ -53,7 +53,7 @@
       stat(c.distance != null ? fmt(c.distance) + ' km' + (c.dplus != null ? '<small> / ' + fmt(c.dplus) + ' m D+</small>' : '') : '', 'Distance') +
       stat(c.dmoins != null ? fmt(c.dmoins) + ' m' : '', 'D−') +
       stat(c.objectif ? esc(c.objectif) : '', 'Objectif') +
-      MQ.dossardHtml(c, +q.get('i') || 1) +
+      MQ.dossardHtml(c) +
     '</div>' +
     '<div class="pc-grille">' +
       '<div class="card"><h3 class="ob-titre-bloc">Départ dans</h3>' + MQ.compteurHtml(c).replace('class="cpt"', 'class="cpt is-grand"') + '</div>' +
