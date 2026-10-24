@@ -50,7 +50,6 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - **À corriger** : une course confirmée disparaît de la feuille de route le lendemain de sa date (la liste ne garde que les dates à venir), donc « Marquer comme courue » n'est utilisable que le jour même ; garder à la page les courses confirmées passées, non courues.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Palmarès** : temps au format hh:mm:ss, modèle unique du site (spécification, affichage, saisie, banc d'essai).

@@ -63,8 +63,11 @@
   // lointaine de la page Objectif (modèle de données, § 7).
   // Courses à venir de la page Objectif, de la plus proche à la plus lointaine :
   // celles qui peuvent servir de cap.
-  window.mrtCoursesCap = courses => courses.filter(c => PLAN.has(c.statut) && c.etat === 'a_venir' && c.date && c.date >= today())
-    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const parDate = (a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  window.mrtCoursesCap = courses => courses.filter(c => PLAN.has(c.statut) && c.etat === 'a_venir' && c.date && c.date >= today()).sort(parDate);
+  // Courses de la feuille de route : les mêmes, plus les courses confirmées dont la date est passée et qui
+  // ne sont pas encore marquées courues (elles restent là jusqu'à ce qu'on saisisse leur résultat).
+  window.mrtCoursesRoute = courses => courses.filter(c => c.etat === 'a_venir' && c.date && (c.date >= today() ? PLAN.has(c.statut) : c.statut === 'confirmee')).sort(parDate);
 
   function configEnTete(prefs, courses) {
     const aVenir = window.mrtCoursesCap(courses);

@@ -66,11 +66,11 @@
   const lieuFormat = c => [c.lieu, c.formatLibelle].filter(Boolean).join(' · ');
   const distance = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : ''].filter(Boolean).join(' · ');
 
-  // Étapes : les courses de l'en-tête (Option ou Confirmée, à venir, datées), dans
-  // l'ordre ; un groupe d'options fait une seule étape, à la date de son premier candidat.
+  // Étapes : les courses de la feuille de route (Option ou Confirmée à venir, datées, et confirmées passées pas encore
+  // courues), dans l'ordre ; un groupe d'options fait une seule étape, à la date de son premier candidat.
   window.mrtEtapes = function (courses) {
     const etapes = [];
-    window.mrtCoursesCap(courses).forEach(c => {
+    window.mrtCoursesRoute(courses).forEach(c => {
       if (c.statut === 'option' && c.groupe_options) {
         const g = etapes.find(e => e.groupe === c.groupe_options);
         if (g) g.candidats.push(c);
