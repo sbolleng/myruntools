@@ -50,7 +50,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - Valider la carte retenue (`docs/maquettes/objectif.html`, déclinaison 1, dossard en pastille) et choisir la présentation de l'objectif (chiffres, ou typographie du nom de la course : `?o=1`) ; trancher l'en-tête de la page d'une course sur téléphone et l'état « inscriptions fermées ».
+   - Choisir la déclinaison A ou B de la carte (`docs/maquettes/objectif.html?v=a` ou `?v=b`), appliquer le dessin du compteur (pièce jointe à recevoir) ;
    - Puis : jeu d'essai de la spécification v0.4, construction de la feuille de route et de la page d'une course en premier lot.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
