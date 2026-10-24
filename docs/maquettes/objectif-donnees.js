@@ -3,12 +3,12 @@
 (function () {
   const COURSES = [
     { id: 1, course: 'Trail du Lac', parcours: 'Le Tour du Lac', lieu: 'Mont-Clair', format: 'Trail court', date: '2026-11-15', heure: '09:00',
-      distance: 24, dplus: 650, dmoins: 650, statut: 'confirmee', role: 'preparatoire', objectif: '2:45', inscrit: true, dossard: '412', prix: 32,
+      distance: 24, dplus: 650, dmoins: 650, statut: 'confirmee', role: 'preparatoire', objectif: '02:45:00', inscrit: true, dossard: '412', prix: 32,
       pourquoi: 'Reprise en compétition après la coupure, sur un format court.', logistique: 'Retrait du dossard sur place dès 7 h 30.', lien: '#' },
     { id: 2, course: 'Corrida de Noël', lieu: 'Ville-Haute', format: 'Route', date: '2026-12-13', heure: '18:30',
-      distance: 10, dplus: 40, statut: 'confirmee', role: 'plaisir', inscrit: false, ouverture: '2026-11-01', lien: '#', inscription: '#' },
+      distance: 10, dplus: 40, statut: 'confirmee', role: 'plaisir', objectif: 'Sub 45', inscrit: false, ouverture: '2026-11-01', lien: '#', inscription: '#' },
     { id: 3, course: 'Trail des Gorges', lieu: 'Mont-Clair', format: 'Trail long', date: '2027-03-07', heure: '07:30',
-      distance: 45, dplus: 2100, dmoins: 2100, statut: 'confirmee', role: 'objectif_intermediaire', objectif: '6:30', inscrit: true, dossard: '1287', prix: 58,
+      distance: 45, dplus: 2100, dmoins: 2100, statut: 'confirmee', role: 'objectif_intermediaire', objectif: '06:30:00', inscrit: true, dossard: '1287', prix: 58,
       pourquoi: 'Répétition générale du matériel et de la nutrition sur un format long, six mois avant l\'objectif.',
       strategie: 'Partir prudemment jusqu\'au premier ravitaillement (km 12). Marcher dans les montées raides, relancer dans la dernière descente.',
       logistique: 'Retrait des dossards la veille de 15 h à 19 h. Navette depuis le parking du stade à 6 h 30.',
@@ -66,8 +66,8 @@
       if (!c.ouverture) return { etat: 'inconnu', texte: 'Pas inscrit', detail: '' };
       const p = c.ouverture.split('-').map(Number), o = new Date(p[0], p[1] - 1, p[2]);
       const j = Math.round((jour(o) - jour(MAINTENANT)) / 864e5);
-      if (j > 0) return { etat: 'bientot', ouv: (p[2] === 1 ? '1er' : p[2]) + ' ' + MOIS[p[1] - 1], detail: 'J-' + j };
-      return { etat: 'ouvert', texte: 'Inscriptions ouvertes', detail: '' };
+      if (j > 0) return { etat: 'bientot', ouv: c.ouverture.split('-').reverse().join('/') };
+      return { etat: 'ouvert', texte: 'Inscription ouverte', detail: '' };
     },
     // Compteur en quatre cases ; un seul minuteur met à jour toute la page.
     // court : unités abrégées (j, h, min, s) à côté des chiffres.
@@ -95,8 +95,8 @@
     dossardHtml: c => {
       const d = MQ.dossard(c), num = c.dossard ? ' · n° ' + c.dossard : '';
       const lien = d.etat === 'ouvert' && c.inscription;
-      const html = '<i></i>' + ({ inscrit: 'Inscrit' + num, ouvert: 'Inscriptions ouvertes' + (lien ? ' ↗' : ''),
-        bientot: 'Ouvre le ' + d.ouv + ' · ' + d.detail, inconnu: 'Pas inscrit' })[d.etat];
+      const html = '<i></i>' + ({ inscrit: 'Inscrit' + num, ouvert: 'Inscription ouverte' + (lien ? ' ↗' : ''),
+        bientot: 'Ouvre le ' + d.ouv, inconnu: 'Pas inscrit' })[d.etat];
       return lien ? '<a class="ins is-ouvert" href="' + c.inscription + '" target="_blank" rel="noopener">' + html + '</a>'
         : '<span class="ins is-' + d.etat + '">' + html + '</span>';
     },

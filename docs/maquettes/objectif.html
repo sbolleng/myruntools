@@ -20,7 +20,7 @@
 <script src="objectif-donnees.js"></script>
 <script>
   const q = new URLSearchParams(location.search);
-  const o = +q.get('o') === 1 ? 1 : 0; // 1 : l'objectif dans la typographie du nom de la course
+  const v = q.get('v') === 'b' ? 'b' : 'a'; // b : la distance traitée comme le départ et le dossard
   const t = q.get('t') ? '&t=' + q.get('t') : '';
   MQ.entete();
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -30,10 +30,12 @@
   const nom = c => '<div class="fr-nom"><a href="' + page(c) + '">' + esc(MQ.nom(c)) + '</a>' + ext(c) + '</div>';
   // Espace insécable ordinaire : l'espace fine de Intl est presque invisible en Space Grotesk.
   const nb = n => MQ.nf.format(n).replace(/\u202f/g, '\u00a0');
-  const info = (c, format) => '<div class="fr-info">' + esc(c.lieu) + (format ? ' · ' + esc(c.format) : '') +
-    (c.distance != null ? ' · <b>' + nb(c.distance) + ' km</b>' : '') + (c.dplus != null ? ' · <b>' + nb(c.dplus) + ' m D+</b>' : '') + '</div>';
-  const dossard = c => '<div class="fr-ligne is-dos"><span class="fr-lib">Dossard</span><span>' + MQ.dossardHtml(c) + '</span></div>';
-  const cpt = c => MQ.compteurHtml(c, true);
+  const distance = c => (c.distance != null ? '<b>' + nb(c.distance) + ' km</b>' : '') + (c.dplus != null ? ' · <b>' + nb(c.dplus) + ' m D+</b>' : '');
+  // Variante a : la distance dans la ligne d'infos ; variante b : sur sa propre ligne, comme le départ et le dossard.
+  const info = (c, format) => '<div class="fr-info">' + esc(c.lieu) + (format ? ' · ' + esc(c.format) : '') + (v === 'a' ? ' · ' + distance(c) : '') + '</div>';
+  const ligne = (lib, html) => '<div class="fr-ligne"><span class="fr-lib">' + lib + '</span><span>' + html + '</span></div>';
+  const lignes = c => '<div class="fr-lignes">' + (v === 'b' ? ligne('Distance', distance(c)) : '') +
+    ligne('Départ dans', MQ.compteurHtml(c, true)) + ligne('Dossard', MQ.dossardHtml(c)) + '</div>';
 
   // Une carte par étape, le long d'un trait ; un groupe d'options fait une seule carte.
   const et = MQ.etapes();
@@ -46,24 +48,22 @@
     if (e.groupe) {
       carte = '<div class="fr-carte fr-groupe"><span class="fr-date">À choisir · ' + e.candidates.length + ' candidates</span>' +
         '<div class="fr-nom">' + esc(e.groupe) + '</div><div class="fr-cands">' +
-        e.candidates.map(c => '<div class="fr-cand"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + cpt(c) + nom(c) + info(c) + dossard(c) + '</div>').join('') +
+        e.candidates.map(c => '<div class="fr-cand"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + nom(c) + info(c) + lignes(c) + '</div>').join('') +
         '</div></div>';
     } else {
       const c = e.course;
       carte = '<div class="fr-carte"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' +
         '<span class="fr-role ' + cls(c) + '">' + (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role] + '</span>' +
-        cpt(c) + nom(c) + info(c, true) +
-        (c.objectif ? '<div class="fr-ligne is-obj"><span class="fr-lib">Objectif</span><span class="fr-cible' + (o ? ' is-nom' : '') + '">' + esc(c.objectif) + '</span></div>' : '') +
-        dossard(c) + '</div>';
+        (c.objectif ? '<span class="fr-obj">' + esc(c.objectif) + '</span>' : '') + nom(c) + info(c, true) + lignes(c) + '</div>';
     }
     return '<div class="' + k + '"><div class="fr-rail"><span class="fr-pt"></span></div>' + carte + '</div>';
   }).join('') +
   '<div class="fr-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span><span><i class="obj"></i>Objectif principal</span><span><i class="opt"></i>Option</span></div>';
   MQ.lancerCompteurs();
 
-  document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Objectif : ' +
-    [[0, 'en texte'], [1, 'dans la typo du nom']].map(x => x[0] === o ? '<b>' + x[1] + '</b>' : '<a href="?o=' + x[0] + t + '">' + x[1] + '</a>').join(', ') +
-    ' · thèmes : ' + ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(n => '<a href="?o=' + o + '&t=' + n + '">' + n.replace('-', ' et ') + '</a>').join(', ') +
+  document.getElementById('note').innerHTML = 'Maquette, données fictives, date de départ figée au 20 octobre 2026. Déclinaison : ' +
+    [['a', 'A, distance dans la ligne d\'infos'], ['b', 'B, distance sur sa ligne']].map(x => x[0] === v ? '<b>' + x[1] + '</b>' : '<a href="?v=' + x[0] + t + '">' + x[1] + '</a>').join(', ') +
+    ' · thèmes : ' + ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(n => '<a href="?v=' + v + '&t=' + n + '">' + n.replace('-', ' et ') + '</a>').join(', ') +
     ' · <a href="objectif-mobile.html">téléphone</a>.';
 </script>
 </body>
