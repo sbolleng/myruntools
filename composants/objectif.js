@@ -12,7 +12,7 @@
 (function () {
   const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
   const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif intermédiaire', objectif: 'Objectif principal' };
   const UNITES = [['j', 'j'], ['h', 'h'], ['m', 'min'], ['s', 's']];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -41,7 +41,7 @@
     const d = c.date.split('-').map(Number);
     if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
     const jour = JOURS[new Date(d[0], d[1] - 1, d[2]).getDay()];
-    let txt = jour + ' ' + (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS_LONG[d[1] - 1] + ' ' + d[0];
+    let txt = jour + ' ' + (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS[d[1] - 1] + ' ' + d[0];
     if (c.heure) {
       const h = c.heure.split(':').map(Number);
       txt += ', ' + h[0] + ' h' + (h[1] ? ' ' + pad(h[1]) : '');
@@ -169,11 +169,25 @@
   };
 
   // ----- Page d'une course (§ 3.4) -----
-  const stat = (val, label) => '<div class="pc-stat"><span class="pc-stat-val">' + val + '</span><span class="pc-stat-label">' + label + '</span></div>';
-  const cellule = (titreCellule, html) => (html ? '<section class="card pc-cellule"><h3 class="ob-titre-bloc">' + titreCellule + '</h3>' + html + '</section>' : '');
+  // Une valeur longue (distance avec D+, objectif en texte) prend toute la ligne sur téléphone.
+  const stat = (val, label, large) => '<div class="pc-stat' + (large ? ' is-large' : '') + '"><span class="pc-stat-val">' + val + '</span><span class="pc-stat-label">' + label + '</span></div>';
+  // Cellule repliable : sur téléphone, seul le titre se voit, un toucher l'ouvre ; sur ordinateur, toujours ouverte.
+  const cellule = (titreCellule, html) => (html ? '<details class="card pc-cellule"><summary class="ob-titre-bloc">' + titreCellule + '</summary>' + html + '</details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   const euros = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 })
     .format(Number(n)).replace(/ /g, ' ');
+
+  // Téléphone : cellules repliées, sauf la première ; ordinateur : toutes ouvertes, sans pouvoir les replier.
+  const telephone = window.matchMedia('(max-width: 600px)');
+  let replier = null;
+  function replierCellules(el) {
+    const cellules = [...el.querySelectorAll('.pc-cellule')];
+    const regler = () => cellules.forEach((d, i) => { d.open = !telephone.matches || i === 0; });
+    regler();
+    if (replier) telephone.removeEventListener('change', replier);
+    replier = regler;
+    telephone.addEventListener('change', regler);
+  }
 
   window.renderPageCourse = function (el, courses, id, edition) {
     const retour = '<a class="pc-retour" href="objectif.html">← Feuille de route</a>';
@@ -202,14 +216,15 @@
         (retenable ? '<button type="button" class="fc-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="fc-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
       '<div class="pc-stats">' +
-        (c.distance != null ? stat(esc(nombre(c.distance)) + ' km' + (c.dplus != null ? '<small> / ' + esc(nombre(c.dplus)) + ' m D+</small>' : ''), 'Distance') : '') +
+        (c.distance != null ? stat(esc(nombre(c.distance)) + ' km' + (c.dplus != null ? '<small> / ' + esc(nombre(c.dplus)) + ' m D+</small>' : ''), 'Distance', c.dplus != null) : '') +
         (c.dmoins != null ? stat(esc(nombre(c.dmoins)) + ' m', 'D−') : '') +
-        (c.objectif ? stat(esc(c.objectif), 'Objectif') : '') +
+        (c.objectif ? stat(esc(c.objectif), 'Objectif', c.objectif.length > 12) : '') +
         dossardHtml(c) +
       '</div>' +
       (sansCompteur(c) ? '' : '<div class="pc-grille"><section class="card pc-rebours"><h3 class="ob-titre-bloc">Départ dans</h3>' + compteurHtml(c) + '</section></div>') +
       '<div class="pc-grille">' +
-        cellule('Dossard', '<p>' + dossardHtml(c) + '</p>' + (c.prix != null ? '<p>Prix : ' + esc(euros(c.prix)) + '</p>' : '')) +
+        // L'état du dossard est déjà dans les chiffres : la cellule ne garde que ce qu'ils n'ont pas.
+        cellule('Dossard', c.prix != null ? '<p>Prix : ' + esc(euros(c.prix)) + '</p>' : '') +
         cellule('Rôle dans la préparation', texte(c.pourquoi)) +
         cellule('Stratégie ou enchaînement', texte(c.strategie)) +
         cellule('Logistique', texte(c.logistique)) +
@@ -221,6 +236,7 @@
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
     if (edition) brancher(el, { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id) });
+    replierCellules(el);
     couperNoms();
     lancerCompteurs();
     return c;

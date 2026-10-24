@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.13 · 24 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.14 · 24 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -59,6 +59,8 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
 | Engrenage ⚙️ | À droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |
+
+**En-tête réduit** : sur la page d'une course, l'en-tête tient sur une ligne (« Cap sur » et le nom du cap, « · J-n », le nom de l'application et l'engrenage) ; ni indicateurs, ni compte à rebours, ni filet ([module Objectif](module-objectif-specification.md), § 3.4.1).
 
 ### Indicateurs
 

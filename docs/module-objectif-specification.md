@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.13 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.14 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -92,24 +92,60 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 
 ### 3.4 Page d'une course
 
-Sous l'en-tête et le menu du site (onglet Objectif en avant), de haut en bas :
+Sous l'en-tête réduit (§ 3.4.1) et le menu du site (onglet Objectif en avant). Plan de page, ordinateur (numéros stables) :
 
-1. **Retour** : « ← Feuille de route ».
-2. **Titre** : rôle et rang de l'étape (« Objectif intermédiaire · Étape 3 sur 6 »), course · parcours en couleur d'accent avec l'icône ↗, puis lieu, format, date et heure de départ. Pour une candidate d'un groupe d'options : le nom du groupe et des liens vers les autres candidates.
-3. **Chiffres** : Distance (avec le D+), D−, Objectif, présentés comme les indicateurs de l'en-tête, puis le dossard (§ 3.5).
-4. **Compte à rebours** : jours, heures, minutes, secondes jusqu'au départ (§ 5.1).
-5. **Cellules**, toujours dans cet ordre, identique pour tous ; une cellule vide n'est pas affichée :
+```
+┌─ en-tête réduit : Cap sur … · J-n                  MyRunTools ⚙ ─┐
+│ menu (Objectif en avant)                                         │
+├──────────────────────────────────────────────────────────────────┤
+│ (1) ← Feuille de route                                           │
+│ (2) RÔLE · ÉTAPE x SUR y                                         │
+│ (3) Course · Parcours (4) ↗                               (5) ✎  │
+│ (6) Lieu · Format · jour abrégé, date, heure                     │
+│ (7) Groupe · autres candidats : …                                │
+│ (8) [Retenir cette course]  [Marquer comme courue]               │
+│ (9) Distance / D+   (10) D−   (11) Objectif   (12) ● Dossard     │
+│ ┌─ (13) DÉPART DANS ───────────┐  (réservé : météo du jour J)    │
+│ │ [j] [h] [min] [s]            │                                 │
+│ └──────────────────────────────┘                                 │
+│ (réservé : suivi en course, toute la largeur)                    │
+│ ┌─ (14) DOSSARD ─────┐  ┌─ (15) RÔLE DANS LA PRÉPARATION ┐        │
+│ ┌─ (16) STRATÉGIE ───┐  ┌─ (17) LOGISTIQUE ──────────────┐        │
+│ ┌─ (18) DESCRIPTION ─┐  ┌─ (19) LIENS ───────────────────┐        │
+│ (20) ← Course précédente                 Course suivante → (21)  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+Téléphone, même ordre : (1) à (8) ; puis les chiffres sur deux colonnes (9 et 11 pleine largeur quand ils sont longs : distance avec D+, objectif en texte ; 10 et 12 comblent les trous) ; (13) sur une seule ligne, sans carte ni titre ; les cellules (14) à (19) en une colonne, repliées (le titre seul, avec un chevron), sauf la première, qui reste ouverte ; un toucher sur un titre plie ou déplie. (20) et (21) côte à côte.
+
+| N° | Élément | Contenu | Règle |
+| --- | --- | --- | --- |
+| 1 | Retour | « ← Feuille de route » | |
+| 2 | Rôle et rang | « Objectif intermédiaire · Étape 3 sur 6 » | |
+| 3 | Titre | Course · parcours, en couleur d'accent | |
+| 4 | Lien officiel | ↗ | Seulement si le site officiel est connu |
+| 5 | Modifier | Crayon rond | Absent en lecture seule |
+| 6 | Infos | Lieu · format · jour abrégé, date, heure (« dim. 7 mars 2027, 7 h 30 ») | Un champ vide n'est pas affiché |
+| 7 | Groupe d'options | Nom du groupe et liens vers les autres candidates | Candidate d'un groupe seulement |
+| 8 | Actions | « Retenir cette course », « Marquer comme courue » | § 3.7 |
+| 9 à 11 | Chiffres | Distance (avec le D+), D−, Objectif, présentés comme les indicateurs de l'en-tête | Un chiffre sans valeur n'est pas affiché |
+| 12 | Dossard | Point et état (§ 3.5) | Seul endroit où l'état est écrit |
+| 13 | Compte à rebours | Jours, heures, minutes, secondes jusqu'au départ (§ 5.1) | Pas pour une option au mois seul |
+| 14 à 19 | Cellules | Dans l'ordre, identique pour tous ; une cellule vide n'est pas affichée | Tableau ci-dessous |
+| 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la feuille de route | |
 
 | Cellule | Contenu |
 | --- | --- |
-| Dossard | Le dossard (§ 3.5), le prix, la date d'ouverture des inscriptions |
-| Rôle dans la préparation | Pourquoi cette course figure dans le plan |
-| Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante |
-| Logistique | Transport, horaires, retrait du dossard |
-| Description | Quelques infos sur la course |
-| Liens | Site officiel, inscription, résultats en direct |
+| 14 Dossard | Le prix, seulement s'il est connu ; l'état et le numéro sont en 12 : la cellule n'est pas affichée sans prix |
+| 15 Rôle dans la préparation | Pourquoi cette course figure dans le plan |
+| 16 Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante |
+| 17 Logistique | Transport, horaires, retrait du dossard |
+| 18 Description | Quelques infos sur la course |
+| 19 Liens | Site officiel, inscription, résultats en direct |
 
-6. **Navigation** : « ← course précédente » et « course suivante → » dans la feuille de route.
+#### 3.4.1 En-tête réduit
+
+Sur la page d'une course, l'en-tête tient sur une ligne : « Cap sur » et le nom du cap, puis « · J-n » (nombre de jours jusqu'au cap, absent s'il est passé), le nom de l'application et l'engrenage à droite. Pas d'indicateurs, de compteur ni de filet ; le menu est inchangé. L'en-tête complet reste sur la feuille de route et sur les autres pages. Sur téléphone, « J-n » ne se coupe pas : il passe à la ligne avec le titre si la place manque.
 
 **Cartes des modules à venir** : chacune a une place fixe, la même sur toutes les pages de course. Une carte sans données n'est pas affichée et ne laisse pas de trou.
 
@@ -235,7 +271,7 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 ### 5.1 Comptes à rebours
 
-- Quatre cases (jours, heures, minutes, secondes : `25 j` `23 h` `00 min` `00 s`), sur chaque étape de la feuille de route (sauf les candidates d'un groupe) et en plus grand sur la page de la course. Heures, minutes et secondes sur deux chiffres. Mise à jour chaque seconde, un seul minuteur pour toute la page.
+- Quatre cases (jours, heures, minutes, secondes : `25 j` `23 h` `00 min` `00 s`), sur chaque étape de la feuille de route (sauf les candidates d'un groupe) et en plus grand sur la page de la course ; sur téléphone, sur la page de la course, une seule ligne sans cases ni carte. Heures, minutes et secondes sur deux chiffres. Mise à jour chaque seconde, un seul minuteur pour toute la page.
 - Le temps restant est le temps réel jusqu'au départ : un changement d'heure (été, hiver) d'ici là est compté.
 - Date approximative (mois seul) : jusqu'au 1er du mois, à minuit, pour une course Confirmée ; pas de compte à rebours pour une option.
 - L'heure de départ est saisie en heure locale de la course, sans fuseau ; elle est lue dans le fuseau du navigateur. Correct tant que la course et le coureur sont dans le même fuseau (France, Espagne, Italie). Une course dans un autre fuseau demandera de préciser le fuseau (à traiter le moment venu).
@@ -282,7 +318,7 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 ## 6. Téléphone
 
 - Feuille de route : ordre des éléments au § 3.1.
-- Page d'une course : les cellules et les chiffres passent sur une colonne.
+- Page d'une course : plan du § 3.4 ; en-tête réduit, chiffres sur deux colonnes, compte à rebours sur une ligne, cellules en une colonne et repliées sauf la première.
 - Les cartes du suivi en course passent sur deux colonnes ; les libellés secondaires de la jauge sont masqués pour éviter les chevauchements.
 - Les champs de saisie ouvrent le clavier numérique.
 
@@ -352,10 +388,12 @@ Résultats attendus, feuille de route :
 
 Résultats attendus, page d'une course :
 
-- Trail des Gorges : « ← Feuille de route » ; « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges ↗ » ; « Mont-Clair · Trail long · dimanche 7 mars 2027, 7 h 30 » ; Distance 45 km / 2 100 m D+, D− 2 100 m, Objectif 06:30:00, puis ● Inscrit · n° 1287 ; compte à rebours `137 j` `22 h` `30 min` `00 s`.
-- Trail des Gorges, cellules dans cet ordre : Dossard (prix 58 €), Rôle dans la préparation, Stratégie ou enchaînement, Logistique, Description, Liens (Site officiel, Inscription, Résultats en direct).
+- Trail des Gorges : « ← Feuille de route » ; « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges ↗ » ; « Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30 » ; Distance 45 km / 2 100 m D+, D− 2 100 m, Objectif 06:30:00, puis ● Inscrit · n° 1287 ; compte à rebours `137 j` `22 h` `30 min` `00 s`.
+- Trail des Gorges, en-tête réduit : « Cap sur Trail des Crêtes · J-312 », le nom de l'application, l'engrenage et le menu, sans indicateurs ni compteur ; la feuille de route garde l'en-tête complet.
+- Trail des Gorges, cellules dans cet ordre : Dossard (prix 58 € seulement : l'état n'y est pas répété), Rôle dans la préparation, Stratégie ou enchaînement, Logistique, Description, Liens (Site officiel, Inscription, Résultats en direct).
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
-- Corrida de Noël : seules les cellules Dossard (○ Ouvre le 01/11/2026) et Liens (Site officiel) ; pas de ligne D−.
+- Corrida de Noël : dossard ○ Ouvre le 01/11/2026 dans les chiffres ; seule la cellule Liens (Site officiel), pas de cellule Dossard (pas de prix) ; pas de ligne D−.
+- Ordinateur : les six cellules ouvertes, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne, sans carte ; D− et Objectif côte à côte ; première cellule ouverte, les cinq autres repliées ; toucher un titre ouvre la cellule ; les chiffres commencent dans le premier écran.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
 - Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien « ← Feuille de route ».

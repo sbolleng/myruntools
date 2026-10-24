@@ -392,7 +392,7 @@ const CONTROLES = {
           retour: t(q('.pc-retour')), sur: t(q('.pc-sur')), titre: q('.pc-titre') ? t(q('.pc-titre').firstChild) : null, info: t(q('.pc-info')), groupe: t(q('.pc-groupe')),
           stats: [...document.querySelectorAll('.pc-stat')].map(s => t(s.children[0]) + ' | ' + t(s.children[1])), dossard: t(q('.pc-stats .ob-ins')),
           compteur: [...document.querySelectorAll('.pc-rebours .ob-cpt-case')].map(t).join(' '),
-          cellules: [...document.querySelectorAll('.pc-cellule h3')].map(t), cellDossard: t(q('.pc-cellule')),
+          cellules: [...document.querySelectorAll('.pc-cellule > summary')].map(t), cellDossard: t(q('.pc-cellule')), dossards: document.querySelectorAll('.pc-cellule .ob-ins').length,
           liens: [...document.querySelectorAll('.pc-liens a')].map(t), nav: [...document.querySelectorAll('.pc-nav a')].map(a => a.className + ' | ' + t(a.querySelector('b'))),
           vide: t(q('.ob-vide')), titreDoc: document.title
         };
@@ -401,17 +401,17 @@ const CONTROLES = {
       return [r, o.erreurs];
     };
     let [r, err] = await pageCourse(id(3));
-    pb.push(egal({ retour: '← Feuille de route', sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dimanche 7 mars 2027, 7 h 30',
+    pb.push(egal({ retour: '← Feuille de route', sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30',
       stats: ['45 km / 2 100 m D+ | Distance', '2 100 m | D−', '06:30:00 | Objectif'], dossard: 'Inscrit · n° 1287', compteur: '137j 22h 30min 00s' },
       { retour: r.retour, sur: r.sur, titre: r.titre, info: r.info, stats: r.stats, dossard: r.dossard, compteur: r.compteur }, 'page Trail des Gorges, haut'));
     pb.push(egal(['Dossard', 'Rôle dans la préparation', 'Stratégie ou enchaînement', 'Logistique', 'Description', 'Liens'], r.cellules, 'page Trail des Gorges, cellules'));
-    pb.push(egal(true, /Prix : 58 €/.test(r.cellDossard), 'page Trail des Gorges, prix'));
+    pb.push(egal([true, 0], [/Prix : 58 €/.test(r.cellDossard), r.dossards], 'page Trail des Gorges, prix, état du dossard pas répété'));
     pb.push(egal(['Site officiel ↗', 'Inscription ↗', 'Résultats en direct ↗'], r.liens, 'page Trail des Gorges, liens'));
     pb.push(egal(['is-precedente | Corrida de Noël', 'is-suivante | Trail des Cimes'], r.nav, 'page Trail des Gorges, navigation'));
     pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
     pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
     [r] = await pageCourse(id(2));
-    pb.push(egal({ cellules: ['Dossard', 'Liens'], dossard: 'Ouvre le 01/11/2026', liens: ['Site officiel ↗'], dmoins: false },
+    pb.push(egal({ cellules: ['Liens'], dossard: 'Ouvre le 01/11/2026', liens: ['Site officiel ↗'], dmoins: false },
       { cellules: r.cellules, dossard: r.dossard, liens: r.liens, dmoins: r.stats.some(x => /D−/.test(x)) }, 'page Corrida de Noël'));
     [r] = await pageCourse(id(4));
     pb.push(egal({ sur: 'Préparatoire · Étape 4 sur 6', groupe: 'Printemps 2027 · autre candidat : Ultra du Plateau · Le 55' }, { sur: r.sur, groupe: r.groupe }, 'page Trail des Cimes'));
@@ -419,6 +419,39 @@ const CONTROLES = {
     pb.push(egal(['is-suivante | Corrida de Noël'], r.nav, 'page Trail du Lac, pas de course précédente'));
     [r] = await pageCourse(id(7));
     pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
+    // En-tête réduit : une ligne, sans chiffres ni compteur ; le menu et l'engrenage restent.
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
+    pb.push(egal({ titre: 'Cap sur Trail des Crêtes · J-312', plein: 0, menu: true, engrenage: true, haut: true },
+      await p.evaluate(() => ({ titre: document.querySelector('.mrt-mini').textContent.replace(/[  ]/g, ' ').trim(), plein: document.querySelectorAll('.mrt-stat, .mrt-days, .mrt-bar').length,
+        menu: !!document.querySelector('.mrt-nav .is-on'), engrenage: !!document.querySelector('.mrt-gear'), haut: document.querySelector('.mrt-header').getBoundingClientRect().height < 80 })), 'page d\'une course : en-tête réduit'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, db, {}, PARIS));
+    pb.push(egal([4, 0], await p.evaluate(() => [document.querySelectorAll('.mrt-stat').length, document.querySelectorAll('.mrt-mini').length]), 'feuille de route : en-tête complet'));
+    await ctx.close();
+    // Ordinateur : toutes les cellules ouvertes, sans pouvoir les replier.
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
+    pb.push(egal([6, 6, 'none'], await p.evaluate(() => [document.querySelectorAll('.pc-cellule').length, document.querySelectorAll('.pc-cellule[open]').length,
+      getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents]), 'ordinateur : cellules ouvertes'));
+    await ctx.close();
+    // Téléphone : chiffres sur deux colonnes, compteur sur une ligne sans carte, cellules repliées sauf la première.
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 390, db, {}, PARIS));
+    await figer(p);
+    const tc = await p.evaluate(() => {
+      const b = s => document.querySelector(s).getBoundingClientRect(), cases = [...document.querySelectorAll('.pc-rebours .ob-cpt-case')].map(c => c.getBoundingClientRect());
+      const st = [...document.querySelectorAll('.pc-stat, .pc-stats > .ob-ins')].map(e => e.getBoundingClientRect());
+      return { debordement: document.documentElement.scrollWidth > innerWidth,
+        compteurUneLigne: cases.every(c => Math.abs(c.top - cases[0].top) < 3), compteurSansCarte: getComputedStyle(document.querySelector('.pc-rebours')).borderTopWidth === '0px',
+        dmoinsEtObjectif: Math.abs(st[1].top - st[2].top) < 3 && st[1].left < st[2].left,
+        ouvertes: [...document.querySelectorAll('.pc-cellule')].map(d => d.open), haut: Math.round(b('.pc-stats').top) };
+    });
+    pb.push(egal({ debordement: false, compteurUneLigne: true, compteurSansCarte: true, dmoinsEtObjectif: true, ouvertes: [true, false, false, false, false, false] },
+      { debordement: tc.debordement, compteurUneLigne: tc.compteurUneLigne, compteurSansCarte: tc.compteurSansCarte, dmoinsEtObjectif: tc.dmoinsEtObjectif, ouvertes: tc.ouvertes }, 'téléphone : page d\'une course compacte'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-course-telephone.png'), fullPage: false });
+    pb.push(egal(true, tc.haut < 330, 'téléphone : les chiffres commencent dans le premier écran (' + tc.haut + ' px)'));
+    await p.locator('.pc-cellule > summary').nth(1).click();
+    pb.push(egal([true, true], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(0, 2).map(d => d.open)), 'téléphone : toucher le titre ouvre la cellule'));
+    pb.push(egal([], erreurs, 'téléphone, page d\'une course, erreurs JavaScript'));
+    await ctx.close();
     for (const n of ['inconnue', id(99)]) {
       [r] = await pageCourse(n);
       pb.push(egal(['Course introuvable.', '← Feuille de route'], [r.vide, r.retour], 'course introuvable (' + n + ')'));

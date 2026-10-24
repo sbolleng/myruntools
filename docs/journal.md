@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Objectif | Page d'une course allégée : en-tête réduit à une ligne (« Cap sur … · J-n ») ; chiffres sur deux colonnes, compte à rebours sur une ligne (téléphone), date abrégée et cellule Dossard limitée au prix ; cellules repliées sauf la première (toujours ouvertes sur ordinateur) ; plan de page numéroté au § 3.4 ; spécifications Objectif et générale 0.14. |
 | 24 oct. 2026 | Objectif | Formulaire d'une course à venir : course et parcours en premier, puis la date avec « Jour inconnu » (côte à côte, téléphone compris), puis l'heure et le lieu ; spécification 0.13. |
 | 24 oct. 2026 | Objectif | Feuille de route sans titre ni légende ; le « + » seul, en haut à droite, au-dessus de la première carte ; sur téléphone, la date reste juste sous le compteur même quand le rôle passe sur deux lignes ; spécification 0.12. |
 | 24 oct. 2026 | Objectif | Une course confirmée dont la date est passée reste sur la feuille de route (compteur « Course courue ») tant qu'elle n'est pas marquée courue, pour pouvoir saisir son résultat ; elle ne compte pas pour l'en-tête ; une option passée disparaît ; spécification 0.12. |

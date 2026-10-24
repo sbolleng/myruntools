@@ -54,5 +54,5 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : Objectif, formulaire de saisie et d'édition (`fiche-course.js` étendu : mode à venir, boutons « + », Modifier, Retenir, Marquer comme courue), après la feuille de route et la page d'une course.
+- Dernier lot : page d'une course allégée (en-tête réduit, chiffres en grille, compteur d'une ligne, cellules repliées sur téléphone), après le formulaire de saisie et d'édition ; en ligne une fois fusionné dans `main`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

@@ -90,6 +90,13 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   );
 }
 
+/* En-tête réduit (page d'une course) : une ligne, le titre à gauche, le nom de l'application à droite. */
+.mrt-header.is-compact { padding: 1rem 2rem; }
+.mrt-header.is-compact .mrt-grid { align-items: center; }
+.mrt-mini { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.mrt-mini em { font-style: normal; color: var(--accent); }
+.mrt-mini-j { white-space: nowrap; font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 400; color: var(--accent2); }
+
 /* ----- Menu ----- */
 .mrt-nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); }
 .mrt-nav-inner { max-width: 960px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; }
@@ -114,6 +121,10 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   body { font-size: 17px; }
   main { padding: 1.25rem; }
   .mrt-header { padding: 2rem 1.25rem 1.5rem; }
+  .mrt-header.is-compact { padding: 0.8rem 1.25rem; }
+  .mrt-header.is-compact .mrt-grid { column-gap: 0.6rem; }
+  .mrt-mini { font-size: 0.95rem; line-height: 1.35; }
+  .mrt-mini-j { font-size: 0.75rem; }
   /* Téléphone : une colonne ; le nom de l'application reste à droite du titre,
      le compteur et la prochaine course passent sous les indicateurs, à gauche. */
   .mrt-gauche, .mrt-droite { display: contents; }
