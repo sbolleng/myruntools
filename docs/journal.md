@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Objectif | Maquette : pas de compteur pour les candidates d'un groupe ; plus d'interligne entre le compteur et la date sur téléphone ; objectif, pastille du dossard et chiffres du compteur en Accent 2, comme la date. Allures : format min/km inchangé (5:08 /km). En-tête de la page d'une course sur téléphone : à revoir plus tard. |
 | 24 oct. 2026 | Durées | Modèle unique sur tout le site : temps au format hh:mm:ss (« 02:45:00 », « 00:49:18 ») ; le Palmarès, qui affiche aujourd'hui 49'18 et 1h56'05, sera aligné. Objectif d'une course : hh:mm:ss, « Finisher », ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). |
 | 24 oct. 2026 | Objectif | Maquette : date et rôle intervertis (rôle en haut à gauche, date face au nom) ; compteur au dessin de la pièce jointe (chiffres en Accent, unités en Texte discret, cases fines). Déclinaisons A et B gardées, en attente d'un avis extérieur. |
 | 24 oct. 2026 | Objectif | Maquette : compteur et rôle intervertis (compteur en haut à droite, rôle face au nom) ; sur téléphone, compteur en premier puis un interligne ; objectif au format hh:mm:ss, « Finisher » ou « Sub » suivi d'une durée ; dossard « Inscrit · n° … », « Inscription ouverte » (rouge), « Ouvre le jj/mm/aaaa », sans compte à rebours ; pastille du dossard et objectif en Accent. Deux déclinaisons : distance et D+ dans la ligne d'infos (A) ou sur leur propre ligne (B). Dessin du compteur : en attente de la pièce jointe. |

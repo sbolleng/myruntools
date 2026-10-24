@@ -47,15 +47,15 @@
     if (e.groupe) {
       carte = '<div class="fr-carte fr-groupe"><span class="fr-date">À choisir · ' + e.candidates.length + ' candidates</span>' +
         '<div class="fr-nom">' + esc(e.groupe) + '</div><div class="fr-cands">' +
-        e.candidates.map(c => '<div class="fr-cand"><span class="fr-role">' + MQ.ROLES[c.role] + '</span><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + cpt(c) + nom(c) + info(c) + distance(c) + dossard(c) + '</div>').join('') +
+        e.candidates.map(c => '<div class="fr-cand"><span class="fr-role">' + MQ.ROLES[c.role] + '</span><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + nom(c) + info(c) + '<div class="fr-lignes">' + distance(c) + dossard(c) + '</div></div>').join('') +
         '</div></div>';
     } else {
       const c = e.course;
       carte = '<div class="fr-carte"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' +
         '<span class="fr-role ' + cls(c) + '">' + (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role] + '</span>' +
-        cpt(c) + nom(c) + info(c, true) + distance(c) +
+        cpt(c) + nom(c) + info(c, true) + '<div class="fr-lignes">' + distance(c) +
         (c.objectif ? '<div class="fr-ligne is-obj"><span class="fr-lib">Objectif</span><span class="fr-cible">' + esc(c.objectif) + '</span></div>' : '') +
-        dossard(c) + '</div>';
+        dossard(c) + '</div></div>';
     }
     return '<div class="' + k + '"><div class="fr-rail"><span class="fr-pt"></span></div>' + carte + '</div>';
   }).join('') +
