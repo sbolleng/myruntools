@@ -11,6 +11,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 
 - Ne jamais inventer de données : demander.
 - Français, tutoiement, réponses courtes et factuelles.
+- Maquettes et images : chacune coûte cher en consommation. Avant d'en produire, ou de lancer un travail long ou groupé (plusieurs fichiers, plusieurs essais), dire ce que ce sera et demander confirmation ; ne faire sans demander que les petites tâches.
 - Le pilote route est désigné « le compte test Rome », jamais par son nom ni son adresse, nulle part.
 - Le dépôt est public : aucune donnée personnelle, aucun nom complet de tiers, aucune référence de réservation. Jamais de secret (clé de service Supabase) ; seule la clé publique figure dans le code. Les scripts d'import de données personnelles ne sont jamais versionnés.
 - Pas d'indexation : chaque page porte `<meta name="robots" content="noindex">` ; `robots.txt` interdit tout.
