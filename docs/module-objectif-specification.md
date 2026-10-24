@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.11 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.12 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -80,7 +80,7 @@ Plan de page d'une carte (ordinateur) :
 
 ### 3.3 Statut, rôle et état d'une étape
 
-La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1), datées du jour ou plus tard : les mêmes que celles de l'en-tête. Une course sans date, ou dont la date est passée sans qu'elle soit marquée courue, n'y figure pas.
+La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1), datées du jour ou plus tard : les mêmes que celles de l'en-tête. S'y ajoutent les courses Confirmées dont la date est passée sans qu'elles soient marquées courues : elles restent en tête de la feuille de route, compteur « Course courue », jusqu'à ce qu'on saisisse leur résultat (« Marquer comme courue ») ; elles ne comptent pas pour l'en-tête. Une course sans date, une Option passée ou une course À surveiller n'y figure pas.
 
 | Cas | Signification | Rendu |
 | --- | --- | --- |
@@ -366,7 +366,7 @@ Résultats attendus, page d'une course :
 
 Résultats attendus, saisie et édition (mêmes données, même date) :
 
-- « + » ouvre un formulaire vide : statut Confirmée, rôle Préparatoire ; blocs Dossard, Préparation et Liens repliés.
+- « + » ouvre un formulaire vide : statut Confirmée, rôle Préparatoire ; blocs Préparation, Dossard, Logistique et Liens repliés.
 - Ajouter « Trail des Brumes », 18 avril 2027, 8 h, objectif saisi `15000` (lu 1:50:00) : il s'affiche « 01:50:00 » ; la carte prend place entre Trail des Gorges et Printemps 2027 ; l'en-tête affiche « 6 courses ».
 - Objectif « vite » : « Format attendu : 02:45:00, Finisher ou Sub 3h » sous le champ ; « Enregistrer » reste sans effet. « finisher » est rangé « Finisher », « sub 3h » est rangé « Sub 3h ».
 - Date du 1er octobre 2026 : erreur sous la date. Site officiel « example.org » : erreur sous le champ.
@@ -379,7 +379,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir cette course », ni « Marquer comme courue ».
 - Téléphone : le formulaire occupe tout l'écran et défile, sans déborder sur les côtés.
 
-Résultats attendus, saisie et édition (§ 3.7) :
+Résultats attendus, formulaire en détail (écritures relues par le banc d'essai) :
 
 - Sur la feuille de route, un « + » rond à droite du titre ; il ouvre « Ajouter une course » : six blocs, Course et Place dans le plan ouverts, les quatre autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
 - Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course et Format, « Choisis un type. » sous Type ; rien n'est écrit.
@@ -397,3 +397,4 @@ Résultats attendus, saisie et édition (§ 3.7) :
 - Panne d'enregistrement : « Enregistrement impossible pour l'instant. », le formulaire reste ouvert.
 - Palmarès : le formulaire garde ses quatre blocs. Téléphone : le formulaire ne déborde pas.
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir ».
+- Trail du Lac passé (10 octobre 2026, Confirmée, À venir, jamais marquée courue) : première étape de la feuille de route, compteur « Course courue », bouton « Marquer comme courue » sur sa page ; l'en-tête garde « Cap sur Trail des Crêtes » et « 5 courses ». Une Option passée n'apparaît pas.

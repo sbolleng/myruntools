@@ -675,6 +675,20 @@ const CONTROLES = {
     pb.push(egal(['PATCH', 'courue', 9600], [o.copie.ecritures[0].methode, o.copie.ecritures[0].corps.etat, o.copie.ecritures[0].corps.temps], 'marquer : la course passe à l\'état Courue'));
     await ctx.close();
 
+    // Course confirmée passée, pas encore courue : elle reste sur la feuille de route
+    const passee = JSON.parse(JSON.stringify(db));
+    passee.courses.find(c => c.id === id(1)).date = '2026-10-10';
+    passee.courses.find(c => c.id === id(4)).date = '2026-10-11'; // option passée : absente du groupe
+    o = await neuve(1200, PAGE, passee); ({ p, ctx } = o);
+    const noms = await p.evaluate(() => [...document.querySelectorAll('.ob-et > .ob-carte > .ob-nom, .ob-et > .ob-carte > h3')].map(e => e.textContent.replace(/[  ]/g, ' ').replace(/\s*↗/, '').trim()));
+    pb.push(egal(['Trail du Lac · Le Tour du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Printemps 2027', 'Trail de la Forêt', 'Trail des Crêtes'], noms, 'passée : en tête de la feuille de route'));
+    pb.push(egal('Course courue', await p.locator('.ob-et').first().locator('.ob-cpt').textContent(), 'passée : compteur Course courue'));
+    pb.push(egal('4 courses', (await p.locator('.mrt-stat-val').last().textContent()).trim(), 'passée : l\'en-tête ne la compte pas'));
+    await ctx.close();
+    o = await neuve(1200, COURSE(1), passee); ({ p, ctx } = o);
+    pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'passée : Marquer comme courue sur sa page'));
+    await ctx.close();
+
     // Panne d'enregistrement
     const panne = JSON.parse(JSON.stringify(db)); panne.panne = true;
     ({ p, ctx } = await ouvrir(nav, PAGE, 1200, panne, {}, PARIS));

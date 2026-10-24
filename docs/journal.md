@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Objectif | Une course confirmée dont la date est passée reste sur la feuille de route (compteur « Course courue ») tant qu'elle n'est pas marquée courue, pour pouvoir saisir son résultat ; elle ne compte pas pour l'en-tête ; une option passée disparaît ; spécification 0.12. |
 | 24 oct. 2026 | Objectif | Formulaire de saisie et d'édition construit (spécification 0.11, § 3.7) : six blocs (Logistique à part, description sous le format, site d'inscription dans Dossard), type et format obligatoires, boutons ronds du Palmarès sur la feuille de route et la page d'une course. |
 | 24 oct. 2026 | Objectif | Formulaire de saisie et d'édition : un seul pour tout le site, le composant du Palmarès étendu, pour un site homogène ; spécification 0.10. |
 | 24 oct. 2026 | Objectif | Feuille de route : le trait en pointillé (vers une option) est dessiné en dégradé répété, car Safari sur iPhone dessinait mal la bordure en pointillé (trait absent). |
