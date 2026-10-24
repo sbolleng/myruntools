@@ -46,6 +46,20 @@
     return txt;
   }
   const nom = c => window.mrtNomCourse(c);
+  // Course · Parcours, en deux morceaux : si les deux ne tiennent pas sur une ligne,
+  // le parcours passe à la ligne, sans le point (couperNoms).
+  const nomHtml = c => (c.parcours && c.parcours !== c.course
+    ? '<span class="ob-c">' + esc(c.course) + '</span> <span class="ob-p"><span class="ob-sep">· </span>' + esc(c.parcours) + '</span>'
+    : esc(c.course));
+  function couperNoms() {
+    document.querySelectorAll('.ob-p').forEach(p => {
+      const n = p.parentNode.closest('.ob-nom, .pc-titre');
+      n.classList.remove('is-coupe');
+      if (p.offsetTop > p.previousElementSibling.offsetTop + 2) n.classList.add('is-coupe');
+    });
+  }
+  let coupe = null;
+  window.addEventListener('resize', () => { clearTimeout(coupe); coupe = setTimeout(couperNoms, 100); });
   const lieuFormat = c => [c.lieu, c.formatLibelle].filter(Boolean).join(' · ');
   const distance = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : ''].filter(Boolean).join(' · ');
 
@@ -112,11 +126,11 @@
       (avecObjectif && c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
       ligne('Dossard', dossardHtml(c)) + '</div>';
   }
-  const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + esc(nom(c)) + '</a>' + lienOfficiel(c) + '</' + balise + '>';
+  const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a>' + lienOfficiel(c) + '</' + balise + '>';
   const info = c => (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '');
 
   function carteCourse(c) {
-    return '<article class="ob-carte">' +
+    return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '">' +
       '<span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span>' + compteurHtml(c) +
       titre(c, 'h3') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, true) + '</article>';
   }
@@ -142,6 +156,7 @@
         '<div class="ob-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span>' +
         '<span><i class="obj"></i>Objectif principal</span><span><i class="opt"></i>Option</span></div>'
       : '<p class="ob-vide">Aucune course à venir.</p>');
+    couperNoms();
     lancerCompteurs();
   };
 
@@ -168,7 +183,7 @@
     const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => lienSur(l[0]));
     el.innerHTML = retour +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
-      '<h2 class="pc-titre">' + esc(nom(c)) + lienOfficiel(c) + '</h2>' +
+      '<h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2>' +
       '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
@@ -191,6 +206,7 @@
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
+    couperNoms();
     lancerCompteurs();
     return c;
   };

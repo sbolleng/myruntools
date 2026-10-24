@@ -426,6 +426,14 @@ const CONTROLES = {
     pb.push(egal(['Préparatoire • 1 candidat', "6 courses"], [k.find(x => x.nom === 'Printemps 2027').role, await p.evaluate(() => document.querySelectorAll('.mrt-stat-val')[3].textContent)], 'groupe d\'un seul candidat'));
     await ctx.close();
 
+    // Course et parcours trop longs pour une ligne : le parcours passe à la ligne, sans le point.
+    const long = JSON.parse(JSON.stringify(db));
+    long.courses.find(c => c.id === id(1)).parcours = 'Le Grand Tour du Lac de Mont-Clair';
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 390, long, {}, PARIS));
+    pb.push(egal([true, 'none', false], await p.evaluate(() => { const n = document.querySelector('.ob-carte .ob-nom');
+      return [n.classList.contains('is-coupe'), getComputedStyle(n.querySelector('.ob-sep')).display, document.querySelectorAll('.ob-carte .ob-nom.is-coupe').length > 1]; }), 'parcours trop long : à la ligne, sans le point'));
+    await ctx.close();
+
     // Course confirmée dont seul le mois est connu : compteur jusqu'au 1er du mois, à minuit.
     const moisSeul = JSON.parse(JSON.stringify(db));
     moisSeul.courses.find(c => c.id === id(6)).statut = 'confirmee';
@@ -443,14 +451,17 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
     const tel = await p.evaluate(() => [...document.querySelectorAll('.ob-carte:not(.ob-groupe)')].filter(c => c.querySelector(':scope > .ob-cpt')).map(c => {
       const b = s => c.querySelector(':scope > ' + s).getBoundingClientRect(), carte = c.getBoundingClientRect();
-      const milieu = r => (r.top + r.bottom) / 2;
-      return { aligne: Math.abs(milieu(b('.ob-role')) - milieu(b('.ob-cpt'))) <= 1, dateDessous: b('.ob-date').top >= b('.ob-cpt').bottom,
+      return { aligne: Math.abs(b('.ob-role').top - b('.ob-cpt').top) <= 2, dateDessous: b('.ob-date').top >= b('.ob-cpt').bottom,
         aDroite: Math.round(b('.ob-cpt').right) === Math.round(b('.ob-date').right),
         interligne: Math.round(b('.ob-nom').top - Math.max(b('.ob-date').bottom, b('.ob-role').bottom)) >= 15,
         dedans: b('.ob-role').right <= b('.ob-cpt').left && b('.ob-cpt').right <= carte.right };
     }).concat([{ debordement: document.documentElement.scrollWidth > innerWidth }]));
     const t0 = { aligne: true, dateDessous: true, aDroite: true, interligne: true, dedans: true };
     pb.push(egal([t0, t0, t0, t0, { debordement: false }], tel, 'téléphone'));
+    // Sans compteur (Trail de la Forêt) : la date remonte, son haut aligné sur celui du rôle.
+    const sansCpt = () => p.evaluate(() => { const c = [...document.querySelectorAll('.ob-carte')].find(x => /Forêt/.test(x.textContent)), b = s => c.querySelector(':scope > ' + s).getBoundingClientRect();
+      return Math.abs(b('.ob-date').top - b('.ob-role').top) <= 1 && b('.ob-date').bottom <= b('.ob-nom').top; });
+    pb.push(egal(true, await sansCpt(), 'téléphone, sans compteur : date en haut, face au rôle'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-telephone.png'), fullPage: true });
     pb.push(egal([], erreurs, 'téléphone, erreurs JavaScript'));
     await ctx.close();

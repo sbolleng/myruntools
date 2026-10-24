@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.6 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.8 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -52,7 +52,9 @@ Une carte par étape, le long d'un trait vertical (pastille et trait selon le §
 - **Distance** : la distance, puis le D+ s'il est connu ; ligne absente si les deux sont vides.
 - **Objectif** : trois formes seulement, `hh:mm:ss` (« 02:45:00 »), « Finisher », ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). Les durées sont écrites `hh:mm:ss` sur tout le site.
 - **Date approximative** (mois seul) : pour une course Confirmée, compteur jusqu'au 1er du mois, à minuit ; pour une option, pas de compteur.
-- **Téléphone**, de haut en bas : rôle à gauche, aligné sur le compteur à droite (un rôle trop long passe sur deux lignes) ; date, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
+- **Sans compteur** (option dont seul le mois est connu) : la date remonte en ligne 1, à droite, son haut aligné sur celui du rôle.
+- **Course · Parcours** trop longs pour une ligne : le parcours passe à la ligne suivante, sans le point.
+- **Téléphone**, de haut en bas : rôle à gauche, son haut aligné sur celui du compteur à droite (un rôle trop long passe sur deux lignes) ; date, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
 - Toucher la carte (hors icône ↗ et lien d'inscription) ouvre la page de la course.
 - Une option isolée ne porte pas le mot « Option » : son cadre et son trait en pointillé suffisent.
 
@@ -122,12 +124,45 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 - Puis un bloc par candidate, dans l'ordre chronologique, séparé par un filet : nom ↗ et date, lieu · format, distance, dossard. Ni rôle, ni objectif, ni compteur.
 - Toucher une candidate ouvre sa page.
 
-**Interface de gestion** : à spécifier.
+- **Rôles différents** : si les candidats n'ont pas le même rôle, les rôles se suivent (« Préparatoire · Plaisir • 2 candidats »).
+- **Un seul candidat** : le groupe reste un groupe (« • 1 candidat ») tant qu'il n'est pas retenu.
 
-- Créer un groupe, le nommer, le renommer.
-- Ajouter une candidate au groupe, en retirer une.
-- Retenir une candidate : elle passe en Confirmée et quitte le groupe ([modèle de données](modele-donnees.md), § 4.1).
-- Questions ouvertes au § 9.
+**Gestion** (§ 3.7) : un groupe se crée dans le formulaire d'une course, champ Groupe d'options ; un candidat se retient depuis sa page.
+
+### 3.7 Saisie et édition
+
+Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre outil. Le formulaire est celui du Palmarès ([spécification du Palmarès](module-palmares-specification.md), § 10), étendu aux champs d'une course à venir : même panneau, mêmes boutons, mêmes contrôles de saisie.
+
+**Accès**
+
+| Bouton | Place | Effet |
+| --- | --- | --- |
+| « + » (« Ajouter une course » au survol) | Bouton rond, à droite du titre « Feuille de route » | Ouvre un formulaire vide ; statut Confirmée et rôle Préparatoire proposés |
+| « Modifier » | Page d'une course, à droite du titre | Ouvre le formulaire rempli |
+| « Retenir cette course » | Page d'un candidat d'un groupe d'options | Après confirmation, le candidat passe en Confirmée et quitte le groupe ; les autres candidats passent À surveiller et quittent la feuille de route, sans être supprimés |
+| « Marquer comme courue » | Page d'une course Confirmée, à partir du jour de la course | Ouvre le formulaire du Palmarès, pré-rempli de ce que la course connaît ; à l'enregistrement, la course passe à l'état Courue, quitte la feuille de route et rejoint le Palmarès |
+
+Site partagé en lecture seule : aucun de ces boutons.
+
+**Formulaire**, en cinq blocs ; les trois derniers sont repliés à l'ouverture d'un formulaire vide :
+
+| Bloc | Champs |
+| --- | --- |
+| Course | Date, ou mois seul (case « Jour inconnu ») ; heure de départ ; course et parcours ; lieu ; type et format ; distance, D+ et D− |
+| Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou un nouveau nom |
+| Dossard | Case « Inscrit » ; numéro ; prix ; date d'ouverture des inscriptions |
+| Préparation | Objectif ; rôle dans la préparation ; stratégie ou enchaînement ; logistique ; description (1 000 caractères au plus) |
+| Liens | Site officiel ; site d'inscription ; résultats en direct |
+
+- **Obligatoires** : course ; date (ou mois) pour une course Confirmée ou Option. Une course À surveiller peut rester sans date.
+- **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 02:45:00, Finisher ou Sub 3h », « ex. https://… ».
+- **Contrôles de saisie** :
+  - date du jour ou à venir ;
+  - objectif : une durée, écrite comme dans le Palmarès (`2:45:00`, `2h45`, chiffres seuls lus par la droite) et rangée au format `hh:mm:ss` (« 02:45:00 ») ; ou « Finisher » ; ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). Majuscules remises à l'enregistrement (« finisher » devient « Finisher »). Autre chose : « Format attendu : 02:45:00, Finisher ou Sub 3h » ;
+  - nombres positifs ; liens commençant par `http://` ou `https://`.
+- Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
+- **Enregistrer** range la course et met à jour la page, en-tête compris ; **Annuler**, ou « × », ferme sans rien changer.
+- **Supprimer** : seulement dans le formulaire d'une course existante, après confirmation (« Supprimer cette course ? Cette action est définitive. »). Depuis la page de la course supprimée, retour à la feuille de route.
 
 ## 4. Données d'une course
 
@@ -202,7 +237,6 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 ## 7. Hors périmètre du module
 
 - **Courses à surveiller** : module séparé (jalon 2).
-- **Formulaires de saisie** : V2, avec Supabase.
 - **Résultats et historique** : module Palmarès.
 
 ## 8. Critères d'acceptation (proposés, à valider)
@@ -221,7 +255,7 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 - [x] Course à choisir : une liste dans l'étape, une ligne par candidate ; chacune ouvre sa page. Le comparatif viendra du graphique de difficulté (décidé le 23 oct. 2026).
 - [x] Détail d'une course : une page dédiée par course plutôt qu'une étape dépliée ou une fenêtre ; icône ↗ pour le site officiel (décidé le 23 oct. 2026).
 - [ ] Inscriptions fermées (ou complet) sans être inscrit : un cinquième état ? Il demanderait un champ de plus (date de clôture ou case « complet »).
-- [ ] Groupe d'options, gestion : où se fait-elle (formulaire de la course, ou depuis la carte du groupe) ? Que deviennent les autres candidates quand l'une est retenue (À surveiller, Abandonnée, supprimées) ? Rôle affiché quand les candidates n'ont pas le même rôle ? Un groupe réduit à une candidate reste-t-il un groupe ?
+- [x] Groupe d'options : créé dans le formulaire ; candidat retenu depuis sa page, les autres passent À surveiller ; rôles différents listés ; un seul candidat reste un groupe (décidé le 24 oct. 2026).
 - [ ] Choix de la course de l'en-tête (cap) : seulement dans les Préférences, ou aussi depuis la page Objectif ? À revoir une fois la feuille de route construite.
 
 ## 10. Contrôles
@@ -259,6 +293,8 @@ Résultats attendus, feuille de route :
 - Toucher la carte du Trail du Lac ouvre sa page ; toucher ↗ ouvre son site officiel dans un nouvel onglet, sans ouvrir la page ; toucher « Inscription ouverte ↗ » ouvre le site d'inscription de l'Ultra du Plateau.
 - Toucher Trail des Cimes, dans la carte du groupe, ouvre la page de Trail des Cimes.
 - Téléphone : sur chaque carte, le rôle à gauche aligné sur le compteur à droite (OBJECTIF INTERMÉDIAIRE sur deux lignes), la date dessous à droite, un interligne, puis le nom ; rien ne dépasse de l'écran.
+- Trail de la Forêt (sans compteur) : la date JUILLET 2027 en haut à droite, face au rôle.
+- Trail du Lac avec le parcours « Le Grand Tour du Lac de Mont-Clair », sur téléphone : « Trail du Lac » puis, à la ligne, le parcours, sans le point.
 - Trail de la Forêt passé en Confirmée : compteur `253 j` `14 h` `00 min` `00 s`, jusqu'au 1er juillet 2027 à minuit.
 - Thème changé : seules les couleurs changent.
 
@@ -274,3 +310,19 @@ Résultats attendus, page d'une course :
 - Bouton retour du navigateur, depuis une page de course : retour à la feuille de route.
 - Site partagé en lecture seule : la feuille de route et les pages de course du propriétaire s'affichent à l'identique.
 - Chargement de la feuille de route et d'une page de course (ordinateur, téléphone) : à l'instant où la page devient visible, l'en-tête est en place et le contenu n'a plus à bouger.
+
+Résultats attendus, saisie et édition (mêmes données, même date) :
+
+- « + » ouvre un formulaire vide : statut Confirmée, rôle Préparatoire ; blocs Dossard, Préparation et Liens repliés.
+- Ajouter « Trail des Brumes », 18 avril 2027, 8 h, objectif saisi `15000` (lu 1:50:00) : il s'affiche « 01:50:00 » ; la carte prend place entre Trail des Gorges et Printemps 2027 ; l'en-tête affiche « 6 courses ».
+- Objectif « vite » : « Format attendu : 02:45:00, Finisher ou Sub 3h » sous le champ ; « Enregistrer » reste sans effet. « finisher » est rangé « Finisher », « sub 3h » est rangé « Sub 3h ».
+- Date du 1er octobre 2026 : erreur sous la date. Site officiel « example.org » : erreur sous le champ.
+- Case « Jour inconnu », juillet 2027 : la carte affiche JUILLET 2027.
+- Statut Option : le champ Groupe d'options apparaît et propose « Printemps 2027 » ; le choisir : la carte du groupe affiche « • 3 candidats ». Statut Confirmée : le champ disparaît.
+- Page Trail des Gorges, « Modifier » : formulaire rempli ; objectif changé en `6:15:00` : la page affiche « 06:15:00 ».
+- Supprimer Corrida de Noël, confirmation acceptée : elle disparaît ; l'en-tête affiche « 4 courses ».
+- Page Trail des Cimes, « Retenir cette course », confirmation acceptée : Trail des Cimes devient une étape Confirmée au 30 mai 2027 ; Ultra du Plateau quitte la feuille de route (À surveiller) ; la carte Printemps 2027 disparaît ; l'en-tête affiche « 5 courses ».
+- Page Trail du Lac le 20 octobre 2026 : pas de « Marquer comme courue ». Le 15 novembre 2026 à 14 h : le bouton est là ; il ouvre le formulaire du Palmarès rempli (15 novembre 2026, Trail du Lac, Le Tour du Lac, Trail, Trail court, 24 km, 650 m, Préparatoire) ; temps `24110` : à l'enregistrement, Trail du Lac quitte la feuille de route et rejoint le Palmarès, avec un temps de 2 h 41 min 10 s.
+- Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir cette course », ni « Marquer comme courue ».
+- Téléphone : le formulaire occupe tout l'écran et défile, sans déborder sur les côtés.
+
