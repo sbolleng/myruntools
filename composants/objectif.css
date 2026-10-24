@@ -36,11 +36,14 @@
 /* ----- Feuille de route : une carte par étape, le long d'un trait ----- */
 .ob-et { position: relative; display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); column-gap: 0.9rem; }
 .ob-rail { position: relative; }
-.ob-rail::before, .ob-rail::after { content: ''; position: absolute; left: calc(50% - 1px); border-left: 2px solid var(--border); }
+.ob-rail::before, .ob-rail::after { content: ''; position: absolute; left: calc(50% - 1px); width: 2px; background: var(--border); }
 .ob-rail::before { top: 0; height: 1.3rem; }
 .ob-rail::after { top: 1.3rem; bottom: 0; }
 .ob-et:first-child .ob-rail::before, .ob-et.is-fin .ob-rail::after { display: none; }
-.ob-et.is-opt .ob-rail::before, .ob-et.suite-opt .ob-rail::after { border-left-style: dashed; }
+/* Pointillé en dégradé : Safari sur iPhone dessine mal une bordure en pointillé sans largeur.
+   Le motif part du bas pour ::after et du haut pour ::before : les tirets se suivent d'une étape à l'autre. */
+.ob-et.is-opt .ob-rail::before { background: repeating-linear-gradient(to bottom, transparent 0 0.15rem, var(--border) 0.15rem 0.5rem, transparent 0.5rem 0.65rem); }
+.ob-et.suite-opt .ob-rail::after { background: repeating-linear-gradient(to top, transparent 0 0.15rem, var(--border) 0.15rem 0.5rem, transparent 0.5rem 0.65rem); }
 .ob-pt { position: absolute; z-index: 1; left: 50%; top: 1.3rem; width: 0.85rem; height: 0.85rem; transform: translate(-50%, -50%); border-radius: 50%; background: var(--muted); border: 2px solid var(--muted); }
 .ob-et.is-opt .ob-pt { background: var(--bg); }
 .ob-et.is-cle .ob-pt { background: var(--accent2); border-color: var(--accent2); }
