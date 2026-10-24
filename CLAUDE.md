@@ -11,7 +11,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 
 - Ne jamais inventer de données : demander.
 - Français, tutoiement, réponses courtes et factuelles.
-- Maquettes et images : chacune coûte cher en consommation. Avant d'en produire, ou de lancer un travail long ou groupé (plusieurs fichiers, plusieurs essais), dire ce que ce sera et demander confirmation ; ne faire sans demander que les petites tâches.
+- Maquettes et images : chacune coûte cher en consommation. Proposer d'abord un plan de page (en texte, voir plus bas), bien plus économique. Avant de produire une maquette ou une image, ou de lancer un travail long ou groupé (plusieurs fichiers, plusieurs essais), dire ce que ce sera et demander confirmation ; ne faire sans demander que les petites tâches.
 - Le pilote route est désigné « le compte test Rome », jamais par son nom ni son adresse, nulle part.
 - Le dépôt est public : aucune donnée personnelle, aucun nom complet de tiers, aucune référence de réservation. Jamais de secret (clé de service Supabase) ; seule la clé publique figure dans le code. Les scripts d'import de données personnelles ne sont jamais versionnés.
 - Pas d'indexation : chaque page porte `<meta name="robots" content="noindex">` ; `robots.txt` interdit tout.
@@ -25,7 +25,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 
 ## Plan de page
 
-Pour discuter d'une page ou d'un élément (une carte, un formulaire), on travaille d'abord en texte, avant toute maquette en image :
+Pour discuter d'une page ou d'un élément (une carte, un formulaire), on travaille d'abord en texte, avant toute maquette en image : c'est bien moins coûteux, et souvent suffisant.
 
 - **Schéma** : un bloc de code qui dessine l'élément en caractères, chaque partie repérée par un numéro entre parenthèses, à sa vraie place ; un second schéma pour le téléphone si l'ordre change.
 - **Tableau des éléments** : N°, nom, exemple, place, style actuel (police, taille, couleur).
