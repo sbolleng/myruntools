@@ -156,15 +156,12 @@
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
-    el.innerHTML = '<div class="ob-haut"><h2 class="ob-titre-bloc">Feuille de route</h2>' +
-      (edition ? rond('ajouter', 'Ajouter une course', PLUS) : '') + '</div>' + (etapes.length
+    el.innerHTML = (edition ? '<div class="ob-haut">' + rond('ajouter', 'Ajouter une course', PLUS) + '</div>' : '') + (etapes.length
       ? '<div class="ob-route">' + etapes.map((e, i) => {
         const k = ['ob-et', option(e) ? 'is-opt' : '', option(etapes[i + 1]) ? 'suite-opt' : '', i === etapes.length - 1 ? 'is-fin' : '',
           e.course ? classeRole(e.course) : ''].filter(Boolean).join(' ');
         return '<div class="' + k + '"><div class="ob-rail"><span class="ob-pt"></span></div>' + (e.groupe ? carteGroupe(e) : carteCourse(e.course)) + '</div>';
-      }).join('') + '</div>' +
-        '<div class="ob-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span>' +
-        '<span><i class="obj"></i>Objectif principal</span><span><i class="opt"></i>Option</span></div>'
+      }).join('') + '</div>'
       : '<p class="ob-vide">Aucune course à venir.</p>');
     if (edition) brancher(el, { ajouter: edition.ajouter });
     couperNoms();

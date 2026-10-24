@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.11 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.12 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -28,7 +28,7 @@ Aujourd'hui, côté trail, les courses du graphique de difficulté sont saisies 
 
 Le module a deux pages :
 
-- **Objectif** (`objectif.html`) : la vue d'ensemble. De haut en bas, le **graphique de difficulté** (§ 5.2), affiché pour tous, repliable, puis la **feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier. Pas de texte d'introduction.
+- **Objectif** (`objectif.html`) : la vue d'ensemble. De haut en bas, le **graphique de difficulté** (§ 5.2), affiché pour tous, repliable, puis la **feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier. Ni texte d'introduction, ni titre au-dessus, ni légende dessous.
 - **Page d'une course** (`course.html?id=…`) : tout ce qu'il faut savoir sur une course, une page par course (§ 3.4). On l'ouvre en touchant son étape. Elle a sa propre adresse : on peut la garder en favori pour le jour J, et le bouton retour du téléphone ramène à la feuille de route.
 
 **Construction en lots.** Premier lot : la feuille de route et la page d'une course (cellules, comptes à rebours). Ensuite, chacun dans son lot : graphique de difficulté, badges UTMB, météo du jour J, suivi en course. Chacun est un module qu'on décide d'ajouter ou non, le moment venu.
@@ -69,7 +69,7 @@ Plan de page d'une carte (ordinateur) :
 - **Date approximative** (mois seul) : pour une course Confirmée, compteur jusqu'au 1er du mois, à minuit ; pour une option, pas de compteur.
 - **Sans compteur** (option dont seul le mois est connu) : la date remonte en ligne 1, à droite, son haut aligné sur celui du rôle.
 - **Course · Parcours** trop longs pour une ligne : le parcours passe à la ligne suivante, sans le point.
-- **Téléphone**, de haut en bas : rôle à gauche, son haut aligné sur celui du compteur à droite (un rôle trop long passe sur deux lignes) ; date, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
+- **Téléphone**, de haut en bas : rôle à gauche, son haut aligné sur celui du compteur à droite (un rôle trop long passe sur deux lignes, à côté du compteur et de la date) ; date juste sous le compteur, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
 - Toucher la carte (hors icône ↗ et lien d'inscription) ouvre la page de la course.
 - Une option isolée ne porte pas le mot « Option » : son cadre et son trait en pointillé suffisent.
 
@@ -152,7 +152,7 @@ Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre
 
 | Bouton | Place | Effet |
 | --- | --- | --- |
-| « + » (« Ajouter une course » au survol) | Bouton rond, à droite du titre « Feuille de route » | Ouvre un formulaire vide ; statut Confirmée et rôle Préparatoire proposés |
+| « + » (« Ajouter une course » au survol) | Bouton rond, en haut à droite de la feuille de route, au-dessus de la première carte | Ouvre un formulaire vide ; statut Confirmée et rôle Préparatoire proposés |
 | « Modifier » | Page d'une course, à droite du titre | Ouvre le formulaire rempli |
 | « Retenir cette course » | Page d'un candidat d'un groupe d'options | Après confirmation, le candidat passe en Confirmée et quitte le groupe ; les autres candidats passent À surveiller et quittent la feuille de route, sans être supprimés |
 | « Marquer comme courue » | Page d'une course Confirmée, à partir du jour de la course | Ouvre le formulaire du Palmarès, pré-rempli de ce que la course connaît ; à l'enregistrement, la course passe à l'état Courue, quitte la feuille de route et rejoint le Palmarès |
@@ -381,7 +381,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 
 Résultats attendus, saisie et édition (§ 3.7) :
 
-- Sur la feuille de route, un « + » rond à droite du titre ; il ouvre « Ajouter une course » : six blocs, Course et Place dans le plan ouverts, les quatre autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
+- Sur la feuille de route, un « + » rond en haut à droite, au-dessus de la première carte ; il ouvre « Ajouter une course » : six blocs, Course et Place dans le plan ouverts, les quatre autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
 - Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course et Format, « Choisis un type. » sous Type ; rien n'est écrit.
 - Date au 1er janvier 2026 : « La date d'une course à venir ne peut pas être dans le passé. » ; heure `25h` : « Heure illisible (ex. 07:30). » ; objectif `rapide` : « Format attendu : 02:45:00, Finisher ou Sub 3h » ; lien `www.exemple.org` : « Lien attendu : il commence par http:// ou https://. » ; prix −3 : « Le nombre doit être positif. » ; le bloc d'un champ en erreur se déplie.
 - Objectif : `2:45:00`, `2h45` et `24500` sont rangés `02:45:00` ; `finisher` devient `Finisher` ; `sub 3h`, `Sub 1h30`, `sub1h5`, `SUB 45 min` et `sub 45` deviennent `Sub 3h`, `Sub 1h30`, `Sub 1h05`, `Sub 45 min` et `Sub 45 min`. Heure : `07:30`, `7h30`, `730` et `0730` donnent `07:30` ; `7h` donne `07:00`.
