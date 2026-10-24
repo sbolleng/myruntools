@@ -8,7 +8,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.10 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.13 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.9 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.5 |
@@ -50,8 +50,8 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
+   - **Priorité** : formulaire de saisie et d'édition des courses à venir (lieu, heure, statut, rôle, groupe, dossard, préparation, liens), pour remplir sa feuille de route sans passer par la base : spécification, puis construction.
    - Spécifier l'interface de gestion des groupes d'options (§ 3.6 et questions du § 9).
-   - En-tête : le compte à rebours vise minuit le jour de la course ; viser l'heure de départ quand elle est connue, comme les cartes de la feuille de route ? À décider.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Palmarès** : temps au format hh:mm:ss, modèle unique du site (spécification, affichage, saisie, banc d'essai).

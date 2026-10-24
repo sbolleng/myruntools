@@ -43,5 +43,5 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : Objectif, premier lot (feuille de route `objectif.html`, page d'une course `course.html`).
+- Dernier lot en ligne : Objectif, premier lot (feuille de route `objectif.html`, page d'une course `course.html`), puis compte à rebours de l'en-tête jusqu'à l'heure de départ.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | En-tête | Le compte à rebours vise l'heure de départ de la course quand elle est connue, sinon minuit ; spécification générale 0.13. Prochain lot : formulaire de saisie et d'édition des courses à venir, en priorité. |
 | 24 oct. 2026 | Objectif | Premier lot en ligne : feuille de route (`objectif.html`) et page d'une course (`course.html?id=…`), composant `composants/objectif.js` et sa feuille de style ; module Objectif ajouté au catalogue du menu. Jeu d'essai validé (heure de Paris, changement d'heure compté ; « Course introuvable. » ; navigation candidat par candidat). Banc d'essai : contrôles « objectif », pages Objectif et course ajoutées au contrôle « affichage » ; polices bloquées pendant les essais (sans réseau), leur arrivée tardive décalant la page d'une fraction de pixel. |
 | 24 oct. 2026 | Objectif | Déclinaison B retenue (distance sur sa propre ligne). Spécification v0.5 : carte décrite élément par élément (§ 3.1), dossard en point et texte (§ 3.5), compteur en temps réel, changement d'heure compris (§ 5.1) ; jeu d'essai et résultats attendus (§ 10), à valider. |
 | 24 oct. 2026 | Objectif | Maquette, téléphone : compteur puis date à droite, un interligne, puis le rôle collé au nom (correction de la demande précédente). |
