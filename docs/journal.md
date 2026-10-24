@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Objectif | Déclinaison B retenue (distance sur sa propre ligne). Spécification v0.5 : carte décrite élément par élément (§ 3.1), dossard en point et texte (§ 3.5), compteur en temps réel, changement d'heure compris (§ 5.1) ; jeu d'essai et résultats attendus (§ 10), à valider. |
 | 24 oct. 2026 | Objectif | Maquette, téléphone : compteur puis date à droite, un interligne, puis le rôle collé au nom (correction de la demande précédente). |
 | 24 oct. 2026 | Objectif | Maquette : « Option » retiré du rôle d'une option isolée ; carte d'un groupe d'options : nom du groupe en tête, puis rôle et « • x candidats » (calculé), candidates sans rôle ; plus de « Date à préciser » ; sur téléphone, un interligne entre la date et le nom. Spécification : § 3.6 Groupe d'options (affichage, interface de gestion à spécifier). |
 | 24 oct. 2026 | Objectif | Maquette : pas de compteur pour les candidates d'un groupe ; plus d'interligne entre le compteur et la date sur téléphone ; objectif, pastille du dossard et chiffres du compteur en Accent 2, comme la date. Allures : format min/km inchangé (5:08 /km). En-tête de la page d'une course sur téléphone : à revoir plus tard. |
