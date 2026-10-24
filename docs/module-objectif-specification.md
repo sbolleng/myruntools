@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.5 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.6 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -51,8 +51,8 @@ Une carte par étape, le long d'un trait vertical (pastille et trait selon le §
 - **Trois styles de texte seulement**, un seul interligne (1,5), le même écart entre toutes les lignes : *Nom* (Space Grotesk 1 rem, 600), *Texte* (Space Grotesk 0,8 rem), *Libellé* (Space Mono 0,62 rem, capitales).
 - **Distance** : la distance, puis le D+ s'il est connu ; ligne absente si les deux sont vides.
 - **Objectif** : trois formes seulement, `hh:mm:ss` (« 02:45:00 »), « Finisher », ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). Les durées sont écrites `hh:mm:ss` sur tout le site.
-- **Date approximative** : pas de compteur.
-- **Téléphone**, de haut en bas : compteur, à droite ; date, à droite ; un interligne ; rôle, juste au-dessus du nom ; nom ; puis les autres lignes sur toute la largeur.
+- **Date approximative** (mois seul) : pour une course Confirmée, compteur jusqu'au 1er du mois, à minuit ; pour une option, pas de compteur.
+- **Téléphone**, de haut en bas : rôle à gauche, aligné sur le compteur à droite (un rôle trop long passe sur deux lignes) ; date, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
 - Toucher la carte (hors icône ↗ et lien d'inscription) ouvre la page de la course.
 - Une option isolée ne porte pas le mot « Option » : son cadre et son trait en pointillé suffisent.
 
@@ -150,7 +150,7 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 - Quatre cases (jours, heures, minutes, secondes : `25 j` `23 h` `00 min` `00 s`), sur chaque étape de la feuille de route (sauf les candidates d'un groupe) et en plus grand sur la page de la course. Heures, minutes et secondes sur deux chiffres. Mise à jour chaque seconde, un seul minuteur pour toute la page.
 - Le temps restant est le temps réel jusqu'au départ : un changement d'heure (été, hiver) d'ici là est compté.
-- Date approximative (mois seul) : pas de compte à rebours.
+- Date approximative (mois seul) : jusqu'au 1er du mois, à minuit, pour une course Confirmée ; pas de compte à rebours pour une option.
 - L'heure de départ est saisie en heure locale de la course, sans fuseau ; elle est lue dans le fuseau du navigateur. Correct tant que la course et le coureur sont dans le même fuseau (France, Espagne, Italie). Une course dans un autre fuseau demandera de préciser le fuseau (à traiter le moment venu).
 - Après le départ, le compteur est remplacé par « Course courue », en Libellé.
 
@@ -258,7 +258,8 @@ Résultats attendus, feuille de route :
 - Au 15 novembre 2026 à 9 h, le compteur du Trail du Lac affiche « Course courue ».
 - Toucher la carte du Trail du Lac ouvre sa page ; toucher ↗ ouvre son site officiel dans un nouvel onglet, sans ouvrir la page ; toucher « Inscription ouverte ↗ » ouvre le site d'inscription de l'Ultra du Plateau.
 - Toucher Trail des Cimes, dans la carte du groupe, ouvre la page de Trail des Cimes.
-- Téléphone : sur chaque carte, compteur puis date à droite, un interligne, puis le rôle juste au-dessus du nom ; rien ne dépasse de l'écran.
+- Téléphone : sur chaque carte, le rôle à gauche aligné sur le compteur à droite (OBJECTIF INTERMÉDIAIRE sur deux lignes), la date dessous à droite, un interligne, puis le nom ; rien ne dépasse de l'écran.
+- Trail de la Forêt passé en Confirmée : compteur `253 j` `14 h` `00 min` `00 s`, jusqu'au 1er juillet 2027 à minuit.
 - Thème changé : seules les couleurs changent.
 
 Résultats attendus, page d'une course :

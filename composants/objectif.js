@@ -23,9 +23,10 @@
   const pageCourse = c => 'course.html?id=' + encodeURIComponent(c.id);
   const classeRole = c => (c.role === 'objectif' ? 'is-obj' : c.role === 'objectif_intermediaire' ? 'is-cle' : '');
 
-  // Départ : jour et heure locale de la course, lus dans le fuseau du navigateur (§ 5.1).
+  // Départ : jour et heure locale de la course, lus dans le fuseau du navigateur (§ 5.1) ;
+  // mois seul : le 1er du mois, à minuit.
   function depart(c) {
-    const d = c.date.split('-').map(Number), h = (c.heure || '00:00').split(':').map(Number);
+    const d = c.date.split('-').map(Number), h = (!c.date_approx && c.heure ? c.heure : '00:00').split(':').map(Number);
     return new Date(d[0], d[1] - 1, d[2], h[0], h[1]);
   }
   function dateCourte(c) {
@@ -80,8 +81,9 @@
     ? '<a class="ob-ext" href="' + esc(c.lien) + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">↗</a>' : '');
 
   // Compteur (§ 5.1) : quatre cases, mises à jour par un seul minuteur pour toute la page.
-  // Pas de compteur quand seul le mois est connu.
-  const compteurHtml = c => (c.date_approx ? '' : '<div class="ob-cpt" data-depart="' + depart(c).getTime() + '">' +
+  // Mois seul : compteur pour une course confirmée (jusqu'au 1er du mois), aucun pour une option.
+  const sansCompteur = c => c.date_approx && c.statut !== 'confirmee';
+  const compteurHtml = c => (sansCompteur(c) ? '' : '<div class="ob-cpt" data-depart="' + depart(c).getTime() + '">' +
     UNITES.map(u => '<span class="ob-cpt-case"><b data-u="' + u[0] + '"></b>' + u[1] + '</span>').join('') + '</div>');
   let minuteur = null;
   function tic() {
@@ -176,7 +178,7 @@
         (c.objectif ? stat(esc(c.objectif), 'Objectif') : '') +
         dossardHtml(c) +
       '</div>' +
-      (c.date_approx ? '' : '<div class="pc-grille"><section class="card pc-rebours"><h3 class="ob-titre-bloc">Départ dans</h3>' + compteurHtml(c) + '</section></div>') +
+      (sansCompteur(c) ? '' : '<div class="pc-grille"><section class="card pc-rebours"><h3 class="ob-titre-bloc">Départ dans</h3>' + compteurHtml(c) + '</section></div>') +
       '<div class="pc-grille">' +
         cellule('Dossard', '<p>' + dossardHtml(c) + '</p>' + (c.prix != null ? '<p>Prix : ' + esc(euros(c.prix)) + '</p>' : '')) +
         cellule('Rôle dans la préparation', texte(c.pourquoi)) +
