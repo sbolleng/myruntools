@@ -11,6 +11,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 
 - Ne jamais inventer de données : demander.
 - Français, tutoiement, réponses courtes et factuelles.
+- Maquettes et images : chacune coûte cher en consommation. Avant d'en produire, ou de lancer un travail long ou groupé (plusieurs fichiers, plusieurs essais), dire ce que ce sera et demander confirmation ; ne faire sans demander que les petites tâches.
 - Le pilote route est désigné « le compte test Rome », jamais par son nom ni son adresse, nulle part.
 - Le dépôt est public : aucune donnée personnelle, aucun nom complet de tiers, aucune référence de réservation. Jamais de secret (clé de service Supabase) ; seule la clé publique figure dans le code. Les scripts d'import de données personnelles ne sont jamais versionnés.
 - Pas d'indexation : chaque page porte `<meta name="robots" content="noindex">` ; `robots.txt` interdit tout.
@@ -30,7 +31,7 @@ Spécification → validation → modèle de données si besoin → construction
 
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
 - Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
-- `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), planning.
+- `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), feuille de route et page d'une course (`objectif`), planning.
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise`, proposés à tous, choisis dans les Préférences seulement (plus de `?t=…` sur le site).
@@ -43,6 +44,5 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : page Préférences (thème, menu, cap), `?t=…` retiré du site.
-- En cours : authentification (domaine, Resend, SMTP, e-mail en français), voir la todo.
+- Dernier lot en ligne : Objectif, premier lot (feuille de route `objectif.html`, page d'une course `course.html`), puis compte à rebours de l'en-tête jusqu'à l'heure de départ.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

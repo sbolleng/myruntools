@@ -6,7 +6,8 @@
 // config :
 //   theme      'bleu-orange' | 'vert-rose' | 'violet-turquoise'
 //   objectif   { nom, distance (km), dplus (m, si connu), date
-//                ('AAAA-MM-JJ', ou 'AAAA-MM' si le jour est inconnu), dIciLa
+//                ('AAAA-MM-JJ', ou 'AAAA-MM' si le jour est inconnu), heure
+//                (heure de départ 'HH:MM', si connue), dIciLa
 //                (nombre de courses avant l'objectif), cible (texte libre) }
 //   prochaine  { nom, date: 'AAAA-MM-JJ' } ou rien
 //   modules    [{ nom, page }] dans l'ordre du menu ; page absente = pas encore construit
@@ -23,9 +24,10 @@
   const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
 
   // 'AAAA-MM-JJ' ou 'AAAA-MM' : minuit, heure locale ; jour inconnu = le 1er du mois.
-  function parseDate(str) {
-    const p = String(str).split('-').map(Number);
-    return new Date(p[0], p[1] - 1, p[2] || 1);
+  // heure 'HH:MM' : l'heure de départ, heure locale.
+  function parseDate(str, heure) {
+    const p = String(str).split('-').map(Number), h = heure ? String(heure).split(':').map(Number) : [0, 0];
+    return new Date(p[0], p[1] - 1, p[2] || 1, h[0], h[1] || 0);
   }
   function fmtDate(str) {
     const p = String(str).split('-').map(Number);
@@ -99,7 +101,7 @@
     }
 
     const $ = sel => header.querySelector(sel);
-    const target = o.date ? parseDate(o.date) : null;
+    const target = o.date ? parseDate(o.date, o.heure) : null;
     const next = cfg.prochaine;
     function tick() {
       const t = now();

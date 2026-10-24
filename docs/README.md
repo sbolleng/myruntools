@@ -8,10 +8,10 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.10 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.13 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.9 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.1 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.8 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition | Version 1.8 |
 
@@ -47,35 +47,18 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 ### Prochaines étapes
 
-- [ ] Authentification, dans l'ordre (Supabase n'autorise la modification des e-mails qu'avec un service d'envoi branché) :
-  1. Acheter le nom de domaine `myruntools` (`.fr` ou `.com`) chez un vendeur qui permet de modifier la zone DNS.
-  2. Créer un compte Resend, y ajouter le domaine, copier ses lignes dans la zone DNS, attendre la vérification.
-  3. Brancher Resend dans Supabase (Authentication › SMTP), expéditeur `connexion@` + domaine : lève la limite de 2 e-mails par heure.
-  4. Coller le texte de l'e-mail (spécification générale § 3) dans le modèle « Magic Link », au format HTML ; tester depuis la page de connexion.
-- [ ] Essai à deux du partage : le compte test Rome partage, tu regardes son site.
+Dans l'ordre :
 
-### Affichage
-
-- [ ] Chargement des pages, surtout sur téléphone : la page apparaît d'abord sans en-tête, puis l'en-tête s'ajoute et pousse le contenu vers le bas (par exemple en ouvrant le Palmarès). À corriger : la page doit s'afficher d'un seul coup, en-tête compris, sans saut pendant la lecture.
-
-### Préférences utilisateur
-
-- [ ] Changement de mot de passe (connexion par lien magique seulement pour l'instant).
-
-### Profil et Matériel
-
-- [ ] Profil : état civil, poids, taille, pointure.
-- [ ] Matériel : chaussures et leur usure.
-
-### Objectif
-
-- [ ] Spécifier les blocs de la page Objectif : l'indicateur « D'ici là » de l'en-tête en compte le nombre.
-- [ ] « Prochaine course » de l'en-tête reprise de la page Objectif (calculée en attendant : la première course confirmée à venir).
-- [ ] Pouvoir marquer, sur la page Objectif, la course à afficher dans l'en-tête : même réglage que le Cap des Préférences (`course_cap`).
-
-### Calendrier
-
-- [ ] Créer la page Calendrier (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
+1. [ ] **Objectif** :
+   - **Priorité** : formulaire de saisie et d'édition des courses à venir (§ 3.7 de la spécification 0.7) : valider les résultats attendus, puis construire.
+   - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
+   - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
+2. [ ] **Palmarès** : temps au format hh:mm:ss, modèle unique du site (spécification, affichage, saisie, banc d'essai).
+3. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
+4. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
+5. [ ] **Profil et Matériel** :
+   - Profil : état civil, poids, taille, pointure.
+   - Matériel : chaussures et leur usure.
 
 ## Questions ouvertes
 
