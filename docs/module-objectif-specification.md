@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.8 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.9 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -36,6 +36,21 @@ Le module a deux pages :
 ### 3.1 Une étape de la feuille de route (coup d'œil)
 
 Une carte par étape, le long d'un trait vertical (pastille et trait selon le § 3.3). Maquette : `docs/maquettes/objectif.html?v=b`.
+
+Plan de page d'une carte (ordinateur) :
+
+```
+(2)●  ┌──────────────────────────────────────────────────────────────────┐
+ │    │ (4) PRÉPARATOIRE                  (5) [25 j][23 h][59 min][56 s] │
+ │    │ (6) Trail du Lac · Le Tour du Lac (7)↗          (3) 15 NOV. 2026 │
+(1)   │ (8) Mont-Clair · Trail court                                     │
+ │    │ DISTANCE       24 km · 650 m D+                                  │
+ │    │ (9) OBJECTIF   (10) 02:45:00                                     │
+ │    │ (11) DOSSARD   (12)● (13) Inscrit · n° 412                       │
+ │    └──────────────────────────────────────────────────────────────────┘
+```
+
+(1) trait du chemin, (2) pastille du chemin.
 
 | N° | Élément | Exemple | Place sur ordinateur | Style |
 | --- | --- | --- | --- | --- |
@@ -112,8 +127,8 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 | --- | --- | --- |
 | Inscrit | `inscrit` vrai | ● plein en Accent 2, « Inscrit · n° 412 » (« Inscrit » seul sans numéro) |
 | Inscription ouverte | Pas inscrit, ouverture passée ou du jour | ● plein et texte en Alerte, souligné : « Inscription ouverte ↗ », lien vers le site d'inscription s'il est connu |
-| Ouvre bientôt | Pas inscrit, ouverture à venir | ○ vide en Accent 2 : « Ouvre le 10/01/2027 » |
-| Pas inscrit | Pas inscrit, ouverture inconnue | ○ vide en Texte discret : « Pas inscrit » |
+| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Accent 2 : « Ouvre le 10/01/2027 » |
+| Ouverture à venir | Pas inscrit, date d'ouverture inconnue | ○ vide en Texte discret : « Ouverture à venir » |
 
 ### 3.6 Groupe d'options (course à choisir)
 
@@ -286,7 +301,7 @@ Résultats attendus, feuille de route :
 - Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Accent 2, pastille en Accent 2 ; compteur `137 j` `22 h` `30 min` `00 s` ; OBJECTIF 06:30:00.
 - Printemps 2027 : une seule carte, en pointillé ; « Printemps 2027 », puis « PRÉPARATOIRE • 2 CANDIDATS » ; Trail des Cimes (30 MAI 2027, DOSSARD ○ Ouvre le 10/01/2027), puis Ultra du Plateau · Le 55 (26 JUIN 2027, DOSSARD ● Inscription ouverte ↗, en Alerte) ; ni rôle, ni objectif, ni compteur pour les candidates.
 - Trail des Cimes sorti du groupe (groupe vidé dans ses données) : la carte Printemps 2027 affiche « • 1 candidat », Trail des Cimes devient une option isolée, et l'en-tête affiche « 6 courses ».
-- Trail de la Forêt : cadre en pointillé, pastille vide ; rôle PRÉPARATOIRE, sans le mot « Option » ; date JUILLET 2027 ; pas de compteur ; pas de ligne Objectif ; DOSSARD ○ Pas inscrit.
+- Trail de la Forêt : cadre en pointillé, pastille vide ; rôle PRÉPARATOIRE, sans le mot « Option » ; date JUILLET 2027 ; pas de compteur ; pas de ligne Objectif ; DOSSARD ○ Ouverture à venir.
 - Trail des Crêtes : rôle OBJECTIF PRINCIPAL en Accent, cadre en Accent, pastille cerclée ; compteur `311 j` `19 h` `00 min` `00 s` ; OBJECTIF Finisher ; DOSSARD ● Inscrit · n° 88.
 - Une seconde plus tard, les secondes de chaque compteur sont passées à 59 (`25 j 23 h 59 min 59 s` pour Trail du Lac).
 - Au 15 novembre 2026 à 9 h, le compteur du Trail du Lac affiche « Course courue ».
