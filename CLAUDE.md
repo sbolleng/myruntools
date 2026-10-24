@@ -23,6 +23,16 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 - Chaque spécification finit par un jeu d'essai et des résultats attendus, rejoués avant chaque mise en ligne.
 - Chaque décision : une ligne dans `docs/journal.md`, la plus récente en haut.
 
+## Plan de page
+
+Pour discuter d'une page ou d'un élément (une carte, un formulaire), on travaille d'abord en texte, avant toute maquette en image :
+
+- **Schéma** : un bloc de code qui dessine l'élément en caractères, chaque partie repérée par un numéro entre parenthèses, à sa vraie place ; un second schéma pour le téléphone si l'ordre change.
+- **Tableau des éléments** : N°, nom, exemple, place, style actuel (police, taille, couleur).
+- **Numéros stables** : un élément garde son numéro d'une version à l'autre ; un nouvel élément prend le numéro suivant. On s'en sert pour demander une modification (« le 5 dans la couleur du 3 »).
+- **Options** : quand il faut choisir, un tableau des propositions (proposition, rendu, ce qu'on y gagne), avec une recommandation.
+- Le plan retenu va dans la spécification du module (exemple : `docs/module-objectif-specification.md`, § 3.1).
+
 ## Cycle d'un module
 
 Spécification → validation → modèle de données si besoin → construction → contrôles (jeu d'essai, rejoué par le banc d'essai) → mise en ligne. Maquette seulement à la demande, ou proposée quand elle aide à trancher.

@@ -77,11 +77,11 @@
     return etapes;
   };
 
-  // Dossard (§ 3.5) : inscrit, inscription ouverte, ouvre bientôt, ou rien de connu.
+  // Dossard (§ 3.5) : inscrit, inscription ouverte, ouvre bientôt, ou ouverture à venir (date inconnue).
   function dossard(c) {
     if (c.inscrit) return { etat: 'inscrit', texte: 'Inscrit' + (c.dossard ? ' · n° ' + c.dossard : '') };
     const o = c.ouverture_inscriptions;
-    if (!o) return { etat: 'inconnu', texte: 'Pas inscrit' };
+    if (!o) return { etat: 'inconnu', texte: 'Ouverture à venir' };
     if (o > aujourdhui()) return { etat: 'bientot', texte: 'Ouvre le ' + o.split('-').reverse().join('/') };
     return { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
   }

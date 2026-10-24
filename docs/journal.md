@@ -6,6 +6,8 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Méthode | « Plan de page » : schéma en texte, éléments numérotés, tableau des éléments et tableau des options, avant toute maquette en image ; décrit dans CLAUDE.md, exemple dans la spécification Objectif (§ 3.1). |
+| 24 oct. 2026 | Objectif | Dossard sans date d'ouverture connue : « Ouverture à venir » au lieu de « Pas inscrit » ; spécification 0.9. |
 | 24 oct. 2026 | Méthode | Maquettes et images coûtent cher : confirmation demandée avant d'en produire ou de lancer un travail long (règle dans `CLAUDE.md`). |
 | 24 oct. 2026 | Objectif | Spécification 0.8 : haut du rôle aligné sur le haut du compteur ; sans compteur, la date remonte face au rôle ; course et parcours trop longs : le parcours passe à la ligne, sans le point. |
 | 24 oct. 2026 | Objectif | Groupes d'options : créés dans le formulaire ; un candidat se retient depuis sa page, les autres passent À surveiller ; rôles différents listés ; un groupe d'un seul candidat reste un groupe. Spécification 0.7 : saisie et édition des courses à venir (§ 3.7) et ses résultats attendus, à valider. |
