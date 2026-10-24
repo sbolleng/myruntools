@@ -106,9 +106,11 @@
 .pc-nav b { font-weight: 600; }
 
 @media (max-width: 600px) {
-  /* Téléphone : le compteur puis la date, à droite ; un interligne ; le rôle juste au-dessus du nom. */
-  .ob-carte { grid-template-areas: "cpt cpt" "date date" "role role" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
-  .ob-carte:not(.ob-groupe) > .ob-role { margin-top: 0.9rem; }
+  /* Téléphone : le rôle à gauche, aligné sur le compteur à droite ; la date dessous, à droite ;
+     un interligne entre la date et le nom. Un rôle trop long passe sur deux lignes. */
+  .ob-carte { grid-template-areas: "role cpt" "date date" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
+  .ob-carte > .ob-role { white-space: normal; }
+  .ob-carte:not(.ob-groupe) > .ob-nom { margin-top: 0.9rem; }
   .ob-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }
   /* Candidat : pas de rôle, l'interligne passe entre la date et le nom. */
   .ob-cand { grid-template-areas: "date date" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }

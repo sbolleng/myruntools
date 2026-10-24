@@ -426,20 +426,31 @@ const CONTROLES = {
     pb.push(egal(['Préparatoire • 1 candidat', "6 courses"], [k.find(x => x.nom === 'Printemps 2027').role, await p.evaluate(() => document.querySelectorAll('.mrt-stat-val')[3].textContent)], 'groupe d\'un seul candidat'));
     await ctx.close();
 
+    // Course confirmée dont seul le mois est connu : compteur jusqu'au 1er du mois, à minuit.
+    const moisSeul = JSON.parse(JSON.stringify(db));
+    moisSeul.courses.find(c => c.id === id(6)).statut = 'confirmee';
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, moisSeul, {}, PARIS));
+    await figer(p);
+    pb.push(egal('253j 14h 00min 00s', (await cartes(p)).find(x => x.nom === 'Trail de la Forêt').compteur, 'confirmée au mois seul : compteur jusqu\'au 1er du mois'));
+    await ctx.close();
+
     // Au départ du Trail du Lac
     ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, db, {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-15T09:00:00+01:00') }));
     pb.push(egal('Course courue', (await cartes(p))[0].compteur, 'au départ : Course courue'));
     await ctx.close();
 
-    // Téléphone : compteur, date, un interligne, rôle collé au nom ; rien ne dépasse.
+    // Téléphone : rôle à gauche, aligné sur le compteur ; date dessous, à droite ; un interligne avant le nom ; rien ne dépasse.
     ({ p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
-    const tel = await p.evaluate(() => {
-      const c = document.querySelector('.ob-carte'), b = s => c.querySelector(':scope > ' + s).getBoundingClientRect();
-      return { ordre: b('.ob-cpt').bottom <= b('.ob-date').top && b('.ob-date').bottom <= b('.ob-role').top && b('.ob-role').bottom <= b('.ob-nom').top,
-        interligne: Math.round(b('.ob-role').top - b('.ob-date').bottom) > Math.round(b('.ob-nom').top - b('.ob-role').bottom),
-        aDroite: Math.round(b('.ob-cpt').right) === Math.round(b('.ob-date').right), debordement: document.documentElement.scrollWidth > innerWidth };
-    });
-    pb.push(egal({ ordre: true, interligne: true, aDroite: true, debordement: false }, tel, 'téléphone'));
+    const tel = await p.evaluate(() => [...document.querySelectorAll('.ob-carte:not(.ob-groupe)')].filter(c => c.querySelector(':scope > .ob-cpt')).map(c => {
+      const b = s => c.querySelector(':scope > ' + s).getBoundingClientRect(), carte = c.getBoundingClientRect();
+      const milieu = r => (r.top + r.bottom) / 2;
+      return { aligne: Math.abs(milieu(b('.ob-role')) - milieu(b('.ob-cpt'))) <= 1, dateDessous: b('.ob-date').top >= b('.ob-cpt').bottom,
+        aDroite: Math.round(b('.ob-cpt').right) === Math.round(b('.ob-date').right),
+        interligne: Math.round(b('.ob-nom').top - Math.max(b('.ob-date').bottom, b('.ob-role').bottom)) >= 15,
+        dedans: b('.ob-role').right <= b('.ob-cpt').left && b('.ob-cpt').right <= carte.right };
+    }).concat([{ debordement: document.documentElement.scrollWidth > innerWidth }]));
+    const t0 = { aligne: true, dateDessous: true, aDroite: true, interligne: true, dedans: true };
+    pb.push(egal([t0, t0, t0, t0, { debordement: false }], tel, 'téléphone'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-telephone.png'), fullPage: true });
     pb.push(egal([], erreurs, 'téléphone, erreurs JavaScript'));
     await ctx.close();
