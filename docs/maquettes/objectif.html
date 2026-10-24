@@ -34,7 +34,10 @@
   const info = (c, format) => '<div class="fr-info">' + esc(c.lieu) + (format ? ' · ' + esc(c.format) : '') + (v === 'a' ? ' · ' + chiffres(c) : '') + '</div>';
   const distance = c => v === 'b' ? '<div class="fr-ligne is-dist"><span class="fr-lib">Distance</span><span>' + chiffres(c) + '</span></div>' : '';
   const dossard = c => '<div class="fr-ligne is-dos"><span class="fr-lib">Dossard</span><span>' + MQ.dossardHtml(c) + '</span></div>';
-  const cpt = c => MQ.compteurHtml(c, true);
+  // Pas de compteur quand seul le mois est connu.
+  const cpt = c => (c.approx ? '' : MQ.compteurHtml(c, true));
+  // Rôle d'un groupe : celui de ses candidates.
+  const roleGroupe = cs => [...new Set(cs.map(c => MQ.ROLES[c.role]))].join(' · ');
 
   // Une carte par étape, le long d'un trait ; un groupe d'options fait une seule carte.
   const et = MQ.etapes();
@@ -45,14 +48,15 @@
     const k = ['fr-et', opt ? 'is-opt' : '', suiteOpt ? 'suite-opt' : '', e.course ? cls(e.course) : ''].join(' ');
     let carte;
     if (e.groupe) {
-      carte = '<div class="fr-carte fr-groupe"><span class="fr-date">À choisir · ' + e.candidates.length + ' candidates</span>' +
-        '<div class="fr-nom">' + esc(e.groupe) + '</div><div class="fr-cands">' +
-        e.candidates.map(c => '<div class="fr-cand"><span class="fr-role">' + MQ.ROLES[c.role] + '</span><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + nom(c) + info(c) + '<div class="fr-lignes">' + distance(c) + dossard(c) + '</div></div>').join('') +
+      const n = e.candidates.length;
+      carte = '<div class="fr-carte fr-groupe"><div class="fr-nom">' + esc(e.groupe) + '</div>' +
+        '<span class="fr-role">' + roleGroupe(e.candidates) + ' • ' + n + (n > 1 ? ' candidats' : ' candidat') + '</span><div class="fr-cands">' +
+        e.candidates.map(c => '<div class="fr-cand"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + nom(c) + info(c) + '<div class="fr-lignes">' + distance(c) + dossard(c) + '</div></div>').join('') +
         '</div></div>';
     } else {
       const c = e.course;
       carte = '<div class="fr-carte"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' +
-        '<span class="fr-role ' + cls(c) + '">' + (c.statut === 'option' ? 'Option · ' : '') + MQ.ROLES[c.role] + '</span>' +
+        '<span class="fr-role ' + cls(c) + '">' + MQ.ROLES[c.role] + '</span>' +
         cpt(c) + nom(c) + info(c, true) + '<div class="fr-lignes">' + distance(c) +
         (c.objectif ? '<div class="fr-ligne is-obj"><span class="fr-lib">Objectif</span><span class="fr-cible">' + esc(c.objectif) + '</span></div>' : '') +
         dossard(c) + '</div></div>';

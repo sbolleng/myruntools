@@ -109,6 +109,22 @@ Une étiquette en forme de dossard (quatre épingles aux coins), sur la feuille 
 | Ouvre bientôt | Pas inscrit, ouverture à venir | Pointillé, couleur Accent 2 : « Ouvre le 10 janv. · J-82 » |
 | Pas inscrit | Pas inscrit, ouverture inconnue | Pointillé, discret |
 
+### 3.6 Groupe d'options (course à choisir)
+
+**Affichage** (maquette `docs/maquettes/objectif.html`) :
+
+- Une seule carte par groupe, placée dans la feuille de route à la date de sa première candidate.
+- En tête : le nom du groupe (« Printemps 2027 »), dans le style du nom d'une course, en couleur Texte ; dessous, le rôle et « • x candidats », x étant calculé : le nombre de courses du groupe au statut Option et à l'état À venir (« • 1 candidat » au singulier).
+- Puis une ligne par candidate, dans l'ordre chronologique : nom ↗ et date, ligne d'infos, dossard. Ni rôle, ni objectif, ni compteur.
+- Toucher une candidate ouvre sa page.
+
+**Interface de gestion** : à spécifier.
+
+- Créer un groupe, le nommer, le renommer.
+- Ajouter une candidate au groupe, en retirer une.
+- Retenir une candidate : elle passe en Confirmée et quitte le groupe ([modèle de données](modele-donnees.md), § 4.1).
+- Questions ouvertes au § 9.
+
 ## 4. Données d'une course
 
 | Groupe | Champs | Sert à |
@@ -200,4 +216,5 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 - [x] Course à choisir : une liste dans l'étape, une ligne par candidate ; chacune ouvre sa page. Le comparatif viendra du graphique de difficulté (décidé le 23 oct. 2026).
 - [x] Détail d'une course : une page dédiée par course plutôt qu'une étape dépliée ou une fenêtre ; icône ↗ pour le site officiel (décidé le 23 oct. 2026).
 - [ ] Inscriptions fermées (ou complet) sans être inscrit : un cinquième état ? Il demanderait un champ de plus (date de clôture ou case « complet »).
+- [ ] Groupe d'options, gestion : où se fait-elle (formulaire de la course, ou depuis la carte du groupe) ? Que deviennent les autres candidates quand l'une est retenue (À surveiller, Abandonnée, supprimées) ? Rôle affiché quand les candidates n'ont pas le même rôle ? Un groupe réduit à une candidate reste-t-il un groupe ?
 - [ ] Choix de la course de l'en-tête (cap) : seulement dans les Préférences, ou aussi depuis la page Objectif ? À revoir une fois la feuille de route construite.

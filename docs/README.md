@@ -51,6 +51,7 @@ Dans l'ordre :
 
 1. [ ] **Objectif** :
    - Choisir la déclinaison A ou B de la carte (`docs/maquettes/objectif.html?v=a` ou `?v=b`), après avis extérieur ;
+   - Spécifier l'interface de gestion des groupes d'options (§ 3.6 et questions du § 9).
    - Puis : jeu d'essai de la spécification v0.4, construction de la feuille de route et de la page d'une course en premier lot.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
