@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.7 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.8 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -52,7 +52,9 @@ Une carte par étape, le long d'un trait vertical (pastille et trait selon le §
 - **Distance** : la distance, puis le D+ s'il est connu ; ligne absente si les deux sont vides.
 - **Objectif** : trois formes seulement, `hh:mm:ss` (« 02:45:00 »), « Finisher », ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). Les durées sont écrites `hh:mm:ss` sur tout le site.
 - **Date approximative** (mois seul) : pour une course Confirmée, compteur jusqu'au 1er du mois, à minuit ; pour une option, pas de compteur.
-- **Téléphone**, de haut en bas : rôle à gauche, aligné sur le compteur à droite (un rôle trop long passe sur deux lignes) ; date, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
+- **Sans compteur** (option dont seul le mois est connu) : la date remonte en ligne 1, à droite, son haut aligné sur celui du rôle.
+- **Course · Parcours** trop longs pour une ligne : le parcours passe à la ligne suivante, sans le point.
+- **Téléphone**, de haut en bas : rôle à gauche, son haut aligné sur celui du compteur à droite (un rôle trop long passe sur deux lignes) ; date, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
 - Toucher la carte (hors icône ↗ et lien d'inscription) ouvre la page de la course.
 - Une option isolée ne porte pas le mot « Option » : son cadre et son trait en pointillé suffisent.
 
@@ -291,6 +293,8 @@ Résultats attendus, feuille de route :
 - Toucher la carte du Trail du Lac ouvre sa page ; toucher ↗ ouvre son site officiel dans un nouvel onglet, sans ouvrir la page ; toucher « Inscription ouverte ↗ » ouvre le site d'inscription de l'Ultra du Plateau.
 - Toucher Trail des Cimes, dans la carte du groupe, ouvre la page de Trail des Cimes.
 - Téléphone : sur chaque carte, le rôle à gauche aligné sur le compteur à droite (OBJECTIF INTERMÉDIAIRE sur deux lignes), la date dessous à droite, un interligne, puis le nom ; rien ne dépasse de l'écran.
+- Trail de la Forêt (sans compteur) : la date JUILLET 2027 en haut à droite, face au rôle.
+- Trail du Lac avec le parcours « Le Grand Tour du Lac de Mont-Clair », sur téléphone : « Trail du Lac » puis, à la ligne, le parcours, sans le point.
 - Trail de la Forêt passé en Confirmée : compteur `253 j` `14 h` `00 min` `00 s`, jusqu'au 1er juillet 2027 à minuit.
 - Thème changé : seules les couleurs changent.
 

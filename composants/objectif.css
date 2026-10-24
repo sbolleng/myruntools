@@ -51,11 +51,18 @@
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .ob-et.is-opt .ob-carte { border-style: dashed; background: transparent; }
 .ob-et.is-obj .ob-carte { border-color: var(--accent); }
-.ob-carte > .ob-role { grid-area: role; }
-.ob-carte > .ob-cpt { grid-area: cpt; justify-self: end; }
+.ob-carte > .ob-role { grid-area: role; align-self: start; }
+.ob-carte > .ob-cpt { grid-area: cpt; justify-self: end; align-self: start; }
+/* Sans compteur : la date remonte, son haut aligné sur celui du rôle. */
+.ob-carte.sans-cpt { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes"; }
+.ob-carte.sans-cpt > .ob-date { align-self: start; }
 .ob-carte .ob-date { grid-area: date; justify-self: end; }
 .ob-nom { grid-area: nom; font-size: 1rem; font-weight: 600; line-height: 1.5; color: var(--accent); }
 .ob-nom a { color: inherit; text-decoration: none; }
+/* Course · Parcours : le parcours passe à la ligne, sans le point, quand les deux ne tiennent pas ensemble. */
+.ob-p { display: inline-block; }
+.is-coupe .ob-c { display: block; }
+.is-coupe .ob-sep { display: none; }
 /* Toute la carte ouvre la page de la course ; l'icône ↗ et le lien d'inscription restent à part. */
 .ob-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
 .ob-info { grid-area: info; }
@@ -109,6 +116,7 @@
   /* Téléphone : le rôle à gauche, aligné sur le compteur à droite ; la date dessous, à droite ;
      un interligne entre la date et le nom. Un rôle trop long passe sur deux lignes. */
   .ob-carte { grid-template-areas: "role cpt" "date date" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
+  .ob-carte.sans-cpt { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes"; }
   .ob-carte > .ob-role { white-space: normal; }
   .ob-carte:not(.ob-groupe) > .ob-nom { margin-top: 0.9rem; }
   .ob-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }

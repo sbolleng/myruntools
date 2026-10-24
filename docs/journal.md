@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Objectif | Spécification 0.8 : haut du rôle aligné sur le haut du compteur ; sans compteur, la date remonte face au rôle ; course et parcours trop longs : le parcours passe à la ligne, sans le point. |
 | 24 oct. 2026 | Objectif | Groupes d'options : créés dans le formulaire ; un candidat se retient depuis sa page, les autres passent À surveiller ; rôles différents listés ; un groupe d'un seul candidat reste un groupe. Spécification 0.7 : saisie et édition des courses à venir (§ 3.7) et ses résultats attendus, à valider. |
 | 24 oct. 2026 | Objectif | Spécification 0.6 : sur téléphone, le rôle reste en haut à gauche, aligné sur le compteur ; un seul interligne, entre la date et le nom. Course confirmée dont seul le mois est connu : compteur jusqu'au 1er du mois (pas de compteur pour une option). Formulaire de saisie et d'édition validé dans son principe : celui du Palmarès étendu aux courses à venir, « + » sur la feuille de route et « Modifier » sur la page d'une course, gestion des groupes d'options et passage en « courue » dans le même lot. |
 | 24 oct. 2026 | En-tête | Le compte à rebours vise l'heure de départ de la course quand elle est connue, sinon minuit ; spécification générale 0.13. Prochain lot : formulaire de saisie et d'édition des courses à venir, en priorité. |
