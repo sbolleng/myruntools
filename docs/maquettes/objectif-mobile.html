@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<title>Maquette Objectif téléphone</title>
+<style>
+  body { margin: 0; padding: 1.5rem 1rem; background: #111; color: #ddd; font-family: system-ui, sans-serif; }
+  p { margin: 0 0 1rem; font-size: 0.85rem; }
+  a { color: #9cf; }
+  .row { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+  figure { margin: 0; }
+  figcaption { font-size: 0.75rem; margin-bottom: 0.4rem; }
+  iframe { width: 390px; max-width: calc(100vw - 2rem); height: 760px; border: 1px solid #333; border-radius: 12px; background: #000; }
+</style>
+</head>
+<body>
+<p>La page Objectif sur un écran de 390 px. <a href="objectif.html">Vue ordinateur</a>.</p>
+<div class="row">
+  <figure><figcaption>Feuille de route</figcaption><iframe src="objectif.html" title="Variante A"></iframe></figure>
+  <figure><figcaption>Feuille de route · vert et rose</figcaption><iframe src="objectif.html?t=vert-rose" title="Vert et rose"></iframe></figure>
+  <figure><figcaption>Page d'une course</figcaption><iframe src="objectif-course.html?c=3" title="Page d'une course"></iframe></figure>
+  <figure><figcaption>Page d'une candidate</figcaption><iframe src="objectif-course.html?c=4&amp;t=vert-rose" title="Page d'une candidate"></iframe></figure>
+</div>
+</body>
+</html>

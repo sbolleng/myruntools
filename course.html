@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<script>document.documentElement.classList.add('mrt-attente');</script>
+<title>Course · MyRunTools</title>
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
+</head>
+<body>
+<main>
+  <div id="course"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script src="composants/donnees.js?v=__VERSION__"></script>
+<script src="composants/objectif.js?v=__VERSION__"></script>
+<script>
+  // Une course de la feuille de route, désignée par ?id= ; l'onglet Objectif reste en avant.
+  mrtPage({ courant: 'objectif.html' }).then(page => {
+    const c = renderPageCourse(document.getElementById('course'), page.courses, new URLSearchParams(location.search).get('id'));
+    if (c) document.title = mrtNomCourse(c) + ' · MyRunTools';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+/* ===== Objectif : feuille de route et page d'une course (objectif.js) =====
+   docs/module-objectif-specification.md, § 3 ; maquette docs/maquettes/objectif.html?v=b.
+   Rôles de couleur de docs/design.md ; rien d'écrit en dur.
+   Trois styles de texte, un seul interligne (1,5) :
+   Nom      Space Grotesk 1 rem, 600, Accent
+   Texte    Space Grotesk 0,8 rem, Texte discret ; valeurs en Texte
+   Libellé  Space Mono 0,62 rem, capitales (rôle, date, compteur, libellés) */
+.ob-titre-bloc { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; }
+.ob-vide { color: var(--muted); }
+.ob-lib, .ob-date, .ob-role, .ob-cpt { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.ob-lib { color: var(--muted); }
+.ob-date { color: var(--accent2); }
+.ob-role { color: var(--muted); }
+.ob-role.is-cle { color: var(--accent2); }
+.ob-role.is-obj { color: var(--accent); }
+.ob-val { color: var(--text); }
+.ob-cible { color: var(--accent2); }
+/* Lien officiel : icône ↗ à côté du nom. */
+.ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
+
+/* Compteur : quatre cases fines ; chiffres en Accent 2, unités en Texte discret. */
+.ob-cpt { display: flex; gap: 0.25rem; }
+.ob-cpt-case { display: inline-flex; align-items: baseline; gap: 0.15rem; padding: 0 0.4rem; line-height: 1.5; text-transform: none; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; }
+.ob-cpt-case b { font-weight: 400; color: var(--accent2); font-variant-numeric: tabular-nums; }
+.ob-cpt.is-fini { color: var(--muted); }
+
+/* Dossard : un point, puis l'état. */
+.ob-ins { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.45rem; color: var(--muted); text-decoration: none; }
+.ob-ins i { flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; border: 2px solid currentColor; }
+.ob-ins.is-inscrit, .ob-ins.is-bientot { color: var(--text); }
+.ob-ins.is-inscrit i { background: var(--accent2); border-color: var(--accent2); }
+.ob-ins.is-bientot i { border-color: var(--accent2); }
+.ob-ins.is-ouvert { color: var(--red); text-decoration: underline; text-underline-offset: 0.2em; }
+.ob-ins.is-ouvert i { background: var(--red); }
+
+/* ----- Feuille de route : une carte par étape, le long d'un trait ----- */
+.ob-et { position: relative; display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); column-gap: 0.9rem; }
+.ob-rail { position: relative; }
+.ob-rail::before, .ob-rail::after { content: ''; position: absolute; left: calc(50% - 1px); border-left: 2px solid var(--border); }
+.ob-rail::before { top: 0; height: 1.3rem; }
+.ob-rail::after { top: 1.3rem; bottom: 0; }
+.ob-et:first-child .ob-rail::before, .ob-et.is-fin .ob-rail::after { display: none; }
+.ob-et.is-opt .ob-rail::before, .ob-et.suite-opt .ob-rail::after { border-left-style: dashed; }
+.ob-pt { position: absolute; z-index: 1; left: 50%; top: 1.3rem; width: 0.85rem; height: 0.85rem; transform: translate(-50%, -50%); border-radius: 50%; background: var(--muted); border: 2px solid var(--muted); }
+.ob-et.is-opt .ob-pt { background: var(--bg); }
+.ob-et.is-cle .ob-pt { background: var(--accent2); border-color: var(--accent2); }
+.ob-et.is-obj .ob-pt { width: 1rem; height: 1rem; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
+
+.ob-carte { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "role cpt" "nom date" "info info" "lignes lignes";
+  gap: 0.3rem 1.2rem; align-items: center; margin-bottom: 0.9rem; padding: 0.85rem 1rem; line-height: 1.5; font-size: 0.8rem; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.ob-et.is-opt .ob-carte { border-style: dashed; background: transparent; }
+.ob-et.is-obj .ob-carte { border-color: var(--accent); }
+.ob-carte > .ob-role { grid-area: role; }
+.ob-carte > .ob-cpt { grid-area: cpt; justify-self: end; }
+.ob-carte .ob-date { grid-area: date; justify-self: end; }
+.ob-nom { grid-area: nom; font-size: 1rem; font-weight: 600; line-height: 1.5; color: var(--accent); }
+.ob-nom a { color: inherit; text-decoration: none; }
+/* Toute la carte ouvre la page de la course ; l'icône ↗ et le lien d'inscription restent à part. */
+.ob-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
+.ob-info { grid-area: info; }
+.ob-lignes { grid-area: lignes; display: grid; gap: 0.3rem; }
+.ob-ligne { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: baseline; }
+
+/* Groupe d'options : une carte, un bloc par candidat. */
+.ob-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }
+.ob-groupe > .ob-nom { color: var(--text); }
+.ob-cands { grid-area: cands; }
+.ob-cand { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "nom date" "info info" "lignes lignes"; gap: 0.3rem 1.2rem; align-items: center; padding-top: 0.6rem; margin-top: 0.3rem; border-top: 1px solid var(--border); }
+.ob-cand .ob-nom a::after { border-radius: 0; }
+
+.ob-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-top: 0.4rem; font-size: 0.8rem; color: var(--muted); }
+.ob-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.ob-legende i { width: 0.7rem; height: 0.7rem; border-radius: 50%; border: 2px solid var(--muted); background: var(--muted); }
+.ob-legende i.opt { background: var(--bg); }
+.ob-legende i.cle { background: var(--accent2); border-color: var(--accent2); }
+.ob-legende i.obj { background: var(--accent); border-color: var(--accent); }
+
+/* ----- Page d'une course ----- */
+.pc-retour { display: inline-block; margin-bottom: 1.2rem; font-size: 0.75rem; text-decoration: none; }
+.pc-sur { display: flex; flex-wrap: wrap; gap: 0 0.5rem; }
+.pc-titre { margin: 0.45rem 0 0.3rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }
+.pc-titre .ob-ext { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
+.pc-info, .pc-groupe { color: var(--muted); }
+.pc-groupe { margin-top: 0.3rem; font-size: 0.8rem; }
+.pc-groupe a { text-decoration: none; }
+.pc-stats { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 2rem; margin: 1.5rem 0; }
+.pc-stat { display: flex; flex-direction: column; gap: 0.1rem; }
+.pc-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: var(--accent2); }
+.pc-stat-val small { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+.pc-stat-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pc-stats .ob-ins { margin-bottom: 0.25rem; }
+.pc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.pc-grille .card { margin: 0; }
+.pc-rebours .ob-cpt { gap: 0.5rem; }
+.pc-rebours .ob-cpt-case { padding: 0.3rem 0.7rem; font-size: 0.85rem; border-radius: 6px; }
+.pc-rebours .ob-cpt-case b { font-size: 1.6rem; font-weight: 700; }
+.pc-cellule p + p { margin-top: 0.4rem; }
+.pc-liens { list-style: none; }
+.pc-liens li + li { margin-top: 0.3rem; }
+.pc-liens a { text-decoration: none; }
+.pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.pc-nav a { max-width: 48%; text-decoration: none; }
+.pc-nav a.is-suivante { margin-left: auto; text-align: right; }
+.pc-nav span { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.pc-nav b { font-weight: 600; }
+
+@media (max-width: 600px) {
+  /* Téléphone : le compteur puis la date, à droite ; un interligne ; le rôle juste au-dessus du nom. */
+  .ob-carte { grid-template-areas: "cpt cpt" "date date" "role role" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
+  .ob-carte:not(.ob-groupe) > .ob-role { margin-top: 0.9rem; }
+  .ob-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }
+  /* Candidat : pas de rôle, l'interligne passe entre la date et le nom. */
+  .ob-cand { grid-template-areas: "date date" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
+  .ob-cand > .ob-nom { margin-top: 0.9rem; }
+  .ob-cpt { gap: 0.2rem; }
+  .ob-cpt-case { padding: 0 0.3rem; }
+  .ob-ligne { grid-template-columns: 5rem minmax(0, 1fr); }
+  .pc-grille { grid-template-columns: 1fr; }
+  .pc-stats { gap: 1rem 1.5rem; }
+  .pc-rebours .ob-cpt-case { padding: 0.25rem 0.45rem; }
+  .pc-rebours .ob-cpt-case b { font-size: 1.25rem; }
+}
+
+/* Survols : seulement avec une souris (docs/design.md, § 1). */
+@media (hover: hover) {
+  .ob-carte:not(.ob-groupe):hover { background: var(--surface2); }
+  .ob-et.is-opt .ob-carte:not(.ob-groupe):hover { background: var(--surface); }
+  .ob-cand:hover .ob-nom a { text-decoration: underline; }
+  .ob-ext:hover { color: var(--accent); background: var(--bg); }
+  .pc-nav a:hover b, .pc-retour:hover { text-decoration: underline; }
+}

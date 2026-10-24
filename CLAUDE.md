@@ -30,7 +30,7 @@ Spécification → validation → modèle de données si besoin → construction
 
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
 - Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
-- `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), planning.
+- `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes compris), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), feuille de route et page d'une course (`objectif`), planning.
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise`, proposés à tous, choisis dans les Préférences seulement (plus de `?t=…` sur le site).
@@ -43,5 +43,5 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : authentification (domaine `myruntools.fr`, Resend, e-mail modèle A), puis correctif d'affichage (page révélée d'un seul coup, en-tête compris).
+- Dernier lot en ligne : Objectif, premier lot (feuille de route `objectif.html`, page d'une course `course.html`).
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

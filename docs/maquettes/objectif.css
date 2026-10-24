@@ -1,0 +1,149 @@
+/* ===== Maquettes Objectif : feuille de route et page d'une course =====
+   Rôles de couleur et tailles de docs/design.md ; rien d'écrit en dur. */
+.mq-note { margin-bottom: 1.5rem; font-size: 0.8rem; color: var(--muted); }
+.mq-note a { color: var(--accent); }
+.mq-note b { color: var(--text); font-weight: 600; }
+.mq-place { border: 1px dashed var(--border); border-radius: 8px; padding: 0.9rem 1rem; color: var(--muted); font-size: 0.75rem; }
+.mq-place b { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 400; margin-bottom: 0.2rem; }
+
+/* ----- Communs ----- */
+.ob-titre-bloc { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; }
+.ob-mono { font-family: 'Space Mono', monospace; }
+.ob-ext { display: inline-flex; align-items: center; justify-content: center; width: 1.4rem; height: 1.4rem; margin-left: 0.15rem; font-size: 0.8rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; position: relative; z-index: 1; }
+.ob-role { display: inline-block; padding: 0.15rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); border-radius: 3px; white-space: nowrap; }
+.ob-role.is-cle { color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent); }
+.ob-role.is-obj { color: var(--bg); background: var(--accent); }
+.ob-role.is-opt { background: none; border: 1px dashed var(--border); }
+.ob-date { font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent2); white-space: nowrap; }
+.ob-stat { display: flex; flex-direction: column; gap: 0.1rem; }
+.ob-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: var(--accent2); }
+.ob-stat-val small { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+.ob-stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* Compteur : quatre cases, comme un chronomètre. */
+.cpt { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; max-width: 19rem; }
+.cpt-case { padding: 0.35rem 0.2rem 0.3rem; text-align: center; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
+.cpt-n { display: block; font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.15; color: var(--accent); font-variant-numeric: tabular-nums; }
+.cpt-l { display: block; font-family: 'Space Mono', monospace; font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.cpt.is-vide, .cpt-ligne.is-vide { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.cpt-ligne { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cpt.is-grand { max-width: 26rem; gap: 0.5rem; }
+.cpt.is-grand .cpt-case { padding: 0.55rem 0.2rem 0.45rem; border-radius: 8px; }
+.cpt.is-grand .cpt-n { font-size: 1.6rem; }
+.cpt.is-grand .cpt-l { font-size: 0.55rem; }
+
+/* Dossard : pastille et texte, comme les points du chemin. */
+.ins { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.45rem; color: var(--muted); text-decoration: none; }
+.ins i { flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; border: 2px solid currentColor; }
+.ins.is-inscrit { color: var(--text); }
+.ins.is-inscrit i { background: var(--accent2); border-color: var(--accent2); }
+.ins.is-ouvert { color: var(--red); text-decoration: underline; text-underline-offset: 0.2em; }
+.ins.is-ouvert i { background: var(--red); }
+.ins.is-bientot { color: var(--text); }
+.ins.is-bientot i { border-color: var(--accent2); }
+
+/* ----- Feuille de route : le chemin ----- */
+.fr-et { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); column-gap: 0.9rem; position: relative; }
+.fr-rail { position: relative; }
+.fr-rail::before, .fr-rail::after { content: ''; position: absolute; left: calc(50% - 1px); border-left: 2px solid var(--border); }
+.fr-rail::before { top: 0; height: 1.3rem; }
+.fr-rail::after { top: 1.3rem; bottom: 0; }
+.fr-et:first-child .fr-rail::before, .fr-et:last-child .fr-rail::after { display: none; }
+.fr-et.is-opt .fr-rail::before, .fr-et.suite-opt .fr-rail::after { border-left-style: dashed; }
+.fr-pt { position: absolute; z-index: 1; left: 50%; top: 1.3rem; width: 0.85rem; height: 0.85rem; transform: translate(-50%, -50%); border-radius: 50%; background: var(--muted); border: 2px solid var(--muted); }
+.fr-et.is-opt .fr-pt { background: var(--bg); }
+.fr-et.is-cle .fr-pt { background: var(--accent2); border-color: var(--accent2); }
+.fr-et.is-obj .fr-pt { width: 1rem; height: 1rem; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
+
+/* Une carte : trois styles de texte seulement, un seul interligne (1,5), un seul écart entre les lignes.
+   Nom : Space Grotesk 1 rem, 600, Accent.
+   Texte : Space Grotesk 0,8 rem, Texte discret ; valeurs en Texte.
+   Libellé : Space Mono 0,62 rem, capitales (date, rôle, compteur, libellés). */
+.fr-carte { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "role cpt" "nom date" "info info" "lignes lignes";
+  gap: 0.3rem 1.2rem; align-items: center; margin-bottom: 0.9rem; padding: 0.85rem 1rem; line-height: 1.5; font-size: 0.8rem; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.fr-et.is-opt .fr-carte { border-style: dashed; background: transparent; }
+.fr-et.is-obj .fr-carte { border-color: var(--accent); }
+.fr-lib, .fr-date, .fr-role, .fr-carte .cpt { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.fr-date { grid-area: date; justify-self: end; color: var(--accent2); }
+.fr-role { grid-area: role; color: var(--muted); }
+.fr-role.is-cle { color: var(--accent2); }
+.fr-role.is-obj { color: var(--accent); }
+.fr-nom { grid-area: nom; font-size: 1rem; font-weight: 600; color: var(--accent); }
+.fr-nom a { color: inherit; text-decoration: none; }
+/* Toute la carte ouvre la page de la course ; l'icône ↗ et le lien d'inscription restent à part. */
+.fr-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
+.fr-nom .ob-ext { width: 1.2rem; height: 1.2rem; font-size: 0.75rem; }
+.fr-info { grid-area: info; }
+.fr-info b, .fr-ligne b { font-weight: 400; color: var(--text); }
+.fr-lignes { grid-area: lignes; display: grid; gap: 0.3rem; }
+.fr-ligne { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: baseline; }
+.fr-lib { color: var(--muted); }
+.fr-cible { color: var(--accent2); }
+.fr-cible.is-nom { font-size: 1rem; font-weight: 600; color: var(--accent); }
+
+/* Compteur discret : le style des libellés, chiffres en Texte, unités en Texte discret, cases fines. */
+.fr-carte .cpt { grid-area: cpt; justify-self: end; display: flex; gap: 0.25rem; max-width: none; }
+.fr-carte .cpt-case { display: flex; align-items: baseline; gap: 0.15rem; padding: 0 0.4rem; background: none; border: 1px solid var(--border); border-radius: 4px; }
+.fr-carte .cpt-n, .fr-carte .cpt-l { display: inline; font: inherit; line-height: 1.5; letter-spacing: inherit; text-transform: none; }
+.fr-carte .cpt-n { color: var(--accent2); }
+.fr-carte .cpt-l { color: var(--muted); }
+.fr-carte .cpt.is-vide { color: var(--muted); text-transform: uppercase; }
+
+/* Groupe d'options : une carte, une ligne par candidate, mêmes styles. */
+.fr-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }
+.fr-groupe > .fr-nom { color: var(--text); }
+.fr-cands { grid-area: cands; }
+.fr-cand { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "nom date" "info info" "lignes lignes"; gap: 0.3rem 1.2rem; align-items: center; padding: 0.6rem 0 0; margin-top: 0.3rem; border-top: 1px solid var(--border); }
+.fr-cand .fr-nom a::after { border-radius: 0; }
+
+.fr-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-top: 0.4rem; font-size: 0.8rem; color: var(--muted); }
+.fr-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.fr-legende i { width: 0.7rem; height: 0.7rem; border-radius: 50%; border: 2px solid var(--muted); background: var(--muted); }
+.fr-legende i.opt { background: var(--bg); }
+.fr-legende i.cle { background: var(--accent2); border-color: var(--accent2); }
+.fr-legende i.obj { background: var(--accent); border-color: var(--accent); }
+
+/* ----- Page d'une course ----- */
+.pc-retour { display: inline-block; margin-bottom: 1.2rem; font-size: 0.75rem; text-decoration: none; }
+.pc-titre { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin: 0.45rem 0 0.3rem; color: var(--accent); }
+.pc-titre .ob-ext { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
+.pc-info { color: var(--muted); }
+.pc-groupe { margin-top: 0.5rem; font-size: 0.8rem; color: var(--muted); }
+.pc-groupe a { text-decoration: none; }
+.pc-utmb { margin-top: 0.6rem; display: inline-block; padding: 0.3rem 0.7rem; font-size: 0.7rem; }
+.pc-stats { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 2rem; margin: 1.5rem 0; }
+.pc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.pc-grille .card, .pc-grille .mq-place { margin: 0; }
+.pc-large { grid-column: 1 / -1; }
+.pc-cellule p + p { margin-top: 0.4rem; }
+.pc-liens { list-style: none; }
+.pc-liens li + li { margin-top: 0.3rem; }
+.pc-liens a { text-decoration: none; }
+.pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.pc-nav a { text-decoration: none; max-width: 48%; }
+.pc-nav a:last-child { text-align: right; margin-left: auto; }
+.pc-nav span { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+@media (max-width: 600px) {
+  .pc-grille { grid-template-columns: 1fr; }
+  .pc-stats { gap: 1rem 1.5rem; }
+  /* Téléphone : le compteur puis la date, à droite ; un interligne ; le rôle juste au-dessus du nom. */
+  .fr-carte, .fr-cand { grid-template-areas: "cpt cpt" "date date" "role role" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
+  .fr-cand { grid-template-areas: "date date" "nom nom" "info info" "lignes lignes"; }
+  .fr-carte:not(.fr-groupe) > .fr-role { margin-top: 0.9rem; }
+  /* Candidat : pas de rôle, l'interligne passe entre la date et le nom. */
+  .fr-cand > .fr-nom { margin-top: 0.9rem; }
+  .fr-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }
+  .fr-carte .cpt { gap: 0.2rem; }
+  .fr-carte .cpt-case { padding: 0 0.3rem; }
+  .fr-ligne { grid-template-columns: 5rem minmax(0, 1fr); }
+}
+
+@media (hover: hover) {
+  .fr-carte:not(.fr-groupe):hover { background: var(--surface2); }
+  .fr-et.is-opt .fr-carte:not(.fr-groupe):hover { background: var(--surface); }
+  .fr-cand:hover .fr-nom a { text-decoration: underline; }
+  .ob-ext:hover { color: var(--accent); background: var(--bg); }
+  .pc-nav a:hover b, .pc-retour:hover { text-decoration: underline; }
+}
