@@ -50,9 +50,12 @@ function simulerBase(ctx, db) {
 
 // Ouvre une page du site, connecté, à la largeur demandée.
 // stockage : valeurs posées dans localStorage avant d'ouvrir la page.
-async function ouvrir(navigateur, page, largeur, db, stockage = {}) {
-  const ctx = await navigateur.newContext({ viewport: { width: largeur, height: 900 }, deviceScaleFactor: 2 });
+// opts : { fuseau, maintenant } pour un jeu d'essai daté à une heure précise.
+async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
+  const ctx = await navigateur.newContext({ viewport: { width: largeur, height: 900 }, deviceScaleFactor: 2, timezoneId: opts.fuseau });
   await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+  // Sans réseau, polices comprises : sinon leur arrivée, plus ou moins tardive, décale la page d'une fraction de pixel.
+  await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
   await simulerBase(ctx, db);
   const p = await ctx.newPage();
   const erreurs = [];
@@ -69,9 +72,10 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}) {
       }
     }).observe(document, { attributes: true, subtree: true, attributeFilter: ['class'] });
   });
-  await p.clock.install({ time: AUJOURDHUI });
+  const maintenant = opts.maintenant || AUJOURDHUI;
+  await p.clock.install({ time: maintenant });
   await p.goto(RACINE + 'connexion.html');
-  const t = Math.floor(AUJOURDHUI / 1000);
+  const t = Math.floor(maintenant / 1000);
   // Palmarès sans regroupement, comme dans son jeu d'essai.
   await p.evaluate(() => localStorage.setItem('mrt-palmares-groupe', '0'));
   await p.evaluate(st => Object.entries(st).forEach(([k, v]) => localStorage.setItem(k, v)), stockage);
@@ -86,8 +90,8 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}) {
 
 // Aucun saut au chargement : à l'instant où la page devient visible, l'en-tête
 // est déjà en place et le contenu de la page n'a plus à bouger.
-async function sansSaut(nav, db, page, w, nom) {
-  const { p, ctx, erreurs } = await ouvrir(nav, page, w, db);
+async function sansSaut(nav, db, page, w, nom, opts) {
+  const { p, ctx, erreurs } = await ouvrir(nav, page, w, db, {}, opts);
   const r = await p.evaluate(() => ({ revelee: window.__revelee, hautFinal: Math.round(document.querySelector('main').getBoundingClientRect().top),
     contenuFinal: document.querySelector('main').textContent.trim().length, masquee: document.documentElement.classList.contains('mrt-attente') }));
   await ctx.close();
@@ -98,6 +102,49 @@ async function sansSaut(nav, db, page, w, nom) {
     // Préférences charge ses listes de partage plus bas dans la page : seul le haut compte.
     ...(page === 'preferences.html' ? [] : [egal(r.contenuFinal, r.revelee && r.revelee.contenu, nom + ', contenu complet à l\'affichage')]),
     egal([], erreurs, nom + ', erreurs JavaScript')];
+}
+
+// Jeu d'essai de la page Objectif (module-objectif-specification.md, § 10) :
+// les courses courues des données fictives, et ces courses à la place des autres.
+const PARIS = { fuseau: 'Europe/Paris', maintenant: new Date('2026-10-20T10:00:00+02:00') };
+function jeuObjectif(db0) {
+  const db = JSON.parse(JSON.stringify(db0));
+  const moi = db.profils[0].id;
+  const id = n => '00000000-0000-0000-0002-0000000000' + String(n).padStart(2, '0');
+  const web = n => 'https://example.org/' + n;
+  const base = { utilisateur: moi, parcours: null, heure: null, date_approx: false, dmoins: null, statut: 'confirmee', role: 'preparatoire', etat: 'a_venir',
+    groupe_options: null, objectif: null, inscrit: false, dossard: null, prix: null, ouverture_inscriptions: null, lien: null, inscription: null, lien_resultats: null,
+    pourquoi: null, strategie: null, logistique: null, description: null, lieu: null };
+  const jeu = [
+    { id: id(1), course: 'Trail du Lac', parcours: 'Le Tour du Lac', date: '2026-11-15', heure: '09:00:00', lieu: 'Mont-Clair', format: 'trail_court', distance: 24, dplus: 650,
+      objectif: '02:45:00', inscrit: true, dossard: '412', prix: 32, lien: web('trail-du-lac') },
+    { id: id(2), course: 'Corrida de Noël', date: '2026-12-13', heure: '18:30:00', lieu: 'Ville-Haute', format: 'route_10km', distance: 10, dplus: 40, role: 'plaisir',
+      objectif: 'Sub 45 min', ouverture_inscriptions: '2026-11-01', lien: web('corrida') },
+    { id: id(3), course: 'Trail des Gorges', date: '2027-03-07', heure: '07:30:00', lieu: 'Mont-Clair', format: 'trail_long', distance: 45, dplus: 2100, dmoins: 2100,
+      role: 'objectif_intermediaire', objectif: '06:30:00', inscrit: true, dossard: '1287', prix: 58, lien: web('gorges'), inscription: web('gorges/inscription'),
+      lien_resultats: web('gorges/resultats'), pourquoi: 'Répétition générale du matériel et de la nutrition.', strategie: 'Partir prudemment jusqu\'au premier ravitaillement.',
+      logistique: 'Navette depuis le stade à 6 h 30.', description: 'Boucle par les crêtes et les gorges.' },
+    { id: id(4), course: 'Trail des Cimes', date: '2027-05-30', lieu: 'Haut-Val', format: 'trail_long', distance: 42, dplus: 2500, statut: 'option',
+      groupe_options: 'Printemps 2027', ouverture_inscriptions: '2027-01-10', lien: web('cimes') },
+    { id: id(5), course: 'Ultra du Plateau', parcours: 'Le 55', date: '2027-06-26', lieu: 'Plaine-Neuve', format: 'trail_long', distance: 55, dplus: 2800, statut: 'option',
+      groupe_options: 'Printemps 2027', ouverture_inscriptions: '2026-09-01', lien: web('plateau'), inscription: web('plateau/inscription') },
+    { id: id(6), course: 'Trail de la Forêt', date: '2027-07-01', date_approx: true, lieu: 'Bois-Joli', format: 'trail_court', distance: 30, dplus: 1200, statut: 'option' },
+    { id: id(7), course: 'Trail des Crêtes', date: '2027-08-28', heure: '05:00:00', lieu: 'Mont-Clair', format: 'trail_ultra', distance: 60, dplus: 3500, role: 'objectif',
+      objectif: 'Finisher', inscrit: true, dossard: '88' },
+    { id: id(8), course: 'Cross des Collines', date: '2026-12-06', lieu: 'Ville-Haute', format: 'trail_decouverte', distance: 12, dplus: 300, etat: 'abandonnee' },
+    { id: id(9), course: 'Trail des Sommets', date: '2028-09-10', lieu: 'Haut-Val', format: 'trail_ultra', distance: 80, dplus: 5000, statut: 'a_surveiller' }
+  ].map(c => Object.assign({}, base, c));
+  db.courses = db.courses.filter(c => c.etat === 'courue').concat(jeu);
+  // Une course d'un autre utilisateur : introuvable pour l'utilisateur connecté.
+  db.courses.push(Object.assign({}, base, { id: id(99), utilisateur: '00000000-0000-0000-0000-00000000000b', course: 'Course d\'un autre', date: '2027-01-01' }));
+  return { db, id };
+}
+
+// Toucher un point d'un élément, quel que soit l'élément au-dessus (lien qui couvre une carte).
+async function toucher(p, sel) {
+  await p.locator(sel).first().evaluate(e => e.scrollIntoView({ block: 'center' }));
+  const b = await p.locator(sel).first().boundingBox();
+  await p.mouse.click(b.x + 5, b.y + b.height / 2);
 }
 
 const egal = (attendu, obtenu, quoi) => (JSON.stringify(attendu) === JSON.stringify(obtenu) ? null : quoi + ' : attendu ' + JSON.stringify(attendu) + ', obtenu ' + JSON.stringify(obtenu));
@@ -203,7 +250,7 @@ const CONTROLES = {
     const catalogue = ['Cette semaine', 'Objectif', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
     pb.push(egal(catalogue, await menu(), 'menu par défaut'));
     pb.push(egal(6, await p.locator('.pref-modules input:checked').count(), 'tous les modules cochés'));
-    pb.push(egal(5, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
+    pb.push(egal(4, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
     await p.click('[aria-label="Monter Palmarès"]'); await attendre();
     const monte = ['Cette semaine', 'Objectif', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
     pb.push(egal(monte, await menu(), 'Palmarès monté, menu aussitôt'));
@@ -262,12 +309,173 @@ const CONTROLES = {
     return pb;
   },
 
+  // Objectif : feuille de route et page d'une course (module-objectif-specification.md, § 10).
+  async objectif(nav, db0) {
+    const { db, id } = jeuObjectif(db0);
+    const pb = [];
+    // Une carte : ses éléments, tels qu'affichés (espaces insécables ramenés à des espaces).
+    const cartes = p => p.evaluate(() => [...document.querySelectorAll('.ob-et')].map(et => {
+      const t = x => (x ? x.textContent.replace(/[  ]/g, ' ').trim() : null);
+      const c = et.querySelector('.ob-carte');
+      return {
+        classes: et.className, nom: t(c.querySelector(':scope > .ob-nom a') || c.querySelector(':scope > .ob-nom')), role: t(c.querySelector(':scope > .ob-role')),
+        compteur: c.querySelector(':scope > .ob-cpt') ? [...c.querySelectorAll(':scope > .ob-cpt .ob-cpt-case')].map(t).join(' ') || t(c.querySelector(':scope > .ob-cpt')) : null,
+        date: t(c.querySelector(':scope > .ob-date')), info: t(c.querySelector(':scope > .ob-info')),
+        lignes: [...c.querySelectorAll(':scope > .ob-lignes .ob-ligne')].map(l => t(l.children[0]) + ' | ' + t(l.children[1])),
+        cands: [...c.querySelectorAll('.ob-cand')].map(x => ({ nom: t(x.querySelector('.ob-nom a')), date: t(x.querySelector('.ob-date')),
+          lignes: [...x.querySelectorAll('.ob-ligne')].map(l => t(l.children[0]) + ' | ' + t(l.children[1])), compteur: !!x.querySelector('.ob-cpt'), role: !!x.querySelector('.ob-role') }))
+      };
+    }));
+    // Heure figée au 20 octobre 2026 à 10 h pile, le temps de lire les compteurs.
+    const figer = async (p, ms = 0) => { await p.clock.setFixedTime(new Date(PARIS.maintenant.getTime() + ms)); await p.clock.runFor(1000); };
+    let { p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, db, {}, PARIS);
+    await figer(p);
+    let k = await cartes(p);
+    pb.push(egal(['Trail du Lac · Le Tour du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Printemps 2027', 'Trail de la Forêt', 'Trail des Crêtes'], k.map(x => x.nom), 'étapes, dans l\'ordre'));
+    pb.push(egal(false, await p.evaluate(() => /Collines|Sommets|San Sebasti/.test(document.querySelector('main').textContent)), 'ni abandonnée, ni à surveiller, ni courue'));
+    pb.push(egal(['Trail des Crêtes', "5 courses | D'ici là", 'prochaine course · Trail du Lac · J-26'], await p.evaluate(() => [document.querySelector('h1 em').textContent,
+      [...document.querySelectorAll('.mrt-stat')].map(s => s.querySelector('.mrt-stat-val').textContent + ' | ' + s.querySelector('.mrt-stat-label').textContent)[3], document.querySelector('.mrt-next').textContent]), 'en-tête'));
+    const [lac, corrida, gorges, groupe, foret, cretes] = k;
+    pb.push(egal({ role: 'Préparatoire', compteur: '26j 00h 00min 00s', date: '15 nov. 2026', info: 'Mont-Clair · Trail court',
+      lignes: ['Distance | 24 km · 650 m D+', 'Objectif | 02:45:00', 'Dossard | Inscrit · n° 412'] },
+      { role: lac.role, compteur: lac.compteur, date: lac.date, info: lac.info, lignes: lac.lignes }, 'Trail du Lac'));
+    pb.push(egal({ role: 'Plaisir', compteur: '54j 09h 30min 00s', lignes: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 01/11/2026'] },
+      { role: corrida.role, compteur: corrida.compteur, lignes: corrida.lignes }, 'Corrida de Noël'));
+    pb.push(egal({ role: 'Objectif intermédiaire', cle: true, compteur: '137j 22h 30min 00s', objectif: 'Objectif | 06:30:00' },
+      { role: gorges.role, cle: /is-cle/.test(gorges.classes), compteur: gorges.compteur, objectif: gorges.lignes[1] }, 'Trail des Gorges'));
+    pb.push(egal({ opt: true, role: 'Préparatoire • 2 candidats', cands: [
+      { nom: 'Trail des Cimes', date: '30 mai 2027', lignes: ['Distance | 42 km · 2 500 m D+', 'Dossard | Ouvre le 10/01/2027'], compteur: false, role: false },
+      { nom: 'Ultra du Plateau · Le 55', date: '26 juin 2027', lignes: ['Distance | 55 km · 2 800 m D+', 'Dossard | Inscription ouverte ↗'], compteur: false, role: false }] },
+      { opt: /is-opt/.test(groupe.classes), role: groupe.role, cands: groupe.cands }, 'Printemps 2027'));
+    pb.push(egal(true, await p.evaluate(() => { const a = document.querySelectorAll('.ob-cand .ob-ins')[1]; return a.tagName === 'A' && a.classList.contains('is-ouvert') && a.target === '_blank' && a.getAttribute('href') === 'https://example.org/plateau/inscription'; }), 'inscription ouverte : lien, en Alerte'));
+    pb.push(egal({ opt: true, role: 'Préparatoire', date: 'juillet 2027', compteur: null, lignes: ['Distance | 30 km · 1 200 m D+', 'Dossard | Pas inscrit'] },
+      { opt: /is-opt/.test(foret.classes), role: foret.role, date: foret.date, compteur: foret.compteur, lignes: foret.lignes }, 'Trail de la Forêt'));
+    pb.push(egal({ obj: true, role: 'Objectif principal', compteur: '311j 19h 00min 00s', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
+      { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
+    await figer(p, 1000);
+    pb.push(egal('25j 23h 59min 59s', (await cartes(p))[0].compteur, 'une seconde plus tard'));
+    // Liens : ↗ et inscription au-dessus du lien de la carte ; la carte ouvre la page de la course.
+    pb.push(egal([true, true], await p.evaluate(() => ['.ob-carte .ob-ext', '.ob-ins.is-ouvert'].map(sel => {
+      const a = document.querySelector(sel);
+      a.scrollIntoView({ block: 'center' });
+      const b = a.getBoundingClientRect();
+      return document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2).closest('a') === a;
+    })), '↗ et inscription cliquables à part'));
+    pb.push(egal(['_blank', 'https://example.org/trail-du-lac'], await p.evaluate(() => { const a = document.querySelector('.ob-carte .ob-ext'); return [a.target, a.getAttribute('href')]; }), '↗ : site officiel, nouvel onglet'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif.png'), fullPage: true });
+    await toucher(p, '.ob-et:first-child .ob-info');
+    await p.waitForSelector('.pc-titre');
+    pb.push(egal('course.html?id=' + id(1), p.url().split('/').pop(), 'toucher la carte ouvre la page'));
+    await p.goBack(); await p.waitForSelector('.ob-carte');
+    pb.push(egal('objectif.html', p.url().split('/').pop(), 'retour du navigateur : feuille de route'));
+    await toucher(p, '.ob-cand .ob-info');
+    await p.waitForSelector('.pc-titre');
+    pb.push(egal('course.html?id=' + id(4), p.url().split('/').pop(), 'toucher un candidat ouvre sa page'));
+    pb.push(egal([], erreurs, 'feuille de route, erreurs JavaScript'));
+    await ctx.close();
+
+    // Page d'une course
+    const pageCourse = async (n, opts = PARIS, base = db, stockage = {}) => {
+      const o = await ouvrir(nav, 'course.html?id=' + n, 1200, base, stockage, opts);
+      await figer(o.p);
+      if (CAPTURES && n === id(3)) await o.p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-course.png'), fullPage: true });
+      const r = await o.p.evaluate(() => {
+        const t = x => (x ? x.textContent.replace(/[  ]/g, ' ').trim() : null), q = s => document.querySelector(s);
+        return {
+          retour: t(q('.pc-retour')), sur: t(q('.pc-sur')), titre: q('.pc-titre') ? t(q('.pc-titre').firstChild) : null, info: t(q('.pc-info')), groupe: t(q('.pc-groupe')),
+          stats: [...document.querySelectorAll('.pc-stat')].map(s => t(s.children[0]) + ' | ' + t(s.children[1])), dossard: t(q('.pc-stats .ob-ins')),
+          compteur: [...document.querySelectorAll('.pc-rebours .ob-cpt-case')].map(t).join(' '),
+          cellules: [...document.querySelectorAll('.pc-cellule h3')].map(t), cellDossard: t(q('.pc-cellule')),
+          liens: [...document.querySelectorAll('.pc-liens a')].map(t), nav: [...document.querySelectorAll('.pc-nav a')].map(a => a.className + ' | ' + t(a.querySelector('b'))),
+          vide: t(q('.ob-vide')), titreDoc: document.title
+        };
+      });
+      await o.ctx.close();
+      return [r, o.erreurs];
+    };
+    let [r, err] = await pageCourse(id(3));
+    pb.push(egal({ retour: '← Feuille de route', sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dimanche 7 mars 2027, 7 h 30',
+      stats: ['45 km / 2 100 m D+ | Distance', '2 100 m | D−', '06:30:00 | Objectif'], dossard: 'Inscrit · n° 1287', compteur: '137j 22h 30min 00s' },
+      { retour: r.retour, sur: r.sur, titre: r.titre, info: r.info, stats: r.stats, dossard: r.dossard, compteur: r.compteur }, 'page Trail des Gorges, haut'));
+    pb.push(egal(['Dossard', 'Rôle dans la préparation', 'Stratégie ou enchaînement', 'Logistique', 'Description', 'Liens'], r.cellules, 'page Trail des Gorges, cellules'));
+    pb.push(egal(true, /Prix : 58 €/.test(r.cellDossard), 'page Trail des Gorges, prix'));
+    pb.push(egal(['Site officiel ↗', 'Inscription ↗', 'Résultats en direct ↗'], r.liens, 'page Trail des Gorges, liens'));
+    pb.push(egal(['is-precedente | Corrida de Noël', 'is-suivante | Trail des Cimes'], r.nav, 'page Trail des Gorges, navigation'));
+    pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
+    pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
+    [r] = await pageCourse(id(2));
+    pb.push(egal({ cellules: ['Dossard', 'Liens'], dossard: 'Ouvre le 01/11/2026', liens: ['Site officiel ↗'], dmoins: false },
+      { cellules: r.cellules, dossard: r.dossard, liens: r.liens, dmoins: r.stats.some(x => /D−/.test(x)) }, 'page Corrida de Noël'));
+    [r] = await pageCourse(id(4));
+    pb.push(egal({ sur: 'Préparatoire · Étape 4 sur 6', groupe: 'Printemps 2027 · autre candidat : Ultra du Plateau · Le 55' }, { sur: r.sur, groupe: r.groupe }, 'page Trail des Cimes'));
+    [r] = await pageCourse(id(1));
+    pb.push(egal(['is-suivante | Corrida de Noël'], r.nav, 'page Trail du Lac, pas de course précédente'));
+    [r] = await pageCourse(id(7));
+    pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
+    for (const n of ['inconnue', id(99)]) {
+      [r] = await pageCourse(n);
+      pb.push(egal(['Course introuvable.', '← Feuille de route'], [r.vide, r.retour], 'course introuvable (' + n + ')'));
+    }
+
+    // Trail des Cimes sorti du groupe : « • 1 candidat », 6 courses d'ici là.
+    const seul = JSON.parse(JSON.stringify(db));
+    seul.courses.find(c => c.id === id(4)).groupe_options = null;
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, seul, {}, PARIS));
+    k = await cartes(p);
+    pb.push(egal(['Préparatoire • 1 candidat', "6 courses"], [k.find(x => x.nom === 'Printemps 2027').role, await p.evaluate(() => document.querySelectorAll('.mrt-stat-val')[3].textContent)], 'groupe d\'un seul candidat'));
+    await ctx.close();
+
+    // Au départ du Trail du Lac
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, db, {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-15T09:00:00+01:00') }));
+    pb.push(egal('Course courue', (await cartes(p))[0].compteur, 'au départ : Course courue'));
+    await ctx.close();
+
+    // Téléphone : compteur, date, un interligne, rôle collé au nom ; rien ne dépasse.
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
+    const tel = await p.evaluate(() => {
+      const c = document.querySelector('.ob-carte'), b = s => c.querySelector(':scope > ' + s).getBoundingClientRect();
+      return { ordre: b('.ob-cpt').bottom <= b('.ob-date').top && b('.ob-date').bottom <= b('.ob-role').top && b('.ob-role').bottom <= b('.ob-nom').top,
+        interligne: Math.round(b('.ob-role').top - b('.ob-date').bottom) > Math.round(b('.ob-nom').top - b('.ob-role').bottom),
+        aDroite: Math.round(b('.ob-cpt').right) === Math.round(b('.ob-date').right), debordement: document.documentElement.scrollWidth > innerWidth };
+    });
+    pb.push(egal({ ordre: true, interligne: true, aDroite: true, debordement: false }, tel, 'téléphone'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-telephone.png'), fullPage: true });
+    pb.push(egal([], erreurs, 'téléphone, erreurs JavaScript'));
+    await ctx.close();
+
+    // Thème changé : seules les couleurs changent.
+    const boites = async base => {
+      const o = await ouvrir(nav, 'objectif.html', 1200, base, {}, PARIS);
+      const r = await o.p.evaluate(() => [...document.querySelectorAll('.ob-carte > *')].map(e => { const b = e.getBoundingClientRect(); return [b.x, b.y, b.width, b.height].map(Math.round).join(','); }));
+      const couleur = await o.p.evaluate(() => getComputedStyle(document.querySelector('.ob-nom')).color);
+      await o.ctx.close();
+      return [r, couleur];
+    };
+    const vert = JSON.parse(JSON.stringify(db)); vert.preferences[0].theme = 'vert-rose';
+    const [b1, c1] = await boites(db), [b2, c2] = await boites(vert);
+    pb.push(egal([true, true], [JSON.stringify(b1) === JSON.stringify(b2), c1 !== c2], 'thème : mêmes places, autres couleurs'));
+
+    // Site partagé en lecture seule : la feuille de route et les pages du propriétaire, à l'identique.
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = JSON.parse(JSON.stringify(db));
+    partage.courses = partage.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
+    partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
+    k = await cartes(p);
+    pb.push(egal([true, 6], [await p.evaluate(() => !!document.querySelector('.mrt-bandeau')), k.length], 'lecture seule, feuille de route'));
+    await ctx.close();
+    [r] = await pageCourse(id(3), PARIS, partage, { 'mrt-vue': autre });
+    pb.push(egal(['Trail des Gorges', 'Objectif intermédiaire · Étape 3 sur 6'], [r.titre, r.sur], 'lecture seule, page d\'une course'));
+    return pb;
+  },
+
   // Spécification générale : la page s'affiche d'un seul coup, en-tête compris.
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))
-      for (const page of ['index.html', 'palmares.html', 'preferences.html'])
-        pb.push(...await sansSaut(nav, db, page, w, page.replace('.html', '') + ' ' + nom));
+      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'course.html?id=00000000-0000-0000-0001-000000000020'])
+        pb.push(...await sansSaut(nav, db, page, w, page.replace(/\.html.*/, '') + ' ' + nom));
     return pb;
   }
 };

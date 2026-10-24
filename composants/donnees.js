@@ -10,7 +10,7 @@
   // Catalogue des modules, dans l'ordre par défaut ; page absente = pas encore construit.
   const MODULES = [
     { nom: 'Cette semaine' },
-    { nom: 'Objectif' },
+    { nom: 'Objectif', page: 'objectif.html' },
     { nom: 'Nutrition' },
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil' },

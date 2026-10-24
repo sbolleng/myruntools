@@ -11,7 +11,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.10 |
 | [Design](design.md) | Couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.9 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Brouillon v0.5 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.5 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition | Version 1.8 |
 
@@ -50,8 +50,8 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - Valider le jeu d'essai de la spécification v0.5 (§ 10), puis construire la feuille de route et la page d'une course.
    - Spécifier l'interface de gestion des groupes d'options (§ 3.6 et questions du § 9).
+   - En-tête : le compte à rebours vise minuit le jour de la course ; viser l'heure de départ quand elle est connue, comme les cartes de la feuille de route ? À décider.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Palmarès** : temps au format hh:mm:ss, modèle unique du site (spécification, affichage, saisie, banc d'essai).

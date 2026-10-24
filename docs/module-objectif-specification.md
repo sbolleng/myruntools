@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Brouillon v0.5 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.5 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -63,7 +63,7 @@ Une carte par étape, le long d'un trait vertical (pastille et trait selon le §
 
 ### 3.3 Statut, rôle et état d'une étape
 
-La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1).
+La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1), datées du jour ou plus tard : les mêmes que celles de l'en-tête. Une course sans date, ou dont la date est passée sans qu'elle soit marquée courue, n'y figure pas.
 
 | Cas | Signification | Rendu |
 | --- | --- | --- |
@@ -269,7 +269,7 @@ Résultats attendus, page d'une course :
 - Corrida de Noël : seules les cellules Dossard (○ Ouvre le 01/11/2026) et Liens (Site officiel) ; pas de ligne D−.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
-- Adresse d'une course inconnue, ou d'un autre utilisateur : « Course introuvable. » et le lien « ← Feuille de route ».
+- Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien « ← Feuille de route ».
 - Bouton retour du navigateur, depuis une page de course : retour à la feuille de route.
 - Site partagé en lecture seule : la feuille de route et les pages de course du propriétaire s'affichent à l'identique.
 - Chargement de la feuille de route et d'une page de course (ordinateur, téléphone) : à l'instant où la page devient visible, l'en-tête est en place et le contenu n'a plus à bouger.
