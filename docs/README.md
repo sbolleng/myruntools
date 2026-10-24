@@ -50,13 +50,14 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - Choisir la déclinaison A ou B de la carte (`docs/maquettes/objectif.html?v=a` ou `?v=b`), appliquer le dessin du compteur (pièce jointe à recevoir) ;
+   - Choisir la déclinaison A ou B de la carte (`docs/maquettes/objectif.html?v=a` ou `?v=b`), après avis extérieur ;
    - Puis : jeu d'essai de la spécification v0.4, construction de la feuille de route et de la page d'une course en premier lot.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
-2. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
-3. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
-4. [ ] **Profil et Matériel** :
+2. [ ] **Palmarès** : temps au format hh:mm:ss, modèle unique du site (spécification, affichage, saisie, banc d'essai).
+3. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
+4. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
+5. [ ] **Profil et Matériel** :
    - Profil : état civil, poids, taille, pointure.
    - Matériel : chaussures et leur usure.
 

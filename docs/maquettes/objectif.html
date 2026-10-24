@@ -47,7 +47,7 @@
     if (e.groupe) {
       carte = '<div class="fr-carte fr-groupe"><span class="fr-date">À choisir · ' + e.candidates.length + ' candidates</span>' +
         '<div class="fr-nom">' + esc(e.groupe) + '</div><div class="fr-cands">' +
-        e.candidates.map(c => '<div class="fr-cand"><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + cpt(c) + nom(c) + info(c) + distance(c) + dossard(c) + '</div>').join('') +
+        e.candidates.map(c => '<div class="fr-cand"><span class="fr-role">' + MQ.ROLES[c.role] + '</span><span class="fr-date">' + MQ.dateCourte(c) + '</span>' + cpt(c) + nom(c) + info(c) + distance(c) + dossard(c) + '</div>').join('') +
         '</div></div>';
     } else {
       const c = e.course;
