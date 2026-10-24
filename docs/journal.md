@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Objectif | Formulaire de saisie et d'édition : un seul pour tout le site, le composant du Palmarès étendu, pour un site homogène ; spécification 0.10. |
 | 24 oct. 2026 | Objectif | Feuille de route : le trait en pointillé (vers une option) est dessiné en dégradé répété, car Safari sur iPhone dessinait mal la bordure en pointillé (trait absent). |
 | 24 oct. 2026 | Méthode | Les deux règles se complètent : avant une maquette ou une image, proposer d'abord un plan de page, plus économique (CLAUDE.md). |
 | 24 oct. 2026 | Méthode | « Plan de page » : schéma en texte, éléments numérotés, tableau des éléments et tableau des options, avant toute maquette en image ; décrit dans CLAUDE.md, exemple dans la spécification Objectif (§ 3.1). |

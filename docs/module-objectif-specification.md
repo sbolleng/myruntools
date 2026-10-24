@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.9 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.10 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -146,7 +146,7 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 
 ### 3.7 Saisie et édition
 
-Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre outil. Le formulaire est celui du Palmarès ([spécification du Palmarès](module-palmares-specification.md), § 10), étendu aux champs d'une course à venir : même panneau, mêmes boutons, mêmes contrôles de saisie.
+Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre outil. Le formulaire est celui du Palmarès ([spécification du Palmarès](module-palmares-specification.md), § 10), étendu aux champs d'une course à venir : même panneau, mêmes boutons, mêmes contrôles de saisie. Un seul formulaire pour tout le site, pas de copie : une évolution vaut pour le Palmarès comme pour l'Objectif.
 
 **Accès**
 
