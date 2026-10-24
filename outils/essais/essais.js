@@ -447,17 +447,19 @@ const CONTROLES = {
     pb.push(egal('Course courue', (await cartes(p))[0].compteur, 'au départ : Course courue'));
     await ctx.close();
 
-    // Téléphone : rôle à gauche, aligné sur le compteur ; date dessous, à droite ; un interligne avant le nom ; rien ne dépasse.
+    // Téléphone : rôle à gauche, aligné sur le compteur ; date juste dessous, à droite, même si le rôle passe sur deux lignes ;
+    // un interligne avant le nom ; rien ne dépasse ; ni titre ni légende.
     ({ p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
     const tel = await p.evaluate(() => [...document.querySelectorAll('.ob-carte:not(.ob-groupe)')].filter(c => c.querySelector(':scope > .ob-cpt')).map(c => {
       const b = s => c.querySelector(':scope > ' + s).getBoundingClientRect(), carte = c.getBoundingClientRect();
-      return { aligne: Math.abs(b('.ob-role').top - b('.ob-cpt').top) <= 2, dateDessous: b('.ob-date').top >= b('.ob-cpt').bottom,
+      return { aligne: Math.abs(b('.ob-role').top - b('.ob-cpt').top) <= 2, dateDessous: b('.ob-date').top >= b('.ob-cpt').bottom && b('.ob-date').top - b('.ob-cpt').bottom <= 6,
         aDroite: Math.round(b('.ob-cpt').right) === Math.round(b('.ob-date').right),
         interligne: Math.round(b('.ob-nom').top - Math.max(b('.ob-date').bottom, b('.ob-role').bottom)) >= 15,
         dedans: b('.ob-role').right <= b('.ob-cpt').left && b('.ob-cpt').right <= carte.right };
-    }).concat([{ debordement: document.documentElement.scrollWidth > innerWidth }]));
+    }).concat([{ debordement: document.documentElement.scrollWidth > innerWidth, roleDeuxLignes: [...document.querySelectorAll('.ob-carte > .ob-role')].some(r => r.getBoundingClientRect().height > 20),
+      titreOuLegende: !!document.querySelector('#feuille-de-route h2, .ob-legende') }]));
     const t0 = { aligne: true, dateDessous: true, aDroite: true, interligne: true, dedans: true };
-    pb.push(egal([t0, t0, t0, t0, { debordement: false }], tel, 'téléphone'));
+    pb.push(egal([t0, t0, t0, t0, { debordement: false, roleDeuxLignes: true, titreOuLegende: false }], tel, 'téléphone'));
     // Sans compteur (Trail de la Forêt) : la date remonte, son haut aligné sur celui du rôle.
     const sansCpt = () => p.evaluate(() => { const c = [...document.querySelectorAll('.ob-carte')].find(x => /Forêt/.test(x.textContent)), b = s => c.querySelector(':scope > ' + s).getBoundingClientRect();
       return Math.abs(b('.ob-date').top - b('.ob-role').top) <= 1 && b('.ob-date').bottom <= b('.ob-nom').top; });
