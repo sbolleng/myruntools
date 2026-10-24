@@ -352,6 +352,7 @@ const CONTROLES = {
       { opt: /is-opt/.test(foret.classes), role: foret.role, date: foret.date, compteur: foret.compteur, lignes: foret.lignes }, 'Trail de la Forêt'));
     pb.push(egal({ obj: true, role: 'Objectif principal', compteur: '311j 19h 00min 00s', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
       { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
+    pb.push(egal(['311', '19h 00m 00s'], await p.evaluate(() => [document.querySelector('.mrt-days').textContent, document.querySelector('.mrt-hms').textContent]), 'en-tête : compte à rebours jusqu\'à l\'heure de départ'));
     await figer(p, 1000);
     pb.push(egal('25j 23h 59min 59s', (await cartes(p))[0].compteur, 'une seconde plus tard'));
     // Liens : ↗ et inscription au-dessus du lien de la carte ; la carte ouvre la page de la course.

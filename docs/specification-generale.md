@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.12 · 23 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.13 · 24 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -78,7 +78,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 ### Règles
 
-- **Compte à rebours** : jusqu'au jour de la course objectif, à minuit. Si seul le mois est connu, jusqu'au premier jour du mois.
+- **Compte à rebours** : jusqu'à l'heure de départ de la course objectif quand elle est connue (heure locale de la course, comme les comptes à rebours de la page Objectif) ; sinon jusqu'au jour de la course, à minuit. Si seul le mois est connu, jusqu'au premier jour du mois, à minuit.
 - **Prochaine course** : la première course Confirmée à venir de la page Objectif, hors la course du cap. Une option non retenue ne compte pas.
 - **En attendant les modules concernés** : course de l'en-tête, objectif et prochaine course sont écrits en dur dans la page de démonstration.
 
@@ -189,6 +189,7 @@ Résultats attendus :
 - Titre : « Cap sur » puis « Trail des Crêtes » en couleur d'accent.
 - Indicateurs, dans l'ordre : « 60 km / 3 500 m D+ » Distance, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
+- Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
 - Ligne sous le compteur : « prochaine course · Trail du Lac · J-26 ».
 - Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; sur ordinateur, compte à rebours et prochaine course alignés à droite, leur bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, alignés à gauche.
 - Même objectif sans D+ (42,195 km) : Distance affiche « 42,195 km » seul ; l'en-tête garde 4 indicateurs.

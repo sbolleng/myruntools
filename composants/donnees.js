@@ -80,6 +80,7 @@
         distance: cap.distance != null ? Number(cap.distance) : null,
         dplus: cap.dplus != null ? cap.dplus : null,
         date: cap.date_approx ? cap.date.slice(0, 7) : cap.date,
+        heure: cap.date_approx ? null : cap.heure, // le compte à rebours vise l'heure de départ quand elle est connue
         dIciLa: blocs.size,
         cible: cap.objectif
       };
