@@ -10,6 +10,7 @@
 <title>Course · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
 </head>
 <body>
 <main>
@@ -21,11 +22,25 @@
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
 <script src="composants/objectif.js?v=__VERSION__"></script>
+<script src="composants/fiche-course.js?v=__VERSION__"></script>
 <script>
   // Une course de la feuille de route, désignée par ?id= ; l'onglet Objectif reste en avant.
   mrtPage({ courant: 'objectif.html' }).then(page => {
-    const c = renderPageCourse(document.getElementById('course'), page.courses, new URLSearchParams(location.search).get('id'));
-    if (c) document.title = mrtNomCourse(c) + ' · MyRunTools';
+    let courses = page.courses;
+    const el = document.getElementById('course');
+    const id = new URLSearchParams(location.search).get('id');
+    // Après un enregistrement : relire et redessiner. Course supprimée, courue ou sortie de la feuille de route : retour à celle-ci.
+    const apres = async () => {
+      courses = await page.relire();
+      if (!dessiner()) location.href = 'objectif.html';
+    };
+    const edition = mrtEdition(page, () => courses, apres);
+    const dessiner = () => {
+      const c = renderPageCourse(el, courses, id, edition);
+      if (c) document.title = mrtNomCourse(c) + ' · MyRunTools';
+      return c;
+    };
+    dessiner();
   });
 </script>
 </body>

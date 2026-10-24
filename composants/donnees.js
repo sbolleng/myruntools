@@ -133,14 +133,16 @@
     }
     let courses = [];
     try { courses = await lireCourses(qui); } catch (err) { console.warn('Courses : lecture impossible', err); }
-    const dessiner = p => window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant }));
+    let prefsCourantes = prefs;
+    const dessiner = p => { prefsCourantes = p; window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant })); };
     dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
     // La page s'affiche une fois que la suite de la page (then) a dessiné son contenu.
     setTimeout(window.mrtAfficher, 0);
     return {
       session, courses, lectureSeule: !!proprietaire, proprietaire,
-      relire: () => lireCourses(qui),
+      // Relit les courses et redessine l'en-tête (cap, compte à rebours) avec elles.
+      relire: async () => { courses = await lireCourses(qui); dessiner(prefsCourantes); return courses; },
       redessiner: dessiner // en-tête et menu, avec d'autres préférences
     };
   };

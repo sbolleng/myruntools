@@ -22,7 +22,8 @@ const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 
 // Base simulée : lecture filtrée par les « eq. » de l'adresse ; fonctions lues
 // dans db.rpc ; les préférences enregistrées (upsert) sont gardées dans db,
-// les autres écritures acceptées sans rien changer ; db.panne : écritures en échec.
+// les suppressions par id sont appliquées, les autres écritures acceptées sans rien changer ; db.panne : écritures en échec ;
+// db.ecritures (liste, si elle existe) : les écritures reçues, pour les relire.
 function simulerBase(ctx, db) {
   return ctx.route(PROJET + '/**', route => {
     const req = route.request(), u = new URL(req.url());
@@ -31,7 +32,12 @@ function simulerBase(ctx, db) {
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify(r) });
     }
     if (req.method() !== 'GET') {
+      if (db.ecritures) db.ecritures.push({ methode: req.method(), table: u.pathname.split('/').pop(), filtres: u.search, corps: req.postData() ? req.postDataJSON() : null });
       if (db.panne) return route.fulfill({ status: 500, contentType: 'application/json', body: '{"message":"panne"}' });
+      if (req.method() === 'DELETE' && db[u.pathname.split('/').pop()]) { // ligne effacée, relue sans elle
+        const t = u.pathname.split('/').pop(), cible = u.searchParams.get('id');
+        db[t] = db[t].filter(x => 'eq.' + x.id !== cible);
+      }
       if (u.pathname.endsWith('/preferences') && req.method() === 'POST') {
         [].concat(req.postDataJSON()).forEach(l => {
           const x = db.preferences.find(y => y.utilisateur === l.utilisateur);
@@ -490,6 +496,229 @@ const CONTROLES = {
     await ctx.close();
     [r] = await pageCourse(id(3), PARIS, partage, { 'mrt-vue': autre });
     pb.push(egal(['Trail des Gorges', 'Objectif intermédiaire · Étape 3 sur 6'], [r.titre, r.sur], 'lecture seule, page d\'une course'));
+    return pb;
+  },
+
+  // Objectif : saisie et édition d'une course à venir (module-objectif-specification.md, § 3.7 et § 10).
+  async saisie(nav, db0) {
+    const { db, id } = jeuObjectif(db0);
+    const pb = [];
+    const PAGE = 'objectif.html', COURSE = n => 'course.html?id=' + id(n);
+    const lire = async (p, sel) => p.locator(sel).inputValue();
+    const poser = (p, k, v) => p.evaluate(([k, v]) => { document.getElementById('fc-' + k).value = v; }, [k, v]); // champ d'un bloc replié
+    const deplier = p => p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(b => b.click()));
+    const erreursChamps = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll('.fc-erreur')].filter(e => e.textContent).map(e => [e.id.replace(/^fc-|-err$/g, ''), e.textContent])));
+    const neuve = async (largeur, page, base = db, stockage = {}) => {
+      const copie = JSON.parse(JSON.stringify(base)); copie.ecritures = [];
+      const o = await ouvrir(nav, page, largeur, copie, stockage, PARIS);
+      o.copie = copie;
+      return o;
+    };
+
+    // Lecture de l'objectif et de l'heure
+    let { p, ctx } = await neuve(1200, PAGE);
+    const lectures = await p.evaluate(() => {
+      const f = window.mrtFicheCourse;
+      return ['2:45:00', '2h45', '24500', 'finisher', 'FINISHER', 'sub 3h', 'Sub 1h30', 'sub1h5', 'SUB 45 min', 'sub 45', 'sub', 'rapide', '0', '1h70'].map(x => f.parseObjectif(x))
+        .concat(['07:30', '7h30', '730', '0730', '7h', '7', '25:00', '7:75', 'tôt'].map(x => f.parseHeure(x)));
+    });
+    pb.push(egal(['02:45:00', '02:45:00', '02:45:00', 'Finisher', 'Finisher', 'Sub 3h', 'Sub 1h30', 'Sub 1h05', 'Sub 45 min', 'Sub 45 min', null, null, null, null,
+      '07:30', '07:30', '07:30', '07:30', '07:00', '07:00', null, null, null],
+      lectures.map(x => (x !== x ? null : x)), 'lecture de l\'objectif et de l\'heure'));
+    await ctx.close();
+
+    // Ajouter : formulaire vide
+    let o = await neuve(1200, PAGE);
+    ({ p, ctx } = o);
+    pb.push(egal(1, await p.locator('[data-ob="ajouter"]').count(), 'bouton « + » sur la feuille de route'));
+    await p.click('[data-ob="ajouter"]');
+    const blocs = await p.evaluate(() => [...document.querySelectorAll('.fc-bloc')].map(b => b.querySelector('.fc-bloc-titre').textContent.trim() + (b.querySelector('.fc-grille').hidden ? ' (replié)' : '')));
+    pb.push(egal(['Course', 'Place dans le plan', 'Préparation (replié)', 'Dossard (replié)', 'Logistique (replié)', 'Liens (replié)'], blocs, 'six blocs, quatre repliés'));
+    pb.push(egal(['Ajouter une course', 'confirmee', 'preparatoire', true], [await p.textContent('#fc-titre'), await lire(p, '#fc-statut'), await lire(p, '#fc-role'), await p.locator('[data-champ="groupe_options"]').isHidden()], 'ajout : titre, statut et rôle proposés, groupe caché'));
+    pb.push(egal('ex. 07:30', await p.getAttribute('#fc-heure', 'placeholder'), 'exemple dans l\'heure'));
+    // Enregistrer sans rien : champs obligatoires
+    await p.click('.fc-plein');
+    pb.push(egal({ date: 'Champ obligatoire.', course: 'Champ obligatoire.', type: 'Choisis un type.', format: 'Champ obligatoire.' }, await erreursChamps(p), 'obligatoires : date, course, type, format'));
+    pb.push(egal(0, o.copie.ecritures.length, 'rien d\'écrit tant qu\'une erreur demeure'));
+    // Contrôles de saisie
+    await p.fill('#fc-date', '2026-01-01');
+    await p.fill('#fc-course', 'Trail des Lacs');
+    await p.selectOption('#fc-type', 'trail');
+    await p.fill('#fc-distance', '28,5');
+    await p.fill('#fc-heure', '25h');
+    await poser(p, 'objectif', 'rapide');
+    await poser(p, 'lien', 'www.exemple.org');
+    await poser(p, 'prix', '-3');
+    await p.click('.fc-plein');
+    const e1 = await erreursChamps(p);
+    pb.push(egal({ date: 'La date d\'une course à venir ne peut pas être dans le passé.', heure: 'Heure illisible (ex. 07:30).', objectif: 'Format attendu : 02:45:00, Finisher ou Sub 3h',
+      lien: 'Lien attendu : il commence par http:// ou https://.', prix: 'Le nombre doit être positif.' }, { date: e1.date, heure: e1.heure, objectif: e1.objectif, lien: e1.lien, prix: e1.prix }, 'contrôles : date passée, heure, objectif, lien, prix'));
+    pb.push(egal([true, true, true], await p.evaluate(() => ['objectif', 'lien', 'prix'].map(k => !document.getElementById('fc-' + k).closest('.fc-grille').hidden)), 'un champ en erreur déplie son bloc'));
+    pb.push(egal('trail_court', await lire(p, '#fc-format'), 'trail : format proposé d\'après la distance'));
+    // Description : 1 000 caractères
+    await p.fill('#fc-description', 'x'.repeat(1000));
+    pb.push(egal('1000 / 1 000', (await p.textContent('[data-compte="description"]')).replace(/[  ]/g, ' ').replace(/^1 000/, '1000'), 'compteur de description'));
+    // Saisie valide
+    await deplier(p);
+    await p.fill('#fc-description', 'Boucle autour du lac.');
+    await p.fill('#fc-date', '2027-06-12');
+    await p.fill('#fc-heure', '730');
+    await p.fill('#fc-parcours', 'La Grande Boucle');
+    await p.fill('#fc-lieu', 'Mont-Clair');
+    await p.fill('#fc-dplus', '1200');
+    await p.fill('#fc-objectif', 'sub 6h');
+    await p.fill('#fc-lien', 'https://example.org/lacs');
+    await p.fill('#fc-prix', '45,5');
+    await p.check('#fc-inscrit');
+    await p.fill('#fc-dossard', '77');
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-voile', { state: 'detached' });
+    const w = o.copie.ecritures[0];
+    pb.push(egal(['POST', 'courses'], [w.methode, w.table], 'enregistrement : une insertion'));
+    pb.push(egal({ etat: 'a_venir', date: '2027-06-12', date_approx: false, heure: '07:30', course: 'Trail des Lacs', parcours: 'La Grande Boucle', lieu: 'Mont-Clair', format: 'trail_court',
+      description: 'Boucle autour du lac.', distance: 28.5, dplus: 1200, dmoins: null, statut: 'confirmee', role: 'preparatoire', groupe_options: null, objectif: 'Sub 6h', pourquoi: null, strategie: null,
+      inscrit: true, dossard: '77', prix: 45.5, ouverture_inscriptions: null, inscription: null, logistique: null, lien: 'https://example.org/lacs', lien_resultats: null }, w.corps, 'enregistrement : champs écrits'));
+    await ctx.close();
+
+    // Option : groupe d'options, existant ou nouveau ; jour inconnu
+    o = await neuve(1200, PAGE); ({ p, ctx } = o);
+    await p.click('[data-ob="ajouter"]');
+    await p.selectOption('#fc-statut', 'option');
+    await deplier(p);
+    pb.push(egal(['—', 'Printemps 2027', 'Nouveau groupe…'], await p.locator('#fc-groupe_options option').allTextContents(), 'groupes proposés'));
+    pb.push(egal(true, await p.locator('[data-champ="groupe_options"]').isVisible(), 'groupe visible pour une Option'));
+    await p.selectOption('#fc-groupe_options', '__nouveau__');
+    pb.push(egal(true, await p.locator('#fc-groupe_nouveau').isVisible(), 'nouveau groupe : champ de nom'));
+    await p.click('.fc-plein');
+    pb.push(egal('Écris le nom du groupe.', (await erreursChamps(p)).groupe_options, 'nouveau groupe sans nom'));
+    await p.fill('#fc-groupe_nouveau', 'Automne 2027');
+    await p.fill('#fc-course', 'Trail des Vignes');
+    await p.selectOption('#fc-type', 'route');
+    await p.selectOption('#fc-format', { index: 1 });
+    await p.check('#fc-date_approx');
+    pb.push(egal('month', await p.getAttribute('#fc-date', 'type'), 'jour inconnu : la date devient un mois'));
+    await p.fill('#fc-date', '2027-10');
+    await p.fill('#fc-heure', '8h');
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-voile', { state: 'detached' });
+    const w2 = o.copie.ecritures[0].corps;
+    pb.push(egal(['2027-10-01', true, null, 'option', 'Automne 2027'], [w2.date, w2.date_approx, w2.heure, w2.statut, w2.groupe_options], 'mois seul, option, nouveau groupe'));
+    await ctx.close();
+
+    // À surveiller : date facultative
+    o = await neuve(1200, PAGE); ({ p, ctx } = o);
+    await p.click('[data-ob="ajouter"]');
+    await p.selectOption('#fc-statut', 'a_surveiller');
+    await p.fill('#fc-course', 'Trail des Sommets bis');
+    await p.selectOption('#fc-type', 'trail');
+    await p.selectOption('#fc-format', { index: 1 });
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-voile', { state: 'detached' });
+    pb.push(egal([null, 'a_surveiller'], [o.copie.ecritures[0].corps.date, o.copie.ecritures[0].corps.statut], 'à surveiller sans date'));
+    await ctx.close();
+
+    // Modifier : formulaire rempli, tous les blocs ouverts
+    o = await neuve(1200, COURSE(3)); ({ p, ctx } = o);
+    await p.click('[data-ob="modifier"]');
+    pb.push(egal('Modifier la course', await p.textContent('#fc-titre'), 'modifier : titre'));
+    pb.push(egal([], await p.evaluate(() => [...document.querySelectorAll('.fc-grille')].filter(g => g.hidden).map(g => g.previousElementSibling.textContent)), 'modifier : aucun bloc replié'));
+    const rempli = await p.evaluate(() => Object.fromEntries(['date', 'heure', 'course', 'lieu', 'format', 'dplus', 'dmoins', 'role', 'objectif', 'dossard', 'prix', 'logistique', 'lien', 'inscription', 'lien_resultats'].map(k => [k, document.getElementById('fc-' + k).value])));
+    pb.push(egal({ date: '2027-03-07', heure: '07:30', course: 'Trail des Gorges', lieu: 'Mont-Clair', format: 'trail_long', dplus: '2100', dmoins: '2100', role: 'objectif_intermediaire', objectif: '06:30:00',
+      dossard: '1287', prix: '58', logistique: 'Navette depuis le stade à 6 h 30.', lien: 'https://example.org/gorges', inscription: 'https://example.org/gorges/inscription', lien_resultats: 'https://example.org/gorges/resultats' }, rempli, 'modifier : valeurs de la course'));
+    pb.push(egal(true, await p.locator('#fc-inscrit').isChecked(), 'modifier : inscrit coché'));
+    await p.fill('#fc-objectif', 'Sub 6h30');
+    await p.fill('#fc-date', '2027-03-08');
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-voile', { state: 'detached' });
+    const m = o.copie.ecritures[0];
+    pb.push(egal(['PATCH', '?id=eq.' + id(3), 'Sub 6h30', '2027-03-08'], [m.methode, m.filtres, m.corps.objectif, m.corps.date], 'modifier : mise à jour de la course'));
+    pb.push(egal(true, !m.corps.etat, 'modifier : l\'état n\'est pas touché'));
+    // Pas de bouton « Retenir » ni « Marquer » sur une confirmée à venir
+    pb.push(egal(0, await p.locator('[data-ob="retenir"], [data-ob="marquer"]').count(), 'confirmée à venir : ni Retenir ni Marquer'));
+    await ctx.close();
+
+    // Supprimer
+    o = await neuve(1200, COURSE(2)); ({ p, ctx } = o);
+    await p.click('[data-ob="modifier"]');
+    await p.click('.fc-supprimer');
+    pb.push(egal('Supprimer cette course ? Cette action est définitive.', await p.textContent('.fc-confirmer p'), 'suppression : confirmation'));
+    await p.click('[data-fc="garder"]');
+    pb.push(egal(0, o.copie.ecritures.length, 'suppression annulée : rien d\'écrit'));
+    await p.click('.fc-supprimer');
+    await p.click('[data-fc="confirmer"]');
+    await p.waitForURL(/objectif\.html$/);
+    pb.push(egal(['DELETE', '?id=eq.' + id(2)], [o.copie.ecritures[0].methode, o.copie.ecritures[0].filtres], 'suppression : ligne effacée, retour à la feuille de route'));
+    await ctx.close();
+
+    // Retenir une course d'un groupe d'options
+    o = await neuve(1200, COURSE(4)); ({ p, ctx } = o);
+    p.once('dialog', d => d.accept());
+    await p.click('[data-ob="retenir"]');
+    await p.waitForTimeout(300);
+    const ecr = o.copie.ecritures.map(x => x.methode + ' ' + x.filtres + ' ' + JSON.stringify(x.corps));
+    pb.push(egal(['PATCH ?groupe_options=eq.Printemps+2027&statut=eq.option&id=neq.' + id(4) + ' {"statut":"a_surveiller","groupe_options":null}',
+      'PATCH ?id=eq.' + id(4) + ' {"statut":"confirmee","groupe_options":null}'], ecr, 'retenir : les autres à surveiller, le candidat confirmé'));
+    await ctx.close();
+
+    // Marquer comme courue : à partir du jour de la course
+    const jour = JSON.parse(JSON.stringify(db));
+    jour.courses.find(c => c.id === id(1)).date = '2026-10-20';
+    o = await neuve(1200, COURSE(1), jour); ({ p, ctx } = o);
+    pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'jour de la course : Marquer comme courue'));
+    await p.click('[data-ob="marquer"]');
+    pb.push(egal(['Marquer comme courue', ['Course', 'Résultat', 'Classements', 'Montre'], 0], [await p.textContent('#fc-titre'),
+      await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('.fc-supprimer').count()], 'marquer : formulaire du Palmarès, sans Supprimer'));
+    pb.push(egal(['2026-10-20', 'Trail du Lac'], [await lire(p, '#fc-date'), await lire(p, '#fc-course')], 'marquer : pré-rempli'));
+    await p.fill('#fc-temps', '2:40:00');
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-voile', { state: 'detached' });
+    pb.push(egal(['PATCH', 'courue', 9600], [o.copie.ecritures[0].methode, o.copie.ecritures[0].corps.etat, o.copie.ecritures[0].corps.temps], 'marquer : la course passe à l\'état Courue'));
+    await ctx.close();
+
+    // Panne d'enregistrement
+    const panne = JSON.parse(JSON.stringify(db)); panne.panne = true;
+    ({ p, ctx } = await ouvrir(nav, PAGE, 1200, panne, {}, PARIS));
+    await p.click('[data-ob="ajouter"]');
+    await p.fill('#fc-course', 'X'); await p.fill('#fc-date', '2027-06-12'); await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', { index: 1 });
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-msg:has-text("Enregistrement impossible")');
+    pb.push(egal(1, await p.locator('.fc-voile').count(), 'panne : le formulaire reste ouvert'));
+    await ctx.close();
+
+    // Palmarès : formulaire inchangé
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, db));
+    await p.click('[data-act="add"]');
+    pb.push(egal(['Course', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : quatre blocs'));
+    await ctx.close();
+
+    // Téléphone
+    ({ p, ctx } = await ouvrir(nav, PAGE, 390, db, {}, PARIS));
+    await p.click('[data-ob="ajouter"]');
+    await p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(b => b.click()));
+    pb.push(egal(false, await p.evaluate(() => document.querySelector('.fc-panneau').scrollWidth > document.querySelector('.fc-panneau').clientWidth), 'téléphone : le formulaire ne déborde pas'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-formulaire-telephone.png') });
+    await ctx.close();
+
+    // Ordinateur : capture
+    if (CAPTURES) {
+      ({ p, ctx } = await ouvrir(nav, PAGE, 1200, db, {}, PARIS));
+      await p.click('[data-ob="ajouter"]');
+      await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-formulaire.png') });
+      await ctx.close();
+    }
+
+    // Site partagé en lecture seule : ni « + », ni « Modifier »
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = JSON.parse(JSON.stringify(db));
+    partage.courses = partage.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
+    partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    ({ p, ctx } = await ouvrir(nav, PAGE, 1200, partage, { 'mrt-vue': autre }, PARIS));
+    pb.push(egal(0, await p.locator('[data-ob]').count(), 'lecture seule : pas de « + »'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, COURSE(4), 1200, partage, { 'mrt-vue': autre }, PARIS));
+    pb.push(egal(0, await p.locator('[data-ob]').count(), 'lecture seule : ni Modifier ni Retenir'));
+    await ctx.close();
     return pb;
   },
 
