@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 oct. 2026 | Méthode | Les deux règles se complètent : avant une maquette ou une image, proposer d'abord un plan de page, plus économique (CLAUDE.md). |
 | 24 oct. 2026 | Méthode | « Plan de page » : schéma en texte, éléments numérotés, tableau des éléments et tableau des options, avant toute maquette en image ; décrit dans CLAUDE.md, exemple dans la spécification Objectif (§ 3.1). |
 | 24 oct. 2026 | Objectif | Dossard sans date d'ouverture connue : « Ouverture à venir » au lieu de « Pas inscrit » ; spécification 0.9. |
 | 24 oct. 2026 | Méthode | Maquettes et images coûtent cher : confirmation demandée avant d'en produire ou de lancer un travail long (règle dans `CLAUDE.md`). |
