@@ -143,3 +143,15 @@
   .ob-ext:hover { color: var(--accent); background: var(--bg); }
   .pc-nav a:hover b, .pc-retour:hover { text-decoration: underline; }
 }
+
+/* ----- Saisie et édition (§ 3.7) : boutons ronds du Palmarès, pastilles du formulaire ----- */
+.ob-haut, .pc-haut { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ob-haut .ob-titre-bloc { margin-bottom: 0.9rem; }
+.ob-rond { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+.ob-rond .ob-ico { width: 0.95rem; height: 0.95rem; }
+.ob-rond:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pc-haut .ob-rond { margin-top: 0.6rem; }
+.pc-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
+@media (hover: hover) {
+  .ob-rond:hover { color: var(--accent); border-color: var(--accent); }
+}

@@ -4,8 +4,11 @@
 // composants/objectif.css. Tout vient de la liste de courses de l'utilisateur
 // (mrtPage, composants/donnees.js) : rien n'est écrit en dur.
 //   mrtEtapes(courses)                  étapes de la feuille de route
-//   renderFeuilleDeRoute(el, courses)   la feuille de route
-//   renderPageCourse(el, courses, id)   la page d'une course ; rend la course, ou null
+//   renderFeuilleDeRoute(el, courses, edition)   la feuille de route
+//   renderPageCourse(el, courses, id, edition)   la page d'une course ; rend la course, ou null
+//   mrtEdition(page, courses, apres)    saisie et édition (§ 3.7) : ajouter, modifier, marquer, retenir ;
+//                                       null sur un site partagé en lecture seule. courses : () => liste à jour
+// edition = { ajouter, modifier(id), marquer(id), retenir(id) } : les boutons n'existent que s'il est donné.
 (function () {
   const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -144,10 +147,17 @@
       '</div></article>';
   }
 
-  window.renderFeuilleDeRoute = function (el, courses) {
+  // Boutons ronds du Palmarès (design.md, § 6) : « + » et crayon.
+  const PLUS = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const CRAYON = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+  const rond = (act, texte, icone) => '<button type="button" class="ob-rond" data-ob="' + act + '" aria-label="' + texte + '" title="' + texte + '">' + icone + '</button>';
+  const brancher = (el, actions) => el.querySelectorAll('[data-ob]').forEach(b => b.addEventListener('click', () => actions[b.dataset.ob]()));
+
+  window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
-    el.innerHTML = '<h2 class="ob-titre-bloc">Feuille de route</h2>' + (etapes.length
+    el.innerHTML = '<div class="ob-haut"><h2 class="ob-titre-bloc">Feuille de route</h2>' +
+      (edition ? rond('ajouter', 'Ajouter une course', PLUS) : '') + '</div>' + (etapes.length
       ? '<div class="ob-route">' + etapes.map((e, i) => {
         const k = ['ob-et', option(e) ? 'is-opt' : '', option(etapes[i + 1]) ? 'suite-opt' : '', i === etapes.length - 1 ? 'is-fin' : '',
           e.course ? classeRole(e.course) : ''].filter(Boolean).join(' ');
@@ -156,6 +166,7 @@
         '<div class="ob-legende"><span><i></i>Confirmée</span><span><i class="cle"></i>Objectif intermédiaire</span>' +
         '<span><i class="obj"></i>Objectif principal</span><span><i class="opt"></i>Option</span></div>'
       : '<p class="ob-vide">Aucune course à venir.</p>');
+    if (edition) brancher(el, { ajouter: edition.ajouter });
     couperNoms();
     lancerCompteurs();
   };
@@ -167,7 +178,7 @@
   const euros = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 })
     .format(Number(n)).replace(/ /g, ' ');
 
-  window.renderPageCourse = function (el, courses, id) {
+  window.renderPageCourse = function (el, courses, id, edition) {
     const retour = '<a class="pc-retour" href="objectif.html">← Feuille de route</a>';
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
@@ -180,13 +191,19 @@
     const c = suite[i], prec = suite[i - 1], suiv = suite[i + 1];
     const rang = etapes.findIndex(e => e.course === c || (e.candidats || []).includes(c)) + 1;
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
+    const retenable = c.statut === 'option' && !!c.groupe_options;
+    const marquable = c.statut === 'confirmee' && c.date <= aujourdhui();
     const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => lienSur(l[0]));
     el.innerHTML = retour +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
-      '<h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2>' +
+      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2>' +
+        (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') + '</div>' +
       '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
+      (edition && (retenable || marquable) ? '<div class="pc-actions">' +
+        (retenable ? '<button type="button" class="fc-btn" data-ob="retenir">Retenir cette course</button>' : '') +
+        (marquable ? '<button type="button" class="fc-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
       '<div class="pc-stats">' +
         (c.distance != null ? stat(esc(nombre(c.distance)) + ' km' + (c.dplus != null ? '<small> / ' + esc(nombre(c.dplus)) + ' m D+</small>' : ''), 'Distance') : '') +
         (c.dmoins != null ? stat(esc(nombre(c.dmoins)) + ' m', 'D−') : '') +
@@ -206,8 +223,35 @@
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
+    if (edition) brancher(el, { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id) });
     couperNoms();
     lancerCompteurs();
     return c;
+  };
+
+  // ----- Saisie et édition (§ 3.7) -----
+  window.mrtEdition = function (page, courses, apres) {
+    if (page.lectureSeule) return null;
+    const ouvrir = async (course, extra) => {
+      const liste = courses();
+      const groupes = [...new Set(liste.filter(x => x.statut === 'option' && x.groupe_options).map(x => x.groupe_options))];
+      window.mrtFicheCourse(Object.assign({ course, references: await window.mrtReferences(), groupes, apres }, extra));
+    };
+    const trouver = id => courses().find(x => x.id === id) || null;
+    return {
+      ajouter: () => ouvrir(null, { mode: 'a_venir' }),
+      modifier: id => ouvrir(trouver(id), { mode: 'a_venir' }),
+      marquer: id => ouvrir(trouver(id), { mode: 'courue', marquer: true }),
+      // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
+      retenir: async id => {
+        const c = trouver(id);
+        if (!c || !window.confirm('Retenir cette course ? Les autres candidats de « ' + c.groupe_options + ' » passeront à surveiller.')) return;
+        const db = window.mrtSupabase.from('courses');
+        const autres = await db.update({ statut: 'a_surveiller', groupe_options: null }).eq('groupe_options', c.groupe_options).eq('statut', 'option').neq('id', c.id);
+        const lui = autres.error ? autres : await window.mrtSupabase.from('courses').update({ statut: 'confirmee', groupe_options: null }).eq('id', c.id);
+        if (lui.error) { console.warn(lui.error); window.alert('Enregistrement impossible pour l\'instant.'); return; }
+        apres();
+      }
+    };
   };
 })();

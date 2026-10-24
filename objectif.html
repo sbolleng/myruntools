@@ -10,6 +10,7 @@
 <title>Objectif · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
 </head>
 <body>
 <main>
@@ -21,9 +22,18 @@
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
 <script src="composants/objectif.js?v=__VERSION__"></script>
+<script src="composants/fiche-course.js?v=__VERSION__"></script>
 <script>
   // La feuille de route de l'utilisateur connecté (ou du site partagé), lue dans la base.
-  mrtPage({ courant: 'objectif.html' }).then(page => renderFeuilleDeRoute(document.getElementById('feuille-de-route'), page.courses));
+  mrtPage({ courant: 'objectif.html' }).then(page => {
+    let courses = page.courses;
+    const el = document.getElementById('feuille-de-route');
+    // Après un enregistrement ou une suppression : relire et redessiner (en-tête compris).
+    const apres = async () => { courses = await page.relire(); dessiner(); };
+    const edition = mrtEdition(page, () => courses, apres);
+    const dessiner = () => renderFeuilleDeRoute(el, courses, edition);
+    dessiner();
+  });
 </script>
 </body>
 </html>

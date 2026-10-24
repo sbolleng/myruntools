@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.10 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.11 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -146,7 +146,7 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 
 ### 3.7 Saisie et édition
 
-Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre outil. Le formulaire est celui du Palmarès ([spécification du Palmarès](module-palmares-specification.md), § 10), étendu aux champs d'une course à venir : même panneau, mêmes boutons, mêmes contrôles de saisie. Un seul formulaire pour tout le site, pas de copie : une évolution vaut pour le Palmarès comme pour l'Objectif.
+Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre outil. Le formulaire est celui du Palmarès (mode « à venir » ; le mode « courue » est celui du Palmarès) ([spécification du Palmarès](module-palmares-specification.md), § 10), étendu aux champs d'une course à venir : même panneau, mêmes boutons, mêmes contrôles de saisie. Un seul formulaire pour tout le site, pas de copie : une évolution vaut pour le Palmarès comme pour l'Objectif.
 
 **Accès**
 
@@ -159,20 +159,58 @@ Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre
 
 Site partagé en lecture seule : aucun de ces boutons.
 
-**Formulaire**, en cinq blocs ; les trois derniers sont repliés à l'ouverture d'un formulaire vide :
+**Formulaire**, en six blocs ; les quatre derniers sont repliés à l'ouverture d'un formulaire vide (tous ouverts pour une course existante). Plan de page : numéros stables, repris des échanges de validation.
+
+```
+┌──────────────────────────────────────────────────┐
+│ Ajouter une course (1)                       × (2)│
+├──────────────────────────────────────────────────┤
+│ ▾ Course (3)                                      │
+│  Date * (4)            ☐ Jour inconnu (5)         │
+│  Heure de départ (6)                              │
+│  Course * (7)          Parcours (8)               │
+│  Lieu (9)                                         │
+│  Type * (10)           Format * (11)              │
+│  Description (34)                       0 / 1 000 │
+│  Distance (12)         D+ (13)                    │
+│  D− (14)                                          │
+│ ▾ Place dans le plan (15)                         │
+│  Statut (16)           Rôle (17)                  │
+│  Groupe d'options (18)  [si statut Option]        │
+│ ▸ Préparation (20)                                │
+│  Objectif (30)                                    │
+│  Rôle dans la préparation (31)                    │
+│  Stratégie ou enchaînement (32)                   │
+│ ▸ Dossard (19)                                    │
+│  ☐ Inscrit (26)        N° de dossard (27)         │
+│  Prix (28)             Ouverture des inscr. (29)  │
+│  Site d'inscription (36)                          │
+│ ▸ Logistique (38)                                 │
+│  Logistique (33)                                  │
+│ ▸ Liens (21)                                      │
+│  Site officiel (35)                               │
+│  Résultats en direct (37)                         │
+│  message (22)                                     │
+│  [Supprimer (23)]      [Annuler (24)] [Enregistrer (25)]
+└──────────────────────────────────────────────────┘
+```
+
+Sur téléphone : le panneau passe en plein écran, une seule colonne, même ordre.
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Date, ou mois seul (case « Jour inconnu ») ; heure de départ ; course et parcours ; lieu ; type et format ; distance, D+ et D− |
-| Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou un nouveau nom |
-| Dossard | Case « Inscrit » ; numéro ; prix ; date d'ouverture des inscriptions |
-| Préparation | Objectif ; rôle dans la préparation ; stratégie ou enchaînement ; logistique ; description (1 000 caractères au plus) |
-| Liens | Site officiel ; site d'inscription ; résultats en direct |
+| Course | Date, ou mois seul (case « Jour inconnu ») ; heure de départ ; course et parcours ; lieu ; type et format ; description (1 000 caractères au plus) ; distance, D+ et D− |
+| Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
+| Préparation | Objectif ; rôle dans la préparation ; stratégie ou enchaînement |
+| Dossard | Case « Inscrit » ; numéro ; prix ; date d'ouverture des inscriptions ; site d'inscription |
+| Logistique | Logistique |
+| Liens | Site officiel ; résultats en direct |
 
-- **Obligatoires** : course ; date (ou mois) pour une course Confirmée ou Option. Une course À surveiller peut rester sans date.
+- **Boutons** : « + » et crayon « Modifier » reprennent les boutons ronds du Palmarès ; « Retenir cette course » et « Marquer comme courue » sont des boutons à contour Accent, comme « Enregistrer » et « Annuler ».
+- **Obligatoires** : course ; type et format ; date (ou mois) pour une course Confirmée ou Option. Une course À surveiller peut rester sans date.
 - **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 02:45:00, Finisher ou Sub 3h », « ex. https://… ».
 - **Contrôles de saisie** :
-  - date du jour ou à venir ;
+  - date du jour ou à venir (une date passée déjà enregistrée reste modifiable) ; heure : `07:30`, `7h30`, `730` ;
   - objectif : une durée, écrite comme dans le Palmarès (`2:45:00`, `2h45`, chiffres seuls lus par la droite) et rangée au format `hh:mm:ss` (« 02:45:00 ») ; ou « Finisher » ; ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). Majuscules remises à l'enregistrement (« finisher » devient « Finisher »). Autre chose : « Format attendu : 02:45:00, Finisher ou Sub 3h » ;
   - nombres positifs ; liens commençant par `http://` ou `https://`.
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
@@ -341,3 +379,21 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir cette course », ni « Marquer comme courue ».
 - Téléphone : le formulaire occupe tout l'écran et défile, sans déborder sur les côtés.
 
+Résultats attendus, saisie et édition (§ 3.7) :
+
+- Sur la feuille de route, un « + » rond à droite du titre ; il ouvre « Ajouter une course » : six blocs, Course et Place dans le plan ouverts, les quatre autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
+- Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course et Format, « Choisis un type. » sous Type ; rien n'est écrit.
+- Date au 1er janvier 2026 : « La date d'une course à venir ne peut pas être dans le passé. » ; heure `25h` : « Heure illisible (ex. 07:30). » ; objectif `rapide` : « Format attendu : 02:45:00, Finisher ou Sub 3h » ; lien `www.exemple.org` : « Lien attendu : il commence par http:// ou https://. » ; prix −3 : « Le nombre doit être positif. » ; le bloc d'un champ en erreur se déplie.
+- Objectif : `2:45:00`, `2h45` et `24500` sont rangés `02:45:00` ; `finisher` devient `Finisher` ; `sub 3h`, `Sub 1h30`, `sub1h5`, `SUB 45 min` et `sub 45` deviennent `Sub 3h`, `Sub 1h30`, `Sub 1h05`, `Sub 45 min` et `Sub 45 min`. Heure : `07:30`, `7h30`, `730` et `0730` donnent `07:30` ; `7h` donne `07:00`.
+- Trail, distance 28,5 : format Trail court proposé. Description : compteur « 0 / 1 000 ».
+- Saisie complète valide : une course est créée à l'état À venir, statut Confirmée, rôle Préparatoire, avec les valeurs saisies.
+- Statut Option : le groupe d'options apparaît, avec « Printemps 2027 » et « Nouveau groupe… » ; un nouveau groupe sans nom : « Écris le nom du groupe. ».
+- Case « Jour inconnu » cochée : la date devient un mois ; `2027-10` est rangé au 1er octobre 2027, sans heure, date approximative.
+- Statut À surveiller : une course s'enregistre sans date.
+- Page de Trail des Gorges, « Modifier » : formulaire rempli (objectif 06:30:00, heure 07:30, D− 2 100…), tous les blocs ouverts ; objectif `Sub 6h30` et date du 8 mars 2027 mis à jour sur la ligne de la course, sans toucher à son état ; ni « Retenir » ni « Marquer comme courue ».
+- « Supprimer » : « Supprimer cette course ? Cette action est définitive. » ; Annuler n'écrit rien ; confirmer efface la ligne et ramène à la feuille de route.
+- Page de Trail des Cimes (option d'un groupe), « Retenir cette course » : après confirmation, Ultra du Plateau passe À surveiller et quitte le groupe, Trail des Cimes devient Confirmée, hors groupe.
+- Trail du Lac au jour de la course : « Marquer comme courue » ouvre le formulaire du Palmarès (Course, Résultat, Classements, Montre), pré-rempli, sans « Supprimer » ; à l'enregistrement, la course passe à l'état Courue.
+- Panne d'enregistrement : « Enregistrement impossible pour l'instant. », le formulaire reste ouvert.
+- Palmarès : le formulaire garde ses quatre blocs. Téléphone : le formulaire ne déborde pas.
+- Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir ».
