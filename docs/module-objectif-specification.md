@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.12 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.13 · 24 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -166,10 +166,9 @@ Site partagé en lecture seule : aucun de ces boutons.
 │ Ajouter une course (1)                       × (2)│
 ├──────────────────────────────────────────────────┤
 │ ▾ Course (3)                                      │
-│  Date * (4)            ☐ Jour inconnu (5)         │
-│  Heure de départ (6)                              │
 │  Course * (7)          Parcours (8)               │
-│  Lieu (9)                                         │
+│  Date * (4)            ☐ Jour inconnu (5)         │
+│  Heure de départ (6)   Lieu (9)                   │
 │  Type * (10)           Format * (11)              │
 │  Description (34)                       0 / 1 000 │
 │  Distance (12)         D+ (13)                    │
@@ -195,11 +194,11 @@ Site partagé en lecture seule : aucun de ces boutons.
 └──────────────────────────────────────────────────┘
 ```
 
-Sur téléphone : le panneau passe en plein écran, une seule colonne, même ordre.
+Sur téléphone : le panneau passe en plein écran, une seule colonne, même ordre ; la date et « Jour inconnu » restent côte à côte.
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Date, ou mois seul (case « Jour inconnu ») ; heure de départ ; course et parcours ; lieu ; type et format ; description (1 000 caractères au plus) ; distance, D+ et D− |
+| Course | Course et parcours ; date, ou mois seul (case « Jour inconnu ») ; heure de départ ; lieu ; type et format ; description (1 000 caractères au plus) ; distance, D+ et D− |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
 | Préparation | Objectif ; rôle dans la préparation ; stratégie ou enchaînement |
 | Dossard | Case « Inscrit » ; numéro ; prix ; date d'ouverture des inscriptions ; site d'inscription |

@@ -130,6 +130,7 @@ html.fc-ouvert { overflow: hidden; }
 /* Formulaire d'une course à venir (§ 3.7) : champs sur toute la largeur, cases alignées sur le bas des champs. */
 .fc-champ[hidden] { display: none; }
 .fc-large { grid-column: 1 / -1; }
+.fc-ligne-date { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
 .fc-bas { align-self: end; padding-bottom: 1.5rem; }
 .fc-bas .fc-case { margin: 0; }
 .fc-champ textarea {

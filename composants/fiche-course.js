@@ -95,11 +95,11 @@
     ['fc_moyenne', 'FC moyenne (bpm)', 'entier', 'montre']
   ];
   const CHAMPS_VENIR = [
+    ['course', 'Course', 'texte', 'course', true],
+    ['parcours', 'Parcours', 'texte', 'course'],
     ['date', 'Date', 'date', 'course', true],
     ['date_approx', 'Jour inconnu', 'case', 'course'],
     ['heure', 'Heure de départ', 'heure', 'course'],
-    ['course', 'Course', 'texte', 'course', true],
-    ['parcours', 'Parcours', 'texte', 'course'],
     ['lieu', 'Lieu', 'texte', 'course'],
     ['type', 'Type', 'choix', 'course', true],
     ['format', 'Format', 'choix', 'course', true],
@@ -161,7 +161,7 @@
       let input;
       if (genre === 'case') {
         const caseHtml = '<label class="fc-case"><input type="checkbox" id="' + id + '" data-k="' + k + '"' + (valeur ? ' checked' : '') + '> ' + esc(lib) + '</label>';
-        return k === 'dnf' ? caseHtml : '<div class="fc-champ fc-bas">' + caseHtml + '</div>';
+        return k === 'dnf' || k === 'date_approx' ? caseHtml : '<div class="fc-champ fc-bas">' + caseHtml + '</div>';
       }
       if (genre === 'choix') {
         const opts = k === 'type' ? references.types.map(t => [t.id, t.libelle])
@@ -194,9 +194,12 @@
       }
       // La case DNF se range juste sous le temps : les deux vont ensemble.
       const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
+      // « Jour inconnu » reste à droite de la date, même sur téléphone.
+      const jourInconnu = k === 'date' && venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>' : '';
       const classes = 'fc-champ' + (k === 'date' && !venir ? ' fc-seul' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
       const attrs = genre === 'groupe' ? ' data-champ="groupe_options"' + (c.statut === 'option' ? '' : ' hidden') : '';
-      return '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
+      const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
+      return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
     };
     const ouvert = b => existe || (venir ? b === 'course' || b === 'plan' : b === 'course' || b === 'resultat');
     const titreForm = marquer ? 'Marquer comme courue' : existe ? 'Modifier la course' : 'Ajouter une course';
@@ -208,7 +211,7 @@
           BLOCS.map(([b, titre]) =>
             '<section class="fc-bloc">' +
               '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
-              '<div class="fc-grille"' + (ouvert(b) ? '' : ' hidden') + '>' + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf').map(champ).join('') + '</div>' +
+              '<div class="fc-grille"' + (ouvert(b) ? '' : ' hidden') + '>' + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
             '</section>').join('') +
           '<p class="fc-msg" aria-live="polite"></p>' +
           '<div class="fc-actions">' +
@@ -228,7 +231,7 @@
     const $ = s => voile.querySelector(s);
     const val = k => voile.querySelector('[data-k="' + k + '"]');
     const avant = document.activeElement;
-    val('date').focus();
+    val(venir ? 'course' : 'date').focus();
 
     function fermer() {
       voile.remove();
