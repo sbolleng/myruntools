@@ -128,13 +128,12 @@
 @media (max-width: 600px) {
   .pc-grille { grid-template-columns: 1fr; }
   .pc-stats { gap: 1rem 1.5rem; }
-  /* Téléphone : la date et le rôle en haut, le compteur dessous à droite, puis le reste sur toute la largeur. */
-  /* Téléphone : le compteur en premier, à droite, puis le rôle et la date. */
-  .fr-carte, .fr-cand { grid-template-areas: "cpt cpt" "role date" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
+  /* Téléphone : le compteur puis la date, à droite ; un interligne ; le rôle juste au-dessus du nom. */
+  .fr-carte, .fr-cand { grid-template-areas: "cpt cpt" "date date" "role role" "nom nom" "info info" "lignes lignes"; column-gap: 0.6rem; }
   .fr-cand { grid-template-areas: "date date" "nom nom" "info info" "lignes lignes"; }
-  /* Un interligne entre la date et le nom. */
-  .fr-carte > .fr-nom, .fr-cand > .fr-nom { margin-top: 0.9rem; }
-  .fr-groupe > .fr-nom { margin-top: 0; }
+  .fr-carte:not(.fr-groupe) > .fr-role { margin-top: 0.9rem; }
+  /* Candidat : pas de rôle, l'interligne passe entre la date et le nom. */
+  .fr-cand > .fr-nom { margin-top: 0.9rem; }
   .fr-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }
   .fr-carte .cpt { gap: 0.2rem; }
   .fr-carte .cpt-case { padding: 0 0.3rem; }
