@@ -26,7 +26,7 @@
   padding: 0;
   margin-bottom: 0.45rem;
   font-family: 'Space Mono', monospace;
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
@@ -114,6 +114,15 @@
 .pv2-add { margin-left: auto; }
 @media (max-width: 600px) {
   .pv2-count { order: 3; flex-basis: 100%; }
+}
+.pv2-paysage { display: none; margin: -0.3rem 0 0.7rem; font-size: 0.8rem; color: var(--muted); }
+/* Téléphone tenu en largeur : une ligne par course ; le tableau défile sur le côté s'il le faut. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .pv2-card { padding: 0.4rem 0.6rem; }
+  .pv2-table td { white-space: nowrap; }
+}
+@media (max-width: 600px) and (orientation: portrait) {
+  .pv2-paysage { display: block; }
 }
 /* Groupe : titre repliable, comme les textes de la page d'une course (chevron, Texte, casse normale). */
 .pv2-table tr.pv2-group-row th { text-align: left; padding: 1rem 0 0.35rem; border-bottom: 1px solid var(--border); }

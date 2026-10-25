@@ -189,6 +189,7 @@
   }
 
   window.renderPageCourse = function (el, courses, id, edition) {
+    el.classList.add('pc');
     const retour = '<a class="pc-retour" href="objectif.html">← Feuille de route</a>';
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.

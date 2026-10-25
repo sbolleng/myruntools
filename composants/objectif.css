@@ -6,7 +6,7 @@
    Texte    Space Grotesk 0,8 rem, Texte discret ; valeurs en Texte
    Libellé  Space Mono 0,62 rem, capitales (rôle, date, compteur, libellés) */
 .ob-vide { color: var(--muted); }
-.ob-lib, .ob-date, .ob-role, .ob-cpt { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.ob-lib, .ob-date, .ob-role, .ob-cpt { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
 .ob-lib { color: var(--muted); }
 .ob-date { color: var(--muted); }
 .ob-role { color: var(--muted); }
@@ -17,10 +17,10 @@
 /* Lien officiel : icône ↗ à côté du nom. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
 
-/* Compteur : quatre cases fines, discrètes, dans les nuances du thème : chiffres en Texte discret, unités plus pâles. */
+/* Compteur : quatre cases fines ; chiffres en Accent 2, unités en Texte discret. */
 .ob-cpt { display: flex; gap: 0.25rem; }
-.ob-cpt-case { display: inline-flex; align-items: baseline; gap: 0.15rem; padding: 0 0.4rem; line-height: 1.5; text-transform: none; color: color-mix(in srgb, var(--muted) 65%, transparent); border: 1px solid var(--border); border-radius: 4px; }
-.ob-cpt-case b { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ob-cpt-case { display: inline-flex; align-items: baseline; gap: 0.15rem; padding: 0 0.4rem; line-height: 1.5; text-transform: none; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; }
+.ob-cpt-case b { font-weight: 400; color: var(--accent2); font-variant-numeric: tabular-nums; }
 .ob-cpt.is-fini { color: var(--muted); }
 
 /* Dossard : un point, puis l'état. */
@@ -79,6 +79,8 @@
 .ob-cand .ob-nom a::after { border-radius: 0; }
 
 /* ----- Page d'une course : sans en-tête ; la carte en grand, puis les textes repliables ----- */
+/* Une colonne de lecture, sur ordinateur comme sur téléphone. */
+.pc { max-width: 40rem; }
 .pc-retour { display: inline-block; margin-bottom: 1.2rem; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
 .pc-sur { display: flex; flex-wrap: wrap; gap: 0 0.5rem; }
 .pc-titre { margin: 0.45rem 0 0.3rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }
@@ -103,7 +105,7 @@
 .pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
 .pc-nav a { max-width: 48%; text-decoration: none; }
 .pc-nav a.is-suivante { margin-left: auto; text-align: right; }
-.pc-nav span { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pc-nav span { display: block; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .pc-nav b { font-weight: 600; color: var(--text); }
 
 @media (max-width: 600px) {

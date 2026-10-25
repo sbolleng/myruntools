@@ -40,7 +40,7 @@
     wDist: num(c.montre_distance), wDplus: c.montre_dplus, wTime: hms(c.montre_temps), wPace: ms(c.montre_allure),
     wSpeed: num(c.montre_vitesse), hr: c.fc_moyenne
   }));
-  mrtPage({ courant: 'palmares.html' }).then(async page => {
+  mrtPage({ courant: 'palmares.html', sansEnTete: true }).then(async page => {
     let courses = page.courses;
     const references = await mrtReferences();
     // Après un enregistrement ou une suppression : relire et redessiner.

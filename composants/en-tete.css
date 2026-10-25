@@ -27,7 +27,7 @@ main { max-width: 960px; margin: 0 auto; padding: 2rem; font-size: 0.85rem; } /*
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
 .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-th { text-align: left; padding: 0.6rem 0.75rem; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { text-align: left; padding: 0.6rem 0.75rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
 td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 
 /* ----- En-tête ----- */
@@ -45,7 +45,6 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   color: var(--muted);
 }
 .mrt-brand a { color: inherit; text-decoration: none; }
-.mrt-gear { font-size: 0.9rem; letter-spacing: 0; line-height: 1; }
 /* Deux colonnes : à gauche le titre et les indicateurs ; à droite le nom de l'application
    en haut, aligné sur « Cap sur », et le compteur en bas, aligné sur le bas des indicateurs. */
 .mrt-grid {
@@ -108,6 +107,8 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 }
 .mrt-tab.is-on { color: var(--accent); border-bottom-color: var(--accent); }
 .mrt-tab.is-soon { opacity: 0.45; cursor: default; }
+/* Engrenage : dernier onglet, collé au bord droit même quand le menu défile. */
+.mrt-tab-reglages { position: sticky; right: 0; margin-left: auto; padding-left: 1rem; padding-right: 1rem; font-size: 0.95rem; line-height: 1.3; background: var(--bg); }
 
 @media (max-width: 600px) {
   body { font-size: 17px; }
@@ -127,6 +128,12 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   .mrt-hms { margin-top: 0; }
   .mrt-next { flex-basis: 100%; margin-top: 0.2rem; }
   .mrt-bar { margin-top: 1.1rem; }
+}
+
+/* Téléphone tenu en largeur : la taille de texte et les marges du téléphone. */
+@media (orientation: landscape) and (max-height: 500px) {
+  body { font-size: 17px; }
+  main { padding: 1rem 1.25rem; }
 }
 
 /* ----- Éléments communs à toutes les pages (docs/design.md, § 1) -----

@@ -14,7 +14,7 @@
   /* Une section par réglage, séparées par un filet (mrt-section, en-tete.css). */
   .mrt-section b { font-weight: 600; }
   .pref-intro { margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--muted); }
-  .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .pref-ligne { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
   .pref-ligne input, .pref-select { flex: 1 1 14rem; min-width: 0; padding: 0.55rem 0.7rem; font: inherit; font-size: 0.85rem; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; }
   .pref-select { width: 100%; max-width: 100%; color-scheme: dark; }
@@ -99,7 +99,7 @@
     return (c.date_approx ? '' : (p[2] === 1 ? '1er' : p[2]) + ' ') + MOIS[p[1] - 1] + ' ' + p[0];
   };
 
-  mrtPage({ courant: 'preferences.html' }).then(page => {
+  mrtPage({ courant: 'preferences.html', sansEnTete: true }).then(page => {
     afficherPartages(page);
     const blocs = ['bloc-theme', 'bloc-menu', 'bloc-cap'].map(id => document.getElementById(id));
     if (page.lectureSeule) {
