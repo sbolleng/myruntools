@@ -17,10 +17,10 @@
 /* Lien officiel : icône ↗ à côté du nom. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
 
-/* Compteur : quatre cases fines ; chiffres en Accent 2, unités en Texte discret. */
+/* Compteur : quatre cases fines, discrètes, dans les nuances du thème : chiffres en Texte discret, unités plus pâles. */
 .ob-cpt { display: flex; gap: 0.25rem; }
-.ob-cpt-case { display: inline-flex; align-items: baseline; gap: 0.15rem; padding: 0 0.4rem; line-height: 1.5; text-transform: none; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; }
-.ob-cpt-case b { font-weight: 400; color: var(--accent2); font-variant-numeric: tabular-nums; }
+.ob-cpt-case { display: inline-flex; align-items: baseline; gap: 0.15rem; padding: 0 0.4rem; line-height: 1.5; text-transform: none; color: color-mix(in srgb, var(--muted) 65%, transparent); border: 1px solid var(--border); border-radius: 4px; }
+.ob-cpt-case b { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
 .ob-cpt.is-fini { color: var(--muted); }
 
 /* Dossard : un point, puis l'état. */
@@ -85,8 +85,8 @@
 .pc-titre .ob-ext { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
 .pc-info, .pc-groupe { color: var(--muted); }
 .pc-groupe { margin-top: 0.3rem; font-size: 0.8rem; }
-/* Fiche : les lignes de la carte, au format du texte courant. */
-.pc-fiche { gap: 0.55rem; margin: 1.4rem 0 1.6rem; font-size: 0.85rem; color: var(--muted); }
+/* Fiche : les lignes de la carte, dans un cadre comme elle (un bloc de données garde son cadre). */
+.pc-fiche { gap: 0.55rem; margin: 1.4rem 0 1.6rem; padding: 0.95rem 1.1rem; font-size: 0.85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
 .pc-fiche .ob-cpt { font-size: 0.72rem; }
 /* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */

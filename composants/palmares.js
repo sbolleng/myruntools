@@ -262,7 +262,7 @@
             '<label class="pv2-check"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
         '</div></div>' +
       '</div>' +
-      '<div class="pv2-card"><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>';
+      '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>';
 
     const $ = sel => root.querySelector(sel);
     const panel = $('#' + uid + '-filters'), colsPanel = $('#' + uid + '-cols');
