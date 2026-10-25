@@ -2,14 +2,13 @@
    docs/module-objectif-specification.md, § 3 ; maquette docs/maquettes/objectif.html?v=b.
    Rôles de couleur de docs/design.md ; rien d'écrit en dur.
    Trois styles de texte, un seul interligne (1,5) :
-   Nom      Space Grotesk 1 rem, 600, Accent
+   Nom      Space Grotesk 1 rem, 600, Texte (Accent pour le titre de la page d'une course)
    Texte    Space Grotesk 0,8 rem, Texte discret ; valeurs en Texte
    Libellé  Space Mono 0,62 rem, capitales (rôle, date, compteur, libellés) */
-.ob-titre-bloc { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; }
 .ob-vide { color: var(--muted); }
 .ob-lib, .ob-date, .ob-role, .ob-cpt { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
 .ob-lib { color: var(--muted); }
-.ob-date { color: var(--accent2); }
+.ob-date { color: var(--muted); }
 .ob-role { color: var(--muted); }
 .ob-role.is-cle { color: var(--accent2); }
 .ob-role.is-obj { color: var(--accent); }
@@ -60,7 +59,7 @@
 .ob-carte.sans-cpt { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes"; }
 .ob-carte.sans-cpt > .ob-date { align-self: start; }
 .ob-carte .ob-date { grid-area: date; justify-self: end; }
-.ob-nom { grid-area: nom; font-size: 1rem; font-weight: 600; line-height: 1.5; color: var(--accent); }
+.ob-nom { grid-area: nom; font-size: 1rem; font-weight: 600; line-height: 1.5; color: var(--text); }
 .ob-nom a { color: inherit; text-decoration: none; }
 /* Course · Parcours : le parcours passe à la ligne, sans le point, quand les deux ne tiennent pas ensemble. */
 .ob-p { display: inline-block; }
@@ -79,37 +78,33 @@
 .ob-cand { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "nom date" "info info" "lignes lignes"; gap: 0.3rem 1.2rem; align-items: center; padding-top: 0.6rem; margin-top: 0.3rem; border-top: 1px solid var(--border); }
 .ob-cand .ob-nom a::after { border-radius: 0; }
 
-/* ----- Page d'une course ----- */
-.pc-retour { display: inline-block; margin-bottom: 1.2rem; font-size: 0.75rem; text-decoration: none; }
+/* ----- Page d'une course : sans en-tête ; la carte en grand, puis les textes repliables ----- */
+.pc-retour { display: inline-block; margin-bottom: 1.2rem; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
 .pc-sur { display: flex; flex-wrap: wrap; gap: 0 0.5rem; }
 .pc-titre { margin: 0.45rem 0 0.3rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }
 .pc-titre .ob-ext { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
 .pc-info, .pc-groupe { color: var(--muted); }
 .pc-groupe { margin-top: 0.3rem; font-size: 0.8rem; }
-.pc-groupe a { text-decoration: none; }
-.pc-stats { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 2rem; margin: 1.5rem 0; }
-.pc-stat { display: flex; flex-direction: column; gap: 0.1rem; }
-.pc-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: var(--accent2); }
-.pc-stat-val small { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
-.pc-stat-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.pc-stats .ob-ins { margin-bottom: 0.25rem; }
-.pc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-.pc-grille .card { margin: 0; }
-.pc-rebours .ob-cpt { gap: 0.5rem; }
-.pc-rebours .ob-cpt-case { padding: 0.3rem 0.7rem; font-size: 0.85rem; border-radius: 6px; }
-.pc-rebours .ob-cpt-case b { font-size: 1.6rem; font-weight: 700; }
-.pc-cellule p + p { margin-top: 0.4rem; }
-/* Titre d'une cellule : sur téléphone, un bouton qui plie et déplie ; sur ordinateur, un simple titre. */
-.pc-cellule > summary { list-style: none; cursor: default; pointer-events: none; }
+/* Fiche : les lignes de la carte, au format du texte courant. */
+.pc-fiche { gap: 0.55rem; margin: 1.4rem 0 1.6rem; font-size: 0.85rem; color: var(--muted); }
+.pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
+.pc-fiche .ob-cpt { font-size: 0.72rem; }
+/* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
+.pc-textes { border-top: 1px solid var(--border); }
+.pc-cellule { border-bottom: 1px solid var(--border); }
+.pc-cellule > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 0; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: default; pointer-events: none; }
 .pc-cellule > summary::-webkit-details-marker { display: none; }
+.ob-chev { display: none; flex: none; width: 0.8rem; height: 0.8rem; color: var(--muted); transition: transform 0.15s; }
+.pc-cellule:not([open]) .ob-chev { transform: rotate(-90deg); }
+.pc-corps { padding-bottom: 1rem; }
+.pc-corps p + p { margin-top: 0.4rem; }
 .pc-liens { list-style: none; }
 .pc-liens li + li { margin-top: 0.3rem; }
-.pc-liens a { text-decoration: none; }
-.pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
 .pc-nav a { max-width: 48%; text-decoration: none; }
 .pc-nav a.is-suivante { margin-left: auto; text-align: right; }
-.pc-nav span { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.pc-nav b { font-weight: 600; }
+.pc-nav span { display: block; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pc-nav b { font-weight: 600; color: var(--text); }
 
 @media (max-width: 600px) {
   /* Téléphone : le rôle à gauche, aligné sur le compteur à droite ; la date juste sous le compteur, à droite ;
@@ -125,24 +120,9 @@
   .ob-cpt { gap: 0.2rem; }
   .ob-cpt-case { padding: 0 0.3rem; }
   .ob-ligne { grid-template-columns: 5rem minmax(0, 1fr); }
-  .pc-grille { grid-template-columns: 1fr; gap: 0.6rem; }
-  /* Chiffres : deux colonnes ; distance avec D+ et objectif en texte prennent la ligne ; le dossard comble le trou. */
-  .pc-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: dense; gap: 0.9rem 1rem; margin: 1.1rem 0; }
-  .pc-stat.is-large { grid-column: 1 / -1; }
-  .pc-stat { min-width: 0; }
-  /* Compte à rebours : une ligne, sans carte ni titre. */
-  .pc-grille:has(.pc-rebours) { margin-bottom: 0.9rem; }
-  .pc-rebours { padding: 0; background: none; border: 0; }
-  .pc-rebours .ob-titre-bloc { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  .pc-rebours .ob-cpt { gap: 0.5rem; }
-  .pc-rebours .ob-cpt-case { padding: 0; border: 0; font-size: 0.8rem; }
-  .pc-rebours .ob-cpt-case b { font-size: 1.1rem; }
-  /* Cellules : le titre seul, avec un chevron ; un toucher ouvre. */
-  .pc-cellule { padding: 0.9rem 1rem; }
-  .pc-cellule > summary { position: relative; margin: 0; cursor: pointer; pointer-events: auto; }
-  .pc-cellule > summary::after { content: '▸'; position: absolute; right: 0; color: var(--muted); }
-  .pc-cellule[open] > summary { margin-bottom: 0.9rem; }
-  .pc-cellule[open] > summary::after { content: '▾'; }
+  /* Textes repliables : le titre, précédé d'un chevron, ouvre ou ferme. */
+  .pc-cellule > summary { cursor: pointer; pointer-events: auto; }
+  .ob-chev { display: block; }
 }
 
 /* Survols : seulement avec une souris (docs/design.md, § 1). */
@@ -151,18 +131,14 @@
   .ob-et.is-opt .ob-carte:not(.ob-groupe):hover { background: var(--surface); }
   .ob-cand:hover .ob-nom a { text-decoration: underline; }
   .ob-ext:hover { color: var(--accent); background: var(--bg); }
-  .pc-nav a:hover b, .pc-retour:hover { text-decoration: underline; }
+  .pc-nav a:hover b { text-decoration: underline; }
+  .pc-retour:hover { color: var(--accent); }
 }
 
 /* ----- Saisie et édition (§ 3.7) : boutons ronds du Palmarès, pastilles du formulaire ----- */
 .ob-haut, .pc-haut { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 /* Feuille de route sans titre : le « + » seul, à droite, au-dessus de la première carte. */
 .ob-haut { justify-content: flex-end; margin-bottom: 0.9rem; }
-.ob-rond { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
 .ob-rond .ob-ico { width: 0.95rem; height: 0.95rem; }
-.ob-rond:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .pc-haut .ob-rond { margin-top: 0.6rem; }
 .pc-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
-@media (hover: hover) {
-  .ob-rond:hover { color: var(--accent); border-color: var(--accent); }
-}

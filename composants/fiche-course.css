@@ -1,6 +1,6 @@
 /* ===== Fiche d'une course (fiche-course.js) · design, § 6 =====
-   Reprend les éléments du site : surface des cartes, libellés de l'en-tête,
-   champs de la page de connexion, boutons du Palmarès. */
+   Reprend les éléments du site : surface des cartes, libellés, champs de la page de connexion,
+   boutons communs (mrt-btn, mrt-rond, mrt-lien : en-tete.css). */
 html.fc-ouvert { overflow: hidden; }
 .fc-voile {
   position: fixed;
@@ -23,28 +23,28 @@ html.fc-ouvert { overflow: hidden; }
 }
 .fc-haut { position: sticky; top: -1.25rem; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin: -1.25rem -1.5rem 0.6rem; padding: 1.25rem 1.5rem 0.6rem; background: var(--surface); }
 .fc-haut h2 { font-size: 1.2rem; }
-.fc-fermer { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; font-size: 1.3rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+.fc-fermer { font-size: 1.3rem; }
 /* Listes déroulantes : chevron dessiné, la flèche native étant retirée. */
 .fc-champ select { padding-right: 2rem; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 1rem) 55%, calc(100% - 0.7rem) 55%; background-size: 0.3rem 0.3rem; background-repeat: no-repeat; }
 .fc-champ input[type="date"] { min-height: 2.35rem; text-align: left; }
 .fc-champ input[type="date"]::-webkit-date-and-time-value { text-align: left; }
 
 .fc-bloc { border-top: 1px solid var(--border); padding: 0.4rem 0 0.6rem; }
+/* Titre d'un bloc : comme les textes repliables de la page d'une course (chevron, Texte, casse normale). */
 .fc-bloc-titre {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--muted);
+  gap: 0.5rem;
+  padding: 0.45rem 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
   background: none;
   border: none;
   cursor: pointer;
 }
-.fc-chev { width: 0.8rem; height: 0.8rem; transition: transform 0.15s; }
+.fc-chev { width: 0.8rem; height: 0.8rem; color: var(--muted); transition: transform 0.15s; }
 .fc-bloc-titre[aria-expanded="false"] .fc-chev { transform: rotate(-90deg); }
 .fc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; padding-top: 0.3rem; }
 .fc-grille[hidden] { display: none; }
@@ -57,7 +57,7 @@ html.fc-ouvert { overflow: hidden; }
   margin-bottom: 0.3rem;
   font-family: 'Space Mono', monospace;
   font-size: 0.62rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -89,22 +89,7 @@ html.fc-ouvert { overflow: hidden; }
 .fc-msg { min-height: 1.2em; margin: 0.4rem 0; font-size: 0.75rem; color: var(--muted); }
 .fc-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.6rem; }
 .fc-actions[hidden] { display: none; }
-.fc-btn {
-  padding: 0.5rem 1.1rem;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
-  background: none;
-  border: 1px solid var(--accent);
-  border-radius: 20px;
-  cursor: pointer;
-}
-.fc-plein { color: var(--bg); background: var(--accent); }
-.fc-btn:disabled { opacity: 0.5; cursor: default; }
-.fc-supprimer { margin-right: auto; padding: 0; font: inherit; font-size: 0.75rem; color: var(--red); text-decoration: underline; background: none; border: none; cursor: pointer; }
+.fc-supprimer { margin-right: auto; }
 .fc-confirmer { margin-top: 0.4rem; padding: 0.8rem 1rem; border: 1px solid var(--red); border-radius: 8px; }
 .fc-confirmer p { margin-bottom: 0.6rem; font-size: 0.85rem; }
 .fc-danger { color: var(--red); border-color: var(--red); }
@@ -120,10 +105,7 @@ html.fc-ouvert { overflow: hidden; }
 /* Survols : seulement avec une souris. Sur écran tactile, un toucher laisserait
    l'effet « collé » (bouton qui reste orange). */
 @media (hover: hover) {
-  .fc-fermer:hover { color: var(--accent); border-color: var(--accent); }
-  .fc-bloc-titre:hover { color: var(--text); }
-  .fc-btn:hover { color: var(--bg); background: var(--accent); }
-  .fc-plein:hover { background: var(--accent2); border-color: var(--accent2); }
+  .fc-bloc-titre:hover { color: var(--accent); }
   .fc-danger:hover { color: var(--bg); background: var(--red); }
 }
 

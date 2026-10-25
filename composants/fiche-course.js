@@ -206,7 +206,7 @@
     voile.innerHTML =
       '<div class="fc-panneau" role="dialog" aria-modal="true" aria-labelledby="fc-titre">' +
         '<div class="fc-haut"><h2 id="fc-titre">' + titreForm + '</h2>' +
-          '<button type="button" class="fc-fermer" data-fc="annuler" aria-label="Fermer">×</button></div>' +
+          '<button type="button" class="fc-fermer mrt-rond" data-fc="annuler" aria-label="Fermer">×</button></div>' +
         '<form novalidate>' +
           BLOCS.map(([b, titre]) =>
             '<section class="fc-bloc">' +
@@ -215,14 +215,14 @@
             '</section>').join('') +
           '<p class="fc-msg" aria-live="polite"></p>' +
           '<div class="fc-actions">' +
-            (existe && !marquer ? '<button type="button" class="fc-supprimer" data-fc="supprimer">Supprimer</button>' : '') +
-            '<button type="button" class="fc-btn" data-fc="annuler">Annuler</button>' +
-            '<button type="submit" class="fc-btn fc-plein">Enregistrer</button>' +
+            (existe && !marquer ? '<button type="button" class="fc-supprimer mrt-lien is-danger" data-fc="supprimer">Supprimer</button>' : '') +
+            '<button type="button" class="fc-btn mrt-btn" data-fc="annuler">Annuler</button>' +
+            '<button type="submit" class="fc-btn mrt-btn is-principal fc-plein">Enregistrer</button>' +
           '</div>' +
           '<div class="fc-confirmer" hidden>' +
             '<p>Supprimer cette course ? Cette action est définitive.</p>' +
-            '<div class="fc-actions"><button type="button" class="fc-btn" data-fc="garder">Annuler</button>' +
-            '<button type="button" class="fc-btn fc-danger" data-fc="confirmer">Supprimer</button></div>' +
+            '<div class="fc-actions"><button type="button" class="fc-btn mrt-btn" data-fc="garder">Annuler</button>' +
+            '<button type="button" class="fc-btn mrt-btn fc-danger" data-fc="confirmer">Supprimer</button></div>' +
           '</div>' +
         '</form>' +
       '</div>';

@@ -14,7 +14,7 @@
 //   courant    page ouverte, pour mettre son onglet en avant
 //   maintenant date du jour imposée (contrôles) ; sinon l'heure réelle
 //   racine     préfixe des liens, pour une page rangée dans un sous-dossier
-//   compact    en-tête réduit à une ligne (« Cap sur … · J-n »), pour la page d'une course
+//   sansEnTete le menu seul, sans en-tête (page d'une course)
 (function () {
   const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   // Thèmes : seules les couleurs changent ; le premier sert par défaut.
@@ -68,14 +68,8 @@
     ];
 
     const header = document.createElement('header');
-    header.className = 'mrt-header' + (cfg.compact ? ' is-compact' : '');
-    const marque = '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' +
-      '<a class="mrt-gear" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>';
-    if (cfg.compact) {
-      const cible = o.date ? parseDate(o.date, o.heure) : null, j = cible ? daysBetween(now(), cible) : null;
-      header.innerHTML = '<div class="mrt-grid"><p class="mrt-mini"><span class="mrt-cap">Cap sur</span> <em>' + esc(o.nom || dash) + '</em>' +
-        (j != null && j >= 0 ? '<span class="mrt-mini-j"> · J-' + j + '</span>' : '') + '</p>' + marque + '</div>';
-    } else header.innerHTML =
+    header.className = 'mrt-header';
+    header.innerHTML =
       '<div class="mrt-grid">' +
         '<div class="mrt-gauche">' +
           '<h1><span class="mrt-cap">Cap sur</span><em>' + esc(o.nom || dash) + '</em></h1>' +
@@ -83,7 +77,8 @@
             '<div class="mrt-stat"><span class="mrt-stat-val">' + s[1] + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
         '</div>' +
         '<div class="mrt-droite">' +
-          marque +
+          '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' +
+            '<a class="mrt-gear" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
           '<div class="mrt-count">' +
             '<span class="mrt-days">—</span><span class="mrt-days-label">jours</span>' +
             '<div class="mrt-hms"></div><div class="mrt-next"></div></div>' +
@@ -99,7 +94,8 @@
       return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
     }).join('') + '</div>';
 
-    document.body.prepend(header, nav);
+    // Page d'une course : le menu seul, l'en-tête ne ferait que concurrencer le titre de la page.
+    if (cfg.sansEnTete) { document.body.prepend(nav); } else document.body.prepend(header, nav);
     // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
     const onTab = nav.querySelector('.is-on'), bar = nav.firstChild;
     if (onTab && onTab.offsetLeft + onTab.offsetWidth > bar.clientWidth) {
@@ -127,7 +123,7 @@
       const left = next && next.date ? daysBetween(t, parseDate(next.date)) : -1;
       $('.mrt-next').innerHTML = left >= 0 ? 'prochaine course · <b>' + esc(next.nom) + '</b> · J-' + left : '';
     }
-    if (cfg.compact) return;
+    if (cfg.sansEnTete) return;
     tick();
     if (!cfg.maintenant) minuteur = setInterval(tick, 1000);
   };

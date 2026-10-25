@@ -150,7 +150,7 @@
   // Boutons ronds du Palmarès (design.md, § 6) : « + » et crayon.
   const PLUS = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const CRAYON = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-  const rond = (act, texte, icone) => '<button type="button" class="ob-rond" data-ob="' + act + '" aria-label="' + texte + '" title="' + texte + '">' + icone + '</button>';
+  const rond = (act, texte, icone) => '<button type="button" class="ob-rond mrt-rond" data-ob="' + act + '" aria-label="' + texte + '" title="' + texte + '">' + icone + '</button>';
   const brancher = (el, actions) => el.querySelectorAll('[data-ob]').forEach(b => b.addEventListener('click', () => actions[b.dataset.ob]()));
 
   window.renderFeuilleDeRoute = function (el, courses, edition) {
@@ -169,10 +169,9 @@
   };
 
   // ----- Page d'une course (§ 3.4) -----
-  // Une valeur longue (distance avec D+, objectif en texte) prend toute la ligne sur téléphone.
-  const stat = (val, label, large) => '<div class="pc-stat' + (large ? ' is-large' : '') + '"><span class="pc-stat-val">' + val + '</span><span class="pc-stat-label">' + label + '</span></div>';
-  // Cellule repliable : sur téléphone, seul le titre se voit, un toucher l'ouvre ; sur ordinateur, toujours ouverte.
-  const cellule = (titreCellule, html) => (html ? '<details class="card pc-cellule"><summary class="ob-titre-bloc">' + titreCellule + '</summary>' + html + '</details>' : '');
+  // Texte repliable : sur téléphone, seul le titre se voit, un toucher l'ouvre ; sur ordinateur, toujours ouvert.
+  const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const cellule = (titreCellule, html) => (html ? '<details class="pc-cellule"><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   const euros = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 })
     .format(Number(n)).replace(/ /g, ' ');
@@ -213,18 +212,18 @@
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
-        (retenable ? '<button type="button" class="fc-btn" data-ob="retenir">Retenir cette course</button>' : '') +
-        (marquable ? '<button type="button" class="fc-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
-      '<div class="pc-stats">' +
-        (c.distance != null ? stat(esc(nombre(c.distance)) + ' km' + (c.dplus != null ? '<small> / ' + esc(nombre(c.dplus)) + ' m D+</small>' : ''), 'Distance', c.dplus != null) : '') +
-        (c.dmoins != null ? stat(esc(nombre(c.dmoins)) + ' m', 'D−') : '') +
-        (c.objectif ? stat(esc(c.objectif), 'Objectif', c.objectif.length > 12) : '') +
-        dossardHtml(c) +
+        (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
+        (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
+      // La fiche : les lignes de la carte de la feuille de route, complétées (D−, prix).
+      '<div class="ob-lignes pc-fiche">' +
+        (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
+        (distance(c) ? ligne('Distance', '<span class="ob-val">' + esc(distance(c)) + '</span>') : '') +
+        (c.dmoins != null ? ligne('D−', '<span class="ob-val">' + esc(nombre(c.dmoins)) + ' m</span>') : '') +
+        (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
+        ligne('Dossard', dossardHtml(c)) +
+        (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
       '</div>' +
-      (sansCompteur(c) ? '' : '<div class="pc-grille"><section class="card pc-rebours"><h3 class="ob-titre-bloc">Départ dans</h3>' + compteurHtml(c) + '</section></div>') +
-      '<div class="pc-grille">' +
-        // L'état du dossard est déjà dans les chiffres : la cellule ne garde que ce qu'ils n'ont pas.
-        cellule('Dossard', c.prix != null ? '<p>Prix : ' + esc(euros(c.prix)) + '</p>' : '') +
+      '<div class="pc-textes">' +
         cellule('Rôle dans la préparation', texte(c.pourquoi)) +
         cellule('Stratégie ou enchaînement', texte(c.strategie)) +
         cellule('Logistique', texte(c.logistique)) +

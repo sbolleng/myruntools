@@ -137,7 +137,7 @@
     let courses = [];
     try { courses = await lireCourses(qui); } catch (err) { console.warn('Courses : lecture impossible', err); }
     let prefsCourantes = prefs;
-    const dessiner = p => { prefsCourantes = p; window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant, compact: !!opts.compact })); };
+    const dessiner = p => { prefsCourantes = p; window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant, sansEnTete: !!opts.sansEnTete })); };
     dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
     // La page s'affiche une fois que la suite de la page (then) a dessiné son contenu.
