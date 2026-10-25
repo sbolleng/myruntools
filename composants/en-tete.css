@@ -119,7 +119,7 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   .mrt-header { padding: 1.25rem 1.25rem 1.1rem; }
   .mrt-gauche, .mrt-droite { display: contents; }
   .mrt-grid { position: relative; grid-template-columns: minmax(0, 1fr); grid-template-areas: "titre" "stats" "compteur"; }
-  .mrt-brand { position: absolute; top: 0.3rem; right: 0; }
+  .mrt-brand { position: absolute; top: 0; right: 0; }
   .mrt-header h1 { font-size: 1.75rem; }
   .mrt-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1rem; margin-top: 1rem; }
   .mrt-stat-val { font-size: 0.95rem; }
