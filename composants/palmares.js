@@ -248,12 +248,12 @@
     // ----- Squelette -----
     root.innerHTML =
       '<div class="pv2-bar">' +
-        '<button type="button" class="pv2-btn" data-act="filters" aria-expanded="false" aria-controls="' + uid + '-filters">' +
+        '<button type="button" class="pv2-btn mrt-btn" data-act="filters" aria-expanded="false" aria-controls="' + uid + '-filters">' +
           FUNNEL + '<span class="pv2-btn-label">Filtres</span>' + CHEVRON + '</button>' +
-        '<button type="button" class="pv2-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
+        '<button type="button" class="pv2-rond mrt-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
         '<span class="pv2-count" aria-live="polite"></span>' +
-        '<button type="button" class="pv2-clear" data-act="clear" hidden>Effacer les filtres</button>' +
-        (cfg.editable ? '<button type="button" class="pv2-rond pv2-add" data-act="add" aria-label="Ajouter une course" title="Ajouter une course">' + PLUS + '</button>' : '') +
+        '<button type="button" class="pv2-clear mrt-lien" data-act="clear" hidden>Effacer les filtres</button>' +
+        (cfg.editable ? '<button type="button" class="pv2-rond mrt-rond pv2-add" data-act="add" aria-label="Ajouter une course" title="Ajouter une course">' + PLUS + '</button>' : '') +
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
@@ -262,6 +262,8 @@
             '<label class="pv2-check"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
         '</div></div>' +
       '</div>' +
+      // Téléphone tenu en hauteur : le tableau déborde ; un site ne peut pas tourner l'écran, il y invite.
+      '<p class="pv2-paysage">↻ Tourne ton téléphone pour voir toutes les colonnes.</p>' +
       '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>';
 
     const $ = sel => root.querySelector(sel);
@@ -295,7 +297,7 @@
         const content = c.kind === 'date' ? body : '<div class="pv2-row">' + body + '</div>';
         return '<fieldset class="pv2-field"><legend class="pv2-legend">' + esc(c.label) + '</legend>' + content + '</fieldset>';
       }).join('') +
-        '<div class="pv2-panel-foot"><button type="button" class="pv2-clear" data-act="filters-close">Réduire les filtres' + CHEVRON + '</button></div>';
+        '<div class="pv2-panel-foot"><button type="button" class="pv2-clear mrt-lien" data-act="filters-close">Réduire les filtres' + CHEVRON + '</button></div>';
     }
 
     function renderTable() {

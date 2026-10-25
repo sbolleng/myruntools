@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.13 · 24 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.15 · 25 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -25,21 +25,22 @@ Deux profils pilotes au lancement :
 
 Chaque page suit le même gabarit, de haut en bas :
 
-1. **En-tête** (§ 4), identique sur toutes les pages.
-2. **Menu** (§ 5).
+1. **En-tête** (§ 4), sur l'Accueil et la page Objectif (feuille de route) seulement.
+2. **Menu** (§ 5), sur toutes les pages.
 3. **Contenu du module**.
 
-L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module.
+L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur l'Accueil et la feuille de route (Palmarès, Préférences, page d'une course…), la page commence par le menu : l'en-tête n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
 
 **Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu : le nom de l'application, une accroche (« La boîte à outils du coureur »), un champ « Adresse e-mail », un bouton « Recevoir le lien de connexion » et une ligne d'aide qui accueille aussi les messages (envoi, erreur). Le lien n'est envoyé qu'aux comptes existants ; au retour du lien, l'utilisateur arrive connecté sur l'accueil.
 
 **E-mail du lien**, en français, au vouvoiement. Objet : « Votre lien de connexion à MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour vous connecter sur MyRunTools : Me connecter. Ce lien ne sert qu'une fois. Si vous n'avez rien demandé, ignorez cet e-mail. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
 
-**Affichage d'une page.** Une page privée reste invisible tant que la session n'est pas vérifiée, que l'en-tête n'est pas dessiné et que son contenu n'est pas prêt, puis elle apparaît d'un seul coup : l'en-tête ne s'ajoute jamais après coup en poussant le contenu vers le bas, sur ordinateur comme sur téléphone. Si un chargement échoue, la page apparaît quand même au bout de quelques secondes.
+**Affichage d'une page.** Une page privée reste invisible tant que la session n'est pas vérifiée, que le menu (et l'en-tête, s'il y en a un) n'est pas dessiné et que son contenu n'est pas prêt, puis elle apparaît d'un seul coup : l'en-tête et le menu ne s'ajoutent jamais après coup en poussant le contenu vers le bas, sur ordinateur comme sur téléphone. Si un chargement échoue, la page apparaît quand même au bout de quelques secondes.
 
 Règles transverses :
 
-- **Priorité au téléphone** : la mise en page est conçue d'abord pour un écran de 390 px de large, puis élargie. Seuil de bascule téléphone / ordinateur : 600 px.
+- **Priorité au téléphone** : la mise en page est conçue d'abord pour un écran de 390 px de large, puis élargie. Seuil de bascule téléphone / ordinateur : 600 px. Un téléphone tenu en largeur garde la taille de texte et les marges du téléphone.
+- **Règles de style communes** : une seule apparence pour tout le site (couleurs, capitales, cadres, boutons, titres repliables), décrite dans le [document de design](design.md), § 1.
 - **Rechargement automatique** : quand une nouvelle version du site est en ligne, la page se recharge d'elle-même, une seule fois par version (utile sur iPhone, qui garde les pages en cache).
 - **Affichage automatique** : un bloc qui dépend de données (météo, suivi en course, graphique) apparaît de lui-même dès que ces données existent ; l'utilisateur n'a rien à activer. Chaque bloc est décrit dans la spécification de son module.
 - **Aucune donnée inventée** : un champ sans valeur n'est pas affiché, ou affiche « — ».
@@ -57,8 +58,9 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. Sur ordinateur, en bas à droite de l'en-tête, son bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, à gauche |
 | Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
-| Engrenage ⚙️ | À droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |
+
+L'engrenage ⚙️, qui ouvre les Préférences, n'est plus dans l'en-tête : il est le dernier onglet du menu (§ 5), visible sur toutes les pages.
 
 ### Indicateurs
 
@@ -91,8 +93,9 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 ## 5. Menu
 
-- Une barre d'onglets sous l'en-tête, un onglet par module choisi par l'utilisateur, dans l'ordre qu'il a choisi (§ 8). L'onglet de la page ouverte est mis en avant.
-- Sur téléphone, la barre défile horizontalement ; elle reste visible en haut de l'écran quand on fait défiler la page.
+- Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur, dans l'ordre qu'il a choisi (§ 8). L'onglet de la page ouverte est mis en avant.
+- Dernier onglet : l'engrenage ⚙️, qui ouvre les Préférences ; il reste collé au bord droit de la barre, même quand elle défile, et il est mis en avant sur la page des Préférences.
+- Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené, sans passer sous l'engrenage. Elle reste visible en haut de l'écran quand on fait défiler la page.
 
 ## 6. Thèmes
 
@@ -119,7 +122,7 @@ Pour que Cette semaine fonctionne, chaque module devra pouvoir dire ce qui compt
 
 ## 8. Préférences utilisateur
 
-Page ouverte par l'engrenage de l'en-tête, hors du menu. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit. Détail : [spécification des Préférences](module-preferences-specification.md).
+Page ouverte par l'engrenage, dernier onglet du menu ; elle n'est pas un module. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit. Détail : [spécification des Préférences](module-preferences-specification.md).
 
 | Réglage | Effet |
 | --- | --- |
@@ -191,17 +194,19 @@ Résultats attendus :
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
 - Ligne sous le compteur : « prochaine course · Trail du Lac · J-26 ».
-- Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; sur ordinateur, compte à rebours et prochaine course alignés à droite, leur bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, alignés à gauche.
+- Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; sur ordinateur, compte à rebours et prochaine course alignés à droite, leur bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, alignés à gauche, le nombre de jours et les heures sur une ligne.
 - Même objectif sans D+ (42,195 km) : Distance affiche « 42,195 km » seul ; l'en-tête garde 4 indicateurs.
 - Date connue au jour près (30 août 2029) : Date affiche « 30 août 2029 », le compteur vise le 30 août.
 - Une seule course avant l'objectif : « 1 course ».
 - Sans objectif renseigné : l'indicateur Objectif affiche « — ».
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
-- L'engrenage ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
+- L'engrenage, dernier onglet du menu, ouvre la page des Préférences utilisateur, où il est mis en avant ; le menu ne montre que les modules choisis, dans l'ordre choisi.
+- L'en-tête figure sur l'Accueil et la feuille de route, pas sur le Palmarès, les Préférences ni la page d'une course, qui commencent par le menu.
+- Téléphone, page du Palmarès : l'onglet Palmarès est visible, à gauche de l'engrenage.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
 - Page de connexion : ni en-tête ni menu ; une adresse inconnue reçoit le message « Lien non envoyé » ; le lien reçu ramène sur l'accueil, connecté.
 - A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son site » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · site de A ».
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
-- Chargement d'une page (accueil, Palmarès, Préférences ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, l'en-tête est en place et le contenu n'a plus à bouger.
+- Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.

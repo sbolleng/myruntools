@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.8 · 22 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.9 · 25 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -180,6 +180,12 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 | Classement | Place, suivie de l'effectif quand il est connu ; première place « 1re » pour une coureuse (sexe renseigné dans le Profil), « 1er » sinon | 1 951e · 476e / 873 · 1re |
 | FC | Battements par minute | 150 bpm |
 
+**Page et téléphone**
+
+- La page n'a pas d'en-tête : elle commence par le menu, puis la barre (Filtres, regroupement, « + ») et le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1).
+- Téléphone tenu en hauteur : le tableau défile sur le côté ; une ligne, sous la barre, invite à tourner le téléphone : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » (un site ne peut pas tourner l'écran lui-même sur iPhone).
+- Téléphone tenu en largeur : une ligne par course, sans retour à la ligne dans les cellules ; le tableau défile sur le côté s'il le faut. Ni invitation, ni sur ordinateur.
+
 ## 12. Contrôles
 
 Jeu d'essai de sept courses :
@@ -226,5 +232,6 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Site partagé en lecture seule : ni bouton « + » ni crayon ; toucher une ligne n'ouvre rien.
 - Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre son formulaire.
 - Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + ».
+- Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
 - Téléphone : le formulaire tient dans la largeur de l'écran ; « × » reste visible quand on fait défiler, et le ferme.

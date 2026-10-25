@@ -14,6 +14,7 @@
 //   courant    page ouverte, pour mettre son onglet en avant
 //   maintenant date du jour imposée (contrôles) ; sinon l'heure réelle
 //   racine     préfixe des liens, pour une page rangée dans un sous-dossier
+//   sansEnTete le menu seul, sans en-tête (pages autres qu'Accueil et Objectif)
 (function () {
   const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   // Thèmes : seules les couleurs changent ; le premier sert par défaut.
@@ -76,8 +77,7 @@
             '<div class="mrt-stat"><span class="mrt-stat-val">' + s[1] + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
         '</div>' +
         '<div class="mrt-droite">' +
-          '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' +
-            '<a class="mrt-gear" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>' +
+          '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a></div>' +
           '<div class="mrt-count">' +
             '<span class="mrt-days">—</span><span class="mrt-days-label">jours</span>' +
             '<div class="mrt-hms"></div><div class="mrt-next"></div></div>' +
@@ -91,13 +91,18 @@
       if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + esc(m.nom) + '</span>';
       const on = m.page === cfg.courant;
       return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
-    }).join('') + '</div>';
+    }).join('') +
+      // Préférences : l'engrenage, dernier onglet, toujours visible au bout du menu.
+      '<a class="mrt-tab mrt-tab-reglages' + (cfg.courant === 'preferences.html' ? ' is-on" aria-current="page' : '') + '" href="' + lien('preferences.html') +
+        '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>';
 
-    document.body.prepend(header, nav);
-    // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
-    const onTab = nav.querySelector('.is-on'), bar = nav.firstChild;
-    if (onTab && onTab.offsetLeft + onTab.offsetWidth > bar.clientWidth) {
-      bar.scrollLeft = onTab.offsetLeft - (bar.clientWidth - onTab.offsetWidth) / 2;
+    // En-tête sur l'Accueil et la feuille de route seulement ; ailleurs le menu seul, la page commence tout en haut.
+    if (cfg.sansEnTete) { document.body.prepend(nav); } else document.body.prepend(header, nav);
+    // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible, sans passer sous l'engrenage.
+    const onTab = nav.querySelector('.is-on'), bar = nav.firstChild, reglages = nav.querySelector('.mrt-tab-reglages');
+    const visible = bar.clientWidth - (onTab === reglages ? 0 : reglages.offsetWidth);
+    if (onTab && onTab !== reglages && onTab.offsetLeft + onTab.offsetWidth > visible) {
+      bar.scrollLeft = onTab.offsetLeft - (visible - onTab.offsetWidth) / 2;
     }
 
     const $ = sel => header.querySelector(sel);
@@ -121,6 +126,7 @@
       const left = next && next.date ? daysBetween(t, parseDate(next.date)) : -1;
       $('.mrt-next').innerHTML = left >= 0 ? 'prochaine course · <b>' + esc(next.nom) + '</b> · J-' + left : '';
     }
+    if (cfg.sansEnTete) return;
     tick();
     if (!cfg.maintenant) minuteur = setInterval(tick, 1000);
   };

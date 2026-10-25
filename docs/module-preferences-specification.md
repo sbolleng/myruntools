@@ -1,20 +1,20 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.1 · 21 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.2 · 25 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
-La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage ⚙️ de l'en-tête et ne figure pas dans le menu.
+La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage ⚙️, dernier onglet du menu ; elle n'a pas d'en-tête et n'est pas un module.
 
 - **Ce qu'elle ne contient pas** : les données du coureur (Profil) et son équipement (Matériel), pour qu'une donnée ne se saisisse qu'à un seul endroit.
 - **Hors périmètre** : la présentation visuelle (document de design) ; le changement de mot de passe (connexion par lien magique seulement, voir la todo).
 
 ## 2. Organisation
 
-Un bloc par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Partage**.
+Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Partage** ; des réglages et non des données : pas de cadre, un filet entre deux sections (design, § 1).
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
-- **Effet immédiat** : l'en-tête et le menu de la page se mettent à jour sans recharger.
+- **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de l'Accueil et de la feuille de route.
 - Réglages mémorisés dans la base : ils suivent l'utilisateur d'un appareil à l'autre.
 
 ## 3. Thème
@@ -70,7 +70,7 @@ Jeu d'essai, à la date du 20 octobre 2026 : thème Bleu et orange, aucun choix 
 
 Résultats attendus :
 
-- L'engrenage de l'en-tête ouvre la page ; elle ne figure pas dans le menu.
+- L'engrenage, dernier onglet du menu, ouvre la page, où il est mis en avant ; la page n'a pas d'en-tête ; elle ne figure pas parmi les modules du menu.
 - Sans connexion, la page renvoie vers la connexion sans rien afficher.
 - Les blocs se suivent dans cet ordre : Compte, Cap, Thème, Menu, Partage ; aucun thème ne porte de mention.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
@@ -80,7 +80,7 @@ Résultats attendus :
 - Décocher Guide : il disparaît du menu ; « Rétablir l'ordre par défaut » le fait revenir à sa place.
 - Décocher tous les modules sauf un : la dernière case ne peut pas être décochée.
 - Cap : la liste propose « Par défaut : la plus lointaine (Trail des Crêtes) », puis Trail du Lac, Course A, Trail des Crêtes, dans cet ordre ; ni Course B (à surveiller) ni Course C (courue).
-- Choisir Trail du Lac : l'en-tête affiche « Cap sur Trail du Lac » ; recharger : Trail du Lac est toujours choisi.
+- Choisir Trail du Lac : l'en-tête de l'Accueil affiche « Cap sur Trail du Lac » ; revenir aux Préférences : Trail du Lac est toujours choisi.
 - Marquer Trail du Lac comme abandonnée : l'en-tête revient à Trail des Crêtes, la liste affiche « Par défaut ».
 - Choisir « Par défaut » : l'en-tête affiche Trail des Crêtes.
 - Échec d'enregistrement (base injoignable) : « Enregistrement impossible pour l'instant », le réglage revient à sa valeur précédente.

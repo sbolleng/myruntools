@@ -25,7 +25,7 @@
 <script src="composants/fiche-course.js?v=__VERSION__"></script>
 <script>
   // Une course de la feuille de route, désignée par ?id= ; l'onglet Objectif reste en avant.
-  mrtPage({ courant: 'objectif.html' }).then(page => {
+  mrtPage({ courant: 'objectif.html', sansEnTete: true }).then(page => {
     let courses = page.courses;
     const el = document.getElementById('course');
     const id = new URLSearchParams(location.search).get('id');

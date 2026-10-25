@@ -56,9 +56,9 @@ function simulerBase(ctx, db) {
 
 // Ouvre une page du site, connecté, à la largeur demandée.
 // stockage : valeurs posées dans localStorage avant d'ouvrir la page.
-// opts : { fuseau, maintenant } pour un jeu d'essai daté à une heure précise.
+// opts : { fuseau, maintenant } pour un jeu d'essai daté à une heure précise ; { hauteur } pour un téléphone tenu en largeur.
 async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
-  const ctx = await navigateur.newContext({ viewport: { width: largeur, height: 900 }, deviceScaleFactor: 2, timezoneId: opts.fuseau });
+  const ctx = await navigateur.newContext({ viewport: { width: largeur, height: opts.hauteur || 900 }, deviceScaleFactor: 2, timezoneId: opts.fuseau });
   await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
   // Sans réseau, polices comprises : sinon leur arrivée, plus ou moins tardive, décale la page d'une fraction de pixel.
   await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
@@ -74,7 +74,7 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
       if (att) masquee = true;
       else if (masquee && !window.__revelee) {
         const m = document.querySelector('main');
-        window.__revelee = { entete: !!document.querySelector('.mrt-header'), haut: m ? Math.round(m.getBoundingClientRect().top) : null, contenu: m ? m.textContent.trim().length : 0 };
+        window.__revelee = { entete: !!document.querySelector('.mrt-nav'), haut: m ? Math.round(m.getBoundingClientRect().top) : null, contenu: m ? m.textContent.trim().length : 0 };
       }
     }).observe(document, { attributes: true, subtree: true, attributeFilter: ['class'] });
   });
@@ -89,13 +89,13 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
     access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai',
     user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
   await p.goto(RACINE + page);
-  await p.waitForSelector('.mrt-header');
+  await p.waitForSelector('.mrt-nav');
   await p.clock.runFor(1500);
   return { p, ctx, erreurs };
 }
 
-// Aucun saut au chargement : à l'instant où la page devient visible, l'en-tête
-// est déjà en place et le contenu de la page n'a plus à bouger.
+// Aucun saut au chargement : à l'instant où la page devient visible, le menu (et l'en-tête,
+// sur l'Accueil et la feuille de route) est déjà en place et le contenu de la page n'a plus à bouger.
 async function sansSaut(nav, db, page, w, nom, opts) {
   const { p, ctx, erreurs } = await ouvrir(nav, page, w, db, {}, opts);
   const r = await p.evaluate(() => ({ revelee: window.__revelee, hautFinal: Math.round(document.querySelector('main').getBoundingClientRect().top),
@@ -103,7 +103,7 @@ async function sansSaut(nav, db, page, w, nom, opts) {
   await ctx.close();
   return [
     egal(false, r.masquee, nom + ', page encore masquée'),
-    egal(true, !!r.revelee && r.revelee.entete, nom + ', en-tête présent à l\'affichage'),
+    egal(true, !!r.revelee && r.revelee.entete, nom + ', menu présent à l\'affichage'),
     egal(r.hautFinal, r.revelee && r.revelee.haut, nom + ', contenu déjà à sa place à l\'affichage'),
     // Préférences charge ses listes de partage plus bas dans la page : seul le haut compte.
     ...(page === 'preferences.html' ? [] : [egal(r.contenuFinal, r.revelee && r.revelee.contenu, nom + ', contenu complet à l\'affichage')]),
@@ -160,7 +160,7 @@ const CONTROLES = {
   async enTete(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS)) {
-      const { p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', w, db);
+      const { p, ctx, erreurs } = await ouvrir(nav, 'index.html', w, db);
       const r = await p.evaluate(() => {
         const q = s => document.querySelector(s), box = s => q(s).getBoundingClientRect();
         return {
@@ -193,9 +193,22 @@ const CONTROLES = {
     // Sans D+ : la distance seule.
     const sansDplus = JSON.parse(JSON.stringify(db));
     sansDplus.courses.find(c => c.course === 'Trail des Crêtes').dplus = null;
-    const { p, ctx } = await ouvrir(nav, 'palmares.html', 1200, sansDplus);
+    const { p, ctx } = await ouvrir(nav, 'index.html', 1200, sansDplus);
     pb.push(egal('60 km', await p.evaluate(() => document.querySelector('.mrt-stat-val').textContent), 'sans D+, Distance'));
     await ctx.close();
+    // L'en-tête sur l'Accueil et la feuille de route seulement ; partout, le menu finit par l'engrenage (Préférences).
+    for (const [page, entete] of [['index.html', true], ['objectif.html', true], ['palmares.html', false], ['preferences.html', false], ['course.html?id=00000000-0000-0000-0001-000000000020', false]]) {
+      const o = await ouvrir(nav, page, 390, db);
+      pb.push(egal({ entete, reglages: true, actif: page === 'preferences.html' }, await o.p.evaluate(() => {
+        const r = [...document.querySelectorAll('.mrt-tab')].pop();
+        return { entete: !!document.querySelector('.mrt-header'), reglages: r.classList.contains('mrt-tab-reglages') && r.getAttribute('href').endsWith('preferences.html'), actif: r.classList.contains('is-on') };
+      }), page.replace(/\?.*/, '') + ' : en-tête et engrenage'));
+      await o.ctx.close();
+    }
+    // Téléphone, Palmarès ouvert : l'onglet ramené dans la barre ne passe pas sous l'engrenage.
+    const o = await ouvrir(nav, 'palmares.html', 390, db);
+    pb.push(egal(true, await o.p.evaluate(() => document.querySelector('.mrt-tab.is-on').getBoundingClientRect().right <= document.querySelector('.mrt-tab-reglages').getBoundingClientRect().left + 1), 'téléphone : onglet ouvert visible, à gauche de l\'engrenage'));
+    await o.ctx.close();
     return pb;
   },
 
@@ -214,6 +227,18 @@ const CONTROLES = {
     ];
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'palmares.png'), fullPage: true });
     await ctx.close();
+    // Téléphone tenu en hauteur : invitation à le tourner ; en largeur : une ligne par course ; ordinateur : pas d'invitation.
+    const paysage = async (w, h) => {
+      const o = await ouvrir(nav, 'palmares.html', w, db, {}, { hauteur: h });
+      const r = await o.p.evaluate(() => ({ invitation: getComputedStyle(document.querySelector('.pv2-paysage')).display !== 'none',
+        uneLigne: [...document.querySelectorAll('.pv2-table tbody td')].every(td => getComputedStyle(td).whiteSpace === 'nowrap') }));
+      if (CAPTURES && h < 500) await o.p.screenshot({ path: path.join(__dirname, 'captures', 'palmares-paysage.png') });
+      await o.ctx.close();
+      return r;
+    };
+    pb.push(egal(true, (await paysage(390, 844)).invitation, 'téléphone en hauteur : « Tourne ton téléphone… »'));
+    pb.push(egal({ invitation: false, uneLigne: true }, await paysage(844, 390), 'téléphone en largeur : une ligne par course'));
+    pb.push(egal(false, (await paysage(1200, 900)).invitation, 'ordinateur : pas d\'invitation'));
     return pb;
   },
   // Préférences : thème, menu, cap, lecture seule (module-preferences-specification.md).
@@ -226,7 +251,7 @@ const CONTROLES = {
     const pb = [];
     let { p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, db);
     const q = (sel, f) => p.evaluate(([s, fn]) => new Function('x', 'return ' + fn)(document.querySelector(s)), [sel, f]);
-    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => t.textContent));
+    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab:not(.mrt-tab-reglages)')].map(t => t.textContent));
     // Attend la réponse de la base (vraie attente : la date du jour est figée).
     const attendre = async () => {
       for (let i = 0; i < 80; i++) {
@@ -234,9 +259,17 @@ const CONTROLES = {
         if (!(await p.evaluate(() => [...document.querySelectorAll('.pref-msg')].some(m => m.textContent === 'Enregistrement…')))) return;
       }
     };
-    const recharger = async () => { await p.reload(); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500); };
-    pb.push(egal(true, await q('.mrt-gear', 'x.getAttribute("href").endsWith("preferences.html")'), 'engrenage vers les Préférences'));
-    pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors du menu'));
+    const recharger = async () => { await p.reload(); await p.waitForSelector('.mrt-nav'); await p.clock.runFor(1500); };
+    // Le cap se lit dans l'en-tête de l'Accueil (les Préférences n'ont pas d'en-tête).
+    const capEnTete = async () => {
+      await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
+      const cap = await q('h1 em', 'x.textContent');
+      await p.goto(RACINE + 'preferences.html'); await p.waitForSelector('.mrt-nav'); await p.clock.runFor(1500);
+      return cap;
+    };
+    pb.push(egal([true, true, false], await p.evaluate(() => { const r = document.querySelector('.mrt-tab-reglages');
+      return [r.getAttribute('href').endsWith('preferences.html'), r.classList.contains('is-on'), !!document.querySelector('.mrt-header')]; }), 'engrenage : onglet ouvert, page sans en-tête'));
+    pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors des modules du menu'));
     pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
     pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise'], await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes, sans mention'));
 
@@ -249,7 +282,7 @@ const CONTROLES = {
     pb.push(egal('vert-rose', await q('input[name=theme]:checked', 'x.value'), 'thème après rechargement'));
     await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), 'accueil en vert et rose'));
-    await p.goto(RACINE + 'preferences.html?t=violet-turquoise'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
+    await p.goto(RACINE + 'preferences.html?t=violet-turquoise'); await p.waitForSelector('.mrt-nav'); await p.clock.runFor(1500);
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), '?t=… sans effet'));
 
     // Menu
@@ -276,17 +309,15 @@ const CONTROLES = {
     pb.push(egal('Par défaut : la plus lointaine (Trail des Crêtes)', options[0], 'cap, premier choix'));
     pb.push(egal(['Trail du Lac', 'Course A', 'Trail des Crêtes'], options.slice(1).map(o => o.split(' · ')[0]), 'cap, courses proposées'));
     await p.selectOption('#bloc-cap select', { label: options[1] }); await attendre();
-    pb.push(egal('Trail du Lac', await q('h1 em', 'x.textContent'), 'cap Trail du Lac dans l\'en-tête'));
-    await recharger();
+    pb.push(egal('Trail du Lac', await capEnTete(), 'cap Trail du Lac dans l\'en-tête'));
     pb.push(egal(options[1], await q('#bloc-cap select', 'x.selectedOptions[0].textContent'), 'cap après rechargement'));
     db.courses.find(c => c.course === 'Trail du Lac').etat = 'abandonnee';
-    await recharger();
-    pb.push(egal('Trail des Crêtes', await q('h1 em', 'x.textContent'), 'cap abandonné : retour au défaut'));
+    pb.push(egal('Trail des Crêtes', await capEnTete(), 'cap abandonné : retour au défaut'));
     pb.push(egal('', await q('#bloc-cap select', 'x.value'), 'cap abandonné : liste sur « Par défaut »'));
     db.courses.find(c => c.course === 'Trail du Lac').etat = 'a_venir';
     await recharger();
     await p.selectOption('#bloc-cap select', ''); await attendre();
-    pb.push(egal('Trail des Crêtes', await q('h1 em', 'x.textContent'), 'cap par défaut'));
+    pb.push(egal('Trail des Crêtes', await capEnTete(), 'cap par défaut'));
 
     // Échec d'enregistrement
     db.panne = true;
@@ -359,6 +390,11 @@ const CONTROLES = {
     pb.push(egal({ obj: true, role: 'Objectif principal', compteur: '311j 19h 00min 00s', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
       { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
     pb.push(egal(['311', '19h 00m 00s'], await p.evaluate(() => [document.querySelector('.mrt-days').textContent, document.querySelector('.mrt-hms').textContent]), 'en-tête : compte à rebours jusqu\'à l\'heure de départ'));
+    // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Accent 2 ; libellés à 0,7 rem.
+    pb.push(egal({ nom: 'rgb(238, 243, 250)', date: 'rgb(143, 168, 201)', compteur: 'rgb(255, 212, 0)', objectif: 'rgb(255, 212, 0)', libelle: '11.2px', indicateur: 'rgb(238, 243, 250)' },
+      await p.evaluate(() => { const c = document.querySelector('.ob-carte'), st = s => getComputedStyle(c.querySelector(s));
+        return { nom: st('.ob-nom').color, date: st('.ob-date').color, compteur: st('.ob-cpt-case b').color, objectif: st('.ob-cible').color, libelle: st('.ob-lib').fontSize,
+          indicateur: getComputedStyle(document.querySelector('.mrt-stat-val')).color }; }), 'couleurs et libellés'));
     await figer(p, 1000);
     pb.push(egal('25j 23h 59min 59s', (await cartes(p))[0].compteur, 'une seconde plus tard'));
     // Liens : ↗ et inscription au-dessus du lien de la carte ; la carte ouvre la page de la course.
@@ -390,9 +426,9 @@ const CONTROLES = {
         const t = x => (x ? x.textContent.replace(/[  ]/g, ' ').trim() : null), q = s => document.querySelector(s);
         return {
           retour: t(q('.pc-retour')), sur: t(q('.pc-sur')), titre: q('.pc-titre') ? t(q('.pc-titre').firstChild) : null, info: t(q('.pc-info')), groupe: t(q('.pc-groupe')),
-          stats: [...document.querySelectorAll('.pc-stat')].map(s => t(s.children[0]) + ' | ' + t(s.children[1])), dossard: t(q('.pc-stats .ob-ins')),
-          compteur: [...document.querySelectorAll('.pc-rebours .ob-cpt-case')].map(t).join(' '),
-          cellules: [...document.querySelectorAll('.pc-cellule h3')].map(t), cellDossard: t(q('.pc-cellule')),
+          fiche: [...document.querySelectorAll('.pc-fiche .ob-ligne')].filter(l => !l.querySelector('.ob-cpt')).map(l => t(l.children[0]) + ' | ' + t(l.children[1])),
+          compteur: [...document.querySelectorAll('.pc-fiche .ob-cpt-case')].map(t).join(' '), dossards: document.querySelectorAll('main .ob-ins').length,
+          cellules: [...document.querySelectorAll('.pc-cellule > summary')].map(t), entete: !!q('.mrt-header'),
           liens: [...document.querySelectorAll('.pc-liens a')].map(t), nav: [...document.querySelectorAll('.pc-nav a')].map(a => a.className + ' | ' + t(a.querySelector('b'))),
           vide: t(q('.ob-vide')), titreDoc: document.title
         };
@@ -401,24 +437,45 @@ const CONTROLES = {
       return [r, o.erreurs];
     };
     let [r, err] = await pageCourse(id(3));
-    pb.push(egal({ retour: '← Feuille de route', sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dimanche 7 mars 2027, 7 h 30',
-      stats: ['45 km / 2 100 m D+ | Distance', '2 100 m | D−', '06:30:00 | Objectif'], dossard: 'Inscrit · n° 1287', compteur: '137j 22h 30min 00s' },
-      { retour: r.retour, sur: r.sur, titre: r.titre, info: r.info, stats: r.stats, dossard: r.dossard, compteur: r.compteur }, 'page Trail des Gorges, haut'));
-    pb.push(egal(['Dossard', 'Rôle dans la préparation', 'Stratégie ou enchaînement', 'Logistique', 'Description', 'Liens'], r.cellules, 'page Trail des Gorges, cellules'));
-    pb.push(egal(true, /Prix : 58 €/.test(r.cellDossard), 'page Trail des Gorges, prix'));
+    pb.push(egal({ entete: false, retour: '← Feuille de route', sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30',
+      compteur: '137j 22h 30min 00s', fiche: ['Distance | 45 km · 2 100 m D+', 'D− | 2 100 m', 'Objectif | 06:30:00', 'Dossard | Inscrit · n° 1287', 'Prix | 58 €'], dossards: 1 },
+      { entete: r.entete, retour: r.retour, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
+    pb.push(egal(['Rôle dans la préparation', 'Stratégie ou enchaînement', 'Logistique', 'Description', 'Liens'], r.cellules, 'page Trail des Gorges, textes'));
     pb.push(egal(['Site officiel ↗', 'Inscription ↗', 'Résultats en direct ↗'], r.liens, 'page Trail des Gorges, liens'));
     pb.push(egal(['is-precedente | Corrida de Noël', 'is-suivante | Trail des Cimes'], r.nav, 'page Trail des Gorges, navigation'));
     pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
     pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
     [r] = await pageCourse(id(2));
-    pb.push(egal({ cellules: ['Dossard', 'Liens'], dossard: 'Ouvre le 01/11/2026', liens: ['Site officiel ↗'], dmoins: false },
-      { cellules: r.cellules, dossard: r.dossard, liens: r.liens, dmoins: r.stats.some(x => /D−/.test(x)) }, 'page Corrida de Noël'));
+    pb.push(egal({ cellules: ['Liens'], fiche: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 01/11/2026'], liens: ['Site officiel ↗'] },
+      { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix'));
     [r] = await pageCourse(id(4));
     pb.push(egal({ sur: 'Préparatoire · Étape 4 sur 6', groupe: 'Printemps 2027 · autre candidat : Ultra du Plateau · Le 55' }, { sur: r.sur, groupe: r.groupe }, 'page Trail des Cimes'));
     [r] = await pageCourse(id(1));
     pb.push(egal(['is-suivante | Corrida de Noël'], r.nav, 'page Trail du Lac, pas de course précédente'));
     [r] = await pageCourse(id(7));
     pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
+    // Ordinateur : une colonne de lecture (40 rem), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
+    pb.push(egal({ largeur: 640, cadre: '1px', textes: 5, ouverts: 5, repliable: 'none' }, await p.evaluate(() => ({ largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
+      cadre: getComputedStyle(document.querySelector('.pc-fiche')).borderTopWidth, textes: document.querySelectorAll('.pc-cellule').length,
+      ouverts: document.querySelectorAll('.pc-cellule[open]').length, repliable: getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents })), 'ordinateur : colonne, fiche encadrée, textes ouverts'));
+    await ctx.close();
+    // Téléphone : rien ne dépasse, compteur sur une ligne, fiche dans le premier écran, textes repliés sauf le premier.
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 390, db, {}, PARIS));
+    await figer(p);
+    const tc = await p.evaluate(() => {
+      const cases = [...document.querySelectorAll('.pc-fiche .ob-cpt-case')].map(c => c.getBoundingClientRect());
+      return { debordement: document.documentElement.scrollWidth > innerWidth, compteurUneLigne: cases.every(c => Math.abs(c.top - cases[0].top) < 3),
+        ouvertes: [...document.querySelectorAll('.pc-cellule')].map(d => d.open), haut: Math.round(document.querySelector('.pc-fiche').getBoundingClientRect().top) };
+    });
+    pb.push(egal({ debordement: false, compteurUneLigne: true, ouvertes: [true, false, false, false, false] },
+      { debordement: tc.debordement, compteurUneLigne: tc.compteurUneLigne, ouvertes: tc.ouvertes }, 'téléphone : page d\'une course'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-course-telephone.png'), fullPage: false });
+    pb.push(egal(true, tc.haut < 330, 'téléphone : la fiche commence dans le premier écran (' + tc.haut + ' px)'));
+    await p.locator('.pc-cellule > summary').nth(1).click();
+    pb.push(egal([true, true], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(0, 2).map(d => d.open)), 'téléphone : toucher le titre ouvre la cellule'));
+    pb.push(egal([], erreurs, 'téléphone, page d\'une course, erreurs JavaScript'));
+    await ctx.close();
     for (const n of ['inconnue', id(99)]) {
       [r] = await pageCourse(n);
       pb.push(egal(['Course introuvable.', '← Feuille de route'], [r.vide, r.retour], 'course introuvable (' + n + ')'));
