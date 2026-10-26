@@ -141,5 +141,12 @@
 /* Feuille de route sans titre : le « + » seul, à droite, au-dessus de la première carte. */
 .ob-haut { justify-content: flex-end; margin-bottom: 0.9rem; }
 .ob-rond .ob-ico { width: 0.95rem; height: 0.95rem; }
+/* Bouton d'ajout : le même que celui du Palmarès (« + Ajouter une course », « + Course » sur téléphone). */
+.ob-ajout .ob-ico { width: 0.85rem; height: 0.85rem; }
+.ob-ajout-court { display: none; }
+@media (max-width: 600px) {
+  .ob-ajout-long { display: none; }
+  .ob-ajout-court { display: inline; }
+}
 .pc-haut .ob-rond { margin-top: 0.6rem; }
 .pc-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }

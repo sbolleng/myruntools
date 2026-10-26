@@ -604,7 +604,8 @@ const CONTROLES = {
     // Ajouter : formulaire vide
     let o = await neuve(1200, PAGE);
     ({ p, ctx } = o);
-    pb.push(egal(1, await p.locator('[data-ob="ajouter"]').count(), 'bouton « + » sur la feuille de route'));
+    pb.push(egal(1, await p.locator('[data-ob="ajouter"]').count(), 'bouton « + Ajouter une course » sur la feuille de route'));
+    pb.push(egal('Ajouter une course', await p.evaluate(() => document.querySelector('[data-ob="ajouter"]').innerText.trim()), 'même libellé que le Palmarès'));
     await p.click('[data-ob="ajouter"]');
     const blocs = await p.evaluate(() => [...document.querySelectorAll('.fc-bloc')].map(b => b.querySelector('.fc-bloc-titre').textContent.trim() + (b.querySelector('.fc-grille').hidden ? ' (replié)' : '')));
     pb.push(egal(['Course', 'Place dans le plan', 'Préparation (replié)', 'Dossard (replié)', 'Logistique (replié)', 'Liens (replié)'], blocs, 'six blocs, quatre repliés'));

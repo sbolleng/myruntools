@@ -156,7 +156,7 @@
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
-    el.innerHTML = (edition ? '<div class="ob-haut">' + rond('ajouter', 'Ajouter une course', PLUS) + '</div>' : '') + (etapes.length
+    el.innerHTML = (edition ? '<div class="ob-haut">' + '<button type="button" class="ob-ajout mrt-btn is-principal" data-ob="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button></div>' : '') + (etapes.length
       ? '<div class="ob-route">' + etapes.map((e, i) => {
         const k = ['ob-et', option(e) ? 'is-opt' : '', option(etapes[i + 1]) ? 'suite-opt' : '', i === etapes.length - 1 ? 'is-fin' : '',
           e.course ? classeRole(e.course) : ''].filter(Boolean).join(' ');
