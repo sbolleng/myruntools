@@ -58,7 +58,8 @@ function simulerBase(ctx, db) {
 // stockage : valeurs posées dans localStorage avant d'ouvrir la page.
 // opts : { fuseau, maintenant } pour un jeu d'essai daté à une heure précise ; { hauteur } pour un téléphone tenu en largeur.
 async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
-  const ctx = await navigateur.newContext({ viewport: { width: largeur, height: opts.hauteur || 900 }, deviceScaleFactor: 2, timezoneId: opts.fuseau });
+  const ctx = await navigateur.newContext({ viewport: { width: largeur, height: opts.hauteur || 900 }, deviceScaleFactor: 2, timezoneId: opts.fuseau,
+    isMobile: !!opts.mobile, hasTouch: !!opts.mobile });
   await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
   // Sans réseau, polices comprises : sinon leur arrivée, plus ou moins tardive, décale la page d'une fraction de pixel.
   await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
@@ -799,9 +800,12 @@ const CONTROLES = {
     await ctx.close();
 
     // Téléphone
-    ({ p, ctx } = await ouvrir(nav, PAGE, 390, db, {}, PARIS));
+    ({ p, ctx } = await ouvrir(nav, PAGE, 390, db, {}, { ...PARIS, mobile: true }));
     await p.click('[data-ob="ajouter"]');
     await p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(b => b.click()));
+    // Écran tactile : champs à 16 px au moins, sinon l'iPhone zoome sur le champ touché et le formulaire est coupé.
+    pb.push(egal([], await p.evaluate(() => [...document.querySelectorAll('.fc-panneau input:not([type="checkbox"]), .fc-panneau select, .fc-panneau textarea')]
+      .filter(el => parseFloat(getComputedStyle(el).fontSize) < 16).map(el => el.id)), 'téléphone : aucun champ sous 16 px (pas de zoom de l\'iPhone)'));
     const ligne = await p.evaluate(() => { const d = document.getElementById('fc-date').getBoundingClientRect(), c = document.getElementById('fc-date_approx').getBoundingClientRect();
       return { memeLigne: Math.abs((d.top + d.bottom) / 2 - (c.top + c.bottom) / 2) < d.height, aDroite: c.left >= d.right }; });
     pb.push(egal({ memeLigne: true, aDroite: true }, ligne, 'téléphone : « Jour inconnu » à droite de la date'));
