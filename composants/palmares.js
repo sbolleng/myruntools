@@ -253,7 +253,7 @@
         '<button type="button" class="pv2-rond mrt-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
         '<span class="pv2-count" aria-live="polite"></span>' +
         '<button type="button" class="pv2-clear mrt-lien" data-act="clear" hidden>Effacer les filtres</button>' +
-        (cfg.editable ? '<button type="button" class="pv2-rond mrt-rond pv2-add" data-act="add" aria-label="Ajouter une course" title="Ajouter une course">' + PLUS + '</button>' : '') +
+        (cfg.editable ? '<button type="button" class="pv2-add mrt-btn is-principal" data-act="add" title="Ajouter une course">' + PLUS + 'Ajouter</button>' : '') +
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +

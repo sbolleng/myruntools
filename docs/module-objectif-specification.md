@@ -140,7 +140,7 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent 2, comme sur la carte |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit |
 | 14 | Prix | « 58 € » | Seulement s'il est connu |
-| 15 à 19 | Textes | Dans l'ordre ci-dessous, identique pour tous ; un texte vide n'est pas affiché | Liste à filets, sans cadre ; titre en Texte, 600, casse normale, chevron à gauche |
+| 15 à 19 | Textes | Dans l'ordre ci-dessous, identique pour tous ; un texte vide n'est pas affiché | Liste à filets, dans un cadre ; titre en Texte, 600, casse normale, chevron à gauche |
 | 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la feuille de route | Libellé, puis le nom en Texte |
 
 | Texte | Contenu |

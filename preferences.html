@@ -11,7 +11,8 @@
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <style>
   /* Réglages : spécification docs/module-preferences-specification.md ; tailles : docs/design.md § 3. */
-  /* Une section par réglage, séparées par un filet (mrt-section, en-tete.css). */
+  /* Un cadre pour la page ; dedans, une section par réglage, séparées par un filet (mrt-section, en-tete.css). */
+  .pref-cadre { padding-top: 1.2rem; padding-bottom: 0.4rem; }
   .mrt-section b { font-weight: 600; }
   .pref-intro { margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--muted); }
   .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
@@ -45,6 +46,7 @@
 </head>
 <body>
 <main>
+  <div class="card pref-cadre">
   <section class="mrt-section" id="bloc-compte">
     <h2 class="mrt-section-titre">Compte</h2>
     <p id="compte" class="muted">Lecture…</p>
@@ -78,6 +80,7 @@
     <div class="pref-legende">Sites partagés avec moi</div>
     <ul class="pref-liste" id="partages-avec-moi"></ul>
   </section>
+  </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>

@@ -14,7 +14,7 @@ Chaque discussion lit d'abord `CLAUDE.md` (règles du projet), puis ce fichier. 
 - Dépôt public : aucune donnée personnelle, aucun secret ; le pilote route est « le compte test Rome ».
 - D'abord un plan de page en texte (schéma numéroté, tableau des éléments, options avec une recommandation) ; maquette en image seulement à la demande ou pour trancher, après accord.
 - Cycle : spécification → validation → construction → banc d'essai → mise en ligne ; chaque décision : une ligne au journal.
-- Apparence : les règles communes du [design](design.md), § 1 (peu de couleur, capitales pour les libellés, un cadre pour les données, trois sortes de boutons, un seul titre repliable).
+- Apparence : les règles communes du [design](design.md), § 1 (peu de couleur, capitales pour les libellés, tout dans un cadre, trois sortes de boutons, un seul titre repliable).
 - Git : branche de la session, fusion dans `main` (`--no-ff`), vérifier que la publication a réussi avant d'annoncer la mise en ligne.
 
 **Outils**
@@ -24,7 +24,7 @@ Chaque discussion lit d'abord `CLAUDE.md` (règles du projet), puis ce fichier. 
 | Todo | Ce fichier, « À faire » | Prochaines étapes dans l'ordre, questions ouvertes, idées |
 | Journal | [journal.md](journal.md) | Une ligne par décision, la plus récente en haut ; à lire seulement au besoin |
 | Spécifications | Sommaire ci-dessous | Une par module, avec plan de page, jeu d'essai et résultats attendus |
-| Banc d'essai | `outils/essais/` | `npm install` une fois par discussion, puis `node essais.js` : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; le Chromium de la session est pris d'office |
+| Banc d'essai | `outils/essais/` | `node essais.js` (dépendances installées au démarrage de la discussion) : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; le Chromium de la session est pris d'office |
 | Captures | `outils/essais/captures.js` | Images des pages, téléphone et ordinateur, données fictives : la façon économique de faire une maquette (avant/après avec une copie du site en ligne) |
 
 **Modèle conseillé**
@@ -42,7 +42,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | Document | Contenu | État |
 | --- | --- | --- |
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.16 |
-| [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.11 |
+| [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.12 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.6 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.15 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.3 |
