@@ -48,8 +48,9 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 .mrt-gear { font-size: 0.9rem; letter-spacing: 0; line-height: 1; }
 /* Barre fine (pages sans en-tête) : le nom du site à gauche, l'engrenage à droite. */
 .mrt-barre { padding: 0.55rem 2rem; border-bottom: 1px solid var(--border); }
-.mrt-barre-in { max-width: 960px; margin: 0 auto; }
-.mrt-barre .mrt-brand { justify-content: space-between; }
+.mrt-barre-in { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.mrt-barre-cap { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+.mrt-barre-cap b { font-weight: 600; color: var(--text); }
 /* Deux colonnes : à gauche le titre et les indicateurs ; à droite le nom de l'application
    en haut, aligné sur « Cap sur », et le compteur en bas, aligné sur le bas des indicateurs. */
 .mrt-grid {

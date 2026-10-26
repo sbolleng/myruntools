@@ -100,7 +100,8 @@
     if (cfg.sansEnTete) {
       const barre = document.createElement('header');
       barre.className = 'mrt-barre';
-      barre.innerHTML = '<div class="mrt-barre-in">' + marque + '</div>';
+      // Rappel du cap, discret (pas en Accent : il ne doit pas concurrencer le titre de la page).
+      barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien('index.html') + '">Cap sur <b>' + esc(o.nom || dash) + '</b></a>' + marque + '</div>';
       document.body.prepend(barre, nav);
     } else document.body.prepend(header, nav);
     // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
