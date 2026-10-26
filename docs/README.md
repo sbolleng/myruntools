@@ -92,6 +92,7 @@ Dans l'ordre :
    - Profil : état civil, poids, taille, pointure.
    - Matériel : chaussures et leur usure.
 6. [ ] **Thèmes** : supprimer Accent 2, presque identique à l'Accent ; les repères (compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire) passent en Accent ou en neutre. Plan de page et maquette des trois thèmes d'abord.
+7. [ ] **Nutrition** : créer la page : spécification (périmètre, repères glucides et eau par heure : voir la question ouverte « Ravitaillement en course »), puis construction.
 
 ## Questions ouvertes
 
