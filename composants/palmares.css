@@ -131,7 +131,7 @@
 @media (max-width: 600px) and (orientation: portrait) {
   .pv2-paysage { display: block; }
 }
-/* Groupe : titre repliable, comme les textes de la page d'une course (chevron, Texte, casse normale). */
+/* Groupe : titre repliable (chevron, casse normale), en Accent (orange du thème par défaut) pour bien repérer les types. */
 .pv2-table tr.pv2-group-row th { text-align: left; padding: 1rem 0 0.35rem; border-bottom: 1px solid var(--border); }
 .pv2-group {
   display: inline-flex;
@@ -139,16 +139,16 @@
   gap: 0.5rem;
   padding: 0.2rem 0;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--text);
+  color: var(--accent);
   background: none;
   border: none;
   cursor: pointer;
 }
-.pv2-group .pv2-chev { color: var(--muted); }
+.pv2-group .pv2-chev { color: var(--accent); }
 .pv2-group .pv2-chev { transition: transform 0.15s; }
 .pv2-group[aria-expanded="false"] .pv2-chev { transform: rotate(-90deg); }
 .pv2-table tbody tr.pv2-group-row:first-child th { padding-top: 0.4rem; }

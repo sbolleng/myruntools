@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 26 oct. 2026 | Palmarès | Intertitres du regroupement par type en Accent (orange du thème par défaut), plus gros et en gras. |
 | 26 oct. 2026 | Objectif | Le bouton d'ajout de la feuille de route devient celui du Palmarès : « + Ajouter une course » (« + Course » sur téléphone), bouton principal. |
 | 26 oct. 2026 | Palmarès, largeur | Temps affichés en hh:mm:ss sur deux chiffres (allure inchangée, m:ss /km) ; boutons « + Ajouter une course » (« + Course » sur téléphone) et « Colonnes + » dans l'en-tête du tableau ; page d'une course à la même largeur que les autres pages (contrôle ajouté au banc d'essai). |
 | 26 oct. 2026 | Design | Retour du cadre : chaque bloc a le sien (Préférences dans un cadre global, textes d'une course dans un cadre), sections séparées par un filet à l'intérieur ; Palmarès : « + Ajouter » en bouton principal ; engrenage sans soulignement ; design 0.12. Hook de démarrage : dépendances du banc d'essai installées à chaque discussion. |
