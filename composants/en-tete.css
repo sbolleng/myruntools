@@ -22,6 +22,10 @@ body {
 }
 /* Liens dans le texte : soulignés, en Texte ; l'Accent est réservé au titre, à la sélection et au bouton principal. */
 a { color: var(--text); text-underline-offset: 0.2em; text-decoration-color: var(--muted); }
+/* Écran tactile : champs à 16 px au moins, sinon Safari (iPhone) zoome sur le champ touché et la page déborde. */
+@media (hover: none) and (pointer: coarse) {
+  input, select, textarea { font-size: 16px !important; }
+}
 main { max-width: 960px; margin: 0 auto; padding: 2rem; font-size: 0.85rem; } /* tailles des pages : docs/design.md § 3 */
 .muted { color: var(--muted); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
