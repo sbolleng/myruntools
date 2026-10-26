@@ -112,6 +112,7 @@
 /* Boutons ronds communs (mrt-rond) : regroupement, à droite de Filtres, Accent quand actif ; ajout, tout à droite. */
 .pv2-rond .pv2-ico { width: 0.95rem; height: 0.95rem; }
 .pv2-add { margin-left: auto; }
+.pv2-add .pv2-ico { width: 0.85rem; height: 0.85rem; }
 @media (max-width: 600px) {
   .pv2-count { order: 3; flex-basis: 100%; }
 }

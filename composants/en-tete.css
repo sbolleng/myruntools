@@ -45,7 +45,7 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   color: var(--muted);
 }
 .mrt-brand a { color: inherit; text-decoration: none; }
-.mrt-gear { font-size: 0.9rem; letter-spacing: 0; line-height: 1; }
+.mrt-gear { font-size: 0.9rem; letter-spacing: 0; line-height: 1; text-decoration: none; }
 /* Barre fine (pages sans en-tête) : « Cap sur … » à gauche, discret (pas en Accent), l'engrenage à droite. */
 .mrt-barre { padding: 0.55rem 2rem; border-bottom: 1px solid var(--border); }
 .mrt-barre-in { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }

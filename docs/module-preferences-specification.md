@@ -11,7 +11,7 @@ La page Préférences rassemble les réglages du site de l'utilisateur connecté
 
 ## 2. Organisation
 
-Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Partage** ; des réglages et non des données : pas de cadre, un filet entre deux sections (design, § 1).
+Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Partage** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
 - **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de l'Accueil et de la feuille de route.

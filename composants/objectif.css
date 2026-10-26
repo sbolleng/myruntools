@@ -92,8 +92,8 @@
 .pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
 .pc-fiche .ob-cpt { font-size: 0.72rem; }
 /* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
-.pc-textes { border-top: 1px solid var(--border); }
-.pc-cellule { border-bottom: 1px solid var(--border); }
+.pc-textes { padding: 0 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.pc-cellule + .pc-cellule { border-top: 1px solid var(--border); }
 .pc-cellule > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 0; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: default; pointer-events: none; }
 .pc-cellule > summary::-webkit-details-marker { display: none; }
 .ob-chev { display: none; flex: none; width: 0.8rem; height: 0.8rem; color: var(--muted); transition: transform 0.15s; }

@@ -1,6 +1,6 @@
 # Design
 
-Version 0.11 · 26 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.12 · 26 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -18,7 +18,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 | Peu de couleur | L'Accent marque le titre de l'écran (le cap dans l'en-tête, le nom de la course sur sa page) et ce qui est actif (onglet ouvert, tri, filtre actif, bouton principal, champ en cours de saisie). L'Accent 2 marque les repères de données : compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire. |
 | Le reste en blanc et gris | Valeurs et noms en Texte ; libellés et informations secondaires en Texte discret ; liens dans le texte soulignés, en Texte. |
 | Capitales pour les libellés seulement | Libellés de données (à gauche ou au-dessus d'une valeur, d'un champ, en-tête de colonne). Onglets, boutons, titres de section en casse normale. |
-| Un cadre pour les données | Un bloc de données lu comme un tout garde son cadre (fond Surface, bordure fine, coins de 8 px) : tableau du Palmarès, carte d'une étape, fiche d'une course, panneaux (formulaire, filtres). Textes et réglages sans cadre : des sections séparées par un filet (Bordure). Jamais de cadre dans un cadre. |
+| Tout dans un cadre | Chaque bloc de la page a son cadre (fond Surface, bordure fine, coins de 8 px) : tableau du Palmarès, carte d'une étape, fiche d'une course, liste des textes d'une course, Préférences (un cadre pour toute la page), panneaux. Dans un cadre, les sections sont séparées par un filet (Bordure). Jamais de cadre dans un cadre. |
 | Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien). À contour : bordure fine, texte en Texte (Annuler, Filtres, Retenir cette course). Rond : une icône (+, crayon, regroupement, flèches, fermer). Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Effacer les filtres) ; Alerte pour Supprimer. Tous en casse normale, Accent au survol. |
 | Un seul titre repliable | Chevron à gauche, titre en Texte, 600, casse normale : textes d'une course, blocs du formulaire, groupes du Palmarès. |
 
@@ -122,7 +122,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 ## 7. Barre et lignes du Palmarès
 
-- **Barre** : « Filtres », bouton à contour (§ 1), en Accent quand un filtre est actif ou le panneau ouvert ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, le bouton rond « + » pour ajouter une course.
+- **Barre** : « Filtres », bouton à contour (§ 1), en Accent quand un filtre est actif ou le panneau ouvert ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter », bouton principal, pour ajouter une course.
 - **Tableau** : dans son cadre (§ 1). Groupes : titre repliable (§ 1), filet en Bordure dessous.
 - **Téléphone tenu en hauteur** : sous la barre, « ↻ Tourne ton téléphone pour voir toutes les colonnes. », 0,8 rem, Texte discret. **Tenu en largeur** : une ligne par course (pas de retour à la ligne dans les cellules), cadre resserré.
 - **Compteur** « X courses sur Y » à droite du regroupement, 0,8 rem, Texte discret ; sur téléphone, il passe sous les boutons.

@@ -46,7 +46,7 @@ Spécification → validation → modèle de données si besoin → construction
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise`, proposés à tous, choisis dans les Préférences seulement (plus de `?t=…` sur le site).
 - `docs/maquettes/` : maquettes (en-tête, calendrier) ; le calendrier s'ouvre avec `?t=trail` ou `?t=route` (profils d'exemple).
-- Banc d'essai : `outils/essais/` (`npm install` une fois, puis `node essais.js`, `--captures` pour des images). Chromium, base simulée par `donnees-fictives.json`, date figée au 20 octobre 2026. Chaque module construit y ajoute ses contrôles, tirés de son jeu d'essai. Données fictives seulement.
+- Banc d'essai : `outils/essais/` (dépendances installées au démarrage de chaque discussion par le hook de `.claude/settings.json` ; `node essais.js`, `--captures` pour des images ; `node captures.js` photographie les pages pour une maquette, avant/après possible). Chromium, base simulée par `donnees-fictives.json`, date figée au 20 octobre 2026. Chaque module construit y ajoute ses contrôles, tirés de son jeu d'essai. Données fictives seulement.
 - Publication : `.github/workflows/publication.yml` publie GitHub Pages à chaque mise à jour de `main` et remplace `__VERSION__` par le numéro du commit dans les liens CSS/JS et la balise `site-version` : rien à incrémenter à la main.
 - Circuit git : travailler sur la branche de la session, fusionner dans `main` (`--no-ff`), pousser les deux. Vérifier une fois, en fin de lot, que la publication a réussi, avant d'annoncer que c'est en ligne.
 
@@ -56,3 +56,4 @@ Spécification → validation → modèle de données si besoin → construction
 
 - Dernier lot en ligne : repasse de style sur tout le site (règles communes du design § 1 ; en-tête sur l'Accueil et la feuille de route, ailleurs une barre fine « Cap sur … » et l'engrenage ; page d'une course sans en-tête, fiche encadrée et textes repliables ; Palmarès en paysage sur téléphone).
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
+- Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
