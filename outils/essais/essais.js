@@ -232,6 +232,22 @@ const CONTROLES = {
       egal('7 courses sur 7', await p.evaluate(() => document.querySelector('.pv2-count').textContent), 'compteur'),
       egal([], erreurs, 'erreurs JavaScript')
     ];
+    // Filtres : bouton rond à trois traits ; panneau en pastilles (tri, choix, années) ; pastille du nombre de filtres actifs.
+    pb.push(egal({ rond: true, texte: '', ouvert: 'false' }, await p.evaluate(() => { const b = document.querySelector('.pv2-btn');
+      return { rond: b.classList.contains('mrt-rond'), texte: b.innerText.trim(), ouvert: b.getAttribute('aria-expanded') }; }), 'filtres : bouton rond, sans texte'));
+    await p.click('.pv2-btn');
+    pb.push(egal(['true', 'Date↓'], [await p.getAttribute('.pv2-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-tri[aria-pressed="true"]').textContent)], 'panneau ouvert ; tri en cours : Date, plus récente d\'abord'));
+    await p.click('.pv2-panel label.pv2-check:has(input[value="Trail"])');
+    pb.push(egal(['3 courses sur 7', '1', 'Filtres · 1 actif'], [await p.textContent('.pv2-count'), await p.textContent('.pv2-badge'), await p.getAttribute('.pv2-btn', 'aria-label')], 'pastille Trail : 3 courses, pastille « 1 » sur le bouton'));
+    await p.click('[data-act="clear"]');
+    await p.click('.pv2-panel label.pv2-check:has(input[data-part="year"][value="2025"])');
+    const en2025 = await p.textContent('.pv2-count');
+    await p.click('.pv2-panel label.pv2-check:has(input[data-part="year"][value=""])');
+    pb.push(egal([true, '7 courses sur 7'], [/sur 7$/.test(en2025) && !/^7 /.test(en2025), await p.textContent('.pv2-count')], 'année : pastille 2025 filtre, « Toutes » rétablit'));
+    await p.click('.pv2-tri[data-sort="time"]');
+    pb.push(egal('Temps↑', await p.evaluate(() => document.querySelector('.pv2-tri[aria-pressed="true"]').textContent), 'pastille de tri : Temps, plus court d\'abord'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'palmares-filtres.png'), fullPage: true });
+    await p.click('.pv2-tri[data-sort="date"]'); await p.click('.pv2-btn');
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'palmares.png'), fullPage: true });
     await ctx.close();
     // Téléphone tenu en hauteur : invitation à le tourner ; en largeur : une ligne par course ; ordinateur : pas d'invitation.

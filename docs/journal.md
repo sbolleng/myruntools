@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 26 oct. 2026 | Palmarès | Bouton Filtres rond à trois traits (nombre de filtres actifs en pastille) ; panneau inchangé dans son ouverture mais en pastilles (Trier par, années, types, formats, colonnes) ; regroupement laissé dans la barre. |
 | 26 oct. 2026 | Palmarès | Intertitres du regroupement par type en Accent (orange du thème par défaut), plus gros et en gras. |
 | 26 oct. 2026 | Objectif | Le bouton d'ajout de la feuille de route devient celui du Palmarès : « + Ajouter une course » (« + Course » sur téléphone), bouton principal. |
 | 26 oct. 2026 | Palmarès, largeur | Temps affichés en hh:mm:ss sur deux chiffres (allure inchangée, m:ss /km) ; boutons « + Ajouter une course » (« + Course » sur téléphone) et « Colonnes + » dans l'en-tête du tableau ; page d'une course à la même largeur que les autres pages (contrôle ajouté au banc d'essai). |

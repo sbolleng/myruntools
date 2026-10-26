@@ -1,10 +1,14 @@
 /* ===== PALMARÈS V2 · tableau triable et filtrable (palmares.js) ===== */
 .pv2-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-bottom: 0.9rem; }
-/* Filtres : bouton commun (mrt-btn) ; Accent quand un filtre est actif ou le panneau ouvert. */
+/* Filtres : bouton rond commun (mrt-rond), trois traits ; Accent quand un filtre est actif ou le panneau ouvert,
+   avec le nombre de filtres actifs en pastille. */
+.pv2-btn { position: relative; }
 .pv2-btn.is-on, .pv2-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.pv2-badge { position: absolute; top: -0.3rem; right: -0.35rem; min-width: 1rem; height: 1rem; padding: 0 0.2rem; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; line-height: 1rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
+.pv2-badge[hidden] { display: none; }
 .pv2-ico { width: 0.95rem; height: 0.95rem; flex: none; }
 .pv2-chev { width: 0.85rem; height: 0.85rem; flex: none; transition: transform 0.15s; }
-.pv2-btn[aria-expanded="true"] .pv2-chev, .pv2-clear .pv2-chev { transform: rotate(180deg); }
+.pv2-clear .pv2-chev { transform: rotate(180deg); }
 .pv2-clear .pv2-chev { width: 0.8rem; height: 0.8rem; margin-left: 0.3rem; vertical-align: -0.12em; }
 .pv2-count { font-size: 0.8rem; color: var(--muted); }
 .pv2-clear[hidden] { display: none; }
@@ -20,6 +24,7 @@
 }
 .pv2-panel[hidden] { display: none; }
 .pv2-cols { grid-template-columns: 1fr; }
+.pv2-large { grid-column: 1 / -1; }
 .pv2-field { border: none; margin: 0; padding: 0; min-width: 0; }
 .pv2-legend {
   display: block;
@@ -47,8 +52,16 @@
 .pv2-panel input[type="search"] { width: 100%; }
 .pv2-panel input.pv2-num { width: 6.5rem; }
 .pv2-panel input[aria-invalid="true"] { border-color: var(--red); }
-.pv2-check { display: inline-flex; align-items: center; gap: 0.35rem; margin-right: 0.6rem; font-size: 0.8rem; color: var(--text); cursor: pointer; }
-.pv2-check input { accent-color: var(--accent); }
+/* Pastilles : choix des filtres, du tri et des colonnes ; pleines (Accent) quand elles sont choisies. */
+.pv2-check { display: inline-flex; align-items: center; padding: 0.3rem 0.75rem; font: inherit; font-size: 0.8rem; line-height: 1.2; color: var(--text); background: none; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
+.pv2-check[hidden] { display: none; }
+.pv2-sens:not(:empty) { margin-left: 0.3rem; }
+.pv2-check input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.pv2-check:has(input:checked), .pv2-check[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.pv2-check:has(input:focus-visible), .pv2-check:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) {
+  .pv2-check:hover:not(:has(input:checked)):not([aria-pressed="true"]) { border-color: var(--muted); }
+}
 .pv2-table th { padding: 0; vertical-align: bottom; }
 .pv2-table td { padding: 0.6rem 0.45rem; }
 .pv2-sort {

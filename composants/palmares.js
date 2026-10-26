@@ -64,7 +64,8 @@
   const LAYERS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l6 3-6 3-6-3z M2 8l6 3 6-3 M2 11l6 3 6-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const PLUS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const PENCIL = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-  const FUNNEL = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 2.5h13l-5.2 6v4.7l-2.6 1.3V8.5z" fill="currentColor"/></svg>';
+  // Filtres : trois traits de plus en plus courts, l'usage courant.
+  const FILTRE = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M4.75 8h6.5M7 11.5h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const CHEVRON = '<svg class="pv2-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // Deux flèches sur chaque en-tête : la colonne se trie ; celle du sens choisi s'allume.
   const SORT_ICON = '<svg class="pv2-sort-ico" viewBox="0 0 10 14" aria-hidden="true"><path class="pv2-up" d="M5 1l4 5H1z"/><path class="pv2-down" d="M5 13L1 8h8z"/></svg>';
@@ -248,8 +249,8 @@
     // ----- Squelette -----
     root.innerHTML =
       '<div class="pv2-bar">' +
-        '<button type="button" class="pv2-btn mrt-btn" data-act="filters" aria-expanded="false" aria-controls="' + uid + '-filters">' +
-          FUNNEL + '<span class="pv2-btn-label">Filtres</span>' + CHEVRON + '</button>' +
+        '<button type="button" class="pv2-btn mrt-rond" data-act="filters" aria-expanded="false" aria-controls="' + uid + '-filters" aria-label="Filtres" title="Filtres">' +
+          FILTRE + '<span class="pv2-badge" hidden></span></button>' +
         '<button type="button" class="pv2-rond mrt-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
         '<span class="pv2-count" aria-live="polite"></span>' +
         '<button type="button" class="pv2-clear mrt-lien" data-act="clear" hidden>Effacer les filtres</button>' +
@@ -270,15 +271,19 @@
     const panel = $('#' + uid + '-filters'), colsPanel = $('#' + uid + '-cols');
 
     function renderPanel() {
-      panel.innerHTML = shownCols().map(c => {
+      panel.innerHTML =
+        '<fieldset class="pv2-field pv2-large"><legend class="pv2-legend">Trier par</legend><div class="pv2-row">' +
+          shownCols().map(c => '<button type="button" class="pv2-check pv2-tri" data-sort="' + c.key + '" aria-pressed="false">' + esc(c.label) + '<span class="pv2-sens"></span></button>').join('') +
+        '</div></fieldset>' + shownCols().map(c => {
         const f = state.filters[c.key] || {};
         const id = uid + '-f-' + c.key;
         let body;
         if (c.kind === 'date') {
           const years = Array.from(new Set(rows.map(r => r.v.date && r.v.date.slice(0, 4)).filter(Boolean))).sort().reverse();
           body =
-            '<div class="pv2-row"><select data-f="' + c.key + '" data-part="year" aria-label="Année"><option value="">Toutes les années</option>' +
-              years.map(y => '<option' + (f.year === y ? ' selected' : '') + '>' + y + '</option>').join('') + '</select></div>' +
+            '<div class="pv2-row">' + [''].concat(years).map(y =>
+              '<label class="pv2-check"><input type="radio" name="' + uid + '-annee" data-f="' + c.key + '" data-part="year" value="' + y + '"' +
+                ((f.year || '') === y ? ' checked' : '') + '> ' + (y || 'Toutes') + '</label>').join('') + '</div>' +
             '<div class="pv2-row"><span>du</span><input type="date" data-f="' + c.key + '" data-part="from" value="' + esc(f.from || '') + '" aria-label="Du">' +
             '<span>au</span><input type="date" data-f="' + c.key + '" data-part="to" value="' + esc(f.to || '') + '" aria-label="Au"></div>';
         } else if (c.kind === 'text') {
@@ -303,7 +308,8 @@
     function renderTable() {
       const cols = tableCols();
       const list = visibleRows();
-      const focused = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.sort;
+      const actif = document.activeElement;
+      const focused = actif && actif.dataset && actif.dataset.sort && !actif.classList.contains('pv2-tri') ? actif.dataset.sort : null;
 
       $('thead').innerHTML = '<tr>' + cols.map(c => {
         const on = state.sort.key === c.key;
@@ -342,11 +348,20 @@
 
       const n = shownCols().filter(c => isActive(c, state.filters[c.key])).length;
       $('.pv2-count').textContent = list.length + (list.length > 1 ? ' courses' : ' course') + ' sur ' + total;
-      $('.pv2-btn-label').textContent = n ? 'Filtres · ' + n : 'Filtres';
+      const badge = $('.pv2-badge');
+      badge.hidden = n === 0; badge.textContent = n;
+      $('.pv2-btn').setAttribute('aria-label', n ? 'Filtres · ' + n + ' actif' + (n > 1 ? 's' : '') : 'Filtres');
       $('.pv2-btn').classList.toggle('is-on', n > 0);
+      // Pastilles de tri : celle du tri en cours est pleine, avec le sens.
+      panel.querySelectorAll('.pv2-tri').forEach(b => {
+        const on = b.dataset.sort === state.sort.key;
+        b.setAttribute('aria-pressed', String(on));
+        b.hidden = state.group && b.dataset.sort === 'type'; // groupé : pas de colonne Type, pas de tri par type
+        b.querySelector('.pv2-sens').textContent = on ? (state.sort.dir === 'asc' ? '↑' : '↓') : '';
+      });
       $('[data-act="clear"]').hidden = n === 0;
 
-      if (focused) { const b = root.querySelector('[data-sort="' + focused + '"]'); if (b) b.focus(); }
+      if (focused) { const b = root.querySelector('th [data-sort="' + focused + '"]'); if (b) b.focus(); }
       fitTable();
     }
 
