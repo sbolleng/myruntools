@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 26 oct. 2026 | Palmarès, largeur | Temps affichés en hh:mm:ss sur deux chiffres (allure inchangée, m:ss /km) ; boutons « + Ajouter une course » (« + Course » sur téléphone) et « Colonnes + » dans l'en-tête du tableau ; page d'une course à la même largeur que les autres pages (contrôle ajouté au banc d'essai). |
 | 26 oct. 2026 | Design | Retour du cadre : chaque bloc a le sien (Préférences dans un cadre global, textes d'une course dans un cadre), sections séparées par un filet à l'intérieur ; Palmarès : « + Ajouter » en bouton principal ; engrenage sans soulignement ; design 0.12. Hook de démarrage : dépendances du banc d'essai installées à chaque discussion. |
 | 26 oct. 2026 | Méthode | Mode d'emploi des discussions en tête du README (règles, outils, modèle conseillé) ; banc d'essai utilisable dans toute discussion (Chromium de la session pris d'office) ; `captures.js` versionné pour les maquettes en image. |
 | 26 oct. 2026 | En-tête | Sur les pages sans en-tête, une barre fine au-dessus du menu : « Cap sur » et le nom du cap (discret, vers l'Accueil), l'engrenage à droite ; l'engrenage quitte le menu et revient dans l'en-tête. Téléphone : compte à rebours juste sous le nom de la course, prochaine course à part sous un filet, pour ne plus les confondre. Ordinateur : en-tête moins haut (1,75 rem au-dessus du titre). Spécification générale 0.16, design 0.11. |

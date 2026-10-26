@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.9 · 25 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.10 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -24,7 +24,7 @@ Affichées par défaut, de gauche à droite :
 | 7 | Temps | Temps réalisé | Durée |
 | 8 | Allure | Allure moyenne, par km | Durée |
 
-Facultatives, affichées à la demande depuis le bouton « + » (§ 9) :
+Facultatives, affichées à la demande depuis le bouton « Colonnes + » (§ 9) :
 
 | # | Colonne | Contenu | Saisie |
 | --- | --- | --- | --- |
@@ -91,7 +91,7 @@ Toutes les colonnes affichées se trient. L'ordre dépend du type de donnée :
 - Toucher l'en-tête d'une colonne la trie dans son ordre par défaut ; le toucher à nouveau inverse l'ordre.
 - **Indicateur de tri** : chaque en-tête porte deux petites flèches, haut et bas, pour signaler que la colonne se trie. Sur la colonne triée, la flèche du sens choisi est mise en avant.
 - **Texte** : ordre alphabétique, sans tenir compte des majuscules ni des accents (« Épicurienne » se range avec les E) ; les nombres y sont rangés par valeur (« 5 km » avant « 10 km »).
-- **Durées** : triées sur leur valeur, pas sur le texte (49'18 passe avant 1h04'24).
+- **Durées** : triées sur leur valeur, pas sur le texte (00:49:18 passe avant 01:04:24).
 - **Valeurs vides** : toujours en fin de liste, dans les deux ordres.
 - **Égalité** : départagée par la date, la plus récente d'abord.
 
@@ -104,7 +104,7 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 | Date | Une année, ou une période du … au … | Les courses de 2025 |
 | Texte | Le champ contient le texte tapé, sans tenir compte des majuscules ni des accents | « sete » trouve « Sète » |
 | Choix | Une ou plusieurs valeurs cochées, parmi celles présentes dans le tableau | Trail découverte et Trail court |
-| Nombre et durée | Minimum, maximum, ou les deux ; une durée s'écrit 2h, 1h30, 49'18… | Temps sous 2 h |
+| Nombre et durée | Minimum, maximum, ou les deux ; une durée s'écrit 2h, 1h30, 00:49:18… | Temps sous 2 h |
 
 - **Panneau de filtres** : un bouton « Filtres », au-dessus du tableau, ouvre un panneau avec un réglage par colonne affichée. Le bouton indique le nombre de filtres actifs (« Filtres · 2 »). Le même bouton, ou « Réduire les filtres » en bas du panneau, le referme ; les filtres restent actifs.
 - À côté du bouton : le nombre de courses affichées, par exemple « 4 courses sur 7 », et, dès qu'un filtre est actif, une action unique qui les efface tous.
@@ -130,7 +130,7 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 ## 9. Plus d'infos : choix des colonnes
 
-- Un bouton « + », en bout de ligne d'en-tête, ouvre la liste de toutes les colonnes (§ 2), chacune avec une case à cocher ; il devient « − » tant que la liste est ouverte.
+- Un bouton à contour « Colonnes + » (infobulle « Ajouter ou retirer des colonnes »), en bout de ligne d'en-tête, ouvre la liste de toutes les colonnes (§ 2), chacune avec une case à cocher ; son signe devient « − » tant que la liste est ouverte.
 - Au départ, les colonnes affichées par défaut sont cochées, les facultatives décochées.
 - Date et Course restent toujours affichées.
 - Cocher une colonne l'affiche, la décocher la masque. Masquer une colonne retire son filtre et, si elle était triée, ramène le tri par date.
@@ -140,7 +140,7 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre outil.
 
-- **Ajouter** : un bouton rond « + », tout à droite au-dessus du tableau (« Ajouter une course » au survol), ouvre un formulaire vide.
+- **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre un formulaire vide.
 - **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre le même formulaire, rempli. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
 - **Formulaire**, en panneau par-dessus la page, en quatre blocs ; les deux derniers sont repliés à l'ouverture d'un formulaire vide :
 
@@ -156,7 +156,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 - **Contrôles de saisie** :
   - seuls les formats du type choisi sont proposés ; pour un trail, celui qui correspond à la distance (§ 3) est choisi d'office, et reste modifiable ;
   - nombres positifs ; date du jour ou passée ;
-  - durées : `49:18`, `1:56:05`, `1h56'05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
+  - durées : `49:18`, `1:56:05`, `01:56:05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
   - allure ou vitesse : l'une suffit, l'autre se calcule à l'affichage (§ 4).
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
 - **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler**, ou le bouton « × » en haut du formulaire (toujours visible), ferme sans rien changer.
@@ -174,7 +174,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 | Date | Jour, mois abrégé, année | 4 oct. 2026 |
 | Distance | Kilomètres, une décimale | 21,1 km |
 | D+ | Mètres | 932 m |
-| Temps | Minutes et secondes ; heures en plus au-delà d'une heure | 49'18 · 1h56'05 |
+| Temps | Toujours heures:minutes:secondes, sur deux chiffres chacune | 00:49:18 · 01:56:05 |
 | Allure | Minutes:secondes par kilomètre | 5:24 /km |
 | Vitesse | Kilomètres par heure, une décimale | 11,1 km/h |
 | Classement | Place, suivie de l'effectif quand il est connu ; première place « 1re » pour une coureuse (sexe renseigné dans le Profil), « 1er » sinon | 1 951e · 476e / 873 · 1re |
@@ -182,7 +182,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 **Page et téléphone**
 
-- La page n'a pas d'en-tête : elle commence par la barre fine et le menu, puis la barre (Filtres, regroupement, « + Ajouter ») et le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1).
+- La page n'a pas d'en-tête : elle commence par la barre fine et le menu, puis la barre (Filtres, regroupement, « + Ajouter une course ») et le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1).
 - Téléphone tenu en hauteur : le tableau défile sur le côté ; une ligne, sous la barre, invite à tourner le téléphone : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » (un site ne peut pas tourner l'écran lui-même sur iPhone).
 - Téléphone tenu en largeur : une ligne par course, sans retour à la ligne dans les cellules ; le tableau défile sur le côté s'il le faut. Ni invitation, ni sur ordinateur.
 
@@ -192,13 +192,13 @@ Jeu d'essai de sept courses :
 
 | Date | Course | Type | Format | Distance | D+ | Temps | Allure |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 30 mars 2025 | 10 km de Montauban | Course sur route | 10 km | 10,1 km | 24 m | 51'46 | 5:08 /km |
-| 13 sept. 2025 | Épicurienne Trail | Trail | Trail découverte | 10,7 km | 199 m | 1h04'24 | 6:00 /km |
-| 5 oct. 2025 | Semi-marathon de Sète | Course sur route | Semi-marathon | 20,8 km | 56 m | 1h53'12 | 5:24 /km |
-| 30 nov. 2025 | Biscatrail | Trail | Trail découverte | 18,3 km | 340 m | 2h02'30 | 6:35 /km |
-| 8 mars 2026 | Forez Trail · L'Olmetoise | Trail | Trail court | 24,1 km | 932 m | 3h00'23 | 7:18 /km |
-| 29 mars 2026 | 10 km de Montauban | Course sur route | 10 km | 10,0 km | 24 m | 49'18 | 4:55 /km |
-| 4 oct. 2026 | Semi de San Sebastián | Course sur route | Semi-marathon | 21,1 km | — | 1h56'05 | 5:30 /km |
+| 30 mars 2025 | 10 km de Montauban | Course sur route | 10 km | 10,1 km | 24 m | 00:51:46 | 5:08 /km |
+| 13 sept. 2025 | Épicurienne Trail | Trail | Trail découverte | 10,7 km | 199 m | 01:04:24 | 6:00 /km |
+| 5 oct. 2025 | Semi-marathon de Sète | Course sur route | Semi-marathon | 20,8 km | 56 m | 01:53:12 | 5:24 /km |
+| 30 nov. 2025 | Biscatrail | Trail | Trail découverte | 18,3 km | 340 m | 02:02:30 | 6:35 /km |
+| 8 mars 2026 | Forez Trail · L'Olmetoise | Trail | Trail court | 24,1 km | 932 m | 03:00:23 | 7:18 /km |
+| 29 mars 2026 | 10 km de Montauban | Course sur route | 10 km | 10,0 km | 24 m | 00:49:18 | 4:55 /km |
+| 4 oct. 2026 | Semi de San Sebastián | Course sur route | Semi-marathon | 21,1 km | — | 01:56:05 | 5:30 /km |
 
 Classement (colonne facultative) : 1 951e pour le semi de San Sebastián, vide pour les six autres.
 
@@ -206,32 +206,32 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 
 - À l'ouverture : le semi de San Sebastián en premier, le 10 km de Montauban du 30 mars 2025 en dernier.
 - Tri par course, de A à Z : 10 km de Montauban (2026, puis 2025), Biscatrail, Épicurienne Trail, Forez Trail · L'Olmetoise, Semi de San Sebastián, Semi-marathon de Sète.
-- Tri par temps : 10 km de Montauban 2026 (49'18) en premier, Forez Trail · L'Olmetoise (3h00'23) en dernier.
+- Tri par temps : 10 km de Montauban 2026 (00:49:18) en premier, Forez Trail · L'Olmetoise (03:00:23) en dernier.
 - Tri par D+, dans un sens comme dans l'autre : le semi de San Sebastián, sans D+, reste en dernier.
 - Tri par classement, une fois la colonne affichée : le semi de San Sebastián en premier, puis les six courses sans classement.
 - Filtre sur l'année 2025 : « 4 courses sur 7 ».
 - Recherche « montauban » dans Course : « 2 courses sur 7 ». Recherche « sete » : « 1 course sur 7 », le semi-marathon de Sète.
-- Records 🥇 : le 10 km de Montauban du 29 mars 2026 (49'18) et le semi-marathon de Sète (1h53'12). Aucun pour les trails.
-- Si l'on supprime le 10 km de Montauban du 29 mars 2026, le 🥇 du 10 km passe à celui du 30 mars 2025 (51'46).
+- Records 🥇 : le 10 km de Montauban du 29 mars 2026 (00:49:18) et le semi-marathon de Sète (01:53:12). Aucun pour les trails.
+- Si l'on supprime le 10 km de Montauban du 29 mars 2026, le 🥇 du 10 km passe à celui du 30 mars 2025 (00:51:46).
 - À l'ouverture, aucune colonne facultative n'est affichée.
 - Décocher D+ dans la liste des colonnes : la colonne disparaît ; la recocher : elle revient. Date et Course n'ont pas de case à décocher.
 - Colonne Vitesse affichée : 11,1 km/h en italique pour le semi-marathon de Sète, calculée depuis 5:24 /km ; 12,2 km/h pour le 10 km de Montauban 2026, calculée depuis 4:55 /km.
 - Un classement saisi 476 sur 873 s'affiche « 476e / 873 » et se trie comme 476.
 - Première visite : le tableau s'ouvre groupé par type.
 - « Grouper par type » activé : intertitre « Course sur route · 4 courses », puis « Trail · 3 courses » ; la colonne Type disparaît.
-- Groupé, tri par temps : groupe route 49'18, 51'46, 1h53'12, 1h56'05 ; groupe trail 1h04'24, 2h02'30, 3h00'23.
+- Groupé, tri par temps : groupe route 00:49:18, 00:51:46, 01:53:12, 01:56:05 ; groupe trail 01:04:24, 02:02:30, 03:00:23.
 - Groupé, filtre sur l'année 2025 : 2 courses dans chaque groupe, compteur « 4 courses sur 7 ».
 - Toucher l'intertitre Trail : ses lignes disparaissent, l'intertitre reste ; le toucher à nouveau les fait revenir.
 - Recharger la page : le regroupement est toujours actif. Le désactiver : retour à la vue globale, colonne Type comprise.
 - Une course marquée non terminée affiche « DNF » dans Temps, sans 🥇, et se range en fin de liste au tri par temps.
-- Ajouter une course « Test », 1er octobre 2026, Course sur route · 10 km, temps saisi `4500` : elle apparaît avec 45'00, et prend le 🥇 du 10 km.
+- Ajouter une course « Test », 1er octobre 2026, Course sur route · 10 km, temps saisi `4500` : elle apparaît avec 00:45:00, et prend le 🥇 du 10 km.
 - Formulaire sans parcours, ou avec une distance négative : « Enregistrer » reste sans effet, l'erreur est signalée sous le champ.
 - Type Trail, distance 24 : le format proposé est Trail court.
-- Modifier la course « Test » (temps `5200`) : 52'00, le 🥇 revient au 49'18.
+- Modifier la course « Test » (temps `5200`) : 00:52:00, le 🥇 revient au 00:49:18.
 - Supprimer la course « Test » : une confirmation est demandée ; après accord, elle disparaît.
-- Site partagé en lecture seule : ni bouton « + » ni crayon ; toucher une ligne n'ouvre rien.
+- Site partagé en lecture seule : ni bouton « Ajouter une course » ni crayon ; toucher une ligne n'ouvre rien.
 - Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre son formulaire.
-- Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + ».
+- Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + Course ».
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
 - Téléphone : le formulaire tient dans la largeur de l'écran ; « × » reste visible quand on fait défiler, et le ferme.

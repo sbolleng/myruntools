@@ -79,8 +79,7 @@
 .ob-cand .ob-nom a::after { border-radius: 0; }
 
 /* ----- Page d'une course : sans en-tête ; la carte en grand, puis les textes repliables ----- */
-/* Une colonne de lecture, sur ordinateur comme sur téléphone. */
-.pc { max-width: 40rem; }
+/* Même largeur que les autres pages (main) : pas de limite propre. */
 .pc-retour { display: inline-block; margin-bottom: 1.2rem; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
 .pc-sur { display: flex; flex-wrap: wrap; gap: 0 0.5rem; }
 .pc-titre { margin: 0.45rem 0 0.3rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }

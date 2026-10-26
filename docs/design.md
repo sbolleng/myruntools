@@ -1,6 +1,6 @@
 # Design
 
-Version 0.12 · 26 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.13 · 26 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -122,11 +122,12 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 ## 7. Barre et lignes du Palmarès
 
-- **Barre** : « Filtres », bouton à contour (§ 1), en Accent quand un filtre est actif ou le panneau ouvert ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter », bouton principal, pour ajouter une course.
+- **Barre** : « Filtres », bouton à contour (§ 1), en Accent quand un filtre est actif ou le panneau ouvert ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter une course » (« + Course » sur téléphone), bouton principal.
 - **Tableau** : dans son cadre (§ 1). Groupes : titre repliable (§ 1), filet en Bordure dessous.
 - **Téléphone tenu en hauteur** : sous la barre, « ↻ Tourne ton téléphone pour voir toutes les colonnes. », 0,8 rem, Texte discret. **Tenu en largeur** : une ligne par course (pas de retour à la ligne dans les cellules), cadre resserré.
 - **Compteur** « X courses sur Y » à droite du regroupement, 0,8 rem, Texte discret ; sur téléphone, il passe sous les boutons.
-- **Bouton des colonnes** (« + » en bout d'en-tête) : la taille et la couleur des flèches de tri, Accent quand la liste est ouverte.
+- **Bouton des colonnes** (« Colonnes + » en bout d'en-tête) : petit bouton à contour, libellé en capitales Space Mono 0,65 rem, Texte discret, Accent quand la liste est ouverte.
+- **Largeur** : toutes les pages ont la même largeur de contenu sur ordinateur (960 px, marges de 2 rem), page d'une course comprise ; seule la connexion garde sa colonne étroite.
 - **Crayon** : trait fin, Texte discret comme les flèches de tri, visible seulement au survol de la ligne (Accent sous le pointeur) ; la ligne survolée s'éclaire légèrement (Surface 2). Sur écran tactile : pas de crayon, la ligne entière s'ouvre au toucher.
 
 ## 8. Menu

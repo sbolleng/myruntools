@@ -57,7 +57,7 @@
   // Ordre de tri au premier appui sur un en-tête ; le second appui l'inverse.
   const FIRST_DIR = { date: 'desc', text: 'asc', choice: 'asc', number: 'asc', duration: 'asc' };
   const UNIT = { km: 'km', m: 'm', bpm: 'bpm', kmh: 'km/h', rank: 'place' };
-  const HINT = { time: 'ex. 2h', pace: 'ex. 5:30' };
+  const HINT = { time: 'ex. 02:00:00', pace: 'ex. 5:30' };
   // Pas d'entonnoir parmi les emojis : on le dessine, comme les flèches, plus
   // lisibles en icônes qu'en caractères.
   // Boutons ronds (regroupement, ajout) et crayon : icônes dessinées, dans les nuances des flèches de tri.
@@ -98,7 +98,7 @@
 
   function fmtTime(sec) {
     const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
-    return h ? h + 'h' + pad(m) + "'" + pad(s) : m + "'" + pad(s);
+    return pad(h) + ':' + pad(m) + ':' + pad(s);
   }
   function fmtDate(iso) {
     const p = iso.split('-').map(Number);
@@ -253,7 +253,7 @@
         '<button type="button" class="pv2-rond mrt-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
         '<span class="pv2-count" aria-live="polite"></span>' +
         '<button type="button" class="pv2-clear mrt-lien" data-act="clear" hidden>Effacer les filtres</button>' +
-        (cfg.editable ? '<button type="button" class="pv2-add mrt-btn is-principal" data-act="add" title="Ajouter une course">' + PLUS + 'Ajouter</button>' : '') +
+        (cfg.editable ? '<button type="button" class="pv2-add mrt-btn is-principal" data-act="add" title="Ajouter une course">' + PLUS + '<span class="pv2-add-long">Ajouter une course</span><span class="pv2-add-court">Course</span></button>' : '') +
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
@@ -314,7 +314,7 @@
         const label = esc(c.label.slice(0, cut)) + '<span class="pv2-nw">' + esc(c.label.slice(cut)) + SORT_ICON + '</span>';
         return '<th aria-sort="' + aria + '"><button type="button" class="pv2-sort" data-sort="' + c.key + '">' + label + '</button></th>';
       }).join('') +
-        '<th class="pv2-more-cell"><button type="button" class="pv2-more" data-act="cols" aria-expanded="' + !colsPanel.hidden + '" aria-controls="' + uid + '-cols" aria-label="Plus d\'infos : choix des colonnes" title="Plus d\'infos">' + (colsPanel.hidden ? '+' : '−') + '</button></th></tr>';
+        '<th class="pv2-more-cell"><button type="button" class="pv2-more" data-act="cols" aria-expanded="' + !colsPanel.hidden + '" aria-controls="' + uid + '-cols" aria-label="Ajouter ou retirer des colonnes" title="Ajouter ou retirer des colonnes"><span class="pv2-more-txt">Colonnes</span><span class="pv2-more-sign">' + (colsPanel.hidden ? '+' : '−') + '</span></button></th></tr>';
 
       const line = r => '<tr>' + cols.map(c => {
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
@@ -377,7 +377,7 @@
       colsPanel.hidden = !open;
       const b = $('.pv2-more');
       b.setAttribute('aria-expanded', String(open));
-      b.textContent = open ? '−' : '+';
+      b.querySelector('.pv2-more-sign').textContent = open ? '−' : '+';
     }
 
     root.addEventListener('click', e => {
