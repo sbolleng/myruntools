@@ -71,9 +71,10 @@
   // nombre, entier, duree, case), bloc, obligatoire. Deux formulaires : une course courue (Palmarès) et une
   // course à venir (Objectif).
   const CHAMPS_COURUE = [
-    ['date', 'Date', 'date', 'course', true],
+    // Champs communs dans l'ordre du formulaire d'Objectif.
     ['course', 'Course', 'texte', 'course', true],
     ['parcours', 'Parcours', 'texte', 'course'],
+    ['date', 'Date', 'date', 'course', true],
     ['type', 'Type', 'choix', 'course', true],
     ['format', 'Format', 'choix', 'course', true],
     ['distance', 'Distance (km)', 'nombre', 'course'],

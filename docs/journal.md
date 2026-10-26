@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 26 oct. 2026 | Formulaires | Les champs communs aux formulaires du Palmarès et d'Objectif suivent l'ordre d'Objectif : course, parcours, date, type, format, distance, D+, rôle. |
 | 26 oct. 2026 | Formulaires | Correctif téléphone : champs à 16 px sur écran tactile, pour empêcher le zoom de l'iPhone qui coupait le formulaire (contrôle ajouté au banc d'essai). |
 | 26 oct. 2026 | Palmarès | Bouton Filtres rond à trois traits (nombre de filtres actifs en pastille) ; panneau inchangé dans son ouverture mais en pastilles (Trier par, années, types, formats, colonnes) ; regroupement laissé dans la barre. |
 | 26 oct. 2026 | Palmarès | Intertitres du regroupement par type en Accent (orange du thème par défaut), plus gros et en gras. |

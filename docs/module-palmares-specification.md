@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.11 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.12 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -146,7 +146,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Date (seule sur sa ligne) ; course et parcours ; type et format ; distance et D+ ; rôle |
+| Course | Course et parcours ; date (seule sur sa ligne) ; type et format ; distance et D+ ; rôle — les champs communs dans le même ordre que le formulaire d'Objectif |
 | Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure, vitesse |
 | Classements | Place et effectif : général, catégorie, sexe |
 | Montre | Distance, D+, temps, allure, vitesse, FC moyenne |
