@@ -34,7 +34,9 @@
     }
     return NaN;
   }
-  const fmtDuree = s => (s == null ? '' : s >= 3600 ? Math.floor(s / 3600) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60) : Math.floor(s / 60) + ':' + pad(s % 60));
+  // Temps : toujours hh:mm:ss. Allure (par km) : m:ss.
+  const fmtDuree = s => (s == null ? '' : pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
+  const fmtAllure = s => (s == null ? '' : Math.floor(s / 60) + ':' + pad(s % 60));
   const parseNombre = str => { const s = String(str || '').trim().replace(',', '.'); return s === '' ? null : (isNaN(s) ? NaN : Number(s)); };
   const trailSelonDistance = km => (km < 21 ? 'trail_decouverte' : km < 42 ? 'trail_court' : km < 80 ? 'trail_long' : 'trail_ultra');
 
@@ -79,7 +81,7 @@
     ['role', 'Rôle', 'choix', 'course'],
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
-    ['allure', 'Allure (par km)', 'duree', 'resultat'],
+    ['allure', 'Allure (par km)', 'allure', 'resultat'],
     ['vitesse', 'Vitesse (km/h)', 'nombre', 'resultat'],
     ['place', 'Place au général', 'entier', 'classements'],
     ['effectif', 'Effectif du général', 'entier', 'classements'],
@@ -90,7 +92,7 @@
     ['montre_distance', 'Distance (km)', 'nombre', 'montre'],
     ['montre_dplus', 'D+ (m)', 'entier', 'montre'],
     ['montre_temps', 'Temps', 'duree', 'montre'],
-    ['montre_allure', 'Allure (par km)', 'duree', 'montre'],
+    ['montre_allure', 'Allure (par km)', 'allure', 'montre'],
     ['montre_vitesse', 'Vitesse (km/h)', 'nombre', 'montre'],
     ['fc_moyenne', 'FC moyenne (bpm)', 'entier', 'montre']
   ];
@@ -183,12 +185,12 @@
         input = '<textarea id="' + id + '" data-k="' + k + '" rows="3"' + max + '>' + esc(valeur == null ? '' : valeur) + '</textarea>' +
           (k === 'description' ? '<p class="fc-compte" data-compte="' + k + '"></p>' : '');
       } else {
-        const v = genre === 'duree' ? fmtDuree(valeur)
+        const v = genre === 'duree' ? fmtDuree(valeur) : genre === 'allure' ? fmtAllure(valeur)
           : genre === 'heure' ? (valeur ? String(valeur).slice(0, 5) : '')
           : genre === 'date' && venir && c.date_approx && valeur ? String(valeur).slice(0, 7)
           : valeur == null ? '' : genre === 'nombre' ? String(valeur).replace('.', ',') : String(valeur);
         const type = genre === 'date' ? (venir && c.date_approx ? 'month' : 'date') : genre === 'dateLibre' ? 'date' : 'text';
-        const saisie = genre === 'nombre' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
+        const saisie = genre === 'nombre' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'allure' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
         const borne = genre !== 'date' ? '' : venir ? ' min="' + (c.date_approx ? today().slice(0, 7) : today()) + '"' : ' max="' + today() + '"';
         input = '<input type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + saisie + borne + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
       }
@@ -328,7 +330,7 @@
             if (!msg) v += '-01';
           } else if (venir && v && v < today() && v !== c.date) msg = 'La date d\'une course à venir ne peut pas être dans le passé.';
           else if (!venir && v && v > today()) msg = 'La date d\'une course courue ne peut pas être dans le futur.';
-        } else if (genre === 'duree') {
+        } else if (genre === 'duree' || genre === 'allure') {
           v = parseDuree(el.value);
           if (Number.isNaN(v)) msg = 'Durée illisible (' + AIDE[k] + ').';
           else if (v === 0) msg = 'La durée doit être positive.';

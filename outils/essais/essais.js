@@ -225,8 +225,10 @@ const CONTROLES = {
     const pb = [
       egal(7, l.length, 'nombre de courses'),
       egal(true, /San Sebasti/.test(l[0]), 'San Sebastián en premier'),
-      egal(true, /Montauban/.test(l[6]) && /51'46|0:51:46/.test(l[6]), 'Montauban 2025 en dernier'),
+      egal(true, /Montauban/.test(l[6]) && /00:51:46/.test(l[6]), 'Montauban 2025 en dernier : temps en hh:mm:ss'),
       egal(2, l.filter(x => x.includes('🥇')).length, 'records 🥇'),
+      egal(['Ajouter une course', 'COLONNES +'], await p.evaluate(() => [document.querySelector('.pv2-add').innerText.trim(), document.querySelector('.pv2-more').innerText.trim().replace(/\s+/g, ' ')]), 'boutons explicites : Ajouter une course, Colonnes +'),
+      egal(true, await p.evaluate(() => [...document.querySelectorAll('#palmares tbody td.pv2-n')].map(td => td.textContent).filter(x => /^\d+:\d\d:\d\d$|^\d+:\d\d \/km$|^—$|^\d/.test(x)).every(x => !/['h]/.test(x))), 'temps sans h ni apostrophe'),
       egal('7 courses sur 7', await p.evaluate(() => document.querySelector('.pv2-count').textContent), 'compteur'),
       egal([], erreurs, 'erreurs JavaScript')
     ];
@@ -244,6 +246,14 @@ const CONTROLES = {
     pb.push(egal(true, (await paysage(390, 844)).invitation, 'téléphone en hauteur : « Tourne ton téléphone… »'));
     pb.push(egal({ invitation: false, uneLigne: true }, await paysage(844, 390), 'téléphone en largeur : une ligne par course'));
     pb.push(egal(false, (await paysage(1200, 900)).invitation, 'ordinateur : pas d\'invitation'));
+    // Largeur homogène : le contenu de chaque page (main) a la même largeur sur ordinateur.
+    const largeurs = [];
+    for (const pg of ['index.html', 'objectif.html', 'palmares.html', 'preferences.html', 'course.html?id=' + db.courses[0].id]) {
+      const o = await ouvrir(nav, pg, 1200, db);
+      largeurs.push(await o.p.evaluate(() => Math.round(document.querySelector('main').getBoundingClientRect().width)));
+      await o.ctx.close();
+    }
+    pb.push(egal(true, largeurs.every(w => w === largeurs[0]), 'ordinateur : même largeur de contenu sur toutes les pages (' + largeurs.join(', ') + ')'));
     return pb;
   },
   // Préférences : thème, menu, cap, lecture seule (module-preferences-specification.md).
@@ -459,11 +469,11 @@ const CONTROLES = {
     pb.push(egal(['is-suivante | Corrida de Noël'], r.nav, 'page Trail du Lac, pas de course précédente'));
     [r] = await pageCourse(id(7));
     pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
-    // Ordinateur : une colonne de lecture (40 rem), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
+    // Ordinateur : même largeur que les autres pages (main 960 px, marges 2 rem), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
     ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
-    pb.push(egal({ largeur: 640, cadre: '1px', textes: 5, ouverts: 5, repliable: 'none' }, await p.evaluate(() => ({ largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
+    pb.push(egal({ largeur: 896, cadre: '1px', textes: 5, ouverts: 5, repliable: 'none' }, await p.evaluate(() => ({ largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
       cadre: getComputedStyle(document.querySelector('.pc-fiche')).borderTopWidth, textes: document.querySelectorAll('.pc-cellule').length,
-      ouverts: document.querySelectorAll('.pc-cellule[open]').length, repliable: getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents })), 'ordinateur : colonne, fiche encadrée, textes ouverts'));
+      ouverts: document.querySelectorAll('.pc-cellule[open]').length, repliable: getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents })), 'ordinateur : pleine largeur, fiche encadrée, textes ouverts'));
     await ctx.close();
     // Téléphone : rien ne dépasse, compteur sur une ligne, fiche dans le premier écran, textes repliés sauf le premier.
     ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 390, db, {}, PARIS));

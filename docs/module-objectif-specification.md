@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.15 · 25 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.16 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -397,7 +397,7 @@ Résultats attendus, page d'une course :
 - Trail des Gorges, textes dans cet ordre : Rôle dans la préparation, Stratégie ou enchaînement, Logistique, Description, Liens (Site officiel, Inscription, Résultats en direct).
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
 - Corrida de Noël : fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; ni ligne D−, ni ligne Prix ; seul le texte Liens (Site officiel).
-- Ordinateur : une colonne de 40 rem (640 px) ; la fiche encadrée ; les cinq textes ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
+- Ordinateur : pleine largeur de page, comme les autres pages ; la fiche encadrée ; les cinq textes ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
 - Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien « ← Feuille de route ».
