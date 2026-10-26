@@ -54,5 +54,5 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : repasse de style sur tout le site (règles communes du design § 1 ; en-tête sur l'Accueil et la feuille de route seulement, engrenage au bout du menu ; page d'une course sans en-tête, fiche encadrée et textes repliables ; Palmarès en paysage sur téléphone).
+- Dernier lot en ligne : repasse de style sur tout le site (règles communes du design § 1 ; en-tête sur l'Accueil et la feuille de route, ailleurs une barre fine « Cap sur … » et l'engrenage ; page d'une course sans en-tête, fiche encadrée et textes repliables ; Palmarès en paysage sur téléphone).
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.

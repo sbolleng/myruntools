@@ -92,10 +92,11 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 
 ### 3.4 Page d'une course
 
-Sans en-tête : la page commence par le menu du site (onglet Objectif en avant) ; l'en-tête ne ferait que concurrencer le titre de la page. Une seule colonne de lecture, sur ordinateur comme sur téléphone (40 rem de large au plus). Plan de page (numéros stables) :
+Sans en-tête : la barre fine (« Cap sur … » et l'engrenage), puis le menu du site (onglet Objectif en avant) ; l'en-tête ne ferait que concurrencer le titre de la page. Une seule colonne de lecture, sur ordinateur comme sur téléphone (40 rem de large au plus). Plan de page (numéros stables) :
 
 ```
-┌─ menu : … Objectif …                                         ⚙ ─┐
+┌─ barre fine : Cap sur L'OCC                                  ⚙ ─┐
+│ menu : … Objectif …                                              │
 ├──────────────────────────────────────────────────────────────────┤
 │ (1) ← Feuille de route                                           │
 │ (2) RÔLE · ÉTAPE x SUR y                                         │

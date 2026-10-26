@@ -1,10 +1,10 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.2 · 25 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.3 · 26 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
-La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage ⚙️, dernier onglet du menu ; elle n'a pas d'en-tête et n'est pas un module.
+La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage ⚙️ (en-tête, ou barre fine) ; elle a la barre fine à la place de l'en-tête et n'est pas un module du menu.
 
 - **Ce qu'elle ne contient pas** : les données du coureur (Profil) et son équipement (Matériel), pour qu'une donnée ne se saisisse qu'à un seul endroit.
 - **Hors périmètre** : la présentation visuelle (document de design) ; le changement de mot de passe (connexion par lien magique seulement, voir la todo).
@@ -70,7 +70,7 @@ Jeu d'essai, à la date du 20 octobre 2026 : thème Bleu et orange, aucun choix 
 
 Résultats attendus :
 
-- L'engrenage, dernier onglet du menu, ouvre la page, où il est mis en avant ; la page n'a pas d'en-tête ; elle ne figure pas parmi les modules du menu.
+- L'engrenage ouvre la page ; elle a la barre fine (« Cap sur … » et l'engrenage), pas l'en-tête ; elle ne figure pas dans le menu.
 - Sans connexion, la page renvoie vers la connexion sans rien afficher.
 - Les blocs se suivent dans cet ordre : Compte, Cap, Thème, Menu, Partage ; aucun thème ne porte de mention.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
