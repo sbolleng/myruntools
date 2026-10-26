@@ -1,0 +1,80 @@
+// ===== Captures pour les maquettes =====
+//
+// Photographie les pages du site, téléphone (390 px) et ordinateur (1200 px), avec les données
+// fictives du banc d'essai et les vraies polices : une maquette en image coûte une capture,
+// pas un dessin. Usage, depuis ce dossier :
+//   node captures.js                          toutes les pages, du site de ce dossier, dans captures/pages
+//   node captures.js course,palmares          quelques pages seulement
+//   node captures.js course ../../../en-ligne captures/avant
+//                                             une autre copie du site (ex. git archive origin/main), pour un avant/après
+// Pages : accueil, connexion, objectif, course, candidat, palmares, filtres, preferences,
+//         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
+const path = require('path');
+const E = __dirname + '/';
+const { chromium } = require('playwright');
+const fs = require('fs');
+const [filtre, racineArg, sortieArg] = process.argv.slice(2);
+const racine = path.resolve(racineArg || path.join(__dirname, '../..')) + '/';
+const sortie = path.resolve(sortieArg || path.join(__dirname, 'captures/pages'));
+const LIB = fs.readFileSync(E + 'node_modules/@supabase/supabase-js/dist/umd/supabase.js', 'utf8');
+const src = fs.readFileSync(E + 'essais.js', 'utf8');
+const a = src.indexOf('function jeuObjectif(db0) {'), b = src.indexOf('\n}\n', a) + 2;
+const jeuObjectif = eval('(' + src.slice(a, b) + ')');
+const { db, id } = jeuObjectif(JSON.parse(fs.readFileSync(E + 'donnees-fictives.json', 'utf8')));
+const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
+const PAGES = {
+  accueil: { url: 'index.html' },
+  connexion: { url: 'connexion.html', anonyme: true },
+  objectif: { url: 'objectif.html' },
+  course: { url: 'course.html?id=' + id(3) },
+  candidat: { url: 'course.html?id=' + id(4) },
+  palmares: { url: 'palmares.html' },
+  filtres: { url: 'palmares.html', action: async p => { await p.locator('.pv2-btn').first().click(); } },
+  preferences: { url: 'preferences.html' },
+  'fiche-a-venir': { url: 'objectif.html', hauteur: { tel: 1900, ordi: 1500 }, action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-panneau'); } },
+  'palmares-paysage': { url: 'palmares.html', largeurs: { paysage: [844, 390] } },
+  'fiche-courue': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-panneau'); } }
+};
+const LARG = { tel: [390, 844], ordi: [1200, 900] };
+fs.mkdirSync(sortie, { recursive: true });
+(async () => {
+  const nav = await chromium.launch(fs.existsSync('/opt/pw-browsers/chromium') ? { executablePath: '/opt/pw-browsers/chromium' } : {});
+  for (const [nom, cfg] of Object.entries(PAGES)) {
+    if (filtre && filtre !== 'toutes' && !filtre.split(',').includes(nom)) continue;
+    for (const [l, [w, h]] of Object.entries(cfg.largeurs || LARG)) {
+      const ctx = await nav.newContext({ viewport: { width: w, height: (cfg.hauteur && cfg.hauteur[l]) || h }, deviceScaleFactor: 2, timezoneId: 'Europe/Paris' });
+      await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+      await ctx.route(PROJET + '/**', route => {
+        const u = new URL(route.request().url());
+        if (route.request().method() !== 'GET') return route.fulfill({ contentType: 'application/json', body: '[]' });
+        if (u.pathname.startsWith('/rest/v1/rpc/')) return route.fulfill({ contentType: 'application/json', body: '[]' });
+        const table = u.pathname.split('/').pop();
+        const f = [...u.searchParams].filter(([k]) => !['select', 'order'].includes(k));
+        const lignes = (db[table] || []).filter(x => f.every(([k, v]) => String(x[k]) === v.replace(/^eq\./, '')));
+        const une = (route.request().headers()['accept'] || '').includes('vnd.pgrst.object');
+        return route.fulfill({ contentType: 'application/json', body: JSON.stringify(une ? lignes[0] || null : lignes) });
+      });
+      const p = await ctx.newPage();
+      p.on('pageerror', e => console.log(nom, l, 'erreur', e.message));
+      const maintenant = new Date('2026-10-20T10:00:00+02:00');
+      await p.clock.install({ time: maintenant });
+      await p.goto('file://' + racine + 'connexion.html');
+      if (!cfg.anonyme) {
+        const t = Math.floor(maintenant / 1000);
+        await p.evaluate(() => localStorage.setItem('mrt-palmares-groupe', '0'));
+        await p.evaluate(s => localStorage.setItem('sb-gifrpodrwesuhtgkxbuc-auth-token', s), JSON.stringify({
+          access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
+        await p.goto('file://' + racine + cfg.url);
+        await p.waitForSelector('.mrt-nav');
+      }
+      await p.clock.runFor(1500);
+      if (cfg.action) await cfg.action(p);
+      await p.evaluate(() => document.fonts.ready);
+      await p.waitForTimeout(600);
+      await p.screenshot({ path: sortie + '/' + nom + '-' + l + '.png' });
+      await p.screenshot({ path: sortie + '/' + nom + '-' + l + '-page.png', fullPage: true });
+      await ctx.close();
+    }
+  }
+  await nav.close();
+})();
