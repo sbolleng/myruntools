@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.10 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.11 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -101,12 +101,12 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 
 | Type de donnée | Filtre | Exemple |
 | --- | --- | --- |
-| Date | Une année, ou une période du … au … | Les courses de 2025 |
+| Date | Une année (pastilles « Toutes », 2026, 2025…), ou une période du … au … | Les courses de 2025 |
 | Texte | Le champ contient le texte tapé, sans tenir compte des majuscules ni des accents | « sete » trouve « Sète » |
-| Choix | Une ou plusieurs valeurs cochées, parmi celles présentes dans le tableau | Trail découverte et Trail court |
+| Choix | Une ou plusieurs pastilles choisies, parmi les valeurs présentes dans le tableau | Trail découverte et Trail court |
 | Nombre et durée | Minimum, maximum, ou les deux ; une durée s'écrit 2h, 1h30, 00:49:18… | Temps sous 2 h |
 
-- **Panneau de filtres** : un bouton « Filtres », au-dessus du tableau, ouvre un panneau avec un réglage par colonne affichée. Le bouton indique le nombre de filtres actifs (« Filtres · 2 »). Le même bouton, ou « Réduire les filtres » en bas du panneau, le referme ; les filtres restent actifs.
+- **Panneau de filtres** : un bouton rond « Filtres » (trois traits), au-dessus du tableau, ouvre un panneau qui se déplie au-dessus du tableau : d'abord « Trier par » (une pastille par colonne affichée ; toucher celle du tri en cours inverse le sens, ↓ ou ↑), puis un réglage par colonne affichée. Les choix se font par pastilles (choisie : pleine) et s'appliquent aussitôt. Le bouton porte le nombre de filtres actifs en pastille. Le même bouton, ou « Réduire les filtres » en bas du panneau, le referme ; les filtres restent actifs.
 - À côté du bouton : le nombre de courses affichées, par exemple « 4 courses sur 7 », et, dès qu'un filtre est actif, une action unique qui les efface tous.
 - Les filtres de plusieurs colonnes se cumulent : une course doit les passer tous.
 - Plusieurs valeurs cochées dans une même colonne : une seule suffit.
@@ -130,7 +130,7 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 ## 9. Plus d'infos : choix des colonnes
 
-- Un bouton à contour « Colonnes + » (infobulle « Ajouter ou retirer des colonnes »), en bout de ligne d'en-tête, ouvre la liste de toutes les colonnes (§ 2), chacune avec une case à cocher ; son signe devient « − » tant que la liste est ouverte.
+- Un bouton à contour « Colonnes + » (infobulle « Ajouter ou retirer des colonnes »), en bout de ligne d'en-tête, ouvre la liste de toutes les colonnes (§ 2), chacune en pastille, pleine quand elle est affichée ; son signe devient « − » tant que la liste est ouverte.
 - Au départ, les colonnes affichées par défaut sont cochées, les facultatives décochées.
 - Date et Course restent toujours affichées.
 - Cocher une colonne l'affiche, la décocher la masque. Masquer une colonne retire son filtre et, si elle était triée, ramène le tri par date.
@@ -231,6 +231,7 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Supprimer la course « Test » : une confirmation est demandée ; après accord, elle disparaît.
 - Site partagé en lecture seule : ni bouton « Ajouter une course » ni crayon ; toucher une ligne n'ouvre rien.
 - Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre son formulaire.
+- Ouvrir les filtres : « Trier par » montre « Date↓ » ; la pastille Trail donne « 3 courses sur 7 » et un « 1 » sur le bouton Filtres ; la pastille 2025 filtre l'année, « Toutes » rétablit les 7 ; la pastille Temps trie du plus court au plus long (« Temps↑ »).
 - Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + Course ».
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».

@@ -1,6 +1,6 @@
 # Design
 
-Version 0.14 · 26 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.15 · 26 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -19,7 +19,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 | Le reste en blanc et gris | Valeurs et noms en Texte ; libellés et informations secondaires en Texte discret ; liens dans le texte soulignés, en Texte. |
 | Capitales pour les libellés seulement | Libellés de données (à gauche ou au-dessus d'une valeur, d'un champ, en-tête de colonne). Onglets, boutons, titres de section en casse normale. |
 | Tout dans un cadre | Chaque bloc de la page a son cadre (fond Surface, bordure fine, coins de 8 px) : tableau du Palmarès, carte d'une étape, fiche d'une course, liste des textes d'une course, Préférences (un cadre pour toute la page), panneaux. Dans un cadre, les sections sont séparées par un filet (Bordure). Jamais de cadre dans un cadre. |
-| Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien). À contour : bordure fine, texte en Texte (Annuler, Filtres, Retenir cette course). Rond : une icône (+, crayon, regroupement, flèches, fermer). Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Effacer les filtres) ; Alerte pour Supprimer. Tous en casse normale, Accent au survol. |
+| Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien). À contour : bordure fine, texte en Texte (Annuler, Retenir cette course). Rond : une icône (filtres, crayon, regroupement, flèches, fermer). Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Effacer les filtres) ; Alerte pour Supprimer. Tous en casse normale, Accent au survol. |
 | Un seul titre repliable | Chevron à gauche, titre en Texte, 600, casse normale : textes d'une course, blocs du formulaire, groupes du Palmarès. |
 
 Les boutons, liens d'action et sections sont des éléments communs de la feuille de style partagée (`mrt-btn`, `mrt-rond`, `mrt-lien`, `mrt-section`) : un module les reprend, il ne les redessine pas.
@@ -122,11 +122,12 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 ## 7. Barre et lignes du Palmarès
 
-- **Barre** : « Filtres », bouton à contour (§ 1), en Accent quand un filtre est actif ou le panneau ouvert ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter une course » (« + Course » sur téléphone), bouton principal.
+- **Barre** : « Filtres », bouton rond (§ 1) à trois traits de plus en plus courts, en Accent quand un filtre est actif ou le panneau ouvert, le nombre de filtres actifs en petite pastille Accent en haut à droite ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter une course » (« + Course » sur téléphone), bouton principal.
 - **Tableau** : dans son cadre (§ 1). Groupes : titre repliable (§ 1), filet en Bordure dessous.
 - **Téléphone tenu en hauteur** : sous la barre, « ↻ Tourne ton téléphone pour voir toutes les colonnes. », 0,8 rem, Texte discret. **Tenu en largeur** : une ligne par course (pas de retour à la ligne dans les cellules), cadre resserré.
 - **Compteur** « X courses sur Y » à droite du regroupement, 0,8 rem, Texte discret ; sur téléphone, il passe sous les boutons.
 - **Bouton des colonnes** (« Colonnes + » en bout d'en-tête) : petit bouton à contour, libellé en capitales Space Mono 0,65 rem, Texte discret, Accent quand la liste est ouverte.
+- **Pastilles** (panneau des filtres, tri, colonnes) : arrondies, contour Bordure, texte Texte 0,8 rem ; choisie : fond Accent, texte Fond. Libellés de rubrique comme les légendes (Space Mono, capitales, Texte discret).
 - **Intertitres du regroupement par type** : Space Grotesk 700, 0,95 rem, en Accent (orange dans le thème par défaut), chevron compris, pour repérer d'un coup d'œil Trail, Course sur route…
 - **Largeur** : toutes les pages ont la même largeur de contenu sur ordinateur (960 px, marges de 2 rem), page d'une course comprise ; seule la connexion garde sa colonne étroite.
 - **Crayon** : trait fin, Texte discret comme les flèches de tri, visible seulement au survol de la ligne (Accent sous le pointeur) ; la ligne survolée s'éclaire légèrement (Surface 2). Sur écran tactile : pas de crayon, la ligne entière s'ouvre au toucher.
