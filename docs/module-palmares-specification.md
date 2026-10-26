@@ -182,7 +182,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 **Page et téléphone**
 
-- La page n'a pas d'en-tête : elle commence par le menu, puis la barre (Filtres, regroupement, « + ») et le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1).
+- La page n'a pas d'en-tête : elle commence par la barre fine et le menu, puis la barre (Filtres, regroupement, « + ») et le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1).
 - Téléphone tenu en hauteur : le tableau défile sur le côté ; une ligne, sous la barre, invite à tourner le téléphone : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » (un site ne peut pas tourner l'écran lui-même sur iPhone).
 - Téléphone tenu en largeur : une ligne par course, sans retour à la ligne dans les cellules ; le tableau défile sur le côté s'il le faut. Ni invitation, ni sur ordinateur.
 

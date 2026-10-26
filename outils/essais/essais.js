@@ -167,10 +167,11 @@ const CONTROLES = {
           titre: q('h1 em').textContent,
           stats: [...document.querySelectorAll('.mrt-stat')].map(s => s.querySelector('.mrt-stat-val').textContent.replace(/ /g, ' ') + ' | ' + s.querySelector('.mrt-stat-label').textContent),
           prochaine: q('.mrt-next').textContent,
-          compteurEnBas: Math.round(box('.mrt-count').bottom - box('.mrt-stats').bottom),
+          compteurEnBas: Math.round(box('.mrt-bas').bottom - box('.mrt-stats').bottom),
           gauche: Math.round(box('.mrt-count').left - box('.mrt-stats').left),
           marqueVsTitre: Math.round(box('.mrt-brand').top - box('h1').top),
-          compteurSousIndicateurs: box('.mrt-count').top >= box('.mrt-stats').bottom,
+          compteurSousTitre: box('.mrt-count').top >= box('h1').bottom && box('.mrt-count').bottom <= box('.mrt-stats').top,
+          prochaineSousIndicateurs: box('.mrt-next').top >= box('.mrt-stats').bottom,
           droite: Math.round(box('.mrt-count').right - box('.mrt-brand').right),
           debordement: document.documentElement.scrollWidth > innerWidth
         };
@@ -181,7 +182,8 @@ const CONTROLES = {
         egal(['60 km / 3 500 m D+ | Distance', 'août 2029 | Date', 'Finisher | Objectif', "12 courses | D'ici là"], r.stats, nom + ', indicateurs'),
         egal('prochaine course · Trail du Lac · J-26', r.prochaine, nom + ', prochaine course'),
         egal(0, r.marqueVsTitre, nom + ', MyRunTools à la hauteur de « Cap sur »'),
-        ...(tel ? [egal(true, r.compteurSousIndicateurs, nom + ', compteur sous les indicateurs'),
+        ...(tel ? [egal(true, r.compteurSousTitre, nom + ', compteur sous le titre, au-dessus des indicateurs'),
+                   egal(true, r.prochaineSousIndicateurs, nom + ', prochaine course à part, sous les indicateurs'),
                    egal(0, r.gauche, nom + ', compteur aligné à gauche')]
                 : [egal(0, r.droite, nom + ', compteur aligné à droite'),
                    egal(0, r.compteurEnBas, nom + ', bas du compteur au niveau du bas des indicateurs')]),
@@ -196,19 +198,16 @@ const CONTROLES = {
     const { p, ctx } = await ouvrir(nav, 'index.html', 1200, sansDplus);
     pb.push(egal('60 km', await p.evaluate(() => document.querySelector('.mrt-stat-val').textContent), 'sans D+, Distance'));
     await ctx.close();
-    // L'en-tête sur l'Accueil et la feuille de route seulement ; partout, le menu finit par l'engrenage (Préférences).
+    // L'en-tête sur l'Accueil et la feuille de route ; ailleurs une barre fine : « Cap sur … » (vers l'Accueil) et l'engrenage.
     for (const [page, entete] of [['index.html', true], ['objectif.html', true], ['palmares.html', false], ['preferences.html', false], ['course.html?id=00000000-0000-0000-0001-000000000020', false]]) {
       const o = await ouvrir(nav, page, 390, db);
-      pb.push(egal({ entete, reglages: true, actif: page === 'preferences.html' }, await o.p.evaluate(() => {
-        const r = [...document.querySelectorAll('.mrt-tab')].pop();
-        return { entete: !!document.querySelector('.mrt-header'), reglages: r.classList.contains('mrt-tab-reglages') && r.getAttribute('href').endsWith('preferences.html'), actif: r.classList.contains('is-on') };
-      }), page.replace(/\?.*/, '') + ' : en-tête et engrenage'));
+      pb.push(egal({ entete, barre: entete ? null : 'Cap sur Trail des Crêtes', engrenage: true, actif: page === 'preferences.html', menuSansEngrenage: true }, await o.p.evaluate(() => {
+        const g = document.querySelector('.mrt-gear'), b = document.querySelector('.mrt-barre-cap');
+        return { entete: !!document.querySelector('.mrt-header'), barre: b ? b.textContent : null, engrenage: !!g && g.getAttribute('href').endsWith('preferences.html'),
+          actif: g.classList.contains('is-on'), menuSansEngrenage: !document.querySelector('.mrt-nav .mrt-gear') };
+      }), page.replace(/\?.*/, '') + ' : en-tête, barre fine et engrenage'));
       await o.ctx.close();
     }
-    // Téléphone, Palmarès ouvert : l'onglet ramené dans la barre ne passe pas sous l'engrenage.
-    const o = await ouvrir(nav, 'palmares.html', 390, db);
-    pb.push(egal(true, await o.p.evaluate(() => document.querySelector('.mrt-tab.is-on').getBoundingClientRect().right <= document.querySelector('.mrt-tab-reglages').getBoundingClientRect().left + 1), 'téléphone : onglet ouvert visible, à gauche de l\'engrenage'));
-    await o.ctx.close();
     return pb;
   },
 
@@ -251,7 +250,7 @@ const CONTROLES = {
     const pb = [];
     let { p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, db);
     const q = (sel, f) => p.evaluate(([s, fn]) => new Function('x', 'return ' + fn)(document.querySelector(s)), [sel, f]);
-    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab:not(.mrt-tab-reglages)')].map(t => t.textContent));
+    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => t.textContent));
     // Attend la réponse de la base (vraie attente : la date du jour est figée).
     const attendre = async () => {
       for (let i = 0; i < 80; i++) {
@@ -267,8 +266,8 @@ const CONTROLES = {
       await p.goto(RACINE + 'preferences.html'); await p.waitForSelector('.mrt-nav'); await p.clock.runFor(1500);
       return cap;
     };
-    pb.push(egal([true, true, false], await p.evaluate(() => { const r = document.querySelector('.mrt-tab-reglages');
-      return [r.getAttribute('href').endsWith('preferences.html'), r.classList.contains('is-on'), !!document.querySelector('.mrt-header')]; }), 'engrenage : onglet ouvert, page sans en-tête'));
+    pb.push(egal([true, true, false, true], await p.evaluate(() => { const g = document.querySelector('.mrt-barre .mrt-gear');
+      return [g.getAttribute('href').endsWith('preferences.html'), g.classList.contains('is-on'), !!document.querySelector('.mrt-header'), !!document.querySelector('.mrt-barre')]; }), 'engrenage dans la barre fine, page sans en-tête'));
     pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors des modules du menu'));
     pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
     pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise'], await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes, sans mention'));

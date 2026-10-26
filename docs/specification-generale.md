@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.15 · 25 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.16 · 26 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -29,7 +29,7 @@ Chaque page suit le même gabarit, de haut en bas :
 2. **Menu** (§ 5), sur toutes les pages.
 3. **Contenu du module**.
 
-L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur l'Accueil et la feuille de route (Palmarès, Préférences, page d'une course…), la page commence par le menu : l'en-tête n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
+L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur l'Accueil et la feuille de route (Palmarès, Préférences, page d'une course…), une barre fine remplace l'en-tête : « Cap sur » et le nom du cap (vers l'Accueil), et l'engrenage ; l'en-tête complet n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
 
 **Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu : le nom de l'application, une accroche (« La boîte à outils du coureur »), un champ « Adresse e-mail », un bouton « Recevoir le lien de connexion » et une ligne d'aide qui accueille aussi les messages (envoi, erreur). Le lien n'est envoyé qu'aux comptes existants ; au retour du lien, l'utilisateur arrive connecté sur l'accueil.
 
@@ -55,12 +55,13 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | --- | --- |
 | Titre | « Cap sur » sur une ligne, puis le nom officiel de la course objectif, en couleur d'accent, sur la ligne suivante |
 | Indicateurs | Une valeur, avec son libellé dessous. Dans l'ordre : Distance, Date, Objectif, D'ici là |
-| Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. Sur ordinateur, en bas à droite de l'en-tête, son bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, à gauche |
-| Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
+| Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. Sur ordinateur, en bas à droite de l'en-tête, son bas au niveau du bas des indicateurs ; sur téléphone, sur une ligne, juste sous le nom de la course, à gauche |
+| Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours ; sur téléphone, à part, sous les indicateurs et un filet. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
+| Engrenage ⚙️ | À droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |
 
-L'engrenage ⚙️, qui ouvre les Préférences, n'est plus dans l'en-tête : il est le dernier onglet du menu (§ 5), visible sur toutes les pages.
+**Barre fine**, sur les pages sans en-tête : « Cap sur » et le nom du cap à gauche, discrets, qui mènent à l'Accueil ; l'engrenage à droite.
 
 ### Indicateurs
 
@@ -94,8 +95,7 @@ L'engrenage ⚙️, qui ouvre les Préférences, n'est plus dans l'en-tête : il
 ## 5. Menu
 
 - Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur, dans l'ordre qu'il a choisi (§ 8). L'onglet de la page ouverte est mis en avant.
-- Dernier onglet : l'engrenage ⚙️, qui ouvre les Préférences ; il reste collé au bord droit de la barre, même quand elle défile, et il est mis en avant sur la page des Préférences.
-- Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené, sans passer sous l'engrenage. Elle reste visible en haut de l'écran quand on fait défiler la page.
+- Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené. Elle reste visible en haut de l'écran quand on fait défiler la page.
 
 ## 6. Thèmes
 
@@ -122,7 +122,7 @@ Pour que Cette semaine fonctionne, chaque module devra pouvoir dire ce qui compt
 
 ## 8. Préférences utilisateur
 
-Page ouverte par l'engrenage, dernier onglet du menu ; elle n'est pas un module. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit. Détail : [spécification des Préférences](module-preferences-specification.md).
+Page ouverte par l'engrenage de l'en-tête ou de la barre fine ; elle n'est pas un module du menu. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit. Détail : [spécification des Préférences](module-preferences-specification.md).
 
 | Réglage | Effet |
 | --- | --- |
@@ -200,9 +200,9 @@ Résultats attendus :
 - Une seule course avant l'objectif : « 1 course ».
 - Sans objectif renseigné : l'indicateur Objectif affiche « — ».
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
-- L'engrenage, dernier onglet du menu, ouvre la page des Préférences utilisateur, où il est mis en avant ; le menu ne montre que les modules choisis, dans l'ordre choisi.
-- L'en-tête figure sur l'Accueil et la feuille de route, pas sur le Palmarès, les Préférences ni la page d'une course, qui commencent par le menu.
-- Téléphone, page du Palmarès : l'onglet Palmarès est visible, à gauche de l'engrenage.
+- L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
+- L'en-tête figure sur l'Accueil et la feuille de route ; le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
+- Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
 - Page de connexion : ni en-tête ni menu ; une adresse inconnue reçoit le message « Lien non envoyé » ; le lien reçu ramène sur l'accueil, connecté.
 - A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son site » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · site de A ».

@@ -1,6 +1,6 @@
 # Design
 
-Version 0.10 · 25 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.11 · 26 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -85,12 +85,12 @@ Sur l'Accueil et la feuille de route seulement (spécification générale, § 3)
 
 ### Disposition
 
-- **Marges** : 3 rem en haut, 2 rem sur les côtés et en bas ; 1,25 rem en haut et sur les côtés, 1,1 rem en bas sur téléphone. Contenu centré, 960 px de large au plus.
-- **Nom de l'application** : en haut à droite, son haut aligné sur le haut de « Cap sur », à toutes les largeurs d'écran. L'engrenage n'est plus dans l'en-tête : il est le dernier onglet du menu (§ 8).
+- **Marges** : 1,75 rem en haut, 2 rem sur les côtés, 1,5 rem en bas ; 1,25 rem en haut et sur les côtés, 1,1 rem en bas sur téléphone. Contenu centré, 960 px de large au plus.
+- **Nom de l'application et engrenage** : en haut à droite, leur haut aligné sur le haut de « Cap sur », à toutes les largeurs d'écran.
 - **Ordinateur** : deux colonnes, 2 rem entre elles. À gauche le titre, puis les indicateurs, espacés de 2 rem, 1,5 rem sous le titre, qui passent à la ligne faute de place ; à droite, en haut le nom de l'application, en bas le compte à rebours et la prochaine course, alignés à droite, leur bas au niveau du bas des indicateurs.
-- **Téléphone** (600 px et moins) : une seule colonne, serrée, pour que la page commence dans le premier écran (environ 300 px d'en-tête). Le titre à 1,75 rem, sur toute la largeur, le nom de l'application en haut à droite face à « Cap sur » ; les indicateurs sur deux colonnes, 1 rem sous le titre ; puis, 1 rem plus bas, le nombre de jours, « jours » et les heures sur une ligne, la prochaine course dessous, alignés à gauche.
+- **Téléphone** (600 px et moins) : une seule colonne, serrée, pour que la page commence dans le premier écran (environ 300 px d'en-tête). Le titre à 1,75 rem, sur toute la largeur, le nom de l'application et l'engrenage en haut à droite face à « Cap sur » ; juste sous le nom de la course, le compte à rebours sur une ligne (nombre de jours à 1,6 rem, « jours », les heures), dont il fait partie ; les indicateurs sur deux colonnes, 1 rem plus bas ; enfin la prochaine course, à part, sous un filet (Bordure), 0,75 rem, alignée à gauche.
 - **« Cap sur »** ne se coupe jamais : il tient sur une ligne, le nom de la course dessous.
-- **Filet** : barre de 5 px, 2 rem sous le contenu (1,1 rem sur téléphone), toute la largeur ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
+- **Filet** : barre de 5 px, 1,5 rem sous le contenu (1,1 rem sur téléphone), toute la largeur ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
 - Une ligne fine (Bordure) sépare l'en-tête du menu.
 
 ## 5. Page de connexion
@@ -133,5 +133,5 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 - Onglets en Space Grotesk, casse normale, 0,8 rem, graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.
-- Dernier onglet : l'engrenage ⚙️ (Préférences), collé au bord droit de la barre, sur le Fond, même quand le menu défile ; souligné en Accent sur la page des Préférences.
+- **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Texte, 600 (0,8 rem, pas d'Accent, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite. Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.
 - Barre sur le Fond, ligne fine (Bordure) dessous ; elle reste collée en haut de l'écran au défilement ; défilement horizontal sans barre visible sur téléphone.

@@ -14,7 +14,7 @@
 //   courant    page ouverte, pour mettre son onglet en avant
 //   maintenant date du jour imposée (contrôles) ; sinon l'heure réelle
 //   racine     préfixe des liens, pour une page rangée dans un sous-dossier
-//   sansEnTete une barre fine à la place de l'en-tête (pages autres qu'Accueil et Objectif)
+//   sansEnTete une barre fine à la place de l'en-tête : « Cap sur … » et l'engrenage (pages autres qu'Accueil et Objectif)
 (function () {
   const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   // Thèmes : seules les couleurs changent ; le premier sert par défaut.
@@ -68,8 +68,8 @@
     ];
 
     // Nom de l'application (vers l'Accueil) et engrenage (vers les Préférences).
-    const marque = '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' +
-      '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>';
+    const engrenage = '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a>';
+    const marque = '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' + engrenage + '</div>';
     const header = document.createElement('header');
     header.className = 'mrt-header';
     header.innerHTML =
@@ -96,12 +96,12 @@
       return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
     }).join('') + '</div>';
 
-    // En-tête sur l'Accueil et la feuille de route seulement ; ailleurs une barre fine : le nom du site et l'engrenage.
+    // En-tête sur l'Accueil et la feuille de route seulement ; ailleurs une barre fine : le rappel du cap et l'engrenage.
     if (cfg.sansEnTete) {
       const barre = document.createElement('header');
       barre.className = 'mrt-barre';
       // Rappel du cap, discret (pas en Accent : il ne doit pas concurrencer le titre de la page).
-      barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien('index.html') + '">Cap sur <b>' + esc(o.nom || dash) + '</b></a>' + marque + '</div>';
+      barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien('index.html') + '">Cap sur <b>' + esc(o.nom || dash) + '</b></a>' + engrenage + '</div>';
       document.body.prepend(barre, nav);
     } else document.body.prepend(header, nav);
     // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
