@@ -4,6 +4,39 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 > Le dépôt est public : aucune donnée personnelle dans ces fichiers.
 
+## Mode d'emploi des discussions
+
+Chaque discussion lit d'abord `CLAUDE.md` (règles du projet), puis ce fichier. Mot d'ordre : économiser les jetons sans baisser la qualité.
+
+**Règles communes** (détail dans `CLAUDE.md`)
+
+- Français, tutoiement, réponses courtes et factuelles ; ne jamais inventer de données : demander.
+- Dépôt public : aucune donnée personnelle, aucun secret ; le pilote route est « le compte test Rome ».
+- D'abord un plan de page en texte (schéma numéroté, tableau des éléments, options avec une recommandation) ; maquette en image seulement à la demande ou pour trancher, après accord.
+- Cycle : spécification → validation → construction → banc d'essai → mise en ligne ; chaque décision : une ligne au journal.
+- Apparence : les règles communes du [design](design.md), § 1 (peu de couleur, capitales pour les libellés, un cadre pour les données, trois sortes de boutons, un seul titre repliable).
+- Git : branche de la session, fusion dans `main` (`--no-ff`), vérifier que la publication a réussi avant d'annoncer la mise en ligne.
+
+**Outils**
+
+| Outil | Où | Usage |
+| --- | --- | --- |
+| Todo | Ce fichier, « À faire » | Prochaines étapes dans l'ordre, questions ouvertes, idées |
+| Journal | [journal.md](journal.md) | Une ligne par décision, la plus récente en haut ; à lire seulement au besoin |
+| Spécifications | Sommaire ci-dessous | Une par module, avec plan de page, jeu d'essai et résultats attendus |
+| Banc d'essai | `outils/essais/` | `npm install` une fois par discussion, puis `node essais.js` : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; le Chromium de la session est pris d'office |
+| Captures | `outils/essais/captures.js` | Images des pages, téléphone et ordinateur, données fictives : la façon économique de faire une maquette (avant/après avec une copie du site en ligne) |
+
+**Modèle conseillé**
+
+| Travail | Modèle | Effort |
+| --- | --- | --- |
+| Conception, critique, repasse sur plusieurs pages, choix de design | Opus | élevé |
+| Lot bien cadré : spécification, construction d'après un plan validé, banc d'essai | Sonnet | moyen |
+| Petite retouche (un libellé, une couleur, une ligne de spécification) | Sonnet ou Haiku | faible |
+
+Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une longue : tout le contexte utile est dans le dépôt.
+
 ## Sommaire
 
 | Document | Contenu | État |

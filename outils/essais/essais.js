@@ -153,6 +153,12 @@ async function toucher(p, sel) {
   await p.mouse.click(b.x + 5, b.y + b.height / 2);
 }
 
+// Session Claude Code dans le nuage : Chromium y est déjà installé, à cet endroit ; ailleurs, celui de Playwright.
+function navigateur() {
+  const local = '/opt/pw-browsers/chromium';
+  return fs.existsSync(local) ? { executablePath: local } : {};
+}
+
 const egal = (attendu, obtenu, quoi) => (JSON.stringify(attendu) === JSON.stringify(obtenu) ? null : quoi + ' : attendu ' + JSON.stringify(attendu) + ', obtenu ' + JSON.stringify(obtenu));
 
 const CONTROLES = {
@@ -811,7 +817,7 @@ const CONTROLES = {
 (async () => {
   if (CAPTURES) fs.mkdirSync(path.join(__dirname, 'captures'), { recursive: true });
   const db = JSON.parse(fs.readFileSync(path.join(__dirname, 'donnees-fictives.json'), 'utf8'));
-  const nav = await chromium.launch();
+  const nav = await chromium.launch(navigateur());
   let echecs = 0;
   for (const [nom, f] of Object.entries(CONTROLES)) {
     const pb = (await f(nav, db)).filter(Boolean);
