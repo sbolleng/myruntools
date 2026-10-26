@@ -760,7 +760,7 @@ const CONTROLES = {
     o = await neuve(1200, COURSE(1), jour); ({ p, ctx } = o);
     pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'jour de la course : Marquer comme courue'));
     await p.click('[data-ob="marquer"]');
-    pb.push(egal(['Marquer comme courue', ['Course', 'Résultat', 'Classements', 'Montre'], 0], [await p.textContent('#fc-titre'),
+    pb.push(egal(['Marquer comme courue', ['Course', 'Dossard', 'Résultat', 'Classements', 'Montre'], 0], [await p.textContent('#fc-titre'),
       await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('.fc-supprimer').count()], 'marquer : formulaire du Palmarès, sans Supprimer'));
     pb.push(egal(['2026-10-20', 'Trail du Lac'], [await lire(p, '#fc-date'), await lire(p, '#fc-course')], 'marquer : pré-rempli'));
     await p.fill('#fc-temps', '2:40:00');
@@ -796,7 +796,9 @@ const CONTROLES = {
     // Palmarès : formulaire inchangé
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, db));
     await p.click('[data-act="add"]');
-    pb.push(egal(['Course', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : quatre blocs'));
+    pb.push(egal(['Course', 'Dossard', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : cinq blocs, dont Dossard'));
+    pb.push(egal(['fc-course', 'false', 'Numéro de dossard'], [await p.evaluate(() => document.activeElement.id), await p.getAttribute('[data-bloc="dossard"]', 'aria-expanded'),
+      (await p.textContent('label[for="fc-dossard"]')).trim()], 'Palmarès : curseur dans Course ; Dossard replié, avec le numéro'));
     await ctx.close();
 
     // Téléphone

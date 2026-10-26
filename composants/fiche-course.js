@@ -80,6 +80,7 @@
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['role', 'Rôle', 'choix', 'course'],
+    ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
     ['allure', 'Allure (par km)', 'allure', 'resultat'],
@@ -125,7 +126,7 @@
     ['lien', 'Site officiel', 'url', 'liens'],
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
   ];
-  const BLOCS_COURUE = [['course', 'Course'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
+  const BLOCS_COURUE = [['course', 'Course'], ['dossard', 'Dossard'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
   const BLOCS_VENIR = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['dossard', 'Dossard'], ['logistique', 'Logistique'], ['liens', 'Liens']];
   const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'À surveiller']];
   const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
@@ -234,7 +235,7 @@
     const $ = s => voile.querySelector(s);
     const val = k => voile.querySelector('[data-k="' + k + '"]');
     const avant = document.activeElement;
-    val(venir ? 'course' : 'date').focus();
+    val('course').focus();
 
     function fermer() {
       voile.remove();
