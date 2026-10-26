@@ -16,6 +16,12 @@
 //   racine     préfixe des liens, pour une page rangée dans un sous-dossier
 //   sansEnTete une barre fine à la place de l'en-tête : « Cap sur … » et l'engrenage (pages autres qu'Accueil et Objectif)
 (function () {
+  // iPhone et iPad : pas de zoom automatique sur un champ touché (Safari garde ensuite la page agrandie,
+  // formulaire coupé). Safari ignore maximum-scale pour le zoom à deux doigts, qui reste possible.
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    const vp = document.querySelector('meta[name="viewport"]');
+    if (vp && !/maximum-scale/.test(vp.content)) vp.content += ', maximum-scale=1';
+  }
   const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   // Thèmes : seules les couleurs changent ; le premier sert par défaut.
   const THEMES = ['bleu-orange', 'vert-rose', 'violet-turquoise'];

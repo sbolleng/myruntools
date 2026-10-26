@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.12 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.13 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -142,11 +142,12 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 - **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre un formulaire vide.
 - **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre le même formulaire, rempli. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
-- **Formulaire**, en panneau par-dessus la page, en quatre blocs ; les deux derniers sont repliés à l'ouverture d'un formulaire vide :
+- **Formulaire**, en panneau par-dessus la page, en cinq blocs ; Dossard, Classements et Montre sont repliés à l'ouverture d'un formulaire vide, et le curseur est dans le champ Course :
 
 | Bloc | Champs |
 | --- | --- |
 | Course | Course et parcours ; date (seule sur sa ligne) ; type et format ; distance et D+ ; rôle — les champs communs dans le même ordre que le formulaire d'Objectif |
+| Dossard | Numéro de dossard, comme dans le formulaire d'Objectif |
 | Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure, vitesse |
 | Classements | Place et effectif : général, catégorie, sexe |
 | Montre | Distance, D+, temps, allure, vitesse, FC moyenne |

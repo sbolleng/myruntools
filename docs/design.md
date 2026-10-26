@@ -1,6 +1,6 @@
 # Design
 
-Version 0.16 · 26 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.17 · 26 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -111,7 +111,7 @@ Sobre, sans en-tête ni menu, centrée dans la page, 22 rem de large au plus.
 Ils reprennent le style du site : rien de nouveau, des éléments déjà présents.
 
 - **Panneau de formulaire** : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes ; sur téléphone, il occupe tout l'écran et défile, sans jamais déborder sur les côtés.
-- **Champs sur écran tactile** : texte à 16 px au moins (tous les formulaires du site), sinon Safari sur iPhone zoome sur le champ touché et la page déborde.
+- **Champs sur écran tactile** : texte à 16 px au moins (tous les formulaires du site), sinon Safari sur iPhone zoome sur le champ touché et la page déborde. Sur iPhone et iPad, le site ajoute en plus `maximum-scale=1` à la balise viewport : plus de zoom automatique, le zoom à deux doigts reste possible.
 - **Fermer** : bouton rond « × » en haut à droite (§ 1), Accent au survol ; le titre et ce bouton restent visibles quand le formulaire défile. « Annuler », en bas, ferme aussi.
 - **Case « Non terminée (DNF) »** : juste sous le champ Temps, en texte discret, pour montrer qu'elle s'y rapporte.
 - **Nombres** : virgule décimale (« 24,4 »).
