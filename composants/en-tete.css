@@ -31,7 +31,7 @@ th { text-align: left; padding: 0.6rem 0.75rem; font-family: 'Space Mono', monos
 td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 
 /* ----- En-tête ----- */
-.mrt-header { padding: 3rem 2rem 2rem; border-bottom: 1px solid var(--border); }
+.mrt-header { padding: 1.75rem 2rem 1.5rem; border-bottom: 1px solid var(--border); }
 .mrt-brand {
   grid-area: marque;
   display: flex;
@@ -45,6 +45,11 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   color: var(--muted);
 }
 .mrt-brand a { color: inherit; text-decoration: none; }
+.mrt-gear { font-size: 0.9rem; letter-spacing: 0; line-height: 1; }
+/* Barre fine (pages sans en-tête) : le nom du site à gauche, l'engrenage à droite. */
+.mrt-barre { padding: 0.55rem 2rem; border-bottom: 1px solid var(--border); }
+.mrt-barre-in { max-width: 960px; margin: 0 auto; }
+.mrt-barre .mrt-brand { justify-content: space-between; }
 /* Deux colonnes : à gauche le titre et les indicateurs ; à droite le nom de l'application
    en haut, aligné sur « Cap sur », et le compteur en bas, aligné sur le bas des indicateurs. */
 .mrt-grid {
@@ -69,7 +74,7 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 .mrt-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text); }
 .mrt-stat-dplus { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
 .mrt-stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-.mrt-count { grid-area: compteur; text-align: right; }
+.mrt-bas { text-align: right; }
 .mrt-days { display: block; font-family: 'Space Mono', monospace; font-size: 3.5rem; font-weight: 700; color: var(--accent); line-height: 1; }
 .mrt-days-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .mrt-hms { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 0.15rem; }
@@ -107,26 +112,26 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 }
 .mrt-tab.is-on { color: var(--accent); border-bottom-color: var(--accent); }
 .mrt-tab.is-soon { opacity: 0.45; cursor: default; }
-/* Engrenage : dernier onglet, collé au bord droit même quand le menu défile. */
-.mrt-tab-reglages { position: sticky; right: 0; margin-left: auto; padding-left: 1rem; padding-right: 1rem; font-size: 0.95rem; line-height: 1.3; background: var(--bg); }
 
 @media (max-width: 600px) {
   body { font-size: 17px; }
   main { padding: 1.25rem; }
   /* Téléphone : une colonne, serrée, pour laisser la page commencer dans le premier écran.
-     Le nom de l'application en haut à droite, face à « Cap sur » ; le nom de la course sur toute la largeur ;
-     les indicateurs sur deux colonnes ; le compte à rebours sur une ligne. */
+     Le nom de l'application en haut à droite, face à « Cap sur » ; le compte à rebours juste sous le nom de la course,
+     dont il fait partie ; les indicateurs sur deux colonnes ; la prochaine course à part, sous un filet. */
   .mrt-header { padding: 1.25rem 1.25rem 1.1rem; }
-  .mrt-gauche, .mrt-droite { display: contents; }
-  .mrt-grid { position: relative; grid-template-columns: minmax(0, 1fr); grid-template-areas: "titre" "stats" "compteur"; }
-  .mrt-brand { position: absolute; top: 0; right: 0; }
+  .mrt-barre { padding: 0.5rem 1.25rem; }
+  .mrt-gauche, .mrt-droite, .mrt-bas { display: contents; }
+  .mrt-grid { position: relative; grid-template-columns: minmax(0, 1fr); grid-template-areas: "titre" "compteur" "stats" "prochaine"; }
+  .mrt-header .mrt-brand { position: absolute; top: 0; right: 0; }
   .mrt-header h1 { font-size: 1.75rem; }
   .mrt-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1rem; margin-top: 1rem; }
   .mrt-stat-val { font-size: 0.95rem; }
-  .mrt-count { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.5rem; margin-top: 1rem; text-align: left; }
-  .mrt-days { display: inline; font-size: 2rem; }
+  .mrt-count { grid-area: compteur; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.5rem; margin-top: 0.35rem; text-align: left; }
+  .mrt-days { display: inline; font-size: 1.6rem; }
   .mrt-hms { margin-top: 0; }
-  .mrt-next { flex-basis: 100%; margin-top: 0.2rem; }
+  .mrt-next { grid-area: prochaine; text-align: left; margin-top: 1rem; padding-top: 0.7rem; font-size: 0.75rem; border-top: 1px solid var(--border); }
+  .mrt-next:empty { display: none; }
   .mrt-bar { margin-top: 1.1rem; }
 }
 

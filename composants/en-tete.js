@@ -14,7 +14,7 @@
 //   courant    page ouverte, pour mettre son onglet en avant
 //   maintenant date du jour imposée (contrôles) ; sinon l'heure réelle
 //   racine     préfixe des liens, pour une page rangée dans un sous-dossier
-//   sansEnTete le menu seul, sans en-tête (pages autres qu'Accueil et Objectif)
+//   sansEnTete une barre fine à la place de l'en-tête (pages autres qu'Accueil et Objectif)
 (function () {
   const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   // Thèmes : seules les couleurs changent ; le premier sert par défaut.
@@ -67,6 +67,9 @@
       ["D'ici là", esc(o.dIciLa != null ? o.dIciLa + (o.dIciLa > 1 ? ' courses' : ' course') : dash)]
     ];
 
+    // Nom de l'application (vers l'Accueil) et engrenage (vers les Préférences).
+    const marque = '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' +
+      '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>';
     const header = document.createElement('header');
     header.className = 'mrt-header';
     header.innerHTML =
@@ -77,10 +80,10 @@
             '<div class="mrt-stat"><span class="mrt-stat-val">' + s[1] + '</span><span class="mrt-stat-label">' + esc(s[0]) + '</span></div>').join('') + '</div>' +
         '</div>' +
         '<div class="mrt-droite">' +
-          '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a></div>' +
-          '<div class="mrt-count">' +
+          marque +
+          '<div class="mrt-bas"><div class="mrt-count">' +
             '<span class="mrt-days">—</span><span class="mrt-days-label">jours</span>' +
-            '<div class="mrt-hms"></div><div class="mrt-next"></div></div>' +
+            '<div class="mrt-hms"></div></div><div class="mrt-next"></div></div>' +
         '</div>' +
       '</div>' +
       '<div class="mrt-bar"></div>';
@@ -91,18 +94,19 @@
       if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + esc(m.nom) + '</span>';
       const on = m.page === cfg.courant;
       return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
-    }).join('') +
-      // Préférences : l'engrenage, dernier onglet, toujours visible au bout du menu.
-      '<a class="mrt-tab mrt-tab-reglages' + (cfg.courant === 'preferences.html' ? ' is-on" aria-current="page' : '') + '" href="' + lien('preferences.html') +
-        '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a></div>';
+    }).join('') + '</div>';
 
-    // En-tête sur l'Accueil et la feuille de route seulement ; ailleurs le menu seul, la page commence tout en haut.
-    if (cfg.sansEnTete) { document.body.prepend(nav); } else document.body.prepend(header, nav);
-    // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible, sans passer sous l'engrenage.
-    const onTab = nav.querySelector('.is-on'), bar = nav.firstChild, reglages = nav.querySelector('.mrt-tab-reglages');
-    const visible = bar.clientWidth - (onTab === reglages ? 0 : reglages.offsetWidth);
-    if (onTab && onTab !== reglages && onTab.offsetLeft + onTab.offsetWidth > visible) {
-      bar.scrollLeft = onTab.offsetLeft - (visible - onTab.offsetWidth) / 2;
+    // En-tête sur l'Accueil et la feuille de route seulement ; ailleurs une barre fine : le nom du site et l'engrenage.
+    if (cfg.sansEnTete) {
+      const barre = document.createElement('header');
+      barre.className = 'mrt-barre';
+      barre.innerHTML = '<div class="mrt-barre-in">' + marque + '</div>';
+      document.body.prepend(barre, nav);
+    } else document.body.prepend(header, nav);
+    // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
+    const onTab = nav.querySelector('.is-on'), bar = nav.firstChild;
+    if (onTab && onTab.offsetLeft + onTab.offsetWidth > bar.clientWidth) {
+      bar.scrollLeft = onTab.offsetLeft - (bar.clientWidth - onTab.offsetWidth) / 2;
     }
 
     const $ = sel => header.querySelector(sel);
