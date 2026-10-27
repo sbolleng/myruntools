@@ -9,23 +9,22 @@
 <script>document.documentElement.classList.add('mrt-attente');</script>
 <title>MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
-<style>
-  .accueil { text-align: center; padding: 3rem 0; }
-  .accueil h2 { font-size: 2rem; margin-bottom: 0.5rem; }
-</style>
+<link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/accueil.css?v=__VERSION__">
 </head>
 <body>
 <main>
-  <div class="accueil">
-    <h2>MyRunTools</h2>
-    <p class="muted">La boîte à outils du coureur · en construction</p>
-  </div>
+  <div id="accueil"></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>
 <script src="composants/en-tete.js?v=__VERSION__"></script>
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
-<script>mrtPage({ courant: 'index.html' });</script>
+<script src="composants/objectif.js?v=__VERSION__"></script>
+<script src="composants/accueil.js?v=__VERSION__"></script>
+<script>
+  mrtPage({ courant: 'index.html' }).then(page => renderAccueil(document.getElementById('accueil'), page.courses, page.preferences()));
+</script>
 </body>
 </html>

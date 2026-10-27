@@ -18,6 +18,19 @@
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif
   window.mrtModules = MODULES;
+  // L'Accueil : toujours dans le menu, en premier (il ne se masque pas).
+  const ACCUEIL = { nom: 'Accueil', page: 'index.html' };
+  // Blocs de l'Accueil, dans l'ordre par défaut ; bientot : pas encore construit (grisé) ;
+  // masque : décoché par défaut.
+  window.mrtBlocsAccueil = [
+    { id: 'prochaine', nom: 'Prochaine course' },
+    { id: 'pensebete', nom: 'Pense-bête', bientot: true },
+    { id: 'nutrition', nom: 'Bilan nutrition', bientot: true },
+    { id: 'dicila', nom: 'D\'ici là' },
+    { id: 'derniere', nom: 'Dernière course', masque: true }
+  ];
+  // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête.
+  window.mrtDemarrage = prefs => (prefs && prefs.page_demarrage) || 'index.html';
 
   const pad = n => String(n).padStart(2, '0');
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
@@ -69,10 +82,16 @@
   // ne sont pas encore marquées courues (elles restent là jusqu'à ce qu'on saisisse leur résultat).
   window.mrtCoursesRoute = courses => courses.filter(c => c.etat === 'a_venir' && c.date && (c.date >= today() ? PLAN.has(c.statut) : c.statut === 'confirmee')).sort(parDate);
 
+  // Le cap : la course choisie dans les Préférences, sinon la plus lointaine à venir.
+  window.mrtCap = (courses, prefs) => {
+    const aVenir = window.mrtCoursesCap(courses);
+    return aVenir.find(c => c.id === (prefs || {}).course_cap) || aVenir[aVenir.length - 1] || null;
+  };
+
   function configEnTete(prefs, courses) {
     const aVenir = window.mrtCoursesCap(courses);
     prefs = prefs || {};
-    const cap = aVenir.find(c => c.id === prefs.course_cap) || aVenir[aVenir.length - 1] || null;
+    const cap = window.mrtCap(courses, prefs);
     let objectif = {};
     if (cap) {
       const avant = aVenir.filter(c => c.id !== cap.id && c.date < cap.date);
@@ -95,7 +114,7 @@
       theme: prefs.theme,
       objectif,
       prochaine: prochaine ? { nom: prochaine.course, date: prochaine.date } : null, // le nom de la course, pas du parcours
-      modules
+      modules: [ACCUEIL].concat(modules)
     };
   }
 
@@ -134,16 +153,34 @@
         try { localStorage.removeItem(VUE); } catch (e) { /* accord retiré */ }
       }
     }
+    // Arrivée sur le site (pas un clic depuis une de ses pages) : l'Accueil cède la place à la page de démarrage.
+    const demarrage = window.mrtDemarrage(prefs);
+    // Dans le site : une de ses pages a déjà été affichée dans cet onglet (en-tete.js retient « mrt-haut ») ;
+    // venir de la page de connexion compte comme une arrivée.
+    const depuisLeSite = (() => {
+      let deja = false;
+      try { deja = !!sessionStorage.getItem('mrt-haut'); } catch (e) { /* stockage indisponible */ }
+      return deja && !/connexion\.html(\?|$)/.test(document.referrer);
+    })();
+    if (opts.courant === 'index.html' && demarrage !== 'index.html' && !depuisLeSite) {
+      location.replace(demarrage + location.search);
+      return new Promise(() => {});
+    }
     let courses = [];
     try { courses = await lireCourses(qui); } catch (err) { console.warn('Courses : lecture impossible', err); }
     let prefsCourantes = prefs;
-    const dessiner = p => { prefsCourantes = p; window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant, sansEnTete: !!opts.sansEnTete })); };
+    // Grand en-tête sur la page de démarrage seulement ; ailleurs, la barre fine.
+    const dessiner = p => {
+      prefsCourantes = p;
+      const sansEnTete = !!opts.sansEnTete || opts.courant !== window.mrtDemarrage(p);
+      window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant, sansEnTete }));
+    };
     dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
     // La page s'affiche une fois que la suite de la page (then) a dessiné son contenu.
     setTimeout(window.mrtAfficher, 0);
     return {
-      session, courses, lectureSeule: !!proprietaire, proprietaire,
+      session, courses, lectureSeule: !!proprietaire, proprietaire, preferences: () => prefsCourantes || {},
       // Relit les courses et redessine l'en-tête (cap, compte à rebours) avec elles.
       relire: async () => { courses = await lireCourses(qui); dessiner(prefsCourantes); return courses; },
       redessiner: dessiner // en-tête et menu, avec d'autres préférences

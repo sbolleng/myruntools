@@ -41,7 +41,7 @@ Spécification → validation → modèle de données si besoin → construction
 
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
 - Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
-- `composants/` : composants partagés, avec leur feuille de style : en-tête et menu (`en-tete`, thèmes et éléments communs compris : boutons `mrt-btn`, `mrt-rond`, lien `mrt-lien`, section `mrt-section`), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), feuille de route et page d'une course (`objectif`), planning.
+- `composants/` : composants partagés, avec leur feuille de style : Accueil (`accueil`), en-tête et menu (`en-tete`, thèmes et éléments communs compris : boutons `mrt-btn`, `mrt-rond`, lien `mrt-lien`, section `mrt-section`), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), feuille de route et page d'une course (`objectif`), planning.
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise`, proposés à tous, choisis dans les Préférences seulement (plus de `?t=…` sur le site).
@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot en ligne : Objectif normé et champ Précisions (évolution 007 passée dans Supabase) ; avant : Palmarès, bouton Filtres rond et panneau en pastilles ; temps en hh:mm:ss, boutons « Ajouter une course » et « Colonnes + », largeur commune des pages ; repasse de style sur tout le site (règles communes du design § 1 ; en-tête sur l'Accueil et la feuille de route, ailleurs une barre fine « Cap sur … » et l'engrenage ; page d'une course sans en-tête, fiche encadrée et textes repliables ; Palmarès en paysage sur téléphone).
+- Dernier lot en ligne : Accueil en un coup d'œil, page de démarrage (seule avec le grand en-tête), passage animé (évolution 008) ; avant : Objectif normé et champ Précisions ; Palmarès, bouton Filtres rond et panneau en pastilles ; temps en hh:mm:ss, boutons « Ajouter une course » et « Colonnes + », largeur commune des pages ; repasse de style sur tout le site (règles communes du design § 1 ; en-tête sur l'Accueil et la feuille de route, ailleurs une barre fine « Cap sur … » et l'engrenage ; page d'une course sans en-tête, fiche encadrée et textes repliables ; Palmarès en paysage sur téléphone).
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

@@ -194,6 +194,8 @@ create table preferences (
   course_cap        uuid, -- vide : cap par défaut (la course la plus lointaine)
   palmares_colonnes text[],
   palmares_groupe   boolean not null default true,
+  page_demarrage    text check (page_demarrage ~ '^[a-z-]+\.html$'), -- vide : l'Accueil (index.html)
+  accueil_blocs     text[], -- blocs de l'Accueil, dans l'ordre ; vide : les blocs par défaut
   foreign key (utilisateur, course_cap) references courses (utilisateur, id) on delete set null (course_cap)
 );
 

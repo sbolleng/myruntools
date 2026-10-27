@@ -102,14 +102,26 @@
       return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
     }).join('') + '</div>';
 
-    // En-tête sur l'Accueil et la feuille de route seulement ; ailleurs une barre fine : le rappel du cap et l'engrenage.
+    // Grand en-tête sur la page de démarrage seulement ; ailleurs une barre fine : le rappel du cap et l'engrenage.
+    let haut = header;
     if (cfg.sansEnTete) {
       const barre = document.createElement('header');
       barre.className = 'mrt-barre';
       // Rappel du cap, discret (pas en Accent : il ne doit pas concurrencer le titre de la page).
       barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien('index.html') + '">Cap sur <b>' + esc(o.nom || dash) + '</b></a>' + engrenage + '</div>';
       document.body.prepend(barre, nav);
+      haut = barre;
     } else document.body.prepend(header, nav);
+    // Passage entre la page à grand en-tête et les autres : le grand en-tête se réduit en barre fine,
+    // ou la barre s'agrandit en en-tête (design.md, § 3). Retenu le temps de la visite.
+    const genre = cfg.sansEnTete ? 'barre' : 'entete';
+    let avant = null;
+    try { avant = sessionStorage.getItem('mrt-haut'); sessionStorage.setItem('mrt-haut', genre); } catch (e) { /* stockage indisponible */ }
+    const calme = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (avant && avant !== genre && !calme) {
+      haut.classList.add(genre === 'barre' ? 'is-retrecit' : 'is-deploie');
+      haut.addEventListener('animationend', () => haut.classList.remove('is-retrecit', 'is-deploie'), { once: true });
+    }
     // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
     const onTab = nav.querySelector('.is-on'), bar = nav.firstChild;
     if (onTab && onTab.offsetLeft + onTab.offsetWidth > bar.clientWidth) {
