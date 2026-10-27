@@ -35,7 +35,8 @@ th { text-align: left; padding: 0.6rem 0.75rem; font-family: 'Space Mono', monos
 td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 
 /* ----- En-tête ----- */
-.mrt-header { padding: 1.5rem 2rem 1.25rem; border-bottom: 1px solid var(--border); }
+/* La bande dégradée ferme l'en-tête : collée au menu, d'un bord à l'autre, sans filet ni vide dessous. */
+.mrt-header { padding: 1.5rem 2rem 0; }
 .mrt-brand {
   grid-area: marque;
   display: flex;
@@ -98,9 +99,8 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 .mrt-next { font-size: 0.65rem; color: var(--muted); margin-top: 0.2rem; }
 .mrt-next b { color: var(--text); font-weight: 600; }
 .mrt-bar {
-  width: 100%;
   height: 5px;
-  margin-top: 1.6rem;
+  margin: 1.6rem -2rem 0;
   background: linear-gradient(90deg,
     var(--surface2) 0%, var(--accent) 6%, var(--surface2) 9%,
     var(--accent2) 14%, var(--surface2) 18%, var(--accent) 24%,
@@ -136,7 +136,7 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
   /* Téléphone : une colonne, serrée, pour laisser la page commencer dans le premier écran.
      Le nom de l'application en haut à droite, face à « Cap sur » ; le compte à rebours juste sous le nom de la course,
      dont il fait partie ; les indicateurs sur deux colonnes ; la prochaine course à part, sous un filet. */
-  .mrt-header { padding: 1.25rem 1.25rem 1.1rem; }
+  .mrt-header { padding: 1.25rem 1.25rem 0; }
   .mrt-barre { padding: 0.5rem 1.25rem; }
   .mrt-gauche, .mrt-droite, .mrt-bas { display: contents; }
   .mrt-grid { position: relative; grid-template-columns: minmax(0, 1fr); grid-template-areas: "titre" "compteur" "stats" "prochaine"; }
@@ -149,7 +149,7 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
   .mrt-hms { margin-top: 0; }
   .mrt-next { grid-area: prochaine; text-align: left; margin-top: 1rem; padding-top: 0.7rem; font-size: 0.75rem; border-top: 1px solid var(--border); }
   .mrt-next:empty { display: none; }
-  .mrt-bar { margin-top: 1.1rem; }
+  .mrt-bar { margin: 1.1rem -1.25rem 0; }
 }
 
 /* Téléphone tenu en largeur : la taille de texte et les marges du téléphone. */
