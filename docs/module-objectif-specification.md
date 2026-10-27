@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.17 · 26 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.18 · 27 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -134,10 +134,11 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 | 6 | Infos | Lieu · format · jour abrégé, date, heure (« dim. 7 mars 2027, 7 h 30 ») | Texte discret ; un champ vide n'est pas affiché |
 | 7 | Groupe d'options | Nom du groupe et liens vers les autres candidates | Candidate d'un groupe seulement |
 | 8 | Actions | « Retenir cette course », « Marquer comme courue » | Boutons à contour (§ 3.7) |
-| 22 | Fiche | Les lignes de la carte de la feuille de route, complétées : 13, 9, 10, 11, 12, 14 | Encadrée comme une carte (un bloc de données garde son cadre) ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
+| 22 | Fiche | Les lignes de la carte de la feuille de route, complétées : 13, 9, 10, 11, 23, 12, 14 | Encadrée comme une carte (un bloc de données garde son cadre) ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
 | 13 | Départ dans | Compte à rebours (§ 5.1) | Les quatre cases de la carte ; pas pour une option au mois seul |
 | 9, 10 | Distance, D− | « 45 km · 2 100 m D+ », « 2 100 m » | Valeur en Texte |
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent 2, comme sur la carte |
+| 23 | Précisions | « Sous 6 h 45 dans tous les cas. » | Juste sous l'Objectif, valeur en Texte ; absente si vide ; ni sur la carte, ni dans l'en-tête |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit |
 | 14 | Prix | « 58 € » | Seulement s'il est connu |
 | 15 à 19 | Textes | Dans l'ordre ci-dessous, identique pour tous ; un texte vide n'est pas affiché | Liste à filets, dans un cadre ; titre en Texte, 600, casse normale, chevron à gauche |
@@ -240,14 +241,15 @@ Sur téléphone : le panneau passe en plein écran, une seule colonne, même ord
 | --- | --- |
 | Course | Course et parcours ; date, ou mois seul (case « Jour inconnu ») ; heure de départ ; lieu ; type et format ; description (1 000 caractères au plus) ; distance, D+ et D− |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
-| Préparation | Objectif ; rôle dans la préparation ; stratégie ou enchaînement |
+| Préparation | Objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Dossard | Case « Inscrit » ; numéro ; prix ; date d'ouverture des inscriptions ; site d'inscription |
 | Logistique | Logistique |
 | Liens | Site officiel ; résultats en direct |
 
 - **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course » et « Marquer comme courue » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein).
 - **Obligatoires** : course ; type et format ; date (ou mois) pour une course Confirmée ou Option. Une course À surveiller peut rester sans date.
-- **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 02:45:00, Finisher ou Sub 3h », « ex. https://… ».
+- **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 02:45:00, Finisher ou Sub 3h », « ex. Partir prudemment, sous 4 h dans tous les cas », « ex. https://… ».
+- **Objectif normé** : un temps `hh:mm:ss`, « Finisher », « Sub 3h » / « Sub 1h30 » ou « Sub 45 min » ; tout le reste (intention, fourchette, contexte) va dans Précisions.
 - **Contrôles de saisie** :
   - date du jour ou à venir (une date passée déjà enregistrée reste modifiable) ; heure : `07:30`, `7h30`, `730` ;
   - objectif : une durée, écrite comme dans le Palmarès (`2:45:00`, `2h45`, chiffres seuls lus par la droite) et rangée au format `hh:mm:ss` (« 02:45:00 ») ; ou « Finisher » ; ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). Majuscules remises à l'enregistrement (« finisher » devient « Finisher »). Autre chose : « Format attendu : 02:45:00, Finisher ou Sub 3h » ;

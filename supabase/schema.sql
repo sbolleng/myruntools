@@ -111,7 +111,8 @@ create table courses (
   ouverture_inscriptions date,
 
   -- Préparation
-  objectif   text, -- temps visé ou intention (« Finisher »)
+  objectif   text, -- normé : temps visé (« 02:45:00 »), « Finisher » ou « Sub 3h » / « Sub 45 min »
+  objectif_precisions text check (char_length(objectif_precisions) <= 100), -- texte libre qui accompagne l'objectif
   pourquoi   text, -- rôle dans la préparation
   strategie  text,
   logistique text,
