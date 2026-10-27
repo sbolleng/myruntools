@@ -108,6 +108,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Module | Rôle | Jalon |
 | --- | --- | --- |
 | Objectif | Feuille de route jusqu'à la course objectif ([spécification](module-objectif-specification.md)) | 1 |
+| Calendrier | Saison en trois vues : année, quatre semaines, plan d'une course ([spécification](module-calendrier-specification.md)) | 1 |
 | Nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
 | Courses à surveiller | Veille des courses envisagées : dates, ouverture des inscriptions, index UTMB | 2 |
 | Guide | Articles et fiches pratiques, publics ou privés | 2 |

@@ -47,6 +47,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.18 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.3 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.14 |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.2, lot 1 construit |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -85,7 +86,9 @@ Dans l'ordre :
 1. [ ] **Objectif** :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
-2. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
+3. [ ] **Calendrier** : [spécification 0.2](module-calendrier-specification.md) validée ; lot 1 (vue Année) construit ; restent le lot 2 (modèle de données : durées de prépa, phases, séances) et le lot 3 (vues 4 semaines et plan d'une course, rubrique « Préparer »).
+   - Durées de prépa par format : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
+   - Plus tard : import des séances depuis une application ; génération d'un plan par IA.
 3. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
 4. [ ] **Profil et Matériel** :
    - Profil : état civil, poids, taille, pointure.
@@ -109,7 +112,7 @@ Dans l'ordre :
 
 Idées notées pour plus tard, sans jalon.
 
-### Calendrier annuel des courses (idée du 5 oct. 2026)
+### Calendrier annuel des courses (idée du 5 oct. 2026, devenue le [module Calendrier](module-calendrier-specification.md))
 
 Une vue de l'année d'un seul tenant, pour voir le planning en un coup d'œil, pas un simple récapitulatif.
 
@@ -120,9 +123,4 @@ Une vue de l'année d'un seul tenant, pour voir le planning en un coup d'œil, p
 - Construit à partir de la même liste de courses que la page Objectif, sans double saisie.
 - **Prototype en ligne** depuis le 13 oct. 2026 sur l'ancien site du profil route, onglet Planning (composant `composants/planning.js`), avec des durées provisoires et deux vues : 12 mois glissants, ou jusqu'à l'objectif.
 
-À trancher le moment venu :
-
-- [ ] Durée de préparation : fixée par type de course, ou saisie course par course ?
-- [ ] Liseré de récupération après chaque course, d'une autre couleur ?
-- [ ] Période affichée : année civile, ou 12 mois glissants ?
-- [ ] Module à part (« Calendrier »), ou bloc de la page Objectif ?
+Durée de prépa, période et module à part sont tranchés dans la spécification du module ; le liseré de récupération est remplacé par la phase Deload.
