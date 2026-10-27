@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.6 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.7 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -11,7 +11,7 @@ La page Préférences rassemble les réglages du site de l'utilisateur connecté
 
 ## 2. Organisation
 
-Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu** (page de démarrage comprise), **Page d'accueil**, **Partage** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
+Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Page d'accueil**, **Partage** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
 - **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de la page de démarrage et dans la barre fine.
@@ -30,11 +30,10 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 - Les blocs de la page En un coup d'œil, chacun avec une case « affiché » et deux flèches, comme le Menu ; un bloc pas encore construit est grisé, « · bientôt ».
 - Par défaut : Prochaine course, Pense-bête, Bilan nutrition, D'ici là affichés ; Dernière course masquée. « Rétablir l'ordre par défaut » y revient.
 
-## 4. Menu et page de démarrage
+## 4. Menu
 
-- Texte d'aide : « Coche les modules à afficher et ordonne-les avec les flèches. Le rond choisit la page qui s'ouvre en arrivant sur le site. »
-- **Page de démarrage** : la page qui s'ouvre en arrivant sur le site ; elle seule porte le grand en-tête (spécification générale, § 5 bis). Elle se choisit dans la liste du menu : une colonne « Démarrage », un rond par ligne, un seul actif ; par défaut En un coup d'œil (s'il est masqué : le premier module construit du menu).
-- Un module peut devenir page de démarrage s'il est **construit et affiché** ; le rond des autres est grisé. Retirer du menu le module de démarrage ramène au choix par défaut (le choix est effacé).
+- Texte d'aide : « Coche les modules à afficher et ordonne-les avec les flèches. Le premier s'ouvre en arrivant sur le site, avec le grand en-tête. »
+- **Page de démarrage** : le premier module construit et affiché s'ouvre en arrivant sur le site, avec le grand en-tête (spécification générale, § 5 bis). Rien à choisir : la ligne de ce module porte la mention « à l'ouverture », et le texte d'aide le rappelle.
 - **En un coup d'œil** est un module comme les autres : premier par défaut, il se décoche et se déplace.
 
 - La liste reprend tous les modules du menu (catalogue, spécification générale § 7), dans l'ordre actuel du menu de l'utilisateur, puis ceux qu'il n'affiche pas.
@@ -97,5 +96,5 @@ Résultats attendus :
 - Échec d'enregistrement (base injoignable) : « Enregistrement impossible pour l'instant », le réglage revient à sa valeur précédente.
 - Site partagé en lecture seule : Thème, Menu et Cap affichent « Reviens à ton site pour modifier tes réglages. » ; Partage et Compte restent utilisables.
 - Téléphone : la page tient dans la largeur de l'écran, sans défilement horizontal.
-- Menu, page de démarrage : une colonne « Démarrage » ; les ronds actifs sont ceux d'En un coup d'œil, d'Objectif, du Calendrier et de Palmarès (les autres modules, non construits, sont grisés) ; choisir Palmarès : « Enregistré » ; décocher Palmarès : le choix revient à l'Accueil ; il n'y a plus de section « Page de démarrage ».
+- Menu : pas de choix de page de démarrage ; « à l'ouverture » sur la ligne En un coup d'œil ; le décocher : la mention passe sur Objectif.
 - En un coup d'œil, sous le Menu : texte d'aide « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. » ; cinq blocs, Pense-bête et Bilan nutrition « · bientôt » ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.

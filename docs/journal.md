@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 oct. 2026 | Page de démarrage | Plus de choix : la page de démarrage est le premier module construit du menu (En un coup d'œil par défaut) ; taper l'adresse du site y mène, avec le grand en-tête. Dans les Préférences, une simple mention « à l'ouverture » sur sa ligne et une phrase d'aide. Colonne `page_demarrage` plus utilisée. |
 | 27 oct. 2026 | En un coup d'œil | L'Accueil devient le module « En un coup d'œil » (« œil » en picto dans l'onglet) : un module comme les autres, premier par défaut, qui se masque et se déplace ; page de démarrage par défaut, ou le premier module construit du menu s'il est masqué ; « Cap sur … » et le nom de l'application mènent à la page de démarrage. Évolution 010 (menus enregistrés : le module ajouté en tête). |
 | 27 oct. 2026 | En-tête | Le filet dégradé ferme l'en-tête : collé au menu, d'un bord à l'autre ; plus de vide ni de ligne fine entre l'en-tête et le menu. |
 | 27 oct. 2026 | Préférences | La page de démarrage rejoint le Menu : une colonne « Démarrage » avec un rond par ligne (modules construits et affichés seulement ; retirer le module de démarrage du menu ramène à l'Accueil) ; plus de section « Page de démarrage » ; le Menu passe au-dessus de la Page d'accueil ; texte d'aide de l'Accueil plus explicite : « Coche les blocs à afficher sur l'Accueil et ordonne-les avec les flèches. » (spécification 1.5). |

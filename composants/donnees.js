@@ -34,13 +34,11 @@
   const modulesAffiches = prefs => (prefs && prefs.modules && prefs.modules.length
     ? prefs.modules.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES);
   window.mrtModulesAffiches = modulesAffiches;
-  // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête.
-  // La page choisie si son module est affiché ; sinon En un coup d'œil s'il l'est ; sinon le premier module construit du menu.
+  // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête :
+  // le premier module construit du menu (par défaut En un coup d'œil).
   window.mrtDemarrage = prefs => {
-    const pages = modulesAffiches(prefs).filter(m => m.page).map(m => m.page);
-    const choisie = prefs && prefs.page_demarrage;
-    if (choisie && pages.includes(choisie)) return choisie;
-    return pages.includes('index.html') || !pages.length ? 'index.html' : pages[0];
+    const premier = modulesAffiches(prefs).find(m => m.page);
+    return premier ? premier.page : 'index.html';
   };
 
   const pad = n => String(n).padStart(2, '0');

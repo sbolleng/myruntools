@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.18 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.19 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -25,7 +25,7 @@ Deux profils pilotes au lancement :
 
 Chaque page suit le même gabarit, de haut en bas :
 
-1. **En-tête** (§ 4), sur la **page de démarrage** seulement : la page qui s'ouvre en arrivant sur le site, choisie dans les Préférences, dans le Menu (par défaut En un coup d'œil, § 5 bis).
+1. **En-tête** (§ 4), sur la **page de démarrage** seulement : la page qui s'ouvre en arrivant sur le site : le premier module construit du menu (par défaut En un coup d'œil, § 5 bis).
 2. **Menu** (§ 5), sur toutes les pages.
 3. **Contenu du module**.
 
@@ -101,7 +101,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 ## 5 bis. En un coup d'œil et page de démarrage
 
-- **Page de démarrage** : un module construit et affiché (En un coup d'œil, Objectif, Palmarès…) ; par défaut En un coup d'œil, ou, s'il est masqué, le premier module construit du menu. En arrivant sur le site (nouvel onglet, ou retour du lien de connexion), on y arrive directement ; l'onglet En un coup d'œil, touché depuis le site, ouvre bien cette page.
+- **Page de démarrage** : le premier module construit du menu, dans l'ordre choisi dans les Préférences ; rien d'autre à choisir. Par défaut En un coup d'œil. En arrivant sur le site (adresse tapée, nouvel onglet, retour du lien de connexion), on y arrive directement, avec le grand en-tête ; l'onglet En un coup d'œil, touché depuis le site, ouvre bien cette page.
 - **Grand en-tête** sur la page de démarrage seulement ; partout ailleurs, la barre fine (« Cap sur … » et l'engrenage). La page d'une course a toujours la barre fine.
 - **Passage** : en quittant la page de démarrage, le grand en-tête se réduit en barre fine (0,45 s) ; en y revenant, il se déplie. Rien au premier affichage, ni quand l'utilisateur a demandé à réduire les animations.
 - **En un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences :
@@ -230,5 +230,5 @@ Résultats attendus :
 - Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
 - En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac), Pense-bête et Bilan nutrition grisés, D'ici là jusqu'au Trail des Crêtes en Accent.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss.
-- Page de démarrage Objectif : ouvrir le site sur l'Accueil mène à la feuille de route, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : l'Accueil, en barre fine ; revenir à Objectif : l'en-tête se déplie.
+- Objectif en tête du menu : ouvrir le site mène à la feuille de route, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
 - En un coup d'œil masqué dans le menu (Cette semaine, Objectif, Palmarès) : ouvrir le site mène à Objectif, avec le grand en-tête ; le nom de l'application y mène aussi.
