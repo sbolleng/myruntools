@@ -12,6 +12,8 @@ create type role_course   as enum ('preparatoire', 'plaisir', 'objectif_intermed
 create type etat_course   as enum ('a_venir', 'abandonnee', 'courue');
 create type theme         as enum ('bleu-orange', 'vert-rose', 'violet-turquoise');
 create type sexe          as enum ('femme', 'homme', 'non_precise');
+create type phase_plan    as enum ('base', 'developpement', 'affutage', 'deload');
+create type seance_type   as enum ('run', 'renfo');
 
 -- ----- Listes de référence : des données, modifiées par l'administrateur seul
 create table types_course (
@@ -26,6 +28,7 @@ create table formats (
   libelle       text not null,
   ordre         int  not null,
   distance_fixe boolean not null default false, -- les seules qui ont un record
+  prepa_semaines int check (prepa_semaines between 1 and 52), -- durée de préparation par défaut
   unique (type, libelle)
 );
 
@@ -117,6 +120,9 @@ create table courses (
   strategie  text,
   logistique text,
 
+  -- Préparation du Calendrier : durée en semaines, vide = celle du format
+  prepa_semaines int check (prepa_semaines between 1 and 52),
+
   -- Suivi en course : listes rangées dans la course
   passages          jsonb, -- [{ "distance": 5, "temps": 1560 }, …] (km, secondes)
   chronos_reference jsonb, -- [{ "libelle": "Cible", "temps": 6600 }, …] (secondes)
@@ -157,6 +163,28 @@ create table courses (
 );
 
 create index courses_utilisateur_date on courses (utilisateur, date);
+
+-- ----- Calendrier : phases modifiées à la main, séances (évolution 009)
+create table plan_semaines (
+  utilisateur uuid not null default auth.uid() references profils (id) on delete cascade,
+  course      uuid not null,
+  lundi       date not null check (extract(isodow from lundi) = 1),
+  phase       phase_plan not null,
+  primary key (course, lundi),
+  foreign key (utilisateur, course) references courses (utilisateur, id) on delete cascade
+);
+
+create table seances (
+  id          uuid primary key default gen_random_uuid(),
+  utilisateur uuid not null default auth.uid() references profils (id) on delete cascade,
+  date        date not null,
+  type        seance_type not null,
+  libelle     text not null check (char_length(libelle) between 1 and 100),
+  faite       boolean not null default false,
+  course      uuid,
+  foreign key (utilisateur, course) references courses (utilisateur, id) on delete set null (course)
+);
+create index seances_utilisateur_date on seances (utilisateur, date);
 
 -- ----- Circuits : une course peut appartenir à plusieurs circuits
 create table circuits (
@@ -211,6 +239,8 @@ alter table formats          enable row level security;
 alter table types_equipement enable row level security;
 alter table circuits         enable row level security;
 alter table courses_circuits enable row level security;
+alter table plan_semaines    enable row level security;
+alter table seances          enable row level security;
 
 create policy "son profil" on profils for all to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()));
@@ -219,6 +249,10 @@ create policy "ses préférences" on preferences for all to authenticated
 create policy "ses courses" on courses for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses circuits" on courses_circuits for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "son plan" on plan_semaines for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "ses séances" on seances for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "son équipement" on equipements for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
@@ -240,31 +274,31 @@ insert into types_course (id, libelle, ordre) values
   ('fast_hiking', 'Fast hiking', 4),
   ('triathlon', 'Triathlon', 5);
 
-insert into formats (id, type, libelle, ordre, distance_fixe) values
-  ('route_5km', 'route', '5 km', 1, true),
-  ('route_10km', 'route', '10 km', 2, true),
-  ('route_20km', 'route', '20 km', 3, true),
-  ('route_semi', 'route', 'Semi-marathon', 4, true),
-  ('route_marathon', 'route', 'Marathon', 5, true),
-  ('route_ultra', 'route', 'Ultra-marathon', 6, false),
-  ('route_100km', 'route', '100 km', 7, true),
-  ('route_heure', 'route', 'Course en heure', 8, false),
-  ('trail_decouverte', 'trail', 'Trail découverte', 1, false),
-  ('trail_court', 'trail', 'Trail court', 2, false),
-  ('trail_long', 'trail', 'Trail long', 3, false),
-  ('trail_ultra', 'trail', 'Ultra-trail', 4, false),
-  ('marche_decouverte', 'marche', 'Marche découverte', 1, false),
-  ('marche_longue', 'marche', 'Marche longue', 2, false),
-  ('marche_ultra', 'marche', 'Marche ultra', 3, false),
-  ('fh_ultra_rando', 'fast_hiking', 'Ultra-randonnée', 1, false),
-  ('fh_rando_rapide', 'fast_hiking', 'Randonnée rapide', 2, false),
-  ('tri_xs', 'triathlon', 'Triathlon XS', 1, true),
-  ('tri_s', 'triathlon', 'Triathlon S', 2, true),
-  ('tri_m', 'triathlon', 'Triathlon M', 3, true),
-  ('tri_l', 'triathlon', 'Triathlon L', 4, true),
-  ('tri_703', 'triathlon', 'Ironman 70.3', 5, true),
-  ('tri_xl', 'triathlon', 'Triathlon XL', 6, true),
-  ('tri_ironman', 'triathlon', 'Ironman', 7, true);
+insert into formats (id, type, libelle, ordre, distance_fixe, prepa_semaines) values
+  ('route_5km', 'route', '5 km', 1, true, 8),
+  ('route_10km', 'route', '10 km', 2, true, 8),
+  ('route_20km', 'route', '20 km', 3, true, 10),
+  ('route_semi', 'route', 'Semi-marathon', 4, true, 10),
+  ('route_marathon', 'route', 'Marathon', 5, true, 16),
+  ('route_ultra', 'route', 'Ultra-marathon', 6, false, 16),
+  ('route_100km', 'route', '100 km', 7, true, 16),
+  ('route_heure', 'route', 'Course en heure', 8, false, null),
+  ('trail_decouverte', 'trail', 'Trail découverte', 1, false, null),
+  ('trail_court', 'trail', 'Trail court', 2, false, 12),
+  ('trail_long', 'trail', 'Trail long', 3, false, 16),
+  ('trail_ultra', 'trail', 'Ultra-trail', 4, false, 16),
+  ('marche_decouverte', 'marche', 'Marche découverte', 1, false, null),
+  ('marche_longue', 'marche', 'Marche longue', 2, false, null),
+  ('marche_ultra', 'marche', 'Marche ultra', 3, false, null),
+  ('fh_ultra_rando', 'fast_hiking', 'Ultra-randonnée', 1, false, null),
+  ('fh_rando_rapide', 'fast_hiking', 'Randonnée rapide', 2, false, null),
+  ('tri_xs', 'triathlon', 'Triathlon XS', 1, true, null),
+  ('tri_s', 'triathlon', 'Triathlon S', 2, true, null),
+  ('tri_m', 'triathlon', 'Triathlon M', 3, true, null),
+  ('tri_l', 'triathlon', 'Triathlon L', 4, true, null),
+  ('tri_703', 'triathlon', 'Ironman 70.3', 5, true, null),
+  ('tri_xl', 'triathlon', 'Triathlon XL', 6, true, null),
+  ('tri_ironman', 'triathlon', 'Ironman', 7, true, null);
 
 insert into types_equipement (id, libelle, ordre) values
   ('chaussures', 'Chaussures', 1),
@@ -303,6 +337,10 @@ create policy "lecture partagée" on courses_circuits for select to authenticate
   using (exists (select 1 from partages p where p.proprietaire = courses_circuits.utilisateur and p.invite = (select auth.uid())));
 create policy "lecture partagée" on preferences for select to authenticated
   using (exists (select 1 from partages p where p.proprietaire = preferences.utilisateur and p.invite = (select auth.uid())));
+create policy "lecture partagée" on plan_semaines for select to authenticated
+  using (exists (select 1 from partages p where p.proprietaire = plan_semaines.utilisateur and p.invite = (select auth.uid())));
+create policy "lecture partagée" on seances for select to authenticated
+  using (exists (select 1 from partages p where p.proprietaire = seances.utilisateur and p.invite = (select auth.uid())));
 
 -- Partager par l'e-mail d'un compte existant, sans dévoiler la liste des comptes
 create function partager(adresse text) returns void

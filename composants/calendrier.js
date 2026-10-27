@@ -9,11 +9,6 @@
   const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
 
-  // Durée de préparation par défaut, en semaines, selon le format (spécification § 5.4).
-  // Un format absent de la liste n'a pas de préparation affichée.
-  const SEMAINES = { route_5km: 8, route_10km: 8, route_20km: 10, route_semi: 10, route_marathon: 16, route_ultra: 16, route_100km: 16,
-    trail_court: 12, trail_long: 16, trail_ultra: 16 };
-
   // Dates en heure locale, au format 'AAAA-MM-JJ' : comparables comme du texte.
   const pad = n => String(n).padStart(2, '0');
   const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
@@ -35,7 +30,7 @@
     return courses.filter(c => c.date && c.date >= debut && c.date <= fin && (c.etat === 'courue' ||
       (c.etat === 'a_venir' && (c.statut === 'confirmee' || (c.statut === 'option' && c.date >= auj)))))
       .map(c => {
-        const semaines = SEMAINES[c.format] || null;
+        const semaines = c.prepaSemaines || null; // celle de la course, sinon celle de son format
         return {
           date: c.date, nom: c.course,
           famille: c.type === 'trail' ? 'trail' : 'route',

@@ -42,7 +42,7 @@
     if (refs) return refs;
     const db = window.mrtSupabase;
     const [sous, types] = await Promise.all([
-      db.from('formats').select('id, type, libelle, ordre').order('ordre'),
+      db.from('formats').select('*').order('ordre'),
       db.from('types_course').select('id, libelle, ordre').order('ordre')
     ]);
     for (const r of [sous, types]) if (r.error) throw r.error;
@@ -65,6 +65,8 @@
       type: c.format && sc[c.format] ? sc[c.format].type : null,
       typeLibelle: c.format && sc[c.format] ? typeLib[sc[c.format].type] : null,
       formatLibelle: c.format && sc[c.format] ? sc[c.format].libelle : null,
+      // Durée de préparation en semaines : celle de la course, sinon celle de son format (vide : pas de préparation).
+      prepaSemaines: c.prepa_semaines != null ? c.prepa_semaines : (c.format && sc[c.format] && sc[c.format].prepa_semaines != null ? sc[c.format].prepa_semaines : null),
       circuits: circuits.data.filter(x => x.course === c.id)
     }));
   }

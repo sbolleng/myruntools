@@ -940,6 +940,15 @@ const CONTROLES = {
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-' + nom.replace('é', 'e') + '.png'), fullPage: true });
       await ctx.close();
     }
+    // Durée de préparation : celle de la course l'emporte sur celle du format ; sans l'une ni l'autre, pas de trait.
+    const durees = JSON.parse(JSON.stringify(db));
+    durees.courses.find(c => c.course === 'Trail des Gorges').prepa_semaines = 20;
+    durees.courses.find(c => c.course === 'Corrida de Noël').format = 'tri_s';
+    let o = await ouvrir(nav, 'calendrier.html', 1200, durees, {}, PARIS);
+    const rd = await lire(o.p);
+    pb.push(egal('lun. 19 oct. 2026', (rd.traits.find(t => t[1] === 'Trail des Gorges') || [])[0], 'prépa de 20 semaines propre à la course : début le 19 octobre'),
+      egal(undefined, rd.traits.find(t => t[1] === 'Corrida de Noël'), 'format sans durée : pas de trait'));
+    await o.ctx.close();
     // Thème changé : seules les couleurs changent.
     const autre = JSON.parse(JSON.stringify(db));
     autre.preferences[0].theme = 'vert-rose';
