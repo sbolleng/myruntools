@@ -253,12 +253,12 @@ const CONTROLES = {
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), '?t=… sans effet'));
 
     // Menu
-    const catalogue = ['Cette semaine', 'Objectif', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
+    const catalogue = ['Cette semaine', 'Objectif', 'Calendrier', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
     pb.push(egal(catalogue, await menu(), 'menu par défaut'));
-    pb.push(egal(6, await p.locator('.pref-modules input:checked').count(), 'tous les modules cochés'));
+    pb.push(egal(7, await p.locator('.pref-modules input:checked').count(), 'tous les modules cochés'));
     pb.push(egal(4, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
     await p.click('[aria-label="Monter Palmarès"]'); await attendre();
-    const monte = ['Cette semaine', 'Objectif', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
+    const monte = ['Cette semaine', 'Objectif', 'Calendrier', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
     pb.push(egal(monte, await menu(), 'Palmarès monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -743,11 +743,68 @@ const CONTROLES = {
     return pb;
   },
 
+  // Spécification du Calendrier, § 10 : vue Année (lot 1).
+  async calendrier(nav, db0) {
+    const pb = [];
+    const { db } = jeuObjectif(db0);
+    const lire = p => p.evaluate(() => {
+      const jours = [...document.querySelectorAll('.cal-j')];
+      const titre = j => j.getAttribute('title') || '';
+      return {
+        blocs: document.querySelectorAll('.cal-bloc').length,
+        colonnes: [...document.querySelectorAll('.cal-bloc')].map(b => b.querySelectorAll('.cal-mois').length),
+        mois: [...document.querySelectorAll('.cal-mois')].map(m => m.textContent.replace(/\s+/g, ' ').trim()),
+        courses: jours.filter(j => j.querySelector('.cal-nom')).map(j => [j.querySelector('.cal-nom').textContent, [...j.classList].find(c => /^c-|^courue$/.test(c))]).sort((a, b) => (a[0] < b[0] ? -1 : 1)),
+        traits: jours.filter(j => j.querySelector('.cal-trait')).map(j => [titre(j).split(' · ')[0], (titre(j).match(/début de la prépa : ([^(]*) \(/) || [])[1]]).sort((a, b) => (a[1] < b[1] ? -1 : 1)),
+        passes: document.querySelectorAll('.cal-j.passe').length,
+        aujourdhui: document.querySelectorAll('.cal-j.auj').length,
+        lacTitre: (jours.find(j => j.querySelector('.cal-trait') && titre(j).includes('début de la prépa : Trail du Lac')) || document.body).getAttribute('title'),
+        texte: document.querySelector('main').textContent,
+        menu: [...document.querySelectorAll('.mrt-nav a, .mrt-nav span')].map(e => e.textContent.trim()).filter(Boolean),
+        debordement: document.documentElement.scrollWidth > innerWidth
+      };
+    });
+    db.courses.push({ id: '00000000-0000-0000-0002-000000000098', utilisateur: db.profils[0].id, course: 'Option passée', date: '2026-10-10', format: 'trail_court',
+      statut: 'option', etat: 'a_venir', role: 'preparatoire', date_approx: false });
+
+    for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
+      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', w, db, {}, PARIS);
+      const r = await lire(p);
+      const tel = w < 600;
+      pb.push(
+        egal(tel ? 4 : 2, r.blocs, nom + ', nombre de blocs'),
+        egal(tel ? [3, 3, 3, 3] : [6, 6], r.colonnes, nom + ', colonnes par bloc'),
+        egal(['oct. 26', 'nov.', 'déc.', 'janv. 27', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.'], r.mois, nom + ', mois, d\'octobre 2026 à septembre 2027'),
+        egal([['Corrida de Noël', 'c-route-v'], ['Semi de San Sebastián', 'courue'], ['Trail de la Forêt', 'c-trail-n'], ['Trail des Cimes', 'c-trail-n'],
+          ['Trail des Crêtes', 'c-trail-v'], ['Trail des Gorges', 'c-trail-v'], ['Trail du Lac', 'c-trail-v'], ['Ultra du Plateau', 'c-trail-n']], r.courses, nom + ', courses et couleurs'),
+        egal([['jeu. 1 oct. 2026', 'Trail du Lac'], ['lun. 19 oct. 2026', 'Corrida de Noël'], ['lun. 16 nov. 2026', 'Trail des Gorges'], ['lun. 8 févr. 2027', 'Trail des Cimes'],
+          ['lun. 8 mars 2027', 'Ultra du Plateau'], ['lun. 12 avr. 2027', 'Trail de la Forêt'], ['lun. 10 mai 2027', 'Trail des Crêtes']].sort((a, b) => (a[1] < b[1] ? -1 : 1)),
+          r.traits, nom + ', traits de début de prépa'),
+        egal(19, r.passes, nom + ', 1er au 19 octobre atténués'),
+        egal(1, r.aujourdhui, nom + ', aujourd\'hui repéré'),
+        egal(true, (r.lacTitre || '').includes('commencée le 24 août 2026'), nom + ', Trail du Lac : prépa commencée avant la fenêtre'),
+        egal(false, /Cross des Collines|Trail des Sommets|Option passée/.test(r.texte), nom + ', abandonnée, à surveiller et option passée absentes'),
+        egal(false, r.debordement, nom + ', débordement horizontal'),
+        egal([], erreurs, nom + ', erreurs JavaScript'));
+      if (!tel) pb.push(egal(true, r.menu.includes('Calendrier'), 'menu : Calendrier présent'));
+      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-' + nom.replace('é', 'e') + '.png'), fullPage: true });
+      await ctx.close();
+    }
+    // Thème changé : seules les couleurs changent.
+    const autre = JSON.parse(JSON.stringify(db));
+    autre.preferences[0].theme = 'vert-rose';
+    const { p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, autre, {}, PARIS);
+    const r2 = await lire(p);
+    pb.push(egal(8, r2.courses.length, 'vert et rose : mêmes courses'));
+    await ctx.close();
+    return pb;
+  },
+
   // Spécification générale : la page s'affiche d'un seul coup, en-tête compris.
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))
-      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'course.html?id=00000000-0000-0000-0001-000000000020'])
+      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'calendrier.html', 'course.html?id=00000000-0000-0000-0001-000000000020'])
         pb.push(...await sansSaut(nav, db, page, w, page.replace(/\.html.*/, '') + ' ' + nom));
     return pb;
   }

@@ -14,7 +14,7 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.13 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.1 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition | Version 1.8 |
-| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.1, à valider |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.2, lot 1 construit |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -54,7 +54,7 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Palmarès** : temps au format hh:mm:ss, modèle unique du site (spécification, affichage, saisie, banc d'essai).
-3. [ ] **Calendrier** : [spécification 0.1](module-calendrier-specification.md) rédigée, à valider ; puis trois lots : vue Année, modèle de données (durées de prépa, phases, séances), vues 4 semaines et plan d'une course.
+3. [ ] **Calendrier** : [spécification 0.2](module-calendrier-specification.md) validée ; lot 1 (vue Année) construit ; restent le lot 2 (modèle de données : durées de prépa, phases, séances) et le lot 3 (vues 4 semaines et plan d'une course, rubrique « Préparer »).
    - Durées de prépa par format : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - Plus tard : import des séances depuis une application ; génération d'un plan par IA.
 4. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).

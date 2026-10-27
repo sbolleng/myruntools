@@ -1,6 +1,6 @@
 # Design
 
-Version 0.9 · 22 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.0 · 22 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -116,3 +116,20 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - Onglets en Space Grotesk, capitales, 0,75 rem, graisse 500, espacement 0,1 em ; marges de 0,9 rem en haut et en bas, 1,4 rem sur les côtés.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.
 - Barre sur le Fond, ligne fine (Bordure) dessous ; elle reste collée en haut de l'écran au défilement ; défilement horizontal sans barre visible sur téléphone.
+
+## 9. Calendrier (vue Année)
+
+Les couleurs des courses ne changent pas d'un thème à l'autre : la même famille doit se reconnaître partout.
+
+| Rôle | Valeur | Emploi |
+| --- | --- | --- |
+| Route | `#4db8ff` | Course sur route (tout ce qui n'est pas trail) |
+| Trail | `#ff7a45` | Course de trail |
+
+- **Course validée** : case pleine de la couleur de la famille, nom en Fond.
+- **Course non validée** : couleur de la famille à 30 % sur Surface, cadre de 1 px de la couleur pleine, nom en Texte.
+- **Course courue** : case en Texte discret, nom en Fond.
+- **Trait de début de prépa** : 4 px de haut, 45 % de la largeur de la case, de la couleur pleine de la famille, cerclé de 1 px de Fond pour rester visible sur une case de course.
+- **Jours** : une ligne de 0,8 rem (0,72 rem sur téléphone), 1 px entre deux jours et 3 px entre deux mois ; fond Surface, week-end entre Surface et Surface 2 ; jours passés à 45 % d'opacité ; aujourd'hui cerclé de 1 px de Texte.
+- **Texte** : nom du mois en Space Mono 0,62 rem, Accent ; numéro du jour en Space Mono 0,5 rem, Texte discret ; nom de la course en Space Grotesk 0,58 rem (0,52 rem sur téléphone).
+

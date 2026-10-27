@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.1 · 27 octobre 2026 · [Retour au sommaire](README.md) · Brouillon, à valider
+Version 0.2 · 27 octobre 2026 · [Retour au sommaire](README.md) · Lot 1 (vue Année) construit
 
 ## 1. Rôle
 
@@ -57,11 +57,13 @@ Téléphone : trois colonnes de mois au lieu de six, donc quatre blocs empilés,
 ### 3.2 Règles
 
 - **Période** : douze mois à partir du mois en cours (le premier bloc commence par lui). Les jours passés du mois en cours sont atténués. Un mois qui n'a pas ce jour (le 30 ou le 31) laisse une case vide.
-- **Quatre couleurs** : deux familles, route et trail ; dans chacune, une nuance pleine pour une course **validée** et une nuance plus claire pour une course **non validée**. Les valeurs seront fixées dans le document de design.
+- **Quatre couleurs** : deux familles, route et trail ; dans chacune, une nuance pleine pour une course **validée** et une nuance atténuée, cadrée de la couleur pleine, pour une course **non validée**. Valeurs dans le [document de design](design.md) (§ 9).
+- **Nom de la course** écrit dans sa case, sur une ligne, coupé s'il ne tient pas.
 - **Validée** : statut Confirmée. **Non validée** : statut Option. Les courses « À surveiller » et abandonnées ne s'affichent pas. Une course courue s'affiche grisée, sans trait de prépa.
 - **Route ou trail** : le type de la course, déduit de son format. Tout ce qui n'est pas trail est dans la famille route.
-- **Trait de prépa** : sur le seul premier jour de la prépa, un trait de la couleur de la course. Deux traits dans la même période signalent deux préparations qui se chevauchent, sans plus de dessin.
+- **Trait de prépa** : sur le seul premier jour de la prépa, un trait de la couleur de la course. Si la prépa a commencé avant la période affichée, le trait se pose sur le premier jour affiché, et l'infobulle donne la vraie date de début. Deux traits dans la même période signalent deux préparations qui se chevauchent, sans plus de dessin.
 - **Date au mois seulement** : la case est au 1er du mois, avec la nuance d'une course non validée.
+- **Lot 1** : ni jour ni course ne sont cliquables, et l'option « 4 semaines » du bandeau est grisée (« à venir »). La durée de prépa vient du format (§ 5.4), sans réglage par course.
 - **Toucher un jour** ouvre la vue 4 semaines, à partir du lundi de la semaine de ce jour ; **toucher une course** ouvre son plan (§ 5.3). Sur ordinateur, une infobulle donne la date, la course et la phase.
 
 ## 4. Vue 4 semaines
@@ -190,7 +192,7 @@ Le modèle de données sera écrit au lot 2, après validation de cette spécifi
 
 ## 8. Lots de construction
 
-1. **Vue Année** : lecture seule, sans nouvelle donnée, avec une durée de prépa provisoire par format.
+1. **Vue Année** : lecture seule, sans nouvelle donnée, avec la durée de prépa par défaut du format (§ 5.4). **Construit** (27 octobre 2026) : page `calendrier.html`, composant `composants/calendrier.js`.
 2. **Modèle de données** : durées, phases, séances.
 3. **Vues 4 semaines et plan d'une course**, saisie des séances, rubrique « Préparer ».
 
@@ -210,7 +212,7 @@ Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
 
 Jeu d'essai, données fictives, au mardi 20 octobre 2026 à 10 h, heure de Paris, thème Bleu et orange. Les courses sont celles du [jeu d'essai d'Objectif](module-objectif-specification.md) (§ 10).
 
-**Durées de prépa d'essai** (valeurs fictives pour l'essai, pas les durées retenues) : Trail court 6 semaines, 10 km 4 semaines, Trail long 10 semaines, Ultra-trail 12 semaines.
+**Durées de prépa** : celles du § 5.4 (10 km 8 semaines, Trail court 12, Trail long 16, Ultra-trail 16).
 
 **Séances d'essai** : lundi 19 octobre, Renfo · Gainage 30 min (faite) ; mardi 20, Run · 8×400 m ; jeudi 22, Run · Footing 45 min ; samedi 24, Run · Sortie 1 h 30.
 
@@ -219,26 +221,28 @@ Résultats attendus, vue Année :
 - Douze mois, d'octobre 2026 à septembre 2027 : premier bloc oct. à mars, second bloc avr. à sept. ; les 1 à 19 octobre sont atténués.
 - Courses affichées : Semi de San Sebastián (4 oct., route, grisée, sans trait), Trail du Lac (15 nov.), Corrida de Noël (13 déc., route), Trail des Gorges (7 mars), Trail des Cimes (30 mai), Ultra du Plateau (26 juin), Trail de la Forêt (1er juillet), Trail des Crêtes (28 août). Ni Cross des Collines (abandonnée) ni Trail des Sommets (à surveiller).
 - Couleurs : Corrida de Noël en route validée ; Trail du Lac, Trail des Gorges et Trail des Crêtes en trail validée ; Trail des Cimes, Ultra du Plateau et Trail de la Forêt en trail non validée.
-- Traits de prépa : Trail du Lac le 5 oct., Corrida de Noël le 16 nov., Trail des Gorges le 28 déc., Trail des Cimes le 22 mars, Ultra du Plateau le 19 avr., Trail de la Forêt le 24 mai (case du 1er juillet), Trail des Crêtes le 7 juin.
-- Chevauchements lisibles : Trail des Cimes, Ultra du Plateau, Trail de la Forêt et Trail des Crêtes se recouvrent de fin mai à fin juin ; Trail du Lac, Corrida de Noël et Trail des Gorges ne se recouvrent pas.
-- Toucher le 22 oct. ouvre la vue 4 semaines à partir du lundi 19 octobre ; toucher Trail des Gorges ouvre son plan.
+- Traits de prépa : Trail du Lac sur le 1er oct. (la prépa a commencé le 24 août, avant la période ; l'infobulle le dit), Corrida de Noël le 19 oct., Trail des Gorges le 16 nov., Trail des Cimes le 8 févr., Ultra du Plateau le 8 mars, Trail de la Forêt le 12 avr., Trail des Crêtes le 10 mai. Aucun trait sur le Semi de San Sebastián (courue).
+- Chevauchements lisibles : les prépas de la Corrida de Noël et du Trail du Lac (19 oct. au 15 nov.), de la Corrida de Noël et du Trail des Gorges (16 nov. au 13 déc.), puis, de février à août 2027, celles du Trail des Gorges, des Cimes, de l'Ultra du Plateau, de la Forêt et des Crêtes.
+- Une option dont la date est passée (essai : 10 oct. 2026) n'apparaît pas.
+- Lot 1 : aucun jour ni aucune course ne réagit au toucher ; l'option « 4 semaines » est grisée.
+- Lot 3 : toucher le 22 oct. ouvre la vue 4 semaines à partir du lundi 19 octobre ; toucher Trail des Gorges ouvre son plan.
 - Téléphone : trois colonnes de mois, quatre blocs ; rien ne déborde.
 
 Résultats attendus, vue 4 semaines (du 19 octobre au 15 novembre 2026) :
 
 - Quatre semaines : 19 oct., 26 oct., 2 nov., 9 nov.
-- Phases : Développement, Deload, Affûtage, Affûtage (semaines 3 à 6 du plan du Trail du Lac, qui a commencé le 5 octobre).
+- Phases : Développement, Développement, Affûtage, Affûtage (semaines 9 à 12 du plan de 12 semaines du Trail du Lac, qui a commencé le 24 août) ; la semaine du 26 oct. est la semaine 10.
 - Séances d'essai à leurs jours ; seule la séance du lundi 19 est cochée « faite ».
 - Rendez-vous clé : dimanche 1er novembre, ouverture des inscriptions · Corrida de Noël. Pas d'autre ouverture dans la période (celle de l'Ultra du Plateau est passée).
 - Dimanche 15 novembre : jour de course, Trail du Lac.
-- Fenêtre ouverte le 14 décembre 2026 : « Sans objectif clair » pour les semaines du 14 et du 21 décembre ; la semaine du 28 décembre est en Base (semaine 1 du plan du Trail des Gorges).
+- Fenêtre ouverte le 14 décembre 2026 : aucune semaine sans objectif clair (le plan du Trail des Gorges est en cours depuis le 16 novembre). Pour voir « Sans objectif clair », un essai sans le Trail des Gorges : les semaines du 14 et du 21 décembre sont alors sans objectif.
 
 Résultats attendus, plan d'une course :
 
-- Trail des Gorges : plan de 10 semaines, du lundi 28 décembre 2026 au dimanche 7 mars 2027 ; phases : Base (28 déc., 4 et 11 janv.), Deload (18 janv.), Développement (25 janv., 1er et 8 févr.), Deload (15 févr.), Affûtage (22 févr., 1er mars) ; jour J le 7 mars.
-- Trail du Lac : 6 semaines, du 5 octobre au 15 novembre : Base, Développement, Développement, Deload, Affûtage, Affûtage.
-- Corrida de Noël : 4 semaines, du 16 novembre au 13 décembre : Base, Développement, Affûtage, Affûtage.
-- Trail des Crêtes : 12 semaines, du 7 juin au 28 août : Base ×3, Deload, Base, Développement ×2, Deload, Développement ×2, Affûtage ×2.
-- « Préparer » sur Trail des Gorges, durée portée à 12 semaines : début du plan le 14 décembre ; les phases se recalculent. Mettre la semaine du 18 janvier en Base : seule cette semaine change ; « Recalculer selon les règles » (confirmé) la remet en Deload.
+- Trail des Gorges : plan de 16 semaines, du lundi 16 novembre 2026 au dimanche 7 mars 2027 ; phases : Base ×3 (16 nov., 23 nov., 30 nov.), Deload (7 déc.), Base ×2 (14 et 21 déc.), Développement (28 déc.), Deload (4 janv.), Développement ×3 (11, 18 et 25 janv.), Deload (1er févr.), Développement ×2 (8 et 15 févr.), Affûtage ×2 (22 févr., 1er mars) ; jour J le 7 mars.
+- Trail du Lac : 12 semaines, du 24 août au 15 novembre : Base ×3, Deload, Base, Développement ×2, Deload, Développement ×2, Affûtage ×2.
+- Corrida de Noël : 8 semaines, du 19 octobre au 13 décembre : Base ×2, Développement, Deload, Développement ×2, Affûtage ×2.
+- Trail des Crêtes : 16 semaines, du 10 mai au 28 août : même enchaînement que Trail des Gorges.
+- « Préparer » sur Trail des Gorges, durée portée à 20 semaines : début du plan le 19 octobre ; les phases se recalculent. Mettre la semaine du 7 décembre en Base : seule cette semaine change ; « Recalculer selon les règles » (confirmé) la remet en Deload.
 - Site partagé en lecture seule : le plan s'affiche, sans « Préparer » ni saisie de séance.
 - Adresse d'une course inconnue, d'un autre utilisateur ou sans date : « Course introuvable. » et un lien de retour.

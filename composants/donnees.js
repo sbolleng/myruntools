@@ -11,6 +11,7 @@
   const MODULES = [
     { nom: 'Cette semaine' },
     { nom: 'Objectif', page: 'objectif.html' },
+    { nom: 'Calendrier', page: 'calendrier.html' },
     { nom: 'Nutrition' },
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil' },
