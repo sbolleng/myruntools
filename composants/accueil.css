@@ -1,0 +1,23 @@
+/* ===== Accueil : la page en un coup d'œil (accueil.js) · design, § 9 ===== */
+/* Deux colonnes sur ordinateur, une sur téléphone ; chaque bloc dans son cadre. */
+.ac-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
+.ac-bloc { min-width: 0; padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.ac-titre { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.7rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.ac-titre a { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; letter-spacing: 0; text-transform: none; color: var(--muted); white-space: nowrap; }
+.ac-vide { font-size: 0.8rem; color: var(--muted); }
+/* Bloc pas encore construit : grisé, comme un module « bientôt » du menu. */
+.ac-bloc.is-bientot { opacity: 0.5; border-style: dashed; background: transparent; }
+/* Prochaine course : la carte de la feuille de route, sans son propre cadre. */
+.ac-carte .ob-carte { margin: 0; padding: 0; background: none; border: none; }
+/* D'ici là : une pastille par étape, le cap en Accent. */
+.ac-etapes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; font-size: 0.78rem; }
+.ac-etape { padding: 0.2rem 0.6rem; color: var(--text); text-decoration: none; border: 1px solid var(--border); border-radius: 999px; }
+.ac-etape.is-cap { color: var(--accent); border-color: var(--accent); }
+.ac-etapes i { font-style: normal; color: var(--muted); }
+/* Dernière course : libellé à gauche, valeur à droite. */
+.ac-lignes { display: grid; gap: 0.35rem; font-size: 0.82rem; }
+.ac-ligne { display: grid; grid-template-columns: 6rem minmax(0, 1fr); color: var(--text); }
+.ac-ligne > span:first-child { color: var(--muted); }
+@media (max-width: 600px) {
+  .ac-grille { grid-template-columns: minmax(0, 1fr); }
+}

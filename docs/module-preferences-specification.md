@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.3 · 26 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.4 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -11,10 +11,10 @@ La page Préférences rassemble les réglages du site de l'utilisateur connecté
 
 ## 2. Organisation
 
-Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Partage** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
+Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Page de démarrage**, **Page d'accueil**, **Menu**, **Partage** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
-- **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de l'Accueil et de la feuille de route.
+- **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de la page de démarrage et dans la barre fine.
 - Réglages mémorisés dans la base : ils suivent l'utilisateur d'un appareil à l'autre.
 
 ## 3. Thème
@@ -24,7 +24,19 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 - Choisir un thème recolore aussitôt la page.
 - Le thème ne se choisit qu'ici : une adresse ne l'impose pas. La page de connexion, avant que l'utilisateur soit connu, est dans le premier thème.
 
+## 4 bis. Page de démarrage
+
+- La page qui s'ouvre en arrivant sur le site ; elle seule porte le grand en-tête (spécification générale, § 5 bis).
+- Une pastille par choix : l'Accueil, puis les modules construits et affichés dans le menu, dans son ordre. Par défaut : l'Accueil.
+
+## 4 ter. Page d'accueil
+
+- Les blocs de l'Accueil, chacun avec une case « affiché » et deux flèches, comme le Menu ; un bloc pas encore construit est grisé, « · bientôt ».
+- Par défaut : Prochaine course, Pense-bête, Bilan nutrition, D'ici là affichés ; Dernière course masquée. « Rétablir l'ordre par défaut » y revient.
+
 ## 4. Menu
+
+- L'**Accueil** est la première ligne, cochée et fixe : toujours affiché, en premier.
 
 - La liste reprend tous les modules du menu (catalogue, spécification générale § 7), dans l'ordre actuel du menu de l'utilisateur, puis ceux qu'il n'affiche pas.
 - Chaque module a une case « affiché » et deux flèches pour le monter ou le descendre d'un rang.
@@ -86,3 +98,5 @@ Résultats attendus :
 - Échec d'enregistrement (base injoignable) : « Enregistrement impossible pour l'instant », le réglage revient à sa valeur précédente.
 - Site partagé en lecture seule : Thème, Menu et Cap affichent « Reviens à ton site pour modifier tes réglages. » ; Partage et Compte restent utilisables.
 - Téléphone : la page tient dans la largeur de l'écran, sans défilement horizontal.
+- Page de démarrage : Accueil, Objectif, Palmarès en pastilles ; choisir Palmarès : « Enregistré ».
+- Page d'accueil : cinq blocs, Pense-bête et Bilan nutrition « · bientôt » ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.

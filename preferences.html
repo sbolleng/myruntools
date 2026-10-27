@@ -9,6 +9,7 @@
 <script>document.documentElement.classList.add('mrt-attente');</script>
 <title>Préférences · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/palmares.css?v=__VERSION__">
 <style>
   /* Réglages : spécification docs/module-preferences-specification.md ; tailles : docs/design.md § 3. */
   /* Un cadre pour la page ; dedans, une section par réglage, séparées par un filet (mrt-section, en-tete.css). */
@@ -35,13 +36,14 @@
   .pref-apercu span { width: 1rem; height: 1rem; border-radius: 50%; border: 1px solid var(--border); }
   .pref-apercu span + span { margin-left: -0.3rem; }
   /* Menu : case, nom, flèches. */
-  .pref-modules li { gap: 0.6rem; }
-  .pref-modules label { flex: 1; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
-  .pref-modules input { accent-color: var(--accent); margin: 0; }
-  .pref-modules .bientot { opacity: 0.45; }
+  .pref-modules li, .pref-blocs li { gap: 0.6rem; }
+  .pref-modules label, .pref-blocs label { flex: 1; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+  .pref-modules input, .pref-blocs input { accent-color: var(--accent); margin: 0; }
+  .pref-modules .bientot, .pref-blocs .bientot { opacity: 0.45; }
   .pref-fleches { display: flex; gap: 0.3rem; }
   .pref-rond { font-size: 0.75rem; }
   .pref-defaut { margin-top: 0.6rem; }
+  .pref-fixe { font-size: 0.72rem; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -58,6 +60,16 @@
   </section>
   <section class="mrt-section" id="bloc-theme">
     <h2 class="mrt-section-titre">Thème</h2>
+    <div class="pref-corps"></div>
+    <p class="pref-msg" aria-live="polite"></p>
+  </section>
+  <section class="mrt-section" id="bloc-demarrage">
+    <h2 class="mrt-section-titre">Page de démarrage</h2>
+    <div class="pref-corps"></div>
+    <p class="pref-msg" aria-live="polite"></p>
+  </section>
+  <section class="mrt-section" id="bloc-accueil">
+    <h2 class="mrt-section-titre">Page d'accueil</h2>
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
@@ -102,9 +114,9 @@
     return (c.date_approx ? '' : (p[2] === 1 ? '1er' : p[2]) + ' ') + MOIS[p[1] - 1] + ' ' + p[0];
   };
 
-  mrtPage({ courant: 'preferences.html', sansEnTete: true }).then(page => {
+  mrtPage({ courant: 'preferences.html' }).then(page => {
     afficherPartages(page);
-    const blocs = ['bloc-theme', 'bloc-menu', 'bloc-cap'].map(id => document.getElementById(id));
+    const blocs = ['bloc-theme', 'bloc-menu', 'bloc-cap', 'bloc-demarrage', 'bloc-accueil'].map(id => document.getElementById(id));
     if (page.lectureSeule) {
       blocs.forEach(b => { b.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Reviens à ton site pour modifier tes réglages.</p>'; });
       return;
@@ -154,7 +166,8 @@
     let liste = depuisPrefs();
     function dessinerMenu() {
       const nbAffiches = liste.filter(m => m.affiche).length;
-      blocMenu.querySelector('.pref-corps').innerHTML = '<ul class="pref-liste pref-modules">' + liste.map((m, i) => {
+      blocMenu.querySelector('.pref-corps').innerHTML = '<ul class="pref-liste pref-modules">' +
+        '<li><label><input type="checkbox" checked disabled>Accueil</label><span class="pref-fixe">toujours affiché, en premier</span></li>' + liste.map((m, i) => {
         const construit = mrtModules.find(x => x.nom === m.nom).page;
         const seul = m.affiche && nbAffiches === 1;
         return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) + '</label>' +
@@ -183,6 +196,8 @@
       changerMenu(nouvelle);
     });
 
+    reglagesAccueil(page, prefs, enregistrer);
+
     // ----- Cap : course du titre de l'en-tête, par défaut la plus lointaine.
     const blocCap = blocs[2], candidates = mrtCoursesCap(page.courses);
     if (!candidates.length) {
@@ -201,6 +216,65 @@
       });
     }
   });
+
+  // Liste ordonnée avec une case « affiché » et deux flèches par ligne (Page d'accueil) ; même rendu que le Menu.
+  function listeOrdonnee(liste, bientot) {
+    return '<ul class="pref-liste pref-blocs">' + liste.map((m, i) =>
+      '<li><label' + (bientot(m) ? ' class="bientot" title="Bientôt"' : '') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + '>' + esc(m.nom) + (bientot(m) ? ' · bientôt' : '') + '</label>' +
+      '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+      '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>').join('') +
+      '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
+  }
+
+  // Page de démarrage et page d'accueil (spécification des Préférences, § 4 bis et ter).
+  function reglagesAccueil(page, prefs, enregistrer) {
+    const blocDem = document.getElementById('bloc-demarrage'), blocAcc = document.getElementById('bloc-accueil');
+    // Démarrage : l'Accueil, puis les modules construits et affichés dans le menu.
+    const affiches = prefs.modules && prefs.modules.length ? prefs.modules : mrtModules.map(m => m.nom);
+    const choix = [{ nom: 'Accueil', page: 'index.html' }].concat(affiches.map(n => mrtModules.find(m => m.nom === n)).filter(m => m && m.page));
+    const actuel = () => (choix.some(c => c.page === mrtDemarrage(prefs)) ? mrtDemarrage(prefs) : 'index.html');
+    blocDem.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">La page qui s\'ouvre en arrivant sur le site. Elle seule porte le grand en-tête ; les autres pages ont la barre fine.</p>' +
+      '<div class="pv2-row" role="radiogroup" aria-label="Page de démarrage">' + choix.map(c =>
+        '<label class="pv2-check"><input type="radio" name="demarrage" value="' + c.page + '"' + (c.page === actuel() ? ' checked' : '') + '> ' + esc(c.nom) + '</label>').join('') + '</div>';
+    blocDem.addEventListener('change', e => {
+      const avant = actuel();
+      enregistrer(blocDem, { page_demarrage: e.target.value === 'index.html' ? null : e.target.value }, () => { blocDem.querySelector('input[value="' + avant + '"]').checked = true; });
+    });
+
+    // Accueil : blocs affichés dans l'ordre choisi, puis les autres.
+    const parDefaut = () => mrtBlocsAccueil.map(b => ({ id: b.id, nom: b.nom, affiche: !b.masque }));
+    const depuisPrefs = () => {
+      if (!prefs.accueil_blocs) return parDefaut();
+      const choisis = prefs.accueil_blocs.filter(id => mrtBlocsAccueil.some(b => b.id === id));
+      return choisis.map(id => ({ id, nom: mrtBlocsAccueil.find(b => b.id === id).nom, affiche: true }))
+        .concat(mrtBlocsAccueil.filter(b => !choisis.includes(b.id)).map(b => ({ id: b.id, nom: b.nom, affiche: false })));
+    };
+    let liste = depuisPrefs();
+    const bientot = m => mrtBlocsAccueil.find(b => b.id === m.id).bientot;
+    const dessiner = () => {
+      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Les blocs affichés sur l\'Accueil, et leur ordre.</p>' + listeOrdonnee(liste, bientot);
+    };
+    const changer = (nouvelle, valeur) => {
+      const avant = liste;
+      liste = nouvelle;
+      dessiner();
+      enregistrer(blocAcc, { accueil_blocs: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.id) }, () => { liste = avant; dessiner(); });
+    };
+    dessiner();
+    blocAcc.addEventListener('change', e => {
+      const i = Number(e.target.dataset.i);
+      changer(liste.map((m, j) => (j === i ? Object.assign({}, m, { affiche: e.target.checked }) : m)));
+    });
+    blocAcc.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.classList.contains('pref-defaut')) return changer(parDefaut(), null);
+      const i = Number(b.dataset.monter != null ? b.dataset.monter : b.dataset.descendre), j = b.dataset.monter != null ? i - 1 : i + 1;
+      const nouvelle = liste.slice();
+      [nouvelle[i], nouvelle[j]] = [nouvelle[j], nouvelle[i]];
+      changer(nouvelle);
+    });
+  }
 
   const nomComplet = p => [p.prenom, p.nom].filter(Boolean).join(' ');
   async function afficherPartages(page) {

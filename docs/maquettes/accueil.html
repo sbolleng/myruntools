@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<title>Maquette · Accueil</title>
+<link rel="stylesheet" href="../../composants/en-tete.css">
+<style>
+  /* Maquette de la page d'accueil « en un coup d'œil ». Données fictives.
+     ?vue=milieu : image du milieu de la transition (le grand en-tête se réduit en barre fine). */
+  .ac-grille { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1rem; align-items: start; }
+  .ac-col { display: grid; gap: 1rem; }
+  .ac-bloc { padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  .ac-titre { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.7rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .ac-titre a { font-family: 'Space Grotesk', sans-serif; letter-spacing: 0; text-transform: none; color: var(--muted); }
+  .ac-bloc { position: relative; }
+  /* Prochaine course */
+  .ac-nom { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+  .ac-info { margin-top: 0.2rem; font-size: 0.8rem; color: var(--muted); }
+  .ac-cpt { display: flex; align-items: baseline; gap: 0.4rem; margin: 0.8rem 0 0.7rem; }
+  .ac-cpt b { font-size: 2rem; font-weight: 700; line-height: 1; color: var(--accent2); }
+  .ac-cpt span { font-size: 0.8rem; color: var(--muted); }
+  .ac-lignes { display: grid; gap: 0.35rem; font-size: 0.82rem; }
+  .ac-ligne { display: grid; grid-template-columns: 6rem minmax(0, 1fr); color: var(--text); }
+  .ac-ligne > span:first-child { color: var(--muted); }
+  /* Pense-bête */
+  .ac-pb { list-style: none; display: grid; gap: 0.55rem; font-size: 0.82rem; }
+  .ac-pb li { display: grid; grid-template-columns: 1.1rem minmax(0, 1fr); gap: 0.4rem; color: var(--text); }
+  .ac-pb small { display: block; font-size: 0.72rem; color: var(--muted); }
+  .ac-pb .auto { color: var(--accent2); }
+  .ac-pb input { margin: 0.15rem 0 0; accent-color: var(--accent); }
+  .ac-ajout { margin-top: 0.8rem; }
+  /* Nutrition */
+  .ac-nut { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; text-align: center; }
+  .ac-nut b { display: block; font-size: 1.25rem; font-weight: 700; color: var(--text); }
+  .ac-nut span { font-size: 0.7rem; color: var(--muted); }
+  .ac-note { margin-top: 0.7rem; font-size: 0.72rem; color: var(--muted); }
+  /* D'ici là */
+  .ac-etapes { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; font-size: 0.75rem; color: var(--muted); }
+  .ac-etapes span { padding: 0.2rem 0.55rem; border: 1px solid var(--border); border-radius: 999px; color: var(--text); }
+  .ac-etapes span.cap { border-color: var(--accent); color: var(--accent); }
+  .ac-etapes i { font-style: normal; color: var(--border); }
+  @media (max-width: 600px) {
+    .ac-grille { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* Milieu de la transition : titre réduit de moitié, indicateurs en fondu. */
+  .mq-milieu .mrt-header { transform: scaleY(0.62); transform-origin: top; opacity: 0.85; }
+  .mq-milieu .mrt-stats, .mq-milieu .mrt-bas { opacity: 0.25; }
+  .mq-milieu .mrt-nav { margin-top: -6.5rem; }
+  .mq-milieu main { opacity: 0.4; }
+</style>
+</head>
+<body>
+<main>
+  <div class="ac-grille">
+    <div class="ac-col">
+      <section class="ac-bloc">
+        <div class="ac-titre">Prochaine course <a href="#">Feuille de route →</a></div>
+        <div class="ac-nom">Trail du Lac · Le Tour du Lac</div>
+        <div class="ac-info">Préparatoire · dim. 15 nov. 2026, 9 h · Mont-Clair</div>
+        <div class="ac-cpt"><b>26</b><span>jours · 00h 00m 00s</span></div>
+        <div class="ac-lignes">
+          <div class="ac-ligne"><span>Distance</span><span>24 km · 650 m D+</span></div>
+          <div class="ac-ligne"><span>Objectif</span><span style="color:var(--accent2)">02:45:00</span></div>
+          <div class="ac-ligne"><span>Dossard</span><span>Inscrit · n° 412</span></div>
+        </div>
+      </section>
+      <section class="ac-bloc">
+        <div class="ac-titre">Bilan nutrition <a href="#">Nutrition →</a></div>
+        <div class="ac-nut">
+          <div><b>60 g</b><span>glucides / h</span></div>
+          <div><b>500 ml</b><span>eau / h</span></div>
+          <div><b>4</b><span>gels prévus</span></div>
+        </div>
+        <p class="ac-note">Plan de ravitaillement de la prochaine course · valeurs d'exemple, module Nutrition à spécifier.</p>
+      </section>
+    </div>
+    <div class="ac-col">
+      <section class="ac-bloc">
+        <div class="ac-titre">Pense-bête</div>
+        <ul class="ac-pb">
+          <li><span class="auto">●</span><span>S'inscrire à la Corrida de Noël<small>inscriptions ouvertes le 1er nov. 2026</small></span></li>
+          <li><span class="auto">●</span><span>Fixer l'objectif du Trail de la Forêt<small>course dans 4 mois</small></span></li>
+          <li><span class="auto">●</span><span>Marquer le Semi de San Sebastián comme couru<small>course passée, sans temps</small></span></li>
+          <li><input type="checkbox" aria-label="Fait"><span>Commander des gels<small>note perso</small></span></li>
+          <li><input type="checkbox" aria-label="Fait"><span>Faire réviser les chaussures de trail<small>note perso</small></span></li>
+        </ul>
+        <button type="button" class="mrt-lien ac-ajout">+ Ajouter une note</button>
+      </section>
+      <section class="ac-bloc">
+        <div class="ac-titre">D'ici là</div>
+        <div class="ac-etapes"><span>Trail du Lac</span><i>›</i><span>Corrida de Noël</span><i>›</i><span>Trail des Gorges</span><i>›</i><span>Trail de la Forêt</span><i>›</i><span class="cap">Trail des Crêtes</span></div>
+      </section>
+      <section class="ac-bloc">
+        <div class="ac-titre">Dernière course <a href="#">Palmarès →</a></div>
+        <div class="ac-lignes">
+          <div class="ac-ligne"><span>Course</span><span>Semi de San Sebastián</span></div>
+          <div class="ac-ligne"><span>Date</span><span>4 oct. 2026</span></div>
+          <div class="ac-ligne"><span>Temps</span><span>01:56:05 · 5:30 /km</span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+<script src="../../composants/en-tete.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  if (q.get('vue') === 'milieu') document.documentElement.classList.add('mq-milieu');
+  renderEnTete({
+    racine: '../../', courant: 'index.html', maintenant: '2026-10-20',
+    objectif: { nom: 'Trail des Crêtes', distance: 60, dplus: 3500, date: '2027-08-28', heure: '06:00', dIciLa: 4, cible: 'Finisher' },
+    prochaine: { nom: 'Trail du Lac', date: '2026-11-15' },
+    modules: [{ nom: 'Accueil', page: 'index.html' }, { nom: 'Cette semaine' }, { nom: 'Objectif', page: 'objectif.html' }, { nom: 'Nutrition' },
+      { nom: 'Palmarès', page: 'palmares.html' }, { nom: 'Profil' }, { nom: 'Guide' }]
+  });
+  document.documentElement.classList.remove('mrt-attente');
+</script>
+</body>
+</html>
