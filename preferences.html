@@ -48,12 +48,8 @@
   .pref-rond { font-size: 0.75rem; }
   .pref-defaut { margin-top: 0.6rem; }
   .pref-fixe { font-size: 0.72rem; color: var(--muted); }
-  .pref-dem { flex: none; display: flex; justify-content: center; width: 5rem; }
-  .pref-dem input { accent-color: var(--accent); margin: 0; }
-  .pref-entete { padding: 0 0 0.3rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
-  .pref-entete > span:first-child { flex: 1; }
   .pref-modules .pref-fleches { width: 4.2rem; justify-content: flex-end; }
-  @media (max-width: 600px) { .pref-modules .pref-fixe { display: none; } .pref-dem { width: 3.6rem; } .pref-entete .pref-dem { font-size: 0.55rem; } }
+  @media (max-width: 600px) { .pref-modules .pref-fixe:not(.pref-ouverture) { display: none; } }
 </style>
 </head>
 <body>
@@ -169,24 +165,17 @@
         .concat(mrtModules.filter(m => !choisis.includes(m.nom)).map(m => ({ nom: m.nom, affiche: false })));
     };
     let liste = depuisPrefs();
-    // Page de démarrage : un module construit et affiché dans le menu ; à défaut En un coup d'œil s'il est affiché,
-    // sinon le premier module construit du menu (comme mrtDemarrage).
     const pageDe = nom => mrtModules.find(x => x.nom === nom).page;
-    const demarragesPossibles = () => liste.filter(m => m.affiche && pageDe(m.nom)).map(m => pageDe(m.nom));
-    const demarrage = () => {
-      const possibles = demarragesPossibles(), choisie = mrtDemarrage(prefs);
-      return possibles.includes(choisie) ? choisie : possibles.includes('index.html') || !possibles.length ? 'index.html' : possibles[0];
-    };
     function dessinerMenu() {
-      const nbAffiches = liste.filter(m => m.affiche).length, dem = demarrage();
-      const rond = (page, nom, actif) => '<span class="pref-dem"><input type="radio" name="demarrage" value="' + page + '"' + (page === dem ? ' checked' : '') +
-        (actif ? '' : ' disabled') + ' aria-label="Page de démarrage : ' + esc(nom) + '"' + (actif ? '' : ' title="Visible seulement si le module est construit et affiché"') + '></span>';
-      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et ordonne-les avec les flèches. Le rond choisit la page qui s\'ouvre en arrivant sur le site.</p>' +
-        '<ul class="pref-liste pref-modules"><li class="pref-entete"><span></span><span class="pref-dem">Démarrage</span><span class="pref-fleches"></span></li>' + liste.map((m, i) => {
+      const nbAffiches = liste.filter(m => m.affiche).length;
+      // Page de démarrage : le premier module construit et affiché (rien à choisir, seulement à rappeler).
+      const premier = liste.find(m => m.affiche && pageDe(m.nom));
+      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et ordonne-les avec les flèches. Le premier s\'ouvre en arrivant sur le site, avec le grand en-tête.</p>' +
+        '<ul class="pref-liste pref-modules">' + liste.map((m, i) => {
         const construit = pageDe(m.nom);
         const seul = m.affiche && nbAffiches === 1;
-        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) + '</label>' +
-          rond(construit || '', m.nom, !!construit && m.affiche) +
+        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) +
+          (m === premier ? ' <span class="pref-fixe pref-ouverture">à l\'ouverture</span>' : '') + '</label>' +
           '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
           '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
       }).join('') + '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
@@ -195,16 +184,11 @@
       const avant = liste;
       liste = nouvelle;
       const champs = { modules: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.nom) };
-      // La page de démarrage ne peut pas être un module qui quitte le menu : retour au choix par défaut.
-      if (prefs.page_demarrage && !demarragesPossibles().includes(prefs.page_demarrage)) champs.page_demarrage = null;
       dessinerMenu();
       enregistrer(blocMenu, champs, () => { liste = avant; dessinerMenu(); });
     }
     dessinerMenu();
     blocMenu.addEventListener('change', e => {
-      if (e.target.name === 'demarrage') {
-        return enregistrer(blocMenu, { page_demarrage: e.target.value === 'index.html' ? null : e.target.value }, dessinerMenu);
-      }
       const i = Number(e.target.dataset.i);
       changerMenu(liste.map((m, j) => (j === i ? { nom: m.nom, affiche: e.target.checked } : m)));
     });
