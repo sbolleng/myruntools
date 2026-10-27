@@ -1,6 +1,6 @@
 # Design
 
-Version 0.22 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.23 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -90,8 +90,8 @@ Sur la page de démarrage seulement (spécification générale, § 5 bis) ; les 
 - **Ordinateur** : deux colonnes, 2 rem entre elles. À gauche le titre, puis les indicateurs, espacés de 2 rem, 1,5 rem sous le titre, qui passent à la ligne faute de place ; à droite, en haut le nom de l'application, en bas le compte à rebours et la prochaine course, alignés à droite, leur bas au niveau du bas des indicateurs.
 - **Téléphone** (600 px et moins) : une seule colonne, serrée, pour que la page commence dans le premier écran (environ 300 px d'en-tête). Le titre à 1,65 rem, sur toute la largeur, le nom de l'application et l'engrenage en haut à droite face à « Cap sur » ; juste sous le nom de la course, le compte à rebours sur une ligne (nombre de jours à 1,6 rem, « jours », les heures), dont il fait partie ; les indicateurs sur deux colonnes, 1 rem plus bas ; enfin la prochaine course, à part, sous un filet (Bordure), 0,75 rem, alignée à gauche.
 - **« Cap sur »** ne se coupe jamais : il tient sur une ligne, le nom de la course dessous.
-- **Filet** : barre de 5 px, 1,5 rem sous le contenu (1,1 rem sur téléphone), toute la largeur ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
-- Une ligne fine (Bordure) sépare l'en-tête du menu.
+- **Filet** : barre de 5 px, 1,6 rem sous le contenu (1,1 rem sur téléphone), d'un bord à l'autre de l'écran ; dégradé en bandes qui alterne Accent, Accent 2 et Surface 2, comme un profil de course.
+- Le filet ferme l'en-tête : il touche le menu, sans vide ni ligne fine entre les deux.
 
 ## 5. Page de connexion
 
