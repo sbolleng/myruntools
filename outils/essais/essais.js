@@ -1146,7 +1146,8 @@ const CONTROLES = {
     d = copie();
     d.courses.find(c => c.id === id(2)).format = 'tri_s';
     ({ p, ctx } = await ouvertePrep(d, id(2)));
-    pb.push(egal(true, (await p.textContent('#preparation .cal-vide')).startsWith('Pas de plan'), 'format sans durée : pas de plan'));
+    pb.push(egal(true, (await p.textContent('#preparation .cal-vide')).startsWith('Pas encore de plan'), 'format sans durée : pas de plan'));
+    pb.push(egal(['Paramétrer le plan', true], await p.evaluate(() => { const b = document.querySelector('#preparation [data-preparer]'); return [b.textContent.trim(), b.classList.contains('is-principal')]; }), 'bouton « Paramétrer le plan » : bouton principal'));
     await p.click('#preparation [data-preparer]');
     await p.fill('.cal-prep [name="duree"]', '10'); await p.dispatchEvent('.cal-prep [name="duree"]', 'change');
     await p.click('[data-act="enregistrer"]');

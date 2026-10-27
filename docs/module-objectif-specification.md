@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.19 · 27 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.20 · 27 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -113,7 +113,7 @@ Sans en-tête : la barre fine (« Cap sur … » et l'engrenage), puis le menu d
 │ │ (14) PRIX         58 €                             │           │
 │ └────────────────────────────────────────────────────┘           │
 │ ─────────────────────────────────────────────────                │
-│ (24) ⌄ Préparation                              [Préparer]       │
+│ (24) ⌄ Préparation                              [Paramétrer le plan]│
 │      plan, frise, semaine en cours, toutes les semaines          │
 │ ─────────────────────────────────────────────────                │
 │ (15) ⌄ Rôle dans la préparation                                  │
@@ -144,7 +144,7 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 | 23 | Précisions | « Sous 6 h 45 dans tous les cas. » | Juste sous l'Objectif, valeur en Texte ; absente si vide ; ni sur la carte, ni dans l'en-tête |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit |
 | 14 | Prix | « 58 € » | Seulement s'il est connu |
-| 24 | Préparation | Plan de préparation de la course : durée, frise des phases, semaine en cours, séances (spécification du [Calendrier](module-calendrier-specification.md), § 5) | Premier texte de la liste, ouvert par défaut ; course à venir avec une date seulement ; ancre `#preparation` ; bouton « Préparer » absent en lecture seule |
+| 24 | Préparation | Plan de préparation de la course : durée, frise des phases, semaine en cours, séances (spécification du [Calendrier](module-calendrier-specification.md), § 5) | Premier texte de la liste, ouvert par défaut ; course à venir avec une date seulement ; ancre `#preparation` ; bouton « Paramétrer le plan » absent en lecture seule |
 | 15 à 19 | Textes | Dans l'ordre ci-dessous, identique pour tous ; un texte vide n'est pas affiché | Liste à filets, dans un cadre ; titre en Texte, 600, casse normale, chevron à gauche |
 | 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la feuille de route | Libellé, puis le nom en Texte |
 

@@ -72,6 +72,9 @@
 .cal-tab select { padding: 0.25rem 0.4rem; font-size: 0.78rem; }
 @media (hover: none) { .cal-champ input, .cal-champ select, .cal-tab select { font-size: 16px; } }
 
+/* Bouton « Paramétrer le plan » : le bouton principal, comme « Ajouter une course ». */
+.cal-parametrer .cal-ico { width: 0.9rem; height: 0.9rem; }
+
 /* Rubrique d'une page de course : un jour par ligne, à toute largeur. */
 .cal-prep-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; margin-bottom: 0.8rem; }
 .cal-prep-haut .cal-plan-dates { margin: 0; }

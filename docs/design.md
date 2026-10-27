@@ -1,6 +1,6 @@
 # Design
 
-Version 0.24 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.25 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -174,5 +174,6 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Séance** : case à cocher en Accent, type en Space Mono 0,58 rem capitales Texte discret, libellé en 0,72 rem ; barrée et en Texte discret quand elle est faite. Bouton « + » rond en bas à droite de la case du jour. Course du jour : pastille aux quatre couleurs du § 10 ; rendez-vous clé : « ◆ » et texte en 0,68 rem.
 - **Frise** des phases : cases de la couleur de la phase, côte à côte, largeur proportionnelle à leur nombre de semaines ; poignées de 8 px en Texte, curseur de redimensionnement.
 - **Rubrique Préparation** : premier texte de la liste des textes d'une course (même cadre, même titre repliable) ; une semaine tient sur une ligne par jour, à toute largeur ; légende « Semaine en cours » en Space Mono 0,62 rem capitales, Texte discret ; « Toutes les semaines » : titre repliable en 0,8 rem, Texte discret.
-- **Fenêtres** (séance, Préparer) : voile noir à 60 %, panneau Surface avec cadre, 30 rem (44 rem pour Préparer) ; champs à 16 px sur écran tactile.
+- **Bouton « Paramétrer le plan »** : bouton principal (Accent plein, texte en Fond, icône de curseurs de 0,9 rem), comme « Ajouter une course ».
+- **Fenêtres** (séance, Paramétrer le plan) : voile noir à 60 %, panneau Surface avec cadre, 30 rem (44 rem pour Paramétrer le plan) ; champs à 16 px sur écran tactile.
 
