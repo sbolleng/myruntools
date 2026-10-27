@@ -6,6 +6,11 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 oct. 2026 | Calendrier | Spécification 0.1 rédigée, à valider : trois vues en zoom (Année 12 mois sur deux blocs de six colonnes ; 4 semaines depuis le lundi ; plan d'une course), lancées par un bandeau déroulant et par le toucher d'un jour ou d'une course. Remplace le prototype `planning.js`. |
+| 27 oct. 2026 | Calendrier | Courses : validée = Confirmée, non validée = Option ; quatre couleurs (route et trail, pleine et claire) ; trait de prépa sur le seul premier jour ; autres statuts masqués, courues grisées. |
+| 27 oct. 2026 | Calendrier | Prépa : durée en semaines par format, réglable par course ; phases Base, Développement, Affûtage, Deload calculées par règles générales (affûtage = 2 dernières semaines, deload toutes les 4 semaines, reste réparti par moitié), modifiables semaine par semaine dans la rubrique « Préparer » ; jamais calculées par IA. |
+| 27 oct. 2026 | Calendrier | Séances saisies à la main (type run ou renfo, libellé, case « faite ») ; rendez-vous clé : ouverture des inscriptions. Import d'une application et génération d'un plan par IA : à la todo. |
+| 27 oct. 2026 | Calendrier | Lots : vue Année d'abord (sans nouvelle donnée), puis modèle de données, puis vues 4 semaines et plan d'une course. Téléphone : vue Année en 3 colonnes de mois, 4 blocs. |
 | 24 oct. 2026 | Objectif | Formulaire d'une course à venir : course et parcours en premier, puis la date avec « Jour inconnu » (côte à côte, téléphone compris), puis l'heure et le lieu ; spécification 0.13. |
 | 24 oct. 2026 | Objectif | Feuille de route sans titre ni légende ; le « + » seul, en haut à droite, au-dessus de la première carte ; sur téléphone, la date reste juste sous le compteur même quand le rôle passe sur deux lignes ; spécification 0.12. |
 | 24 oct. 2026 | Objectif | Une course confirmée dont la date est passée reste sur la feuille de route (compteur « Course courue ») tant qu'elle n'est pas marquée courue, pour pouvoir saisir son résultat ; elle ne compte pas pour l'en-tête ; une option passée disparaît ; spécification 0.12. |
