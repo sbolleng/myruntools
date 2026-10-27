@@ -25,7 +25,7 @@ Deux profils pilotes au lancement :
 
 Chaque page suit le même gabarit, de haut en bas :
 
-1. **En-tête** (§ 4), sur la **page de démarrage** seulement : la page qui s'ouvre en arrivant sur le site, choisie dans les Préférences (par défaut l'Accueil, § 5 bis).
+1. **En-tête** (§ 4), sur la **page de démarrage** seulement : la page qui s'ouvre en arrivant sur le site, choisie dans les Préférences, dans le Menu (par défaut l'Accueil, § 5 bis).
 2. **Menu** (§ 5), sur toutes les pages.
 3. **Contenu du module**.
 

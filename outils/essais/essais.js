@@ -326,10 +326,18 @@ const CONTROLES = {
     await ctx.close();
     // Préférences : la page de démarrage se choisit en pastilles ; enregistrée aussitôt.
     ({ p, ctx } = await ouvrir(nav, 'preferences.html', 1200, db, {}, PARIS));
-    pb.push(egal(['Accueil', 'Objectif', 'Calendrier', 'Palmarès'], await p.evaluate(() => [...document.querySelectorAll('#bloc-demarrage .pv2-check')].map(l => l.textContent.trim())), 'démarrage : Accueil et modules construits'));
-    await p.click('#bloc-demarrage label.pv2-check:has(input[value="palmares.html"])');
-    await p.waitForSelector('#bloc-demarrage .pref-msg:has-text("Enregistré")');
-    pb.push(egal('palmares.html', db.preferences[0].page_demarrage, 'démarrage enregistré'));
+    pb.push(egal(['index.html', 'objectif.html', 'calendrier.html', 'palmares.html'], await p.evaluate(() => [...document.querySelectorAll('.pref-modules .pref-dem input:not(:disabled)')].map(i => i.value)), 'menu : page de démarrage possible pour l\'Accueil et les modules construits et affichés'));
+    pb.push(egal(0, await p.locator('#bloc-demarrage').count(), 'plus de section « Page de démarrage »'));
+    await p.click('.pref-modules [aria-label="Page de démarrage : Palmarès"]');
+    await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
+    pb.push(egal('palmares.html', db.preferences[0].page_demarrage, 'démarrage enregistré, depuis le menu'));
+    // Retirer ce module du menu : retour à l'Accueil
+    await p.uncheck('.pref-modules label:has-text("Palmarès") input');
+    for (let i = 0; i < 20 && db.preferences[0].page_demarrage; i++) await p.clock.runFor(100);
+    pb.push(egal([null, 'index.html'], [db.preferences[0].page_demarrage, await p.inputValue('.pref-modules .pref-dem input:checked')], 'module de démarrage retiré du menu : retour à l\'Accueil'));
+    await p.check('.pref-modules label:has-text("Palmarès") input');
+    await p.click('.pref-modules [aria-label="Page de démarrage : Palmarès"]');
+    await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
     pb.push(egal(['Prochaine course', 'Pense-bête · bientôt', 'Bilan nutrition · bientôt', 'D\'ici là', 'Dernière course'], await p.evaluate(() => [...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim())), 'page d\'accueil : les cinq blocs'));
     await p.check('.pref-blocs label:has-text("Dernière course") input');
     await p.waitForSelector('#bloc-accueil .pref-msg:has-text("Enregistré")');
@@ -366,7 +374,7 @@ const CONTROLES = {
     pb.push(egal([true, true, false, true], await p.evaluate(() => { const g = document.querySelector('.mrt-barre .mrt-gear');
       return [g.getAttribute('href').endsWith('preferences.html'), g.classList.contains('is-on'), !!document.querySelector('.mrt-header'), !!document.querySelector('.mrt-barre')]; }), 'engrenage dans la barre fine, page sans en-tête'));
     pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors des modules du menu'));
-    pb.push(egal(['Compte', 'Cap', 'Thème', 'Page de démarrage', 'Page d\'accueil', 'Menu', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
+    pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'Page d\'accueil', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
     pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise'], await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes, sans mention'));
 
     // Thème
@@ -385,7 +393,7 @@ const CONTROLES = {
     pb.push(egal('Accueil', await p.evaluate(() => document.querySelector('.mrt-tab').textContent), 'menu : l\'Accueil en premier'));
     const catalogue = ['Cette semaine', 'Objectif', 'Calendrier', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
     pb.push(egal(catalogue, await menu(), 'menu par défaut'));
-    pb.push(egal(7, await p.locator('.pref-modules input:checked:not(:disabled)').count(), 'tous les modules cochés (plus l\'Accueil, fixe)'));
+    pb.push(egal(7, await p.locator('.pref-modules input[type="checkbox"]:checked:not(:disabled)').count(), 'tous les modules cochés (plus l\'Accueil, fixe)'));
     pb.push(egal(4, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
     await p.click('[aria-label="Monter Palmarès"]'); await attendre();
     const monte = ['Cette semaine', 'Objectif', 'Calendrier', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
@@ -398,7 +406,7 @@ const CONTROLES = {
     pb.push(egal(catalogue, await menu(), 'ordre par défaut rétabli'));
     for (const n of catalogue.slice(1)) { await p.locator('.pref-modules label', { hasText: n }).locator('input').uncheck(); await attendre(); }
     pb.push(egal(['Cette semaine'], await menu(), 'un seul module affiché'));
-    pb.push(egal(true, await q('.pref-modules input:checked', 'x.disabled'), 'dernière case non décochable'));
+    pb.push(egal(true, await q('.pref-modules input[data-i]:checked', 'x.disabled'), 'dernière case non décochable'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
 
     // Cap
