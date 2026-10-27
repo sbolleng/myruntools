@@ -59,7 +59,7 @@
     const o = cfg.objectif || {};
     const now = () => (cfg.maintenant ? parseDate(cfg.maintenant) : new Date());
     // Redessiné (Préférences) : l'ancien en-tête et son compte à rebours disparaissent.
-    document.querySelectorAll('.mrt-header, .mrt-nav').forEach(e => e.remove());
+    document.querySelectorAll('.mrt-header, .mrt-barre, .mrt-nav').forEach(e => e.remove());
     clearInterval(minuteur);
     window.appliquerTheme(cfg.theme);
     const lien = href => (cfg.racine || '') + href;

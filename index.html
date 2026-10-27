@@ -6,7 +6,11 @@
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="dark">
 <meta name="site-version" content="__VERSION__">
-<script>document.documentElement.classList.add('mrt-attente');</script>
+<script>
+  // Masquée jusqu'à ce qu'elle soit prête. Déjà dans le site (en-tête gardé pour la visite) : seul le contenu attend,
+  // l'en-tête et le menu s'affichent aussitôt, sans page blanche entre deux pages.
+  (function () { var c = null; try { c = sessionStorage.getItem('mrt-entete'); } catch (e) {} document.documentElement.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
+</script>
 <title>MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
