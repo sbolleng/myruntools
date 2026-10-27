@@ -308,7 +308,7 @@ const CONTROLES = {
     pb.push(egal(true, /Course.+Date.+Temps\s*\d{2}:\d{2}:\d{2}/.test(await p.textContent('[data-bloc="derniere"]')), 'dernière course : nom, date, temps en hh:mm:ss'));
     await ctx.close();
     // Page de démarrage : la feuille de route. En arrivant sur l'Accueil, on y est renvoyé ; elle seule a le grand en-tête.
-    const dem = JSON.parse(JSON.stringify(db)); dem.preferences[0].page_demarrage = 'objectif.html';
+    const dem = JSON.parse(JSON.stringify(db)); dem.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès'];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, dem, {}, PARIS));
     await p.addInitScript(() => {
       window.__anims = []; document.addEventListener('animationstart', e => window.__anims.push(e.animationName), true);
@@ -331,19 +331,14 @@ const CONTROLES = {
       await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].some(t => /coup d/.test(t.getAttribute('aria-label') || ''))),
       await p.evaluate(() => document.querySelector('.mrt-brand a').getAttribute('href').endsWith('objectif.html'))], 'En un coup d\'œil masqué : on arrive sur Objectif, absent du menu'));
     await ctx.close();
-    // Préférences : la page de démarrage se choisit en pastilles ; enregistrée aussitôt.
+    // Préférences : pas de choix de page de démarrage ; le premier module construit du menu est marqué « à l'ouverture ».
     ({ p, ctx } = await ouvrir(nav, 'preferences.html', 1200, db, {}, PARIS));
-    pb.push(egal(['index.html', 'objectif.html', 'calendrier.html', 'palmares.html'], await p.evaluate(() => [...document.querySelectorAll('.pref-modules .pref-dem input:not(:disabled)')].map(i => i.value)), 'menu : page de démarrage possible pour l\'Accueil et les modules construits et affichés'));
-    pb.push(egal(0, await p.locator('#bloc-demarrage').count(), 'plus de section « Page de démarrage »'));
-    await p.click('.pref-modules [aria-label="Page de démarrage : Palmarès"]');
+    const ouverture = () => p.evaluate(() => [...document.querySelectorAll('.pref-ouverture')].map(e => e.closest('label').textContent.replace(/\s*à l'ouverture$/, '').trim()));
+    pb.push(egal([0, ['En un coup d\'œil']], [await p.locator('.pref-modules input[type="radio"]').count(), await ouverture()], 'menu : pas de choix de démarrage, le premier module marqué « à l\'ouverture »'));
+    await p.uncheck('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
-    pb.push(egal('palmares.html', db.preferences[0].page_demarrage, 'démarrage enregistré, depuis le menu'));
-    // Retirer ce module du menu : retour à l'Accueil
-    await p.uncheck('.pref-modules label:has-text("Palmarès") input');
-    for (let i = 0; i < 20 && db.preferences[0].page_demarrage; i++) await p.clock.runFor(100);
-    pb.push(egal([null, 'index.html'], [db.preferences[0].page_demarrage, await p.inputValue('.pref-modules .pref-dem input:checked')], 'module de démarrage retiré du menu : retour à l\'Accueil'));
-    await p.check('.pref-modules label:has-text("Palmarès") input');
-    await p.click('.pref-modules [aria-label="Page de démarrage : Palmarès"]');
+    pb.push(egal(['Objectif'], await ouverture(), 'En un coup d\'œil décoché : Objectif s\'ouvre en arrivant'));
+    await p.check('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
     pb.push(egal(['Prochaine course', 'Pense-bête · bientôt', 'Bilan nutrition · bientôt', 'D\'ici là', 'Dernière course'], await p.evaluate(() => [...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim())), 'page d\'accueil : les cinq blocs'));
     await p.check('.pref-blocs label:has-text("Dernière course") input');
@@ -461,7 +456,7 @@ const CONTROLES = {
   // Objectif : feuille de route et page d'une course (module-objectif-specification.md, § 10).
   async objectif(nav, db0) {
     const { db, id } = jeuObjectif(db0);
-    db.preferences[0].page_demarrage = 'objectif.html'; // la feuille de route porte le grand en-tête
+    db.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès']; // Objectif en tête : la feuille de route porte le grand en-tête
     const pb = [];
     // Une carte : ses éléments, tels qu'affichés (espaces insécables ramenés à des espaces).
     const cartes = p => p.evaluate(() => [...document.querySelectorAll('.ob-et')].map(et => {
@@ -674,7 +669,7 @@ const CONTROLES = {
   // Objectif : saisie et édition d'une course à venir (module-objectif-specification.md, § 3.7 et § 10).
   async saisie(nav, db0) {
     const { db, id } = jeuObjectif(db0);
-    db.preferences[0].page_demarrage = 'objectif.html'; // la feuille de route porte le grand en-tête
+    db.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès']; // Objectif en tête : la feuille de route porte le grand en-tête
     const pb = [];
     const PAGE = 'objectif.html', COURSE = n => 'course.html?id=' + id(n);
     const lire = async (p, sel) => p.locator(sel).inputValue();
