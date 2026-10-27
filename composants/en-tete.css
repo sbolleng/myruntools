@@ -9,7 +9,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 /* Page privée masquée tant que la session n'est pas vérifiée (session.js). */
-html.mrt-attente body { visibility: hidden; }
+html.mrt-attente body, html.mrt-attente-contenu main { visibility: hidden; }
 html { background: var(--bg); }
 body {
   font-family: 'Space Grotesk', sans-serif;
@@ -35,7 +35,7 @@ th { text-align: left; padding: 0.6rem 0.75rem; font-family: 'Space Mono', monos
 td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 
 /* ----- En-tête ----- */
-.mrt-header { padding: 1.75rem 2rem 1.5rem; border-bottom: 1px solid var(--border); }
+.mrt-header { padding: 1.5rem 2rem 1.25rem; border-bottom: 1px solid var(--border); }
 .mrt-brand {
   grid-area: marque;
   display: flex;
@@ -75,20 +75,20 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 .mrt-droite { display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; }
 .mrt-header h1 {
   grid-area: titre;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.9rem, 4.5vw, 3.1rem);
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1;
   letter-spacing: -0.02em;
 }
 .mrt-header h1 em { display: block; font-style: normal; color: var(--accent); }
 .mrt-cap { white-space: nowrap; }
-.mrt-stats { grid-area: stats; display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.5rem; }
+.mrt-stats { grid-area: stats; display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.2rem; }
 .mrt-stat { display: flex; flex-direction: column; gap: 0.15rem; max-width: 15rem; }
 .mrt-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text); }
 .mrt-stat-dplus { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
 .mrt-stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
 .mrt-bas { text-align: right; }
-.mrt-days { display: block; font-family: 'Space Mono', monospace; font-size: 3.5rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.mrt-days { display: block; font-family: 'Space Mono', monospace; font-size: 3.1rem; font-weight: 700; color: var(--accent); line-height: 1; }
 .mrt-days-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .mrt-hms { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 0.15rem; }
 .mrt-next { font-size: 0.65rem; color: var(--muted); margin-top: 0.2rem; }
@@ -96,7 +96,7 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 .mrt-bar {
   width: 100%;
   height: 5px;
-  margin-top: 2rem;
+  margin-top: 1.6rem;
   background: linear-gradient(90deg,
     var(--surface2) 0%, var(--accent) 6%, var(--surface2) 9%,
     var(--accent2) 14%, var(--surface2) 18%, var(--accent) 24%,
@@ -137,7 +137,7 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   .mrt-gauche, .mrt-droite, .mrt-bas { display: contents; }
   .mrt-grid { position: relative; grid-template-columns: minmax(0, 1fr); grid-template-areas: "titre" "compteur" "stats" "prochaine"; }
   .mrt-header .mrt-brand { position: absolute; top: 0; right: 0; }
-  .mrt-header h1 { font-size: 1.75rem; }
+  .mrt-header h1 { font-size: 1.65rem; }
   .mrt-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1rem; margin-top: 1rem; }
   .mrt-stat-val { font-size: 0.95rem; }
   .mrt-count { grid-area: compteur; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.5rem; margin-top: 0.35rem; text-align: left; }

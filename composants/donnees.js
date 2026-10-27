@@ -139,7 +139,23 @@
 
   // Attend la session, lit les courses (les siennes, ou celles d'un site
   // partagé), dessine l'en-tête et le menu. Rend de quoi construire la page.
+  // En-tête et menu de la dernière page, gardés pour la visite (sessionStorage) : la page suivante les dessine
+  // aussitôt, sans attendre la base ; ils ne sont redessinés que s'ils ont changé.
+  const CACHE = 'mrt-entete';
+  const lireCache = () => { try { return JSON.parse(sessionStorage.getItem(CACHE)); } catch (e) { return null; } };
+  const ecrireCache = c => { try { sessionStorage.setItem(CACHE, JSON.stringify(c)); } catch (e) { /* stockage indisponible */ } };
+
   window.mrtPage = async function (opts) {
+    const cache = lireCache();
+    let dessine = null; // configuration dessinée, pour ne pas redessiner à l'identique
+    const tracer = (cfg, demarrage) => {
+      const complet = Object.assign({}, cfg, { courant: opts.courant, sansEnTete: !!opts.sansEnTete || opts.courant !== demarrage });
+      const cle = JSON.stringify(complet);
+      if (cle === dessine) return;
+      dessine = cle;
+      window.renderEnTete(complet);
+    };
+    if (cache && !(opts.courant === 'index.html' && cache.demarrage !== 'index.html')) tracer(cache.cfg, cache.demarrage);
     const session = await window.mrtSession();
     if (!session) return new Promise(() => {}); // renvoi vers la connexion en cours
     const db = window.mrtSupabase;
@@ -175,8 +191,9 @@
     // Grand en-tête sur la page de démarrage seulement ; ailleurs, la barre fine.
     const dessiner = p => {
       prefsCourantes = p;
-      const sansEnTete = !!opts.sansEnTete || opts.courant !== window.mrtDemarrage(p);
-      window.renderEnTete(Object.assign(configEnTete(p, courses), { courant: opts.courant, sansEnTete }));
+      const cfg = configEnTete(p, courses), demarrage = window.mrtDemarrage(p);
+      ecrireCache({ cfg, demarrage });
+      tracer(cfg, demarrage);
     };
     dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
