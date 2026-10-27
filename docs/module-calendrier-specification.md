@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.2 · 27 octobre 2026 · [Retour au sommaire](README.md) · Lot 1 (vue Année) construit
+Version 0.3 · 27 octobre 2026 · [Retour au sommaire](README.md) · Lots 1 (vue Année) et 2 (modèle de données) construits
 
 ## 1. Rôle
 
@@ -183,17 +183,17 @@ Vue Année : trois colonnes de mois, quatre blocs ; cases plus petites ; pas d'i
 | Donnée | Source | État |
 | --- | --- | --- |
 | Courses (date, format, statut, état, ouverture des inscriptions) | Table `courses` | Existe |
-| Durée de prépa par défaut d'un format | Colonne de `formats` | À créer |
-| Durée de prépa d'une course | Colonne de `courses` (vide : valeur du format) | À créer |
-| Phases modifiées à la main | Table, une ligne par semaine modifiée (course, lundi, phase) | À créer |
-| Séances : date, type (run, renfo), libellé, faite, course liée facultative | Table à créer | À créer |
+| Durée de prépa par défaut d'un format | `formats.prepa_semaines` | Créé (évolution 009) |
+| Durée de prépa d'une course | `courses.prepa_semaines` (vide : valeur du format) | Créé (évolution 009) |
+| Phases modifiées à la main | Table `plan_semaines`, une ligne par semaine modifiée (course, lundi, phase) | Créée (évolution 009) |
+| Séances : date, type (run, renfo), libellé, faite, course liée facultative | Table `seances` | Créée (évolution 009) |
 
-Le modèle de données sera écrit au lot 2, après validation de cette spécification. Ce qui se calcule n'est jamais rangé : début du plan, phases non modifiées, semaines sans objectif, chevauchements.
+Le [modèle de données](modele-donnees.md) (§ 4.4) décrit ces champs et tables. Ce qui se calcule n'est jamais rangé : début du plan, phases non modifiées, semaines sans objectif, chevauchements.
 
 ## 8. Lots de construction
 
 1. **Vue Année** : lecture seule, sans nouvelle donnée, avec la durée de prépa par défaut du format (§ 5.4). **Construit** (27 octobre 2026) : page `calendrier.html`, composant `composants/calendrier.js`.
-2. **Modèle de données** : durées, phases, séances.
+2. **Modèle de données** : durées, phases, séances. **Construit** (27 octobre 2026) : évolution `supabase/evolutions/009-calendrier-preparation.sql`, `schema.sql` à jour ; la vue Année lit désormais la durée de la course, sinon celle de son format, dans la base ; plus rien n'est écrit en dur dans le composant.
 3. **Vues 4 semaines et plan d'une course**, saisie des séances, rubrique « Préparer ».
 
 Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
@@ -246,3 +246,6 @@ Résultats attendus, plan d'une course :
 - « Préparer » sur Trail des Gorges, durée portée à 20 semaines : début du plan le 19 octobre ; les phases se recalculent. Mettre la semaine du 7 décembre en Base : seule cette semaine change ; « Recalculer selon les règles » (confirmé) la remet en Deload.
 - Site partagé en lecture seule : le plan s'affiche, sans « Préparer » ni saisie de séance.
 - Adresse d'une course inconnue, d'un autre utilisateur ou sans date : « Course introuvable. » et un lien de retour.
+Résultats attendus, durées de prépa (vue Année) :
+
+- Durée de prépa : la durée propre à une course remplace celle de son format (Trail des Gorges à 20 semaines : trait le lundi 19 octobre 2026) ; un format sans durée (Triathlon S) : pas de trait.

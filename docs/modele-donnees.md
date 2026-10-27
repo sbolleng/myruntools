@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.8 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.9 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -21,6 +21,8 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `courses` | Une course, à surveiller, prévue ou courue | `profils`, `formats`, `equipements` (chaussures) |
 | `partages` | Un accord de partage en lecture seule, d'un utilisateur vers un autre | `profils` (deux fois) |
 | `courses_circuits` | L'appartenance d'une course à un circuit (UTMB, Challenge Levy…) | `courses`, `circuits` |
+| `plan_semaines` | Une semaine dont la phase de préparation a été modifiée à la main | `courses` |
+| `seances` | Une séance du Calendrier (run ou renfo) | `profils`, `courses` (facultatif) |
 | `equipements` | Un équipement : chaussures, montre, bâtons… | `profils`, `types_equipement` |
 | `types_course`, `formats`, `types_equipement`, `circuits` | Une valeur d'une liste de référence | — |
 
@@ -85,6 +87,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Profil officiel | `distance`, `dplus`, `dmoins` | En-tête, Palmarès, km-effort |
 | Place dans le plan | `statut`, `role`, `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
 | Dossard | `inscrit`, `dossard`, `prix`, `ouverture_inscriptions` | Cellule Dossard |
+| Durée de prépa | `prepa_semaines` : durée de la préparation en semaines, de 1 à 52 ; vide : celle du format (§ 4.4) | Calendrier |
 | Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
 | Suivi en course | `passages` : liste de points (distance depuis le départ, temps visé) ; `chronos_reference` : liste de chronos (libellé, temps) | Suivi en course (§ 4.2) |
 | Résultat officiel | `temps`, `dnf`, `allure`, `vitesse`, `place`, `effectif`, `place_categorie`, `effectif_categorie`, `place_sexe`, `effectif_sexe` | Palmarès |
@@ -128,6 +131,17 @@ Une course peut appartenir à zéro, un ou plusieurs circuits, chacun avec ses p
 
 Supprimer une course supprime ses lignes de circuit.
 
+### 4.4 Préparation du Calendrier
+
+Le plan d'une course est calculé à l'affichage ([spécification du Calendrier](module-calendrier-specification.md), § 5) ; seuls les écarts à ce calcul et les séances sont rangés.
+
+| Donnée | Où | Contenu |
+| --- | --- | --- |
+| Durée par défaut | `formats.prepa_semaines` | Nombre de semaines de préparation d'un format ; vide : pas de préparation affichée (Trail découverte, Course en heure, Marche, Fast hiking, Triathlon pour l'instant) |
+| Durée d'une course | `courses.prepa_semaines` | Remplace celle du format |
+| Phase modifiée | `plan_semaines` : `course`, `lundi` (le lundi de la semaine), `phase` | Une ligne par semaine dont la phase a été changée à la main ; les autres semaines se calculent. Phases : base, développement, affûtage, deload. Supprimée avec la course. |
+| Séance | `seances` : `date`, `type` (run ou renfo), `libelle` (1 à 100 caractères), `faite`, `course` (facultative) | Une séance saisie à la main. Si la course est supprimée, la séance reste, sans course. |
+
 ## 5. Équipement
 
 ### `equipements`
@@ -151,13 +165,13 @@ Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'
 | Table | Contenu | Qui modifie |
 | --- | --- | --- |
 | `types_course` | Course sur route, Trail, Marche, Fast hiking, Triathlon, avec leur ordre | Administrateur du site |
-| `formats` | Les formats de chaque type (spécification du Palmarès, § 3), avec leur ordre et l'indication « distance fixe » (records) | Administrateur du site |
+| `formats` | Les formats de chaque type (spécification du Palmarès, § 3), avec leur ordre, l'indication « distance fixe » (records) et leur durée de préparation par défaut | Administrateur du site |
 | `types_equipement` | Chaussures, montre, bâtons, sac, frontale, vêtement… | Administrateur du site |
 | `circuits` | UTMB (index et World Series), Challenge Levy…, avec lien et note (« classé à partir de 5 courses ») | Administrateur du site |
 
 ### Listes fermées (gravées dans la base)
 
-Statut, rôle, état et thème : le fonctionnement en dépend (Courue envoie au Palmarès, À surveiller dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
+Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, deload) et type de séance (run, renfo) : le fonctionnement en dépend (Courue envoie au Palmarès, À surveiller dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
 
 ## 7. Ce qui est calculé, jamais rangé
 
@@ -170,12 +184,15 @@ Statut, rôle, état et thème : le fonctionnement en dépend (Courue envoie au 
 | Cap par défaut | Course à venir de la page Objectif la plus lointaine |
 | D'ici là | Blocs de la page Objectif à venir avant le cap : une course confirmée, une option isolée ou un groupe d'options comptent chacun pour un |
 | Prochaine course | Première course confirmée à venir |
+| Début d'un plan | Lundi de la semaine du jour J, moins (durée − 1) semaines |
+| Phase d'une semaine | Règles du Calendrier (§ 5.1) : affûtage les 2 dernières semaines, deload toutes les 4 semaines, le reste réparti entre base et développement ; sauf semaine modifiée dans `plan_semaines` |
+| Semaine sans objectif clair | Semaine hors du plan de toute course confirmée |
 
 ## 8. Accès et confidentialité
 
 - Connexion par lien magique ; un compte = un profil.
 - Règle par ligne sur toutes les tables d'utilisateur : lecture et écriture seulement si la ligne appartient à l'utilisateur connecté.
-- Exception, en lecture seulement : courses, circuits et préférences d'un propriétaire qui a partagé son site avec l'utilisateur connecté (`partages`).
+- Exception, en lecture seulement : courses, circuits, phases modifiées, séances et préférences d'un propriétaire qui a partagé son site avec l'utilisateur connecté (`partages`).
 - Listes de référence : lecture pour tout utilisateur connecté, écriture pour l'administrateur seulement.
 - Seule la clé publique de Supabase figure dans le code ; les scripts d'import des données des anciens sites ne sont jamais versionnés.
 
@@ -197,3 +214,9 @@ Résultats attendus :
 - A rattache une course au circuit UTMB, catégorie 20K, 1 stone : B ne voit pas ce rattachement ; supprimer la course le supprime.
 - Une course sans date (À surveiller) est acceptée ; elle s'affiche « À définir ».
 - A partage avec B : B lit les courses, circuits et préférences de A, et son prénom, nom et sexe, mais ni son poids ni sa VMA ; B ne peut rien modifier chez A ; A retire le partage, B ne lit plus rien.
+- Calendrier : A a une course de format Trail long (16 semaines par défaut). Sa durée propre à 20 semaines remplace celle du format ; vidée, le format reprend. Un format sans durée : pas de plan.
+- A modifie la phase d'une semaine : une ligne dans `plan_semaines` ; B ne la voit pas. Un jour qui n'est pas un lundi est refusé, une phase inconnue aussi. Supprimer la course supprime ces lignes.
+- A saisit une séance « Run · 8×400 m » et une séance « Renfo · Gainage » sans course : B ne les voit pas ; un type inconnu est refusé, un libellé vide ou de plus de 100 caractères aussi.
+- Supprimer la course liée à une séance garde la séance, sans course.
+- Une durée de préparation de 0 ou de plus de 52 semaines est refusée.
+- A partage avec B : B lit les phases modifiées et les séances de A, sans rien modifier.

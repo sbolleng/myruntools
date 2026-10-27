@@ -665,168 +665,192 @@
    "type": "route",
    "libelle": "5 km",
    "ordre": 1,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": 8
   },
   {
    "id": "route_10km",
    "type": "route",
    "libelle": "10 km",
    "ordre": 2,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": 8
   },
   {
    "id": "route_20km",
    "type": "route",
    "libelle": "20 km",
    "ordre": 3,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": 10
   },
   {
    "id": "route_semi",
    "type": "route",
    "libelle": "Semi-marathon",
    "ordre": 4,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": 10
   },
   {
    "id": "route_marathon",
    "type": "route",
    "libelle": "Marathon",
    "ordre": 5,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": 16
   },
   {
    "id": "route_ultra",
    "type": "route",
    "libelle": "Ultra-marathon",
    "ordre": 6,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": 16
   },
   {
    "id": "route_100km",
    "type": "route",
    "libelle": "100 km",
    "ordre": 7,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": 16
   },
   {
    "id": "route_heure",
    "type": "route",
    "libelle": "Course en heure",
    "ordre": 8,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": null
   },
   {
    "id": "trail_decouverte",
    "type": "trail",
    "libelle": "Trail découverte",
    "ordre": 1,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": null
   },
   {
    "id": "trail_court",
    "type": "trail",
    "libelle": "Trail court",
    "ordre": 2,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": 12
   },
   {
    "id": "trail_long",
    "type": "trail",
    "libelle": "Trail long",
    "ordre": 3,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": 16
   },
   {
    "id": "trail_ultra",
    "type": "trail",
    "libelle": "Ultra-trail",
    "ordre": 4,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": 16
   },
   {
    "id": "marche_decouverte",
    "type": "marche",
    "libelle": "Marche découverte",
    "ordre": 1,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": null
   },
   {
    "id": "marche_longue",
    "type": "marche",
    "libelle": "Marche longue",
    "ordre": 2,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": null
   },
   {
    "id": "marche_ultra",
    "type": "marche",
    "libelle": "Marche ultra",
    "ordre": 3,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": null
   },
   {
    "id": "fh_ultra_rando",
    "type": "fast_hiking",
    "libelle": "Ultra-randonnée",
    "ordre": 1,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": null
   },
   {
    "id": "fh_rando_rapide",
    "type": "fast_hiking",
    "libelle": "Randonnée rapide",
    "ordre": 2,
-   "distance_fixe": false
+   "distance_fixe": false,
+   "prepa_semaines": null
   },
   {
    "id": "tri_xs",
    "type": "triathlon",
    "libelle": "Triathlon XS",
    "ordre": 1,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": null
   },
   {
    "id": "tri_s",
    "type": "triathlon",
    "libelle": "Triathlon S",
    "ordre": 2,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": null
   },
   {
    "id": "tri_m",
    "type": "triathlon",
    "libelle": "Triathlon M",
    "ordre": 3,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": null
   },
   {
    "id": "tri_l",
    "type": "triathlon",
    "libelle": "Triathlon L",
    "ordre": 4,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": null
   },
   {
    "id": "tri_703",
    "type": "triathlon",
    "libelle": "Ironman 70.3",
    "ordre": 5,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": null
   },
   {
    "id": "tri_xl",
    "type": "triathlon",
    "libelle": "Triathlon XL",
    "ordre": 6,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": null
   },
   {
    "id": "tri_ironman",
    "type": "triathlon",
    "libelle": "Ironman",
    "ordre": 7,
-   "distance_fixe": true
+   "distance_fixe": true,
+   "prepa_semaines": null
   }
  ],
  "types_course": [
