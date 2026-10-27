@@ -80,6 +80,8 @@
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['role', 'Rôle', 'choix', 'course'],
+    ['objectif', 'Objectif', 'objectif', 'preparation'],
+    ['objectif_precisions', 'Précisions', 'long', 'preparation'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
@@ -115,6 +117,7 @@
     ['role', 'Rôle', 'choix', 'plan'],
     ['groupe_options', 'Groupe d\'options', 'groupe', 'plan'],
     ['objectif', 'Objectif', 'objectif', 'preparation'],
+    ['objectif_precisions', 'Précisions', 'long', 'preparation'],
     ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
     ['strategie', 'Stratégie ou enchaînement', 'long', 'preparation'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
@@ -126,7 +129,7 @@
     ['lien', 'Site officiel', 'url', 'liens'],
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
   ];
-  const BLOCS_COURUE = [['course', 'Course'], ['dossard', 'Dossard'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
+  const BLOCS_COURUE = [['course', 'Course'], ['preparation', 'Préparation'], ['dossard', 'Dossard'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
   const BLOCS_VENIR = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['dossard', 'Dossard'], ['logistique', 'Logistique'], ['liens', 'Liens']];
   const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'À surveiller']];
   const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
@@ -135,13 +138,15 @@
   // Exemples affichés dans les champs vides.
   const AIDE = {
     course: 'ex. Forez Trails', parcours: 'ex. L\'Olmetoise (facultatif)', distance: 'ex. 24,4', dplus: 'ex. 933', dmoins: 'ex. 930',
-    heure: 'ex. 07:30', lieu: 'ex. Mont-Clair', objectif: 'ex. 02:45:00, Finisher ou Sub 3h', dossard: 'ex. 412', prix: 'ex. 85',
+    heure: 'ex. 07:30', lieu: 'ex. Mont-Clair', objectif: 'ex. 02:45:00, Finisher ou Sub 3h', objectif_precisions: 'ex. Partir prudemment, sous 4 h dans tous les cas', dossard: 'ex. 412', prix: 'ex. 85',
     inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027',
     temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524', vitesse: 'ex. 11,1',
     place: 'ex. 99', effectif: 'ex. 873', place_categorie: 'ex. 12', effectif_categorie: 'ex. 140', place_sexe: 'ex. 15', effectif_sexe: 'ex. 310',
     montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', montre_vitesse: 'ex. 8,1', fc_moyenne: 'ex. 163'
   };
-  const LONGUEUR_DESCRIPTION = 1000;
+  // Textes limités, avec un compteur sous le champ.
+  const LONGUEURS = { description: 1000, objectif_precisions: 100 };
+  const milliers = n => String(n).replace(/\B(?=(\d{3})+$)/g, ' ');
 
   // mrtFicheCourse({ course, references, apres, mode, groupes, marquer })
   //   mode     'courue' (défaut, Palmarès) ou 'a_venir' (Objectif) ; une course existante à venir s'ouvre en 'a_venir'
@@ -183,9 +188,10 @@
           '<option value="' + NOUVEAU + '">Nouveau groupe…</option></select>' +
           '<input type="text" id="fc-groupe_nouveau" data-k="groupe_nouveau" class="fc-nouveau" hidden placeholder="' + AIDE.groupe_nouveau + '" autocomplete="off" aria-label="Nom du nouveau groupe">';
       } else if (genre === 'long') {
-        const max = k === 'description' ? ' maxlength="' + LONGUEUR_DESCRIPTION + '"' : '';
-        input = '<textarea id="' + id + '" data-k="' + k + '" rows="3"' + max + '>' + esc(valeur == null ? '' : valeur) + '</textarea>' +
-          (k === 'description' ? '<p class="fc-compte" data-compte="' + k + '"></p>' : '');
+        const max = LONGUEURS[k] ? ' maxlength="' + LONGUEURS[k] + '"' : '';
+        const lignes = LONGUEURS[k] && LONGUEURS[k] <= 100 ? 2 : 3;
+        input = '<textarea id="' + id + '" data-k="' + k + '" rows="' + lignes + '"' + max + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + '>' + esc(valeur == null ? '' : valeur) + '</textarea>' +
+          (LONGUEURS[k] ? '<p class="fc-compte" data-compte="' + k + '"></p>' : '');
       } else {
         const v = genre === 'duree' ? fmtDuree(valeur) : genre === 'allure' ? fmtAllure(valeur)
           : genre === 'heure' ? (valeur ? String(valeur).slice(0, 5) : '')
@@ -271,10 +277,15 @@
       const montrerGroupe = () => { $('[data-champ="groupe_options"]').hidden = val('statut').value !== 'option'; };
       val('statut').addEventListener('change', montrerGroupe);
       val('groupe_options').addEventListener('change', () => { val('groupe_nouveau').hidden = val('groupe_options').value !== NOUVEAU; });
-      const compte = () => { $('[data-compte="description"]').textContent = val('description').value.length + ' / 1 000'; };
-      val('description').addEventListener('input', compte);
-      compte();
     }
+    // Compteurs des textes limités (description, précisions).
+    Object.keys(LONGUEURS).forEach(k => {
+      const el = val(k);
+      if (!el) return;
+      const compte = () => { $('[data-compte="' + k + '"]').textContent = milliers(el.value.length) + ' / ' + milliers(LONGUEURS[k]); };
+      el.addEventListener('input', compte);
+      compte();
+    });
 
     function erreur(k, texte) {
       const p = $('#fc-' + k + '-err');
@@ -312,7 +323,7 @@
         else if (genre === 'texte') v = el.value.trim() || null;
         else if (genre === 'long') {
           v = el.value.trim() || null;
-          if (k === 'description' && v && v.length > LONGUEUR_DESCRIPTION) msg = 'La description est limitée à 1 000 caractères.';
+          if (LONGUEURS[k] && v && v.length > LONGUEURS[k]) msg = 'Limité à ' + milliers(LONGUEURS[k]) + ' caractères.';
         } else if (genre === 'url') {
           v = el.value.trim() || null;
           if (v && !/^https?:\/\//i.test(v)) msg = 'Lien attendu : il commence par http:// ou https://.';

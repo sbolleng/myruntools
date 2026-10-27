@@ -128,7 +128,7 @@ function jeuObjectif(db0) {
     { id: id(2), course: 'Corrida de Noël', date: '2026-12-13', heure: '18:30:00', lieu: 'Ville-Haute', format: 'route_10km', distance: 10, dplus: 40, role: 'plaisir',
       objectif: 'Sub 45 min', ouverture_inscriptions: '2026-11-01', lien: web('corrida') },
     { id: id(3), course: 'Trail des Gorges', date: '2027-03-07', heure: '07:30:00', lieu: 'Mont-Clair', format: 'trail_long', distance: 45, dplus: 2100, dmoins: 2100,
-      role: 'objectif_intermediaire', objectif: '06:30:00', inscrit: true, dossard: '1287', prix: 58, lien: web('gorges'), inscription: web('gorges/inscription'),
+      role: 'objectif_intermediaire', objectif: '06:30:00', objectif_precisions: 'Sous 6 h 45 dans tous les cas.', inscrit: true, dossard: '1287', prix: 58, lien: web('gorges'), inscription: web('gorges/inscription'),
       lien_resultats: web('gorges/resultats'), pourquoi: 'Répétition générale du matériel et de la nutrition.', strategie: 'Partir prudemment jusqu\'au premier ravitaillement.',
       logistique: 'Navette depuis le stade à 6 h 30.', description: 'Boucle par les crêtes et les gorges.' },
     { id: id(4), course: 'Trail des Cimes', date: '2027-05-30', lieu: 'Haut-Val', format: 'trail_long', distance: 42, dplus: 2500, statut: 'option',
@@ -470,7 +470,7 @@ const CONTROLES = {
     };
     let [r, err] = await pageCourse(id(3));
     pb.push(egal({ entete: false, retour: '← Feuille de route', sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30',
-      compteur: '137j 22h 30min 00s', fiche: ['Distance | 45 km · 2 100 m D+', 'D− | 2 100 m', 'Objectif | 06:30:00', 'Dossard | Inscrit · n° 1287', 'Prix | 58 €'], dossards: 1 },
+      compteur: '137j 22h 30min 00s', fiche: ['Distance | 45 km · 2 100 m D+', 'D− | 2 100 m', 'Objectif | 06:30:00', 'Précisions | Sous 6 h 45 dans tous les cas.', 'Dossard | Inscrit · n° 1287', 'Prix | 58 €'], dossards: 1 },
       { entete: r.entete, retour: r.retour, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
     pb.push(egal(['Rôle dans la préparation', 'Stratégie ou enchaînement', 'Logistique', 'Description', 'Liens'], r.cellules, 'page Trail des Gorges, textes'));
     pb.push(egal(['Site officiel ↗', 'Inscription ↗', 'Résultats en direct ↗'], r.liens, 'page Trail des Gorges, liens'));
@@ -652,8 +652,13 @@ const CONTROLES = {
     // Description : 1 000 caractères
     await p.fill('#fc-description', 'x'.repeat(1000));
     pb.push(egal('1000 / 1 000', (await p.textContent('[data-compte="description"]')).replace(/[  ]/g, ' ').replace(/^1 000/, '1000'), 'compteur de description'));
-    // Saisie valide
+    // Précisions : 100 caractères au plus, compteur
     await deplier(p);
+    await p.fill('#fc-objectif_precisions', 'y'.repeat(120));
+    pb.push(egal([100, '100 / 100', 'Précisions'], [(await lire(p, '#fc-objectif_precisions')).length, await p.textContent('[data-compte="objectif_precisions"]'),
+      await p.evaluate(() => document.getElementById('fc-objectif').closest('.fc-champ').nextElementSibling.querySelector('label').textContent)], 'précisions : sous Objectif, limitées à 100 caractères'));
+    // Saisie valide
+    await p.fill('#fc-objectif_precisions', 'Partir prudemment.');
     await p.fill('#fc-description', 'Boucle autour du lac.');
     await p.fill('#fc-date', '2027-06-12');
     await p.fill('#fc-heure', '730');
@@ -670,7 +675,7 @@ const CONTROLES = {
     const w = o.copie.ecritures[0];
     pb.push(egal(['POST', 'courses'], [w.methode, w.table], 'enregistrement : une insertion'));
     pb.push(egal({ etat: 'a_venir', course: 'Trail des Lacs', parcours: 'La Grande Boucle', date: '2027-06-12', date_approx: false, heure: '07:30', lieu: 'Mont-Clair', format: 'trail_court',
-      description: 'Boucle autour du lac.', distance: 28.5, dplus: 1200, dmoins: null, statut: 'confirmee', role: 'preparatoire', groupe_options: null, objectif: 'Sub 6h', pourquoi: null, strategie: null,
+      description: 'Boucle autour du lac.', distance: 28.5, dplus: 1200, dmoins: null, statut: 'confirmee', role: 'preparatoire', groupe_options: null, objectif: 'Sub 6h', objectif_precisions: 'Partir prudemment.', pourquoi: null, strategie: null,
       inscrit: true, dossard: '77', prix: 45.5, ouverture_inscriptions: null, inscription: null, logistique: null, lien: 'https://example.org/lacs', lien_resultats: null }, w.corps, 'enregistrement : champs écrits'));
     await ctx.close();
 
@@ -760,7 +765,7 @@ const CONTROLES = {
     o = await neuve(1200, COURSE(1), jour); ({ p, ctx } = o);
     pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'jour de la course : Marquer comme courue'));
     await p.click('[data-ob="marquer"]');
-    pb.push(egal(['Marquer comme courue', ['Course', 'Dossard', 'Résultat', 'Classements', 'Montre'], 0], [await p.textContent('#fc-titre'),
+    pb.push(egal(['Marquer comme courue', ['Course', 'Préparation', 'Dossard', 'Résultat', 'Classements', 'Montre'], 0], [await p.textContent('#fc-titre'),
       await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('.fc-supprimer').count()], 'marquer : formulaire du Palmarès, sans Supprimer'));
     pb.push(egal(['2026-10-20', 'Trail du Lac'], [await lire(p, '#fc-date'), await lire(p, '#fc-course')], 'marquer : pré-rempli'));
     await p.fill('#fc-temps', '2:40:00');
@@ -796,7 +801,8 @@ const CONTROLES = {
     // Palmarès : formulaire inchangé
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, db));
     await p.click('[data-act="add"]');
-    pb.push(egal(['Course', 'Dossard', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : cinq blocs, dont Dossard'));
+    pb.push(egal(['Course', 'Préparation', 'Dossard', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : six blocs, dont Préparation et Dossard'));
+    pb.push(egal(['Objectif', 'Précisions'], await p.evaluate(() => [...document.querySelector('[data-bloc="preparation"]').nextElementSibling.querySelectorAll('label')].map(l => l.textContent.replace(/\s*\*$/, '').trim())), 'Palmarès : Objectif et Précisions, comme dans Objectif'));
     pb.push(egal(['fc-course', 'false', 'Numéro de dossard'], [await p.evaluate(() => document.activeElement.id), await p.getAttribute('[data-bloc="dossard"]', 'aria-expanded'),
       (await p.textContent('label[for="fc-dossard"]')).trim()], 'Palmarès : curseur dans Course ; Dossard replié, avec le numéro'));
     await ctx.close();

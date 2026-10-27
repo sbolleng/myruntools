@@ -221,6 +221,7 @@
         (distance(c) ? ligne('Distance', '<span class="ob-val">' + esc(distance(c)) + '</span>') : '') +
         (c.dmoins != null ? ligne('D−', '<span class="ob-val">' + esc(nombre(c.dmoins)) + ' m</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
+        (c.objectif_precisions ? ligne('Précisions', esc(c.objectif_precisions)) : '') +
         ligne('Dossard', dossardHtml(c)) +
         (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
       '</div>' +
