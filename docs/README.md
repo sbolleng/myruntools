@@ -44,10 +44,10 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.18 |
 | [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.24 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.10 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.18 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.19 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.6 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.14 |
-| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.4, lots 1 à 3 construits |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.5, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -86,8 +86,7 @@ Dans l'ordre :
 1. [ ] **Objectif** :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
-2. [ ] **Calendrier** : [spécification 0.4](module-calendrier-specification.md) ; les trois lots (vue Année, modèle de données, vues 4 semaines et plan d'une course) sont en ligne. Reste :
-   - **À décider** : la rubrique de préparation (frise, semaines, « Préparer ») doit-elle vivre sur la page d'une course plutôt que dans le Calendrier ? Proposition du 27 oct. 2026, à valider.
+2. [ ] **Calendrier** : [spécification 0.5](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est désormais une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Préparer » (durée, phases).
    - **Durées de prépa par format** : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Décisions en attente** (§ 9) : semaine de récupération après la course ; vue de six mois ; objectif principal plus marqué sur la vue Année ; détails d'une séance (durée, distance, D+, ressenti).

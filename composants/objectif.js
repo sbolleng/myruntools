@@ -179,7 +179,7 @@
   // ----- Page d'une course (§ 3.4) -----
   // Texte repliable : sur téléphone, seul le titre se voit, un toucher l'ouvre ; sur ordinateur, toujours ouvert.
   const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const cellule = (titreCellule, html) => (html ? '<details class="pc-cellule"><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
+  const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   const euros = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 })
     .format(Number(n)).replace(/ /g, ' ');
@@ -196,9 +196,11 @@
     telephone.addEventListener('change', regler);
   }
 
-  window.renderPageCourse = function (el, courses, id, edition) {
+  // ctx : données de préparation (séances, phases) ; sans lui, pas de rubrique Préparation (composants/preparation.js).
+  window.renderPageCourse = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
-    const retour = '<a class="pc-retour" href="objectif.html">← Feuille de route</a>';
+    const retour = new URLSearchParams(location.search).get('depuis') === 'calendrier'
+      ? '<a class="pc-retour" href="calendrier.html">← Calendrier</a>' : '<a class="pc-retour" href="objectif.html">← Feuille de route</a>';
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
     const suite = etapes.flatMap(e => (e.course ? [e.course] : e.candidats));
@@ -218,7 +220,6 @@
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2>' +
         (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') + '</div>' +
       '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
-      (c.etat === 'a_venir' && c.date ? '<p class="pc-plan"><a href="calendrier.html#plan=' + esc(c.id) + '">Voir le plan →</a></p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
@@ -235,6 +236,7 @@
         (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
       '</div>' +
       '<div class="pc-textes">' +
+        (ctx && window.mrtPreparation.aPlan(c) ? cellule('Préparation', '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>', 'preparation') : '') +
         cellule('Rôle dans la préparation', texte(c.pourquoi)) +
         cellule('Stratégie ou enchaînement', texte(c.strategie)) +
         cellule('Logistique', texte(c.logistique)) +
@@ -247,6 +249,13 @@
       '</nav>';
     if (edition) brancher(el, { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id) });
     replierCellules(el);
+    if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
+    // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
+    if (ctx && location.hash === '#preparation' && !ctx.ancreFaite) {
+      const d = el.querySelector('#preparation');
+      if (d) { d.open = true; d.scrollIntoView(); }
+      ctx.ancreFaite = true;
+    }
     couperNoms();
     lancerCompteurs();
     return c;
