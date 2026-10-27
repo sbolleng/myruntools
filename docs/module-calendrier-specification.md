@@ -108,7 +108,7 @@ Téléphone : un jour par ligne dans chaque semaine, le trait vertical à gauche
 
 Le plan d'une course reprend la vue 4 semaines, du premier jour du plan au jour J, une ligne par semaine. Il s'ouvre depuis la vue Année ou la vue 4 semaines, et la page de la course d'Objectif reçoit un lien « Voir le plan ». Les phases se calculent d'après la date de course par des **règles générales**, puis se modifient à la main.
 
-**Durée** : un nombre de semaines complètes lundi-dimanche, la dernière étant la semaine du jour J. Valeur par défaut propre au **format** de la course ; une valeur propre à la course la remplace. Les valeurs par défaut sont à fixer (§ 9).
+**Durée** : un nombre de semaines complètes lundi-dimanche, la dernière étant la semaine du jour J. Valeur par défaut propre au **format** de la course ; une valeur propre à la course la remplace. Valeurs par défaut proposées au § 5.4.
 
 **Règles de phases**, appliquées dans cet ordre :
 
@@ -152,6 +152,26 @@ Le bouton « Préparer » ouvre le réglage complet de la prépa, depuis la page
 
 Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Préparer », ni saisie.
 
+### 5.4 Durées de prépa par défaut (à valider)
+
+Propositions tirées de plans d'entraînement publiés (recherche du 27 octobre 2026), pour un coureur qui court déjà régulièrement. Elles ne servent que de point de départ : chaque course peut avoir sa propre durée (§ 5.3).
+
+| Format | Semaines | Nature de la valeur |
+| --- | --- | --- |
+| 5 km | 8 | Plans publiés ([Salomon](https://www.salomon.com/fr-fr/sg/a/5k-training-plan), [Brooks](https://www.brooksrunning.com/fr_ca/blog/training-workouts/training-for-a-5k-plan.html)) : 8 semaines, pour débutants |
+| 10 km | 8 | Plan publié ([Salomon](https://www.salomon.com/fr-be/sg/a/how-to-train-for-a-half-marathon)) ; minimum de 6 semaines selon [Campus Coach](https://www.campus.coach/blog/combien-de-temps-dure-un-programme-d-entrainement-pour-un-semi-marathon) |
+| 20 km | 10 | Estimation entre le 10 km et le semi-marathon |
+| Semi-marathon | 10 | Plans publiés ([MobileSport](https://assets01.sdd1.ch/assets/lbwp-cdn/mobilesport/files/1720621599/mobilesport-running--plan-de-10-semaines-preparation-du-semi-marathon.pdf), [Campus Coach](https://www.campus.coach/blog/preparation-pour-semi-marathon)) : 8 à 10 semaines |
+| Marathon | 16 | [Brooks](https://www.brooksrunning.com/fr_lu/blog/training-workouts/how-long-does-it-take-to-train-for-a-marathon.html), [COROS](https://coros.com/fr/stories/coros-coaches/c/how-mnay-weeks-do-you-need-to-train-for-a-marathon) : 16 à 20 semaines le plus courant ; 12 pour un coureur confirmé |
+| Ultra-marathon, 100 km | 16 | Estimation d'après la préparation d'un 100 km de trail (12 à 16 semaines selon [Campus Coach](https://www.campus.coach/blog/bases-plan-entrainement-trail-100-km)) |
+| Trail court | 12 | [Raidlight](https://raidlight.com/en/blogs/conseils-guides-plans-entrainement/plan-dentra-nement-de-12-semaines-pour-un-trail-court) : plan de 12 semaines pour 14 à 30 km |
+| Trail long | 16 | Estimation dans la fourchette publiée (12 à 20 semaines, [Campus Coach](https://www.campus.coach/blog/trail-de-80-km-plan-d-entrainement)) |
+| Ultra-trail | 16 | [Raidlight](https://raidlight.com/en/blogs/conseils-guides-plans-entrainement/plan-dentrainement-de-12-semaines-pour-un-ultra-trail) : 12 semaines ; 12 à 16 selon [Campus Coach](https://www.campus.coach/blog/bases-plan-entrainement-trail-100-km) |
+
+Sans valeur publiée trouvée, à fournir par l'utilisateur : Trail découverte, Course en heure, Marche (3 formats), Fast hiking (2 formats), Triathlon (7 formats). Ces formats n'ont pas de plan en attendant : le trait de prépa et les phases ne s'affichent pas, et la rubrique « Préparer » demande la durée.
+
+Les sources donnent des fourchettes, souvent pour un public précis (débutant ou confirmé) : la valeur retenue ici est la plus prudente de la fourchette, sauf mention d'estimation.
+
 ## 6. Téléphone
 
 Vue Année : trois colonnes de mois, quatre blocs ; cases plus petites ; pas d'infobulle, le toucher ouvre directement la vue 4 semaines. Vues 4 semaines et plan : un jour par ligne. Rien ne déborde de l'écran.
@@ -178,7 +198,7 @@ Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
 
 ## 9. Questions ouvertes
 
-- [ ] **Durées de prépa par format** (en semaines) : Trail découverte, Trail court, Trail long, Ultra-trail, 5 km, 10 km, semi-marathon, marathon, ultra-marathon, et les autres formats. À fournir par l'utilisateur.
+- [ ] **Durées de prépa par format** : valeurs du § 5.4 à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking et Triathlon.
 - [ ] **Semaine de récupération après la course** : une semaine de récupération après le jour J, comptée comme Deload ?
 - [ ] **Vue Année sur « six mois »** : la vue affiche douze mois ; faut-il aussi une vue de six mois, comme dans l'idée de zoom ?
 - [ ] **Couleurs** des quatre familles de course et des quatre phases : à fixer dans le document de design.

@@ -55,7 +55,7 @@ Dans l'ordre :
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Palmarès** : temps au format hh:mm:ss, modèle unique du site (spécification, affichage, saisie, banc d'essai).
 3. [ ] **Calendrier** : [spécification 0.1](module-calendrier-specification.md) rédigée, à valider ; puis trois lots : vue Année, modèle de données (durées de prépa, phases, séances), vues 4 semaines et plan d'une course.
-   - À fournir : durées de prépa par format (§ 9 de la spécification).
+   - Durées de prépa par format : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - Plus tard : import des séances depuis une application ; génération d'un plan par IA.
 4. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
 5. [ ] **Profil et Matériel** :

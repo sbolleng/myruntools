@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 oct. 2026 | Calendrier | Durées de prépa par défaut proposées d'après des plans publiés : 5 km 8, 10 km 8, semi 10, marathon 16, trail court 12, trail long 16, ultra-trail 16 semaines (spécification § 5.4, à valider) ; formats sans source (découverte, heure, marche, fast hiking, triathlon) laissés à l'utilisateur. |
 | 27 oct. 2026 | Calendrier | Spécification 0.1 rédigée, à valider : trois vues en zoom (Année 12 mois sur deux blocs de six colonnes ; 4 semaines depuis le lundi ; plan d'une course), lancées par un bandeau déroulant et par le toucher d'un jour ou d'une course. Remplace le prototype `planning.js`. |
 | 27 oct. 2026 | Calendrier | Courses : validée = Confirmée, non validée = Option ; quatre couleurs (route et trail, pleine et claire) ; trait de prépa sur le seul premier jour ; autres statuts masqués, courues grisées. |
 | 27 oct. 2026 | Calendrier | Prépa : durée en semaines par format, réglable par course ; phases Base, Développement, Affûtage, Deload calculées par règles générales (affûtage = 2 dernières semaines, deload toutes les 4 semaines, reste réparti par moitié), modifiables semaine par semaine dans la rubrique « Préparer » ; jamais calculées par IA. |
