@@ -206,7 +206,7 @@ const CONTROLES = {
     pb.push(egal('60 km', await p.evaluate(() => document.querySelector('.mrt-stat-val').textContent), 'sans D+, Distance'));
     await ctx.close();
     // L'en-tête sur l'Accueil et la feuille de route ; ailleurs une barre fine : « Cap sur … » (vers l'Accueil) et l'engrenage.
-    for (const [page, entete] of [['index.html', true], ['objectif.html', true], ['palmares.html', false], ['preferences.html', false], ['course.html?id=00000000-0000-0000-0001-000000000020', false]]) {
+    for (const [page, entete] of [['index.html', true], ['objectif.html', true], ['palmares.html', false], ['calendrier.html', false], ['preferences.html', false], ['course.html?id=00000000-0000-0000-0001-000000000020', false]]) {
       const o = await ouvrir(nav, page, 390, db);
       pb.push(egal({ entete, barre: entete ? null : 'Cap sur Trail des Crêtes', engrenage: true, actif: page === 'preferences.html', menuSansEngrenage: true }, await o.p.evaluate(() => {
         const g = document.querySelector('.mrt-gear'), b = document.querySelector('.mrt-barre-cap');

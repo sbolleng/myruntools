@@ -153,6 +153,7 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Course non validée** : couleur de la famille à 30 % sur Surface, cadre de 1 px de la couleur pleine, nom en Texte.
 - **Course courue** : case en Texte discret, nom en Fond.
 - **Trait de début de prépa** : 4 px de haut, 45 % de la largeur de la case, de la couleur pleine de la famille, cerclé de 1 px de Fond pour rester visible sur une case de course.
-- **Jours** : une ligne de 0,8 rem (0,72 rem sur téléphone), 1 px entre deux jours et 3 px entre deux mois ; fond Surface, week-end entre Surface et Surface 2 ; jours passés à 45 % d'opacité ; aujourd'hui cerclé de 1 px de Texte.
-- **Texte** : nom du mois en Space Mono 0,62 rem, Accent ; numéro du jour en Space Mono 0,5 rem, Texte discret ; nom de la course en Space Grotesk 0,58 rem (0,52 rem sur téléphone).
+- **Cadre** : toute la page dans un cadre (Surface), comme les autres pages ; page sans en-tête (barre fine « Cap sur … »).
+- **Jours** : une ligne de 0,8 rem (0,72 rem sur téléphone), 1 px entre deux jours et 3 px entre deux mois ; fond entre Fond et Surface, week-end plus clair ; jours passés à 45 % d'opacité ; aujourd'hui cerclé de 1 px de Texte.
+- **Texte** : nom du mois en Space Mono 0,62 rem, Texte discret ; numéro du jour en Space Mono 0,5 rem, Texte discret ; nom de la course en Space Grotesk 0,58 rem (0,52 rem sur téléphone).
 

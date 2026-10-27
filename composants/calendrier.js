@@ -97,11 +97,11 @@
       let blocs = '';
       for (let i = 0; i < 12; i += taille) blocs += bloc(mois.slice(i, i + taille));
       const cle = (cls, txt) => '<span><i class="cal-k ' + cls + '"></i>' + txt + '</span>';
-      root.innerHTML =
+      root.innerHTML = '<div class="cal-cadre">' +
         '<div class="cal-haut"><select class="cal-vue" aria-label="Vue"><option value="annee">Année</option><option value="semaines" disabled>4 semaines (à venir)</option></select>' +
         '<div class="cal-legende">' + cle('c-route-v', 'Route validée') + cle('c-route-n', 'Route non validée') + cle('c-trail-v', 'Trail validée') +
         cle('c-trail-n', 'Trail non validée') + cle('cal-k-trait', 'Début de prépa') + cle('courue', 'Courue') + cle('cal-k-auj', "Aujourd'hui") + '</div></div>' +
-        '<div class="cal-blocs">' + blocs + '</div>';
+        '<div class="cal-blocs">' + blocs + '</div></div>';
     }
 
     dessiner();

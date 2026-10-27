@@ -23,7 +23,7 @@
 <script src="composants/calendrier.js?v=__VERSION__"></script>
 <script>
   // Le calendrier de l'utilisateur connecté (ou du site partagé), lu dans la base.
-  mrtPage({ courant: 'calendrier.html' }).then(page => renderCalendrier(document.getElementById('calendrier'), page.courses));
+  mrtPage({ courant: 'calendrier.html', sansEnTete: true }).then(page => renderCalendrier(document.getElementById('calendrier'), page.courses));
 </script>
 </body>
 </html>
