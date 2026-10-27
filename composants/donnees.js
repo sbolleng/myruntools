@@ -8,7 +8,9 @@
 // lignes de l'utilisateur connecté.
 (function () {
   // Catalogue des modules, dans l'ordre par défaut ; page absente = pas encore construit.
+  // « En un coup d'œil » (index.html) : un module comme les autres, le premier par défaut ; son « œil » est un picto.
   const MODULES = [
+    { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
     { nom: 'Cette semaine' },
     { nom: 'Objectif', page: 'objectif.html' },
     { nom: 'Calendrier', page: 'calendrier.html' },
@@ -19,9 +21,7 @@
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif
   window.mrtModules = MODULES;
-  // L'Accueil : toujours dans le menu, en premier (il ne se masque pas).
-  const ACCUEIL = { nom: 'Accueil', page: 'index.html' };
-  // Blocs de l'Accueil, dans l'ordre par défaut ; bientot : pas encore construit (grisé) ;
+  // Blocs de la page En un coup d'œil, dans l'ordre par défaut ; bientot : pas encore construit (grisé) ;
   // masque : décoché par défaut.
   window.mrtBlocsAccueil = [
     { id: 'prochaine', nom: 'Prochaine course' },
@@ -30,8 +30,18 @@
     { id: 'dicila', nom: 'D\'ici là' },
     { id: 'derniere', nom: 'Dernière course', masque: true }
   ];
+  // Modules du menu, dans l'ordre choisi (rien d'enregistré : tout le catalogue).
+  const modulesAffiches = prefs => (prefs && prefs.modules && prefs.modules.length
+    ? prefs.modules.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES);
+  window.mrtModulesAffiches = modulesAffiches;
   // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête.
-  window.mrtDemarrage = prefs => (prefs && prefs.page_demarrage) || 'index.html';
+  // La page choisie si son module est affiché ; sinon En un coup d'œil s'il l'est ; sinon le premier module construit du menu.
+  window.mrtDemarrage = prefs => {
+    const pages = modulesAffiches(prefs).filter(m => m.page).map(m => m.page);
+    const choisie = prefs && prefs.page_demarrage;
+    if (choisie && pages.includes(choisie)) return choisie;
+    return pages.includes('index.html') || !pages.length ? 'index.html' : pages[0];
+  };
 
   const pad = n => String(n).padStart(2, '0');
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
@@ -123,13 +133,12 @@
       };
     }
     const prochaine = aVenir.find(c => c.statut === 'confirmee' && c !== cap) || null;
-    const ordre = prefs.modules && prefs.modules.length ? prefs.modules : null;
-    const modules = ordre ? ordre.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES;
     return {
       theme: prefs.theme,
       objectif,
       prochaine: prochaine ? { nom: prochaine.course, date: prochaine.date } : null, // le nom de la course, pas du parcours
-      modules: [ACCUEIL].concat(modules)
+      modules: modulesAffiches(prefs),
+      accueil: window.mrtDemarrage(prefs) // « Cap sur … » et le nom de l'application y mènent
     };
   }
 

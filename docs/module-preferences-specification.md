@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.5 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.6 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -24,18 +24,18 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 - Choisir un thème recolore aussitôt la page.
 - Le thème ne se choisit qu'ici : une adresse ne l'impose pas. La page de connexion, avant que l'utilisateur soit connu, est dans le premier thème.
 
-## 4 bis. Page d'accueil
+## 4 bis. En un coup d'œil
 
-- Texte d'aide : « Coche les blocs à afficher sur l'Accueil et ordonne-les avec les flèches. »
-- Les blocs de l'Accueil, chacun avec une case « affiché » et deux flèches, comme le Menu ; un bloc pas encore construit est grisé, « · bientôt ».
+- Texte d'aide : « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. »
+- Les blocs de la page En un coup d'œil, chacun avec une case « affiché » et deux flèches, comme le Menu ; un bloc pas encore construit est grisé, « · bientôt ».
 - Par défaut : Prochaine course, Pense-bête, Bilan nutrition, D'ici là affichés ; Dernière course masquée. « Rétablir l'ordre par défaut » y revient.
 
 ## 4. Menu et page de démarrage
 
 - Texte d'aide : « Coche les modules à afficher et ordonne-les avec les flèches. Le rond choisit la page qui s'ouvre en arrivant sur le site. »
-- **Page de démarrage** : la page qui s'ouvre en arrivant sur le site ; elle seule porte le grand en-tête (spécification générale, § 5 bis). Elle se choisit dans la liste du menu : une colonne « Démarrage », un rond par ligne, un seul actif ; par défaut l'Accueil.
-- Un module peut devenir page de démarrage s'il est **construit et affiché** ; le rond des autres est grisé. Retirer du menu le module de démarrage ramène à l'Accueil (le choix est effacé).
-- L'**Accueil** est la première ligne, cochée et fixe : toujours affiché, en premier.
+- **Page de démarrage** : la page qui s'ouvre en arrivant sur le site ; elle seule porte le grand en-tête (spécification générale, § 5 bis). Elle se choisit dans la liste du menu : une colonne « Démarrage », un rond par ligne, un seul actif ; par défaut En un coup d'œil (s'il est masqué : le premier module construit du menu).
+- Un module peut devenir page de démarrage s'il est **construit et affiché** ; le rond des autres est grisé. Retirer du menu le module de démarrage ramène au choix par défaut (le choix est effacé).
+- **En un coup d'œil** est un module comme les autres : premier par défaut, il se décoche et se déplace.
 
 - La liste reprend tous les modules du menu (catalogue, spécification générale § 7), dans l'ordre actuel du menu de l'utilisateur, puis ceux qu'il n'affiche pas.
 - Chaque module a une case « affiché » et deux flèches pour le monter ou le descendre d'un rang.
@@ -91,11 +91,11 @@ Résultats attendus :
 - Décocher Guide : il disparaît du menu ; « Rétablir l'ordre par défaut » le fait revenir à sa place.
 - Décocher tous les modules sauf un : la dernière case ne peut pas être décochée.
 - Cap : la liste propose « Par défaut : la plus lointaine (Trail des Crêtes) », puis Trail du Lac, Course A, Trail des Crêtes, dans cet ordre ; ni Course B (à surveiller) ni Course C (courue).
-- Choisir Trail du Lac : l'en-tête de l'Accueil affiche « Cap sur Trail du Lac » ; revenir aux Préférences : Trail du Lac est toujours choisi.
+- Choisir Trail du Lac : l'en-tête d'En un coup d'œil affiche « Cap sur Trail du Lac » ; revenir aux Préférences : Trail du Lac est toujours choisi.
 - Marquer Trail du Lac comme abandonnée : l'en-tête revient à Trail des Crêtes, la liste affiche « Par défaut ».
 - Choisir « Par défaut » : l'en-tête affiche Trail des Crêtes.
 - Échec d'enregistrement (base injoignable) : « Enregistrement impossible pour l'instant », le réglage revient à sa valeur précédente.
 - Site partagé en lecture seule : Thème, Menu et Cap affichent « Reviens à ton site pour modifier tes réglages. » ; Partage et Compte restent utilisables.
 - Téléphone : la page tient dans la largeur de l'écran, sans défilement horizontal.
-- Menu, page de démarrage : une colonne « Démarrage » ; les ronds actifs sont ceux de l'Accueil, d'Objectif, du Calendrier et de Palmarès (les autres modules, non construits, sont grisés) ; choisir Palmarès : « Enregistré » ; décocher Palmarès : le choix revient à l'Accueil ; il n'y a plus de section « Page de démarrage ».
-- Page d'accueil, sous le Menu : texte d'aide « Coche les blocs à afficher sur l'Accueil et ordonne-les avec les flèches. » ; cinq blocs, Pense-bête et Bilan nutrition « · bientôt » ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.
+- Menu, page de démarrage : une colonne « Démarrage » ; les ronds actifs sont ceux d'En un coup d'œil, d'Objectif, du Calendrier et de Palmarès (les autres modules, non construits, sont grisés) ; choisir Palmarès : « Enregistré » ; décocher Palmarès : le choix revient à l'Accueil ; il n'y a plus de section « Page de démarrage ».
+- En un coup d'œil, sous le Menu : texte d'aide « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. » ; cinq blocs, Pense-bête et Bilan nutrition « · bientôt » ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.

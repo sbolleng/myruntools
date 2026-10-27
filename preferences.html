@@ -79,7 +79,7 @@
     <p class="pref-msg" aria-live="polite"></p>
   </section>
   <section class="mrt-section" id="bloc-accueil">
-    <h2 class="mrt-section-titre">Page d'accueil</h2>
+    <h2 class="mrt-section-titre">En un coup d'œil</h2>
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
@@ -169,17 +169,20 @@
         .concat(mrtModules.filter(m => !choisis.includes(m.nom)).map(m => ({ nom: m.nom, affiche: false })));
     };
     let liste = depuisPrefs();
-    // Page de démarrage : l'Accueil, ou un module construit et affiché dans le menu ; sinon l'Accueil.
+    // Page de démarrage : un module construit et affiché dans le menu ; à défaut En un coup d'œil s'il est affiché,
+    // sinon le premier module construit du menu (comme mrtDemarrage).
     const pageDe = nom => mrtModules.find(x => x.nom === nom).page;
     const demarragesPossibles = () => liste.filter(m => m.affiche && pageDe(m.nom)).map(m => pageDe(m.nom));
-    const demarrage = () => (demarragesPossibles().includes(mrtDemarrage(prefs)) ? mrtDemarrage(prefs) : 'index.html');
+    const demarrage = () => {
+      const possibles = demarragesPossibles(), choisie = mrtDemarrage(prefs);
+      return possibles.includes(choisie) ? choisie : possibles.includes('index.html') || !possibles.length ? 'index.html' : possibles[0];
+    };
     function dessinerMenu() {
       const nbAffiches = liste.filter(m => m.affiche).length, dem = demarrage();
       const rond = (page, nom, actif) => '<span class="pref-dem"><input type="radio" name="demarrage" value="' + page + '"' + (page === dem ? ' checked' : '') +
         (actif ? '' : ' disabled') + ' aria-label="Page de démarrage : ' + esc(nom) + '"' + (actif ? '' : ' title="Visible seulement si le module est construit et affiché"') + '></span>';
       blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et ordonne-les avec les flèches. Le rond choisit la page qui s\'ouvre en arrivant sur le site.</p>' +
-        '<ul class="pref-liste pref-modules"><li class="pref-entete"><span></span><span class="pref-dem">Démarrage</span><span class="pref-fleches"></span></li>' +
-        '<li><label><input type="checkbox" checked disabled>Accueil <span class="pref-fixe">toujours affiché, en premier</span></label>' + rond('index.html', 'Accueil', true) + '<span class="pref-fleches"></span></li>' + liste.map((m, i) => {
+        '<ul class="pref-liste pref-modules"><li class="pref-entete"><span></span><span class="pref-dem">Démarrage</span><span class="pref-fleches"></span></li>' + liste.map((m, i) => {
         const construit = pageDe(m.nom);
         const seul = m.affiche && nbAffiches === 1;
         return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) + '</label>' +
@@ -192,8 +195,8 @@
       const avant = liste;
       liste = nouvelle;
       const champs = { modules: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.nom) };
-      // La page de démarrage ne peut pas être un module qui quitte le menu : retour à l'Accueil.
-      if (mrtDemarrage(prefs) !== 'index.html' && !demarragesPossibles().includes(mrtDemarrage(prefs))) champs.page_demarrage = null;
+      // La page de démarrage ne peut pas être un module qui quitte le menu : retour au choix par défaut.
+      if (prefs.page_demarrage && !demarragesPossibles().includes(prefs.page_demarrage)) champs.page_demarrage = null;
       dessinerMenu();
       enregistrer(blocMenu, champs, () => { liste = avant; dessinerMenu(); });
     }
@@ -236,7 +239,7 @@
     }
   });
 
-  // Liste ordonnée avec une case « affiché » et deux flèches par ligne (Page d'accueil) ; même rendu que le Menu.
+  // Liste ordonnée avec une case « affiché » et deux flèches par ligne (En un coup d'œil) ; même rendu que le Menu.
   function listeOrdonnee(liste, bientot) {
     return '<ul class="pref-liste pref-blocs">' + liste.map((m, i) =>
       '<li><label' + (bientot(m) ? ' class="bientot" title="Bientôt"' : '') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + '>' + esc(m.nom) + (bientot(m) ? ' · bientôt' : '') + '</label>' +
@@ -245,10 +248,10 @@
       '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
   }
 
-  // Page d'accueil (spécification des Préférences, § 4 ter) ; la page de démarrage se choisit dans le Menu.
+  // Blocs de la page En un coup d'œil (spécification des Préférences, § 4 ter) ; la page de démarrage se choisit dans le Menu.
   function reglagesAccueil(page, prefs, enregistrer) {
     const blocAcc = document.getElementById('bloc-accueil');
-    // Accueil : blocs affichés dans l'ordre choisi, puis les autres.
+    // Blocs affichés dans l'ordre choisi, puis les autres.
     const parDefaut = () => mrtBlocsAccueil.map(b => ({ id: b.id, nom: b.nom, affiche: !b.masque }));
     const depuisPrefs = () => {
       if (!prefs.accueil_blocs) return parDefaut();
@@ -259,7 +262,7 @@
     let liste = depuisPrefs();
     const bientot = m => mrtBlocsAccueil.find(b => b.id === m.id).bientot;
     const dessiner = () => {
-      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les blocs à afficher sur l\'Accueil et ordonne-les avec les flèches.</p>' + listeOrdonnee(liste, bientot);
+      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les blocs à afficher sur la page En un coup d\'œil et ordonne-les avec les flèches.</p>' + listeOrdonnee(liste, bientot);
     };
     const changer = (nouvelle, valeur) => {
       const avant = liste;

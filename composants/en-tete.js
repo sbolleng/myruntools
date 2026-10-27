@@ -75,7 +75,7 @@
 
     // Nom de l'application (vers l'Accueil) et engrenage (vers les Préférences).
     const engrenage = '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a>';
-    const marque = '<div class="mrt-brand"><a href="' + lien('index.html') + '">MyRunTools</a>' + engrenage + '</div>';
+    const marque = '<div class="mrt-brand"><a href="' + lien(cfg.accueil || 'index.html') + '">MyRunTools</a>' + engrenage + '</div>';
     const header = document.createElement('header');
     header.className = 'mrt-header';
     header.innerHTML =
@@ -96,10 +96,14 @@
 
     const nav = document.createElement('nav');
     nav.className = 'mrt-nav';
+    // Nom d'un onglet ; « œil » en picto pour En un coup d'œil (le nom complet reste lu par les lecteurs d'écran).
+    const OEIL = '<svg class="mrt-picto" viewBox="0 0 24 16" aria-hidden="true"><path d="M1.5 8C4 3.5 7.8 1.5 12 1.5S20 3.5 22.5 8C20 12.5 16.2 14.5 12 14.5S4 12.5 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8" r="3" fill="currentColor"/></svg>';
+    const nomOnglet = m => (m.picto === 'oeil' ? esc(m.nom.replace(/œil$/, '')) + OEIL : esc(m.nom));
     nav.innerHTML = '<div class="mrt-nav-inner">' + (cfg.modules || []).map(m => {
-      if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + esc(m.nom) + '</span>';
+      const titre = m.picto ? ' aria-label="' + esc(m.nom) + '" title="' + esc(m.nom) + '"' : '';
+      if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + nomOnglet(m) + '</span>';
       const on = m.page === cfg.courant;
-      return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(m.nom) + '</a>';
+      return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + titre + (on ? ' aria-current="page"' : '') + '>' + nomOnglet(m) + '</a>';
     }).join('') + '</div>';
 
     // Grand en-tête sur la page de démarrage seulement ; ailleurs une barre fine : le rappel du cap et l'engrenage.
@@ -108,7 +112,7 @@
       const barre = document.createElement('header');
       barre.className = 'mrt-barre';
       // Rappel du cap, discret (pas en Accent : il ne doit pas concurrencer le titre de la page).
-      barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien('index.html') + '">Cap sur <b>' + esc(o.nom || dash) + '</b></a>' + engrenage + '</div>';
+      barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien(cfg.accueil || 'index.html') + '">Cap sur <b>' + esc(o.nom || dash) + '</b></a>' + engrenage + '</div>';
       document.body.prepend(barre, nav);
       haut = barre;
     } else document.body.prepend(header, nav);
