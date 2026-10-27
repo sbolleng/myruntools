@@ -45,7 +45,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.22 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.9 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.18 |
-| [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.4 |
+| [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.5 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.14 |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.4, lots 1 à 3 construits |
 

@@ -48,6 +48,12 @@
   .pref-rond { font-size: 0.75rem; }
   .pref-defaut { margin-top: 0.6rem; }
   .pref-fixe { font-size: 0.72rem; color: var(--muted); }
+  .pref-dem { flex: none; display: flex; justify-content: center; width: 5rem; }
+  .pref-dem input { accent-color: var(--accent); margin: 0; }
+  .pref-entete { padding: 0 0 0.3rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .pref-entete > span:first-child { flex: 1; }
+  .pref-modules .pref-fleches { width: 4.2rem; justify-content: flex-end; }
+  @media (max-width: 600px) { .pref-modules .pref-fixe { display: none; } .pref-dem { width: 3.6rem; } .pref-entete .pref-dem { font-size: 0.55rem; } }
 </style>
 </head>
 <body>
@@ -67,18 +73,13 @@
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
-  <section class="mrt-section" id="bloc-demarrage">
-    <h2 class="mrt-section-titre">Page de démarrage</h2>
+  <section class="mrt-section" id="bloc-menu">
+    <h2 class="mrt-section-titre">Menu</h2>
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
   <section class="mrt-section" id="bloc-accueil">
     <h2 class="mrt-section-titre">Page d'accueil</h2>
-    <div class="pref-corps"></div>
-    <p class="pref-msg" aria-live="polite"></p>
-  </section>
-  <section class="mrt-section" id="bloc-menu">
-    <h2 class="mrt-section-titre">Menu</h2>
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
@@ -120,7 +121,7 @@
 
   mrtPage({ courant: 'preferences.html' }).then(page => {
     afficherPartages(page);
-    const blocs = ['bloc-theme', 'bloc-menu', 'bloc-cap', 'bloc-demarrage', 'bloc-accueil'].map(id => document.getElementById(id));
+    const blocs = ['bloc-theme', 'bloc-menu', 'bloc-cap', 'bloc-accueil'].map(id => document.getElementById(id));
     if (page.lectureSeule) {
       blocs.forEach(b => { b.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Reviens à ton site pour modifier tes réglages.</p>'; });
       return;
@@ -168,13 +169,21 @@
         .concat(mrtModules.filter(m => !choisis.includes(m.nom)).map(m => ({ nom: m.nom, affiche: false })));
     };
     let liste = depuisPrefs();
+    // Page de démarrage : l'Accueil, ou un module construit et affiché dans le menu ; sinon l'Accueil.
+    const pageDe = nom => mrtModules.find(x => x.nom === nom).page;
+    const demarragesPossibles = () => liste.filter(m => m.affiche && pageDe(m.nom)).map(m => pageDe(m.nom));
+    const demarrage = () => (demarragesPossibles().includes(mrtDemarrage(prefs)) ? mrtDemarrage(prefs) : 'index.html');
     function dessinerMenu() {
-      const nbAffiches = liste.filter(m => m.affiche).length;
-      blocMenu.querySelector('.pref-corps').innerHTML = '<ul class="pref-liste pref-modules">' +
-        '<li><label><input type="checkbox" checked disabled>Accueil</label><span class="pref-fixe">toujours affiché, en premier</span></li>' + liste.map((m, i) => {
-        const construit = mrtModules.find(x => x.nom === m.nom).page;
+      const nbAffiches = liste.filter(m => m.affiche).length, dem = demarrage();
+      const rond = (page, nom, actif) => '<span class="pref-dem"><input type="radio" name="demarrage" value="' + page + '"' + (page === dem ? ' checked' : '') +
+        (actif ? '' : ' disabled') + ' aria-label="Page de démarrage : ' + esc(nom) + '"' + (actif ? '' : ' title="Visible seulement si le module est construit et affiché"') + '></span>';
+      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et ordonne-les avec les flèches. Le rond choisit la page qui s\'ouvre en arrivant sur le site.</p>' +
+        '<ul class="pref-liste pref-modules"><li class="pref-entete"><span></span><span class="pref-dem">Démarrage</span><span class="pref-fleches"></span></li>' +
+        '<li><label><input type="checkbox" checked disabled>Accueil <span class="pref-fixe">toujours affiché, en premier</span></label>' + rond('index.html', 'Accueil', true) + '<span class="pref-fleches"></span></li>' + liste.map((m, i) => {
+        const construit = pageDe(m.nom);
         const seul = m.affiche && nbAffiches === 1;
         return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) + '</label>' +
+          rond(construit || '', m.nom, !!construit && m.affiche) +
           '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
           '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
       }).join('') + '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
@@ -182,11 +191,17 @@
     function changerMenu(nouvelle, valeur) {
       const avant = liste;
       liste = nouvelle;
+      const champs = { modules: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.nom) };
+      // La page de démarrage ne peut pas être un module qui quitte le menu : retour à l'Accueil.
+      if (mrtDemarrage(prefs) !== 'index.html' && !demarragesPossibles().includes(mrtDemarrage(prefs))) champs.page_demarrage = null;
       dessinerMenu();
-      enregistrer(blocMenu, { modules: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.nom) }, () => { liste = avant; dessinerMenu(); });
+      enregistrer(blocMenu, champs, () => { liste = avant; dessinerMenu(); });
     }
     dessinerMenu();
     blocMenu.addEventListener('change', e => {
+      if (e.target.name === 'demarrage') {
+        return enregistrer(blocMenu, { page_demarrage: e.target.value === 'index.html' ? null : e.target.value }, dessinerMenu);
+      }
       const i = Number(e.target.dataset.i);
       changerMenu(liste.map((m, j) => (j === i ? { nom: m.nom, affiche: e.target.checked } : m)));
     });
@@ -230,21 +245,9 @@
       '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
   }
 
-  // Page de démarrage et page d'accueil (spécification des Préférences, § 4 bis et ter).
+  // Page d'accueil (spécification des Préférences, § 4 ter) ; la page de démarrage se choisit dans le Menu.
   function reglagesAccueil(page, prefs, enregistrer) {
-    const blocDem = document.getElementById('bloc-demarrage'), blocAcc = document.getElementById('bloc-accueil');
-    // Démarrage : l'Accueil, puis les modules construits et affichés dans le menu.
-    const affiches = prefs.modules && prefs.modules.length ? prefs.modules : mrtModules.map(m => m.nom);
-    const choix = [{ nom: 'Accueil', page: 'index.html' }].concat(affiches.map(n => mrtModules.find(m => m.nom === n)).filter(m => m && m.page));
-    const actuel = () => (choix.some(c => c.page === mrtDemarrage(prefs)) ? mrtDemarrage(prefs) : 'index.html');
-    blocDem.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">La page qui s\'ouvre en arrivant sur le site. Elle seule porte le grand en-tête ; les autres pages ont la barre fine.</p>' +
-      '<div class="pv2-row" role="radiogroup" aria-label="Page de démarrage">' + choix.map(c =>
-        '<label class="pv2-check"><input type="radio" name="demarrage" value="' + c.page + '"' + (c.page === actuel() ? ' checked' : '') + '> ' + esc(c.nom) + '</label>').join('') + '</div>';
-    blocDem.addEventListener('change', e => {
-      const avant = actuel();
-      enregistrer(blocDem, { page_demarrage: e.target.value === 'index.html' ? null : e.target.value }, () => { blocDem.querySelector('input[value="' + avant + '"]').checked = true; });
-    });
-
+    const blocAcc = document.getElementById('bloc-accueil');
     // Accueil : blocs affichés dans l'ordre choisi, puis les autres.
     const parDefaut = () => mrtBlocsAccueil.map(b => ({ id: b.id, nom: b.nom, affiche: !b.masque }));
     const depuisPrefs = () => {
@@ -256,7 +259,7 @@
     let liste = depuisPrefs();
     const bientot = m => mrtBlocsAccueil.find(b => b.id === m.id).bientot;
     const dessiner = () => {
-      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Les blocs affichés sur l\'Accueil, et leur ordre.</p>' + listeOrdonnee(liste, bientot);
+      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les blocs à afficher sur l\'Accueil et ordonne-les avec les flèches.</p>' + listeOrdonnee(liste, bientot);
     };
     const changer = (nouvelle, valeur) => {
       const avant = liste;
