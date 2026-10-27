@@ -83,10 +83,11 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
+   - Champ Description (à préciser).
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
 2. [ ] **Calendrier** : créer la page (voir l'idée « Calendrier annuel des courses » plus bas) : spécification, puis construction.
-3. [ ] **Préférences** : changement de mot de passe (connexion par lien magique seulement pour l'instant).
+3. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
 4. [ ] **Profil et Matériel** :
    - Profil : état civil, poids, taille, pointure.
    - Matériel : chaussures et leur usure.
