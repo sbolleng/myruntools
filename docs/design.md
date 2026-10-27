@@ -1,6 +1,6 @@
 # Design
 
-Version 0.21 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.22 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -165,4 +165,12 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Cadre** : toute la page dans un cadre (Surface), comme les autres pages ; page sans en-tête (barre fine « Cap sur … »).
 - **Jours** : une ligne de 0,8 rem (0,72 rem sur téléphone), 1 px entre deux jours et 3 px entre deux mois ; fond entre Fond et Surface, week-end plus clair ; jours passés à 45 % d'opacité ; aujourd'hui cerclé de 1 px de Texte.
 - **Texte** : nom du mois en Space Mono 0,62 rem, Texte discret ; numéro du jour en Space Mono 0,5 rem, Texte discret ; nom de la course en Space Grotesk 0,58 rem (0,52 rem sur téléphone).
+
+**Vue 4 semaines et plan d'une course**
+
+- **Phases** : Base `#5fb49c`, Développement `#e6b84d`, Affûtage `#b48ef0`, Deload `#8fa8c9` ; mêmes valeurs dans les trois thèmes. Une semaine : trait vertical de 4 px à gauche dans la couleur de sa phase (pointillé en Bordure pour « Sans objectif clair »), nom de la phase en 0,85 rem, 600, dans cette couleur.
+- **Semaine** : titre en Space Mono 0,62 rem capitales, Texte discret ; sept jours côte à côte (un par ligne sur téléphone), cases entre Fond et Surface, week-end plus clair, jour passé à 55 %, aujourd'hui cerclé de 1 px de Texte.
+- **Séance** : case à cocher en Accent, type en Space Mono 0,58 rem capitales Texte discret, libellé en 0,72 rem ; barrée et en Texte discret quand elle est faite. Bouton « + » rond en bas à droite de la case du jour. Course du jour : pastille aux quatre couleurs du § 10 ; rendez-vous clé : « ◆ » et texte en 0,68 rem.
+- **Frise** des phases : cases de la couleur de la phase, côte à côte, largeur proportionnelle à leur nombre de semaines ; poignées de 8 px en Texte, curseur de redimensionnement.
+- **Fenêtres** (séance, Préparer) : voile noir à 60 %, panneau Surface avec cadre, 30 rem (44 rem pour Préparer) ; champs à 16 px sur écran tactile.
 

@@ -34,6 +34,17 @@ function simulerBase(ctx, db) {
     if (req.method() !== 'GET') {
       if (db.ecritures) db.ecritures.push({ methode: req.method(), table: u.pathname.split('/').pop(), filtres: u.search, corps: req.postData() ? req.postDataJSON() : null });
       if (db.panne) return route.fulfill({ status: 500, contentType: 'application/json', body: '{"message":"panne"}' });
+      // Calendrier : séances et phases modifiées s'écrivent vraiment dans la base simulée ; la durée de prépa d'une course aussi.
+      const tab = u.pathname.split('/').pop();
+      const filtresEq = [...u.searchParams].filter(([k, v]) => /^eq\./.test(v) && k !== 'select');
+      const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3));
+      if (['seances', 'plan_semaines'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).join() === 'prepa_semaines')) {
+        if (!db[tab]) db[tab] = [];
+        if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach((l, i) => db[tab].push(Object.assign({ id: 'nouveau-' + db[tab].length + '-' + i, utilisateur: db.profils[0].id }, l)));
+        else if (req.method() === 'PATCH') db[tab].filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
+        else if (req.method() === 'DELETE') db[tab] = db[tab].filter(x => !correspond(x));
+        return route.fulfill({ contentType: 'application/json', body: '[]' });
+      }
       if (req.method() === 'DELETE' && db[u.pathname.split('/').pop()]) { // ligne effacée, relue sans elle
         const t = u.pathname.split('/').pop(), cible = u.searchParams.get('id');
         db[t] = db[t].filter(x => 'eq.' + x.id !== cible);
@@ -160,6 +171,8 @@ function navigateur() {
   return fs.existsSync(local) ? { executablePath: local } : {};
 }
 
+// Attente réelle (la base simulée répond hors de l'horloge de la page).
+const pause = () => new Promise(r => setTimeout(r, 400));
 const egal = (attendu, obtenu, quoi) => (JSON.stringify(attendu) === JSON.stringify(obtenu) ? null : quoi + ' : attendu ' + JSON.stringify(attendu) + ', obtenu ' + JSON.stringify(obtenu));
 
 const CONTROLES = {
@@ -961,6 +974,181 @@ const CONTROLES = {
     const r2 = await lire(p);
     pb.push(egal(8, r2.courses.length, 'vert et rose : mêmes courses'));
     await ctx.close();
+    return pb;
+  },
+
+  // Spécification du Calendrier, § 10 : vues 4 semaines et plan d'une course, séances, « Préparer » (lot 3).
+  async calendrierPlan(nav, db0) {
+    const pb = [];
+    const { db: base, id } = jeuObjectif(db0);
+    const moi = base.profils[0].id;
+    base.seances = [
+      { id: 'se-1', utilisateur: moi, date: '2026-10-19', type: 'renfo', libelle: 'Gainage 30 min', faite: true, course: null },
+      { id: 'se-2', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: '8×400 m', faite: false, course: null },
+      { id: 'se-3', utilisateur: moi, date: '2026-10-22', type: 'run', libelle: 'Footing 45 min', faite: false, course: null },
+      { id: 'se-4', utilisateur: moi, date: '2026-10-24', type: 'run', libelle: 'Sortie 1 h 30', faite: false, course: null }];
+    base.plan_semaines = [];
+    const copie = () => { const d = JSON.parse(JSON.stringify(base)); d.ecritures = []; return d; };
+    const GORGES = id(3);
+    const semaines = p => p.evaluate(() => [...document.querySelectorAll('.cal-sem')].map(s => [s.querySelector('.cal-sem-titre').textContent, s.querySelector('.cal-sem-phase').textContent,
+      (s.querySelector('.cal-aussi') || {}).textContent || null]));
+    const seances = p => p.evaluate(() => [...document.querySelectorAll('.cal-se')].map(e => [e.closest('.cal-jr').querySelector('.cal-jr-nom').textContent,
+      e.querySelector('.cal-se-txt').textContent.trim().replace(/\s+/g, ' '), e.querySelector('input').checked]));
+
+    // --- Vue 4 semaines, ordinateur
+    let d = copie();
+    let { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#semaines', 1200, d, {}, PARIS);
+    pb.push(
+      egal([['Sem. du 19 oct.', 'Développement', 'aussi : Corrida de Noël'], ['Sem. du 26 oct.', 'Développement', 'aussi : Corrida de Noël'],
+        ['Sem. du 2 nov.', 'Affûtage', 'aussi : Corrida de Noël'], ['Sem. du 9 nov.', 'Affûtage', 'aussi : Corrida de Noël']], await semaines(p), '4 semaines : phases du plan le plus proche'),
+      egal([['lun. 19', 'Renfo Gainage 30 min', true], ['mar. 20', 'Run 8×400 m', false], ['jeu. 22', 'Run Footing 45 min', false], ['sam. 24', 'Run Sortie 1 h 30', false]], await seances(p), '4 semaines : séances'),
+      egal([['dim. 1', '◆ Ouverture des inscriptions · Corrida de Noël']], await p.evaluate(() => [...document.querySelectorAll('.cal-rdv')].map(e => [e.closest('.cal-jr').querySelector('.cal-jr-nom').textContent, e.textContent])), '4 semaines : rendez-vous clé'),
+      egal([['dim. 15', 'Trail du Lac', true]], await p.evaluate(() => [...document.querySelectorAll('.cal-jr-course')].map(e => [e.closest('.cal-jr').querySelector('.cal-jr-nom').textContent, e.textContent, e.classList.contains('c-trail-v')])), '4 semaines : jour de course'),
+      egal(true, await p.evaluate(() => document.querySelector('.cal-vue').value === 'semaines'), 'bandeau sur « 4 semaines »'),
+      egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), '4 semaines : débordement horizontal'));
+    // Case « faite »
+    await p.locator('[data-fait="se-2"]').check();
+    for (let i = 0; i < 20 && !d.ecritures.some(e => e.table === 'seances'); i++) await p.clock.runFor(100);
+    pb.push(egal({ methode: 'PATCH', corps: { faite: true } }, (({ methode, corps }) => ({ methode, corps }))(d.ecritures.find(e => e.table === 'seances')), 'case « faite » : écriture'));
+    // Ajout, validation, modification, suppression
+    p.on('dialog', x => x.accept());
+    await p.click('[data-ajout="2026-10-21"]');
+    await p.click('.cal-seance button[type="submit"]');
+    pb.push(egal('Écris le libellé de la séance.', await p.textContent('.cal-msg'), 'séance sans libellé : message'));
+    await p.fill('.cal-seance [name="libelle"]', 'Footing 30 min');
+    await p.click('.cal-seance button[type="submit"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    pb.push(egal({ date: '2026-10-21', type: 'run', libelle: 'Footing 30 min' }, (({ date, type, libelle }) => ({ date, type, libelle }))(d.seances[d.seances.length - 1]), 'séance ajoutée : écriture'),
+      egal(true, (await seances(p)).some(x => x[0] === 'mer. 21' && x[1] === 'Run Footing 30 min'), 'séance ajoutée : affichée au bon jour'));
+    await p.click('[data-edit="se-3"]');
+    await p.selectOption('.cal-seance [name="type"]', 'renfo'); await p.fill('.cal-seance [name="libelle"]', 'Gainage 20 min');
+    await p.click('.cal-seance button[type="submit"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    pb.push(egal(['Renfo Gainage 20 min'], (await seances(p)).filter(x => x[0] === 'jeu. 22').map(x => x[1]), 'séance modifiée'));
+    await p.click('[data-edit="se-3"]');
+    await p.click('[data-act="supprimer"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    pb.push(egal([], (await seances(p)).filter(x => x[0] === 'jeu. 22'), 'séance supprimée'));
+    // Navigation : 4 semaines plus tard
+    await p.click('[aria-label="4 semaines plus tard"]'); await pause();
+    pb.push(egal('Sem. du 16 nov.', (await semaines(p))[0][0], 'flèche : 4 semaines plus tard'));
+    pb.push(egal([], erreurs, '4 semaines : erreurs JavaScript'));
+    await ctx.close();
+
+    // --- Année : toucher un jour, toucher une course, retour
+    d = copie();
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, d, {}, PARIS));
+    await p.click('[data-jour="2026-10-22"]');
+    pb.push(egal('#semaines=2026-10-19', await p.evaluate(() => location.hash), 'toucher le 22 octobre : 4 semaines depuis le lundi 19'));
+    await p.goBack();
+    await p.locator('[data-course="' + GORGES + '"]').scrollIntoViewIfNeeded();
+    await p.click('[data-course="' + GORGES + '"]');
+    await p.waitForSelector('.cal-plan-titre');
+    pb.push(egal('#plan=' + GORGES, await p.evaluate(() => location.hash), 'toucher une course : son plan'),
+      egal('#annee', await p.getAttribute('.cal-retour', 'href'), 'plan : retour vers l\'Année'));
+    await p.goBack();
+    pb.push(egal(true, await p.locator('.cal-bloc').count() > 0, 'bouton retour du navigateur : la vue Année'));
+    // Année : bandeau déroulant vers 4 semaines
+    await p.selectOption('.cal-vue', 'semaines');
+    pb.push(egal('Sem. du 19 oct.', (await semaines(p))[0][0], 'bandeau : 4 semaines'));
+    await ctx.close();
+
+    // --- Plan d'une course
+    d = copie();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#plan=' + GORGES, 1200, d, {}, PARIS));
+    p.on('dialog', x => x.accept());
+    const B = 'Base', D = 'Développement', DL = 'Deload', A = 'Affûtage';
+    const attendu = [B, B, B, DL, B, B, D, DL, D, D, D, DL, D, D, A, A];
+    pb.push(
+      egal('Trail des Gorges · plan de 16 semaines', await p.textContent('.cal-plan-titre'), 'plan : titre'),
+      egal('Début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027', await p.textContent('.cal-plan-dates'), 'plan : dates'),
+      egal(attendu, await p.evaluate(() => [...document.querySelectorAll('.cal-sem-phase')].map(e => e.textContent)), 'plan : phases des 16 semaines'),
+      egal('Semaine 1 · Sem. du 16 nov.', await p.evaluate(() => document.querySelector('.cal-sem-titre').textContent), 'plan : première semaine'),
+      egal([['dim. 13', 'Corrida de Noël'], ['dim. 7', 'Trail des Gorges']], await p.evaluate(() => [...document.querySelectorAll('.cal-jr-course')].map(e => [e.closest('.cal-jr').querySelector('.cal-jr-nom').textContent, e.textContent])), 'plan : jour J dans la dernière semaine'),
+      egal(['Base 3 sem.', 'Deload 1 sem.', 'Base 2 sem.', 'Développement 1 sem.', 'Deload 1 sem.', 'Développement 3 sem.', 'Deload 1 sem.', 'Développement 2 sem.', 'Affûtage 2 sem.'],
+        await p.evaluate(() => [...document.querySelectorAll('.cal-seg')].map(e => e.textContent.replace(/\s+/g, ' ').replace(/(\D)(\d)/, '$1 $2').trim())), 'plan : frise'));
+    // Préparer : durée de 20 semaines, une semaine en Base, puis recalcul
+    await p.click('[data-preparer]');
+    await p.fill('.cal-prep [name="duree"]', '20'); await p.dispatchEvent('.cal-prep [name="duree"]', 'change');
+    pb.push(egal('Début : lun. 19 oct. 2026 → jour J : dim. 7 mars 2027 · durée du format : 16 sem.', await p.textContent('.cal-prep .cal-plan-dates'), 'Préparer : 20 semaines, début le 19 octobre'));
+    await p.selectOption('.cal-prep [data-sem="2026-12-07"]', 'base');
+    await p.click('[data-act="enregistrer"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    pb.push(egal(20, d.courses.find(c => c.id === GORGES).prepa_semaines, 'Préparer : durée de la course écrite'),
+      egal([{ course: GORGES, lundi: '2026-12-07', phase: 'base' }], d.plan_semaines.map(x => ({ course: x.course, lundi: x.lundi, phase: x.phase })), 'Préparer : seule la semaine modifiée est rangée'),
+      egal('Trail des Gorges · plan de 20 semaines', await p.textContent('.cal-plan-titre'), 'plan de 20 semaines affiché'),
+      egal('Base · modifiée', await p.textContent('.cal-sem[data-lundi="2026-12-07"] .cal-sem-phase'), 'semaine modifiée repérée'));
+    await p.click('[data-preparer]');
+    await p.click('[data-act="recalculer"]');
+    await p.click('[data-act="enregistrer"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    pb.push(egal([], d.plan_semaines, 'Recalculer : plus aucune semaine modifiée'),
+      egal('Deload', await p.textContent('.cal-sem[data-lundi="2026-12-07"] .cal-sem-phase'), 'Recalculer : la semaine du 7 décembre est de nouveau en Deload'));
+    // Frise : glisser la première poignée d'une semaine vers la droite
+    await p.click('[data-preparer]');
+    const poignee = await p.locator('.cal-poignee').first().boundingBox(), frise = await p.locator('.cal-frise.is-edit').boundingBox();
+    pb.push(egal(await p.locator('.cal-frise.is-edit .cal-seg').count() - 1, await p.locator('.cal-poignee').count(), 'Préparer : une poignée entre deux phases'));
+    await p.mouse.move(poignee.x + poignee.width / 2, poignee.y + poignee.height / 2);
+    await p.mouse.down();
+    await p.mouse.move(frise.x + frise.width * 4 / 20 + 2, poignee.y + poignee.height / 2, { steps: 5 });
+    await p.mouse.up();
+    pb.push(egal('base', await p.inputValue('.cal-prep [data-sem="2026-11-09"]'), 'frise : la semaine 4 passe en Base en glissant la limite'));
+    await p.click('[data-act="annuler"]');
+    pb.push(egal([], d.plan_semaines, 'Annuler : rien n\'est rangé'), egal([], erreurs, 'plan : erreurs JavaScript'));
+    await ctx.close();
+
+    // Course introuvable, course sans durée
+    d = copie();
+    d.courses.find(c => c.id === id(2)).format = 'tri_s';
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html#plan=inconnu', 1200, d, {}, PARIS));
+    pb.push(egal('Course introuvable.', await p.textContent('.cal-vide'), 'course inconnue'), egal(1, await p.locator('.cal-retour').count(), 'course inconnue : lien de retour'));
+    await p.goto(RACINE + 'calendrier.html#plan=' + id(2)); await p.reload(); await p.waitForSelector('.cal-plan-titre');
+    pb.push(egal(true, (await p.textContent('.cal-vide')).startsWith('Pas de plan'), 'format sans durée : pas de plan'));
+    await p.click('[data-preparer]');
+    await p.fill('.cal-prep [name="duree"]', '10'); await p.dispatchEvent('.cal-prep [name="duree"]', 'change');
+    await p.click('[data-act="enregistrer"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    pb.push(egal('Corrida de Noël · plan de 10 semaines', await p.textContent('.cal-plan-titre'), 'durée choisie pour un format sans durée'));
+    await ctx.close();
+
+    // « Sans objectif clair »
+    d = copie();
+    d.courses = d.courses.filter(c => c.id !== GORGES);
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines', 1200, d, {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-12-14T10:00:00+01:00') }));
+    pb.push(egal([['Sem. du 14 déc.', 'Sans objectif clair', null], ['Sem. du 21 déc.', 'Sans objectif clair', null], ['Sem. du 28 déc.', 'Sans objectif clair', null], ['Sem. du 4 janv.', 'Sans objectif clair', null]],
+      await semaines(p), 'semaines sans objectif clair'));
+    await ctx.close();
+
+    // Lien depuis la page d'une course, téléphone, lecture seule
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + GORGES, 1200, copie(), {}, PARIS));
+    pb.push(egal('calendrier.html#plan=' + GORGES, await p.getAttribute('.pc-plan a', 'href'), 'page d\'une course : lien « Voir le plan »'));
+    await ctx.close();
+    for (const vue of ['#semaines', '#plan=' + GORGES]) {
+      ({ p, ctx } = await ouvrir(nav, 'calendrier.html' + vue, 390, copie(), {}, PARIS));
+      pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone ' + vue.slice(0, 6) + ' : débordement horizontal'));
+      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-' + vue.slice(1, 6) + '-telephone.png'), fullPage: true });
+      await ctx.close();
+    }
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = copie();
+    partage.courses = partage.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
+    partage.seances = partage.seances.map(x => Object.assign({}, x, { utilisateur: autre }));
+    partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines', 1200, partage, { 'mrt-vue': autre }, PARIS));
+    pb.push(egal(0, await p.locator('[data-ajout], [data-edit]').count(), 'lecture seule : ni « + » ni modification de séance'),
+      egal(4, await p.locator('.cal-se input:disabled').count(), 'lecture seule : cases « faite » grisées'));
+    await p.goto(RACINE + 'calendrier.html#plan=' + GORGES); await p.reload(); await p.waitForSelector('.cal-plan-titre');
+    pb.push(egal(0, await p.locator('[data-preparer]').count(), 'lecture seule : pas de « Préparer »'));
+    await ctx.close();
+    if (CAPTURES) {
+      ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines', 1200, copie(), {}, PARIS));
+      await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-semaines.png'), fullPage: true });
+      await p.goto(RACINE + 'calendrier.html#plan=' + GORGES); await p.reload(); await p.waitForSelector('.cal-plan-titre');
+      await p.click('[data-preparer]');
+      await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-preparer.png') });
+      await ctx.close();
+    }
     return pb;
   },
 
