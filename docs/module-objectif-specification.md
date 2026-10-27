@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.18 · 27 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.19 · 27 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -113,6 +113,9 @@ Sans en-tête : la barre fine (« Cap sur … » et l'engrenage), puis le menu d
 │ │ (14) PRIX         58 €                             │           │
 │ └────────────────────────────────────────────────────┘           │
 │ ─────────────────────────────────────────────────                │
+│ (24) ⌄ Préparation                              [Préparer]       │
+│      plan, frise, semaine en cours, toutes les semaines          │
+│ ─────────────────────────────────────────────────                │
 │ (15) ⌄ Rôle dans la préparation                                  │
 │      texte                                                       │
 │ ─────────────────────────────────────────────────                │
@@ -126,7 +129,7 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 
 | N° | Élément | Contenu | Règle et style |
 | --- | --- | --- | --- |
-| 1 | Retour | « ← Feuille de route » | Texte discret |
+| 1 | Retour | « ← Feuille de route » ; « ← Calendrier » quand on arrive du Calendrier (`?depuis=calendrier`) | Texte discret |
 | 2 | Rôle et rang | « Objectif intermédiaire · Étape 3 sur 6 » | Libellé ; rôle dans sa couleur (§ 3.1) |
 | 3 | Titre | Course · parcours | Seul titre de l'écran : Space Grotesk 700, Accent |
 | 4 | Lien officiel | ↗ | Seulement si le site officiel est connu |
@@ -141,6 +144,7 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 | 23 | Précisions | « Sous 6 h 45 dans tous les cas. » | Juste sous l'Objectif, valeur en Texte ; absente si vide ; ni sur la carte, ni dans l'en-tête |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit |
 | 14 | Prix | « 58 € » | Seulement s'il est connu |
+| 24 | Préparation | Plan de préparation de la course : durée, frise des phases, semaine en cours, séances (spécification du [Calendrier](module-calendrier-specification.md), § 5) | Premier texte de la liste, ouvert par défaut ; course à venir avec une date seulement ; ancre `#preparation` ; bouton « Préparer » absent en lecture seule |
 | 15 à 19 | Textes | Dans l'ordre ci-dessous, identique pour tous ; un texte vide n'est pas affiché | Liste à filets, dans un cadre ; titre en Texte, 600, casse normale, chevron à gauche |
 | 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la feuille de route | Libellé, puis le nom en Texte |
 
@@ -396,10 +400,10 @@ Résultats attendus, page d'une course :
 
 - Trail des Gorges : pas d'en-tête, le menu en haut ; « ← Feuille de route » ; « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges ↗ » ; « Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30 ».
 - Trail des Gorges, fiche encadrée : DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ ; D− 2 100 m ; OBJECTIF 06:30:00 ; DOSSARD ● Inscrit · n° 1287 ; PRIX 58 €. L'état du dossard n'est écrit qu'une fois sur la page.
-- Trail des Gorges, textes dans cet ordre : Rôle dans la préparation, Stratégie ou enchaînement, Logistique, Description, Liens (Site officiel, Inscription, Résultats en direct).
+- Trail des Gorges, textes dans cet ordre : Préparation (plan de 16 semaines, durée par défaut du format Trail long ; spécification du Calendrier, § 5), Rôle dans la préparation, Stratégie ou enchaînement, Logistique, Description, Liens (Site officiel, Inscription, Résultats en direct).
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
-- Corrida de Noël : fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; ni ligne D−, ni ligne Prix ; seul le texte Liens (Site officiel).
-- Ordinateur : pleine largeur de page, comme les autres pages ; la fiche encadrée ; les cinq textes ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
+- Corrida de Noël : fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; ni ligne D−, ni ligne Prix ; seuls les textes Préparation (plan de 8 semaines du format 10 km) et Liens (Site officiel).
+- Ordinateur : pleine largeur de page, comme les autres pages ; la fiche encadrée ; les six textes (Préparation comprise) ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
 - Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien « ← Feuille de route ».

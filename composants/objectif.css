@@ -101,7 +101,6 @@
 .pc-corps p + p { margin-top: 0.4rem; }
 .pc-liens { list-style: none; }
 .pc-liens li + li { margin-top: 0.3rem; }
-.pc-plan { margin: 0.4rem 0 0; font-size: 0.8rem; }
 .pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
 .pc-nav a { max-width: 48%; text-decoration: none; }
 .pc-nav a.is-suivante { margin-left: auto; text-align: right; }

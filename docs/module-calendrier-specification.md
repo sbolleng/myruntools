@@ -1,25 +1,24 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.4 · 27 octobre 2026 · [Retour au sommaire](README.md) · Lots 1 à 3 construits
+Version 0.5 · 27 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course
 
 ## 1. Rôle
 
-Le Calendrier montre la saison à trois échelles, comme un zoom : l'année, les quatre semaines à venir, le plan d'une course. Il répond à trois questions : quand courir, comment se prépare chaque course, et où sont les semaines sans objectif.
+Le Calendrier montre la saison à deux échelles : l'année et les quatre semaines à venir. La troisième échelle, la préparation d'une course, vit sur la **page de la course** ([Objectif](module-objectif-specification.md), § 3.4) : toucher une course dans le Calendrier y mène directement. Il répond à trois questions : quand courir, comment se prépare chaque course, et où sont les semaines sans objectif.
 
 - **Hors périmètre** : la saisie des courses (elle reste dans [Objectif](module-objectif-specification.md)) ; l'apparence détaillée (couleurs, tailles : [design](design.md)) ; l'import des séances depuis une application et la génération d'un plan par intelligence artificielle (todo du [sommaire](README.md)).
 - **Aucun calcul par intelligence artificielle** : les phases d'un plan se déduisent de règles générales de la course à pied et du trail (§ 5).
 
-## 2. Les trois vues
+## 2. Les deux vues
 
 | Vue | Échelle | Comment on l'ouvre |
 | --- | --- | --- |
 | **Année** | 12 mois, une case par jour | Bandeau déroulant (vue par défaut) |
 | **4 semaines** | Quatre semaines, avec les séances | Bandeau déroulant, ou toucher un jour de la vue Année |
-| **Plan d'une course** | Du début du plan au jour J | Toucher une course, dans la vue Année ou la vue 4 semaines |
 
-Le bandeau déroulant propose Année et 4 semaines. Le plan d'une course n'y figure pas : il dépend d'une course choisie.
+Le zoom « une course » n'est pas une vue du Calendrier : c'est la rubrique **Préparation** de la page de la course (§ 5). Toucher une course (case de la vue Année, jour de course ou rendez-vous clé de la vue 4 semaines) ouvre la page de cette course, à la rubrique Préparation ; « ← Calendrier » en haut de la page y ramène.
 
-Les données viennent de la liste de courses de l'utilisateur, la même que pour Objectif ; les séances et les phases sont propres au Calendrier (§ 7).
+Les données viennent de la liste de courses de l'utilisateur, la même que pour Objectif ; les séances et les phases sont propres à la préparation (§ 7).
 
 ## 3. Vue Année
 
@@ -63,7 +62,7 @@ Téléphone : trois colonnes de mois au lieu de six, donc quatre blocs empilés,
 - **Route ou trail** : le type de la course, déduit de son format. Tout ce qui n'est pas trail est dans la famille route.
 - **Trait de prépa** : sur le seul premier jour de la prépa, un trait de la couleur de la course. Si la prépa a commencé avant la période affichée, le trait se pose sur le premier jour affiché, et l'infobulle donne la vraie date de début. Deux traits dans la même période signalent deux préparations qui se chevauchent, sans plus de dessin.
 - **Date au mois seulement** : la case est au 1er du mois, avec la nuance d'une course non validée.
-- **Toucher un jour** ouvre la vue 4 semaines, à partir du lundi de la semaine de ce jour ; **toucher une course** ouvre son plan (§ 5.3). Sur ordinateur, une infobulle donne la date, la course et la phase.
+- **Toucher un jour** ouvre la vue 4 semaines, à partir du lundi de la semaine de ce jour ; **toucher une course** ouvre la rubrique Préparation de sa page (§ 5). Sur ordinateur, une infobulle donne la date, la course et la phase.
 
 ## 4. Vue 4 semaines
 
@@ -103,15 +102,15 @@ Téléphone : un jour par ligne dans chaque semaine, le trait vertical à gauche
 - **Phase d'une semaine** : un trait vertical coloré, avec le nom de la phase : Base, Développement, Affûtage ou Deload (§ 5.1). Une semaine sans préparation en cours affiche « Sans objectif clair ».
 - **Semaine dans deux plans** : le plan de la course confirmée la plus proche l'emporte ; la semaine indique discrètement « aussi : » suivi de l'autre course. Une option n'entre pas dans cette règle : elle a son plan, mais seule.
 - **Rendez-vous clés** : l'ouverture des inscriptions (`ouverture_inscriptions`) d'une course Confirmée ou Option.
-- **Toucher une course** (jour de course ou rendez-vous clé) ouvre son plan.
+- **Toucher une course** (jour de course ou rendez-vous clé) ouvre sa page, à la rubrique Préparation.
 - **Saisie d'une séance** : le « + » d'un jour ouvre une fenêtre (date, type, libellé de 100 caractères au plus) ; toucher une séance la modifie ou la supprime (confirmation) ; sa case « faite » s'enregistre aussitôt. Une séance ajoutée depuis un plan est liée à sa course.
 - **Flèches** : les 4 semaines suivantes ou précédentes, par pas de 4 semaines.
 
-## 5. Plan d'une course
+## 5. Préparation d'une course
 
 ### 5.1 Principe
 
-Le plan d'une course reprend la vue 4 semaines, du premier jour du plan au jour J, une ligne par semaine. Il s'ouvre depuis la vue Année ou la vue 4 semaines, et la page de la course d'Objectif reçoit un lien « Voir le plan ». Les phases se calculent d'après la date de course par des **règles générales**, puis se modifient à la main.
+La préparation d'une course est une **rubrique de la page de la course** (Objectif, § 3.4), pas une vue du Calendrier. Elle reprend le principe de la vue 4 semaines, du premier jour du plan au jour J. Les phases se calculent d'après la date de course par des **règles générales**, puis se modifient à la main.
 
 **Durée** : un nombre de semaines complètes lundi-dimanche, la dernière étant la semaine du jour J. Valeur par défaut propre au **format** de la course ; une valeur propre à la course la remplace. Valeurs par défaut proposées au § 5.4.
 
@@ -126,26 +125,32 @@ Exemple, plan de 10 semaines : Base ×3, Deload, Développement ×3, Deload, Aff
 ### 5.2 Plan de page
 
 ```
-(1) ← Retour       Trail des Gorges · plan de 10 semaines
-(2) Début : 28 déc. 2026 → jour J : 7 mars 2027      [Préparer]
-(3) frise :  [Base ▓▓▓ | Deload | Dév. ▓▓▓ | Deload | Aff. ▓▓ ]
-(4) semaine 1 · 28 déc. · Base          séances…
-(4) semaine 2 · 4 janv. · Base          séances…
-    …
-(5) semaine 10 · 1er mars · Affûtage    … ◆ jour J
+(1) ⌄ Préparation                                    [Préparer] (2)
+    (3) Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027
+    (4) frise : [Base ▓▓▓ | Del | Base ▓▓ | Dév | … | Affûtage ▓▓]
+    (5) SEMAINE EN COURS · Semaine 9 · Développement
+        lun. 19 │ mar. 20 │ …   séances, rendez-vous clés, jour J
+    (6) ▸ Toutes les semaines (16)
 ```
 
-| N° | Élément | Exemple | Place |
+La rubrique est le premier texte de la page de la course, juste sous la fiche, dans le même cadre que les autres textes ; elle est ouverte par défaut. Une semaine tient sur une ligne par jour, à toute largeur. Sur téléphone, comme les autres textes, elle se replie sous son titre.
+
+| N° | Élément | Contenu | Règle |
 | --- | --- | --- | --- |
-| 1 | Retour et titre | « Trail des Gorges · plan de 10 semaines » | En haut |
-| 2 | Dates du plan et bouton « Préparer » | « 28 déc. 2026 → 7 mars 2027 » | Sous le titre |
-| 3 | Frise des phases, côte à côte | Base, Deload, Développement… | Sous les dates |
-| 4 | Une semaine : numéro, début, phase, séances | « semaine 1 · 28 déc. · Base » | Liste |
-| 5 | Jour J | « 7 mars » | Dernière semaine |
+| 1 | Titre repliable | « Préparation » | Course à venir (confirmée ou option) avec une date seulement ; absente d'une course courue, abandonnée ou à surveiller |
+| 2 | Bouton « Préparer » | Fenêtre de réglage (§ 5.3) | Absent en lecture seule |
+| 3 | Durée et dates | « Plan de 16 semaines · début … → jour J … » | |
+| 4 | Frise des phases | Cases côte à côte, largeur proportionnelle aux semaines | Lecture seule ici ; à glisser dans « Préparer » |
+| 5 | Semaine mise en avant | Sa phase, ses sept jours, ses séances (case « faite », « + »), rendez-vous clés, jour J | « Semaine en cours » ; avant le début du plan, « Première semaine » ; après le jour J (course non marquée courue), « Dernière semaine » |
+| 6 | Toutes les semaines | Liste dépliable, une semaine par bloc comme (5) | Repliée par défaut |
 
-### 5.3 Rubrique « Préparer »
+Course sans durée de prépa (format sans valeur) : la rubrique affiche « Pas de plan : aucune durée de préparation pour ce format. Choisis-en une avec « Préparer ». » et le bouton.
 
-Le bouton « Préparer » ouvre le réglage complet de la prépa, depuis la page du plan (et la page de la course).
+Un lien d'ancre mène à la rubrique : `course.html?id=…#preparation`. Une séance ajoutée depuis cette rubrique est liée à la course.
+
+### 5.3 Fenêtre « Préparer »
+
+Le bouton « Préparer » de la rubrique ouvre le réglage complet de la prépa.
 
 | N° | Élément | Rôle |
 | --- | --- | --- |
@@ -155,7 +160,7 @@ Le bouton « Préparer » ouvre le réglage complet de la prépa, depuis la page
 | P4 | « Recalculer selon les règles » | Revient aux règles générales du § 5.1, après confirmation. |
 | P5 | « Enregistrer » | Range la durée et les phases modifiées. |
 
-Le bouton « Préparer » ouvre une fenêtre ; « Recalculer selon les règles » (après confirmation) et les changements ne comptent qu'une fois « Enregistrer » pressé, « Annuler » ne range rien. Le bouton est aussi proposé sur la page d'une course sans durée de prépa, pour en choisir une. Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Préparer », ni saisie.
+Le bouton « Préparer » ouvre une fenêtre ; « Recalculer selon les règles » (après confirmation) et les changements ne comptent qu'une fois « Enregistrer » pressé, « Annuler » ne range rien. Pour une course sans durée de prépa, la rubrique propose le même bouton, pour en choisir une. Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Préparer », ni saisie.
 
 ### 5.4 Durées de prépa par défaut (à valider)
 
@@ -197,7 +202,8 @@ Le [modèle de données](modele-donnees.md) (§ 4.4) décrit ces champs et table
 
 1. **Vue Année** : lecture seule, sans nouvelle donnée, avec la durée de prépa par défaut du format (§ 5.4). **Construit** (27 octobre 2026) : page `calendrier.html`, composant `composants/calendrier.js`.
 2. **Modèle de données** : durées, phases, séances. **Construit** (27 octobre 2026) : évolution `supabase/evolutions/009-calendrier-preparation.sql`, `schema.sql` à jour ; la vue Année lit désormais la durée de la course, sinon celle de son format, dans la base ; plus rien n'est écrit en dur dans le composant.
-3. **Vues 4 semaines et plan d'une course**, saisie des séances, rubrique « Préparer ». **Construit** (27 octobre 2026) : `calendrier.js` et `calendrier.css` étendus ; lien « Voir le plan » sur la page d'une course d'Objectif ; la vue active se lit dans l'adresse (`#annee`, `#semaines=AAAA-MM-JJ`, `#plan=identifiant`), le bouton retour du navigateur ramène à la vue précédente.
+3. **Vue 4 semaines et plan d'une course**, saisie des séances, rubrique « Préparer ». **Construit** (27 octobre 2026) : vue 4 semaines dans `calendrier.js` ; la vue active se lit dans l'adresse (`#annee`, `#semaines=AAAA-MM-JJ`), le bouton retour du navigateur ramène à la vue précédente.
+4. **Préparation sur la page de la course** (27 octobre 2026) : le plan d'une course quitte le Calendrier pour devenir une rubrique de la page de la course (`composants/preparation.js`, partagé) ; toucher une course dans le Calendrier mène à `course.html?id=…#preparation`.
 
 Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
 
@@ -253,18 +259,27 @@ Résultats attendus, durées de prépa (vue Année) :
 
 - Durée de prépa : la durée propre à une course remplace celle de son format (Trail des Gorges à 20 semaines : trait le lundi 19 octobre 2026) ; un format sans durée (Triathlon S) : pas de trait.
 
-Résultats attendus, vue 4 semaines, séances et plan (lot 3, séances d'essai ci-dessus, au 20 octobre 2026) :
+Résultats attendus, vue 4 semaines et séances (au 20 octobre 2026, séances d'essai ci-dessus) :
 
 - Bandeau sur « 4 semaines » ; les quatre semaines indiquent « aussi : Corrida de Noël » (leur plan couvre les mêmes semaines).
 - Renfo · Gainage 30 min le lundi 19 est cochée « faite » (barrée), les trois autres séances ne le sont pas. Rendez-vous clé le dimanche 1er novembre ; Trail du Lac sur le dimanche 15 novembre, en trail validée.
 - Cocher « 8×400 m » : écriture de `faite` ; ajouter « Footing 30 min » (Run) le mercredi 21 : elle apparaît ce jour-là ; un libellé vide : « Écris le libellé de la séance. » ; modifier le footing du jeudi 22 en Renfo « Gainage 20 min » ; le supprimer (confirmation).
 - Flèche « 4 semaines plus tard » : la première semaine est celle du 16 novembre.
-- Année : toucher le 22 octobre ouvre `#semaines=2026-10-19` ; toucher Trail des Gorges ouvre `#plan=…`, « Retour » ramène à `#annee` ; le bouton retour du navigateur aussi.
-- Plan du Trail des Gorges : « Trail des Gorges · plan de 16 semaines », « Début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 », phases dans l'ordre Base ×3, Deload, Base ×2, Développement, Deload, Développement ×3, Deload, Développement ×2, Affûtage ×2 ; la dernière semaine porte le jour J (et la Corrida de Noël le dimanche 13 décembre dans la quatrième).
-- « Préparer », durée 20 : « Début : lun. 19 oct. 2026 » ; semaine du 7 décembre en Base puis « Enregistrer » : la durée de la course (20) et une seule semaine modifiée sont rangées, la semaine s'affiche « Base · modifiée » ; « Recalculer selon les règles » puis « Enregistrer » : plus de semaine modifiée, la semaine du 7 décembre est de nouveau en Deload. « Annuler » ne range rien.
-- Frise : une poignée entre deux phases ; glisser la première d'une semaine vers la droite met la semaine 4 en Base dans le tableau.
-- Course de format sans durée (Corrida de Noël en Triathlon S) : « Pas de plan » et « Préparer » ; durée 10 : « Corrida de Noël · plan de 10 semaines ». Adresse inconnue : « Course introuvable. » et « ← Retour ».
+- Année : toucher le 22 octobre ouvre `#semaines=2026-10-19` ; toucher Trail des Gorges ouvre sa page à la rubrique Préparation (`course.html?id=…&depuis=calendrier#preparation`), « ← Calendrier » en haut de la page.
+- Dans la vue 4 semaines, toucher le jour de course (Trail du Lac) ou le rendez-vous clé (Corrida de Noël) ouvre de même la page de la course.
 - Au 14 décembre 2026, sans le Trail des Gorges : les semaines du 14, du 21, du 28 décembre et du 4 janvier sont « Sans objectif clair ».
-- Page d'une course d'Objectif : lien « Voir le plan → » vers `calendrier.html#plan=…`.
-- Téléphone : un jour par ligne, rien ne déborde, pour les 4 semaines comme pour le plan.
-- Site partagé en lecture seule : ni « + », ni modification de séance, cases « faite » grisées, ni « Préparer ».
+- Téléphone : un jour par ligne, rien ne déborde.
+- Site partagé en lecture seule : ni « + », ni modification de séance, cases « faite » grisées.
+
+Résultats attendus, rubrique Préparation de la page d'une course :
+
+- Page du Trail des Gorges, ouverte sur `#preparation` : la rubrique est ouverte et à l'écran ; « Plan de 16 semaines », « Début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 » ; phases Base ×3, Deload, Base ×2, Développement, Deload, Développement ×3, Deload, Développement ×2, Affûtage ×2 ; la frise affiche neuf groupes ; la semaine mise en avant est la première (« Première semaine », semaine du 16 novembre, Base), le plan n'ayant pas commencé.
+- Page du Trail du Lac (plan de 12 semaines commencé le 24 août) : « Semaine en cours », semaine 9 (19 octobre), Développement, avec ses séances ; « Toutes les semaines (12) » repliée ; dépliée, douze blocs.
+- « Préparer » : durée portée à 20 semaines, « Début : lun. 19 oct. 2026 » ; semaine du 7 décembre en Base puis « Enregistrer » : la durée de la course (20) et une seule semaine modifiée sont rangées, la semaine s'affiche « Base · modifiée » ; « Recalculer selon les règles » puis « Enregistrer » : plus de semaine modifiée, la semaine du 7 décembre est de nouveau en Deload ; « Annuler » ne range rien.
+- Frise : une poignée entre deux phases ; glisser la première d'une semaine vers la droite met la semaine 4 en Base dans le tableau.
+- Ajouter une séance depuis la rubrique : elle est liée à la course (`course` renseignée).
+- Course de format sans durée (Corrida de Noël en Triathlon S) : « Pas de plan… » et « Préparer » ; durée 10 : « Plan de 10 semaines ».
+- Course courue, abandonnée ou à surveiller : pas de rubrique Préparation.
+- Page ouverte sans `#preparation` : pas de défilement ; avec `#preparation` : la rubrique s'ouvre, même repliée.
+- Site partagé en lecture seule : la rubrique s'affiche, sans « Préparer », ni « + », ni modification de séance.
+- Téléphone : la rubrique ne déborde pas.
