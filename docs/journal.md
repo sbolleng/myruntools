@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 oct. 2026 | Palmarès | Barre : boutons ronds resserrés (0,5 rem au lieu de 1 rem). |
 | 27 oct. 2026 | Objectif | Objectif normé (hh:mm:ss, Finisher, Sub …) ; le texte libre passe dans un nouveau champ « Précisions » (`objectif_precisions`, 100 caractères au plus, sous Objectif ; formulaires d'Objectif et du Palmarès, fiche de la page d'une course ; ni carte ni en-tête). Évolution 007 : transfert des objectifs hors norme ; valeurs normées déduites ligne par ligne, hors dépôt. Toutes les courses ont les mêmes champs, où qu'elles s'affichent. |
 | 26 oct. 2026 | Formulaires | Palmarès : bloc Dossard (numéro), curseur dans Course à l'ouverture. iPhone : `maximum-scale=1` ajouté à la balise viewport, en plus des champs à 16 px, contre le zoom qui coupait le formulaire. |
 | 26 oct. 2026 | Formulaires | Les champs communs aux formulaires du Palmarès et d'Objectif suivent l'ordre d'Objectif : course, parcours, date, type, format, distance, D+, rôle. |
