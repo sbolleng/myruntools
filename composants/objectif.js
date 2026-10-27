@@ -218,6 +218,7 @@
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2>' +
         (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') + '</div>' +
       '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
+      (c.etat === 'a_venir' && c.date ? '<p class="pc-plan"><a href="calendrier.html#plan=' + esc(c.id) + '">Voir le plan →</a></p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +

@@ -66,11 +66,23 @@
       typeLibelle: c.format && sc[c.format] ? typeLib[sc[c.format].type] : null,
       formatLibelle: c.format && sc[c.format] ? sc[c.format].libelle : null,
       // Durée de préparation en semaines : celle de la course, sinon celle de son format (vide : pas de préparation).
+      prepaFormat: c.format && sc[c.format] && sc[c.format].prepa_semaines != null ? sc[c.format].prepa_semaines : null,
       prepaSemaines: c.prepa_semaines != null ? c.prepa_semaines : (c.format && sc[c.format] && sc[c.format].prepa_semaines != null ? sc[c.format].prepa_semaines : null),
       circuits: circuits.data.filter(x => x.course === c.id)
     }));
   }
   window.mrtReferences = lireReferences;
+
+  // Calendrier : séances et semaines dont la phase a été modifiée à la main (évolution 009).
+  window.mrtLirePlan = async function (qui) {
+    const db = window.mrtSupabase;
+    const [seances, semaines] = await Promise.all([
+      db.from('seances').select('*').eq('utilisateur', qui).order('date'),
+      db.from('plan_semaines').select('*').eq('utilisateur', qui)
+    ]);
+    for (const x of [seances, semaines]) if (x.error) throw x.error;
+    return { seances: seances.data, semaines: semaines.data };
+  };
 
   // Nom affiché : « Course · Parcours », ou la course seule.
   window.mrtNomCourse = c => c.course + (c.parcours && c.parcours !== c.course ? ' · ' + c.parcours : '');
@@ -171,6 +183,9 @@
     }
     let courses = [];
     try { courses = await lireCourses(qui); } catch (err) { console.warn('Courses : lecture impossible', err); }
+    // Calendrier : séances et phases modifiées, lues avant que la page ne s'affiche (opts.plan).
+    const lirePlan = async () => { try { return await window.mrtLirePlan(qui); } catch (err) { console.warn('Calendrier : séances illisibles', err); return { seances: [], semaines: [] }; } };
+    const plan = opts.plan ? await lirePlan() : null;
     let prefsCourantes = prefs;
     // Grand en-tête sur la page de démarrage seulement ; ailleurs, la barre fine.
     const dessiner = p => {
@@ -183,7 +198,7 @@
     // La page s'affiche une fois que la suite de la page (then) a dessiné son contenu.
     setTimeout(window.mrtAfficher, 0);
     return {
-      session, courses, lectureSeule: !!proprietaire, proprietaire, preferences: () => prefsCourantes || {},
+      session, courses, qui, plan, relirePlan: lirePlan, lectureSeule: !!proprietaire, proprietaire, preferences: () => prefsCourantes || {},
       // Relit les courses et redessine l'en-tête (cap, compte à rebours) avec elles.
       relire: async () => { courses = await lireCourses(qui); dessiner(prefsCourantes); return courses; },
       redessiner: dessiner // en-tête et menu, avec d'autres préférences
