@@ -92,8 +92,8 @@ Dans l'ordre :
    - Matériel : chaussures et leur usure.
 5. [ ] **Thèmes** : supprimer Accent 2, presque identique à l'Accent ; les repères (compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire) passent en Accent ou en neutre. Plan de page et maquette des trois thèmes d'abord.
 6. [ ] **Nutrition** : créer la page : spécification (périmètre, repères glucides et eau par heure : voir la question ouverte « Ravitaillement en course »), puis construction.
-7. [ ] **Crédits** : page ou mention des crédits du site (périmètre à préciser).
-8. [ ] **RGPD** : mentions légales, politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
+7. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
+8. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
 9. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
 
 ## Questions ouvertes
