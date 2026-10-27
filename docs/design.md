@@ -1,6 +1,6 @@
 # Design
 
-Version 0.18 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.19 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -66,7 +66,7 @@ Le contenu des pages (`main`) est à 0,85 rem par défaut, dans la feuille de st
 
 ## 4. En-tête
 
-Sur l'Accueil et la feuille de route seulement (spécification générale, § 3) ; les autres pages commencent par le menu.
+Sur la page de démarrage seulement (spécification générale, § 5 bis) ; les autres pages commencent par la barre fine et le menu.
 
 ### Tailles
 
@@ -140,7 +140,15 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Texte, 600 (0,8 rem, pas d'Accent, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite. Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.
 - Barre sur le Fond, ligne fine (Bordure) dessous ; elle reste collée en haut de l'écran au défilement ; défilement horizontal sans barre visible sur téléphone.
 
-## 9. Calendrier (vue Année)
+## 9. Accueil
+
+- Blocs dans un cadre (Surface, Bordure, coins de 8 px, marges 1 rem × 1,15 rem), deux colonnes sur ordinateur (écart 1 rem), une sur téléphone.
+- Titre de bloc en capitales Space Mono 0,7 rem, Texte discret ; à droite, un lien « … → » en Space Grotesk 0,75 rem.
+- Bloc « bientôt » : contour pointillé, sans fond, à demi transparent.
+- Prochaine course : la carte de la feuille de route, sans son propre cadre. D'ici là : une pastille par étape (contour Bordure), le cap en Accent.
+- **Passage** grand en-tête ↔ barre fine : 0,35 s, ease-out ; la barre part de la hauteur de l'en-tête (5 rem de marge haute et basse), le nom du cap grossi 1,8 fois et en Accent, et se réduit ; l'en-tête part de la hauteur de la barre et se déplie. Aucun passage si l'utilisateur a demandé à réduire les animations.
+
+## 10. Calendrier (vue Année)
 
 Les couleurs des courses ne changent pas d'un thème à l'autre : la même famille doit se reconnaître partout.
 

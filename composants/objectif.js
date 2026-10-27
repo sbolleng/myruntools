@@ -6,6 +6,7 @@
 //   mrtEtapes(courses)                  étapes de la feuille de route
 //   renderFeuilleDeRoute(el, courses, edition)   la feuille de route
 //   renderPageCourse(el, courses, id, edition)   la page d'une course ; rend la course, ou null
+//   renderCarteCourse(el, course)       une carte seule (Accueil)
 //   mrtEdition(page, courses, apres)    saisie et édition (§ 3.7) : ajouter, modifier, marquer, retenir ;
 //                                       null sur un site partagé en lecture seule. courses : () => liste à jour
 // edition = { ajouter, modifier(id), marquer(id), retenir(id) } : les boutons n'existent que s'il est donné.
@@ -152,6 +153,13 @@
   const CRAYON = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
   const rond = (act, texte, icone) => '<button type="button" class="ob-rond mrt-rond" data-ob="' + act + '" aria-label="' + texte + '" title="' + texte + '">' + icone + '</button>';
   const brancher = (el, actions) => el.querySelectorAll('[data-ob]').forEach(b => b.addEventListener('click', () => actions[b.dataset.ob]()));
+
+  // Une carte seule, comme sur la feuille de route (bloc Prochaine course de l'Accueil).
+  window.renderCarteCourse = function (el, c) {
+    el.innerHTML = carteCourse(c);
+    lancerCompteurs();
+    couperNoms();
+  };
 
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);

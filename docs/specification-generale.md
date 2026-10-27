@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.16 · 26 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.17 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -25,11 +25,11 @@ Deux profils pilotes au lancement :
 
 Chaque page suit le même gabarit, de haut en bas :
 
-1. **En-tête** (§ 4), sur l'Accueil et la page Objectif (feuille de route) seulement.
+1. **En-tête** (§ 4), sur la **page de démarrage** seulement : la page qui s'ouvre en arrivant sur le site, choisie dans les Préférences (par défaut l'Accueil, § 5 bis).
 2. **Menu** (§ 5), sur toutes les pages.
 3. **Contenu du module**.
 
-L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur l'Accueil et la feuille de route (Palmarès, Préférences, page d'une course…), une barre fine remplace l'en-tête : « Cap sur » et le nom du cap (vers l'Accueil), et l'engrenage ; l'en-tête complet n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
+L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur la page de démarrage (Palmarès, Préférences, page d'une course…), une barre fine remplace l'en-tête : « Cap sur » et le nom du cap (vers l'Accueil), et l'engrenage ; l'en-tête complet n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
 
 **Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu : le nom de l'application, une accroche (« La boîte à outils du coureur »), un champ « Adresse e-mail », un bouton « Recevoir le lien de connexion » et une ligne d'aide qui accueille aussi les messages (envoi, erreur). Le lien n'est envoyé qu'aux comptes existants ; au retour du lien, l'utilisateur arrive connecté sur l'accueil.
 
@@ -94,8 +94,25 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 ## 5. Menu
 
+- **Accueil** : toujours le premier onglet ; il ne se masque pas.
+
 - Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur, dans l'ordre qu'il a choisi (§ 8). L'onglet de la page ouverte est mis en avant.
 - Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené. Elle reste visible en haut de l'écran quand on fait défiler la page.
+
+## 5 bis. Accueil et page de démarrage
+
+- **Page de démarrage** : l'Accueil ou un module construit et affiché (Objectif, Palmarès…). En arrivant sur le site (nouvel onglet, ou retour du lien de connexion), l'Accueil cède la place à la page de démarrage ; l'onglet Accueil, touché depuis le site, ouvre bien l'Accueil.
+- **Grand en-tête** sur la page de démarrage seulement ; partout ailleurs, la barre fine (« Cap sur … » et l'engrenage). La page d'une course a toujours la barre fine.
+- **Passage** : en quittant la page de démarrage, le grand en-tête se réduit en barre fine (0,35 s) ; en y revenant, il se déplie. Rien au premier affichage, ni quand l'utilisateur a demandé à réduire les animations.
+- **Accueil, la page en un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences :
+
+| Bloc | Contenu | Par défaut |
+| --- | --- | --- |
+| Prochaine course | La carte de la prochaine course confirmée, comme sur la feuille de route ; lien vers la feuille de route | Affiché |
+| Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt, grisé | Affiché |
+| Bilan nutrition | Plan de ravitaillement de la prochaine course, avec le module Nutrition · bientôt, grisé | Affiché |
+| D'ici là | Les étapes de la feuille de route jusqu'au cap compris, le cap en Accent | Affiché |
+| Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; lien vers le Palmarès | Masqué |
 
 ## 6. Thèmes
 
@@ -202,7 +219,7 @@ Résultats attendus :
 - Sans objectif renseigné : l'indicateur Objectif affiche « — ».
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
 - L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
-- L'en-tête figure sur l'Accueil et la feuille de route ; le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
+- Par défaut, l'en-tête figure sur l'Accueil seulement ; la feuille de route, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
 - Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
 - Page de connexion : ni en-tête ni menu ; une adresse inconnue reçoit le message « Lien non envoyé » ; le lien reçu ramène sur l'accueil, connecté.
@@ -211,3 +228,6 @@ Résultats attendus :
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
 - Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
+- Accueil par défaut : grand en-tête, onglet Accueil en premier ; blocs Prochaine course (Trail du Lac), Pense-bête et Bilan nutrition grisés, D'ici là jusqu'au Trail des Crêtes en Accent.
+- Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss.
+- Page de démarrage Objectif : ouvrir le site sur l'Accueil mène à la feuille de route, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher Accueil : l'Accueil, en barre fine ; revenir à Objectif : l'en-tête se déplie.

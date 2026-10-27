@@ -205,8 +205,8 @@ const CONTROLES = {
     const { p, ctx } = await ouvrir(nav, 'index.html', 1200, sansDplus);
     pb.push(egal('60 km', await p.evaluate(() => document.querySelector('.mrt-stat-val').textContent), 'sans D+, Distance'));
     await ctx.close();
-    // L'en-tête sur l'Accueil et la feuille de route ; ailleurs une barre fine : « Cap sur … » (vers l'Accueil) et l'engrenage.
-    for (const [page, entete] of [['index.html', true], ['objectif.html', true], ['palmares.html', false], ['calendrier.html', false], ['preferences.html', false], ['course.html?id=00000000-0000-0000-0001-000000000020', false]]) {
+    // Le grand en-tête sur la page de démarrage (par défaut l'Accueil) ; ailleurs une barre fine : « Cap sur … » (vers l'Accueil) et l'engrenage.
+    for (const [page, entete] of [['index.html', true], ['objectif.html', false], ['palmares.html', false], ['calendrier.html', false], ['preferences.html', false], ['course.html?id=00000000-0000-0000-0001-000000000020', false]]) {
       const o = await ouvrir(nav, page, 390, db);
       pb.push(egal({ entete, barre: entete ? null : 'Cap sur Trail des Crêtes', engrenage: true, actif: page === 'preferences.html', menuSansEngrenage: true }, await o.p.evaluate(() => {
         const g = document.querySelector('.mrt-gear'), b = document.querySelector('.mrt-barre-cap');
@@ -274,6 +274,51 @@ const CONTROLES = {
     return pb;
   },
   // Préférences : thème, menu, cap, lecture seule (module-preferences-specification.md).
+  // Accueil, page de démarrage et passage entre le grand en-tête et la barre fine (spécification générale, § 6).
+  async accueil(nav, db0) {
+    const { db } = jeuObjectif(db0);
+    const pb = [];
+    const blocs = p => p.evaluate(() => [...document.querySelectorAll('.ac-bloc')].map(b => b.dataset.bloc + (b.classList.contains('is-bientot') ? ' (bientôt)' : '')));
+    // Par défaut : l'Accueil est la page de démarrage, avec le grand en-tête ; blocs par défaut.
+    let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 1200, db, {}, PARIS);
+    pb.push(egal([true, 'Accueil'], [await p.evaluate(() => !!document.querySelector('.mrt-header')), await p.textContent('.mrt-tab.is-on')], 'Accueil : grand en-tête, onglet Accueil'));
+    pb.push(egal(['prochaine', 'pensebete (bientôt)', 'nutrition (bientôt)', 'dicila'], await blocs(p), 'Accueil : blocs par défaut, Pense-bête et Nutrition grisés'));
+    pb.push(egal('Trail du Lac · Le Tour du Lac', (await p.textContent('[data-bloc="prochaine"] .ob-nom a')).replace(/[  ]/g, ' ').trim(), 'prochaine course : la carte de la feuille de route'));
+    const etapes = await p.evaluate(() => [...document.querySelectorAll('.ac-etape')].map(e => e.textContent + (e.classList.contains('is-cap') ? ' (cap)' : '')));
+    pb.push(egal('Trail des Crêtes (cap)', etapes[etapes.length - 1], 'd\'ici là : jusqu\'au cap compris, en Accent'));
+    pb.push(egal([], erreurs, 'Accueil : erreurs JavaScript'));
+    await ctx.close();
+    // Blocs choisis dans les Préférences : ordre et Dernière course.
+    const choix = JSON.parse(JSON.stringify(db)); choix.preferences[0].accueil_blocs = ['derniere', 'prochaine'];
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 390, choix, {}, PARIS));
+    pb.push(egal(['derniere', 'prochaine'], await blocs(p), 'blocs choisis, dans l\'ordre choisi'));
+    pb.push(egal(true, /Course.+Date.+Temps\s*\d{2}:\d{2}:\d{2}/.test(await p.textContent('[data-bloc="derniere"]')), 'dernière course : nom, date, temps en hh:mm:ss'));
+    await ctx.close();
+    // Page de démarrage : la feuille de route. En arrivant sur l'Accueil, on y est renvoyé ; elle seule a le grand en-tête.
+    const dem = JSON.parse(JSON.stringify(db)); dem.preferences[0].page_demarrage = 'objectif.html';
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, dem, {}, PARIS));
+    await p.addInitScript(() => { window.__anims = []; document.addEventListener('animationstart', e => window.__anims.push(e.animationName), true); });
+    pb.push(egal([true, true], [/objectif\.html$/.test(p.url()), await p.evaluate(() => !!document.querySelector('.mrt-header'))], 'arrivée : la page de démarrage, avec le grand en-tête'));
+    await p.click('.mrt-tab[href$="palmares.html"]'); await p.waitForURL(/palmares/); await p.waitForSelector('.mrt-barre');
+    pb.push(egal([true, ['mrt-retrecit', 'mrt-retrecit-cap']], [await p.evaluate(() => !document.querySelector('.mrt-header')), await p.evaluate(() => window.__anims.filter(a => /retrecit/.test(a)))], 'vers le Palmarès : barre fine, le grand en-tête se réduit'));
+    await p.click('.mrt-tab[href$="index.html"]'); await p.waitForURL(/index/); await p.waitForSelector('.mrt-nav');
+    pb.push(egal([true, true], [/index\.html$/.test(p.url()), await p.evaluate(() => !!document.querySelector('.mrt-barre'))], 'onglet Accueil depuis le site : l\'Accueil, en barre fine'));
+    await p.click('.mrt-tab[href$="objectif.html"]'); await p.waitForURL(/objectif/); await p.waitForSelector('.mrt-header');
+    pb.push(egal(['mrt-deploie'], await p.evaluate(() => window.__anims.filter(a => /deploie/.test(a))), 'retour à la page de démarrage : l\'en-tête se déplie'));
+    await ctx.close();
+    // Préférences : la page de démarrage se choisit en pastilles ; enregistrée aussitôt.
+    ({ p, ctx } = await ouvrir(nav, 'preferences.html', 1200, db, {}, PARIS));
+    pb.push(egal(['Accueil', 'Objectif', 'Calendrier', 'Palmarès'], await p.evaluate(() => [...document.querySelectorAll('#bloc-demarrage .pv2-check')].map(l => l.textContent.trim())), 'démarrage : Accueil et modules construits'));
+    await p.click('#bloc-demarrage label.pv2-check:has(input[value="palmares.html"])');
+    await p.waitForSelector('#bloc-demarrage .pref-msg:has-text("Enregistré")');
+    pb.push(egal('palmares.html', db.preferences[0].page_demarrage, 'démarrage enregistré'));
+    pb.push(egal(['Prochaine course', 'Pense-bête · bientôt', 'Bilan nutrition · bientôt', 'D\'ici là', 'Dernière course'], await p.evaluate(() => [...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim())), 'page d\'accueil : les cinq blocs'));
+    await p.check('.pref-blocs label:has-text("Dernière course") input');
+    await p.waitForSelector('#bloc-accueil .pref-msg:has-text("Enregistré")');
+    pb.push(egal(['prochaine', 'pensebete', 'nutrition', 'dicila', 'derniere'], db.preferences[0].accueil_blocs, 'Dernière course cochée : enregistrée'));
+    await ctx.close();
+    return pb;
+  },
   async preferences(nav, db0) {
     // Jeu d'essai : Trail du Lac, Course A (option), Trail des Crêtes à venir ; Course B à surveiller ; les courues.
     const db = JSON.parse(JSON.stringify(db0));
@@ -283,7 +328,8 @@ const CONTROLES = {
     const pb = [];
     let { p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, db);
     const q = (sel, f) => p.evaluate(([s, fn]) => new Function('x', 'return ' + fn)(document.querySelector(s)), [sel, f]);
-    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => t.textContent));
+    // Les modules du menu, après l'Accueil (toujours en premier, contrôlé à part).
+    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => t.textContent).filter((t, i) => !(i === 0 && t === 'Accueil')));
     // Attend la réponse de la base (vraie attente : la date du jour est figée).
     const attendre = async () => {
       for (let i = 0; i < 80; i++) {
@@ -302,7 +348,7 @@ const CONTROLES = {
     pb.push(egal([true, true, false, true], await p.evaluate(() => { const g = document.querySelector('.mrt-barre .mrt-gear');
       return [g.getAttribute('href').endsWith('preferences.html'), g.classList.contains('is-on'), !!document.querySelector('.mrt-header'), !!document.querySelector('.mrt-barre')]; }), 'engrenage dans la barre fine, page sans en-tête'));
     pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors des modules du menu'));
-    pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
+    pb.push(egal(['Compte', 'Cap', 'Thème', 'Page de démarrage', 'Page d\'accueil', 'Menu', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
     pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise'], await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes, sans mention'));
 
     // Thème
@@ -318,9 +364,10 @@ const CONTROLES = {
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), '?t=… sans effet'));
 
     // Menu
+    pb.push(egal('Accueil', await p.evaluate(() => document.querySelector('.mrt-tab').textContent), 'menu : l\'Accueil en premier'));
     const catalogue = ['Cette semaine', 'Objectif', 'Calendrier', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
     pb.push(egal(catalogue, await menu(), 'menu par défaut'));
-    pb.push(egal(7, await p.locator('.pref-modules input:checked').count(), 'tous les modules cochés'));
+    pb.push(egal(7, await p.locator('.pref-modules input:checked:not(:disabled)').count(), 'tous les modules cochés (plus l\'Accueil, fixe)'));
     pb.push(egal(4, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
     await p.click('[aria-label="Monter Palmarès"]'); await attendre();
     const monte = ['Cette semaine', 'Objectif', 'Calendrier', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
@@ -329,12 +376,12 @@ const CONTROLES = {
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
     await p.locator('.pref-modules label', { hasText: 'Guide' }).locator('input').uncheck(); await attendre();
     pb.push(egal(false, (await menu()).includes('Guide'), 'Guide décoché, absent du menu'));
-    await p.click('.pref-defaut'); await attendre();
+    await p.click('#bloc-menu .pref-defaut'); await attendre();
     pb.push(egal(catalogue, await menu(), 'ordre par défaut rétabli'));
     for (const n of catalogue.slice(1)) { await p.locator('.pref-modules label', { hasText: n }).locator('input').uncheck(); await attendre(); }
     pb.push(egal(['Cette semaine'], await menu(), 'un seul module affiché'));
     pb.push(egal(true, await q('.pref-modules input:checked', 'x.disabled'), 'dernière case non décochable'));
-    await p.click('.pref-defaut'); await attendre();
+    await p.click('#bloc-menu .pref-defaut'); await attendre();
 
     // Cap
     const options = await p.evaluate(() => [...document.querySelectorAll('#bloc-cap option')].map(o => o.textContent));
@@ -381,6 +428,7 @@ const CONTROLES = {
   // Objectif : feuille de route et page d'une course (module-objectif-specification.md, § 10).
   async objectif(nav, db0) {
     const { db, id } = jeuObjectif(db0);
+    db.preferences[0].page_demarrage = 'objectif.html'; // la feuille de route porte le grand en-tête
     const pb = [];
     // Une carte : ses éléments, tels qu'affichés (espaces insécables ramenés à des espaces).
     const cartes = p => p.evaluate(() => [...document.querySelectorAll('.ob-et')].map(et => {
@@ -593,6 +641,7 @@ const CONTROLES = {
   // Objectif : saisie et édition d'une course à venir (module-objectif-specification.md, § 3.7 et § 10).
   async saisie(nav, db0) {
     const { db, id } = jeuObjectif(db0);
+    db.preferences[0].page_demarrage = 'objectif.html'; // la feuille de route porte le grand en-tête
     const pb = [];
     const PAGE = 'objectif.html', COURSE = n => 'course.html?id=' + id(n);
     const lire = async (p, sel) => p.locator(sel).inputValue();
