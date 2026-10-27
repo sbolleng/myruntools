@@ -206,7 +206,7 @@ Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
 - [ ] **Durées de prépa par format** : valeurs du § 5.4 à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking et Triathlon.
 - [ ] **Semaine de récupération après la course** : une semaine de récupération après le jour J, comptée comme Deload ?
 - [ ] **Vue Année sur « six mois »** : la vue affiche douze mois ; faut-il aussi une vue de six mois, comme dans l'idée de zoom ?
-- [ ] **Couleurs** des quatre familles de course et des quatre phases : à fixer dans le document de design.
+- [x] **Couleurs** des quatre familles de course et des quatre phases : fixées dans le document de design (§ 10, 27 octobre 2026).
 - [x] **Semaine dans deux plans** : le plan de la course confirmée la plus proche l'emporte (retenu le 27 octobre 2026).
 - [ ] **Objectif principal** : plus marqué que les autres courses sur la vue Année ?
 - [ ] **Séances** : durée, distance, D+ et ressenti facultatifs plus tard ?

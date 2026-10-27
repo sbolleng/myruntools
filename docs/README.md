@@ -86,9 +86,12 @@ Dans l'ordre :
 1. [ ] **Objectif** :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
-3. [ ] **Calendrier** : [spécification 0.4](module-calendrier-specification.md) validée ; lots 1 (vue Année) et 2 (modèle de données) en ligne, lot 3 (vues 4 semaines et plan d'une course, séances, rubrique « Préparer ») construit.
-   - Durées de prépa par format : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
-   - Plus tard : import des séances depuis une application ; génération d'un plan par IA.
+2. [ ] **Calendrier** : [spécification 0.4](module-calendrier-specification.md) ; les trois lots (vue Année, modèle de données, vues 4 semaines et plan d'une course) sont en ligne. Reste :
+   - **À décider** : la rubrique de préparation (frise, semaines, « Préparer ») doit-elle vivre sur la page d'une course plutôt que dans le Calendrier ? Proposition du 27 oct. 2026, à valider.
+   - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Préparer » (durée, phases).
+   - **Durées de prépa par format** : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
+   - **Décisions en attente** (§ 9) : semaine de récupération après la course ; vue de six mois ; objectif principal plus marqué sur la vue Année ; détails d'une séance (durée, distance, D+, ressenti).
+   - **Plus tard** : import des séances depuis une application ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
 3. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
 4. [ ] **Profil et Matériel** :
    - Profil : état civil, poids, taille, pointure.
