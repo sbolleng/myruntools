@@ -103,7 +103,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 - **Page de démarrage** : l'Accueil ou un module construit et affiché (Objectif, Palmarès…). En arrivant sur le site (nouvel onglet, ou retour du lien de connexion), l'Accueil cède la place à la page de démarrage ; l'onglet Accueil, touché depuis le site, ouvre bien l'Accueil.
 - **Grand en-tête** sur la page de démarrage seulement ; partout ailleurs, la barre fine (« Cap sur … » et l'engrenage). La page d'une course a toujours la barre fine.
-- **Passage** : en quittant la page de démarrage, le grand en-tête se réduit en barre fine (0,35 s) ; en y revenant, il se déplie. Rien au premier affichage, ni quand l'utilisateur a demandé à réduire les animations.
+- **Passage** : en quittant la page de démarrage, le grand en-tête se réduit en barre fine (0,45 s) ; en y revenant, il se déplie. Rien au premier affichage, ni quand l'utilisateur a demandé à réduire les animations.
 - **Accueil, la page en un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences :
 
 | Bloc | Contenu | Par défaut |

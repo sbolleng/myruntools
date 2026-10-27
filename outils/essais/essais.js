@@ -90,7 +90,7 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
     access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai',
     user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
   await p.goto(RACINE + page);
-  await p.waitForSelector('.mrt-nav');
+  await p.waitForSelector('html[data-mrt-donnees]');
   await p.clock.runFor(1500);
   return { p, ctx, erreurs };
 }
@@ -306,7 +306,7 @@ const CONTROLES = {
     await p.click('.mrt-tab[href$="palmares.html"]'); await p.waitForURL(/palmares/); await p.waitForSelector('.mrt-barre');
     pb.push(egal({ masque: false, menu: true }, await p.evaluate(() => window.__debut), 'page suivante : en-tête et menu dessinés aussitôt, sans page blanche'));
     pb.push(egal([true, ['mrt-retrecit', 'mrt-retrecit-cap']], [await p.evaluate(() => !document.querySelector('.mrt-header')), await p.evaluate(() => window.__anims.filter(a => /retrecit/.test(a)))], 'vers le Palmarès : barre fine, le grand en-tête se réduit'));
-    await p.click('.mrt-tab[href$="index.html"]'); await p.waitForURL(/index/); await p.waitForSelector('.mrt-nav');
+    await p.click('.mrt-tab[href$="index.html"]'); await p.waitForURL(/index/); await p.waitForSelector('html[data-mrt-donnees]');
     pb.push(egal([true, true], [/index\.html$/.test(p.url()), await p.evaluate(() => !!document.querySelector('.mrt-barre'))], 'onglet Accueil depuis le site : l\'Accueil, en barre fine'));
     await p.click('.mrt-tab[href$="objectif.html"]'); await p.waitForURL(/objectif/); await p.waitForSelector('.mrt-header');
     pb.push(egal(['mrt-deploie'], await p.evaluate(() => window.__anims.filter(a => /deploie/.test(a))), 'retour à la page de démarrage : l\'en-tête se déplie'));
@@ -342,12 +342,12 @@ const CONTROLES = {
         if (!(await p.evaluate(() => [...document.querySelectorAll('.pref-msg')].some(m => m.textContent === 'Enregistrement…')))) return;
       }
     };
-    const recharger = async () => { await p.reload(); await p.waitForSelector('.mrt-nav'); await p.clock.runFor(1500); };
+    const recharger = async () => { await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); };
     // Le cap se lit dans l'en-tête de l'Accueil (les Préférences n'ont pas d'en-tête).
     const capEnTete = async () => {
       await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
       const cap = await q('h1 em', 'x.textContent');
-      await p.goto(RACINE + 'preferences.html'); await p.waitForSelector('.mrt-nav'); await p.clock.runFor(1500);
+      await p.goto(RACINE + 'preferences.html'); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500);
       return cap;
     };
     pb.push(egal([true, true, false, true], await p.evaluate(() => { const g = document.querySelector('.mrt-barre .mrt-gear');
@@ -365,7 +365,7 @@ const CONTROLES = {
     pb.push(egal('vert-rose', await q('input[name=theme]:checked', 'x.value'), 'thème après rechargement'));
     await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), 'accueil en vert et rose'));
-    await p.goto(RACINE + 'preferences.html?t=violet-turquoise'); await p.waitForSelector('.mrt-nav'); await p.clock.runFor(1500);
+    await p.goto(RACINE + 'preferences.html?t=violet-turquoise'); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500);
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), '?t=… sans effet'));
 
     // Menu

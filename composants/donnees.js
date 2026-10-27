@@ -194,6 +194,7 @@
       const cfg = configEnTete(p, courses), demarrage = window.mrtDemarrage(p);
       ecrireCache({ cfg, demarrage });
       tracer(cfg, demarrage);
+      document.documentElement.dataset.mrtDonnees = '1'; // en-tête tiré des données (et non de la copie gardée)
     };
     dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
