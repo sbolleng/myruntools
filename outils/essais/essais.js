@@ -294,7 +294,7 @@ const CONTROLES = {
     const blocs = p => p.evaluate(() => [...document.querySelectorAll('.ac-bloc')].map(b => b.dataset.bloc + (b.classList.contains('is-bientot') ? ' (bientôt)' : '')));
     // Par défaut : l'Accueil est la page de démarrage, avec le grand en-tête ; blocs par défaut.
     let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 1200, db, {}, PARIS);
-    pb.push(egal([true, 'Accueil'], [await p.evaluate(() => !!document.querySelector('.mrt-header')), await p.textContent('.mrt-tab.is-on')], 'Accueil : grand en-tête, onglet Accueil'));
+    pb.push(egal([true, 'En un coup d\'œil'], [await p.evaluate(() => !!document.querySelector('.mrt-header')), await p.getAttribute('.mrt-tab.is-on', 'aria-label')], 'En un coup d\'œil : grand en-tête, onglet actif'));
     pb.push(egal(['prochaine', 'pensebete (bientôt)', 'nutrition (bientôt)', 'dicila'], await blocs(p), 'Accueil : blocs par défaut, Pense-bête et Nutrition grisés'));
     pb.push(egal('Trail du Lac · Le Tour du Lac', (await p.textContent('[data-bloc="prochaine"] .ob-nom a')).replace(/[  ]/g, ' ').trim(), 'prochaine course : la carte de la feuille de route'));
     const etapes = await p.evaluate(() => [...document.querySelectorAll('.ac-etape')].map(e => e.textContent + (e.classList.contains('is-cap') ? ' (cap)' : '')));
@@ -323,6 +323,13 @@ const CONTROLES = {
     pb.push(egal([true, true], [/index\.html$/.test(p.url()), await p.evaluate(() => !!document.querySelector('.mrt-barre'))], 'onglet Accueil depuis le site : l\'Accueil, en barre fine'));
     await p.click('.mrt-tab[href$="objectif.html"]'); await p.waitForURL(/objectif/); await p.waitForSelector('.mrt-header');
     pb.push(egal(['mrt-deploie'], await p.evaluate(() => window.__anims.filter(a => /deploie/.test(a))), 'retour à la page de démarrage : l\'en-tête se déplie'));
+    await ctx.close();
+    // En un coup d'œil masqué : la page de démarrage par défaut devient le premier module construit du menu.
+    const sansOeil = JSON.parse(JSON.stringify(db)); sansOeil.preferences[0].modules = ['Cette semaine', 'Objectif', 'Palmarès'];
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, sansOeil, {}, PARIS));
+    pb.push(egal([true, true, false, true], [/objectif\.html$/.test(p.url()), await p.evaluate(() => !!document.querySelector('.mrt-header')),
+      await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].some(t => /coup d/.test(t.getAttribute('aria-label') || ''))),
+      await p.evaluate(() => document.querySelector('.mrt-brand a').getAttribute('href').endsWith('objectif.html'))], 'En un coup d\'œil masqué : on arrive sur Objectif, absent du menu'));
     await ctx.close();
     // Préférences : la page de démarrage se choisit en pastilles ; enregistrée aussitôt.
     ({ p, ctx } = await ouvrir(nav, 'preferences.html', 1200, db, {}, PARIS));
@@ -355,7 +362,7 @@ const CONTROLES = {
     let { p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, db);
     const q = (sel, f) => p.evaluate(([s, fn]) => new Function('x', 'return ' + fn)(document.querySelector(s)), [sel, f]);
     // Les modules du menu, après l'Accueil (toujours en premier, contrôlé à part).
-    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => t.textContent).filter((t, i) => !(i === 0 && t === 'Accueil')));
+    const menu = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent));
     // Attend la réponse de la base (vraie attente : la date du jour est figée).
     const attendre = async () => {
       for (let i = 0; i < 80; i++) {
@@ -374,7 +381,7 @@ const CONTROLES = {
     pb.push(egal([true, true, false, true], await p.evaluate(() => { const g = document.querySelector('.mrt-barre .mrt-gear');
       return [g.getAttribute('href').endsWith('preferences.html'), g.classList.contains('is-on'), !!document.querySelector('.mrt-header'), !!document.querySelector('.mrt-barre')]; }), 'engrenage dans la barre fine, page sans en-tête'));
     pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors des modules du menu'));
-    pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'Page d\'accueil', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
+    pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'En un coup d\'œil', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
     pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise'], await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes, sans mention'));
 
     // Thème
@@ -390,13 +397,13 @@ const CONTROLES = {
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), '?t=… sans effet'));
 
     // Menu
-    pb.push(egal('Accueil', await p.evaluate(() => document.querySelector('.mrt-tab').textContent), 'menu : l\'Accueil en premier'));
-    const catalogue = ['Cette semaine', 'Objectif', 'Calendrier', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
+    pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
+    const catalogue = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
     pb.push(egal(catalogue, await menu(), 'menu par défaut'));
-    pb.push(egal(7, await p.locator('.pref-modules input[type="checkbox"]:checked:not(:disabled)').count(), 'tous les modules cochés (plus l\'Accueil, fixe)'));
+    pb.push(egal(8, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'tous les modules cochés, En un coup d\'œil compris'));
     pb.push(egal(4, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
     await p.click('[aria-label="Monter Palmarès"]'); await attendre();
-    const monte = ['Cette semaine', 'Objectif', 'Calendrier', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
+    const monte = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
     pb.push(egal(monte, await menu(), 'Palmarès monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -405,7 +412,7 @@ const CONTROLES = {
     await p.click('#bloc-menu .pref-defaut'); await attendre();
     pb.push(egal(catalogue, await menu(), 'ordre par défaut rétabli'));
     for (const n of catalogue.slice(1)) { await p.locator('.pref-modules label', { hasText: n }).locator('input').uncheck(); await attendre(); }
-    pb.push(egal(['Cette semaine'], await menu(), 'un seul module affiché'));
+    pb.push(egal(['En un coup d\'œil'], await menu(), 'un seul module affiché'));
     pb.push(egal(true, await q('.pref-modules input[data-i]:checked', 'x.disabled'), 'dernière case non décochable'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
 

@@ -1,6 +1,6 @@
 # Design
 
-Version 0.23 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.24 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -136,11 +136,12 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 ## 8. Menu
 
 - Onglets en Space Grotesk, casse normale, 0,8 rem, graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés.
+- Onglet En un coup d'œil : « En un coup d' » suivi d'un picto d'œil (contour et pupille, couleur de l'onglet, 1,15 em de large) ; le nom complet en infobulle et pour les lecteurs d'écran.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.
 - **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Accent, 600, comme le grand titre dont il prend le relais (0,8 rem, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite. Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.
 - Barre sur le Fond, ligne fine (Bordure) dessous ; elle reste collée en haut de l'écran au défilement ; défilement horizontal sans barre visible sur téléphone.
 
-## 9. Accueil
+## 9. En un coup d'œil
 
 - Blocs dans un cadre (Surface, Bordure, coins de 8 px, marges 1 rem × 1,15 rem), deux colonnes sur ordinateur (écart 1 rem), une sur téléphone.
 - Titre de bloc en capitales Space Mono 0,7 rem, Texte discret ; à droite, un lien « … → » en Space Grotesk 0,75 rem.
