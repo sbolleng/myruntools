@@ -1,5 +1,7 @@
 /* ===== PALMARÈS V2 · tableau triable et filtrable (palmares.js) ===== */
-.pv2-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-bottom: 0.9rem; }
+/* Boutons ronds serrés (0,5 rem) ; le compteur un peu plus loin. */
+.pv2-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.5rem; margin-bottom: 0.9rem; }
+.pv2-count { margin-left: 0.35rem; }
 /* Filtres : bouton rond commun (mrt-rond), trois traits ; Accent quand un filtre est actif ou le panneau ouvert,
    avec le nombre de filtres actifs en pastille. */
 .pv2-btn { position: relative; }
@@ -133,7 +135,7 @@
   .pv2-add-court { display: inline; }
 }
 @media (max-width: 600px) {
-  .pv2-count { order: 3; flex-basis: 100%; }
+  .pv2-count { order: 3; flex-basis: 100%; margin-left: 0; }
 }
 .pv2-paysage { display: none; margin: -0.3rem 0 0.7rem; font-size: 0.8rem; color: var(--muted); }
 /* Téléphone tenu en largeur : une ligne par course ; le tableau défile sur le côté s'il le faut. */

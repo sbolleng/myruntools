@@ -123,7 +123,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 ## 7. Barre et lignes du Palmarès
 
-- **Barre** : « Filtres », bouton rond (§ 1) à trois traits de plus en plus courts, en Accent quand un filtre est actif ou le panneau ouvert, le nombre de filtres actifs en petite pastille Accent en haut à droite ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter une course » (« + Course » sur téléphone), bouton principal.
+- **Barre** : boutons ronds espacés de 0,5 rem, le compteur à 0,85 rem. « Filtres », bouton rond (§ 1) à trois traits de plus en plus courts, en Accent quand un filtre est actif ou le panneau ouvert, le nombre de filtres actifs en petite pastille Accent en haut à droite ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter une course » (« + Course » sur téléphone), bouton principal.
 - **Tableau** : dans son cadre (§ 1). Groupes : titre repliable (§ 1), filet en Bordure dessous.
 - **Téléphone tenu en hauteur** : sous la barre, « ↻ Tourne ton téléphone pour voir toutes les colonnes. », 0,8 rem, Texte discret. **Tenu en largeur** : une ligne par course (pas de retour à la ligne dans les cellules), cadre resserré.
 - **Compteur** « X courses sur Y » à droite du regroupement, 0,8 rem, Texte discret ; sur téléphone, il passe sous les boutons.
