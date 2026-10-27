@@ -27,6 +27,8 @@
   const courte = s => parse(s).getDate() + ' ' + MOIS[parse(s).getMonth()] + ' ' + parse(s).getFullYear();
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const famille = c => (c.type === 'trail' ? 'trail' : 'route');
+  // Curseurs : le bouton qui règle le plan.
+  const REGLAGES = '<svg class="cal-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h12M2 11.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="4.5" r="2" fill="currentColor"/><circle cx="6" cy="11.5" r="2" fill="currentColor"/></svg>';
   // Page d'une course, à la rubrique Préparation.
   const lienCourse = id => 'course.html?id=' + encodeURIComponent(id) + '&depuis=calendrier#preparation';
 
@@ -139,10 +141,10 @@
 
   // ----- Rubrique « Préparation » de la page d'une course (spécification § 5.2) -----
   function rubrique(ctx, c) {
-    const preparer = ecriture(ctx) ? '<button type="button" class="mrt-btn" data-preparer="' + esc(c.id) + '">Préparer</button>' : '';
+    const preparer = ecriture(ctx) ? '<button type="button" class="mrt-btn is-principal cal-parametrer" data-preparer="' + esc(c.id) + '">' + REGLAGES + 'Paramétrer le plan</button>' : '';
     const plan = planDe(c, modifsDe(ctx.semaines, c.id));
     if (!plan) {
-      return '<p class="cal-vide">Pas de plan : aucune durée de préparation pour ce format.' + (ecriture(ctx) ? ' Choisis-en une avec « Préparer ».' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
+      return '<p class="cal-vide">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.' + (ecriture(ctx) ? ' Paramètre le plan pour en choisir une.' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
     }
     const lundiAuj = lundiDe(iso(new Date()));
     let w = plan.semaines.find(s => s.lundi === lundiAuj), etiquette = 'Semaine en cours';
@@ -209,7 +211,7 @@
     const c = ctx.courses.find(x => x.id === id);
     if (!c) return;
     const draft = { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
-    const v = fenetre('<h3 class="cal-panneau-titre">Préparer · ' + esc(c.course) + '</h3><div class="cal-prep"></div>' +
+    const v = fenetre('<h3 class="cal-panneau-titre">Paramétrer le plan · ' + esc(c.course) + '</h3><div class="cal-prep"></div>' +
       '<p class="cal-msg" role="alert"></p><div class="cal-actions"><button type="button" class="mrt-lien" data-act="recalculer">Recalculer selon les règles</button><span></span>' +
       '<button type="button" class="mrt-btn" data-act="annuler">Annuler</button><button type="button" class="mrt-btn is-principal" data-act="enregistrer">Enregistrer</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
