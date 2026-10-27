@@ -51,7 +51,11 @@
   // vérifiée, en-tête et contenu dessinés (mrtPage appelle mrtAfficher). Elle
   // s'affiche ainsi d'un seul coup, sans saut. Sans session, direction la page
   // de connexion.
-  window.mrtAfficher = () => document.documentElement.classList.remove('mrt-attente', 'mrt-attente-contenu');
+  window.mrtAfficher = () => {
+    const h = document.documentElement;
+    if (h.classList.contains('mrt-attente-contenu')) h.classList.add('mrt-fondu');
+    h.classList.remove('mrt-attente', 'mrt-attente-contenu');
+  };
   const surConnexion = /connexion\.html$/.test(location.pathname);
   window.mrtSession().then(s => {
     if (!s && !surConnexion) {

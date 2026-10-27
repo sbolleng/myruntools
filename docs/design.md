@@ -1,6 +1,6 @@
 # Design
 
-Version 0.20 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.21 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -137,7 +137,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 - Onglets en Space Grotesk, casse normale, 0,8 rem, graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.
-- **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Texte, 600 (0,8 rem, pas d'Accent, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite. Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.
+- **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Accent, 600, comme le grand titre dont il prend le relais (0,8 rem, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite. Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.
 - Barre sur le Fond, ligne fine (Bordure) dessous ; elle reste collée en haut de l'écran au défilement ; défilement horizontal sans barre visible sur téléphone.
 
 ## 9. Accueil
@@ -146,8 +146,8 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - Titre de bloc en capitales Space Mono 0,7 rem, Texte discret ; à droite, un lien « … → » en Space Grotesk 0,75 rem.
 - Bloc « bientôt » : contour pointillé, sans fond, à demi transparent.
 - Prochaine course : la carte de la feuille de route, sans son propre cadre. D'ici là : une pastille par étape (contour Bordure), le cap en Accent.
-- **Passage** grand en-tête ↔ barre fine : 0,35 s, ease-out ; la barre part de la hauteur de l'en-tête (5 rem de marge haute et basse), le nom du cap grossi 1,8 fois et en Accent, et se réduit ; l'en-tête part de la hauteur de la barre et se déplie. Aucun passage si l'utilisateur a demandé à réduire les animations.
-- **Sans page blanche** : pendant la visite, l'en-tête et le menu de la page précédente sont gardés ; la page suivante les dessine aussitôt (le passage commence tout de suite), seul le contenu attend la base.
+- **Passage** grand en-tête ↔ barre fine : 0,45 s, ease-out ; la barre part de la hauteur de l'en-tête (5 rem de marge haute et basse), le nom du cap grossi 1,8 fois et en Accent, et se réduit ; l'en-tête part de la hauteur de la barre et se déplie. Aucun passage si l'utilisateur a demandé à réduire les animations.
+- **Sans page blanche** : pendant la visite, l'en-tête et le menu de la page précédente sont gardés ; la page suivante les dessine aussitôt (le passage commence tout de suite), seul le contenu attend la base, puis arrive en fondu (0,2 s).
 
 ## 10. Calendrier (vue Année)
 

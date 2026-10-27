@@ -54,14 +54,18 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
 .mrt-barre { padding: 0.55rem 2rem; border-bottom: 1px solid var(--border); }
 .mrt-barre-in { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .mrt-barre-cap { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
-.mrt-barre-cap b { font-weight: 600; color: var(--text); }
-/* Passage entre la page à grand en-tête et les autres (0,35 s) : la barre arrive à la hauteur de l'en-tête
+.mrt-barre-cap b { font-weight: 600; color: var(--accent); } /* le nom du cap garde la couleur du grand titre */
+/* Passage entre la page à grand en-tête et les autres (0,45 s) : la barre arrive à la hauteur de l'en-tête
    et se réduit ; l'en-tête part de la hauteur de la barre et se déplie. Le menu suit. */
-.mrt-barre.is-retrecit { animation: mrt-retrecit 0.35s ease-out; }
-.mrt-barre.is-retrecit .mrt-barre-cap { animation: mrt-retrecit-cap 0.35s ease-out; transform-origin: left center; }
+.mrt-barre.is-retrecit { animation: mrt-retrecit 0.45s ease-out; }
+.mrt-barre.is-retrecit .mrt-barre-cap { animation: mrt-retrecit-cap 0.45s ease-out; transform-origin: left center; }
 @keyframes mrt-retrecit { from { padding-top: 5rem; padding-bottom: 5rem; } }
 @keyframes mrt-retrecit-cap { from { transform: scale(1.8); color: var(--accent); } }
-.mrt-header.is-deploie { overflow: hidden; animation: mrt-deploie 0.35s ease-out; }
+.mrt-header.is-deploie { overflow: hidden; animation: mrt-deploie 0.45s ease-out; }
+/* Le contenu arrive en fondu (0,2 s) quand l'en-tête était déjà là. */
+html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
+@keyframes mrt-fondu { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { html.mrt-fondu main { animation: none; } }
 @keyframes mrt-deploie { from { max-height: 2.6rem; padding-top: 0.55rem; padding-bottom: 0.55rem; opacity: 0.5; } to { max-height: 30rem; } }
 /* Deux colonnes : à gauche le titre et les indicateurs ; à droite le nom de l'application
    en haut, aligné sur « Cap sur », et le compteur en bas, aligné sur le bas des indicateurs. */
