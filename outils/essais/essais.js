@@ -709,7 +709,7 @@ const CONTROLES = {
     await p.click('.fc-plein');
     pb.push(egal({ course: 'Champ obligatoire.', date: 'Champ obligatoire.', type: 'Choisis un type.', format: 'Champ obligatoire.' }, await erreursChamps(p), 'obligatoires : date, course, type, format'));
     pb.push(egal(0, o.copie.ecritures.length, 'rien d\'écrit tant qu\'une erreur demeure'));
-    // Ordre : course, parcours, date (avec « Jour inconnu »), heure
+    // Ordre : course, parcours, date (avec « Date approximative »), heure
     pb.push(egal(['course', 'parcours', 'date', 'date_approx', 'heure', 'lieu'], await p.evaluate(() => [...document.querySelectorAll('.fc-grille')[0].querySelectorAll('[data-k]')].slice(0, 6).map(e => e.dataset.k)), 'ordre : course, parcours, date, jour inconnu, heure'));
     // Contrôles de saisie
     await p.fill('#fc-date', '2026-01-01');
@@ -913,7 +913,7 @@ const CONTROLES = {
         distanceSeule: r('fc-dplus').top > r('fc-distance').bottom, dplusDmoins: Math.abs(r('fc-dplus').top - r('fc-dmoins').top) < 2 && r('fc-dmoins').left > r('fc-dplus').right,
         descriptionDessous: r('fc-description').top > r('fc-dmoins').bottom, exemple: document.getElementById('fc-description').placeholder };
     });
-    pb.push(egal(['Course', 'Parcours', 'Date', 'Jour inconnu', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Description'], ordre.labels, 'Objectif : ordre du bloc Course'),
+    pb.push(egal(['Course', 'Parcours', 'Date', 'Date approximative (mois seulement)', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Description'], ordre.labels, 'Objectif : ordre du bloc Course'),
       egal([true, true, true, true], [ordre.distanceSeule, ordre.dplusDmoins, ordre.descriptionDessous, /^Texte libre/.test(ordre.exemple)], 'Objectif : distance seule, D+ et D− côte à côte, description dessous avec un exemple de texte libre'));
     await p.click('[data-bloc="dossard"]');
     const dos = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
@@ -935,7 +935,7 @@ const CONTROLES = {
       .filter(el => parseFloat(getComputedStyle(el).fontSize) < 16).map(el => el.id)), 'téléphone : aucun champ sous 16 px (pas de zoom de l\'iPhone)'));
     const ligne = await p.evaluate(() => { const d = document.getElementById('fc-date').getBoundingClientRect(), c = document.getElementById('fc-date_approx').getBoundingClientRect();
       return { memeLigne: Math.abs((d.top + d.bottom) / 2 - (c.top + c.bottom) / 2) < d.height, aDroite: c.left >= d.right }; });
-    pb.push(egal({ memeLigne: true, aDroite: true }, ligne, 'téléphone : « Jour inconnu » à droite de la date'));
+    pb.push(egal({ memeLigne: true, aDroite: true }, ligne, 'téléphone : « Date approximative » à droite de la date'));
     pb.push(egal(false, await p.evaluate(() => document.querySelector('.fc-panneau').scrollWidth > document.querySelector('.fc-panneau').clientWidth), 'téléphone : le formulaire ne déborde pas'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-formulaire-telephone.png') });
     await ctx.close();

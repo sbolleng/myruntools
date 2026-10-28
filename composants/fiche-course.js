@@ -107,7 +107,7 @@
     ['course', 'Course', 'texte', 'course', true],
     ['parcours', 'Parcours', 'texte', 'course'],
     ['date', 'Date', 'date', 'course', true],
-    ['date_approx', 'Jour inconnu', 'case', 'course'],
+    ['date_approx', 'Date approximative (mois seulement)', 'case', 'course'],
     ['heure', 'Heure de départ', 'heure', 'course'],
     ['lieu', 'Lieu', 'texte', 'course'],
     ['type', 'Type', 'choix', 'course', true],
@@ -217,7 +217,7 @@
       }
       // La case DNF se range juste sous le temps : les deux vont ensemble.
       const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
-      // « Jour inconnu » reste à droite de la date, même sur téléphone.
+      // « Date approximative » reste à droite de la date, même sur téléphone.
       const jourInconnu = k === 'date' && venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>' : '';
       const classes = 'fc-champ' + (k === 'distance' ? ' fc-seul' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
       const attrs = genre === 'groupe' ? ' data-champ="groupe_options"' + (c.statut === 'option' ? '' : ' hidden') : '';
@@ -279,7 +279,7 @@
     val('distance').addEventListener('change', proposerTrail);
 
     if (venir) {
-      // « Jour inconnu » : la date devient un mois.
+      // « Date approximative » : la date devient un mois.
       val('date_approx').addEventListener('change', () => {
         const d = val('date'), mois = val('date_approx').checked, v = d.value;
         d.type = mois ? 'month' : 'date';

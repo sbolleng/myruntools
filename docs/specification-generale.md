@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.20 · 28 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.21 · 28 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -75,7 +75,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 ### Formats
 
 - **Distance** : kilomètres, virgule décimale, espace avant l'unité, autant de décimales que la distance officielle (« 60 km », « 42,195 km »). Dénivelé, s'il est connu : « / », puis les mètres avec une espace pour les milliers, puis « D+ » (« 60 km / 3 500 m D+ »).
-- **Date** : jour, mois en toutes lettres, année (« 30 août 2029 »). Jour inconnu : mois et année seulement (« août 2029 »).
+- **Date** : jour, mois en toutes lettres, année (« 30 août 2029 »). Date approximative (seul le mois est connu) : mois et année seulement (« août 2029 »).
 - **D'ici là** : nombre suivi de « course » ou « courses » (« 1 course », « 12 courses »).
 - **J-n** : nombre de jours calendaires jusqu'à la prochaine course.
 
