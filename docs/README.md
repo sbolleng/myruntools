@@ -112,7 +112,7 @@ Dans l'ordre :
 
 ## Questions ouvertes
 
-- [ ] **Types et formats de course** : la question « types proposés dans l'en-tête » ne correspond plus au site (l'en-tête affiche le cap, pas une liste de types) ; la liste à trancher est celle des types et formats (Palmarès, § 3). Proposition du 28 oct. 2026 en attente de réponse.
+Aucune question générale ouverte pour l'instant (les questions propres à un module sont dans sa spécification).
 
 ## Idées de modules
 
