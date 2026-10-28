@@ -134,6 +134,7 @@ create table courses (
   vitesse            numeric(5,2) check (vitesse > 0),
   place              int check (place > 0),
   effectif           int check (effectif > 0),
+  categorie          text check (categorie in ('CA', 'JU', 'ES', 'SE', 'M0', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10')), -- catégorie d'âge FFA (évolution 012)
   place_categorie    int check (place_categorie > 0),
   effectif_categorie int check (effectif_categorie > 0),
   place_sexe         int check (place_sexe > 0),

@@ -753,7 +753,7 @@ const CONTROLES = {
     pb.push(egal(['POST', 'courses'], [w.methode, w.table], 'enregistrement : une insertion'));
     pb.push(egal({ etat: 'a_venir', course: 'Trail des Lacs', parcours: 'La Grande Boucle', date: '2027-06-12', date_approx: false, heure: '07:30', lieu: 'Mont-Clair', format: 'trail_court',
       distance: 28.5, dplus: 1200, dmoins: null, description: 'Boucle autour du lac.', statut: 'confirmee', role: 'preparatoire', groupe_options: null, objectif: 'Sub 6h', objectif_precisions: 'Partir prudemment.', pourquoi: null, strategie: null,
-      inscrit: true, dossard: '77', prix: 45.5, ouverture_inscriptions: null, inscription: null, logistique: null, lien: 'https://example.org/lacs', lien_resultats: null }, w.corps, 'enregistrement : champs écrits'));
+      ouverture_inscriptions: null, inscrit: true, dossard: '77', prix: 45.5, inscription: null, logistique: null, lien: 'https://example.org/lacs', lien_resultats: null }, w.corps, 'enregistrement : champs écrits'));
     await ctx.close();
 
     // Option : groupe d'options, existant ou nouveau ; jour inconnu
@@ -881,12 +881,18 @@ const CONTROLES = {
     await p.click('[data-act="add"]');
     const labels = sel => p.evaluate(s => [...document.querySelector(s).nextElementSibling.querySelectorAll('.fc-champ > label')].map(l => l.textContent.replace(/\s*\*$/, '').trim()), sel);
     pb.push(egal(['Course', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : quatre blocs'),
-      egal(['Course', 'Parcours', 'Date', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'Numéro de dossard'], await labels('[data-bloc="course"]'), 'Palmarès : bloc Course, dossard sous la distance et le D+'),
+      egal(['Course', 'Parcours', 'Date', 'Numéro de dossard', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Description', 'Distance (km)', 'D+ (m)', 'D− (m)'], await labels('[data-bloc="course"]'), 'Palmarès : bloc Course, dans l\'ordre'),
+      egal(['', 'Place au général', 'Effectif du général', 'Catégorie', 'Place en catégorie', 'Effectif de la catégorie', '', 'Place par sexe', 'Effectif par sexe'],
+        await p.evaluate(() => [...document.querySelector('[data-bloc="classements"]').nextElementSibling.children].map(e => (e.querySelector(':scope > label') || { textContent: '' }).textContent.trim())), 'Palmarès : Classements sur trois colonnes, catégorie à gauche de la place en catégorie'),
+      egal(['M0', 'M10', 15], await p.evaluate(() => { const o = [...document.querySelectorAll('#fc-categorie option')].map(x => x.value).filter(Boolean); return [o[4], o[14], o.length]; }), 'Palmarès : catégories FFA (CA, JU, ES, SE, M0 à M10)'),
       egal(['Temps', 'Non terminée (DNF)', 'Allure moyenne (par km)'], await labels('[data-bloc="resultat"]'), 'Palmarès : bloc Résultat sans vitesse'),
       egal(0, await p.locator('#fc-role, #fc-objectif, #fc-vitesse, #fc-montre_vitesse').count(), 'Palmarès : ni Rôle, ni Objectif, ni Vitesse'),
       egal('fc-course', await p.evaluate(() => document.activeElement.id), 'Palmarès : curseur dans Course'));
-    const pos = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect(); return { sous: r('fc-dossard').top > r('fc-distance').bottom, gauche: Math.abs(r('fc-dossard').left - r('fc-distance').left) < 2 }; });
-    pb.push(egal({ sous: true, gauche: true }, pos, 'Palmarès : dossard sous la distance, à gauche'));
+    const pos = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
+      return { dossardADroiteDeLaDate: Math.abs(r('fc-dossard').top - r('fc-date').top) < 2 && r('fc-dossard').left > r('fc-date').right,
+        distanceSeule: r('fc-dplus').top > r('fc-distance').bottom, dplusDmoins: Math.abs(r('fc-dplus').top - r('fc-dmoins').top) < 2,
+        description: r('fc-description').top > r('fc-type').bottom && r('fc-description').bottom < r('fc-distance').top }; });
+    pb.push(egal({ dossardADroiteDeLaDate: true, distanceSeule: true, dplusDmoins: true, description: true }, pos, 'Palmarès : dossard à droite de la date, description sous type et format, distance seule, D+ et D− côte à côte'));
     await p.fill('#fc-temps', '49:18'); await p.fill('#fc-allure', '4:56');
     await p.check('#fc-dnf');
     pb.push(egal(['', '', true, true], [await p.inputValue('#fc-temps'), await p.inputValue('#fc-allure'), await p.isDisabled('#fc-temps'), await p.isDisabled('#fc-allure')], 'DNF coché : temps et allure vidés et grisés'));
@@ -909,6 +915,14 @@ const CONTROLES = {
     });
     pb.push(egal(['Course', 'Parcours', 'Date', 'Jour inconnu', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Description'], ordre.labels, 'Objectif : ordre du bloc Course'),
       egal([true, true, true, true], [ordre.distanceSeule, ordre.dplusDmoins, ordre.descriptionDessous, /^Texte libre/.test(ordre.exemple)], 'Objectif : distance seule, D+ et D− côte à côte, description dessous avec un exemple de texte libre'));
+    await p.click('[data-bloc="dossard"]');
+    const dos = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
+      return { ligne1: Math.abs(r('fc-ouverture_inscriptions').bottom - r('fc-inscrit').bottom) < 30 && r('fc-inscrit').left > r('fc-ouverture_inscriptions').right,
+        ligne2: Math.abs(r('fc-dossard').top - r('fc-prix').top) < 2 && r('fc-dossard').top > r('fc-ouverture_inscriptions').bottom,
+        site: r('fc-inscription').top > r('fc-dossard').bottom, grise: document.getElementById('fc-dossard').disabled }; });
+    pb.push(egal({ ligne1: true, ligne2: true, site: true, grise: true }, dos, 'Objectif : Dossard (ouverture et Inscrit, puis numéro et prix, puis site) ; numéro grisé tant que non inscrit'));
+    await p.check('#fc-inscrit');
+    pb.push(egal(false, await p.isDisabled('#fc-dossard'), 'Inscrit coché : le numéro de dossard se saisit'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-formulaire.png') });
     await ctx.close();
 
