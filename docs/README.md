@@ -47,7 +47,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.28 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.8 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.18 |
-| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.10, préparation sur la page d'une course |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.11, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -87,11 +87,11 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
-2. [ ] **Calendrier** : [spécification 0.7](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+2. [ ] **Calendrier** : [spécification 0.11](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
-   - **Durées de prépa par format** : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
-   - **Décisions en attente** (§ 9) : semaine de récupération après la course ; vue de six mois ; objectif principal plus marqué sur la vue Année ; détails d'une séance (durée, distance, D+, ressenti).
-   - **Plus tard** : import des séances depuis une application ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
+   - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
+   - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
+   - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
 3. [ ] **Banc d'essai** : corriger l'échec intermittent « ERR_ABORTED » à l'ouverture d'une page (navigation interrompue, sans doute par le renvoi vers la page de démarrage) ; il passe en relançant.
 4. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
 5. [ ] **Profil** : état civil, poids, taille, pointure.
