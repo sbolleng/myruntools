@@ -154,6 +154,7 @@
     const bloc = x => semaineHtml(ctx, x.lundi, { phase: x.phase, numero: x.n, modifiee: x.modifiee, liens: false,
       autres: confirmee(c) ? plans.filter(p => p.course.id !== c.id && x.lundi >= p.premier && x.lundi <= lundiDe(p.jourJ)) : [] });
     return '<div class="cal-prep-haut"><p class="cal-plan-dates">Plan de ' + plan.n + ' semaines · début : ' + longue(plan.premier) + ' → jour J : ' + longue(c.date) + '</p>' + preparer + '</div>' +
+      (c.date_approx ? '<p class="cal-vide">Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.</p>' : '') +
       frise(plan, false) +
       '<p class="cal-prep-lib">' + etiquette + '</p>' + bloc(w) +
       '<details class="cal-toutes"><summary>Toutes les semaines (' + plan.n + ')</summary><div class="cal-sem-liste">' + plan.semaines.map(bloc).join('') + '</div></details>';

@@ -139,6 +139,7 @@
   const CATEGORIES = [['CA', 'Cadet (CA)'], ['JU', 'Junior (JU)'], ['ES', 'Espoir (ES)'], ['SE', 'Senior (SE)']]
     .concat(Array.from({ length: 11 }, (_, i) => ['M' + i, 'Master ' + i + ' (M' + i + ', ' + (35 + 5 * i) + (i < 10 ? '-' + (39 + 5 * i) : ' et plus') + ' ans)']));
   const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'À surveiller']];
+  const APPROX = 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.';
   const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
   const NOUVEAU = '__nouveau__';
   const FORMAT_OBJECTIF = 'Format attendu : 02:45:00, Finisher ou Sub 3h';
@@ -274,19 +275,24 @@
     function virtuelle() {
       const fmt = val('format').value, s = references.sous.find(x => x.id === fmt);
       const prepaFormat = s && s.prepa_semaines != null ? s.prepa_semaines : null;
-      return { id: c.id, course: val('course').value.trim() || 'nouvelle course', date: val('date').value, format: fmt, statut: val('statut').value, etat: 'a_venir',
+      // Date approximative : le plan vise le début du mois.
+      const d = val('date').value, date = val('date_approx').checked ? (/^\d{4}-\d{2}$/.test(d) ? d + '-01' : '') : d;
+      return { id: c.id, course: val('course').value.trim() || 'nouvelle course', date, format: fmt, statut: val('statut').value, etat: 'a_venir',
         prepaFormat, prepaSemaines: reglage ? reglage.duree : c.prepa_semaines != null ? c.prepa_semaines : prepaFormat };
     }
-    const modifs = () => reglage ? reglage.modifs : existe ? P.modifsDe(preparation.semaines, c.id) : new Map();
+    // Date approximative décochée : le plan se recalcule selon les règles, sur la date précise (phases réglées à la main oubliées).
+    const recalage = () => existe && !!c.date_approx && !val('date_approx').checked;
+    const modifs = () => reglage ? reglage.modifs : existe && !recalage() ? P.modifsDe(preparation.semaines, c.id) : new Map();
     function majPrep() {
       const z = $('.fc-prep');
       if (!z) return;
       if (!avecPlan()) { z.innerHTML = ''; return; }
       const v = virtuelle(), note = t => '<p class="fc-prep-note">' + t + '</p>';
-      const attente = val('date_approx').checked ? 'Choisis d\'abord une date précise.' : !v.date || !v.format ? 'Choisis d\'abord la date et le format.' : '';
+      const attente = !v.date || !v.format ? 'Choisis d\'abord la date et le format.' : '';
       const plan = attente ? null : P.planDe(v, modifs());
       z.innerHTML = (attente ? note(attente)
-        : plan ? '<p class="cal-plan-dates">Plan de ' + plan.n + ' semaines · début : ' + P.longue(plan.premier) + ' → jour J : ' + P.longue(v.date) + '</p>' + P.frise(plan, false)
+        : plan ? '<p class="cal-plan-dates">Plan de ' + plan.n + ' semaines · début : ' + P.longue(plan.premier) + ' → jour J : ' + P.longue(v.date) + '</p>' +
+          (val('date_approx').checked ? note(APPROX) : '') + P.frise(plan, false)
         : note('Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.')) +
         '<div class="fc-prep-bas"><button type="button" class="mrt-btn is-principal cal-parametrer" data-fc="preparer"' + (attente ? ' disabled' : '') + '>' + P.REGLAGES + 'Paramétrer le plan</button></div>';
     }
@@ -459,7 +465,8 @@
       $('.fc-msg').textContent = 'Enregistrement…';
       // Plan réglé dans la fenêtre : durée avec la course (vide si c'est celle du format), phases modifiées à part.
       let lignes = null, id = c.id;
-      const plan = reglage && avecPlan() && !val('date_approx').checked ? P.planDe(virtuelle(), reglage.modifs, reglage.duree) : null;
+      const plan = reglage && avecPlan() ? P.planDe(virtuelle(), reglage.modifs, reglage.duree) : null;
+      if (!plan && venir && existe && c.date_approx && !champs.date_approx) lignes = []; // date précise : phases remises aux règles
       if (plan) {
         if (!existe) champs.id = id = crypto.randomUUID();
         champs.prepa_semaines = reglage.duree === virtuelle().prepaFormat ? null : reglage.duree;
@@ -470,7 +477,7 @@
         ? await db.update(champs).eq('id', c.id)
         : await db.insert(Object.assign(venir ? { etat: 'a_venir' } : { statut: 'confirmee', etat: 'courue' }, champs));
       if (error) { $('.fc-msg').textContent = 'Enregistrement impossible pour l\'instant.'; btn.disabled = false; console.warn(error); return; }
-      if (lignes) {
+      if (lignes && id) {
         const sb = window.mrtSupabase;
         let r = existe ? await sb.from('plan_semaines').delete().eq('course', id) : {};
         if (!r.error && lignes.length) r = await sb.from('plan_semaines').insert(lignes);

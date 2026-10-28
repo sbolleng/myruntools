@@ -764,7 +764,8 @@ const CONTROLES = {
     await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', 'trail_court');
     pb.push(egal(['Plan de 12 semaines · début : lun. 22 mars 2027 → jour J : sam. 12 juin 2027', false], await p.evaluate(() => [document.querySelector('.fc-prep .cal-plan-dates').textContent, document.querySelector('[data-fc="preparer"]').disabled]), 'nouvelle course : plan tiré de la date et du format saisis'));
     await p.check('#fc-date_approx');
-    pb.push(egal(['Choisis d\'abord une date précise.', true], await p.evaluate(() => [document.querySelector('.fc-prep-note').textContent, document.querySelector('[data-fc="preparer"]').disabled]), 'date approximative : pas de plan'));
+    pb.push(egal(['Plan de 12 semaines · début : lun. 15 mars 2027 → jour J : mar. 1 juin 2027', 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.', false],
+      await p.evaluate(() => [document.querySelector('.fc-prep .cal-plan-dates').textContent, document.querySelector('.fc-prep-note').textContent, document.querySelector('[data-fc="preparer"]').disabled]), 'date approximative : plan prévu pour le début du mois, mentionné'));
     await p.uncheck('#fc-date_approx'); await p.fill('#fc-date', '2027-06-12'); await p.dispatchEvent('#fc-date', 'change');
     await p.click('[data-bloc="preparation"]'); await p.click('[data-fc="preparer"]'); await p.waitForSelector('.cal-preparer');
     await p.selectOption('.cal-preparer [data-sem="2027-03-22"]', 'developpement');
@@ -777,6 +778,18 @@ const CONTROLES = {
       pb.push(egal([['POST', 'courses'], true, null, ['POST', 'plan_semaines'], [{ course: cw.corps.id, lundi: '2027-03-22', phase: 'developpement' }]],
         [[cw.methode, cw.table], /^[0-9a-f-]{36}$/.test(cw.corps.id), cw.corps.prepa_semaines, [pw.methode, pw.table], pw.corps], 'nouvelle course : course puis phase modifiée, liées par leur identifiant ; durée du format (rien à ranger)'));
     }
+    await ctx.close();
+
+    // Date approximative décochée : le plan se recalcule sur la date précise, phases remises aux règles
+    o = await neuve(1200, COURSE(6)); ({ p, ctx } = o);
+    pb.push(egal(true, (await p.textContent('#preparation')).includes('Date approximative : préparation prévue pour le début du mois'), 'page d\'une course à date approximative : mention dans la rubrique Préparation'));
+    await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-panneau');
+    pb.push(egal('Plan de 12 semaines · début : lun. 12 avr. 2027 → jour J : jeu. 1 juil. 2027', await p.textContent('.fc-prep .cal-plan-dates'), 'formulaire, date approximative : plan au 1er du mois'));
+    await p.uncheck('#fc-date_approx'); await p.fill('#fc-date', '2027-07-04'); await p.dispatchEvent('#fc-date', 'change');
+    pb.push(egal(['Plan de 12 semaines · début : lun. 12 avr. 2027 → jour J : dim. 4 juil. 2027', 0], [await p.textContent('.fc-prep .cal-plan-dates'), await p.locator('.fc-prep-note').count()], 'case décochée : plan recalculé sur la date précise, sans mention'));
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-voile', { state: 'detached' });
+    pb.push(egal([['PATCH', 'courses'], ['DELETE', 'plan_semaines', '?course=eq.' + id(6)]], o.copie.ecritures.slice(0, 2).map((e, i) => i ? [e.methode, e.table, e.filtres] : [e.methode, e.table]), 'enregistrement : date précise, phases du plan remises aux règles'));
     await ctx.close();
 
     // Option : groupe d'options, existant ou nouveau ; jour inconnu
