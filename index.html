@@ -14,6 +14,9 @@
 <title>MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/preparation.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/accueil.css?v=__VERSION__">
 </head>
 <body>
@@ -25,10 +28,19 @@
 <script src="composants/en-tete.js?v=__VERSION__"></script>
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
+<script src="composants/preparation.js?v=__VERSION__"></script>
 <script src="composants/objectif.js?v=__VERSION__"></script>
+<script src="composants/fiche-course.js?v=__VERSION__"></script>
+<script src="composants/modale-course.js?v=__VERSION__"></script>
 <script src="composants/accueil.js?v=__VERSION__"></script>
 <script>
-  mrtPage({ courant: 'index.html' }).then(page => renderAccueil(document.getElementById('accueil'), page.courses, page.preferences()));
+  mrtPage({ courant: 'index.html' }).then(page => {
+    const el = document.getElementById('accueil');
+    let courses = page.courses;
+    renderAccueil(el, courses, page.preferences());
+    // La page d'une course s'ouvre en modale, par-dessus l'Accueil.
+    mrtModaleCourse(page, { courses: () => courses, surMaj: liste => { courses = liste; renderAccueil(el, courses, page.preferences()); } });
+  });
 </script>
 </body>
 </html>

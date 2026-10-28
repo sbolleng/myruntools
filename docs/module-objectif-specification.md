@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.28 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.29 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -29,7 +29,7 @@ Aujourd'hui, côté trail, les courses du graphique de difficulté sont saisies 
 Le module a deux pages :
 
 - **Objectif** (`objectif.html`) : la vue d'ensemble. De haut en bas, le **graphique de difficulté** (§ 5.2), affiché pour tous, repliable, puis la **feuille de route** : une étape par course, dans l'ordre chronologique, la course objectif en dernier. Ni texte d'introduction, ni titre au-dessus, ni légende dessous.
-- **Page d'une course** (`course.html?id=…`) : tout ce qu'il faut savoir sur une course, une page par course (§ 3.4). On l'ouvre en touchant son étape. Elle a sa propre adresse : on peut la garder en favori pour le jour J, et le bouton retour du téléphone ramène à la feuille de route.
+- **Page d'une course** : tout ce qu'il faut savoir sur une course (§ 3.4). C'est une **modale** : elle s'ouvre au-dessus de la page d'origine (feuille de route, Calendrier ou En un coup d'œil) quand on touche une course, sans changer de page. Elle garde son adresse (`course.html?id=…`) : on peut la mettre en favori pour le jour J ; ouverte ainsi, elle s'affiche au-dessus de la feuille de route. Le bouton retour du téléphone la ferme.
 
 **Construction en lots.** Premier lot : la feuille de route et la page d'une course (cellules, comptes à rebours). Ensuite, chacun dans son lot : graphique de difficulté, badges UTMB, météo du jour J, suivi en course. Chacun est un module qu'on décide d'ajouter ou non, le moment venu.
 
@@ -92,13 +92,23 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 
 ### 3.4 Page d'une course
 
-Sans en-tête : la barre fine (« Cap sur … » et l'engrenage), puis le menu du site (onglet Objectif en avant) ; l'en-tête ne ferait que concurrencer le titre de la page. Une seule colonne de lecture, sur ordinateur comme sur téléphone (40 rem de large au plus). Plan de page (numéros stables) :
+Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, qui reste en place (position et vue conservées) et s'assombrit. Une seule colonne de lecture (40 rem de large au plus). Elle passe sous les fenêtres de saisie (formulaire d'une course, séance, plan), qui s'ouvrent par-dessus.
+
+**Ouvrir** : toucher une course, où qu'elle soit (étape, candidat, jour ou case du Calendrier, rendez-vous clé, étape de « D'ici là »). Un clic avec Ctrl, Cmd ou Maj, ou le bouton du milieu, ouvre l'adresse dans un nouvel onglet.
+
+**Fermer** : la croix ou « ← page d'origine » (barre du haut), Échap, un toucher à côté de la modale, ou le retour du navigateur ou du téléphone. Fermer ramène exactement là où on était. Quand la course a été ouverte par son adresse, la feuille de route reste dessous. Une course supprimée, courue ou sortie de la feuille de route ferme la modale.
+
+**Changer de course** : « course précédente » et « course suivante » changent la course dans la modale, sans la fermer ni ajouter d'entrée à l'historique ; l'adresse suit la course ouverte.
+
+**Téléphone** : une feuille qui monte du bas, avec un **bord transparent** : une bande de 2,5 rem en haut (la page d'origine y reste visible ; la toucher ferme) et 0,4 rem de chaque côté. Les trois réglages sont des variables en tête de `modale-course.css` (`--mc-haut`, `--mc-cote`, `--mc-voile`). C'est un essai, à juger à l'usage.
+
+Plan de page (numéros stables ; le (1) est dans la barre du haut, fixe, avec la croix) :
 
 ```
 ┌─ barre fine : Cap sur L'OCC                                  ⚙ ─┐
 │ menu : … Objectif …                                              │
 ├──────────────────────────────────────────────────────────────────┤
-│ (1) ← Feuille de route                                           │
+│ (1) ← Feuille de route  (retour : page d'origine)             ×  │
 │ (2) RÔLE · ÉTAPE x SUR y                                         │
 │ (3) Course · Parcours (4) ↗                               (5) ✎  │
 │ (6) Lieu · Format · jour abrégé, date, heure                     │
@@ -129,7 +139,7 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 
 | N° | Élément | Contenu | Règle et style |
 | --- | --- | --- | --- |
-| 1 | Retour | « ← Feuille de route » ; « ← Calendrier » quand on arrive du Calendrier (`?depuis=calendrier`) | Texte discret |
+| 1 | Retour | « ← Feuille de route », « ← Calendrier » ou « ← En un coup d'œil » selon la page d'origine, avec la croix à droite | Texte discret ; ferme la modale |
 | 2 | Rôle et rang | « Objectif intermédiaire · Étape 3 sur 6 » | Libellé ; rôle dans sa couleur (§ 3.1) |
 | 3 | Titre | Course · parcours | Seul titre de l'écran : Space Grotesk 700, Accent |
 | 4 | Lien officiel | ↗ | Seulement si le site officiel est connu |
@@ -332,7 +342,7 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 ## 6. Téléphone
 
 - Feuille de route : ordre des éléments au § 3.1.
-- Page d'une course : plan du § 3.4 ; sans en-tête, la fiche dans le premier écran, les textes repliés sauf le premier.
+- Page d'une course : plan du § 3.4, en modale (feuille depuis le bas, bord transparent) ; la fiche dans le premier écran, les textes repliés sauf le premier.
 - Les cartes du suivi en course passent sur deux colonnes ; les libellés secondaires de la jauge sont masqués pour éviter les chevauchements.
 - Les champs de saisie ouvrent le clavier numérique.
 
@@ -407,11 +417,13 @@ Résultats attendus, page d'une course :
 - Trail des Gorges, textes dans cet ordre : Préparation (plan de 16 semaines, durée par défaut du format Trail long ; spécification du Calendrier, § 5), Rôle dans la préparation, Stratégie ou enchaînement, Logistique, Description, Liens (Site officiel, Inscription, Résultats en direct).
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
 - Corrida de Noël : fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; ni ligne D−, ni ligne Prix ; seuls les textes Préparation (plan de 8 semaines du format 10 km) et Liens (Site officiel).
-- Ordinateur : pleine largeur de page, comme les autres pages ; la fiche encadrée ; les six textes (Préparation comprise) ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
+- Ordinateur : modale de 40 rem (590 px de texte) ; la fiche encadrée ; les six textes (Préparation comprise) ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
-- Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien « ← Feuille de route ».
-- Bouton retour du navigateur, depuis une page de course : retour à la feuille de route.
+- Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien « ← Feuille de route » dans la modale.
+- Modale : toucher une étape l'ouvre au-dessus de la feuille de route, qui reste en place et ne défile plus ; « course suivante » puis « course précédente » changent la course sans fermer ni ajouter d'entrée à l'historique ; la croix, « ← Feuille de route », Échap, un clic à côté et le retour du navigateur la ferment, la feuille de route dessous. Adresse `course.html?id=…` ouverte directement : la feuille de route dessous, la modale dessus ; fermer laisse la feuille de route.
+- Modale, téléphone (390 px) : feuille collée en bas, haut à 2,5 rem, marges de 0,4 rem de chaque côté ; toucher la bande du haut ferme ; rien ne dépasse.
+- Modale depuis le Calendrier (« ← Calendrier », à la rubrique Préparation) et depuis En un coup d'œil (« ← En un coup d'œil »).
 - Site partagé en lecture seule : la feuille de route et les pages de course du propriétaire s'affichent à l'identique.
 - Chargement de la feuille de route et d'une page de course (ordinateur, téléphone) : à l'instant où la page devient visible, le menu (et l'en-tête, sur la feuille de route) est en place et le contenu n'a plus à bouger.
 - Feuille de route, thème Bleu et orange : nom de la course en Texte, date en Texte discret, chiffres du compteur et objectif en Accent 2 ; libellés à 0,7 rem ; indicateurs de l'en-tête en Texte.

@@ -118,7 +118,8 @@
 
     root.addEventListener('click', e => {
       const course = e.target.closest('[data-course]'), jour = e.target.closest('[data-jour]');
-      if (course) { location.href = lienCourse(course.dataset.course); return; }
+      // La page de la course s'ouvre en modale, à la rubrique Préparation.
+      if (course) { if (window.mrtOuvrirCourse) window.mrtOuvrirCourse(course.dataset.course, '#preparation'); else location.href = lienCourse(course.dataset.course); return; }
       if (jour) location.hash = '#semaines=' + lundiDe(jour.dataset.jour);
     });
     root.addEventListener('change', e => {

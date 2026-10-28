@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/preparation.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
 </head>
 <body>
 <main>
@@ -29,6 +30,7 @@
 <script src="composants/preparation.js?v=__VERSION__"></script>
 <script src="composants/objectif.js?v=__VERSION__"></script>
 <script src="composants/fiche-course.js?v=__VERSION__"></script>
+<script src="composants/modale-course.js?v=__VERSION__"></script>
 <script>
   // La feuille de route de l'utilisateur connecté (ou du site partagé), lue dans la base.
   mrtPage({ courant: 'objectif.html' }).then(page => {
@@ -39,6 +41,8 @@
     const edition = mrtEdition(page, () => courses, apres);
     const dessiner = () => renderFeuilleDeRoute(el, courses, edition);
     dessiner();
+    // La page d'une course s'ouvre en modale, par-dessus la feuille de route.
+    mrtModaleCourse(page, { courses: () => courses, surMaj: liste => { courses = liste; dessiner(); } });
   });
 </script>
 </body>

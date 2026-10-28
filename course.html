@@ -16,10 +16,11 @@
 <link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/preparation.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
 </head>
 <body>
 <main>
-  <div id="course"></div>
+  <div id="feuille-de-route"></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>
@@ -29,30 +30,20 @@
 <script src="composants/preparation.js?v=__VERSION__"></script>
 <script src="composants/objectif.js?v=__VERSION__"></script>
 <script src="composants/fiche-course.js?v=__VERSION__"></script>
+<script src="composants/modale-course.js?v=__VERSION__"></script>
 <script>
-  // Une course de la feuille de route, désignée par ?id= ; l'onglet Objectif reste en avant.
-  mrtPage({ courant: 'objectif.html', sansEnTete: true, plan: true }).then(page => {
-    // Courses, séances et phases modifiées : la rubrique Préparation a besoin des trois.
-    const ctx = { courses: page.courses, seances: page.plan.seances, semaines: page.plan.semaines, lectureSeule: page.lectureSeule };
-    ctx.relire = async () => {
-      const [courses, plan] = await Promise.all([page.relire(), page.relirePlan()]);
-      return { courses, seances: plan.seances, semaines: plan.semaines };
-    };
-    const el = document.getElementById('course');
-    const id = new URLSearchParams(location.search).get('id');
-    // Après un enregistrement : relire et redessiner. Course supprimée, courue ou sortie de la feuille de route : retour à celle-ci.
-    const apres = async () => {
-      Object.assign(ctx, await ctx.relire());
-      if (!dessiner()) location.href = 'objectif.html';
-    };
-    ctx.actualiser = apres;
-    const edition = mrtEdition(page, () => ctx.courses, apres);
-    const dessiner = () => {
-      const c = renderPageCourse(el, ctx.courses, id, edition, ctx);
-      if (c) document.title = mrtNomCourse(c) + ' · MyRunTools';
-      return c;
-    };
+  // La feuille de route de l'utilisateur connecté (ou du site partagé), lue dans la base ; l'onglet Objectif reste en avant.
+  mrtPage({ courant: 'objectif.html' }).then(page => {
+    let courses = page.courses;
+    const el = document.getElementById('feuille-de-route');
+    // Après un enregistrement ou une suppression : relire et redessiner (en-tête compris).
+    const apres = async () => { courses = await page.relire(); dessiner(); };
+    const edition = mrtEdition(page, () => courses, apres);
+    const dessiner = () => renderFeuilleDeRoute(el, courses, edition);
     dessiner();
+    // Adresse d'une course (favori, partage) : la feuille de route, et la course ouverte par-dessus.
+    const modale = mrtModaleCourse(page, { courses: () => courses, surMaj: liste => { courses = liste; dessiner(); } });
+    modale.ouvrir(new URLSearchParams(location.search).get('id'), location.hash, { direct: true });
   });
 </script>
 </body>

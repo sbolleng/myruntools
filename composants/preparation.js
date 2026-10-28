@@ -29,8 +29,8 @@
   const famille = c => (c.type === 'trail' ? 'trail' : 'route');
   // Curseurs : le bouton qui règle le plan.
   const REGLAGES = '<svg class="cal-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h12M2 11.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="4.5" r="2" fill="currentColor"/><circle cx="6" cy="11.5" r="2" fill="currentColor"/></svg>';
-  // Page d'une course, à la rubrique Préparation.
-  const lienCourse = id => 'course.html?id=' + encodeURIComponent(id) + '&depuis=calendrier#preparation';
+  // Page d'une course (modale), à la rubrique Préparation.
+  const lienCourse = id => 'course.html?id=' + encodeURIComponent(id) + '#preparation';
 
   // ----- Plan d'une course : règles générales (spécification du Calendrier, § 5.1) -----
 
