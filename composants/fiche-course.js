@@ -80,26 +80,25 @@
     ['lieu', 'Lieu', 'texte', 'course'],
     ['type', 'Type', 'choix', 'course', true],
     ['format', 'Format', 'choix', 'course', true],
-    ['description', 'Description', 'long', 'course'],
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['dmoins', 'D− (m)', 'entier', 'course'],
+    ['description', 'Description', 'long', 'course'],
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
     ['allure', 'Allure moyenne (par km)', 'allure', 'resultat'],
-    // Trois colonnes : catégorie, place, effectif ; une case vide là où il n'y a pas de catégorie.
-    ['vide_general', '', 'vide', 'classements'],
+    // Général et sexe : deux champs sur toute la largeur ; catégorie : trois champs (catégorie, place, effectif).
     ['place', 'Place au général', 'entier', 'classements'],
     ['effectif', 'Effectif du général', 'entier', 'classements'],
     ['categorie', 'Catégorie', 'choix', 'classements'],
     ['place_categorie', 'Place en catégorie', 'entier', 'classements'],
     ['effectif_categorie', 'Effectif de la catégorie', 'entier', 'classements'],
-    ['vide_sexe', '', 'vide', 'classements'],
     ['place_sexe', 'Place par sexe', 'entier', 'classements'],
     ['effectif_sexe', 'Effectif par sexe', 'entier', 'classements'],
+    ['montre_temps', 'Temps', 'duree', 'montre'],
     ['montre_distance', 'Distance (km)', 'nombre', 'montre'],
     ['montre_dplus', 'D+ (m)', 'entier', 'montre'],
-    ['montre_temps', 'Temps', 'duree', 'montre'],
+    ['montre_dmoins', 'D− (m)', 'entier', 'montre'],
     ['montre_allure', 'Allure moyenne (par km)', 'allure', 'montre'],
     ['fc_moyenne', 'FC moyenne (bpm)', 'entier', 'montre']
   ];
@@ -125,9 +124,9 @@
     ['strategie', 'Stratégie ou enchaînement', 'long', 'preparation'],
     ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
+    ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['prix', 'Prix (€)', 'nombre', 'dossard'],
-    ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['logistique', 'Logistique', 'long', 'logistique'],
     ['lien', 'Site officiel', 'url', 'liens'],
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
@@ -151,7 +150,7 @@
     inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027',
     temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524',
     place: 'ex. 99', effectif: 'ex. 873', place_categorie: 'ex. 12', effectif_categorie: 'ex. 140', place_sexe: 'ex. 15', effectif_sexe: 'ex. 310',
-    montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', fc_moyenne: 'ex. 163'
+    montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_dmoins: 'ex. 935', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', fc_moyenne: 'ex. 163'
   };
   // Textes limités, avec un compteur sous le champ.
   const LONGUEURS = { description: 1000, objectif_precisions: 100 };
@@ -179,7 +178,6 @@
       const id = 'fc-' + k;
       const valeur = k === 'type' ? typeDe(c.format) : c[k];
       let input;
-      if (genre === 'vide') return '<div class="fc-vide" aria-hidden="true"></div>';
       if (genre === 'case') {
         const caseHtml = '<label class="fc-case"><input type="checkbox" id="' + id + '" data-k="' + k + '"' + (valeur ? ' checked' : '') + '> ' + esc(lib) + '</label>';
         return k === 'dnf' || k === 'date_approx' ? caseHtml : '<div class="fc-champ fc-bas">' + caseHtml + '</div>';
@@ -219,7 +217,7 @@
       const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
       // « Date approximative » reste à droite de la date, même sur téléphone.
       const jourInconnu = k === 'date' && venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>' : '';
-      const classes = 'fc-champ' + (k === 'distance' ? ' fc-seul' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
+      const classes = 'fc-champ' + (k === 'distance' ? ' fc-seul' : '') + (['place', 'effectif', 'place_sexe', 'effectif_sexe'].includes(k) ? ' fc-moitie' : ['categorie', 'place_categorie', 'effectif_categorie'].includes(k) ? ' fc-tiers' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
       const attrs = genre === 'groupe' ? ' data-champ="groupe_options"' + (c.statut === 'option' ? '' : ' hidden') : '';
       const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
       return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
@@ -334,7 +332,6 @@
       for (const [k, lib, genre, , oblig0] of CHAMPS) {
         if (k === 'type') { ok = erreur(k, val(k).value ? '' : 'Choisis un type.') && ok; continue; }
         if (k === 'date_approx') { out[k] = approx; continue; }
-        if (genre === 'vide') continue;
         const el = val(k);
         const oblig = venir && k === 'date' ? statut !== 'a_surveiller' : oblig0;
         let v, msg = '';
@@ -377,7 +374,7 @@
         } else {
           v = parseNombre(el.value);
           if (Number.isNaN(v)) msg = 'Nombre illisible.';
-          else if (v != null && (v < 0 || (v === 0 && !['dplus', 'dmoins', 'prix', 'montre_dplus'].includes(k)))) msg = 'Le nombre doit être positif.';
+          else if (v != null && (v < 0 || (v === 0 && !['dplus', 'dmoins', 'prix', 'montre_dplus', 'montre_dmoins'].includes(k)))) msg = 'Le nombre doit être positif.';
           else if (v != null && genre === 'entier' && !Number.isInteger(v)) msg = 'Nombre entier attendu.';
         }
         if (!msg && oblig && (v == null || v === '')) msg = 'Champ obligatoire.';

@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.13 · 28 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.14 · 28 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -91,7 +91,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
 | Suivi en course | `passages` : liste de points (distance depuis le départ, temps visé) ; `chronos_reference` : liste de chronos (libellé, temps) | Suivi en course (§ 4.2) |
 | Résultat officiel | `categorie` (catégorie d'âge FFA : CA, JU, ES, SE, M0 à M10 ; évolution 012), `temps`, `dnf`, `allure`, `vitesse`, `place`, `effectif`, `place_categorie`, `effectif_categorie`, `place_sexe`, `effectif_sexe` | Palmarès |
-| Données montre | `montre_distance`, `montre_dplus`, `montre_temps`, `montre_allure`, `montre_vitesse`, `fc_moyenne` | Palmarès |
+| Données montre | `montre_distance`, `montre_dplus`, `montre_dmoins` (évolution 013), `montre_temps`, `montre_allure`, `montre_vitesse`, `fc_moyenne` | Palmarès |
 | Équipement | `chaussures` (équipement porté) | Usure des chaussures |
 
 `dnf` : vrai pour une course commencée mais pas terminée ; le Palmarès affiche « DNF » à la place du temps.

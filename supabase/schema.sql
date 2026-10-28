@@ -143,6 +143,7 @@ create table courses (
   -- Données montre
   montre_distance numeric(6,2) check (montre_distance > 0),
   montre_dplus    int check (montre_dplus >= 0),
+  montre_dmoins   int check (montre_dmoins >= 0), -- évolution 013
   montre_temps    int check (montre_temps > 0),
   montre_allure   int check (montre_allure > 0),
   montre_vitesse  numeric(5,2) check (montre_vitesse > 0),
