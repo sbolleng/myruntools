@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 28 oct. 2026 | Formulaires | « Paramétrer le plan » aussi pour une nouvelle course : le plan suit la date, le format et le statut saisis (bouton grisé tant qu'il manque la date ou le format, ou avec une date approximative) ; depuis le formulaire, la fenêtre du plan « Valide » et tout s'enregistre avec la course, nouvelle ou existante (Objectif 0.26, Calendrier 0.8). |
 | 28 oct. 2026 | Formulaires | Objectif : le bloc Préparation commence par le plan de la course (durée et dates, frise des phases, « Paramétrer le plan » par-dessus le formulaire) ; nouvelle course : « Le plan se paramètre une fois la course enregistrée. » Palmarès : « Effectif catégorie », cases des classements alignées (Objectif 0.25, Palmarès 1.18). |
 | 28 oct. 2026 | Formulaires | Palmarès : description sous D+ et D− ; Classements, général et sexe sur toute la largeur, catégorie sur trois champs ; Montre, temps et distance, D+ et D− (nouveau champ `montre_dmoins`, évolution 013), allure et FC. Objectif : site d'inscription juste après l'ouverture et « Inscrit » (Objectif 0.24, Palmarès 1.17, modèle de données 0.14). |
 | 28 oct. 2026 | Formulaires | La case « Jour inconnu » devient « Date approximative (mois seulement) » : à cocher quand le jour n'est pas encore fixé ; la date reste modifiable et ne demande plus qu'un mois ; comportement inchangé (Objectif 0.23, spécification générale 0.21). |

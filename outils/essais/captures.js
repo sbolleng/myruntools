@@ -40,7 +40,7 @@ const PAGES = {
   'fiche-classements': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-bloc="classements"]').click(); await voir(p, 'classements'); } },
   'fiche-prep': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-panneau'); await voir(p, 'preparation'); } },
   'fiche-prep-nouvelle': { url: 'objectif.html', action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-bloc="preparation"]').click(); await voir(p, 'preparation'); } },
-  'fiche-prep-parametrer': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-panneau'); await p.locator('.fc-prep [data-preparer]').click(); await p.waitForSelector('.cal-preparer'); } }
+  'fiche-prep-parametrer': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-fc="preparer"]').click(); await p.waitForSelector('.cal-preparer'); } }
 };
 const LARG = { tel: [390, 844], ordi: [1200, 900] };
 fs.mkdirSync(sortie, { recursive: true });

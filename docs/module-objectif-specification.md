@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.25 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.26 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -225,6 +225,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 │  Plan de 16 semaines · début … → jour J … (39)    │
 │  ██ Base ██ Développement ██ Affûtage (40)        │
 │                       [Paramétrer le plan (41)]   │
+│  Choisis d'abord la date et le format. (42)       │  [à la place de 39-40, 41 grisé]
 │  Objectif (30)                                    │
 │  Rôle dans la préparation (31)                    │
 │  Stratégie ou enchaînement (32)                   │
@@ -248,7 +249,7 @@ Sur téléphone : le panneau passe en plein écran, une seule colonne, même ord
 | --- | --- |
 | Course | Course et parcours ; date, ou mois seul (case « Date approximative (mois seulement) » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
-| Préparation | En tête, le plan de préparation, comme sur la page de la course (§ 3.4) : durée et dates (39), frise des phases (40), bouton principal « Paramétrer le plan » (41), qui ouvre la fenêtre de réglage par-dessus le formulaire et l'enregistre aussitôt (résumé, frise et page relus ; Échap ne ferme que cette fenêtre). Seulement pour une course Confirmée ou Option, à venir et datée ; plan calculé sur la date et le format enregistrés. Nouvelle course : « Le plan se paramètre une fois la course enregistrée. » Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
+| Préparation | En tête, le plan de préparation, comme sur la page de la course (§ 3.4) : durée et dates (39), frise des phases (40), bouton principal « Paramétrer le plan » (41). Seulement pour une course Confirmée ou Option ; calculé sur la date, le format et le statut saisis, il suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) remplace 39 et 40 et le bouton est grisé : « Choisis d'abord la date et le format. », ou « Choisis d'abord une date précise. » avec une date approximative. Le bouton ouvre la fenêtre de réglage (Calendrier, § 5.3) par-dessus le formulaire, avec « Valider » : rien n'est rangé avant « Enregistrer » du formulaire, qui range la course, sa durée de prépa et ses phases modifiées ; « Annuler » abandonne le tout ; Échap ne ferme que la fenêtre du plan. Même comportement pour une nouvelle course et une course existante. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Dossard | Date d'ouverture des inscriptions et case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Logistique | Logistique |
 | Liens | Site officiel ; résultats en direct |
@@ -423,9 +424,9 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - Date du 1er octobre 2026 : erreur sous la date. Site officiel « example.org » : erreur sous le champ.
 - Case « Date approximative (mois seulement) », juillet 2027 : la carte affiche JUILLET 2027.
 - Statut Option : le champ Groupe d'options apparaît et propose « Printemps 2027 » ; le choisir : la carte du groupe affiche « • 3 candidats ». Statut Confirmée : le champ disparaît.
-- « + » : le bloc Préparation commence par « Le plan se paramètre une fois la course enregistrée. »
+- « + » : le bloc Préparation commence par « Choisis d'abord la date et le format. », « Paramétrer le plan » grisé. Trail des Lacs, 12 juin 2027, Trail court : « Plan de 12 semaines · début : lun. 22 mars 2027 → jour J : sam. 12 juin 2027 » ; case « Date approximative » cochée : « Choisis d'abord une date précise. ». Première semaine passée en Développement, « Valider » : rien d'écrit ; « Enregistrer » : la course, puis sa semaine modifiée, rangées sous le même identifiant (durée du format, rien à ranger pour elle).
 - Page Trail des Gorges, « Modifier » : formulaire rempli ; objectif changé en `6:15:00` : la page affiche « 06:15:00 ».
-- Page Trail des Gorges, « Modifier » : le bloc Préparation commence par « Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 », la frise et « Paramétrer le plan » ; ce bouton ouvre la fenêtre de réglage devant le formulaire ; Échap la ferme, le formulaire reste ouvert.
+- Page Trail des Gorges, « Modifier » : le bloc Préparation commence par « Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 », la frise et « Paramétrer le plan » ; ce bouton ouvre la fenêtre de réglage devant le formulaire, avec « Valider » ; Échap la ferme, le formulaire reste ouvert. Durée passée à 12 semaines, « Valider » : « Plan de 12 semaines · début : lun. 14 déc. 2026 … », rien d'écrit ; « Enregistrer » : la durée part avec la course, les phases modifiées sont remises à plat.
 - Supprimer Corrida de Noël, confirmation acceptée : elle disparaît ; l'en-tête affiche « 4 courses ».
 - Page Trail des Cimes, « Retenir cette course », confirmation acceptée : Trail des Cimes devient une étape Confirmée au 30 mai 2027 ; Ultra du Plateau quitte la feuille de route (À surveiller) ; la carte Printemps 2027 disparaît ; l'en-tête affiche « 5 courses ».
 - Page Trail du Lac le 20 octobre 2026 : pas de « Marquer comme courue ». Le 15 novembre 2026 à 14 h : le bouton est là ; il ouvre le formulaire du Palmarès rempli (15 novembre 2026, Trail du Lac, Le Tour du Lac, Trail, Trail court, 24 km, 650 m, Préparatoire) ; temps `24110` : à l'enregistrement, Trail du Lac quitte la feuille de route et rejoint le Palmarès, avec un temps de 2 h 41 min 10 s.

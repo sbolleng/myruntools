@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.7 · 27 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course
+Version 0.8 · 28 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course, plan réglable dans le formulaire d'une course
 
 ## 1. Rôle
 
@@ -162,6 +162,8 @@ Le bouton « Paramétrer le plan » de la rubrique ouvre le réglage complet de 
 | P5 | « Enregistrer » | Range la durée et les phases modifiées. |
 
 Le bouton « Paramétrer le plan » ouvre une fenêtre ; « Recalculer selon les règles » (après confirmation) et les changements ne comptent qu'une fois « Enregistrer » pressé, « Annuler » ne range rien. Pour une course sans durée de prépa, la rubrique propose le même bouton, pour en choisir une. Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Paramétrer le plan », ni saisie.
+
+Ouverte depuis le formulaire d'une course (Objectif, § 3.7), la fenêtre se calcule sur la date et le format saisis et P5 devient « Valider » : rien n'est rangé tout de suite, la durée et les phases s'enregistrent avec la course (« Enregistrer » du formulaire) ; « Annuler » du formulaire les abandonne.
 
 ### 5.4 Durées de prépa par défaut (à valider)
 

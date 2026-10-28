@@ -268,8 +268,7 @@
       const liste = courses();
       const groupes = [...new Set(liste.filter(x => x.statut === 'option' && x.groupe_options).map(x => x.groupe_options))];
       // Course à venir : son plan de préparation, en tête du bloc Préparation.
-      const relire = async () => { const p = await page.relirePlan(); return { courses: courses(), seances: p.seances, semaines: p.semaines, lectureSeule: false }; };
-      const preparation = extra.mode === 'a_venir' && window.mrtPreparation ? { ctx: await relire(), relire } : null;
+      const preparation = extra.mode === 'a_venir' && window.mrtPreparation ? { semaines: (await page.relirePlan()).semaines } : null;
       window.mrtFicheCourse(Object.assign({ course, references: await window.mrtReferences(), groupes, apres, preparation }, extra));
     };
     const trouver = id => courses().find(x => x.id === id) || null;
