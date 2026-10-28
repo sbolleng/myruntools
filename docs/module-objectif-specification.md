@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.22 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.23 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -212,7 +212,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 ├──────────────────────────────────────────────────┤
 │ ▾ Course (3)                                      │
 │  Course * (7)          Parcours (8)               │
-│  Date * (4)            ☐ Jour inconnu (5)         │
+│  Date * (4)            ☐ Date approximative (5)   │
 │  Heure de départ (6)   Lieu (9)                   │
 │  Type * (10)           Format * (11)              │
 │  Distance (12)                                    │
@@ -239,11 +239,11 @@ Site partagé en lecture seule : aucun de ces boutons.
 └──────────────────────────────────────────────────┘
 ```
 
-Sur téléphone : le panneau passe en plein écran, une seule colonne, même ordre ; la date et « Jour inconnu » restent côte à côte.
+Sur téléphone : le panneau passe en plein écran, une seule colonne, même ordre ; la date et « Date approximative (mois seulement) » restent côte à côte.
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Course et parcours ; date, ou mois seul (case « Jour inconnu ») ; heure de départ ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
+| Course | Course et parcours ; date, ou mois seul (case « Date approximative (mois seulement) » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
 | Préparation | Objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Dossard | Date d'ouverture des inscriptions et case « Inscrit » ; numéro de dossard et prix ; site d'inscription. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
@@ -418,7 +418,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - Ajouter « Trail des Brumes », 18 avril 2027, 8 h, objectif saisi `15000` (lu 1:50:00) : il s'affiche « 01:50:00 » ; la carte prend place entre Trail des Gorges et Printemps 2027 ; l'en-tête affiche « 6 courses ».
 - Objectif « vite » : « Format attendu : 02:45:00, Finisher ou Sub 3h » sous le champ ; « Enregistrer » reste sans effet. « finisher » est rangé « Finisher », « sub 3h » est rangé « Sub 3h ».
 - Date du 1er octobre 2026 : erreur sous la date. Site officiel « example.org » : erreur sous le champ.
-- Case « Jour inconnu », juillet 2027 : la carte affiche JUILLET 2027.
+- Case « Date approximative (mois seulement) », juillet 2027 : la carte affiche JUILLET 2027.
 - Statut Option : le champ Groupe d'options apparaît et propose « Printemps 2027 » ; le choisir : la carte du groupe affiche « • 3 candidats ». Statut Confirmée : le champ disparaît.
 - Page Trail des Gorges, « Modifier » : formulaire rempli ; objectif changé en `6:15:00` : la page affiche « 06:15:00 ».
 - Supprimer Corrida de Noël, confirmation acceptée : elle disparaît ; l'en-tête affiche « 4 courses ».
@@ -436,7 +436,7 @@ Résultats attendus, formulaire en détail (écritures relues par le banc d'essa
 - Trail, distance 28,5 : format Trail court proposé. Description : compteur « 0 / 1 000 ».
 - Saisie complète valide : une course est créée à l'état À venir, statut Confirmée, rôle Préparatoire, avec les valeurs saisies.
 - Statut Option : le groupe d'options apparaît, avec « Printemps 2027 » et « Nouveau groupe… » ; un nouveau groupe sans nom : « Écris le nom du groupe. ».
-- Case « Jour inconnu » cochée : la date devient un mois ; `2027-10` est rangé au 1er octobre 2027, sans heure, date approximative.
+- Case « Date approximative (mois seulement) » cochée : la date devient un mois ; `2027-10` est rangé au 1er octobre 2027, sans heure, date approximative.
 - Statut À surveiller : une course s'enregistre sans date.
 - Page de Trail des Gorges, « Modifier » : formulaire rempli (objectif 06:30:00, heure 07:30, D− 2 100…), tous les blocs ouverts ; objectif `Sub 6h30` et date du 8 mars 2027 mis à jour sur la ligne de la course, sans toucher à son état ; ni « Retenir » ni « Marquer comme courue ».
 - « Supprimer » : « Supprimer cette course ? Cette action est définitive. » ; Annuler n'écrit rien ; confirmer efface la ligne et ramène à la feuille de route.
