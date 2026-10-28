@@ -26,16 +26,16 @@
 .cal-sem.sans .cal-sem-phase { color: var(--muted); font-weight: 400; }
 .cal-aussi { font-size: 0.72rem; color: var(--muted); }
 .cal-sem-jours { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
-.cal-jr { position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; min-height: 5.2rem; padding: 0.35rem 0.4rem 1.5rem; background: color-mix(in srgb, var(--bg) 55%, var(--surface)); border-radius: 4px; }
-.cal-jr.we { background: color-mix(in srgb, var(--bg) 25%, var(--surface)); }
-.cal-jr.passe { opacity: 0.55; }
-.cal-jr.auj { outline: 1px solid var(--text); outline-offset: -1px; opacity: 1; }
+/* Jours : un seul ton, plus clair que le cadre ; un jour passé n'a plus de fond, seulement un filet. */
+.cal-jr { position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; min-height: 5.2rem; padding: 0.35rem 0.4rem 1.5rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; }
+.cal-jr.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
+.cal-jr.auj { outline: 1px solid var(--text); outline-offset: -1px; }
 .cal-jr-nom { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .cal-jr-course { display: block; padding: 0.05rem 0.3rem; font-size: 0.7rem; font-weight: 600; line-height: 1.35; color: var(--bg); text-decoration: none; border-radius: 3px; overflow-wrap: anywhere; }
 .cal-jr-course.c-route-v { background: var(--route); }
 .cal-jr-course.c-trail-v { background: var(--trail); }
-.cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 30%, var(--surface)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
-.cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 30%, var(--surface)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
+.cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
+.cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
 .cal-jr-course.courue { background: var(--muted); }
 .cal-rdv { font-size: 0.68rem; line-height: 1.35; color: var(--text); text-decoration: none; }
 .cal-se { display: flex; align-items: flex-start; gap: 0.3rem; font-size: 0.72rem; line-height: 1.35; }
