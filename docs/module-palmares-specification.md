@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.15 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.16 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -146,9 +146,9 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Course et parcours ; date (seule sur sa ligne) ; type et format ; distance et D+ ; numéro de dossard, dessous, à gauche — les champs communs dans le même ordre que le formulaire d'Objectif |
+| Course | Course et parcours ; date et, à sa droite, numéro de dossard ; heure de départ et lieu ; type et format ; description (texte libre, 1 000 caractères au plus) ; distance, seule sur sa ligne ; D+ et D− côte à côte |
 | Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure moyenne |
-| Classements | Place et effectif : général, catégorie, sexe |
+| Classements | Trois colonnes, catégorie · place · effectif : général ; catégorie d'âge (liste de la Fédération française d'athlétisme : CA, JU, ES, SE, M0 à M10), place et effectif en catégorie ; sexe |
 | Montre | Distance, D+, temps, allure moyenne, FC moyenne |
 
 - **Ni rôle, ni objectif, ni précisions** dans ce formulaire : ce sont des données de préparation, saisies dans Objectif ; une course marquée courue les garde.

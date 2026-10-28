@@ -75,18 +75,26 @@
     ['course', 'Course', 'texte', 'course', true],
     ['parcours', 'Parcours', 'texte', 'course'],
     ['date', 'Date', 'date', 'course', true],
+    ['dossard', 'Numéro de dossard', 'texte', 'course'],
+    ['heure', 'Heure de départ', 'heure', 'course'],
+    ['lieu', 'Lieu', 'texte', 'course'],
     ['type', 'Type', 'choix', 'course', true],
     ['format', 'Format', 'choix', 'course', true],
+    ['description', 'Description', 'long', 'course'],
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
-    ['dossard', 'Numéro de dossard', 'texte', 'course'],
+    ['dmoins', 'D− (m)', 'entier', 'course'],
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
     ['allure', 'Allure moyenne (par km)', 'allure', 'resultat'],
+    // Trois colonnes : catégorie, place, effectif ; une case vide là où il n'y a pas de catégorie.
+    ['vide_general', '', 'vide', 'classements'],
     ['place', 'Place au général', 'entier', 'classements'],
     ['effectif', 'Effectif du général', 'entier', 'classements'],
+    ['categorie', 'Catégorie', 'choix', 'classements'],
     ['place_categorie', 'Place en catégorie', 'entier', 'classements'],
     ['effectif_categorie', 'Effectif de la catégorie', 'entier', 'classements'],
+    ['vide_sexe', '', 'vide', 'classements'],
     ['place_sexe', 'Place par sexe', 'entier', 'classements'],
     ['effectif_sexe', 'Effectif par sexe', 'entier', 'classements'],
     ['montre_distance', 'Distance (km)', 'nombre', 'montre'],
@@ -115,10 +123,10 @@
     ['objectif_precisions', 'Précisions', 'long', 'preparation'],
     ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
     ['strategie', 'Stratégie ou enchaînement', 'long', 'preparation'],
+    ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['prix', 'Prix (€)', 'nombre', 'dossard'],
-    ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
     ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['logistique', 'Logistique', 'long', 'logistique'],
     ['lien', 'Site officiel', 'url', 'liens'],
@@ -128,6 +136,9 @@
   // Vitesse : plus saisie, tirée de l'allure moyenne (3 600 ÷ allure, en km/h) à l'enregistrement.
   const VITESSES = [['allure', 'vitesse'], ['montre_allure', 'montre_vitesse']];
   const BLOCS_VENIR = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['dossard', 'Dossard'], ['logistique', 'Logistique'], ['liens', 'Liens']];
+  // Catégories d'âge de la Fédération française d'athlétisme (saison du 1er septembre au 31 août).
+  const CATEGORIES = [['CA', 'Cadet (CA)'], ['JU', 'Junior (JU)'], ['ES', 'Espoir (ES)'], ['SE', 'Senior (SE)']]
+    .concat(Array.from({ length: 11 }, (_, i) => ['M' + i, 'Master ' + i + ' (M' + i + ', ' + (35 + 5 * i) + (i < 10 ? '-' + (39 + 5 * i) : ' et plus') + ' ans)']));
   const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'À surveiller']];
   const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
   const NOUVEAU = '__nouveau__';
@@ -168,6 +179,7 @@
       const id = 'fc-' + k;
       const valeur = k === 'type' ? typeDe(c.format) : c[k];
       let input;
+      if (genre === 'vide') return '<div class="fc-vide" aria-hidden="true"></div>';
       if (genre === 'case') {
         const caseHtml = '<label class="fc-case"><input type="checkbox" id="' + id + '" data-k="' + k + '"' + (valeur ? ' checked' : '') + '> ' + esc(lib) + '</label>';
         return k === 'dnf' || k === 'date_approx' ? caseHtml : '<div class="fc-champ fc-bas">' + caseHtml + '</div>';
@@ -176,6 +188,7 @@
         const opts = k === 'type' ? references.types.map(t => [t.id, t.libelle])
           : k === 'role' ? ROLES
           : k === 'statut' ? STATUTS
+          : k === 'categorie' ? CATEGORIES
           : sousDe(typeDe(c.format)).map(s => [s.id, s.libelle]);
         const vide = DEFAUT[k] ? '' : '<option value="">—</option>';
         const courant = valeur || DEFAUT[k] || '';
@@ -206,7 +219,7 @@
       const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
       // « Jour inconnu » reste à droite de la date, même sur téléphone.
       const jourInconnu = k === 'date' && venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>' : '';
-      const classes = 'fc-champ' + ((k === 'date' && !venir) || (k === 'distance' && venir) ? ' fc-seul' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
+      const classes = 'fc-champ' + (k === 'distance' ? ' fc-seul' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
       const attrs = genre === 'groupe' ? ' data-champ="groupe_options"' + (c.statut === 'option' ? '' : ' hidden') : '';
       const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
       return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
@@ -221,7 +234,7 @@
           BLOCS.map(([b, titre]) =>
             '<section class="fc-bloc">' +
               '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
-              '<div class="fc-grille"' + (ouvert(b) ? '' : ' hidden') + '>' + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
+              '<div class="fc-grille' + (b === 'classements' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
             '</section>').join('') +
           '<p class="fc-msg" aria-live="polite"></p>' +
           '<div class="fc-actions">' +
@@ -277,6 +290,10 @@
       const montrerGroupe = () => { $('[data-champ="groupe_options"]').hidden = val('statut').value !== 'option'; };
       val('statut').addEventListener('change', montrerGroupe);
       val('groupe_options').addEventListener('change', () => { val('groupe_nouveau').hidden = val('groupe_options').value !== NOUVEAU; });
+      // Le numéro de dossard ne se saisit qu'une fois inscrit.
+      const inscrit = () => { val('dossard').disabled = !val('inscrit').checked; };
+      val('inscrit').addEventListener('change', inscrit);
+      inscrit();
     }
     // Course non terminée (DNF) : ni temps ni allure moyenne ; les deux champs se vident et se grisent.
     if (!venir) {
@@ -317,6 +334,7 @@
       for (const [k, lib, genre, , oblig0] of CHAMPS) {
         if (k === 'type') { ok = erreur(k, val(k).value ? '' : 'Choisis un type.') && ok; continue; }
         if (k === 'date_approx') { out[k] = approx; continue; }
+        if (genre === 'vide') continue;
         const el = val(k);
         const oblig = venir && k === 'date' ? statut !== 'a_surveiller' : oblig0;
         let v, msg = '';
@@ -366,6 +384,7 @@
         ok = erreur(k, msg) && ok;
         out[k] = v;
       }
+      if (venir && !out.inscrit) out.dossard = null; // un numéro de dossard suppose d'être inscrit
       if (!venir) {
         if (out.dnf) { out.temps = null; out.allure = null; }
         VITESSES.forEach(([a, v]) => { out[v] = out[a] ? Math.round(360000 / out[a]) / 100 : null; });
