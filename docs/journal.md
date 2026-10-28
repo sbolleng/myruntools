@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 28 oct. 2026 | Page d'une course | Modale : plus de lien « ← Feuille de route », la croix seule ; le crayon « Modifier » passe dans la barre du haut, à côté de la croix ; contenu de la même largeur que les pages du site (896 px) sur ordinateur ; barres de défilement fines aux couleurs du thème sur tout le site, comme celles du Palmarès (Objectif 0.30). |
 | 28 oct. 2026 | Page d'une course | La page d'une course s'ouvre en modale au-dessus de la page d'origine (feuille de route, Calendrier, En un coup d'œil), pour la fluidité de la navigation ; elle garde son adresse `course.html?id=…` (la feuille de route dessous), précédente et suivante changent la course dans la modale. Téléphone : feuille depuis le bas, bord transparent en haut (2,5 rem) et sur les côtés (0,4 rem), à juger à l'usage (Objectif 0.29). |
 | 28 oct. 2026 | Calendrier | Questions ouvertes tranchées : durées de prépa du § 5.4 validées (à ajuster ; cinq formats restent à fournir) ; semaine de récupération après la course facultative par course, Deload hors durée du plan (à construire) ; pas de vue de six mois ; objectif principal pas plus marqué ; détails d'une séance (durée, distance, D+, ressenti) plus tard avec l'import (Calendrier 0.11). |
 | 28 oct. 2026 | Préparation | Date précise d'une course changée : les phases réglées à la main suivent la course et gardent leur numéro de semaine du plan (Objectif 0.28, Calendrier 0.10). |

@@ -130,7 +130,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - **Bouton des colonnes** (« Colonnes + » en bout d'en-tête) : petit bouton à contour, libellé en capitales Space Mono 0,65 rem, Texte discret, Accent quand la liste est ouverte.
 - **Pastilles** (panneau des filtres, tri, colonnes) : arrondies, contour Bordure, texte Texte 0,8 rem ; choisie : fond Accent, texte Fond. Libellés de rubrique comme les légendes (Space Mono, capitales, Texte discret).
 - **Intertitres du regroupement par type** : Space Grotesk 700, 0,95 rem, en Accent (orange dans le thème par défaut), chevron compris, pour repérer d'un coup d'œil Trail, Course sur route…
-- **Largeur** : toutes les pages ont la même largeur de contenu sur ordinateur (960 px, marges de 2 rem), page d'une course comprise ; seule la connexion garde sa colonne étroite.
+- **Largeur** : toutes les pages ont la même largeur de contenu sur ordinateur (960 px, marges de 2 rem), page d'une course (modale) comprise ; seule la connexion garde sa colonne étroite.
 - **Crayon** : trait fin, Texte discret comme les flèches de tri, visible seulement au survol de la ligne (Accent sous le pointeur) ; la ligne survolée s'éclaire légèrement (Surface 2). Sur écran tactile : pas de crayon, la ligne entière s'ouvre au toucher.
 
 ## 8. Menu

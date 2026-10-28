@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.29 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.30 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -92,11 +92,11 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 
 ### 3.4 Page d'une course
 
-Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, qui reste en place (position et vue conservées) et s'assombrit. Une seule colonne de lecture (40 rem de large au plus). Elle passe sous les fenêtres de saisie (formulaire d'une course, séance, plan), qui s'ouvrent par-dessus.
+Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, qui reste en place (position et vue conservées) et s'assombrit. Une seule colonne de lecture, du même gabarit que les pages du site sur ordinateur (contenu de 896 px, marges de 2 rem). Elle passe sous les fenêtres de saisie (formulaire d'une course, séance, plan), qui s'ouvrent par-dessus.
 
 **Ouvrir** : toucher une course, où qu'elle soit (étape, candidat, jour ou case du Calendrier, rendez-vous clé, étape de « D'ici là »). Un clic avec Ctrl, Cmd ou Maj, ou le bouton du milieu, ouvre l'adresse dans un nouvel onglet.
 
-**Fermer** : la croix ou « ← page d'origine » (barre du haut), Échap, un toucher à côté de la modale, ou le retour du navigateur ou du téléphone. Fermer ramène exactement là où on était. Quand la course a été ouverte par son adresse, la feuille de route reste dessous. Une course supprimée, courue ou sortie de la feuille de route ferme la modale.
+**Fermer** : la croix (barre du haut, sans lien de retour), Échap, un toucher à côté de la modale, ou le retour du navigateur ou du téléphone. Fermer ramène exactement là où on était. Quand la course a été ouverte par son adresse, la feuille de route reste dessous. Une course supprimée, courue ou sortie de la feuille de route ferme la modale.
 
 **Changer de course** : « course précédente » et « course suivante » changent la course dans la modale, sans la fermer ni ajouter d'entrée à l'historique ; l'adresse suit la course ouverte.
 
@@ -108,9 +108,9 @@ Plan de page (numéros stables ; le (1) est dans la barre du haut, fixe, avec la
 ┌─ barre fine : Cap sur L'OCC                                  ⚙ ─┐
 │ menu : … Objectif …                                              │
 ├──────────────────────────────────────────────────────────────────┤
-│ (1) ← Feuille de route  (retour : page d'origine)             ×  │
+│                                                  (5) ✎  (1) ×   │
 │ (2) RÔLE · ÉTAPE x SUR y                                         │
-│ (3) Course · Parcours (4) ↗                               (5) ✎  │
+│ (3) Course · Parcours (4) ↗                                      │
 │ (6) Lieu · Format · jour abrégé, date, heure                     │
 │ (7) Groupe · autres candidats : …                                │
 │ (8) [Retenir cette course]  [Marquer comme courue]               │
@@ -139,11 +139,11 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 
 | N° | Élément | Contenu | Règle et style |
 | --- | --- | --- | --- |
-| 1 | Retour | « ← Feuille de route », « ← Calendrier » ou « ← En un coup d'œil » selon la page d'origine, avec la croix à droite | Texte discret ; ferme la modale |
+| 1 | Fermer | Croix ronde, tout à droite de la barre du haut (fixe) ; pas de lien « ← Feuille de route » | Bouton rond ; ferme la modale |
 | 2 | Rôle et rang | « Objectif intermédiaire · Étape 3 sur 6 » | Libellé ; rôle dans sa couleur (§ 3.1) |
 | 3 | Titre | Course · parcours | Seul titre de l'écran : Space Grotesk 700, Accent |
 | 4 | Lien officiel | ↗ | Seulement si le site officiel est connu |
-| 5 | Modifier | Crayon rond | Bouton rond ; absent en lecture seule |
+| 5 | Modifier | Crayon rond | Bouton rond, dans la barre du haut, à gauche de la croix ; absent en lecture seule |
 | 6 | Infos | Lieu · format · jour abrégé, date, heure (« dim. 7 mars 2027, 7 h 30 ») | Texte discret ; un champ vide n'est pas affiché |
 | 7 | Groupe d'options | Nom du groupe et liens vers les autres candidates | Candidate d'un groupe seulement |
 | 8 | Actions | « Retenir cette course », « Marquer comme courue » | Boutons à contour (§ 3.7) |
@@ -417,13 +417,13 @@ Résultats attendus, page d'une course :
 - Trail des Gorges, textes dans cet ordre : Préparation (plan de 16 semaines, durée par défaut du format Trail long ; spécification du Calendrier, § 5), Rôle dans la préparation, Stratégie ou enchaînement, Logistique, Description, Liens (Site officiel, Inscription, Résultats en direct).
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
 - Corrida de Noël : fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; ni ligne D−, ni ligne Prix ; seuls les textes Préparation (plan de 8 semaines du format 10 km) et Liens (Site officiel).
-- Ordinateur : modale de 40 rem (590 px de texte) ; la fiche encadrée ; les six textes (Préparation comprise) ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
+- Ordinateur : modale dont le contenu a la largeur des autres pages (896 px) ; la fiche encadrée ; les six textes (Préparation comprise) ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
-- Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien « ← Feuille de route » dans la modale.
-- Modale : toucher une étape l'ouvre au-dessus de la feuille de route, qui reste en place et ne défile plus ; « course suivante » puis « course précédente » changent la course sans fermer ni ajouter d'entrée à l'historique ; la croix, « ← Feuille de route », Échap, un clic à côté et le retour du navigateur la ferment, la feuille de route dessous. Adresse `course.html?id=…` ouverte directement : la feuille de route dessous, la modale dessus ; fermer laisse la feuille de route.
+- Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien la croix seule dans la modale.
+- Modale : toucher une étape l'ouvre au-dessus de la feuille de route, qui reste en place et ne défile plus ; « course suivante » puis « course précédente » changent la course sans fermer ni ajouter d'entrée à l'historique ; la croix, Échap, un clic à côté et le retour du navigateur la ferment, la feuille de route dessous. Adresse `course.html?id=…` ouverte directement : la feuille de route dessous, la modale dessus ; fermer laisse la feuille de route.
 - Modale, téléphone (390 px) : feuille collée en bas, haut à 2,5 rem, marges de 0,4 rem de chaque côté ; toucher la bande du haut ferme ; rien ne dépasse.
-- Modale depuis le Calendrier (« ← Calendrier », à la rubrique Préparation) et depuis En un coup d'œil (« ← En un coup d'œil »).
+- Modale depuis le Calendrier (à la rubrique Préparation) et depuis En un coup d'œil. Barre du haut : le crayon puis la croix, à droite, sans lien de retour.
 - Site partagé en lecture seule : la feuille de route et les pages de course du propriétaire s'affichent à l'identique.
 - Chargement de la feuille de route et d'une page de course (ordinateur, téléphone) : à l'instant où la page devient visible, le menu (et l'en-tête, sur la feuille de route) est en place et le contenu n'a plus à bouger.
 - Feuille de route, thème Bleu et orange : nom de la course en Texte, date en Texte discret, chiffres du compteur et objectif en Accent 2 ; libellés à 0,7 rem ; indicateurs de l'en-tête en Texte.
