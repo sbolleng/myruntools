@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.23 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.24 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -227,8 +227,8 @@ Site partagé en lecture seule : aucun de ces boutons.
 │  Stratégie ou enchaînement (32)                   │
 │ ▸ Dossard (19)                                    │
 │  Ouverture des inscr. (29)  ☐ Inscrit (26)        │
-│  N° de dossard (27)    Prix (28)                  │
 │  Site d'inscription (36)                          │
+│  N° de dossard (27)    Prix (28)                  │
 │ ▸ Logistique (38)                                 │
 │  Logistique (33)                                  │
 │ ▸ Liens (21)                                      │
@@ -246,7 +246,7 @@ Sur téléphone : le panneau passe en plein écran, une seule colonne, même ord
 | Course | Course et parcours ; date, ou mois seul (case « Date approximative (mois seulement) » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
 | Préparation | Objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
-| Dossard | Date d'ouverture des inscriptions et case « Inscrit » ; numéro de dossard et prix ; site d'inscription. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
+| Dossard | Date d'ouverture des inscriptions et case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Logistique | Logistique |
 | Liens | Site officiel ; résultats en direct |
 

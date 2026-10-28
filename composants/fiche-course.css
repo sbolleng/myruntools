@@ -48,8 +48,10 @@ html.fc-ouvert { overflow: hidden; }
 .fc-bloc-titre[aria-expanded="false"] .fc-chev { transform: rotate(-90deg); }
 .fc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; padding-top: 0.3rem; }
 .fc-grille[hidden] { display: none; }
-/* Classements : catégorie, place, effectif sur trois colonnes. */
-.fc-grille-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Classements : général et sexe en deux champs sur toute la largeur ; catégorie, place, effectif en trois. */
+.fc-grille-3 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.fc-grille-3 .fc-moitie { grid-column: span 3; }
+.fc-grille-3 .fc-tiers { grid-column: span 2; }
 .fc-champ input:disabled { opacity: 0.45; cursor: not-allowed; }
 /* La date seule sur sa ligne, à la largeur d'une colonne. */
 .fc-seul { grid-column: 1 / -1; }
@@ -99,7 +101,7 @@ html.fc-ouvert { overflow: hidden; }
 
 @media (max-width: 600px) {
   .fc-grille-3 { grid-template-columns: minmax(0, 1fr); }
-  .fc-vide { display: none; }
+  .fc-grille-3 .fc-moitie, .fc-grille-3 .fc-tiers { grid-column: auto; }
   .fc-voile { padding: 0; place-items: stretch; grid-template-columns: minmax(0, 1fr); }
   .fc-panneau { width: 100%; max-width: none; max-height: none; height: 100%; border-radius: 0; border: none; padding: 1rem 1.25rem 1.5rem; }
   .fc-haut { top: -1rem; margin: -1rem -1.25rem 0.6rem; padding: 1rem 1.25rem 0.6rem; }
