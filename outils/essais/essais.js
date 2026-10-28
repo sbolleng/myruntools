@@ -1201,6 +1201,24 @@ const CONTROLES = {
     return pb;
   },
 
+  // Spécification générale, thèmes : chaque page prend le thème de l'utilisateur, cadres compris.
+  async themes(nav, db0) {
+    const pb = [];
+    const db = JSON.parse(JSON.stringify(db0));
+    db.preferences[0].theme = 'vert-rose';
+    for (const [page, sel] of [['index.html', '.ac-bloc'], ['calendrier.html', '.cal-cadre'], ['calendrier.html#semaines', '.cal-cadre'], ['palmares.html', '.pv2-card'], ['objectif.html', '.ob-carte']]) {
+      const { p, ctx } = await ouvrir(nav, page, 1200, db, {}, PARIS);
+      await p.waitForSelector(sel).catch(() => {});
+      const r = await p.evaluate(s => {
+        const e = document.querySelector(s);
+        return { classe: document.documentElement.className.split(' ').filter(c => c.startsWith('t-')), fond: getComputedStyle(document.body).backgroundColor, cadre: e ? getComputedStyle(e).backgroundColor : null };
+      }, sel);
+      pb.push(egal({ classe: ['t-vert-rose'], fond: 'rgb(14, 29, 25)', cadre: 'rgb(24, 51, 46)' }, r, page + ' : thème Vert et rose'));
+      await ctx.close();
+    }
+    return pb;
+  },
+
   // Spécification générale : la page s'affiche d'un seul coup, en-tête compris.
   async affichage(nav, db) {
     const pb = [];
