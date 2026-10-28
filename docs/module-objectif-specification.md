@@ -321,19 +321,18 @@ Ordinateur : mêmes deux modes, même barre du haut ; la fiche garde ses deux co
 
 #### Une seule fiche de champs
 
-Les mêmes blocs pour une course à venir et une course courue ; chaque champ a toujours la même place. L'état de la course choisit seulement les blocs montrés et leur ordre : **les blocs de l'état d'abord, ouverts ; puis les blocs communs ; puis, pour une course courue, ceux de la préparation, repliés mais modifiables**.
+Les mêmes blocs, **dans le même ordre**, pour une course à venir et une course courue ; chaque champ a toujours la même place. L'état de la course choisit seulement les blocs montrés et ceux qui sont ouverts : à venir, les blocs de la préparation ouverts ; courue, Course et Résultat ouverts, les blocs de la préparation repliés mais modifiables.
 
-| Bloc | À venir | Courue | Champs |
-| --- | --- | --- | --- |
-| (F3) Course | 1, ouvert | 1, ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement) ; heure, lieu ; type, format ; distance ; D+, D− ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
-| (F43) Résultat | — | 2, ouvert | Temps, DNF, allure moyenne |
-| (F44) Classements | — | 3, replié si vide | Général, catégorie, sexe : places et effectifs |
-| (F45) Montre | — | 4, replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
-| (F15) Place dans le plan | 2, ouvert | 8, replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
-| (F20) Préparation | 3 | 9, replié | À venir : plan (F39 à F42), objectif, précisions, rôle dans la préparation, stratégie ; courue : les mêmes textes, sans plan |
-| (F19) Dossard | 4 | 5, replié si vide | Inscrit, numéro, prix ; à venir seulement : ouverture des inscriptions, site d'inscription |
-| (F38) Logistique | 5 | 10, replié | Logistique |
-| (F21) Liens | 6 | 6, replié si vide | Site officiel, résultats en direct |
+| Ordre | Bloc | À venir | Courue | Champs |
+| --- | --- | --- | --- | --- |
+| 1 | (F3) Course | ouvert | ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement) ; heure, lieu ; type, format ; distance ; D+, D− ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
+| 2 | (F15) Place dans le plan | ouvert | replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
+| 3 | (F20) Préparation | ouvert | replié | À venir : plan (F39 à F42), objectif, précisions, rôle dans la préparation, stratégie ; courue : les mêmes textes, sans plan |
+| 4 | (F38) Logistique | ouvert | replié | Logistique |
+| 5 | (F19) Dossard | ouvert | replié si vide | Inscrit, numéro, prix ; à venir seulement : ouverture des inscriptions, site d'inscription |
+| 6 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (temps, DNF, allure moyenne), puis les classements (général, catégorie, sexe : places et effectifs). Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé) |
+| 7 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
+| 8 | (F21) Liens | ouvert | replié si vide | Site officiel, résultats en direct |
 
 Ce que la v2 change pour une course courue : son objectif, sa stratégie, sa logistique, son prix et ses liens, gardés en base, redeviennent visibles et modifiables ; le lien des résultats s'ajoute après coup.
 
@@ -342,7 +341,7 @@ Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès 
 **Questions ouvertes (v2)**
 
 - [ ] Une course courue a-t-elle aussi sa consultation (toucher une ligne du Palmarès ouvre la feuille en consultation, crayon pour modifier) ? Proposé : plus tard, une fois la v2 validée.
-- [ ] Ordre des blocs d'une course courue : celui du tableau ci-dessus convient-il ?
+- [x] Ordre des blocs : le même pour tous ; Résultat et Classements fusionnés (résultat d'abord) ; Place dans le plan, Préparation et Logistique avant Résultat, Dossard juste sous Logistique (décidé le 28 oct. 2026).
 
 ## 4. Données d'une course
 
@@ -538,10 +537,10 @@ Résultats attendus, formulaire en détail (écritures relues par le banc d'essa
 Résultats attendus, fiche v2 (en essai, § 3.8) :
 
 - Sans `?essai=v2` : tout se comporte comme la v1 ci-dessus. Avec : bandeau « Version d'essai · revenir à la v1 » ; « revenir à la v1 » le retire et rend la v1.
-- Trail des Gorges, consultation puis crayon : la même feuille passe en édition, barre « Annuler · Modifier la course · Enregistrer », pas de croix, aucune autre fenêtre ouverte. Blocs dans l'ordre : Course, Place dans le plan, Préparation, Dossard (n° 1287 dedans), Logistique, Liens.
+- Trail des Gorges, consultation puis crayon : la même feuille passe en édition, barre « Annuler · Modifier la course · Enregistrer », pas de croix, aucune autre fenêtre ouverte. Blocs dans l'ordre : Course, Place dans le plan, Préparation, Logistique, Dossard (n° 1287 dedans), Liens.
 - « Annuler » sans saisie : retour à la consultation, sans question ; après une saisie : « Abandonner les modifications ? ». « Enregistrer » : retour à la consultation, mise à jour.
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
-- Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Résultat, Classements, Montre, Dossard, Liens, Place dans le plan (rôle seul), Préparation (sans plan), Logistique ; « Date approximative » absente.
+- Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
 - Téléphone (390 px) : édition dans la même feuille au bord transparent ; « Enregistrer » visible sans défiler ; rien ne dépasse.
 
