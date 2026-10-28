@@ -352,9 +352,9 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 - [x] Course passée : elle quitte la feuille de route et rejoint le Palmarès (décidé le 19 oct. 2026).
 - [x] Course à choisir : une liste dans l'étape, une ligne par candidate ; chacune ouvre sa page. Le comparatif viendra du graphique de difficulté (décidé le 23 oct. 2026).
 - [x] Détail d'une course : une page dédiée par course plutôt qu'une étape dépliée ou une fenêtre ; icône ↗ pour le site officiel (décidé le 23 oct. 2026).
-- [ ] Inscriptions fermées (ou complet) sans être inscrit : un cinquième état ? Il demanderait un champ de plus (date de clôture ou case « complet »).
+- [x] Inscriptions fermées (ou complet) sans être inscrit : pas de cinquième état, pas de champ de plus (décidé le 28 oct. 2026).
 - [x] Groupe d'options : créé dans le formulaire ; candidat retenu depuis sa page, les autres passent À surveiller ; rôles différents listés ; un seul candidat reste un groupe (décidé le 24 oct. 2026).
-- [ ] Choix de la course de l'en-tête (cap) : seulement dans les Préférences, ou aussi depuis la page Objectif ? À revoir une fois la feuille de route construite.
+- [x] Choix de la course de l'en-tête (cap) : dans les Préférences et depuis la page d'une course, pas depuis la feuille de route (décidé le 28 oct. 2026 ; à construire).
 
 ## 10. Contrôles
 

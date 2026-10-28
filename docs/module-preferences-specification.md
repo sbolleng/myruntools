@@ -52,7 +52,7 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 - Choisir une course l'enregistre comme cap ; choisir « Par défaut » efface le choix.
 - Si la course choisie devient courue ou abandonnée, ou si sa date est passée, l'en-tête revient au cap par défaut, et la liste affiche « Par défaut ».
 - Aucune course à venir : la liste est remplacée par « Aucune course à venir. »
-- Le choix pourra aussi se faire depuis la page Objectif, quand elle existera : c'est le même réglage.
+- Le choix pourra aussi se faire depuis la page d'une course (pas depuis la feuille de route) : c'est le même réglage.
 
 ## 6. Partage et Compte
 
