@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.10 · 28 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course, plan réglable dans le formulaire d'une course
+Version 0.11 · 28 octobre 2026 · [Retour au sommaire](README.md) · Durées de prépa validées, récupération facultative après la course, questions tranchées
 
 ## 1. Rôle
 
@@ -127,6 +127,8 @@ La préparation d'une course est une **rubrique de la page de la course** (Objec
 
 Exemple, plan de 10 semaines : Base ×3, Deload, Développement ×3, Deload, Affûtage ×2.
 
+**Récupération après la course** (facultative, réglée course par course, décochée par défaut) : une semaine Deload de plus, la semaine qui suit celle du jour J. Elle n'entre pas dans la durée du plan (« 16 semaines » reste 16), apparaît à la suite de la frise et de la liste des semaines, et se modifie comme les autres semaines. Elle ne compte pas pour « Sans objectif clair » ni dans les traits de la vue Année (le trait s'arrête à la veille de la course).
+
 ### 5.2 Plan de page
 
 ```
@@ -163,15 +165,16 @@ Le bouton « Paramétrer le plan » de la rubrique ouvre le réglage complet de 
 | P2 | Frise graphique | Phases côte à côte, bords à glisser pour allonger ou réduire une phase. |
 | P3 | Tableau, une ligne par semaine | Numéro, dates, phase à choisir dans une liste (Base, Développement, Affûtage, Deload). |
 | P4 | « Recalculer selon les règles » | Revient aux règles générales du § 5.1, après confirmation. |
-| P5 | « Enregistrer » | Range la durée et les phases modifiées. |
+| P5 | « Enregistrer » | Range la durée, la récupération et les phases modifiées. |
+| P6 | Case « Semaine de récupération après la course » | Ajoute ou retire la semaine Deload qui suit le jour J (§ 5.1) ; décochée par défaut. |
 
 Le bouton « Paramétrer le plan » ouvre une fenêtre ; « Recalculer selon les règles » (après confirmation) et les changements ne comptent qu'une fois « Enregistrer » pressé, « Annuler » ne range rien. Pour une course sans durée de prépa, la rubrique propose le même bouton, pour en choisir une. Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Paramétrer le plan », ni saisie.
 
 Ouverte depuis le formulaire d'une course (Objectif, § 3.7), la fenêtre se calcule sur la date et le format saisis et P5 devient « Valider » : rien n'est rangé tout de suite, la durée et les phases s'enregistrent avec la course (« Enregistrer » du formulaire) ; « Annuler » du formulaire les abandonne.
 
-### 5.4 Durées de prépa par défaut (à valider)
+### 5.4 Durées de prépa par défaut (validées, ajustables)
 
-Propositions tirées de plans d'entraînement publiés (recherche du 27 octobre 2026), pour un coureur qui court déjà régulièrement. Elles ne servent que de point de départ : chaque course peut avoir sa propre durée (§ 5.3).
+Valeurs validées le 28 octobre 2026, tirées de plans d'entraînement publiés (recherche du 27 octobre 2026), pour un coureur qui court déjà régulièrement. Elles ne servent que de point de départ : chaque course peut avoir sa propre durée (§ 5.3). Des ajustements pourront suivre.
 
 | Format | Semaines | Nature de la valeur |
 | --- | --- | --- |
@@ -216,13 +219,14 @@ Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
 
 ## 9. Questions ouvertes
 
-- [ ] **Durées de prépa par format** : valeurs du § 5.4 à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking et Triathlon.
-- [ ] **Semaine de récupération après la course** : une semaine de récupération après le jour J, comptée comme Deload ?
-- [ ] **Vue Année sur « six mois »** : la vue affiche douze mois ; faut-il aussi une vue de six mois, comme dans l'idée de zoom ?
+- [x] **Durées de prépa par format** : valeurs du § 5.4 validées (28 octobre 2026), à ajuster ensuite.
+- [ ] **Durées à fournir** pour Trail découverte, Course en heure, Marche, Fast hiking et Triathlon (aucune valeur publiée trouvée).
+- [x] **Semaine de récupération après la course** : oui, facultative par course, une semaine Deload hors durée du plan (retenu le 28 octobre 2026 ; à construire, évolution de la base).
+- [x] **Vue Année sur « six mois »** : non, douze mois suffisent (retenu le 28 octobre 2026).
 - [x] **Couleurs** des quatre familles de course et des quatre phases : fixées dans le document de design (§ 10, 27 octobre 2026).
 - [x] **Semaine dans deux plans** : le plan de la course confirmée la plus proche l'emporte (retenu le 27 octobre 2026).
-- [ ] **Objectif principal** : plus marqué que les autres courses sur la vue Année ?
-- [ ] **Séances** : durée, distance, D+ et ressenti facultatifs plus tard ?
+- [x] **Objectif principal** : pas plus marqué que les autres courses sur la vue Année (retenu le 28 octobre 2026).
+- [x] **Séances** : durée, distance, D+ et ressenti facultatifs, plus tard, avec l'import des séances depuis une application (retenu le 28 octobre 2026).
 
 ## 10. Contrôles
 

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 28 oct. 2026 | Calendrier | Questions ouvertes tranchées : durées de prépa du § 5.4 validées (à ajuster ; cinq formats restent à fournir) ; semaine de récupération après la course facultative par course, Deload hors durée du plan (à construire) ; pas de vue de six mois ; objectif principal pas plus marqué ; détails d'une séance (durée, distance, D+, ressenti) plus tard avec l'import (Calendrier 0.11). |
 | 28 oct. 2026 | Préparation | Date précise d'une course changée : les phases réglées à la main suivent la course et gardent leur numéro de semaine du plan (Objectif 0.28, Calendrier 0.10). |
 | 28 oct. 2026 | Préparation | Date approximative : le plan vise le 1er du mois, mentionné dans le bloc Préparation du formulaire et la rubrique de la page de la course ; date précise saisie (case décochée) : plan recalculé sur elle, phases réglées à la main remises aux règles, durée gardée (Objectif 0.27, Calendrier 0.9). |
 | 28 oct. 2026 | Formulaires | « Paramétrer le plan » aussi pour une nouvelle course : le plan suit la date, le format et le statut saisis (bouton grisé tant qu'il manque la date ou le format, ou avec une date approximative) ; depuis le formulaire, la fenêtre du plan « Valide » et tout s'enregistre avec la course, nouvelle ou existante (Objectif 0.26, Calendrier 0.8). |
