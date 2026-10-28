@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.14 · 27 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.15 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -22,21 +22,21 @@ Affichées par défaut, de gauche à droite :
 | 5 | Distance | Distance officielle, en km | Nombre |
 | 6 | D+ | Dénivelé positif officiel, en m | Nombre |
 | 7 | Temps | Temps réalisé | Durée |
-| 8 | Allure | Allure moyenne, par km | Durée |
+| 8 | Allure moyenne | Allure moyenne, par km | Durée |
 
 Facultatives, affichées à la demande depuis le bouton « Colonnes + » (§ 9) :
 
 | # | Colonne | Contenu | Saisie |
 | --- | --- | --- | --- |
-| 9 | Vitesse | Vitesse moyenne, en km/h | Nombre |
+| 9 | Vitesse | Vitesse moyenne, en km/h, tirée de l'allure moyenne | Nombre, calculé |
 | 10 | Classement | Place au classement général | Nombre |
 | 11 | Classement catégorie | Place dans sa catégorie d'âge | Nombre |
 | 12 | Classement sexe | Place parmi les coureurs du même sexe | Nombre |
 | 13 | Distance montre | Distance mesurée par la montre | Nombre |
 | 14 | D+ montre | Dénivelé mesuré par la montre | Nombre |
 | 15 | Temps montre | Durée enregistrée par la montre | Durée |
-| 16 | Allure montre | Allure moyenne affichée par la montre | Durée |
-| 17 | Vitesse montre | Vitesse moyenne affichée par la montre | Nombre |
+| 16 | Allure moyenne montre | Allure moyenne affichée par la montre | Durée |
+| 17 | Vitesse montre | Tirée de l'allure moyenne montre | Nombre, calculé |
 | 18 | FC moyenne | Fréquence cardiaque moyenne, en bpm | Nombre |
 
 Chaque classement peut porter un effectif, facultatif : le nombre de classés, quand il est connu.
@@ -142,16 +142,18 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 - **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre un formulaire vide.
 - **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre le même formulaire, rempli. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
-- **Formulaire**, en panneau par-dessus la page, en six blocs ; Préparation, Dossard, Classements et Montre sont repliés à l'ouverture d'un formulaire vide, et le curseur est dans le champ Course :
+- **Formulaire**, en panneau par-dessus la page, en quatre blocs, limité à ce qu'il faut pour une course courue ; Classements et Montre sont repliés à l'ouverture d'un formulaire vide, et le curseur est dans le champ Course :
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Course et parcours ; date (seule sur sa ligne) ; type et format ; distance et D+ ; rôle — les champs communs dans le même ordre que le formulaire d'Objectif |
-| Préparation | Objectif (normé : 02:45:00, Finisher, Sub 3h) et Précisions (100 caractères au plus), comme dans le formulaire d'Objectif |
-| Dossard | Numéro de dossard, comme dans le formulaire d'Objectif |
-| Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure, vitesse |
+| Course | Course et parcours ; date (seule sur sa ligne) ; type et format ; distance et D+ ; numéro de dossard, dessous, à gauche — les champs communs dans le même ordre que le formulaire d'Objectif |
+| Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure moyenne |
 | Classements | Place et effectif : général, catégorie, sexe |
-| Montre | Distance, D+, temps, allure, vitesse, FC moyenne |
+| Montre | Distance, D+, temps, allure moyenne, FC moyenne |
+
+- **Ni rôle, ni objectif, ni précisions** dans ce formulaire : ce sont des données de préparation, saisies dans Objectif ; une course marquée courue les garde.
+- **Non terminée (DNF)** : cochée, elle vide et grise le temps et l'allure moyenne ; la course est rangée sans temps ni allure.
+- **Vitesse** : plus saisie ; à l'enregistrement, elle est calculée depuis l'allure moyenne (3 600 ÷ allure, en km/h, deux décimales) et rangée. Même règle pour la vitesse montre. Une course qui n'avait qu'une vitesse reçoit son allure moyenne à l'ouverture du formulaire, pour ne rien perdre.
 
 - **Obligatoires** : date, course, type et format. Les autres champs, parcours compris, peuvent rester vides.
 - **Exemples** : chaque champ à saisir montre, en discret, un exemple du format attendu (« ex. Forez Trails », « ex. 24,4 », « ex. 49:18 ou 4918 ») ; il disparaît dès qu'on écrit.
@@ -159,11 +161,11 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
   - seuls les formats du type choisi sont proposés ; pour un trail, celui qui correspond à la distance (§ 3) est choisi d'office, et reste modifiable ;
   - nombres positifs ; date du jour ou passée ;
   - durées : `49:18`, `1:56:05`, `01:56:05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
-  - allure ou vitesse : l'une suffit, l'autre se calcule à l'affichage (§ 4).
+  - allure moyenne : la vitesse s'en déduit (§ 4).
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
 - **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler**, ou le bouton « × » en haut du formulaire (toujours visible), ferme sans rien changer.
 - **Supprimer** : seulement dans le formulaire d'une course existante, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
-- **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire (modifiable dans le formulaire).
+- **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire (par défaut, non affiché dans ce formulaire).
 - **Site partagé en lecture seule** : ni bouton d'ajout, ni crayon, ni ouverture au toucher ; le tableau se consulte seulement.
 - **Depuis la page Objectif** (avec ce module) : cocher une course comme faite ouvre le même formulaire, pré-rempli de ce que la page Objectif connaît ; à l'enregistrement, la course passe à l'état Courue et rejoint le Palmarès.
 
@@ -177,7 +179,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 | Distance | Kilomètres, une décimale | 21,1 km |
 | D+ | Mètres | 932 m |
 | Temps | Toujours heures:minutes:secondes, sur deux chiffres chacune | 00:49:18 · 01:56:05 |
-| Allure | Minutes:secondes par kilomètre | 5:24 /km |
+| Allure moyenne | Minutes:secondes par kilomètre | 5:24 /km |
 | Vitesse | Kilomètres par heure, une décimale | 11,1 km/h |
 | Classement | Place, suivie de l'effectif quand il est connu ; première place « 1re » pour une coureuse (sexe renseigné dans le Profil), « 1er » sinon | 1 951e · 476e / 873 · 1re |
 | FC | Battements par minute | 150 bpm |
@@ -192,7 +194,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 Jeu d'essai de sept courses :
 
-| Date | Course | Type | Format | Distance | D+ | Temps | Allure |
+| Date | Course | Type | Format | Distance | D+ | Temps | Allure moyenne |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 30 mars 2025 | 10 km de Montauban | Course sur route | 10 km | 10,1 km | 24 m | 00:51:46 | 5:08 /km |
 | 13 sept. 2025 | Épicurienne Trail | Trail | Trail découverte | 10,7 km | 199 m | 01:04:24 | 6:00 /km |
