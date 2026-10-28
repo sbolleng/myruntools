@@ -7,15 +7,14 @@
 .cal-vue { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.6rem; }
 .cal-legende { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-size: 0.72rem; color: var(--muted); }
 .cal-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
-.cal-k { display: inline-block; width: 0.9rem; height: 0.55rem; border-radius: 2px; background: color-mix(in srgb, var(--bg) 55%, var(--surface)); }
+.cal-k { display: inline-block; width: 0.9rem; height: 0.55rem; border-radius: 2px; background: var(--border); }
 .cal-k.c-route-v { background: var(--route); }
 .cal-k.c-trail-v { background: var(--trail); }
-.cal-k.c-route-n { background: color-mix(in srgb, var(--route) 30%, var(--surface)); box-shadow: inset 0 0 0 1px var(--route); }
-.cal-k.c-trail-n { background: color-mix(in srgb, var(--trail) 30%, var(--surface)); box-shadow: inset 0 0 0 1px var(--trail); }
+.cal-k.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
+.cal-k.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-k.courue { background: var(--muted); }
-.cal-k-trait { position: relative; background: var(--surface); }
-.cal-k-trait::after { content: ''; position: absolute; left: 1px; top: 50%; width: 55%; height: 4px; margin-top: -2px; background: var(--text); }
-.cal-k-auj { background: var(--surface); outline: 1px solid var(--text); outline-offset: -1px; }
+.cal-k-trait { width: 3px; height: 0.9rem; border-radius: 2px; background: var(--text); }
+.cal-k-auj { background: var(--border); outline: 1px solid var(--text); outline-offset: -1px; }
 
 .cal-blocs { display: flex; flex-direction: column; gap: 1.2rem; }
 .cal-bloc { display: grid; grid-template-columns: 1.4rem repeat(var(--n), minmax(0, 1fr)); gap: 1px 3px; }
@@ -23,24 +22,28 @@
 .cal-mois i { font-style: normal; color: var(--muted); }
 .cal-n { font-family: 'Space Mono', monospace; font-size: 0.5rem; line-height: 0.8rem; color: var(--muted); text-align: right; padding-right: 0.3rem; }
 
-.cal-j { position: relative; display: block; height: 0.8rem; overflow: hidden; background: color-mix(in srgb, var(--bg) 55%, var(--surface)); border-radius: 2px; }
-.cal-j.we { background: color-mix(in srgb, var(--bg) 25%, var(--surface)); }
+/* Jours : un seul ton, nettement plus clair que le cadre ; un jour passé n'a plus de fond. */
+.cal-j { position: relative; display: block; height: 0.8rem; background: var(--border); border-radius: 2px; }
 .cal-j.vide { visibility: hidden; }
-.cal-j.passe { opacity: 0.45; }
-.cal-j.auj { outline: 1px solid var(--text); outline-offset: -1px; opacity: 1; }
-.cal-nom { position: absolute; left: 0.25rem; right: 0.25rem; top: 0; font-size: 0.58rem; line-height: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--bg); }
+.cal-j.passe { background: none; }
+.cal-j.auj { outline: 1px solid var(--text); outline-offset: -1px; }
+.cal-nom { position: absolute; left: calc(0.25rem + var(--couloirs, 0) * 5px); right: 0.25rem; top: 0; font-size: 0.58rem; line-height: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--bg); }
 
 /* Quatre couleurs : pleine pour une course validée, atténuée et cadrée pour une course non validée. */
 .cal-j.c-route-v, .cal-trait.c-route-v { background: var(--route); }
 .cal-j.c-trail-v, .cal-trait.c-trail-v { background: var(--trail); }
-.cal-j.c-route-n { background: color-mix(in srgb, var(--route) 30%, var(--surface)); box-shadow: inset 0 0 0 1px var(--route); }
-.cal-j.c-trail-n { background: color-mix(in srgb, var(--trail) 30%, var(--surface)); box-shadow: inset 0 0 0 1px var(--trail); }
+.cal-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
+.cal-j.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-j.c-route-n .cal-nom, .cal-j.c-trail-n .cal-nom { color: var(--text); }
 .cal-j.courue { background: var(--muted); }
 
-/* Trait de début de prépa : posé sur le premier jour, de la couleur de la course. */
-.cal-traits { position: absolute; left: 0; right: 0; top: 50%; display: flex; gap: 2px; padding: 0 2px; transform: translateY(-50%); }
-.cal-trait { flex: 0 1 45%; height: 4px; border-radius: 1px; box-shadow: 0 0 0 1px var(--bg); }
+/* Trait de prépa : vertical, à gauche des cases, du premier jour de la prépa jusqu'à la course, de la couleur de la course.
+   Il franchit l'écart d'un pixel entre deux jours ; un couloir par prépa qui en chevauche une autre. */
+.cal-traits { position: absolute; left: 2px; top: 0; bottom: -1px; pointer-events: none; }
+.cal-trait { position: absolute; top: 0; bottom: 0; left: calc(var(--k) * 5px); width: 3px; }
+.cal-trait.debut { top: 1px; border-radius: 2px 2px 0 0; }
+.cal-trait.fin { bottom: -1px; }
+.cal-trait.c-route-n, .cal-trait.c-trail-n { opacity: 0.6; }
 .cal-trait.c-route-n { background: var(--route); }
 .cal-trait.c-trail-n { background: var(--trail); }
 

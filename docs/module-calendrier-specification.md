@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.6 · 27 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course
+Version 0.7 · 27 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course
 
 ## 1. Rôle
 
@@ -50,7 +50,7 @@ Téléphone : trois colonnes de mois au lieu de six, donc quatre blocs empilés,
 | 4 | Numéro du jour, de 1 à 31 | « 15 » | Marge de gauche |
 | 5 | Case d'un jour : la plus fine possible, une ligne par jour | | Grille |
 | 6 | Jour de course, rempli de la couleur de la course | Trail validée | Case du jour |
-| 7 | Trait de début de prépa, de la couleur de la course | Début de la prépa | Case du premier jour |
+| 7 | Trait de prépa : vertical, de la couleur de la course, du premier jour de la prépa jusqu'à la veille de la course | Préparation | À gauche des cases, d'un jour à l'autre et d'un mois au suivant |
 | 8 | Second bloc de six mois, sous le premier | avr. à sept. | Sous la grille |
 
 ### 3.2 Règles
@@ -60,7 +60,8 @@ Téléphone : trois colonnes de mois au lieu de six, donc quatre blocs empilés,
 - **Nom de la course** écrit dans sa case, sur une ligne, coupé s'il ne tient pas.
 - **Validée** : statut Confirmée. **Non validée** : statut Option. Les courses « À surveiller » et abandonnées ne s'affichent pas. Une course courue s'affiche grisée, sans trait de prépa.
 - **Route ou trail** : le type de la course, déduit de son format. Tout ce qui n'est pas trail est dans la famille route.
-- **Trait de prépa** : sur le seul premier jour de la prépa, un trait de la couleur de la course. Si la prépa a commencé avant la période affichée, le trait se pose sur le premier jour affiché, et l'infobulle donne la vraie date de début. Deux traits dans la même période signalent deux préparations qui se chevauchent, sans plus de dessin.
+- **Trait de prépa** : un trait vertical, de la couleur de la course, à gauche des cases ; il part du premier jour de la prépa et descend jour après jour, d'un mois au suivant, jusqu'à la case de la course. Deux prépas qui se chevauchent tracent deux traits côte à côte : le chevauchement se lit d'un coup d'œil. Une course non validée a un trait atténué. Si la prépa a commencé avant la période affichée, le trait part du premier jour affiché, et l'infobulle de ce jour donne la vraie date de début.
+- **Jours** : un seul ton, nettement plus clair que le cadre ; un jour passé n'a plus de fond ; aucune nuance pour le week-end.
 - **Date au mois seulement** : la case est au 1er du mois, avec la nuance d'une course non validée.
 - **Toucher un jour** ouvre la vue 4 semaines, à partir du lundi de la semaine de ce jour ; **toucher une course** ouvre la rubrique Préparation de sa page (§ 5). Sur ordinateur, une infobulle donne la date, la course et la phase.
 
@@ -230,7 +231,7 @@ Résultats attendus, vue Année :
 - Douze mois, d'octobre 2026 à septembre 2027 : premier bloc oct. à mars, second bloc avr. à sept. ; les 1 à 19 octobre sont atténués.
 - Courses affichées : Semi de San Sebastián (4 oct., route, grisée, sans trait), Trail du Lac (15 nov.), Corrida de Noël (13 déc., route), Trail des Gorges (7 mars), Trail des Cimes (30 mai), Ultra du Plateau (26 juin), Trail de la Forêt (1er juillet), Trail des Crêtes (28 août). Ni Cross des Collines (abandonnée) ni Trail des Sommets (à surveiller).
 - Couleurs : Corrida de Noël en route validée ; Trail du Lac, Trail des Gorges et Trail des Crêtes en trail validée ; Trail des Cimes, Ultra du Plateau et Trail de la Forêt en trail non validée.
-- Traits de prépa : Trail du Lac sur le 1er oct. (la prépa a commencé le 24 août, avant la période ; l'infobulle le dit), Corrida de Noël le 19 oct., Trail des Gorges le 16 nov., Trail des Cimes le 8 févr., Ultra du Plateau le 8 mars, Trail de la Forêt le 12 avr., Trail des Crêtes le 10 mai. Aucun trait sur le Semi de San Sebastián (courue).
+- Traits de prépa, verticaux, du premier jour jusqu'à la veille de la course : Trail du Lac depuis le 1er oct. (la prépa a commencé le 24 août, avant la période ; l'infobulle du 1er oct. le dit), Corrida de Noël du 19 oct. au 12 déc. (55 jours, sans interruption, en deux colonnes), Trail des Gorges depuis le 16 nov., Trail des Cimes depuis le 8 févr., Ultra du Plateau depuis le 8 mars, Trail de la Forêt depuis le 12 avr., Trail des Crêtes depuis le 10 mai. Aucun trait pour le Semi de San Sebastián (courue). Là où deux prépas se chevauchent, deux traits côte à côte.
 - Chevauchements lisibles : les prépas de la Corrida de Noël et du Trail du Lac (19 oct. au 15 nov.), de la Corrida de Noël et du Trail des Gorges (16 nov. au 13 déc.), puis, de février à août 2027, celles du Trail des Gorges, des Cimes, de l'Ultra du Plateau, de la Forêt et des Crêtes.
 - Une option dont la date est passée (essai : 10 oct. 2026) n'apparaît pas.
 - Lot 1 : aucun jour ni aucune course ne réagit au toucher ; l'option « 4 semaines » est grisée.

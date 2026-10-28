@@ -52,11 +52,20 @@
       const debut = iso(mois[0]);
       const fin = iso(new Date(mois[11].getFullYear(), mois[11].getMonth() + 1, 0));
       const liste = visibles(ctx.courses, debut, fin, aujourdhui);
-      // Début de préparation avant la fenêtre : le trait se pose sur le premier jour affiché.
-      const prepas = liste.filter(c => c.debutPrepa && c.debutPrepa <= fin).map(c => Object.assign({ jourTrait: c.debutPrepa < debut ? debut : c.debutPrepa }, c));
+      // Trait de prépa : vertical, du premier jour de la prépa jusqu'à la course ; commencée avant la fenêtre, il part du premier jour affiché.
+      // Deux prépas qui se chevauchent prennent deux couloirs, côte à côte.
+      const prepas = liste.filter(c => c.debutPrepa && c.debutPrepa <= fin).map(c => Object.assign({ depart: c.debutPrepa < debut ? debut : c.debutPrepa }, c))
+        .sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : 0));
+      const finCouloir = [];
+      prepas.forEach(x => {
+        let k = finCouloir.findIndex(f => f < x.depart);
+        if (k < 0) { k = finCouloir.length; finCouloir.push(''); }
+        finCouloir[k] = x.date;
+        x.couloir = k;
+      });
 
       function bloc(colonnes) {
-        let h = '<div class="cal-bloc" style="--n:' + colonnes.length + '"><span></span>';
+        let h = '<div class="cal-bloc" style="--n:' + colonnes.length + ';--couloirs:' + finCouloir.length + '"><span></span>';
         colonnes.forEach(m => {
           const an = m.getMonth() === 0 || m.getTime() === mois[0].getTime();
           h += '<b class="cal-mois">' + MOIS[m.getMonth()] + (an ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>';
@@ -68,7 +77,6 @@
             if (dd > new Date(y, mm + 1, 0).getDate()) { h += '<span class="cal-j vide"></span>'; return; }
             const jour = iso(new Date(y, mm, dd)), d = new Date(y, mm, dd);
             const cls = ['cal-j'], tip = [longue(jour)];
-            if (d.getDay() === 0 || d.getDay() === 6) cls.push('we');
             if (jour < aujourdhui) cls.push('passe');
             if (jour === aujourdhui) { cls.push('auj'); tip.push("aujourd'hui"); }
             const c = liste.find(x => x.date === jour);
@@ -79,10 +87,13 @@
               contenu += '<span class="cal-nom">' + esc(c.nom) + '</span>';
               if (!c.courue) cible = ' data-course="' + esc(c.id) + '"';
             }
-            const traits = prepas.filter(x => x.jourTrait === jour);
-            if (traits.length) {
-              contenu += '<span class="cal-traits">' + traits.map(x => '<i class="cal-trait c-' + x.famille + (x.validee ? '-v' : '-n') + '"></i>').join('') + '</span>';
-              traits.forEach(x => tip.push('début de la prépa : ' + x.nom + ' (' + x.semaines + ' semaines' + (x.debutPrepa < debut ? ', commencée le ' + courte(x.debutPrepa) : '') + ')'));
+            const enPrepa = prepas.filter(x => jour >= x.depart && jour < x.date); // jusqu'à la veille : le trait aboutit sur la case de la course
+            if (enPrepa.length) {
+              contenu += '<span class="cal-traits">' + enPrepa.map(x => '<i class="cal-trait c-' + x.famille + (x.validee ? '-v' : '-n') +
+                (jour === x.depart ? ' debut' : '') + (jour === P.addDays(x.date, -1) ? ' fin' : '') + '" style="--k:' + x.couloir + '"></i>').join('') + '</span>';
+              enPrepa.forEach(x => tip.push(jour === x.depart
+                ? 'début de la prépa : ' + x.nom + ' (' + x.semaines + ' semaines' + (x.debutPrepa < debut ? ', commencée le ' + courte(x.debutPrepa) : '') + ')'
+                : 'prépa : ' + x.nom));
             }
             h += '<span class="' + cls.join(' ') + '" data-jour="' + jour + '"' + cible + ' title="' + esc(tip.join(' · ')) + '">' + contenu + '</span>';
           });
@@ -95,7 +106,7 @@
       for (let i = 0; i < 12; i += taille) blocs += bloc(mois.slice(i, i + taille));
       root.innerHTML = '<div class="cal-cadre"><div class="cal-haut">' + bandeau('annee') +
         '<div class="cal-legende">' + cle('c-route-v', 'Route validée') + cle('c-route-n', 'Route non validée') + cle('c-trail-v', 'Trail validée') +
-        cle('c-trail-n', 'Trail non validée') + cle('cal-k-trait', 'Début de prépa') + cle('courue', 'Courue') + cle('cal-k-auj', "Aujourd'hui") + '</div></div>' +
+        cle('c-trail-n', 'Trail non validée') + cle('cal-k-trait', 'Préparation') + cle('courue', 'Courue') + cle('cal-k-auj', "Aujourd'hui") + '</div></div>' +
         '<div class="cal-blocs">' + blocs + '</div></div>';
     }
 

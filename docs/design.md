@@ -1,6 +1,6 @@
 # Design
 
-Version 0.25 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.26 · 27 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -162,9 +162,9 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Course validée** : case pleine de la couleur de la famille, nom en Fond.
 - **Course non validée** : couleur de la famille à 30 % sur Surface, cadre de 1 px de la couleur pleine, nom en Texte.
 - **Course courue** : case en Texte discret, nom en Fond.
-- **Trait de début de prépa** : 4 px de haut, 45 % de la largeur de la case, de la couleur pleine de la famille, cerclé de 1 px de Fond pour rester visible sur une case de course.
+- **Trait de prépa** : vertical, 3 px de large, à gauche des cases, de la couleur pleine de la famille (à 60 % pour une course non validée) ; il franchit l'écart d'un pixel entre deux jours ; un couloir de 5 px par prépa qui en chevauche une autre ; le nom de la course est décalé d'autant.
 - **Cadre** : toute la page dans un cadre (Surface), comme les autres pages ; page sans en-tête (barre fine « Cap sur … »).
-- **Jours** : une ligne de 0,8 rem (0,72 rem sur téléphone), 1 px entre deux jours et 3 px entre deux mois ; fond entre Fond et Surface, week-end plus clair ; jours passés à 45 % d'opacité ; aujourd'hui cerclé de 1 px de Texte.
+- **Jours** : une ligne de 0,8 rem (0,72 rem sur téléphone), 1 px entre deux jours et 3 px entre deux mois ; un seul ton, Bordure, nettement plus clair que le cadre (Surface) ; jour passé sans fond ; aucune nuance pour le week-end ; aujourd'hui cerclé de 1 px de Texte. Course non validée : sa couleur à 35 % sur Bordure. Dans la vue 4 semaines, mêmes règles : jours d'un seul ton, jour passé sans fond, cerclé d'un filet.
 - **Texte** : nom du mois en Space Mono 0,62 rem, Texte discret ; numéro du jour en Space Mono 0,5 rem, Texte discret ; nom de la course en Space Grotesk 0,58 rem (0,52 rem sur téléphone).
 
 **Vue 4 semaines et rubrique Préparation (page d'une course)**
