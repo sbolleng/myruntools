@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.8 · 28 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course, plan réglable dans le formulaire d'une course
+Version 0.9 · 28 octobre 2026 · [Retour au sommaire](README.md) · Préparation déplacée sur la page d'une course, plan réglable dans le formulaire d'une course
 
 ## 1. Rôle
 
@@ -114,6 +114,8 @@ Téléphone : un jour par ligne dans chaque semaine, le trait vertical à gauche
 La préparation d'une course est une **rubrique de la page de la course** (Objectif, § 3.4), pas une vue du Calendrier. Elle reprend le principe de la vue 4 semaines, du premier jour du plan au jour J. Les phases se calculent d'après la date de course par des **règles générales**, puis se modifient à la main.
 
 **Durée** : un nombre de semaines complètes lundi-dimanche, la dernière étant la semaine du jour J. Valeur par défaut propre au **format** de la course ; une valeur propre à la course la remplace. Valeurs par défaut proposées au § 5.4.
+
+**Date approximative** (mois seulement) : le plan vise le 1er du mois, et la rubrique le dit (« Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. »). Quand la date précise est saisie (case décochée), le plan se recalcule sur elle : les phases réglées à la main sont oubliées, les règles générales s'appliquent ; la durée reste.
 
 **Règles de phases**, appliquées dans cet ordre :
 
