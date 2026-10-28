@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 28 oct. 2026 | Préparation | Date précise d'une course changée : les phases réglées à la main suivent la course et gardent leur numéro de semaine du plan (Objectif 0.28, Calendrier 0.10). |
 | 28 oct. 2026 | Préparation | Date approximative : le plan vise le 1er du mois, mentionné dans le bloc Préparation du formulaire et la rubrique de la page de la course ; date précise saisie (case décochée) : plan recalculé sur elle, phases réglées à la main remises aux règles, durée gardée (Objectif 0.27, Calendrier 0.9). |
 | 28 oct. 2026 | Formulaires | « Paramétrer le plan » aussi pour une nouvelle course : le plan suit la date, le format et le statut saisis (bouton grisé tant qu'il manque la date ou le format, ou avec une date approximative) ; depuis le formulaire, la fenêtre du plan « Valide » et tout s'enregistre avec la course, nouvelle ou existante (Objectif 0.26, Calendrier 0.8). |
 | 28 oct. 2026 | Formulaires | Objectif : le bloc Préparation commence par le plan de la course (durée et dates, frise des phases, « Paramétrer le plan » par-dessus le formulaire) ; nouvelle course : « Le plan se paramètre une fois la course enregistrée. » Palmarès : « Effectif catégorie », cases des classements alignées (Objectif 0.25, Palmarès 1.18). |
