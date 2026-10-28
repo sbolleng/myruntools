@@ -85,34 +85,34 @@ Dans l'ordre :
 
 1. [ ] **Objectif** :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
-   - À revoir après le premier lot : pouvoir choisir la course de l'en-tête depuis la page Objectif, ou seulement dans les Préférences (`course_cap`).
-2. [ ] **Calendrier** : [spécification 0.5](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est désormais une rubrique de sa page (Objectif, § 3.4). Reste :
+   - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
+   - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
+2. [ ] **Calendrier** : [spécification 0.7](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases).
    - **Durées de prépa par format** : valeurs proposées d'après des plans publiés (§ 5.4), à valider ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Décisions en attente** (§ 9) : semaine de récupération après la course ; vue de six mois ; objectif principal plus marqué sur la vue Année ; détails d'une séance (durée, distance, D+, ressenti).
    - **Plus tard** : import des séances depuis une application ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
-3. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
-4. [ ] **Profil et Matériel** :
-   - Profil : état civil, poids, taille, pointure.
-   - Matériel : chaussures et leur usure.
-5. [ ] **Thèmes** : supprimer Accent 2, presque identique à l'Accent ; les repères (compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire) passent en Accent ou en neutre. Plan de page et maquette des trois thèmes d'abord.
-6. [ ] **Nutrition** : créer la page : spécification (périmètre, repères glucides et eau par heure : voir la question ouverte « Ravitaillement en course »), puis construction.
-7. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
-8. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
-9. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
-10. [ ] **En un coup d'œil** :
+3. [ ] **Banc d'essai** : corriger l'échec intermittent « ERR_ABORTED » à l'ouverture d'une page (navigation interrompue, sans doute par le renvoi vers la page de démarrage) ; il passe en relançant.
+4. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
+5. [ ] **Profil** : état civil, poids, taille, pointure.
+6. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
+7. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
+8. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
+9. [ ] **Calculatrice** (module) : allure, vitesse, temps de passage, VMA, km-effort, pente ; liste des calculs à valider ; peut sortir tôt, car elle ne dépend d'aucune donnée.
+10. [ ] **Thèmes** : supprimer Accent 2, presque identique à l'Accent ; les repères (compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire) passent en Accent ou en neutre. Plan de page et maquette des trois thèmes d'abord.
+11. [ ] **Nutrition** : créer la page : spécification (périmètre ; repères glucides et eau par heure partagés avec la section stratégie de course d'Objectif), puis construction.
+12. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
+13. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
+14. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
+15. [ ] **En un coup d'œil** :
    - Pense-bête : rappels tirés des courses et notes perso (table des notes, évolution à prévoir).
    - Bilan nutrition : avec le module Nutrition.
    - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
+16. [ ] **Prévoir un profil piste ?**
 
 ## Questions ouvertes
 
-- [ ] **Piste** : couverte dès le lancement, ou plus tard faute de profil pilote ?
-- [ ] **Calculatrice** : liste des calculs à valider ; livraison anticipée possible, car elle ne dépend d'aucune donnée.
-- [ ] **Ravitaillement en course** : repères de référence (glucides et eau par heure).
-- [ ] **Matériel** et **Logistique** : périmètre de chaque module.
-- [ ] **Renforcement musculaire** : module dédié, ou intégré à Profil ou à Cette semaine ?
-- [ ] **Types de course** proposés dans l'en-tête : Trail court, Trail, Trail long, Ultra, Marathon, Semi-marathon, 10 km, Piste. Liste complète ?
+- [ ] **Types et formats de course** : la question « types proposés dans l'en-tête » ne correspond plus au site (l'en-tête affiche le cap, pas une liste de types) ; la liste à trancher est celle des types et formats (Palmarès, § 3). Proposition du 28 oct. 2026 en attente de réponse.
 
 ## Idées de modules
 
