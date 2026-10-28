@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.19 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.20 · 28 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -165,7 +165,8 @@ Un utilisateur peut montrer son site à un autre, par exemple pour avoir son avi
 
 - « Sites partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son site ».
 - Dans ce mode, sur toutes les pages, un bandeau sous le menu : « Lecture seule · site de Prénom », avec « Revenir à mon site ».
-- On voit son en-tête (cap, D'ici là, prochaine course), son menu, son thème et ses modules ; rien ne s'y ajoute, ne s'y modifie ni ne s'y supprime.
+- On voit son en-tête (cap, D'ici là, prochaine course), son menu, son thème et ses modules ; rien ne s'y ajoute, ne s'y modifie ni ne s'y supprime. Son thème s'applique sur toutes les pages, à la place de celui du visiteur, y compris en passant d'une page à l'autre.
+- Pas d'engrenage (Préférences) dans l'en-tête ni dans la barre fine : on en sort par « Revenir à mon site ».
 - Le mode est retenu sur l'appareil jusqu'à « Revenir à mon site ». Si l'accord est retiré, le site partagé disparaît de la liste et l'on revient à son propre site.
 
 **Ce qui est partagé** : les courses et leurs circuits, les préférences (thème, menu, cap) et, du profil, seulement le prénom, le nom et le sexe. Jamais les données de santé (poids, taille, pointure, fréquences cardiaques, VMA, VO2 max, date de naissance) ni l'équipement.

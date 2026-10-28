@@ -63,6 +63,10 @@
       return;
     }
     // Le thème des préférences s'applique.
+    // Pas sur un site partagé : c'est alors le thème du propriétaire qui compte (donnees.js).
+    let vue = null;
+    try { vue = localStorage.getItem('mrt-vue'); } catch (e) { /* stockage indisponible */ }
+    if (s && vue && vue !== s.id) return;
     if (s && s.preferences && s.preferences.theme && window.appliquerTheme) window.appliquerTheme(s.preferences.theme);
   });
   // Filet : une page ne reste jamais masquée si un chargement échoue.

@@ -1201,6 +1201,39 @@ const CONTROLES = {
     return pb;
   },
 
+  // Spécification générale, thèmes : chaque page prend le thème de l'utilisateur, cadres compris.
+  async themes(nav, db0) {
+    const pb = [];
+    const db = JSON.parse(JSON.stringify(db0));
+    db.preferences[0].theme = 'vert-rose';
+    for (const [page, sel] of [['index.html', '.ac-bloc'], ['calendrier.html', '.cal-cadre'], ['calendrier.html#semaines', '.cal-cadre'], ['palmares.html', '.pv2-card'], ['objectif.html', '.ob-carte']]) {
+      const { p, ctx } = await ouvrir(nav, page, 1200, db, {}, PARIS);
+      await p.waitForSelector(sel).catch(() => {});
+      const r = await p.evaluate(s => {
+        const e = document.querySelector(s);
+        return { classe: document.documentElement.className.split(' ').filter(c => c.startsWith('t-')), fond: getComputedStyle(document.body).backgroundColor, cadre: e ? getComputedStyle(e).backgroundColor : null };
+      }, sel);
+      pb.push(egal({ classe: ['t-vert-rose'], fond: 'rgb(14, 29, 25)', cadre: 'rgb(24, 51, 46)' }, r, page + ' : thème Vert et rose'));
+      await ctx.close();
+    }
+    // Site partagé : le thème du propriétaire (Vert et rose), pas celui du visiteur (Bleu et orange), même en passant
+    // d'une page à l'autre (en-tête gardé pour la visite) ; pas d'engrenage vers les Préférences.
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = JSON.parse(JSON.stringify(db0));
+    partage.preferences[0].theme = 'bleu-orange';
+    partage.courses = partage.courses.map(c => Object.assign({}, c, { utilisateur: autre }));
+    partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    partage.preferences.push({ utilisateur: autre, theme: 'vert-rose', course_cap: null, modules: null, palmares_groupe: false });
+    const { p, ctx } = await ouvrir(nav, 'objectif.html', 1200, partage, { 'mrt-vue': autre }, PARIS);
+    for (const page of ['objectif.html', 'index.html', 'calendrier.html', 'objectif.html']) {
+      await p.goto(RACINE + page); await p.waitForSelector('.mrt-nav'); await pause();
+      pb.push(egal({ classe: ['t-vert-rose'], engrenage: 0 }, await p.evaluate(() => ({ classe: document.documentElement.className.split(' ').filter(c => c.startsWith('t-')),
+        engrenage: document.querySelectorAll('.mrt-gear').length })), 'site partagé, ' + page + ' : thème du propriétaire, sans engrenage'));
+    }
+    await ctx.close();
+    return pb;
+  },
+
   // Spécification générale : la page s'affiche d'un seul coup, en-tête compris.
   async affichage(nav, db) {
     const pb = [];
