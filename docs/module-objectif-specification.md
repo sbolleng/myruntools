@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.30 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.31 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -276,6 +276,74 @@ Sur téléphone : le panneau passe en plein écran, une seule colonne, même ord
 - **Enregistrer** range la course et met à jour la page, en-tête compris ; **Annuler**, ou « × », ferme sans rien changer.
 - **Supprimer** : seulement dans le formulaire d'une course existante, après confirmation (« Supprimer cette course ? Cette action est définitive. »). Depuis la page de la course supprimée, retour à la feuille de route.
 
+### 3.8 Fiche d'une course, v2 (en essai, à valider)
+
+**Pourquoi** : aujourd'hui, consulter une course (feuille au bord transparent) et la modifier (formulaire en plein écran, par-dessus) n'ont ni la même forme ni les mêmes champs selon qu'on vient d'Objectif ou du Palmarès ; les fenêtres s'empilent et la croix ne dit pas ce qu'elle ferme. La v2 réunit tout dans **une seule feuille à deux modes** et **une seule fiche de champs**.
+
+**Essai** : la v2 vit dans ses propres fichiers (`modale-course-v2`, `fiche-course-v2`), la v1 (§ 3.4 et 3.7) reste celle de tous. Ouvrir une page du site avec `?essai=v2` active la v2 sur cet appareil (retenu sur l'appareil) ; un bandeau « Version d'essai · revenir à la v1 » la signale et permet d'en sortir (`?essai=v1` aussi). Mêmes données, mêmes champs en base : rien à changer dans Supabase. Validée, la v2 remplace la v1 et l'interrupteur disparaît ; refusée, ses fichiers sont supprimés.
+
+**Numéros** : ceux de la page d'une course (§ 3.4) précédés de C, ceux du formulaire (§ 3.7) précédés de F ; un élément nouveau prend le numéro suivant de sa série.
+
+#### Deux modes, une feuille
+
+| | Consultation | Édition |
+| --- | --- | --- |
+| Contenu | La page d'une course (§ 3.4) | La fiche de champs (ci-dessous) |
+| Barre du haut, fixe | Crayon (C5) puis croix (C1), à droite | « Annuler » (F24) à gauche, titre (F1) au centre, « Enregistrer » (F25) à droite |
+| Fermer | La croix, Échap, un toucher à côté, le retour du téléphone | Pas de croix : « Annuler » revient à la consultation (ou ferme, pour un ajout) ; s'il y a eu une saisie, « Abandonner les modifications ? » d'abord. Échap, un toucher à côté et le retour du téléphone font comme « Annuler » |
+| Forme | Ordinateur : fenêtre au gabarit des pages (896 px de contenu) ; téléphone : feuille qui monte du bas, bord transparent (§ 3.4) | La même : on bascule dans la même feuille, sans nouvelle couche |
+
+- **Le crayon (C5)** bascule la feuille en édition ; **Enregistrer (F25)** range la course et rebascule en consultation, mise à jour. Une course qui quitte la feuille de route (courue, à surveiller, supprimée) ferme la feuille.
+- **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la feuille de route, sinon la feuille se ferme (course courue ajoutée au Palmarès).
+- **Crayon d'une ligne du Palmarès** : la feuille en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
+- **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
+- **« Supprimer » (F23)** : en bas de la fiche, en lien rouge, après confirmation ; la feuille se ferme.
+- **« Paramétrer le plan » (F41)** reste la seule fenêtre par-dessus : réglage ponctuel, avec « Annuler » et « Valider », sans croix.
+
+```
+Téléphone · consultation                Téléphone · édition (même feuille)
+┌ bande transparente ───────────────┐   ┌ bande transparente ───────────────┐
+│╭─────────────────────────────────╮│   │╭─────────────────────────────────╮│
+││                    (C5) ✎ (C1) × ││   ││(F24) Annuler  (F1) Modifier   (F25)││
+││ PRÉPARATOIRE · ÉTAPE 2 SUR 14    ││   ││               la course  Enregistrer││
+││ (C3) Trail des 2 Baies ↗         ││   ││ ⌄ (F3) Course                    ││
+││ (C6) lieu · format · date        ││   ││   Course *  [                 ]  ││
+││ ┌ (C22) fiche ────────────────┐  ││   ││   …                              ││
+││ └─────────────────────────────┘  ││   ││ › (F15) Place dans le plan       ││
+││ (C24) ⌄ Préparation …            ││   ││ › …                              ││
+││ (C20) ← précédente  suivante (C21)│   ││ (F22) message                    ││
+│╰─────────────────────────────────╯│   ││ (F23) Supprimer                  ││
+└───────────────────────────────────┘   │╰─────────────────────────────────╯│
+                                        └───────────────────────────────────┘
+```
+
+Ordinateur : mêmes deux modes, même barre du haut ; la fiche garde ses deux colonnes de champs.
+
+#### Une seule fiche de champs
+
+Les mêmes blocs pour une course à venir et une course courue ; chaque champ a toujours la même place. L'état de la course choisit seulement les blocs montrés et leur ordre : **les blocs de l'état d'abord, ouverts ; puis les blocs communs ; puis, pour une course courue, ceux de la préparation, repliés mais modifiables**.
+
+| Bloc | À venir | Courue | Champs |
+| --- | --- | --- | --- |
+| (F3) Course | 1, ouvert | 1, ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement) ; heure, lieu ; type, format ; distance ; D+, D− ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
+| (F43) Résultat | — | 2, ouvert | Temps, DNF, allure moyenne |
+| (F44) Classements | — | 3, replié si vide | Général, catégorie, sexe : places et effectifs |
+| (F45) Montre | — | 4, replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
+| (F15) Place dans le plan | 2, ouvert | 8, replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
+| (F20) Préparation | 3 | 9, replié | À venir : plan (F39 à F42), objectif, précisions, rôle dans la préparation, stratégie ; courue : les mêmes textes, sans plan |
+| (F19) Dossard | 4 | 5, replié si vide | Inscrit, numéro, prix ; à venir seulement : ouverture des inscriptions, site d'inscription |
+| (F38) Logistique | 5 | 10, replié | Logistique |
+| (F21) Liens | 6 | 6, replié si vide | Site officiel, résultats en direct |
+
+Ce que la v2 change pour une course courue : son objectif, sa stratégie, sa logistique, son prix et ses liens, gardés en base, redeviennent visibles et modifiables ; le lien des résultats s'ajoute après coup.
+
+Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès (§ 10), inchangés.
+
+**Questions ouvertes (v2)**
+
+- [ ] Une course courue a-t-elle aussi sa consultation (toucher une ligne du Palmarès ouvre la feuille en consultation, crayon pour modifier) ? Proposé : plus tard, une fois la v2 validée.
+- [ ] Ordre des blocs d'une course courue : celui du tableau ci-dessus convient-il ?
+
 ## 4. Données d'une course
 
 | Groupe | Champs | Sert à |
@@ -466,3 +534,14 @@ Résultats attendus, formulaire en détail (écritures relues par le banc d'essa
 - Palmarès : le formulaire garde ses quatre blocs. Téléphone : le formulaire ne déborde pas.
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir ».
 - Trail du Lac passé (10 octobre 2026, Confirmée, À venir, jamais marquée courue) : première étape de la feuille de route, compteur « Course courue », bouton « Marquer comme courue » sur sa page ; l'en-tête garde « Cap sur Trail des Crêtes » et « 5 courses ». Une Option passée n'apparaît pas.
+
+Résultats attendus, fiche v2 (en essai, § 3.8) :
+
+- Sans `?essai=v2` : tout se comporte comme la v1 ci-dessus. Avec : bandeau « Version d'essai · revenir à la v1 » ; « revenir à la v1 » le retire et rend la v1.
+- Trail des Gorges, consultation puis crayon : la même feuille passe en édition, barre « Annuler · Modifier la course · Enregistrer », pas de croix, aucune autre fenêtre ouverte. Blocs dans l'ordre : Course, Place dans le plan, Préparation, Dossard (n° 1287 dedans), Logistique, Liens.
+- « Annuler » sans saisie : retour à la consultation, sans question ; après une saisie : « Abandonner les modifications ? ». « Enregistrer » : retour à la consultation, mise à jour.
+- « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
+- Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Résultat, Classements, Montre, Dossard, Liens, Place dans le plan (rôle seul), Préparation (sans plan), Logistique ; « Date approximative » absente.
+- Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
+- Téléphone (390 px) : édition dans la même feuille au bord transparent ; « Enregistrer » visible sans défiler ; rien ne dépasse.
+
