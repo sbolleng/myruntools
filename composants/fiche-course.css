@@ -49,7 +49,7 @@ html.fc-ouvert { overflow: hidden; }
 .fc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; padding-top: 0.3rem; }
 .fc-grille[hidden] { display: none; }
 /* Classements : général et sexe en deux champs sur toute la largeur ; catégorie, place, effectif en trois. */
-.fc-grille-3 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.fc-grille-3 { grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: end; } /* un libellé sur deux lignes ne décale pas les cases */
 .fc-grille-3 .fc-moitie { grid-column: span 3; }
 .fc-grille-3 .fc-tiers { grid-column: span 2; }
 .fc-champ input:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -119,6 +119,12 @@ html.fc-ouvert { overflow: hidden; }
 /* Formulaire d'une course à venir (§ 3.7) : champs sur toute la largeur, cases alignées sur le bas des champs. */
 .fc-champ[hidden] { display: none; }
 .fc-large { grid-column: 1 / -1; }
+/* Bloc Préparation (Objectif) : résumé du plan, frise des phases, « Paramétrer le plan » (preparation.css). */
+.fc-prep { padding: 0.3rem 0 0.6rem; }
+.fc-prep:empty { display: none; }
+.fc-prep .cal-frise { margin-bottom: 0.7rem; }
+.fc-prep-bas { display: flex; justify-content: flex-end; }
+.fc-prep-note { margin: 0 0 0.6rem; font-size: 0.8rem; color: var(--muted); }
 .fc-ligne-date { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
 .fc-bas { align-self: end; padding-bottom: 1.5rem; }
 .fc-bas .fc-case { margin: 0; }

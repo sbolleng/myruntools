@@ -296,5 +296,5 @@
   }
 
   window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, semaineHtml, frise, rubrique, brancher };
+    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, semaineHtml, frise, rubrique, brancher, REGLAGES };
 })();

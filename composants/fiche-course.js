@@ -92,7 +92,7 @@
     ['effectif', 'Effectif du général', 'entier', 'classements'],
     ['categorie', 'Catégorie', 'choix', 'classements'],
     ['place_categorie', 'Place en catégorie', 'entier', 'classements'],
-    ['effectif_categorie', 'Effectif de la catégorie', 'entier', 'classements'],
+    ['effectif_categorie', 'Effectif catégorie', 'entier', 'classements'],
     ['place_sexe', 'Place par sexe', 'entier', 'classements'],
     ['effectif_sexe', 'Effectif par sexe', 'entier', 'classements'],
     ['montre_temps', 'Temps', 'duree', 'montre'],
@@ -156,11 +156,12 @@
   const LONGUEURS = { description: 1000, objectif_precisions: 100 };
   const milliers = n => String(n).replace(/\B(?=(\d{3})+$)/g, ' ');
 
-  // mrtFicheCourse({ course, references, apres, mode, groupes, marquer })
+  // mrtFicheCourse({ course, references, apres, mode, groupes, marquer, preparation })
   //   mode     'courue' (défaut, Palmarès) ou 'a_venir' (Objectif) ; une course existante à venir s'ouvre en 'a_venir'
   //   groupes  noms des groupes d'options existants (mode à venir)
   //   marquer  vrai : la course existante passe à l'état Courue à l'enregistrement
-  window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer }) {
+  //   preparation  { ctx, relire } (mode à venir) : plan de la course en tête du bloc Préparation (composants/preparation.js)
+  window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer, preparation }) {
     const existe = !!(course && course.id);
     const c = Object.assign({}, course || {});
     mode = mode || 'courue';
@@ -222,6 +223,19 @@
       const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
       return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
     };
+    // Résumé du plan, sa frise et « Paramétrer le plan » ; une course pas encore enregistrée n'a pas encore de plan.
+    function prepHtml() {
+      const P = window.mrtPreparation;
+      if (!preparation || !P) return '';
+      if (!existe) return '<p class="fc-prep-note">Le plan se paramètre une fois la course enregistrée.</p>';
+      const cc = preparation.ctx.courses.find(x => x.id === course.id);
+      if (!cc || !P.aPlan(cc)) return '';
+      const bouton = '<button type="button" class="mrt-btn is-principal cal-parametrer" data-preparer="' + esc(cc.id) + '">' + P.REGLAGES + 'Paramétrer le plan</button>';
+      const plan = P.planDe(cc, P.modifsDe(preparation.ctx.semaines, cc.id));
+      if (!plan) return '<p class="fc-prep-note">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.</p><div class="fc-prep-bas">' + bouton + '</div>';
+      return '<p class="cal-plan-dates">Plan de ' + plan.n + ' semaines · début : ' + P.longue(plan.premier) + ' → jour J : ' + P.longue(cc.date) + '</p>' +
+        P.frise(plan, false) + '<div class="fc-prep-bas">' + bouton + '</div>';
+    }
     const ouvert = b => existe || (venir ? b === 'course' || b === 'plan' : b === 'course' || b === 'resultat');
     const titreForm = marquer ? 'Marquer comme courue' : existe ? 'Modifier la course' : 'Ajouter une course';
     voile.innerHTML =
@@ -232,7 +246,8 @@
           BLOCS.map(([b, titre]) =>
             '<section class="fc-bloc">' +
               '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
-              '<div class="fc-grille' + (b === 'classements' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
+              '<div class="fc-grille' + (b === 'classements' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
+                (b === 'preparation' && venir ? '<div class="fc-prep fc-large">' + prepHtml() + '</div>' : '') + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
             '</section>').join('') +
           '<p class="fc-msg" aria-live="polite"></p>' +
           '<div class="fc-actions">' +
@@ -260,8 +275,19 @@
       document.removeEventListener('keydown', clavier);
       if (avant && avant.focus) avant.focus();
     }
-    function clavier(e) { if (e.key === 'Escape') fermer(); }
+    function clavier(e) { if (e.key === 'Escape' && !document.querySelector('.cal-voile')) fermer(); }
     document.addEventListener('keydown', clavier);
+
+    // Plan de préparation : « Paramétrer le plan » enregistre aussitôt ; la page et ce résumé sont relus.
+    if (preparation && $('.fc-prep')) {
+      const ctxP = preparation.ctx;
+      ctxP.actualiser = async () => {
+        await apres();
+        Object.assign(ctxP, await preparation.relire());
+        $('.fc-prep').innerHTML = prepHtml();
+      };
+      window.mrtPreparation.brancher($('.fc-prep'), ctxP, null);
+    }
 
     // Type → formats du type ; trail : celui de la distance, modifiable.
     function remplirSous(choix) {
