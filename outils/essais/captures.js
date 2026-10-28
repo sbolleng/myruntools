@@ -22,6 +22,9 @@ const a = src.indexOf('function jeuObjectif(db0) {'), b = src.indexOf('\n}\n', a
 const jeuObjectif = eval('(' + src.slice(a, b) + ')');
 const { db, id } = jeuObjectif(JSON.parse(fs.readFileSync(E + 'donnees-fictives.json', 'utf8')));
 const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
+// Fait défiler le formulaire jusqu'à un bloc, son titre juste sous le haut fixe du panneau.
+const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[data-bloc="' + b + '"]'), pan = document.querySelector('.fc-panneau');
+  pan.scrollTop += t.getBoundingClientRect().top - pan.getBoundingClientRect().top - document.querySelector('.fc-haut').offsetHeight - 16; }, bloc);
 const PAGES = {
   accueil: { url: 'index.html' },
   connexion: { url: 'connexion.html', anonyme: true },
@@ -33,7 +36,11 @@ const PAGES = {
   preferences: { url: 'preferences.html' },
   'fiche-a-venir': { url: 'objectif.html', hauteur: { tel: 1900, ordi: 1500 }, action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-panneau'); } },
   'palmares-paysage': { url: 'palmares.html', largeurs: { paysage: [844, 390] } },
-  'fiche-courue': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-panneau'); } }
+  'fiche-courue': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-panneau'); } },
+  'fiche-classements': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-bloc="classements"]').click(); await voir(p, 'classements'); } },
+  'fiche-prep': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-panneau'); await voir(p, 'preparation'); } },
+  'fiche-prep-nouvelle': { url: 'objectif.html', action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-bloc="preparation"]').click(); await voir(p, 'preparation'); } },
+  'fiche-prep-parametrer': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-panneau'); await p.locator('.fc-prep [data-preparer]').click(); await p.waitForSelector('.cal-preparer'); } }
 };
 const LARG = { tel: [390, 844], ordi: [1200, 900] };
 fs.mkdirSync(sortie, { recursive: true });
