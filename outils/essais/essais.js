@@ -752,7 +752,7 @@ const CONTROLES = {
     const w = o.copie.ecritures[0];
     pb.push(egal(['POST', 'courses'], [w.methode, w.table], 'enregistrement : une insertion'));
     pb.push(egal({ etat: 'a_venir', course: 'Trail des Lacs', parcours: 'La Grande Boucle', date: '2027-06-12', date_approx: false, heure: '07:30', lieu: 'Mont-Clair', format: 'trail_court',
-      description: 'Boucle autour du lac.', distance: 28.5, dplus: 1200, dmoins: null, statut: 'confirmee', role: 'preparatoire', groupe_options: null, objectif: 'Sub 6h', objectif_precisions: 'Partir prudemment.', pourquoi: null, strategie: null,
+      distance: 28.5, dplus: 1200, dmoins: null, description: 'Boucle autour du lac.', statut: 'confirmee', role: 'preparatoire', groupe_options: null, objectif: 'Sub 6h', objectif_precisions: 'Partir prudemment.', pourquoi: null, strategie: null,
       inscrit: true, dossard: '77', prix: 45.5, ouverture_inscriptions: null, inscription: null, logistique: null, lien: 'https://example.org/lacs', lien_resultats: null }, w.corps, 'enregistrement : champs écrits'));
     await ctx.close();
 
@@ -842,7 +842,7 @@ const CONTROLES = {
     o = await neuve(1200, COURSE(1), jour); ({ p, ctx } = o);
     pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'jour de la course : Marquer comme courue'));
     await p.click('[data-ob="marquer"]');
-    pb.push(egal(['Marquer comme courue', ['Course', 'Préparation', 'Dossard', 'Résultat', 'Classements', 'Montre'], 0], [await p.textContent('#fc-titre'),
+    pb.push(egal(['Marquer comme courue', ['Course', 'Résultat', 'Classements', 'Montre'], 0], [await p.textContent('#fc-titre'),
       await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('.fc-supprimer').count()], 'marquer : formulaire du Palmarès, sans Supprimer'));
     pb.push(egal(['2026-10-20', 'Trail du Lac'], [await lire(p, '#fc-date'), await lire(p, '#fc-course')], 'marquer : pré-rempli'));
     await p.fill('#fc-temps', '2:40:00');
@@ -875,13 +875,41 @@ const CONTROLES = {
     pb.push(egal(1, await p.locator('.fc-voile').count(), 'panne : le formulaire reste ouvert'));
     await ctx.close();
 
-    // Palmarès : formulaire inchangé
-    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, db));
+    // Palmarès : quatre blocs ; le numéro de dossard dans Course ; ni Rôle, ni Préparation, ni Vitesse ; DNF vide le temps et l'allure
+    const pal = JSON.parse(JSON.stringify(db)); pal.ecritures = [];
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, pal));
     await p.click('[data-act="add"]');
-    pb.push(egal(['Course', 'Préparation', 'Dossard', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : six blocs, dont Préparation et Dossard'));
-    pb.push(egal(['Objectif', 'Précisions'], await p.evaluate(() => [...document.querySelector('[data-bloc="preparation"]').nextElementSibling.querySelectorAll('label')].map(l => l.textContent.replace(/\s*\*$/, '').trim())), 'Palmarès : Objectif et Précisions, comme dans Objectif'));
-    pb.push(egal(['fc-course', 'false', 'Numéro de dossard'], [await p.evaluate(() => document.activeElement.id), await p.getAttribute('[data-bloc="dossard"]', 'aria-expanded'),
-      (await p.textContent('label[for="fc-dossard"]')).trim()], 'Palmarès : curseur dans Course ; Dossard replié, avec le numéro'));
+    const labels = sel => p.evaluate(s => [...document.querySelector(s).nextElementSibling.querySelectorAll('.fc-champ > label')].map(l => l.textContent.replace(/\s*\*$/, '').trim()), sel);
+    pb.push(egal(['Course', 'Résultat', 'Classements', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : quatre blocs'),
+      egal(['Course', 'Parcours', 'Date', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'Numéro de dossard'], await labels('[data-bloc="course"]'), 'Palmarès : bloc Course, dossard sous la distance et le D+'),
+      egal(['Temps', 'Non terminée (DNF)', 'Allure moyenne (par km)'], await labels('[data-bloc="resultat"]'), 'Palmarès : bloc Résultat sans vitesse'),
+      egal(0, await p.locator('#fc-role, #fc-objectif, #fc-vitesse, #fc-montre_vitesse').count(), 'Palmarès : ni Rôle, ni Objectif, ni Vitesse'),
+      egal('fc-course', await p.evaluate(() => document.activeElement.id), 'Palmarès : curseur dans Course'));
+    const pos = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect(); return { sous: r('fc-dossard').top > r('fc-distance').bottom, gauche: Math.abs(r('fc-dossard').left - r('fc-distance').left) < 2 }; });
+    pb.push(egal({ sous: true, gauche: true }, pos, 'Palmarès : dossard sous la distance, à gauche'));
+    await p.fill('#fc-temps', '49:18'); await p.fill('#fc-allure', '4:56');
+    await p.check('#fc-dnf');
+    pb.push(egal(['', '', true, true], [await p.inputValue('#fc-temps'), await p.inputValue('#fc-allure'), await p.isDisabled('#fc-temps'), await p.isDisabled('#fc-allure')], 'DNF coché : temps et allure vidés et grisés'));
+    await p.uncheck('#fc-dnf');
+    await p.fill('#fc-course', 'Course d\'essai DNF'); await p.fill('#fc-date', '2026-10-11'); await p.selectOption('#fc-type', 'route'); await p.selectOption('#fc-format', 'route_10km');
+    await p.fill('#fc-allure', '5:00'); await p.click('.fc-plein');
+    await p.waitForFunction(() => !document.querySelector('.fc-voile'));
+    const ins = pal.ecritures.find(e => e.methode === 'POST' && e.table === 'courses');
+    pb.push(egal({ allure: 300, vitesse: 12, role: undefined, objectif: undefined }, ins && { allure: ins.corps.allure, vitesse: ins.corps.vitesse, role: ins.corps.role, objectif: ins.corps.objectif }, 'enregistrement : vitesse tirée de l\'allure moyenne (5:00 → 12 km/h), sans rôle ni objectif'));
+    await ctx.close();
+
+    // Objectif : la distance seule sur sa ligne, D+ et D− dessous côte à côte, puis la description avec son exemple
+    ({ p, ctx } = await ouvrir(nav, PAGE, 1200, db, {}, PARIS));
+    await p.click('[data-ob="ajouter"]');
+    const ordre = await p.evaluate(() => {
+      const r = id => document.getElementById(id).getBoundingClientRect();
+      return { labels: [...document.querySelector('[data-bloc="course"]').nextElementSibling.querySelectorAll('.fc-champ > label')].map(l => l.textContent.replace(/\s*\*$/, '').trim()),
+        distanceSeule: r('fc-dplus').top > r('fc-distance').bottom, dplusDmoins: Math.abs(r('fc-dplus').top - r('fc-dmoins').top) < 2 && r('fc-dmoins').left > r('fc-dplus').right,
+        descriptionDessous: r('fc-description').top > r('fc-dmoins').bottom, exemple: document.getElementById('fc-description').placeholder };
+    });
+    pb.push(egal(['Course', 'Parcours', 'Date', 'Jour inconnu', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Description'], ordre.labels, 'Objectif : ordre du bloc Course'),
+      egal([true, true, true, true], [ordre.distanceSeule, ordre.dplusDmoins, ordre.descriptionDessous, /^Texte libre/.test(ordre.exemple)], 'Objectif : distance seule, D+ et D− côte à côte, description dessous avec un exemple de texte libre'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-formulaire.png') });
     await ctx.close();
 
     // Téléphone

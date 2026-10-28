@@ -79,14 +79,10 @@
     ['format', 'Format', 'choix', 'course', true],
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
-    ['role', 'Rôle', 'choix', 'course'],
-    ['objectif', 'Objectif', 'objectif', 'preparation'],
-    ['objectif_precisions', 'Précisions', 'long', 'preparation'],
-    ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
+    ['dossard', 'Numéro de dossard', 'texte', 'course'],
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
-    ['allure', 'Allure (par km)', 'allure', 'resultat'],
-    ['vitesse', 'Vitesse (km/h)', 'nombre', 'resultat'],
+    ['allure', 'Allure moyenne (par km)', 'allure', 'resultat'],
     ['place', 'Place au général', 'entier', 'classements'],
     ['effectif', 'Effectif du général', 'entier', 'classements'],
     ['place_categorie', 'Place en catégorie', 'entier', 'classements'],
@@ -96,8 +92,7 @@
     ['montre_distance', 'Distance (km)', 'nombre', 'montre'],
     ['montre_dplus', 'D+ (m)', 'entier', 'montre'],
     ['montre_temps', 'Temps', 'duree', 'montre'],
-    ['montre_allure', 'Allure (par km)', 'allure', 'montre'],
-    ['montre_vitesse', 'Vitesse (km/h)', 'nombre', 'montre'],
+    ['montre_allure', 'Allure moyenne (par km)', 'allure', 'montre'],
     ['fc_moyenne', 'FC moyenne (bpm)', 'entier', 'montre']
   ];
   const CHAMPS_VENIR = [
@@ -109,10 +104,10 @@
     ['lieu', 'Lieu', 'texte', 'course'],
     ['type', 'Type', 'choix', 'course', true],
     ['format', 'Format', 'choix', 'course', true],
-    ['description', 'Description', 'long', 'course'],
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['dmoins', 'D− (m)', 'entier', 'course'],
+    ['description', 'Description', 'long', 'course'],
     ['statut', 'Statut', 'choix', 'plan'],
     ['role', 'Rôle', 'choix', 'plan'],
     ['groupe_options', 'Groupe d\'options', 'groupe', 'plan'],
@@ -129,7 +124,9 @@
     ['lien', 'Site officiel', 'url', 'liens'],
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
   ];
-  const BLOCS_COURUE = [['course', 'Course'], ['preparation', 'Préparation'], ['dossard', 'Dossard'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
+  const BLOCS_COURUE = [['course', 'Course'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
+  // Vitesse : plus saisie, tirée de l'allure moyenne (3 600 ÷ allure, en km/h) à l'enregistrement.
+  const VITESSES = [['allure', 'vitesse'], ['montre_allure', 'montre_vitesse']];
   const BLOCS_VENIR = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['dossard', 'Dossard'], ['logistique', 'Logistique'], ['liens', 'Liens']];
   const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'À surveiller']];
   const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
@@ -138,11 +135,12 @@
   // Exemples affichés dans les champs vides.
   const AIDE = {
     course: 'ex. Forez Trails', parcours: 'ex. L\'Olmetoise (facultatif)', distance: 'ex. 24,4', dplus: 'ex. 933', dmoins: 'ex. 930',
-    heure: 'ex. 07:30', lieu: 'ex. Mont-Clair', objectif: 'ex. 02:45:00, Finisher ou Sub 3h', objectif_precisions: 'ex. Partir prudemment, sous 4 h dans tous les cas', dossard: 'ex. 412', prix: 'ex. 85',
+    heure: 'ex. 07:30', lieu: 'ex. Mont-Clair',
+    description: 'Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique', objectif: 'ex. 02:45:00, Finisher ou Sub 3h', objectif_precisions: 'ex. Partir prudemment, sous 4 h dans tous les cas', dossard: 'ex. 412', prix: 'ex. 85',
     inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027',
-    temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524', vitesse: 'ex. 11,1',
+    temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524',
     place: 'ex. 99', effectif: 'ex. 873', place_categorie: 'ex. 12', effectif_categorie: 'ex. 140', place_sexe: 'ex. 15', effectif_sexe: 'ex. 310',
-    montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', montre_vitesse: 'ex. 8,1', fc_moyenne: 'ex. 163'
+    montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', fc_moyenne: 'ex. 163'
   };
   // Textes limités, avec un compteur sous le champ.
   const LONGUEURS = { description: 1000, objectif_precisions: 100 };
@@ -154,10 +152,12 @@
   //   marquer  vrai : la course existante passe à l'état Courue à l'enregistrement
   window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer }) {
     const existe = !!(course && course.id);
-    const c = course || {};
+    const c = Object.assign({}, course || {});
     mode = mode || 'courue';
     const venir = mode === 'a_venir';
     const CHAMPS = venir ? CHAMPS_VENIR : CHAMPS_COURUE;
+    // Une course qui n'a qu'une vitesse : son allure moyenne en est tirée, pour ne rien perdre en l'enregistrant.
+    if (!venir) VITESSES.forEach(([a, v]) => { if (c[a] == null && Number(c[v]) > 0) c[a] = Math.round(3600 / Number(c[v])); });
     const BLOCS = venir ? BLOCS_VENIR : BLOCS_COURUE;
     const sousDe = type => references.sous.filter(s => s.type === type);
     const typeDe = sc => { const s = references.sous.find(x => x.id === sc); return s ? s.type : ''; };
@@ -206,7 +206,7 @@
       const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
       // « Jour inconnu » reste à droite de la date, même sur téléphone.
       const jourInconnu = k === 'date' && venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>' : '';
-      const classes = 'fc-champ' + (k === 'date' && !venir ? ' fc-seul' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
+      const classes = 'fc-champ' + ((k === 'date' && !venir) || (k === 'distance' && venir) ? ' fc-seul' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
       const attrs = genre === 'groupe' ? ' data-champ="groupe_options"' + (c.statut === 'option' ? '' : ' hidden') : '';
       const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
       return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
@@ -277,6 +277,15 @@
       const montrerGroupe = () => { $('[data-champ="groupe_options"]').hidden = val('statut').value !== 'option'; };
       val('statut').addEventListener('change', montrerGroupe);
       val('groupe_options').addEventListener('change', () => { val('groupe_nouveau').hidden = val('groupe_options').value !== NOUVEAU; });
+    }
+    // Course non terminée (DNF) : ni temps ni allure moyenne ; les deux champs se vident et se grisent.
+    if (!venir) {
+      const dnf = () => ['temps', 'allure'].forEach(k => {
+        val(k).disabled = val('dnf').checked;
+        if (val('dnf').checked) { val(k).value = ''; erreur(k, ''); }
+      });
+      val('dnf').addEventListener('change', dnf);
+      dnf();
     }
     // Compteurs des textes limités (description, précisions).
     Object.keys(LONGUEURS).forEach(k => {
@@ -356,6 +365,10 @@
         if (!msg && oblig && (v == null || v === '')) msg = 'Champ obligatoire.';
         ok = erreur(k, msg) && ok;
         out[k] = v;
+      }
+      if (!venir) {
+        if (out.dnf) { out.temps = null; out.allure = null; }
+        VITESSES.forEach(([a, v]) => { out[v] = out[a] ? Math.round(360000 / out[a]) / 100 : null; });
       }
       return ok ? out : null;
     }

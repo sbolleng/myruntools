@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.11 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.12 · 28 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -178,7 +178,7 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 | Donnée | Calcul |
 | --- | --- |
 | Type d'une course | Celui de son format |
-| Allure ou vitesse manquante | 3 600 ÷ l'autre |
+| Vitesse (et vitesse montre) | 3 600 ÷ allure moyenne, calculée et rangée à l'enregistrement (évolution 011) ; à l'affichage, une course ancienne qui n'a qu'une des deux voit l'autre calculée |
 | Record 🥇 | Meilleur temps par format à distance fixe, hors DNF |
 | km-effort | Distance + D+/100 + D−/200 (D− = D+ si inconnu) |
 | Cap par défaut | Course à venir de la page Objectif la plus lointaine |

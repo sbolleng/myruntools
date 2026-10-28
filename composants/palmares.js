@@ -38,7 +38,7 @@
     { key: 'dist', label: 'Distance', kind: 'number', fmt: 'km' },
     { key: 'dplus', label: 'D+', kind: 'number', fmt: 'm' },
     { key: 'time', label: 'Temps', kind: 'duration', fmt: 'time' },
-    { key: 'pace', label: 'Allure', kind: 'duration', fmt: 'pace' },
+    { key: 'pace', label: 'Allure moyenne', kind: 'duration', fmt: 'pace' },
     { key: 'speed', label: 'Vitesse', kind: 'number', fmt: 'kmh', optional: true },
     { key: 'rank', label: 'Classement', kind: 'number', fmt: 'rank', optional: true },
     { key: 'rankCat', label: 'Classement catégorie', kind: 'number', fmt: 'rank', optional: true },
@@ -46,7 +46,7 @@
     { key: 'wDist', label: 'Distance montre', kind: 'number', fmt: 'km', optional: true },
     { key: 'wDplus', label: 'D+ montre', kind: 'number', fmt: 'm', optional: true },
     { key: 'wTime', label: 'Temps montre', kind: 'duration', fmt: 'time', optional: true },
-    { key: 'wPace', label: 'Allure montre', kind: 'duration', fmt: 'pace', optional: true },
+    { key: 'wPace', label: 'Allure moyenne montre', kind: 'duration', fmt: 'pace', optional: true },
     { key: 'wSpeed', label: 'Vitesse montre', kind: 'number', fmt: 'kmh', optional: true },
     { key: 'hr', label: 'FC moyenne', kind: 'number', fmt: 'bpm', optional: true }
   ];

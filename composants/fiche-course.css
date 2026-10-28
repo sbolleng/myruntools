@@ -50,7 +50,7 @@ html.fc-ouvert { overflow: hidden; }
 .fc-grille[hidden] { display: none; }
 /* La date seule sur sa ligne, à la largeur d'une colonne. */
 .fc-seul { grid-column: 1 / -1; }
-.fc-seul input { max-width: calc(50% - 0.5rem); }
+.fc-champ.fc-seul input { max-width: calc(50% - 0.5rem); }
 
 .fc-champ label {
   display: block;

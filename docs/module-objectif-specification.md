@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.20 · 27 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.21 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -215,9 +215,9 @@ Site partagé en lecture seule : aucun de ces boutons.
 │  Date * (4)            ☐ Jour inconnu (5)         │
 │  Heure de départ (6)   Lieu (9)                   │
 │  Type * (10)           Format * (11)              │
+│  Distance (12)                                    │
+│  D+ (13)               D− (14)                    │
 │  Description (34)                       0 / 1 000 │
-│  Distance (12)         D+ (13)                    │
-│  D− (14)                                          │
 │ ▾ Place dans le plan (15)                         │
 │  Statut (16)           Rôle (17)                  │
 │  Groupe d'options (18)  [si statut Option]        │
@@ -243,7 +243,7 @@ Sur téléphone : le panneau passe en plein écran, une seule colonne, même ord
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Course et parcours ; date, ou mois seul (case « Jour inconnu ») ; heure de départ ; lieu ; type et format ; description (1 000 caractères au plus) ; distance, D+ et D− |
+| Course | Course et parcours ; date, ou mois seul (case « Jour inconnu ») ; heure de départ ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
 | Préparation | Objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Dossard | Case « Inscrit » ; numéro ; prix ; date d'ouverture des inscriptions ; site d'inscription |
