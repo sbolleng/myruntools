@@ -114,6 +114,9 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 
 /* ----- Menu ----- */
 .mrt-nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); }
+/* Barres de défilement : fines, comme celles du Palmarès, dans les couleurs du thème. */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
 .mrt-nav-inner { max-width: 960px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; }
 .mrt-nav-inner::-webkit-scrollbar { display: none; }
 .mrt-tab {

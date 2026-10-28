@@ -276,7 +276,7 @@ Résultats attendus, vue 4 semaines et séances (au 20 octobre 2026, séances d'
 - Renfo · Gainage 30 min le lundi 19 est cochée « faite » (barrée), les trois autres séances ne le sont pas. Rendez-vous clé le dimanche 1er novembre ; Trail du Lac sur le dimanche 15 novembre, en trail validée.
 - Cocher « 8×400 m » : écriture de `faite` ; ajouter « Footing 30 min » (Run) le mercredi 21 : elle apparaît ce jour-là ; un libellé vide : « Écris le libellé de la séance. » ; modifier le footing du jeudi 22 en Renfo « Gainage 20 min » ; le supprimer (confirmation).
 - Flèche « 4 semaines plus tard » : la première semaine est celle du 16 novembre.
-- Année : toucher le 22 octobre ouvre `#semaines=2026-10-19` ; toucher Trail des Gorges ouvre sa page en modale, à la rubrique Préparation (`course.html?id=…#preparation`), « ← Calendrier » en haut ; la fermer ramène au Calendrier, à la même vue.
+- Année : toucher le 22 octobre ouvre `#semaines=2026-10-19` ; toucher Trail des Gorges ouvre sa page en modale, à la rubrique Préparation (`course.html?id=…#preparation`), la croix en haut ; la fermer ramène au Calendrier, à la même vue.
 - Dans la vue 4 semaines, toucher le jour de course (Trail du Lac) ou le rendez-vous clé (Corrida de Noël) ouvre de même la page de la course.
 - Au 14 décembre 2026, sans le Trail des Gorges : les semaines du 14, du 21, du 28 décembre et du 4 janvier sont « Sans objectif clair ».
 - Téléphone : un jour par ligne, rien ne déborde.

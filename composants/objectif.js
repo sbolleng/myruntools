@@ -197,12 +197,13 @@
   }
 
   // ctx : données de préparation (séances, phases : composants/preparation.js), ancre demandée (ctx.ancre) et
-  // modale (ctx.modale = { fermer, origine } : modale-course.js).
+  // modale (ctx.modale = { fermer } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
-    // Barre du haut de la modale (modale-course.js) : le retour nomme la page d'origine ; l'un et l'autre ferment.
-    const retour = '<div class="pc-barre"><button type="button" class="pc-retour" data-ob="fermer">← ' + esc(ctx.modale.origine) + '</button>' +
+    // Barre du haut de la modale (modale-course.js) : « Modifier » et la croix, à droite.
+    const barre = avecModifier => '<div class="pc-barre">' + (avecModifier && edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
+    const retour = barre(false);
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
     const suite = etapes.flatMap(e => (e.course ? [e.course] : e.candidats));
@@ -217,10 +218,9 @@
     const retenable = c.statut === 'option' && !!c.groupe_options;
     const marquable = c.statut === 'confirmee' && c.date <= aujourdhui();
     const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => lienSur(l[0]));
-    el.innerHTML = retour +
+    el.innerHTML = barre(true) +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
-      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2>' +
-        (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') + '</div>' +
+      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +

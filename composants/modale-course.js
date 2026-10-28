@@ -9,8 +9,6 @@
 //     surMaj(liste)  la page se redessine avec la liste relue après un enregistrement
 //   window.mrtOuvrirCourse(id, ancre)   ouvre une course (pour le code qui n'a pas de lien : cases du Calendrier)
 (function () {
-  const ORIGINES = { 'objectif.html': 'Feuille de route', 'course.html': 'Feuille de route', 'calendrier.html': 'Calendrier', 'index.html': 'En un coup d\'œil', '': 'En un coup d\'œil' };
-
   window.mrtModaleCourse = function (page, opts) {
     const fichier = () => location.pathname.split('/').pop();
     let voile = null, panneau = null, corps = null, el = null;
@@ -91,7 +89,7 @@
       else poussee = !!o.deja;
       const plan = await page.relirePlan();
       if (!voile) return; // fermée pendant la lecture
-      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer, origine: ORIGINES[fichier()] || 'Retour' } };
+      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer } };
       ctx.relire = async () => {
         const [courses, p] = await Promise.all([page.relire(), page.relirePlan()]);
         return { courses, seances: p.seances, semaines: p.semaines };

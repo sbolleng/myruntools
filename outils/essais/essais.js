@@ -535,7 +535,7 @@ const CONTROLES = {
       const r = await o.p.evaluate(() => {
         const t = x => (x ? x.textContent.replace(/[  ]/g, ' ').trim() : null), q = s => document.querySelector(s);
         return {
-          retour: t(q('.pc-retour')), sur: t(q('.pc-sur')), titre: q('.pc-titre') ? t(q('.pc-titre').firstChild) : null, info: t(q('.pc-info')), groupe: t(q('.pc-groupe')),
+          barre: [...document.querySelectorAll('.pc-barre [data-ob]')].map(b => b.dataset.ob), sur: t(q('.pc-sur')), titre: q('.pc-titre') ? t(q('.pc-titre').firstChild) : null, info: t(q('.pc-info')), groupe: t(q('.pc-groupe')),
           fiche: [...document.querySelectorAll('.pc-fiche .ob-ligne')].filter(l => !l.querySelector('.ob-cpt')).map(l => t(l.children[0]) + ' | ' + t(l.children[1])),
           compteur: [...document.querySelectorAll('.pc-fiche .ob-cpt-case')].map(t).join(' '), dossards: document.querySelectorAll('.mc-panneau .ob-ins').length,
           cellules: [...document.querySelectorAll('.pc-cellule > summary')].map(t), modale: !!q('.mc-panneau .pc'),
@@ -547,9 +547,9 @@ const CONTROLES = {
       return [r, o.erreurs];
     };
     let [r, err] = await pageCourse(id(3));
-    pb.push(egal({ modale: true, retour: '← Feuille de route', sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30',
+    pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30',
       compteur: '137j 22h 30min 00s', fiche: ['Distance | 45 km · 2 100 m D+', 'D− | 2 100 m', 'Objectif | 06:30:00', 'Précisions | Sous 6 h 45 dans tous les cas.', 'Dossard | Inscrit · n° 1287', 'Prix | 58 €'], dossards: 1 },
-      { modale: r.modale, retour: r.retour, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
+      { modale: r.modale, barre: r.barre, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
     pb.push(egal(['Préparation', 'Rôle dans la préparation', 'Stratégie ou enchaînement', 'Logistique', 'Description', 'Liens'], r.cellules, 'page Trail des Gorges, textes'));
     pb.push(egal(['Site officiel ↗', 'Inscription ↗', 'Résultats en direct ↗'], r.liens, 'page Trail des Gorges, liens'));
     pb.push(egal(['is-precedente | Corrida de Noël', 'is-suivante | Trail des Cimes'], r.nav, 'page Trail des Gorges, navigation'));
@@ -564,9 +564,9 @@ const CONTROLES = {
     pb.push(egal(['is-suivante | Corrida de Noël'], r.nav, 'page Trail du Lac, pas de course précédente'));
     [r] = await pageCourse(id(7));
     pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
-    // Ordinateur : la modale (40 rem, marges de 1,5 rem et cadre de 1 px : 590 px de texte), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
+    // Ordinateur : la modale (marges de 2 rem et cadre de 1 px : 896 px de texte, comme les pages), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
     ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
-    pb.push(egal({ largeur: 590, cadre: '1px', textes: 6, ouverts: 6, repliable: 'none' }, await p.evaluate(() => ({ largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
+    pb.push(egal({ largeur: 896, cadre: '1px', textes: 6, ouverts: 6, repliable: 'none' }, await p.evaluate(() => ({ largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
       cadre: getComputedStyle(document.querySelector('.pc-fiche')).borderTopWidth, textes: document.querySelectorAll('.pc-cellule').length,
       ouverts: document.querySelectorAll('.pc-cellule[open]').length, repliable: getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents })), 'ordinateur : modale, fiche encadrée, textes ouverts'));
     await ctx.close();
@@ -588,7 +588,7 @@ const CONTROLES = {
     await ctx.close();
     for (const n of ['inconnue', id(99)]) {
       [r] = await pageCourse(n);
-      pb.push(egal(['Course introuvable.', '← Feuille de route'], [r.vide, r.retour], 'course introuvable (' + n + ')'));
+      pb.push(egal(['Course introuvable.', ['fermer']], [r.vide, r.barre], 'course introuvable (' + n + '), la croix seule'));
     }
 
     // Trail des Cimes sorti du groupe : « • 1 candidat », 6 courses d'ici là.
@@ -677,8 +677,8 @@ const CONTROLES = {
     let { p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, db, {}, PARIS);
     await toucher(p, '.ob-et:nth-child(3) .ob-info');
     await p.waitForSelector('.mc-panneau .pc-titre');
-    pb.push(egal({ titre: 'Trail des Gorges', retour: '← Feuille de route', cartes: 6, fond: true, defilement: 'hidden' }, await p.evaluate(() => ({
-      titre: document.querySelector('.pc-titre').firstChild.textContent.trim(), retour: document.querySelector('.pc-retour').textContent.trim(),
+    pb.push(egal({ titre: 'Trail des Gorges', barre: ['modifier', 'fermer'], retour: 0, cartes: 6, fond: true, defilement: 'hidden' }, await p.evaluate(() => ({
+      titre: document.querySelector('.pc-titre').firstChild.textContent.trim(), barre: [...document.querySelectorAll('.pc-barre [data-ob]')].map(b => b.dataset.ob), retour: document.querySelectorAll('.pc-retour').length,
       cartes: document.querySelectorAll('.ob-et').length, fond: getComputedStyle(document.querySelector('.mc-voile')).backgroundColor !== 'rgba(0, 0, 0, 0)',
       defilement: getComputedStyle(document.documentElement).overflow })), 'ordinateur : modale ouverte, feuille de route dessous'));
     // Course suivante, puis précédente : la modale change de course sans se fermer ni ajouter d'entrée d'historique.
@@ -697,11 +697,11 @@ const CONTROLES = {
     await p.click('.pc-fermer'); await p.waitForSelector('.mc-voile', { state: 'detached' });
     await toucher(p, '.ob-et:first-child .ob-info');
     await p.waitForSelector('.mc-panneau .pc-titre');
-    await p.click('.pc-retour'); await p.waitForSelector('.mc-voile', { state: 'detached' });
+    await p.keyboard.press('Escape'); await p.waitForSelector('.mc-voile', { state: 'detached' });
     await toucher(p, '.ob-et:first-child .ob-info');
     await p.waitForSelector('.mc-panneau .pc-titre');
     await p.mouse.click(10, 10); await p.waitForSelector('.mc-voile', { state: 'detached' });
-    pb.push(egal([false, true], [await ouverte(p), await p.evaluate(() => getComputedStyle(document.documentElement).overflow !== 'hidden')], 'croix, retour et clic autour : ferment la modale'));
+    pb.push(egal([false, true], [await ouverte(p), await p.evaluate(() => getComputedStyle(document.documentElement).overflow !== 'hidden')], 'croix, Échap et clic autour : ferment la modale'));
     // Clic modifié (nouvel onglet) : le lien garde son comportement habituel.
     pb.push(egal('course.html?id=' + id(1), await p.evaluate(() => document.querySelector('.ob-et:first-child .ob-nom a').getAttribute('href')), 'le lien d\'une course garde son adresse'));
     pb.push(egal([], erreurs, 'modale, ordinateur, erreurs JavaScript'));
@@ -732,12 +732,12 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, db, {}, PARIS));
     await p.click('[data-course="' + id(3) + '"]');
     await p.waitForSelector('.mc-panneau #preparation');
-    pb.push(egal('← Calendrier', await p.evaluate(() => document.querySelector('.pc-retour').textContent.trim()), 'Calendrier : modale, retour vers le Calendrier'));
+    pb.push(egal(true, await p.evaluate(() => !!document.querySelector('.cal-bloc') && !!document.querySelector('.mc-panneau')), 'Calendrier : modale au-dessus du calendrier'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, db, {}, PARIS));
     await p.click('a.ac-etape');
     await p.waitForSelector('.mc-panneau .pc-titre');
-    pb.push(egal(['← En un coup d\'œil', true], await p.evaluate(() => [document.querySelector('.pc-retour').textContent.trim(), !!document.querySelector('.ac-bloc')]), 'Accueil : modale, retour vers En un coup d\'œil'));
+    pb.push(egal(true, await p.evaluate(() => !!document.querySelector('.ac-bloc') && !!document.querySelector('.mc-panneau')), 'Accueil : modale au-dessus de la page'));
     await ctx.close();
     return pb;
   },
@@ -1251,7 +1251,7 @@ const CONTROLES = {
     await p.click('[data-course="' + GORGES + '"]');
     await p.waitForSelector('.mc-panneau #preparation');
     pb.push(egal([GORGES, true], await p.evaluate(() => [history.state && history.state.mrtCourse, document.querySelector('#preparation').open]), 'toucher une course : sa page en modale, à la rubrique Préparation'),
-      egal('← Calendrier', await p.evaluate(() => document.querySelector('.pc-retour').textContent), 'modale de la course : retour vers le Calendrier'));
+      egal(0, await p.locator('.pc-retour').count(), 'modale de la course : la croix seule, pas de lien de retour'));
     await p.click('.pc-fermer'); await p.waitForSelector('.mc-voile', { state: 'detached' });
     pb.push(egal(true, await p.locator('.cal-bloc').count() > 0, 'fermer la modale : le Calendrier reste là'));
     await ctx.close();
