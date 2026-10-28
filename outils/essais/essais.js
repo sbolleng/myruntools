@@ -792,6 +792,21 @@ const CONTROLES = {
     pb.push(egal([['PATCH', 'courses'], ['DELETE', 'plan_semaines', '?course=eq.' + id(6)]], o.copie.ecritures.slice(0, 2).map((e, i) => i ? [e.methode, e.table, e.filtres] : [e.methode, e.table]), 'enregistrement : date précise, phases du plan remises aux règles'));
     await ctx.close();
 
+    // Date précise changée : les phases réglées à la main suivent la course (même numéro de semaine du plan)
+    {
+      const avecModif = JSON.parse(JSON.stringify(db));
+      avecModif.plan_semaines = [{ id: 'ps1', utilisateur: db.profils[0].id, course: id(3), lundi: '2026-12-14', phase: 'deload' }]; // semaine 5 sur 16
+      o = await neuve(1200, COURSE(3), avecModif); ({ p, ctx } = o);
+      await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-panneau');
+      await p.fill('#fc-date', '2027-03-14'); await p.dispatchEvent('#fc-date', 'change');
+      pb.push(egal('Plan de 16 semaines · début : lun. 23 nov. 2026 → jour J : dim. 14 mars 2027', await p.textContent('.fc-prep .cal-plan-dates'), 'date décalée d\'une semaine : plan décalé'));
+      await p.click('.fc-plein');
+      await p.waitForSelector('.fc-voile', { state: 'detached' });
+      pb.push(egal([['PATCH', 'courses'], ['DELETE', 'plan_semaines'], ['POST', 'plan_semaines', [{ course: id(3), lundi: '2026-12-21', phase: 'deload' }]]],
+        o.copie.ecritures.map(e => e.methode === 'POST' ? [e.methode, e.table, e.corps] : [e.methode, e.table]), 'enregistrement : la semaine 5 réglée à la main suit la course'));
+      await ctx.close();
+    }
+
     // Option : groupe d'options, existant ou nouveau ; jour inconnu
     o = await neuve(1200, PAGE); ({ p, ctx } = o);
     await p.click('[data-ob="ajouter"]'); await p.waitForSelector('.fc-panneau');

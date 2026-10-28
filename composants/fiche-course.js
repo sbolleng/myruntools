@@ -280,9 +280,18 @@
       return { id: c.id, course: val('course').value.trim() || 'nouvelle course', date, format: fmt, statut: val('statut').value, etat: 'a_venir',
         prepaFormat, prepaSemaines: reglage ? reglage.duree : c.prepa_semaines != null ? c.prepa_semaines : prepaFormat };
     }
-    // Date approximative décochée : le plan se recalcule selon les règles, sur la date précise (phases réglées à la main oubliées).
-    const recalage = () => existe && !!c.date_approx && !val('date_approx').checked;
-    const modifs = () => reglage ? reglage.modifs : existe && !recalage() ? P.modifsDe(preparation.semaines, c.id) : new Map();
+    // Phases réglées à la main : rangées par semaine du calendrier, avec la date de course sur laquelle elles ont été réglées (base).
+    // La date change : elles suivent la course (même numéro de semaine du plan). Date approximative décochée : le plan se
+    // recalcule selon les règles, sur la date précise (phases réglées à la main oubliées).
+    let base = existe && preparation && P ? { modifs: P.modifsDe(preparation.semaines, c.id), date: c.date, approx: !!c.date_approx } : { modifs: new Map(), date: '', approx: false };
+    const remise = () => base.approx && !val('date_approx').checked;
+    function modifs() {
+      const a = virtuelle().date;
+      if (remise()) return new Map();
+      if (!base.date || !a || base.date === a) return new Map(base.modifs);
+      const j = Math.round((Date.parse(P.lundiDe(a)) - Date.parse(P.lundiDe(base.date))) / 864e5);
+      return new Map([...base.modifs].map(([l, ph]) => [P.addDays(l, j), ph]));
+    }
     function majPrep() {
       const z = $('.fc-prep');
       if (!z) return;
@@ -442,7 +451,7 @@
       if (a === 'annuler') fermer();
       if (a === 'preparer') {
         const v = virtuelle();
-        P.ouvrirPreparer(null, null, { course: v, duree: v.prepaSemaines, modifs: modifs(), valider: (duree, m) => { reglage = { duree, modifs: m }; majPrep(); } });
+        P.ouvrirPreparer(null, null, { course: v, duree: v.prepaSemaines, modifs: modifs(), valider: (duree, m) => { reglage = { duree }; base = { modifs: m, date: v.date, approx: val('date_approx').checked }; majPrep(); } });
       }
       if (a === 'supprimer') { $('.fc-confirmer').hidden = false; $('.fc-actions').hidden = true; $('[data-fc="garder"]').focus(); }
       if (a === 'garder') { $('.fc-confirmer').hidden = true; $('.fc-actions').hidden = false; }
@@ -464,13 +473,18 @@
       btn.disabled = true;
       $('.fc-msg').textContent = 'Enregistrement…';
       // Plan réglé dans la fenêtre : durée avec la course (vide si c'est celle du format), phases modifiées à part.
+      // Sans réglage : phases décalées avec la date, ou remises aux règles quand la date approximative devient précise.
       let lignes = null, id = c.id;
-      const plan = reglage && avecPlan() ? P.planDe(virtuelle(), reglage.modifs, reglage.duree) : null;
-      if (!plan && venir && existe && c.date_approx && !champs.date_approx) lignes = []; // date précise : phases remises aux règles
-      if (plan) {
-        if (!existe) champs.id = id = crypto.randomUUID();
-        champs.prepa_semaines = reglage.duree === virtuelle().prepaFormat ? null : reglage.duree;
-        lignes = plan.semaines.filter(w => w.phase !== w.regle).map(w => ({ course: id, lundi: w.lundi, phase: w.phase }));
+      if (preparation && P) {
+        const v = virtuelle(), m = modifs();
+        const plan = reglage && avecPlan() ? P.planDe(v, m, reglage.duree) : null;
+        if (plan) {
+          if (!existe) champs.id = id = crypto.randomUUID();
+          champs.prepa_semaines = reglage.duree === v.prepaFormat ? null : reglage.duree;
+          lignes = plan.semaines.filter(w => w.phase !== w.regle).map(w => ({ course: id, lundi: w.lundi, phase: w.phase }));
+        } else if (existe && (remise() || (base.modifs.size && v.date && v.date !== base.date))) {
+          lignes = [...m].map(([lundi, phase]) => ({ course: id, lundi, phase }));
+        }
       }
       const db = window.mrtSupabase.from('courses');
       const { error } = existe
