@@ -280,7 +280,7 @@ Sur téléphone : le panneau passe en plein écran, une seule colonne, même ord
 
 **Pourquoi** : aujourd'hui, consulter une course (feuille au bord transparent) et la modifier (formulaire en plein écran, par-dessus) n'ont ni la même forme ni les mêmes champs selon qu'on vient d'Objectif ou du Palmarès ; les fenêtres s'empilent et la croix ne dit pas ce qu'elle ferme. La v2 réunit tout dans **une seule feuille à deux modes** et **une seule fiche de champs**.
 
-**Essai** : la v2 vit dans ses propres fichiers (`modale-course-v2`, `fiche-course-v2`), la v1 (§ 3.4 et 3.7) reste celle de tous. Ouvrir une page du site avec `?essai=v2` active la v2 sur cet appareil (retenu sur l'appareil) ; un bandeau « Version d'essai · revenir à la v1 » la signale et permet d'en sortir (`?essai=v1` aussi). Mêmes données, mêmes champs en base : rien à changer dans Supabase. Validée, la v2 remplace la v1 et l'interrupteur disparaît ; refusée, ses fichiers sont supprimés.
+**Essai** (construit le 28 oct. 2026) : la v2 vit dans ses propres fichiers (`essai.js`, `modale-course-v2`, `fiche-course-v2`), la v1 (§ 3.4 et 3.7) reste celle de tous. Ouvrir une page du site avec `?essai=v2` active la v2 sur cet appareil (retenu sur l'appareil) ; un bandeau « Version d'essai · revenir à la v1 » la signale et permet d'en sortir (`?essai=v1` aussi). Mêmes données, mêmes champs en base : rien à changer dans Supabase. Validée, la v2 remplace la v1 et l'interrupteur disparaît ; refusée, ses fichiers sont supprimés.
 
 **Numéros** : ceux de la page d'une course (§ 3.4) précédés de C, ceux du formulaire (§ 3.7) précédés de F ; un élément nouveau prend le numéro suivant de sa série.
 
@@ -329,7 +329,7 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 | 2 | (F15) Place dans le plan | ouvert | replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
 | 3 | (F20) Préparation | ouvert | replié | À venir : plan (F39 à F42), objectif, précisions, rôle dans la préparation, stratégie ; courue : les mêmes textes, sans plan |
 | 4 | (F38) Logistique | ouvert | replié | Logistique |
-| 5 | (F19) Dossard | ouvert | replié si vide | Inscrit, numéro, prix ; à venir seulement : ouverture des inscriptions, site d'inscription |
+| 5 | (F19) Dossard | ouvert | replié si vide | Numéro, prix ; à venir seulement : ouverture des inscriptions, « Inscrit » (le numéro ne se saisit qu'inscrit), site d'inscription |
 | 6 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (temps, DNF, allure moyenne), puis les classements (général, catégorie, sexe : places et effectifs). Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé) |
 | 7 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
 | 8 | (F21) Liens | ouvert | replié si vide | Site officiel, résultats en direct |

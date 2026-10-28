@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 28 oct. 2026 | Fiche v2 (en essai) | Construite à côté de la v1 : `?essai=v2` l'active sur l'appareil, bandeau « Revenir à la v1 » ; consultation et édition dans la même feuille, fiche de champs unique ; « Inscrit » réservé aux courses à venir (une course courue garde son numéro de dossard) (Objectif 0.31, § 3.8). |
 | 28 oct. 2026 | Fiche v2 (en essai) | Ordre des blocs unique pour une course à venir et une course courue : Course, Place dans le plan, Préparation, Logistique, Dossard, Résultat (résultat puis classements, en un seul bloc), Montre, Liens (Objectif 0.31, § 3.8). |
 | 28 oct. 2026 | Page d'une course | Modale : plus de lien « ← Feuille de route », la croix seule ; le crayon « Modifier » passe dans la barre du haut, à côté de la croix ; contenu de la même largeur que les pages du site (896 px) sur ordinateur ; barres de défilement fines aux couleurs du thème sur tout le site, comme celles du Palmarès (Objectif 0.30). |
 | 28 oct. 2026 | Page d'une course | La page d'une course s'ouvre en modale au-dessus de la page d'origine (feuille de route, Calendrier, En un coup d'œil), pour la fluidité de la navigation ; elle garde son adresse `course.html?id=…` (la feuille de route dessous), précédente et suivante changent la course dans la modale. Téléphone : feuille depuis le bas, bord transparent en haut (2,5 rem) et sur les côtés (0,4 rem), à juger à l'usage (Objectif 0.29). |

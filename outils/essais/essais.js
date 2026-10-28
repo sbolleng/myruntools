@@ -45,6 +45,12 @@ function simulerBase(ctx, db) {
         else if (req.method() === 'DELETE') db[tab] = db[tab].filter(x => !correspond(x));
         return route.fulfill({ contentType: 'application/json', body: '[]' });
       }
+      // Fiche v2 : les courses ajoutées ou modifiées s'écrivent dans la base simulée (db.persister).
+      if (tab === 'courses' && db.persister && req.method() !== 'DELETE') {
+        if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach(l => db.courses.push(Object.assign({ utilisateur: db.profils[0].id }, l)));
+        else db.courses.filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
+        return route.fulfill({ contentType: 'application/json', body: '[]' });
+      }
       if (req.method() === 'DELETE' && db[u.pathname.split('/').pop()]) { // ligne effacée, relue sans elle
         const t = u.pathname.split('/').pop(), cible = u.searchParams.get('id');
         db[t] = db[t].filter(x => 'eq.' + x.id !== cible);
@@ -738,6 +744,105 @@ const CONTROLES = {
     await p.click('a.ac-etape');
     await p.waitForSelector('.mc-panneau .pc-titre');
     pb.push(egal(true, await p.evaluate(() => !!document.querySelector('.ac-bloc') && !!document.querySelector('.mc-panneau')), 'Accueil : modale au-dessus de la page'));
+    await ctx.close();
+    return pb;
+  },
+
+  // Fiche d'une course v2, en essai (module-objectif-specification.md, § 3.8 et § 10).
+  async essaiV2(nav, db0) {
+    const { db, id } = jeuObjectif(db0);
+    const pb = [];
+    const V2 = { 'mrt-essai': 'v2' };
+    const copie = () => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.persister = true; return d; };
+    const titres = p => p.evaluate(() => [...document.querySelectorAll('.fc2 .fc-bloc-titre')].map(b => b.textContent.trim()));
+    const barre = p => p.evaluate(() => [...document.querySelectorAll('.fc2-barre > *')].map(b => b.textContent.trim()));
+    const consultation = p => p.waitForSelector('.mc-panneau .pc-titre');
+    // Sans l'essai : la v1, sans bandeau.
+    let { p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, db, {}, PARIS);
+    pb.push(egal(0, await p.locator('.mrt-essai').count(), 'sans essai : pas de bandeau'));
+    await ctx.close();
+
+    // Consultation, puis crayon : la même feuille passe en édition.
+    let d = copie();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, d, V2, PARIS));
+    pb.push(egal('Version d\'essai · fiche v2Revenir à la v1', await p.textContent('.mrt-essai'), 'essai : bandeau'));
+    await p.click('[data-ob="modifier"]');
+    await p.waitForSelector('.mc-panneau .fc2');
+    pb.push(egal({ barre: ['Annuler', 'Modifier la course', 'Enregistrer'], croix: 0, couches: 0, feuilles: 1, blocs: ['Course', 'Place dans le plan', 'Préparation', 'Logistique', 'Dossard', 'Liens'], dossard: ['dossard', '1287'] },
+      { barre: await barre(p), croix: await p.locator('.pc-fermer').count(), couches: await p.locator('.fc-voile, .cal-voile').count(), feuilles: await p.locator('.mc-voile').count(), blocs: await titres(p),
+        dossard: await p.evaluate(() => { const e = document.querySelector('#fc-dossard'); return [e.closest('.fc-grille').previousElementSibling.dataset.bloc, e.value]; }) }, 'crayon : édition dans la même feuille'));
+    // Annuler sans saisie : retour à la consultation, sans question.
+    let questions = [];
+    p.on('dialog', x => { questions.push(x.message()); x.dismiss(); });
+    await p.click('.fc2-barre [data-fc="annuler"]');
+    await consultation(p);
+    pb.push(egal([[], 0], [questions, await p.locator('.fc2').count()], 'Annuler sans saisie : consultation, sans question'));
+    // Après une saisie : « Abandonner les modifications ? » ; refusée, l'édition reste.
+    await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc2');
+    await p.fill('#fc-lieu', 'Ailleurs');
+    await p.keyboard.press('Escape');
+    pb.push(egal([['Abandonner les modifications ?'], 1], [questions, await p.locator('.fc2').count()], 'Échap après une saisie : question, l\'édition reste'));
+    // Enregistrer : la course est rangée, retour à la consultation mise à jour.
+    await p.click('.fc2-barre .fc-plein');
+    await p.waitForSelector('.fc2', { state: 'detached' }); await consultation(p);
+    await p.waitForFunction(() => /Ailleurs/.test(document.querySelector('.pc-info').textContent));
+    pb.push(egal(['PATCH', 'Ailleurs', 1], [d.ecritures[0].methode, d.ecritures[0].corps.lieu, await p.locator('.mc-voile').count()], 'Enregistrer : rangée, consultation mise à jour'));
+    pb.push(egal([], erreurs, 'v2, édition, erreurs JavaScript'));
+    await ctx.close();
+
+    // « + Ajouter une course » : la feuille en édition ; enregistrée, la consultation de la nouvelle course.
+    d = copie();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, d, V2, PARIS));
+    await p.click('[data-ob="ajouter"]');
+    await p.waitForSelector('.mc-panneau .fc2');
+    pb.push(egal(['Annuler', 'Ajouter une course', 'Enregistrer'], await barre(p), 'ajouter : feuille en édition'));
+    await p.fill('#fc-course', 'Trail des Lacs'); await p.fill('#fc-date', '2027-06-12'); await p.dispatchEvent('#fc-date', 'change');
+    await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', 'trail_court');
+    await p.click('.fc2-barre .fc-plein');
+    await p.waitForFunction(() => document.querySelector('.mc-panneau .pc-titre') && /Trail des Lacs/.test(document.querySelector('.pc-titre').textContent));
+    pb.push(egal([1, 0], [await p.locator('.mc-voile').count(), await p.locator('.fc2').count()], 'ajouter : enregistrée, sa consultation'));
+    pb.push(egal([], erreurs, 'v2, ajout, erreurs JavaScript'));
+    await ctx.close();
+
+    // Palmarès : la même feuille, ordre unique, blocs d'une course courue.
+    d = copie();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, V2, PARIS));
+    await p.evaluate(() => document.querySelector('#palmares [data-edit]').click());
+    await p.waitForSelector('.mc-panneau .fc2');
+    pb.push(egal({ barre: ['Annuler', 'Modifier la course', 'Enregistrer'], blocs: ['Course', 'Place dans le plan', 'Préparation', 'Logistique', 'Dossard', 'Résultat', 'Montre', 'Liens'],
+      ouverts: ['course', 'resultat'], approx: 0, statut: 0, classements: true },
+      { barre: await barre(p), blocs: await titres(p), ouverts: await p.evaluate(() => [...document.querySelectorAll('.fc2 .fc-bloc-titre[aria-expanded="true"]')].map(b => b.dataset.bloc).filter(b => !['dossard', 'montre', 'liens'].includes(b))),
+        approx: await p.locator('#fc-date_approx').count(), statut: await p.locator('#fc-statut').count(),
+        classements: await p.evaluate(() => document.querySelector('#fc-place').closest('.fc-grille').previousElementSibling.dataset.bloc === 'resultat') }, 'Palmarès : fiche unique, course courue'));
+    await p.keyboard.press('Escape');
+    await p.waitForSelector('.mc-voile', { state: 'detached' });
+    pb.push(egal([], erreurs, 'v2, Palmarès, erreurs JavaScript'));
+    await ctx.close();
+
+    // Marquer comme courue : bascule en édition, état Courue ; enregistrée, la feuille se ferme.
+    d = copie();
+    d.courses.find(c => c.id === id(1)).date = '2026-10-20';
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(1), 1200, d, V2, PARIS));
+    await p.click('[data-ob="marquer"]');
+    await p.waitForSelector('.fc2');
+    pb.push(egal([['Annuler', 'Marquer comme courue', 'Enregistrer'], 0, true], [await barre(p), await p.locator('.fc-supprimer').count(), (await titres(p)).includes('Résultat')], 'marquer : édition, état Courue, sans Supprimer'));
+    await p.fill('#fc-temps', '2:40:00');
+    await p.click('.fc2-barre .fc-plein');
+    await p.waitForSelector('.mc-voile', { state: 'detached' });
+    pb.push(egal(['courue', 9600], [d.ecritures[0].corps.etat, d.ecritures[0].corps.temps], 'marquer : rangée courue, la feuille se ferme'));
+    await ctx.close();
+
+    // Téléphone : édition dans la même feuille au bord transparent ; « Enregistrer » visible sans défiler ; rien ne dépasse.
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 390, copie(), V2, PARIS));
+    await p.click('[data-ob="modifier"]');
+    await p.waitForSelector('.fc2');
+    pb.push(egal({ haut: 40, visible: true, debordement: false }, await p.evaluate(() => {
+      const b = document.querySelector('.fc2-barre .fc-plein').getBoundingClientRect();
+      return { haut: Math.round(document.querySelector('.mc-panneau').getBoundingClientRect().top), visible: b.top >= 0 && b.bottom <= innerHeight && b.right <= innerWidth,
+        debordement: document.documentElement.scrollWidth > innerWidth || document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth };
+    }), 'téléphone : édition dans la feuille, Enregistrer visible'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'fiche-v2-telephone.png') });
+    pb.push(egal([], erreurs, 'v2, téléphone, erreurs JavaScript'));
     await ctx.close();
     return pb;
   },
