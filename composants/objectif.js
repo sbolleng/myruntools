@@ -152,7 +152,7 @@
   const PLUS = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const CRAYON = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
   const rond = (act, texte, icone) => '<button type="button" class="ob-rond mrt-rond" data-ob="' + act + '" aria-label="' + texte + '" title="' + texte + '">' + icone + '</button>';
-  const brancher = (el, actions) => el.querySelectorAll('[data-ob]').forEach(b => b.addEventListener('click', () => actions[b.dataset.ob]()));
+  const brancher = (el, actions) => el.querySelectorAll('[data-ob]').forEach(b => b.addEventListener('click', () => { if (actions[b.dataset.ob]) actions[b.dataset.ob](); }));
 
   // Une carte seule, comme sur la feuille de route (bloc Prochaine course de l'Accueil).
   window.renderCarteCourse = function (el, c) {
@@ -196,11 +196,13 @@
     telephone.addEventListener('change', regler);
   }
 
-  // ctx : données de préparation (séances, phases) ; sans lui, pas de rubrique Préparation (composants/preparation.js).
+  // ctx : données de préparation (séances, phases : composants/preparation.js), ancre demandée (ctx.ancre) et
+  // modale (ctx.modale = { fermer, origine } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
-    const retour = new URLSearchParams(location.search).get('depuis') === 'calendrier'
-      ? '<a class="pc-retour" href="calendrier.html">← Calendrier</a>' : '<a class="pc-retour" href="objectif.html">← Feuille de route</a>';
+    // Barre du haut de la modale (modale-course.js) : le retour nomme la page d'origine ; l'un et l'autre ferment.
+    const retour = '<div class="pc-barre"><button type="button" class="pc-retour" data-ob="fermer">← ' + esc(ctx.modale.origine) + '</button>' +
+      '<button type="button" class="pc-fermer mrt-rond" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
     const suite = etapes.flatMap(e => (e.course ? [e.course] : e.candidats));
@@ -247,11 +249,11 @@
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
-    if (edition) brancher(el, { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id) });
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id) }));
     replierCellules(el);
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
-    if (ctx && location.hash === '#preparation' && !ctx.ancreFaite) {
+    if (ctx.ancre === '#preparation' && !ctx.ancreFaite) {
       const d = el.querySelector('#preparation');
       if (d) { d.open = true; d.scrollIntoView(); }
       ctx.ancreFaite = true;
