@@ -170,6 +170,8 @@
     const tracer = (cfg, demarrage) => {
       const complet = Object.assign({}, cfg, { courant: opts.courant, sansEnTete: !!opts.sansEnTete || opts.courant !== demarrage });
       const cle = JSON.stringify(complet);
+      // Le thème est toujours réappliqué : session.js a pu entre-temps poser celui du visiteur (site partagé).
+      window.appliquerTheme(complet.theme);
       if (cle === dessine) return;
       dessine = cle;
       window.renderEnTete(complet);
@@ -213,7 +215,7 @@
     // Grand en-tête sur la page de démarrage seulement ; ailleurs, la barre fine.
     const dessiner = p => {
       prefsCourantes = p;
-      const cfg = configEnTete(p, courses), demarrage = window.mrtDemarrage(p);
+      const cfg = Object.assign(configEnTete(p, courses), { partage: !!proprietaire }), demarrage = window.mrtDemarrage(p);
       ecrireCache({ cfg, demarrage });
       tracer(cfg, demarrage);
       document.documentElement.dataset.mrtDonnees = '1'; // en-tête tiré des données (et non de la copie gardée)

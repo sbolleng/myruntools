@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.7 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.8 · 28 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -62,6 +62,8 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 ## 7. Site partagé en lecture seule
 
 Quand l'utilisateur regarde le site d'un autre (bandeau « Lecture seule ») :
+
+- l'engrenage n'est plus affiché ; la page reste accessible par son adresse ;
 
 - les blocs Thème, Menu et Cap ne sont pas modifiables ; à leur place : « Reviens à ton site pour modifier tes réglages. » ;
 - les blocs Partage et Compte restent les siens et fonctionnent normalement.

@@ -14,6 +14,7 @@
 //   courant    page ouverte, pour mettre son onglet en avant
 //   maintenant date du jour imposée (contrôles) ; sinon l'heure réelle
 //   racine     préfixe des liens, pour une page rangée dans un sous-dossier
+//   partage    site partagé en lecture seule : pas d'engrenage
 //   sansEnTete une barre fine à la place de l'en-tête : « Cap sur … » et l'engrenage (pages autres qu'Accueil et Objectif)
 (function () {
   // iPhone et iPad : pas de zoom automatique sur un champ touché (Safari garde ensuite la page agrandie,
@@ -74,7 +75,8 @@
     ];
 
     // Nom de l'application (vers l'Accueil) et engrenage (vers les Préférences).
-    const engrenage = '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a>';
+    // Site partagé en lecture seule : pas d'engrenage, les Préférences sont celles du visiteur, pas du site regardé.
+    const engrenage = cfg.partage ? '' : '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a>';
     const marque = '<div class="mrt-brand"><a href="' + lien(cfg.accueil || 'index.html') + '">MyRunTools</a>' + engrenage + '</div>';
     const header = document.createElement('header');
     header.className = 'mrt-header';
