@@ -207,13 +207,16 @@
   }
 
   // Fenêtre « Préparer » (spécification § 5.3) : durée, frise à glisser, tableau semaine par semaine.
-  function ouvrirPreparer(ctx, id) {
-    const c = ctx.courses.find(x => x.id === id);
+  // brouillon (formulaire d'une course) : { course, duree, modifs, valider(duree, modifs) } ; rien n'est écrit,
+  // « Valider » rend les réglages, enregistrés avec la course.
+  function ouvrirPreparer(ctx, id, brouillon) {
+    const c = brouillon ? brouillon.course : ctx.courses.find(x => x.id === id);
     if (!c) return;
-    const draft = { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
+    const draft = brouillon ? { duree: brouillon.duree || c.prepaFormat || 12, modifs: new Map(brouillon.modifs) }
+      : { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
     const v = fenetre('<h3 class="cal-panneau-titre">Paramétrer le plan · ' + esc(c.course) + '</h3><div class="cal-prep"></div>' +
       '<p class="cal-msg" role="alert"></p><div class="cal-actions"><button type="button" class="mrt-lien" data-act="recalculer">Recalculer selon les règles</button><span></span>' +
-      '<button type="button" class="mrt-btn" data-act="annuler">Annuler</button><button type="button" class="mrt-btn is-principal" data-act="enregistrer">Enregistrer</button></div>', 'cal-preparer');
+      '<button type="button" class="mrt-btn" data-act="annuler">Annuler</button><button type="button" class="mrt-btn is-principal" data-act="enregistrer">' + (brouillon ? 'Valider' : 'Enregistrer') + '</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
     const courant = () => planDe(c, draft.modifs, draft.duree);
 
@@ -265,6 +268,7 @@
       dessinerPrep();
     });
     v.querySelector('[data-act="enregistrer"]').addEventListener('click', async ev => {
+      if (brouillon) { brouillon.valider(draft.duree, draft.modifs); v.fermer(); return; }
       const btn = ev.currentTarget;
       btn.disabled = true;
       const lignes = courant().semaines.filter(s => s.phase !== s.regle).map(s => ({ course: id, lundi: s.lundi, phase: s.phase }));
@@ -296,5 +300,5 @@
   }
 
   window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, semaineHtml, frise, rubrique, brancher, REGLAGES };
+    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES };
 })();
