@@ -721,16 +721,16 @@ const CONTROLES = {
     pb.push(egal([], erreurs, 'adresse d\'une course, erreurs JavaScript'));
     await ctx.close();
 
-    // Téléphone : feuille qui monte du bas, bande transparente en haut et marge sur les côtés ; toucher la bande ferme.
+    // Téléphone : plein écran, qui monte du bas ; la croix ferme.
     ({ p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
     await toucher(p, '.ob-et:nth-child(3) .ob-info');
     await p.waitForSelector('.mc-panneau .pc-titre');
-    const f = await p.evaluate(() => { const b = document.querySelector('.mc-panneau').getBoundingClientRect(), rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-      return { haut: Math.round(b.top / rem * 10) / 10, gauche: Math.round(b.left / rem * 10) / 10, droite: Math.round((innerWidth - b.right) / rem * 10) / 10, bas: Math.round(innerHeight - b.bottom),
-        debordement: document.documentElement.scrollWidth > innerWidth, fond: getComputedStyle(document.querySelector('.mc-voile')).backgroundColor }; });
-    pb.push(egal({ haut: 2.5, gauche: 0.4, droite: 0.4, bas: 0, debordement: false }, { haut: f.haut, gauche: f.gauche, droite: f.droite, bas: f.bas, debordement: f.debordement }, 'téléphone : feuille depuis le bas, bord transparent en haut et sur les côtés'));
-    await p.mouse.click(195, 12); await p.waitForSelector('.mc-voile', { state: 'detached' });
-    pb.push(egal(false, await ouverte(p), 'téléphone : toucher la bande transparente ferme'));
+    await p.waitForFunction(() => !document.getAnimations().length);
+    const f = await p.evaluate(() => { const b = document.querySelector('.mc-panneau').getBoundingClientRect();
+      return { haut: Math.round(b.top), gauche: Math.round(b.left), droite: Math.round(innerWidth - b.right), bas: Math.round(innerHeight - b.bottom), debordement: document.documentElement.scrollWidth > innerWidth }; });
+    pb.push(egal({ haut: 0, gauche: 0, droite: 0, bas: 0, debordement: false }, f, 'téléphone : plein écran'));
+    await p.click('.pc-fermer'); await p.waitForSelector('.mc-voile', { state: 'detached' });
+    pb.push(egal(false, await ouverte(p), 'téléphone : la croix ferme'));
     pb.push(egal([], erreurs, 'modale, téléphone, erreurs JavaScript'));
     await ctx.close();
 
@@ -754,16 +754,25 @@ const CONTROLES = {
     const pb = [];
     const copie = () => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.persister = true; return d; };
     const titres = p => p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre')].map(b => b.textContent.trim()));
-    const barre = p => p.evaluate(() => [...document.querySelectorAll('.fc-barre > *')].map(b => b.textContent.trim()));
+    // Barre du haut (« Annuler », « Enregistrer »), puis le libellé du mode.
+    const barre = p => p.evaluate(() => [...document.querySelectorAll('.fc-barre > *')].map(b => b.textContent.trim()).concat(document.querySelector('#fc-titre').textContent.trim()));
     const consultation = p => p.waitForSelector('.mc-panneau .pc-titre');
     // Consultation, puis crayon : la même feuille passe en édition.
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, d, {}, PARIS);
     await p.click('[data-ob="modifier"]');
     await p.waitForSelector('.mc-panneau .fc-fiche');
-    pb.push(egal({ barre: ['Annuler', 'Modifier la course', 'Enregistrer'], croix: 0, couches: 0, feuilles: 1, blocs: ['Course', 'Place dans le plan', 'Préparation', 'Logistique', 'Dossard', 'Liens'], dossard: ['dossard', '1287'] },
+    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], croix: 0, couches: 0, feuilles: 1, blocs: ['Course', 'Place dans le plan', 'Préparation', 'Logistique', 'Dossard', 'Liens'], dossard: ['dossard', '1287'] },
       { barre: await barre(p), croix: await p.locator('.pc-fermer').count(), couches: await p.locator('.cal-voile').count(), feuilles: await p.locator('.mc-voile').count(), blocs: await titres(p),
         dossard: await p.evaluate(() => { const e = document.querySelector('#fc-dossard'); return [e.closest('.fc-grille').previousElementSibling.dataset.bloc, e.value]; }) }, 'crayon : édition dans la même feuille'));
+    // Libellé du mode en capitales discrètes ; « Supprimer la course » : bouton à contour rouge avec sa poubelle, seul en bas de la fiche.
+    pb.push(egal({ auxBords: true, libelle: 'uppercase', texte: 'Supprimer la course', poubelle: true, rouge: true, enBas: true }, await p.evaluate(() => {
+      const b = document.querySelector('.fc-supprimer'), st = getComputedStyle(b), blocs = document.querySelectorAll('.fc-fiche .fc-bloc');
+      const an = document.querySelector('.fc-barre [data-fc="annuler"]').getBoundingClientRect(), en = document.querySelector('.fc-barre .fc-plein').getBoundingClientRect(), br = document.querySelector('.fc-barre').getBoundingClientRect();
+      return { auxBords: an.left - br.left < 40 && br.right - en.right < 40, libelle: getComputedStyle(document.querySelector('#fc-titre')).textTransform, texte: b.textContent.trim(), poubelle: !!b.querySelector('svg'),
+        rouge: st.borderTopColor === st.color && st.color === getComputedStyle(document.documentElement).getPropertyValue('--red').trim().replace(/^#(..)(..)(..)$/, (m, r, g, bl) => 'rgb(' + [r, g, bl].map(x => parseInt(x, 16)).join(', ') + ')'),
+        enBas: b.getBoundingClientRect().top > blocs[blocs.length - 1].getBoundingClientRect().bottom };
+    }), 'Annuler à gauche, Enregistrer à droite ; libellé du mode ; Supprimer la course, à contour rouge, en bas'));
     // Annuler sans saisie : retour à la consultation, sans question.
     let questions = [];
     p.on('dialog', x => { questions.push(x.message()); x.dismiss(); });
@@ -788,7 +797,7 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, d, {}, PARIS));
     await p.click('[data-ob="ajouter"]');
     await p.waitForSelector('.mc-panneau .fc-fiche');
-    pb.push(egal(['Annuler', 'Ajouter une course', 'Enregistrer'], await barre(p), 'ajouter : feuille en édition'));
+    pb.push(egal(['Annuler', 'Enregistrer', 'Ajouter une course'], await barre(p), 'ajouter : feuille en édition'));
     await p.fill('#fc-course', 'Trail des Lacs'); await p.fill('#fc-date', '2027-06-12'); await p.dispatchEvent('#fc-date', 'change');
     await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', 'trail_court');
     await p.click('.fc-barre .fc-plein');
@@ -802,7 +811,7 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await p.evaluate(() => document.querySelector('#palmares [data-edit]').click());
     await p.waitForSelector('.mc-panneau .fc-fiche');
-    pb.push(egal({ barre: ['Annuler', 'Modifier la course', 'Enregistrer'], blocs: ['Course', 'Place dans le plan', 'Préparation', 'Logistique', 'Dossard', 'Résultat', 'Montre', 'Liens'],
+    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], blocs: ['Course', 'Place dans le plan', 'Préparation', 'Logistique', 'Dossard', 'Résultat', 'Montre', 'Liens'],
       ouverts: ['course', 'resultat'], approx: 0, statut: 0, classements: true },
       { barre: await barre(p), blocs: await titres(p), ouverts: await p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre[aria-expanded="true"]')].map(b => b.dataset.bloc).filter(b => !['dossard', 'montre', 'liens'].includes(b))),
         approx: await p.locator('#fc-date_approx').count(), statut: await p.locator('#fc-statut').count(),
@@ -818,7 +827,7 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(1), 1200, d, {}, PARIS));
     await p.click('[data-ob="marquer"]');
     await p.waitForSelector('.fc-fiche');
-    pb.push(egal([['Annuler', 'Marquer comme courue', 'Enregistrer'], 0, true], [await barre(p), await p.locator('.fc-supprimer').count(), (await titres(p)).includes('Résultat')], 'marquer : édition, état Courue, sans Supprimer'));
+    pb.push(egal([['Annuler', 'Enregistrer', 'Marquer comme courue'], 0, true], [await barre(p), await p.locator('.fc-supprimer').count(), (await titres(p)).includes('Résultat')], 'marquer : édition, état Courue, sans Supprimer'));
     await p.fill('#fc-temps', '2:40:00');
     await p.click('.fc-barre .fc-plein');
     await p.waitForSelector('.mc-voile', { state: 'detached' });
@@ -829,11 +838,12 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 390, copie(), {}, PARIS));
     await p.click('[data-ob="modifier"]');
     await p.waitForSelector('.fc-fiche');
-    pb.push(egal({ haut: 40, visible: true, debordement: false }, await p.evaluate(() => {
+    await p.waitForFunction(() => !document.getAnimations().length);
+    pb.push(egal({ haut: 0, visible: true, debordement: false }, await p.evaluate(() => {
       const b = document.querySelector('.fc-barre .fc-plein').getBoundingClientRect();
       return { haut: Math.round(document.querySelector('.mc-panneau').getBoundingClientRect().top), visible: b.top >= 0 && b.bottom <= innerHeight && b.right <= innerWidth,
         debordement: document.documentElement.scrollWidth > innerWidth || document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth };
-    }), 'téléphone : édition dans la feuille, Enregistrer visible'));
+    }), 'téléphone : édition en plein écran, Enregistrer visible'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'fiche-v2-telephone.png') });
     pb.push(egal([], erreurs, 'fiche, téléphone, erreurs JavaScript'));
     await ctx.close();

@@ -1,11 +1,6 @@
 /* ===== Page d'une course, en modale (modale-course.js) · spécification d'Objectif, § 3.4 =====
    Au-dessus de la page d'origine, sous les fenêtres de saisie (formulaire 200, séance et plan 300).
-   Téléphone : feuille qui monte du bas, bord transparent en haut et sur les côtés (réglable ci-dessous). */
-:root {
-  --mc-haut: 2.5rem;  /* bande transparente au-dessus de la feuille (téléphone) */
-  --mc-cote: 0.4rem;  /* marge transparente de chaque côté (téléphone) */
-  --mc-voile: 35%;    /* part de la couleur de fond qui assombrit la page d'origine (téléphone) */
-}
+   Téléphone : plein écran, qui monte du bas. */
 html.mc-ouvert { overflow: hidden; }
 .mc-voile {
   position: fixed;
@@ -37,8 +32,10 @@ html.mc-ouvert { overflow: hidden; }
 .pc-fermer { font-size: 1.3rem; }
 
 @media (max-width: 600px) {
-  .mc-voile { align-items: end; padding: var(--mc-haut) var(--mc-cote) 0; background: color-mix(in srgb, var(--bg) var(--mc-voile), transparent); }
-  .mc-panneau { max-width: none; max-height: calc(100dvh - var(--mc-haut)); border-radius: 14px 14px 0 0; border-bottom: 0; }
+  .mc-voile { padding: 0; place-items: stretch; grid-template-columns: minmax(0, 1fr); background: var(--bg); }
+  .mc-panneau { max-width: none; max-height: none; height: 100%; border: 0; border-radius: 0; animation: mc-monte 0.22s ease-out; }
   .mc-corps { padding: 0 1rem 1.5rem; }
   .pc-barre { margin: 0 -1rem 0.3rem; padding: 0.75rem 1rem 0.4rem; }
 }
+@keyframes mc-monte { from { transform: translateY(2.5rem); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mc-panneau { animation: none; } }
