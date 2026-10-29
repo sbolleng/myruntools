@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.33 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.34 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -254,7 +254,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 
 - **Le crayon (C5)** bascule la feuille en édition ; **Enregistrer (F25)** range la course et rebascule en consultation, mise à jour. Une course qui quitte la feuille de route (courue, à surveiller, supprimée) ferme la feuille.
 - **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la feuille de route, sinon la feuille se ferme (course courue ajoutée au Palmarès).
-- **Crayon d'une ligne du Palmarès** : la feuille en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
+- **Toucher une ligne du Palmarès** : la feuille en consultation d'une course courue (ci-dessous). **Crayon d'une ligne** : la feuille directement en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
 - **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, seul en bas de la fiche, loin d'« Enregistrer » ; après confirmation, la feuille se ferme.
 - **« Paramétrer le plan » (F41)** reste la seule fenêtre par-dessus : réglage ponctuel, avec « Annuler » et « Valider », sans croix.
@@ -275,6 +275,50 @@ Téléphone · consultation (plein écran)  Téléphone · édition (même écra
 ```
 
 Ordinateur : mêmes deux modes, même barre du haut ; la fiche garde ses deux colonnes de champs.
+
+#### Consultation d'une course courue
+
+Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut que la consultation d'une course à venir ; le crayon (C5) bascule en édition, et Annuler ramène à cette consultation. Le résultat passe en tête de la fiche, à la place du compte à rebours (décidé le 29 oct. 2026).
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                                                  (C5) ✎ (C1) ×  │
+│ (C2) COURUE · TRAIL LONG                                         │
+│ (C3) Trail des 2 Baies · 42 km (C4) ↗                            │
+│ (C6) Haut-Val · Trail long · sam. 14 juin 2025, 7 h 00           │
+│ ┌─ (C22) fiche ──────────────────────────────────────┐           │
+│ │ (C25) TEMPS        06:12:40       (C26) 8:51 /km   │           │
+│ │ (C27) CLASSEMENTS  Général 112 / 640               │           │
+│ │                    Catégorie 18 / 96 · Sexe 95 / 510│          │
+│ │ (C9)  DISTANCE     42 km · 2 100 m D+              │           │
+│ │ (C10) D−           2 100 m                         │           │
+│ │ (C11) OBJECTIF     06:30:00                        │           │
+│ │ (C12) DOSSARD      n° 1287                         │           │
+│ │ (C14) PRIX         58 €                            │           │
+│ └────────────────────────────────────────────────────┘           │
+│ (C28) ⌄ Montre   temps · distance · D+ · D− · allure · FC moy.  │
+│ (C15) ⌄ Rôle dans la préparation                                 │
+│ (C16) › Stratégie   (C17) › Logistique                           │
+│ (C18) › Description (C19) › Liens                                │
+│ (C20) ← Course précédente                 Course suivante → (C21)│
+└──────────────────────────────────────────────────────────────────┘
+```
+
+| N° | Élément | Règle et style |
+| --- | --- | --- |
+| C2 | Libellé | « Courue · » et le type, en capitales discrètes ; remplace « rôle · étape x sur y » |
+| C25 | Temps | Première ligne de la fiche ; valeur en Accent, plus grande ; « DNF » si non terminée |
+| C26 | Allure moyenne | Même ligne que C25, à droite ; absente si DNF ou vide |
+| C27 | Classements | Général, catégorie, sexe, en « place / effectif » ; chaque classement saisi s'affiche, les autres non ; la ligne entière disparaît s'il n'y en a aucun |
+| C28 | Montre | Premier texte sous la fiche ; replié (téléphone) ou ouvert (ordinateur) comme les autres ; absent si vide |
+| C9 à C12, C14 | Distance, D−, Objectif, Dossard, Prix | Comme à venir ; Dossard : le numéro seul, sans état d'inscription |
+| C15 à C19 | Textes | Comme à venir, mêmes titres |
+| C20, C21 | Navigation | Parcourt le Palmarès dans l'ordre du tableau (tri et filtres du moment) |
+
+- **Retirés** : C7 (groupe d'options), C8 (actions), C13 (compte à rebours), C24 (plan de préparation). Pas d'écart à l'objectif calculé.
+- **Une ligne sans valeur n'est pas affichée**, comme à venir.
+- **Site partagé en lecture seule** : la feuille s'ouvre, sans crayon (C5).
+- **Téléphone** : même ordre, plein écran ; les textes (C15 à C19) et C28 sont repliés, sauf le premier.
 
 #### Une seule fiche de champs
 
@@ -297,7 +341,7 @@ Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès 
 
 **Questions ouvertes**
 
-- [ ] Une course courue a-t-elle aussi sa consultation (toucher une ligne du Palmarès ouvre la feuille en consultation, crayon pour modifier) ? Proposé : plus tard.
+- [x] Consultation d'une course courue : oui, en touchant une ligne du Palmarès ; résultat en tête de la fiche, pas d'écart à l'objectif, crayon de la ligne gardé, ouverture aussi en lecture seule (décidé le 29 oct. 2026 ; à construire).
 - [x] Ordre des blocs : le même pour tous ; Résultat et Classements fusionnés (résultat d'abord) ; Place dans le plan, Préparation et Logistique avant Résultat, Dossard juste sous Logistique (décidé le 28 oct. 2026).
 
 ## 4. Données d'une course
@@ -497,5 +541,9 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
 - Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
+- Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, libellé « Courue », fiche avec Temps et Allure en première ligne, puis Classements saisis, Distance, D−, Objectif, Dossard, Prix, sans compte à rebours ni plan de préparation ni boutons « Retenir » et « Marquer comme courue » ; Montre, puis les textes dans l'ordre de la page d'une course ; une valeur vide n'est pas affichée.
+- Course non terminée (DNF) : « DNF » à la place du temps, pas d'allure.
+- Crayon de la feuille : bascule en édition ; Annuler sans saisie revient à la consultation. Crayon de la ligne du tableau : ouvre directement l'édition. « Course suivante » et « précédente » suivent l'ordre du tableau, tri et filtres compris.
+- Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon.
 - Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.
 
