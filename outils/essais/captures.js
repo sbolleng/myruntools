@@ -7,7 +7,7 @@
 //   node captures.js course,palmares          quelques pages seulement
 //   node captures.js course ../../../en-ligne captures/avant
 //                                             une autre copie du site (ex. git archive origin/main), pour un avant/après
-// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche-v2 (téléphone, essai), palmares, filtres, preferences,
+// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares, filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -23,26 +23,26 @@ const jeuObjectif = eval('(' + src.slice(a, b) + ')');
 const { db, id } = jeuObjectif(JSON.parse(fs.readFileSync(E + 'donnees-fictives.json', 'utf8')));
 const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 // Fait défiler le formulaire jusqu'à un bloc, son titre juste sous le haut fixe du panneau.
-const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[data-bloc="' + b + '"]'), pan = document.querySelector('.fc-panneau');
-  pan.scrollTop += t.getBoundingClientRect().top - pan.getBoundingClientRect().top - document.querySelector('.fc-haut').offsetHeight - 16; }, bloc);
+const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[data-bloc="' + b + '"]'), pan = document.querySelector('.mc-panneau');
+  pan.scrollTop += t.getBoundingClientRect().top - pan.getBoundingClientRect().top - document.querySelector('.fc-barre').offsetHeight - 16; }, bloc);
 const PAGES = {
   accueil: { url: 'index.html' },
   connexion: { url: 'connexion.html', anonyme: true },
   objectif: { url: 'objectif.html' },
   course: { url: 'course.html?id=' + id(3) },
   candidat: { url: 'course.html?id=' + id(4) },
-  'fiche-v2': { url: 'course.html?id=' + id(3), essai: true, largeurs: { tel: [390, 844] }, action: async p => { await p.locator('[data-ob="modifier"]').click(); await p.waitForSelector('.fc2'); } },
+  fiche: { url: 'course.html?id=' + id(3), largeurs: { tel: [390, 844] }, action: async p => { await p.locator('[data-ob="modifier"]').click(); await p.waitForSelector('.fc-fiche'); } },
   modale: { url: 'objectif.html', largeurs: { tel: [390, 844] }, action: async p => { await p.locator('.ob-et:nth-child(3) .ob-nom a:not(.ob-ext)').click(); await p.waitForSelector('.mc-panneau .pc-titre'); } },
   palmares: { url: 'palmares.html' },
   filtres: { url: 'palmares.html', action: async p => { await p.locator('.pv2-btn').first().click(); } },
   preferences: { url: 'preferences.html' },
-  'fiche-a-venir': { url: 'objectif.html', hauteur: { tel: 1900, ordi: 1500 }, action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-panneau'); } },
+  'fiche-a-venir': { url: 'objectif.html', hauteur: { tel: 1900, ordi: 1500 }, action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-fiche'); } },
   'palmares-paysage': { url: 'palmares.html', largeurs: { paysage: [844, 390] } },
-  'fiche-courue': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-panneau'); } },
-  'fiche-classements': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-bloc="classements"]').click(); await voir(p, 'classements'); } },
-  'fiche-prep': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-panneau'); await voir(p, 'preparation'); } },
-  'fiche-prep-nouvelle': { url: 'objectif.html', action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-bloc="preparation"]').click(); await voir(p, 'preparation'); } },
-  'fiche-prep-parametrer': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-panneau'); await p.locator('[data-fc="preparer"]').click(); await p.waitForSelector('.cal-preparer'); } }
+  'fiche-courue': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-fiche'); } },
+  'fiche-classements': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-fiche'); await p.locator('[data-bloc="classements"]').click(); await voir(p, 'classements'); } },
+  'fiche-prep': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-fiche'); await voir(p, 'preparation'); } },
+  'fiche-prep-nouvelle': { url: 'objectif.html', action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-fiche'); await p.locator('[data-bloc="preparation"]').click(); await voir(p, 'preparation'); } },
+  'fiche-prep-parametrer': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-fiche'); await p.locator('[data-fc="preparer"]').click(); await p.waitForSelector('.cal-preparer'); } }
 };
 const LARG = { tel: [390, 844], ordi: [1200, 900] };
 fs.mkdirSync(sortie, { recursive: true });
@@ -71,7 +71,6 @@ fs.mkdirSync(sortie, { recursive: true });
       if (!cfg.anonyme) {
         const t = Math.floor(maintenant / 1000);
         await p.evaluate(() => localStorage.setItem('mrt-palmares-groupe', '0'));
-        if (cfg.essai) await p.evaluate(() => localStorage.setItem('mrt-essai', 'v2'));
         await p.evaluate(s => localStorage.setItem('sb-gifrpodrwesuhtgkxbuc-auth-token', s), JSON.stringify({
           access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
         await p.goto('file://' + racine + cfg.url);

@@ -44,9 +44,9 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.21 |
 | [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.26 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.14 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.31, fiche v2 en essai |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.32 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.8 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.18 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.19 |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.11, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
@@ -83,33 +83,32 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 Dans l'ordre :
 
-1. [ ] **Fiche d'une course v2** (en essai, [Objectif § 3.8](module-objectif-specification.md)) : l'essayer avec `?essai=v2` ; validée, elle remplace la v1 (renommer les fichiers, retirer `essai.js` et les contrôles v1) ; refusée, supprimer ses fichiers.
-2. [ ] **Objectif** :
+1. [ ] **Objectif** :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
-3. [ ] **Calendrier** : [spécification 0.11](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+2. [ ] **Calendrier** : [spécification 0.11](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
-4. [ ] **Banc d'essai** : corriger l'échec intermittent « ERR_ABORTED » à l'ouverture d'une page (navigation interrompue, sans doute par le renvoi vers la page de démarrage) ; il passe en relançant.
-5. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
-6. [ ] **Profil** : état civil, poids, taille, pointure.
-7. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
-8. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
-9. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
-10. [ ] **Calculatrice** (module) : allure, vitesse, temps de passage, VMA, km-effort, pente ; liste des calculs à valider ; peut sortir tôt, car elle ne dépend d'aucune donnée.
-11. [ ] **Thèmes** : supprimer Accent 2, presque identique à l'Accent ; les repères (compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire) passent en Accent ou en neutre. Plan de page et maquette des trois thèmes d'abord.
-12. [ ] **Nutrition** : créer la page : spécification (périmètre ; repères glucides et eau par heure partagés avec la section stratégie de course d'Objectif), puis construction.
-13. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
-14. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
-15. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
-16. [ ] **En un coup d'œil** :
+3. [ ] **Banc d'essai** : corriger l'échec intermittent « ERR_ABORTED » à l'ouverture d'une page (navigation interrompue, sans doute par le renvoi vers la page de démarrage) ; il passe en relançant.
+4. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
+5. [ ] **Profil** : état civil, poids, taille, pointure.
+6. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
+7. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
+8. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
+9. [ ] **Calculatrice** (module) : allure, vitesse, temps de passage, VMA, km-effort, pente ; liste des calculs à valider ; peut sortir tôt, car elle ne dépend d'aucune donnée.
+10. [ ] **Thèmes** : supprimer Accent 2, presque identique à l'Accent ; les repères (compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire) passent en Accent ou en neutre. Plan de page et maquette des trois thèmes d'abord.
+11. [ ] **Nutrition** : créer la page : spécification (périmètre ; repères glucides et eau par heure partagés avec la section stratégie de course d'Objectif), puis construction.
+12. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
+13. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
+14. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
+15. [ ] **En un coup d'œil** :
    - Pense-bête : rappels tirés des courses et notes perso (table des notes, évolution à prévoir).
    - Bilan nutrition : avec le module Nutrition.
    - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
-17. [ ] **Prévoir un profil piste ?**
+16. [ ] **Prévoir un profil piste ?**
 
 ## Questions ouvertes
 

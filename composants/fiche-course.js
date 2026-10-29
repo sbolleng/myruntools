@@ -1,12 +1,14 @@
-// ===== Fiche d'une course : formulaire d'ajout, de modification, de suppression =====
+// ===== Fiche d'une course : une seule fiche de champs, dans la feuille de la course =====
 //
-// Décrite par docs/module-palmares-specification.md (§ 10) et, pour les courses à venir,
-// docs/module-objectif-specification.md (§ 3.7) ; style : docs/design.md (§ 6).
-// mrtFicheCourse({ course, references, apres, mode, groupes, marquer }) ouvre le
-// panneau : course = ligne de la base à modifier, ou rien pour en ajouter une ;
-// references = { types, sous } (types de course et formats) ; apres() est appelé après chaque
-// enregistrement ou suppression ; mode = 'courue' (Palmarès) ou 'a_venir' (Objectif). Les écritures passent par la base
-// (window.mrtSupabase) : les règles par ligne n'autorisent que ses propres courses.
+// Décrite par docs/module-objectif-specification.md (§ 3.7 et 3.8) et docs/module-palmares-specification.md (§ 10) ;
+// style : fiche-course.css et modale-course.css (la feuille).
+// Mêmes blocs, dans le même ordre, pour une course à venir et une course courue ; l'état choisit seulement les blocs
+// montrés et ceux qui sont ouverts. Barre du haut : « Annuler », titre, « Enregistrer » ; pas de croix.
+// mrtFicheCourse({ course, references, apres, mode, groupes, marquer, preparation, dans, fin })
+//   dans  élément où dessiner la fiche (la feuille d'une course, modale-course.js) ; sans lui, la fiche ouvre
+//         sa propre feuille (Palmarès, « + Ajouter une course ») et la ferme à la fin
+//   fin(r, id)  appelé à la fin : r = 'annule', 'enregistre' ou 'supprime'
+// Rend { annuler() } : « Annuler », avec « Abandonner les modifications ? » s'il y a eu une saisie.
 (function () {
   const CHEVRON = '<svg class="fc-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const ROLES = [['preparatoire', 'Préparatoire'], ['plaisir', 'Plaisir'], ['objectif_intermediaire', 'Objectif intermédiaire'], ['objectif', 'Objectif']];
@@ -68,41 +70,8 @@
   }
 
   // Champs : clé de la base, libellé, genre (date, dateLibre, heure, texte, long, url, objectif, choix, groupe,
-  // nombre, entier, duree, case), bloc, obligatoire. Deux formulaires : une course courue (Palmarès) et une
-  // course à venir (Objectif).
-  const CHAMPS_COURUE = [
-    // Champs communs dans l'ordre du formulaire d'Objectif.
-    ['course', 'Course', 'texte', 'course', true],
-    ['parcours', 'Parcours', 'texte', 'course'],
-    ['date', 'Date', 'date', 'course', true],
-    ['dossard', 'Numéro de dossard', 'texte', 'course'],
-    ['heure', 'Heure de départ', 'heure', 'course'],
-    ['lieu', 'Lieu', 'texte', 'course'],
-    ['type', 'Type', 'choix', 'course', true],
-    ['format', 'Format', 'choix', 'course', true],
-    ['distance', 'Distance (km)', 'nombre', 'course'],
-    ['dplus', 'D+ (m)', 'entier', 'course'],
-    ['dmoins', 'D− (m)', 'entier', 'course'],
-    ['description', 'Description', 'long', 'course'],
-    ['temps', 'Temps', 'duree', 'resultat'],
-    ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
-    ['allure', 'Allure moyenne (par km)', 'allure', 'resultat'],
-    // Général et sexe : deux champs sur toute la largeur ; catégorie : trois champs (catégorie, place, effectif).
-    ['place', 'Place au général', 'entier', 'classements'],
-    ['effectif', 'Effectif du général', 'entier', 'classements'],
-    ['categorie', 'Catégorie', 'choix', 'classements'],
-    ['place_categorie', 'Place en catégorie', 'entier', 'classements'],
-    ['effectif_categorie', 'Effectif catégorie', 'entier', 'classements'],
-    ['place_sexe', 'Place par sexe', 'entier', 'classements'],
-    ['effectif_sexe', 'Effectif par sexe', 'entier', 'classements'],
-    ['montre_temps', 'Temps', 'duree', 'montre'],
-    ['montre_distance', 'Distance (km)', 'nombre', 'montre'],
-    ['montre_dplus', 'D+ (m)', 'entier', 'montre'],
-    ['montre_dmoins', 'D− (m)', 'entier', 'montre'],
-    ['montre_allure', 'Allure moyenne (par km)', 'allure', 'montre'],
-    ['fc_moyenne', 'FC moyenne (bpm)', 'entier', 'montre']
-  ];
-  const CHAMPS_VENIR = [
+  // nombre, entier, duree, case), bloc, obligatoire. Une seule liste, dans l'ordre de la fiche (§ 3.8).
+  const TOUS = [
     ['course', 'Course', 'texte', 'course', true],
     ['parcours', 'Parcours', 'texte', 'course'],
     ['date', 'Date', 'date', 'course', true],
@@ -122,19 +91,39 @@
     ['objectif_precisions', 'Précisions', 'long', 'preparation'],
     ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
     ['strategie', 'Stratégie ou enchaînement', 'long', 'preparation'],
+    ['logistique', 'Logistique', 'long', 'logistique'],
     ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
     ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['prix', 'Prix (€)', 'nombre', 'dossard'],
-    ['logistique', 'Logistique', 'long', 'logistique'],
+    // Résultat, puis classements : un seul bloc. Général et sexe : deux champs sur toute la largeur ; catégorie : trois.
+    ['temps', 'Temps', 'duree', 'resultat'],
+    ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
+    ['allure', 'Allure moyenne (par km)', 'allure', 'resultat'],
+    ['place', 'Place au général', 'entier', 'resultat'],
+    ['effectif', 'Effectif du général', 'entier', 'resultat'],
+    ['categorie', 'Catégorie', 'choix', 'resultat'],
+    ['place_categorie', 'Place en catégorie', 'entier', 'resultat'],
+    ['effectif_categorie', 'Effectif catégorie', 'entier', 'resultat'],
+    ['place_sexe', 'Place par sexe', 'entier', 'resultat'],
+    ['effectif_sexe', 'Effectif par sexe', 'entier', 'resultat'],
+    ['montre_temps', 'Temps', 'duree', 'montre'],
+    ['montre_distance', 'Distance (km)', 'nombre', 'montre'],
+    ['montre_dplus', 'D+ (m)', 'entier', 'montre'],
+    ['montre_dmoins', 'D− (m)', 'entier', 'montre'],
+    ['montre_allure', 'Allure moyenne (par km)', 'allure', 'montre'],
+    ['fc_moyenne', 'FC moyenne (bpm)', 'entier', 'montre'],
     ['lien', 'Site officiel', 'url', 'liens'],
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
   ];
-  const BLOCS_COURUE = [['course', 'Course'], ['resultat', 'Résultat'], ['classements', 'Classements'], ['montre', 'Montre']];
+  // Champs propres à un état : une course courue n'a ni plan ni inscription à venir ; une course à venir, ni résultat ni montre.
+  const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'inscrit', 'inscription']);
+  const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['logistique', 'Logistique'],
+    ['dossard', 'Dossard'], ['resultat', 'Résultat'], ['montre', 'Montre'], ['liens', 'Liens']];
+  const COURUE_SEUL = new Set(TOUS.filter(f => f[3] === 'resultat' || f[3] === 'montre').map(f => f[0]));
   // Vitesse : plus saisie, tirée de l'allure moyenne (3 600 ÷ allure, en km/h) à l'enregistrement.
   const VITESSES = [['allure', 'vitesse'], ['montre_allure', 'montre_vitesse']];
-  const BLOCS_VENIR = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['dossard', 'Dossard'], ['logistique', 'Logistique'], ['liens', 'Liens']];
   // Catégories d'âge de la Fédération française d'athlétisme (saison du 1er septembre au 31 août).
   const CATEGORIES = [['CA', 'Cadet (CA)'], ['JU', 'Junior (JU)'], ['ES', 'Espoir (ES)'], ['SE', 'Senior (SE)']]
     .concat(Array.from({ length: 11 }, (_, i) => ['M' + i, 'Master ' + i + ' (M' + i + ', ' + (35 + 5 * i) + (i < 10 ? '-' + (39 + 5 * i) : ' et plus') + ' ans)']));
@@ -163,20 +152,18 @@
   //   marquer  vrai : la course existante passe à l'état Courue à l'enregistrement
   //   preparation  { semaines } (mode à venir) : phases modifiées à la main ; le plan de la course s'affiche en tête du bloc
   //                Préparation et se règle dans la fenêtre « Paramétrer le plan » (composants/preparation.js), enregistré avec la course
-  window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer, preparation }) {
+  window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer, preparation, dans, fin }) {
     const existe = !!(course && course.id);
     const c = Object.assign({}, course || {});
     mode = mode || 'courue';
     const venir = mode === 'a_venir';
-    const CHAMPS = venir ? CHAMPS_VENIR : CHAMPS_COURUE;
+    const CHAMPS = TOUS.filter(f => !(venir ? COURUE_SEUL : VENIR_SEUL).has(f[0]));
     // Une course qui n'a qu'une vitesse : son allure moyenne en est tirée, pour ne rien perdre en l'enregistrant.
     if (!venir) VITESSES.forEach(([a, v]) => { if (c[a] == null && Number(c[v]) > 0) c[a] = Math.round(3600 / Number(c[v])); });
-    const BLOCS = venir ? BLOCS_VENIR : BLOCS_COURUE;
+    const BLOCS = BLOCS_TOUS.filter(([b]) => CHAMPS.some(f => f[3] === b));
     const sousDe = type => references.sous.filter(s => s.type === type);
     const typeDe = sc => { const s = references.sous.find(x => x.id === sc); return s ? s.type : ''; };
 
-    const voile = document.createElement('div');
-    voile.className = 'fc-voile';
     const champ = ([k, lib, genre, , oblig]) => {
       const id = 'fc-' + k;
       const valeur = k === 'type' ? typeDe(c.format) : c[k];
@@ -225,47 +212,76 @@
       const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
       return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
     };
-    const ouvert = b => existe || (venir ? b === 'course' || b === 'plan' : b === 'course' || b === 'resultat');
+    // Blocs ouverts : à venir, tous pour une course existante, Course et Place dans le plan pour une nouvelle ;
+    // courue, Course et Résultat, plus Dossard, Montre et Liens quand ils ont une valeur.
+    const rempli = b => CHAMPS.some(f => f[3] === b && c[f[0]] != null && c[f[0]] !== '' && c[f[0]] !== false);
+    const ouvert = b => (venir ? existe || b === 'course' || b === 'plan'
+      : b === 'course' || b === 'resultat' || (existe && ['dossard', 'montre', 'liens'].includes(b) && rempli(b)));
     const titreForm = marquer ? 'Marquer comme courue' : existe ? 'Modifier la course' : 'Ajouter une course';
-    voile.innerHTML =
-      '<div class="fc-panneau" role="dialog" aria-modal="true" aria-labelledby="fc-titre">' +
-        '<div class="fc-haut"><h2 id="fc-titre">' + titreForm + '</h2>' +
-          '<button type="button" class="fc-fermer mrt-rond" data-fc="annuler" aria-label="Fermer">×</button></div>' +
-        '<form novalidate>' +
-          BLOCS.map(([b, titre]) =>
-            '<section class="fc-bloc">' +
-              '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
-              '<div class="fc-grille' + (b === 'classements' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
-                (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
-            '</section>').join('') +
-          '<p class="fc-msg" aria-live="polite"></p>' +
-          '<div class="fc-actions">' +
-            (existe && !marquer ? '<button type="button" class="fc-supprimer mrt-lien is-danger" data-fc="supprimer">Supprimer</button>' : '') +
-            '<button type="button" class="fc-btn mrt-btn" data-fc="annuler">Annuler</button>' +
-            '<button type="submit" class="fc-btn mrt-btn is-principal fc-plein">Enregistrer</button>' +
-          '</div>' +
+    // Feuille à elle seule (Palmarès, « + Ajouter une course ») : la même que celle d'une course (modale-course.css).
+    const seule = !dans;
+    let voile = null, hote = dans;
+    if (seule) {
+      voile = document.createElement('div');
+      voile.className = 'mc-voile';
+      voile.innerHTML = '<div class="mc-panneau" role="dialog" aria-modal="true" aria-labelledby="fc-titre" tabindex="-1"><div class="mc-corps"></div></div>';
+      hote = voile.querySelector('.mc-corps');
+    }
+    const racine = document.createElement('div');
+    racine.className = 'fc-fiche';
+    racine.innerHTML =
+      '<form novalidate>' +
+        '<div class="pc-barre fc-barre"><button type="button" class="mrt-btn" data-fc="annuler">Annuler</button>' +
+          '<h2 id="fc-titre">' + titreForm + '</h2><button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
+        '<p class="fc-msg" aria-live="polite"></p>' +
+        BLOCS.map(([b, titre]) =>
+          '<section class="fc-bloc">' +
+            '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
+            '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
+              (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
+          '</section>').join('') +
+        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-lien is-danger" data-fc="supprimer">Supprimer</button></div>' +
           '<div class="fc-confirmer" hidden>' +
             '<p>Supprimer cette course ? Cette action est définitive.</p>' +
             '<div class="fc-actions"><button type="button" class="fc-btn mrt-btn" data-fc="garder">Annuler</button>' +
             '<button type="button" class="fc-btn mrt-btn fc-danger" data-fc="confirmer">Supprimer</button></div>' +
-          '</div>' +
-        '</form>' +
-      '</div>';
-    document.body.appendChild(voile);
-    document.documentElement.classList.add('fc-ouvert');
-    const $ = s => voile.querySelector(s);
-    const val = k => voile.querySelector('[data-k="' + k + '"]');
-    const avant = document.activeElement;
-    val('course').focus();
-
-    function fermer() {
-      voile.remove();
-      document.documentElement.classList.remove('fc-ouvert');
-      document.removeEventListener('keydown', clavier);
-      if (avant && avant.focus) avant.focus();
+          '</div>' : '') +
+      '</form>';
+    hote.replaceChildren(racine);
+    if (seule) {
+      document.body.appendChild(voile);
+      document.documentElement.classList.add('mc-ouvert');
     }
-    function clavier(e) { if (e.key === 'Escape' && !document.querySelector('.cal-voile')) fermer(); }
-    document.addEventListener('keydown', clavier);
+    const $ = s => racine.querySelector(s);
+    const val = k => racine.querySelector('[data-k="' + k + '"]');
+    const avant = document.activeElement;
+    val('course').focus({ preventScroll: true });
+
+    // Fin : la feuille à elle seule se ferme ; la feuille d'une course reprend la main (fin).
+    let finie = false;
+    function terminer(r, id) {
+      if (finie) return;
+      finie = true;
+      if (seule) {
+        voile.remove();
+        document.documentElement.classList.remove('mc-ouvert');
+        document.removeEventListener('keydown', clavier);
+        if (avant && avant.focus) avant.focus();
+      }
+      if (fin) fin(r, id);
+    }
+    // « Annuler » : rien n'est rangé ; une saisie en cours demande d'abord confirmation.
+    let depart = '';
+    const etat = () => JSON.stringify([...racine.querySelectorAll('[data-k]')].map(e => (e.type === 'checkbox' ? e.checked : e.value))) + (reglage ? JSON.stringify(reglage) : '');
+    function annuler() {
+      if (etat() !== depart && !window.confirm('Abandonner les modifications ?')) return;
+      terminer('annule');
+    }
+    function clavier(e) { if (e.key === 'Escape' && !document.querySelector('.cal-voile')) annuler(); }
+    if (seule) {
+      document.addEventListener('keydown', clavier);
+      voile.addEventListener('click', e => { if (e.target === voile) annuler(); });
+    }
 
     // ----- Plan de préparation (mode à venir) -----
     // Tiré de la date, du format et du statut saisis ; les réglages de « Paramétrer le plan » (reglage) attendent « Enregistrer ».
@@ -306,7 +322,7 @@
         '<div class="fc-prep-bas"><button type="button" class="mrt-btn is-principal cal-parametrer" data-fc="preparer"' + (attente ? ' disabled' : '') + '>' + P.REGLAGES + 'Paramétrer le plan</button></div>';
     }
     if (preparation) {
-      voile.addEventListener('change', e => { if (['date', 'date_approx', 'type', 'format', 'distance', 'statut'].includes(e.target.dataset.k)) majPrep(); });
+      racine.addEventListener('change', e => { if (['date', 'date_approx', 'type', 'format', 'distance', 'statut'].includes(e.target.dataset.k)) majPrep(); });
       majPrep();
     }
 
@@ -436,8 +452,7 @@
       return ok ? out : null;
     }
 
-    voile.addEventListener('click', async e => {
-      if (e.target === voile) return fermer();
+    racine.addEventListener('click', async e => {
       const bloc = e.target.closest('[data-bloc]');
       if (bloc) {
         const grille = bloc.nextElementSibling;
@@ -448,18 +463,18 @@
       const act = e.target.closest('[data-fc]');
       if (!act) return;
       const a = act.dataset.fc;
-      if (a === 'annuler') fermer();
+      if (a === 'annuler') annuler();
       if (a === 'preparer') {
         const v = virtuelle();
         P.ouvrirPreparer(null, null, { course: v, duree: v.prepaSemaines, modifs: modifs(), valider: (duree, m) => { reglage = { duree }; base = { modifs: m, date: v.date, approx: val('date_approx').checked }; majPrep(); } });
       }
-      if (a === 'supprimer') { $('.fc-confirmer').hidden = false; $('.fc-actions').hidden = true; $('[data-fc="garder"]').focus(); }
+      if (a === 'supprimer') { $('.fc-confirmer').hidden = false; $('.fc-actions').hidden = true; $('[data-fc="garder"]').focus(); $('.fc-confirmer').scrollIntoView({ block: 'nearest' }); }
       if (a === 'garder') { $('.fc-confirmer').hidden = true; $('.fc-actions').hidden = false; }
       if (a === 'confirmer') {
         act.disabled = true;
         const { error } = await window.mrtSupabase.from('courses').delete().eq('id', c.id);
         if (error) { $('.fc-msg').textContent = 'Suppression impossible pour l\'instant.'; act.disabled = false; return; }
-        fermer();
+        terminer('supprime', c.id);
         if (apres) apres({ supprimee: c.id });
       }
     });
@@ -467,7 +482,12 @@
     $('form').addEventListener('submit', async e => {
       e.preventDefault();
       const champs = lire();
-      if (!champs) { $('.fc-msg').textContent = 'Corrige les champs signalés.'; return; }
+      if (!champs) {
+        $('.fc-msg').textContent = 'Corrige les champs signalés.';
+        const faux = $('[aria-invalid="true"]');
+        if (faux) faux.scrollIntoView({ block: 'center' });
+        return;
+      }
       if (marquer) champs.etat = 'courue';
       const btn = $('.fc-plein');
       btn.disabled = true;
@@ -475,11 +495,12 @@
       // Plan réglé dans la fenêtre : durée avec la course (vide si c'est celle du format), phases modifiées à part.
       // Sans réglage : phases décalées avec la date, ou remises aux règles quand la date approximative devient précise.
       let lignes = null, id = c.id;
+      // Nouvelle course : son identifiant est choisi ici, pour l'ouvrir aussitôt enregistrée.
+      if (!existe) champs.id = id = crypto.randomUUID();
       if (preparation && P) {
         const v = virtuelle(), m = modifs();
         const plan = reglage && avecPlan() ? P.planDe(v, m, reglage.duree) : null;
         if (plan) {
-          if (!existe) champs.id = id = crypto.randomUUID();
           champs.prepa_semaines = reglage.duree === v.prepaFormat ? null : reglage.duree;
           lignes = plan.semaines.filter(w => w.phase !== w.regle).map(w => ({ course: id, lundi: w.lundi, phase: w.phase }));
         } else if (existe && (remise() || (base.modifs.size && v.date && v.date !== base.date))) {
@@ -497,9 +518,13 @@
         if (!r.error && lignes.length) r = await sb.from('plan_semaines').insert(lignes);
         if (r.error) { console.warn(r.error); window.alert('Course enregistrée, mais pas les phases du plan : réessaie depuis « Paramétrer le plan ».'); }
       }
-      fermer();
-      if (apres) apres();
+      terminer('enregistre', id);
+      if (apres) await apres();
+      // Nouvelle course à venir, ajoutée depuis sa propre feuille : sa consultation, si elle est sur la feuille de route.
+      if (seule && !existe && venir && window.mrtOuvrirCourse) window.mrtOuvrirCourse(id, '', { siPresente: true });
     });
+    depart = etat();
+    return { annuler };
   };
 
   // Pour les contrôles : lecture des durées, de l'heure et de l'objectif.

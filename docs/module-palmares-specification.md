@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.18 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.19 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -140,20 +140,16 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre outil.
 
-> **v2 en essai** : une fiche unique pour les courses à venir et courues, dans la même feuille que la page d'une course ([Objectif](module-objectif-specification.md), § 3.8). Ce paragraphe décrit la v1, en ligne pour tous.
+- **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre la fiche vide.
+- **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre la même fiche, remplie. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
+- **Fiche** : la fiche d'une course, commune avec Objectif ([spécification d'Objectif](module-objectif-specification.md), § 3.8), dans la feuille d'une course (barre « Annuler · titre · Enregistrer »). Mêmes blocs, dans le même ordre, pour une course courue et une course à venir : Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard (numéro, prix), Résultat, Montre, Liens. Course et Résultat sont ouverts, les blocs de la préparation repliés ; Dossard, Montre et Liens ouverts quand ils ont une valeur. Le curseur est dans le champ Course.
 
-- **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre un formulaire vide.
-- **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre le même formulaire, rempli. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
-- **Formulaire**, en panneau par-dessus la page, en quatre blocs, limité à ce qu'il faut pour une course courue ; Classements et Montre sont repliés à l'ouverture d'un formulaire vide, et le curseur est dans le champ Course :
-
-| Bloc | Champs |
+| Bloc (propre à une course courue) | Champs |
 | --- | --- |
-| Course | Course et parcours ; date et, à sa droite, numéro de dossard ; heure de départ et lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (texte libre, 1 000 caractères au plus) |
-| Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure moyenne |
-| Classements | Place et effectif au général, sur toute la largeur ; catégorie d'âge (liste de la Fédération française d'athlétisme : CA, JU, ES, SE, M0 à M10), place et effectif en catégorie, trois champs sur la ligne (libellés courts : Catégorie, Place en catégorie, Effectif catégorie ; cases alignées même si un libellé passe sur deux lignes) ; place et effectif par sexe, sur toute la largeur |
+| Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure moyenne ; puis les classements : place et effectif au général, sur toute la largeur ; catégorie d'âge (liste de la Fédération française d'athlétisme : CA, JU, ES, SE, M0 à M10), place et effectif en catégorie, trois champs sur la ligne ; place et effectif par sexe, sur toute la largeur |
 | Montre | Temps et distance ; D+ et D− ; allure moyenne et FC moyenne |
 
-- **Ni rôle, ni objectif, ni précisions** dans ce formulaire : ce sont des données de préparation, saisies dans Objectif ; une course marquée courue les garde.
+- **Données de préparation** (rôle, objectif, précisions, stratégie, logistique, liens) : visibles et modifiables, repliées ; une course marquée courue les garde.
 - **Non terminée (DNF)** : cochée, elle vide et grise le temps et l'allure moyenne ; la course est rangée sans temps ni allure.
 - **Vitesse** : plus saisie ; à l'enregistrement, elle est calculée depuis l'allure moyenne (3 600 ÷ allure, en km/h, deux décimales) et rangée. Même règle pour la vitesse montre. Une course qui n'avait qu'une vitesse reçoit son allure moyenne à l'ouverture du formulaire, pour ne rien perdre.
 
@@ -165,11 +161,11 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
   - durées : `49:18`, `1:56:05`, `01:56:05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
   - allure moyenne : la vitesse s'en déduit (§ 4).
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
-- **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler**, ou le bouton « × » en haut du formulaire (toujours visible), ferme sans rien changer.
-- **Supprimer** : seulement dans le formulaire d'une course existante, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
-- **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire (par défaut, non affiché dans ce formulaire).
+- **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler** (barre du haut, toujours visible) ferme sans rien changer, après « Abandonner les modifications ? » s'il y a eu une saisie.
+- **Supprimer** : seulement dans la fiche d'une course existante, en bas, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
+- **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire par défaut (modifiable dans Place dans le plan).
 - **Site partagé en lecture seule** : ni bouton d'ajout, ni crayon, ni ouverture au toucher ; le tableau se consulte seulement.
-- **Depuis la page Objectif** (avec ce module) : cocher une course comme faite ouvre le même formulaire, pré-rempli de ce que la page Objectif connaît ; à l'enregistrement, la course passe à l'état Courue et rejoint le Palmarès.
+- **Depuis la page Objectif** (avec ce module) : cocher une course comme faite ouvre la même fiche, pré-remplie de ce que la page Objectif connaît ; à l'enregistrement, la course passe à l'état Courue et rejoint le Palmarès.
 
 ## 11. Affichage des valeurs
 
@@ -236,9 +232,9 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Modifier la course « Test » (temps `5200`) : 00:52:00, le 🥇 revient au 00:49:18.
 - Supprimer la course « Test » : une confirmation est demandée ; après accord, elle disparaît.
 - Site partagé en lecture seule : ni bouton « Ajouter une course » ni crayon ; toucher une ligne n'ouvre rien.
-- Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre son formulaire.
+- Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre sa fiche.
 - Ouvrir les filtres : « Trier par » montre « Date↓ » ; la pastille Trail donne « 3 courses sur 7 » et un « 1 » sur le bouton Filtres ; la pastille 2025 filtre l'année, « Toutes » rétablit les 7 ; la pastille Temps trie du plus court au plus long (« Temps↑ »).
 - Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + Course ».
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
-- Téléphone : le formulaire tient dans la largeur de l'écran ; « × » reste visible quand on fait défiler, et le ferme.
+- Téléphone : la fiche tient dans la largeur de l'écran ; « Annuler » et « Enregistrer » restent visibles quand on fait défiler.

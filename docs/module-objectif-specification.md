@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.31 · 28 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.32 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -201,67 +201,28 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 
 ### 3.7 Saisie et édition
 
-Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre outil. Le formulaire est celui du Palmarès (mode « à venir » ; le mode « courue » est celui du Palmarès) ([spécification du Palmarès](module-palmares-specification.md), § 10), étendu aux champs d'une course à venir : même panneau, mêmes boutons, mêmes contrôles de saisie. Un seul formulaire pour tout le site, pas de copie : une évolution vaut pour le Palmarès comme pour l'Objectif.
+Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre outil. La saisie se fait dans la **fiche d'une course** (§ 3.8) : une seule fiche de champs pour les courses à venir et courues (Objectif et Palmarès), dans la même feuille que la page d'une course, avec les mêmes contrôles de saisie.
 
 **Accès**
 
 | Bouton | Place | Effet |
 | --- | --- | --- |
 | « + Ajouter une course » (« + Course » sur téléphone) | Bouton principal, le même que celui du Palmarès, en haut à droite de la feuille de route, au-dessus de la première carte | Ouvre un formulaire vide ; statut Confirmée et rôle Préparatoire proposés |
-| « Modifier » | Page d'une course, à droite du titre | Ouvre le formulaire rempli |
+| « Modifier » | Page d'une course, crayon de la barre du haut | Bascule la feuille en édition, fiche remplie (§ 3.8) |
 | « Retenir cette course » | Page d'un candidat d'un groupe d'options | Après confirmation, le candidat passe en Confirmée et quitte le groupe ; les autres candidats passent À surveiller et quittent la feuille de route, sans être supprimés |
-| « Marquer comme courue » | Page d'une course Confirmée, à partir du jour de la course | Ouvre le formulaire du Palmarès, pré-rempli de ce que la course connaît ; à l'enregistrement, la course passe à l'état Courue, quitte la feuille de route et rejoint le Palmarès |
+| « Marquer comme courue » | Page d'une course Confirmée, à partir du jour de la course | Bascule la feuille en édition, fiche d'une course courue, pré-remplie de ce que la course connaît ; à l'enregistrement, la course passe à l'état Courue, quitte la feuille de route et rejoint le Palmarès |
 
 Site partagé en lecture seule : aucun de ces boutons.
 
-**Formulaire**, en six blocs ; les quatre derniers sont repliés à l'ouverture d'un formulaire vide (tous ouverts pour une course existante). Plan de page : numéros stables, repris des échanges de validation.
-
-```
-┌──────────────────────────────────────────────────┐
-│ Ajouter une course (1)                       × (2)│
-├──────────────────────────────────────────────────┤
-│ ▾ Course (3)                                      │
-│  Course * (7)          Parcours (8)               │
-│  Date * (4)            ☐ Date approximative (5)   │
-│  Heure de départ (6)   Lieu (9)                   │
-│  Type * (10)           Format * (11)              │
-│  Distance (12)                                    │
-│  D+ (13)               D− (14)                    │
-│  Description (34)                       0 / 1 000 │
-│ ▾ Place dans le plan (15)                         │
-│  Statut (16)           Rôle (17)                  │
-│  Groupe d'options (18)  [si statut Option]        │
-│ ▸ Préparation (20)                                │
-│  Plan de 16 semaines · début … → jour J … (39)    │
-│  ██ Base ██ Développement ██ Affûtage (40)        │
-│                       [Paramétrer le plan (41)]   │
-│  Choisis d'abord la date et le format. (42)       │  [à la place de 39-40, 41 grisé]
-│  Objectif (30)                                    │
-│  Rôle dans la préparation (31)                    │
-│  Stratégie ou enchaînement (32)                   │
-│ ▸ Dossard (19)                                    │
-│  Ouverture des inscr. (29)  ☐ Inscrit (26)        │
-│  Site d'inscription (36)                          │
-│  N° de dossard (27)    Prix (28)                  │
-│ ▸ Logistique (38)                                 │
-│  Logistique (33)                                  │
-│ ▸ Liens (21)                                      │
-│  Site officiel (35)                               │
-│  Résultats en direct (37)                         │
-│  message (22)                                     │
-│  [Supprimer (23)]      [Annuler (24)] [Enregistrer (25)]
-└──────────────────────────────────────────────────┘
-```
-
-Sur téléphone : le panneau passe en plein écran, une seule colonne, même ordre ; la date et « Date approximative (mois seulement) » restent côte à côte.
+**Champs d'une course à venir**, par bloc, dans l'ordre de la fiche (§ 3.8) ; pour une nouvelle course, Course et Place dans le plan sont ouverts, les autres repliés (tous ouverts pour une course existante). Numéros du formulaire : ceux du § 3.8 (F).
 
 | Bloc | Champs |
 | --- | --- |
 | Course | Course et parcours ; date, ou mois seul (case « Date approximative (mois seulement) » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
 | Préparation | En tête, le plan de préparation, comme sur la page de la course (§ 3.4) : durée et dates (39), frise des phases (40), bouton principal « Paramétrer le plan » (41). Seulement pour une course Confirmée ou Option ; calculé sur la date, le format et le statut saisis, il suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) remplace 39 et 40 et le bouton est grisé : « Choisis d'abord la date et le format. ». Date approximative : le plan vise le 1er du mois, avec sous 39 la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. » ; case décochée, le plan se recalcule sur la date précise, selon les règles (Calendrier, § 5.1). Date précise changée : les phases réglées à la main suivent la course, au même numéro de semaine. Le bouton ouvre la fenêtre de réglage (Calendrier, § 5.3) par-dessus le formulaire, avec « Valider » : rien n'est rangé avant « Enregistrer » du formulaire, qui range la course, sa durée de prépa et ses phases modifiées ; « Annuler » abandonne le tout ; Échap ne ferme que la fenêtre du plan. Même comportement pour une nouvelle course et une course existante. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
-| Dossard | Date d'ouverture des inscriptions et case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Logistique | Logistique |
+| Dossard | Date d'ouverture des inscriptions et case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Liens | Site officiel ; résultats en direct |
 
 - **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course » et « Marquer comme courue » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein).
@@ -273,16 +234,14 @@ Sur téléphone : le panneau passe en plein écran, une seule colonne, même ord
   - objectif : une durée, écrite comme dans le Palmarès (`2:45:00`, `2h45`, chiffres seuls lus par la droite) et rangée au format `hh:mm:ss` (« 02:45:00 ») ; ou « Finisher » ; ou « Sub » suivi d'une durée en heures et minutes (« Sub 3h », « Sub 1h30 », « Sub 45 min »). Majuscules remises à l'enregistrement (« finisher » devient « Finisher »). Autre chose : « Format attendu : 02:45:00, Finisher ou Sub 3h » ;
   - nombres positifs ; liens commençant par `http://` ou `https://`.
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
-- **Enregistrer** range la course et met à jour la page, en-tête compris ; **Annuler**, ou « × », ferme sans rien changer.
+- **Enregistrer** range la course et met à jour la page, en-tête compris ; **Annuler** revient sans rien changer (§ 3.8).
 - **Supprimer** : seulement dans le formulaire d'une course existante, après confirmation (« Supprimer cette course ? Cette action est définitive. »). Depuis la page de la course supprimée, retour à la feuille de route.
 
-### 3.8 Fiche d'une course, v2 (en essai, à valider)
+### 3.8 Fiche d'une course : consultation et édition
 
-**Pourquoi** : aujourd'hui, consulter une course (feuille au bord transparent) et la modifier (formulaire en plein écran, par-dessus) n'ont ni la même forme ni les mêmes champs selon qu'on vient d'Objectif ou du Palmarès ; les fenêtres s'empilent et la croix ne dit pas ce qu'elle ferme. La v2 réunit tout dans **une seule feuille à deux modes** et **une seule fiche de champs**.
+**Principe** : consulter et modifier une course se font dans **une seule feuille à deux modes**, avec **une seule fiche de champs** pour les courses à venir (Objectif) et courues (Palmarès) : pas de fenêtres empilées, un champ toujours à la même place. (Essayée en version d'essai, `?essai=v2`, puis retenue le 29 oct. 2026.)
 
-**Essai** (construit le 28 oct. 2026) : la v2 vit dans ses propres fichiers (`essai.js`, `modale-course-v2`, `fiche-course-v2`), la v1 (§ 3.4 et 3.7) reste celle de tous. Ouvrir une page du site avec `?essai=v2` active la v2 sur cet appareil (retenu sur l'appareil) ; un bandeau « Version d'essai · revenir à la v1 » la signale et permet d'en sortir (`?essai=v1` aussi). Mêmes données, mêmes champs en base : rien à changer dans Supabase. Validée, la v2 remplace la v1 et l'interrupteur disparaît ; refusée, ses fichiers sont supprimés.
-
-**Numéros** : ceux de la page d'une course (§ 3.4) précédés de C, ceux du formulaire (§ 3.7) précédés de F ; un élément nouveau prend le numéro suivant de sa série.
+**Numéros** : ceux de la page d'une course (§ 3.4) précédés de C, ceux de la fiche précédés de F ; un élément nouveau prend le numéro suivant de sa série.
 
 #### Deux modes, une feuille
 
@@ -334,13 +293,13 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 | 7 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
 | 8 | (F21) Liens | ouvert | replié si vide | Site officiel, résultats en direct |
 
-Ce que la v2 change pour une course courue : son objectif, sa stratégie, sa logistique, son prix et ses liens, gardés en base, redeviennent visibles et modifiables ; le lien des résultats s'ajoute après coup.
+Pour une course courue : son objectif, sa stratégie, sa logistique, son prix et ses liens, gardés en base, redeviennent visibles et modifiables ; le lien des résultats s'ajoute après coup.
 
 Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès (§ 10), inchangés.
 
-**Questions ouvertes (v2)**
+**Questions ouvertes**
 
-- [ ] Une course courue a-t-elle aussi sa consultation (toucher une ligne du Palmarès ouvre la feuille en consultation, crayon pour modifier) ? Proposé : plus tard, une fois la v2 validée.
+- [ ] Une course courue a-t-elle aussi sa consultation (toucher une ligne du Palmarès ouvre la feuille en consultation, crayon pour modifier) ? Proposé : plus tard.
 - [x] Ordre des blocs : le même pour tous ; Résultat et Classements fusionnés (résultat d'abord) ; Place dans le plan, Préparation et Logistique avant Résultat, Dossard juste sous Logistique (décidé le 28 oct. 2026).
 
 ## 4. Données d'une course
@@ -510,7 +469,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - Page Trail des Gorges, « Modifier » : le bloc Préparation commence par « Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 », la frise et « Paramétrer le plan » ; ce bouton ouvre la fenêtre de réglage devant le formulaire, avec « Valider » ; Échap la ferme, le formulaire reste ouvert. Durée passée à 12 semaines, « Valider » : « Plan de 12 semaines · début : lun. 14 déc. 2026 … », rien d'écrit ; « Enregistrer » : la durée part avec la course, les phases modifiées sont remises à plat.
 - Supprimer Corrida de Noël, confirmation acceptée : elle disparaît ; l'en-tête affiche « 4 courses ».
 - Page Trail des Cimes, « Retenir cette course », confirmation acceptée : Trail des Cimes devient une étape Confirmée au 30 mai 2027 ; Ultra du Plateau quitte la feuille de route (À surveiller) ; la carte Printemps 2027 disparaît ; l'en-tête affiche « 5 courses ».
-- Page Trail du Lac le 20 octobre 2026 : pas de « Marquer comme courue ». Le 15 novembre 2026 à 14 h : le bouton est là ; il ouvre le formulaire du Palmarès rempli (15 novembre 2026, Trail du Lac, Le Tour du Lac, Trail, Trail court, 24 km, 650 m, Préparatoire) ; temps `24110` : à l'enregistrement, Trail du Lac quitte la feuille de route et rejoint le Palmarès, avec un temps de 2 h 41 min 10 s.
+- Page Trail du Lac le 20 octobre 2026 : pas de « Marquer comme courue ». Le 15 novembre 2026 à 14 h : le bouton est là ; il bascule la feuille en édition, fiche d'une course courue remplie (15 novembre 2026, Trail du Lac, Le Tour du Lac, Trail, Trail court, 24 km, 650 m, Préparatoire) ; temps `24110` : à l'enregistrement, Trail du Lac quitte la feuille de route et rejoint le Palmarès, avec un temps de 2 h 41 min 10 s.
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir cette course », ni « Marquer comme courue ».
 - Téléphone : le formulaire occupe tout l'écran et défile, sans déborder sur les côtés.
 
@@ -528,15 +487,13 @@ Résultats attendus, formulaire en détail (écritures relues par le banc d'essa
 - Page de Trail des Gorges, « Modifier » : formulaire rempli (objectif 06:30:00, heure 07:30, D− 2 100…), tous les blocs ouverts ; objectif `Sub 6h30` et date du 8 mars 2027 mis à jour sur la ligne de la course, sans toucher à son état ; ni « Retenir » ni « Marquer comme courue ».
 - « Supprimer » : « Supprimer cette course ? Cette action est définitive. » ; Annuler n'écrit rien ; confirmer efface la ligne et ramène à la feuille de route.
 - Page de Trail des Cimes (option d'un groupe), « Retenir cette course » : après confirmation, Ultra du Plateau passe À surveiller et quitte le groupe, Trail des Cimes devient Confirmée, hors groupe.
-- Trail du Lac au jour de la course : « Marquer comme courue » ouvre le formulaire du Palmarès (Course, Résultat, Classements, Montre), pré-rempli, sans « Supprimer » ; à l'enregistrement, la course passe à l'état Courue.
-- Panne d'enregistrement : « Enregistrement impossible pour l'instant. », le formulaire reste ouvert.
-- Palmarès : le formulaire garde ses quatre blocs. Téléphone : le formulaire ne déborde pas.
+- Panne d'enregistrement : « Enregistrement impossible pour l'instant. », la fiche reste ouverte.
+- Téléphone : la fiche ne déborde pas.
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir ».
 - Trail du Lac passé (10 octobre 2026, Confirmée, À venir, jamais marquée courue) : première étape de la feuille de route, compteur « Course courue », bouton « Marquer comme courue » sur sa page ; l'en-tête garde « Cap sur Trail des Crêtes » et « 5 courses ». Une Option passée n'apparaît pas.
 
-Résultats attendus, fiche v2 (en essai, § 3.8) :
+Résultats attendus, fiche d'une course (§ 3.8) :
 
-- Sans `?essai=v2` : tout se comporte comme la v1 ci-dessus. Avec : bandeau « Version d'essai · revenir à la v1 » ; « revenir à la v1 » le retire et rend la v1.
 - Trail des Gorges, consultation puis crayon : la même feuille passe en édition, barre « Annuler · Modifier la course · Enregistrer », pas de croix, aucune autre fenêtre ouverte. Blocs dans l'ordre : Course, Place dans le plan, Préparation, Logistique, Dossard (n° 1287 dedans), Liens.
 - « Annuler » sans saisie : retour à la consultation, sans question ; après une saisie : « Abandonner les modifications ? ». « Enregistrer » : retour à la consultation, mise à jour.
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
