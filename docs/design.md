@@ -110,14 +110,14 @@ Sobre, sans en-tête ni menu, centrée dans la page, 22 rem de large au plus.
 
 Ils reprennent le style du site : rien de nouveau, des éléments déjà présents.
 
-- **Panneau de formulaire** : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes ; sur téléphone, il occupe tout l'écran et défile, sans jamais déborder sur les côtés.
+- **Feuille d'une course** (consultation et fiche de saisie) : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes, à la largeur des pages sur ordinateur ; sur téléphone, elle occupe tout l'écran, monte du bas et défile, sans jamais déborder sur les côtés.
 - **Champs sur écran tactile** : texte à 16 px au moins (tous les formulaires du site), sinon Safari sur iPhone zoome sur le champ touché et la page déborde. Sur iPhone et iPad, le site ajoute en plus `maximum-scale=1` à la balise viewport : plus de zoom automatique, le zoom à deux doigts reste possible.
-- **Fermer** : bouton rond « × » en haut à droite (§ 1), Accent au survol ; le titre et ce bouton restent visibles quand le formulaire défile. « Annuler », en bas, ferme aussi.
+- **Barre du haut de la fiche** : « Annuler » (à contour) à gauche, « Enregistrer » (principal) à droite, toujours visibles quand la fiche défile ; dessous, le mode (« Modifier la course », « Ajouter une course », « Marquer comme courue ») en libellé : Space Mono, capitales, 0,75 rem, Texte discret. En consultation : crayon et « × », boutons ronds, à droite.
 - **Case « Non terminée (DNF) »** : juste sous le champ Temps, en texte discret, pour montrer qu'elle s'y rapporte.
 - **Nombres** : virgule décimale (« 24,4 »).
 - **Blocs** : titre repliable (§ 1 et § 3) : chevron à gauche, Space Grotesk 600, 0,85 rem, Texte, casse normale ; Accent au survol.
 - **Champs** : ceux de la page de connexion (fond transparent, bordure fine, Accent au focus, 0,85 rem), libellé au-dessus en petites capitales, exemple en Texte discret dans le champ vide ; deux colonnes sur ordinateur, une sur téléphone ; la date seule sur sa ligne.
-- **Boutons** (§ 1) : « Enregistrer » bouton principal (Accent plein) ; « Annuler » à contour ; « Supprimer » lien d'action en Alerte, à l'écart des autres.
+- **Boutons** (§ 1) : « Enregistrer » bouton principal (Accent plein) ; « Annuler » à contour ; « Supprimer la course » bouton à contour en Alerte, avec une poubelle, seul en bas de la fiche (plein Alerte au survol).
 - **Message d'erreur** : 0,75 rem, couleur Alerte, sous le champ concerné.
 - **Bandeau de lecture seule** : sous le menu, sur toute la largeur, fond Surface 2, texte 0,75 rem ; « Revenir à mon site » en lien souligné.
 

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 29 oct. 2026 | Fiche d'une course | Le mode (« Modifier la course »…) passe en libellé sous la barre « Annuler · Enregistrer » ; téléphone : modale en plein écran, montée du bas (bord transparent abandonné) ; « Supprimer la course » : bouton à contour rouge avec poubelle, laissé en bas, loin d'« Enregistrer » (Objectif 0.33, Palmarès 1.20). |
 | 29 oct. 2026 | Fiche d'une course | Fiche v2 validée après essai : elle remplace la v1 pour tous (consultation et édition dans la même feuille, fiche de champs unique pour Objectif et Palmarès) ; version d'essai retirée (`essai.js`, `?essai=v2`, bandeau) (Objectif 0.32, Palmarès 1.19). |
 | 28 oct. 2026 | Fiche v2 (en essai) | Construite à côté de la v1 : `?essai=v2` l'active sur l'appareil, bandeau « Revenir à la v1 » ; consultation et édition dans la même feuille, fiche de champs unique ; « Inscrit » réservé aux courses à venir (une course courue garde son numéro de dossard) (Objectif 0.31, § 3.8). |
 | 28 oct. 2026 | Fiche v2 (en essai) | Ordre des blocs unique pour une course à venir et une course courue : Course, Place dans le plan, Préparation, Logistique, Dossard, Résultat (résultat puis classements, en un seul bloc), Montre, Liens (Objectif 0.31, § 3.8). |

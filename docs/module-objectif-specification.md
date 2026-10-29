@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.32 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.33 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -100,7 +100,7 @@ Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, q
 
 **Changer de course** : « course précédente » et « course suivante » changent la course dans la modale, sans la fermer ni ajouter d'entrée à l'historique ; l'adresse suit la course ouverte.
 
-**Téléphone** : une feuille qui monte du bas, avec un **bord transparent** : une bande de 2,5 rem en haut (la page d'origine y reste visible ; la toucher ferme) et 0,4 rem de chaque côté. Les trois réglages sont des variables en tête de `modale-course.css` (`--mc-haut`, `--mc-cote`, `--mc-voile`). C'est un essai, à juger à l'usage.
+**Téléphone** : la modale prend tout l'écran, en montant du bas (animation courte, supprimée si l'appareil demande moins de mouvements) ; la croix la ferme. (Le bord transparent essayé d'abord a été abandonné : de la place perdue et des fermetures par erreur.)
 
 Plan de page (numéros stables ; le (1) est dans la barre du haut, fixe, avec la croix) :
 
@@ -248,32 +248,30 @@ Site partagé en lecture seule : aucun de ces boutons.
 | | Consultation | Édition |
 | --- | --- | --- |
 | Contenu | La page d'une course (§ 3.4) | La fiche de champs (ci-dessous) |
-| Barre du haut, fixe | Crayon (C5) puis croix (C1), à droite | « Annuler » (F24) à gauche, titre (F1) au centre, « Enregistrer » (F25) à droite |
+| Barre du haut, fixe | Crayon (C5) puis croix (C1), à droite | « Annuler » (F24) à gauche, « Enregistrer » (F25) à droite ; dessous, le mode (F1) en libellé : capitales discrètes, comme « Préparatoire · Étape 2 sur 14 » en consultation |
 | Fermer | La croix, Échap, un toucher à côté, le retour du téléphone | Pas de croix : « Annuler » revient à la consultation (ou ferme, pour un ajout) ; s'il y a eu une saisie, « Abandonner les modifications ? » d'abord. Échap, un toucher à côté et le retour du téléphone font comme « Annuler » |
-| Forme | Ordinateur : fenêtre au gabarit des pages (896 px de contenu) ; téléphone : feuille qui monte du bas, bord transparent (§ 3.4) | La même : on bascule dans la même feuille, sans nouvelle couche |
+| Forme | Ordinateur : fenêtre au gabarit des pages (896 px de contenu) ; téléphone : plein écran, qui monte du bas (§ 3.4) | La même : on bascule dans la même feuille, sans nouvelle couche |
 
 - **Le crayon (C5)** bascule la feuille en édition ; **Enregistrer (F25)** range la course et rebascule en consultation, mise à jour. Une course qui quitte la feuille de route (courue, à surveiller, supprimée) ferme la feuille.
 - **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la feuille de route, sinon la feuille se ferme (course courue ajoutée au Palmarès).
 - **Crayon d'une ligne du Palmarès** : la feuille en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
-- **« Supprimer » (F23)** : en bas de la fiche, en lien rouge, après confirmation ; la feuille se ferme.
+- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, seul en bas de la fiche, loin d'« Enregistrer » ; après confirmation, la feuille se ferme.
 - **« Paramétrer le plan » (F41)** reste la seule fenêtre par-dessus : réglage ponctuel, avec « Annuler » et « Valider », sans croix.
 
 ```
-Téléphone · consultation                Téléphone · édition (même feuille)
-┌ bande transparente ───────────────┐   ┌ bande transparente ───────────────┐
-│╭─────────────────────────────────╮│   │╭─────────────────────────────────╮│
-││                    (C5) ✎ (C1) × ││   ││(F24) Annuler  (F1) Modifier   (F25)││
-││ PRÉPARATOIRE · ÉTAPE 2 SUR 14    ││   ││               la course  Enregistrer││
-││ (C3) Trail des 2 Baies ↗         ││   ││ ⌄ (F3) Course                    ││
-││ (C6) lieu · format · date        ││   ││   Course *  [                 ]  ││
-││ ┌ (C22) fiche ────────────────┐  ││   ││   …                              ││
-││ └─────────────────────────────┘  ││   ││ › (F15) Place dans le plan       ││
-││ (C24) ⌄ Préparation …            ││   ││ › …                              ││
-││ (C20) ← précédente  suivante (C21)│   ││ (F22) message                    ││
-│╰─────────────────────────────────╯│   ││ (F23) Supprimer                  ││
-└───────────────────────────────────┘   │╰─────────────────────────────────╯│
-                                        └───────────────────────────────────┘
+Téléphone · consultation (plein écran)  Téléphone · édition (même écran)
+┌─────────────────────────────────┐     ┌─────────────────────────────────┐
+│                   (C5) ✎ (C1) × │     │ (F24) Annuler   (F25) Enregistrer│
+│ PRÉPARATOIRE · ÉTAPE 2 SUR 14   │     │ (F1) MODIFIER LA COURSE         │
+│ (C3) Trail des 2 Baies ↗        │     │ ⌄ (F3) Course                   │
+│ (C6) lieu · format · date       │     │   Course *  [                ]  │
+│ ┌ (C22) fiche ───────────────┐  │     │   …                             │
+│ └────────────────────────────┘  │     │ › (F15) Place dans le plan      │
+│ (C24) ⌄ Préparation …           │     │ › …                             │
+│ (C20) ← précédente suivante (C21)│     │ (F22) message                   │
+│                                 │     │ [🗑 Supprimer la course] (F23)   │
+└─────────────────────────────────┘     └─────────────────────────────────┘
 ```
 
 Ordinateur : mêmes deux modes, même barre du haut ; la fiche garde ses deux colonnes de champs.
@@ -368,7 +366,7 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 ## 6. Téléphone
 
 - Feuille de route : ordre des éléments au § 3.1.
-- Page d'une course : plan du § 3.4, en modale (feuille depuis le bas, bord transparent) ; la fiche dans le premier écran, les textes repliés sauf le premier.
+- Page d'une course : plan du § 3.4, en modale plein écran ; la fiche dans le premier écran, les textes repliés sauf le premier.
 - Les cartes du suivi en course passent sur deux colonnes ; les libellés secondaires de la jauge sont masqués pour éviter les chevauchements.
 - Les champs de saisie ouvrent le clavier numérique.
 
@@ -448,7 +446,7 @@ Résultats attendus, page d'une course :
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
 - Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien la croix seule dans la modale.
 - Modale : toucher une étape l'ouvre au-dessus de la feuille de route, qui reste en place et ne défile plus ; « course suivante » puis « course précédente » changent la course sans fermer ni ajouter d'entrée à l'historique ; la croix, Échap, un clic à côté et le retour du navigateur la ferment, la feuille de route dessous. Adresse `course.html?id=…` ouverte directement : la feuille de route dessous, la modale dessus ; fermer laisse la feuille de route.
-- Modale, téléphone (390 px) : feuille collée en bas, haut à 2,5 rem, marges de 0,4 rem de chaque côté ; toucher la bande du haut ferme ; rien ne dépasse.
+- Modale, téléphone (390 px) : plein écran (aucune marge), la croix ferme ; rien ne dépasse.
 - Modale depuis le Calendrier (à la rubrique Préparation) et depuis En un coup d'œil. Barre du haut : le crayon puis la croix, à droite, sans lien de retour.
 - Site partagé en lecture seule : la feuille de route et les pages de course du propriétaire s'affichent à l'identique.
 - Chargement de la feuille de route et d'une page de course (ordinateur, téléphone) : à l'instant où la page devient visible, le menu (et l'en-tête, sur la feuille de route) est en place et le contenu n'a plus à bouger.
@@ -499,5 +497,5 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
 - Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
-- Téléphone (390 px) : édition dans la même feuille au bord transparent ; « Enregistrer » visible sans défiler ; rien ne dépasse.
+- Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.
 

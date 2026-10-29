@@ -123,16 +123,17 @@
 .fc-sanslib > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ----- Barre du haut de la fiche (Objectif, § 3.8) : « Annuler », titre, « Enregistrer » ----- */
-.fc-barre { justify-content: space-between; border-bottom: 1px solid var(--border); margin-bottom: 0; }
-.fc-barre h2 { flex: 1; min-width: 0; font-size: 1.05rem; text-align: center; }
+.pc-barre.fc-barre { justify-content: space-between; margin-bottom: 0; }
+/* Le mode (« Modifier la course »…) : un libellé, comme « Préparatoire · Étape 2 sur 14 » en consultation. */
+.fc-libelle { margin: 0.2rem 0 0.6rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .fc-fiche .fc-msg { margin: 0.4rem 0 0; }
 .fc-fiche .fc-msg:empty { display: none; }
 .fc-fiche form > .fc-bloc:first-of-type { border-top: 0; }
 /* Résultat : temps et allure sur une demi-ligne chacun, puis les classements. */
 .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: span 3; }
-.fc-fiche .fc-actions { justify-content: flex-start; margin-top: 1rem; }
+.fc-fiche .fc-actions { justify-content: flex-start; margin-top: 1.4rem; }
+/* « Supprimer la course » : seul en bas de la fiche, loin d'« Enregistrer » ; à contour rouge (fc-danger), avec sa poubelle. */
+.fc-ico { width: 0.9rem; height: 0.9rem; flex: none; }
 @media (max-width: 600px) {
-  .fc-barre h2 { font-size: 0.95rem; }
-  .fc-barre .mrt-btn { padding-left: 0.8rem; padding-right: 0.8rem; }
   .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: auto; }
 }

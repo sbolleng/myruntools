@@ -10,6 +10,8 @@
 //   fin(r, id)  appelé à la fin : r = 'annule', 'enregistre' ou 'supprime'
 // Rend { annuler() } : « Annuler », avec « Abandonner les modifications ? » s'il y a eu une saisie.
 (function () {
+  // Bouton « Supprimer la course » : à contour rouge, avec une poubelle.
+  const POUBELLE = '<svg class="fc-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CHEVRON = '<svg class="fc-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const ROLES = [['preparatoire', 'Préparatoire'], ['plaisir', 'Plaisir'], ['objectif_intermediaire', 'Objectif intermédiaire'], ['objectif', 'Objectif']];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -232,7 +234,9 @@
     racine.innerHTML =
       '<form novalidate>' +
         '<div class="pc-barre fc-barre"><button type="button" class="mrt-btn" data-fc="annuler">Annuler</button>' +
-          '<h2 id="fc-titre">' + titreForm + '</h2><button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
+          '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
+        // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
+        '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +
         '<p class="fc-msg" aria-live="polite"></p>' +
         BLOCS.map(([b, titre]) =>
           '<section class="fc-bloc">' +
@@ -240,7 +244,7 @@
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
               (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
           '</section>').join('') +
-        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-lien is-danger" data-fc="supprimer">Supprimer</button></div>' +
+        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' +
           '<div class="fc-confirmer" hidden>' +
             '<p>Supprimer cette course ? Cette action est définitive.</p>' +
             '<div class="fc-actions"><button type="button" class="fc-btn mrt-btn" data-fc="garder">Annuler</button>' +
