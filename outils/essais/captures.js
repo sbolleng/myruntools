@@ -7,7 +7,7 @@
 //   node captures.js course,palmares          quelques pages seulement
 //   node captures.js course ../../../en-ligne captures/avant
 //                                             une autre copie du site (ex. git archive origin/main), pour un avant/après
-// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), palmares, filtres, preferences,
+// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche-v2 (téléphone, essai), palmares, filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -31,6 +31,7 @@ const PAGES = {
   objectif: { url: 'objectif.html' },
   course: { url: 'course.html?id=' + id(3) },
   candidat: { url: 'course.html?id=' + id(4) },
+  'fiche-v2': { url: 'course.html?id=' + id(3), essai: true, largeurs: { tel: [390, 844] }, action: async p => { await p.locator('[data-ob="modifier"]').click(); await p.waitForSelector('.fc2'); } },
   modale: { url: 'objectif.html', largeurs: { tel: [390, 844] }, action: async p => { await p.locator('.ob-et:nth-child(3) .ob-nom a:not(.ob-ext)').click(); await p.waitForSelector('.mc-panneau .pc-titre'); } },
   palmares: { url: 'palmares.html' },
   filtres: { url: 'palmares.html', action: async p => { await p.locator('.pv2-btn').first().click(); } },
@@ -70,6 +71,7 @@ fs.mkdirSync(sortie, { recursive: true });
       if (!cfg.anonyme) {
         const t = Math.floor(maintenant / 1000);
         await p.evaluate(() => localStorage.setItem('mrt-palmares-groupe', '0'));
+        if (cfg.essai) await p.evaluate(() => localStorage.setItem('mrt-essai', 'v2'));
         await p.evaluate(s => localStorage.setItem('sb-gifrpodrwesuhtgkxbuc-auth-token', s), JSON.stringify({
           access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
         await p.goto('file://' + racine + cfg.url);

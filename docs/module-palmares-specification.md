@@ -140,6 +140,8 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre outil.
 
+> **v2 en essai** : une fiche unique pour les courses à venir et courues, dans la même feuille que la page d'une course ([Objectif](module-objectif-specification.md), § 3.8). Ce paragraphe décrit la v1, en ligne pour tous.
+
 - **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre un formulaire vide.
 - **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre le même formulaire, rempli. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
 - **Formulaire**, en panneau par-dessus la page, en quatre blocs, limité à ce qu'il faut pour une course courue ; Classements et Montre sont repliés à l'ouverture d'un formulaire vide, et le curseur est dans le champ Course :

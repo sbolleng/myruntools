@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/palmares.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/fiche-course-v2.css?v=__VERSION__">
 <style>
   .pv2-card { padding: 1rem; }
   .pv2 .table-scroll { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
@@ -26,11 +28,13 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/essai.js?v=__VERSION__"></script>
 <script src="composants/en-tete.js?v=__VERSION__"></script>
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
 <script src="composants/palmares.js?v=__VERSION__"></script>
 <script src="composants/fiche-course.js?v=__VERSION__"></script>
+<script src="composants/fiche-course-v2.js?v=__VERSION__"></script>
 <script>
   // Les courses courues de l'utilisateur connecté, lues dans la base.
   const hms = s => (s == null ? null : Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'));
