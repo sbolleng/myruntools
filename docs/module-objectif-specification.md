@@ -341,7 +341,7 @@ Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès 
 
 **Questions ouvertes**
 
-- [x] Consultation d'une course courue : oui, en touchant une ligne du Palmarès ; résultat en tête de la fiche, pas d'écart à l'objectif, crayon de la ligne gardé, ouverture aussi en lecture seule (décidé le 29 oct. 2026 ; à construire).
+- [x] Consultation d'une course courue : oui, en touchant une ligne du Palmarès ; résultat en tête de la fiche, pas d'écart à l'objectif, crayon de la ligne gardé, ouverture aussi en lecture seule (décidé le 29 oct. 2026 ; construit).
 - [x] Ordre des blocs : le même pour tous ; Résultat et Classements fusionnés (résultat d'abord) ; Place dans le plan, Préparation et Logistique avant Résultat, Dossard juste sous Logistique (décidé le 28 oct. 2026).
 
 ## 4. Données d'une course

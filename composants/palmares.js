@@ -198,7 +198,6 @@
   function readGroup() { try { return localStorage.getItem(GROUP_KEY) !== '0'; } catch (e) { return true; } }
   function saveGroup(on) { try { localStorage.setItem(GROUP_KEY, on ? '1' : '0'); } catch (e) { /* stockage indisponible */ } }
 
-  const TACTILE = () => !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
 
   window.renderPalmares = function (root, cfg) {
     const uid = root.id || 'pv2';
@@ -322,7 +321,7 @@
       }).join('') +
         '<th class="pv2-more-cell"><button type="button" class="pv2-more" data-act="cols" aria-expanded="' + !colsPanel.hidden + '" aria-controls="' + uid + '-cols" aria-label="Ajouter ou retirer des colonnes" title="Ajouter ou retirer des colonnes"><span class="pv2-more-txt">Colonnes</span><span class="pv2-more-sign">' + (colsPanel.hidden ? '+' : '−') + '</span></button></th></tr>';
 
-      const line = r => '<tr>' + cols.map(c => {
+      const line = r => '<tr' + (cfg.onOpen && r.id ? ' data-id="' + esc(r.id) + '"' : '') + '>' + cols.map(c => {
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
         const cls = c.kind === 'text' ? ' class="pv2-t"' : c.kind === 'choice' ? '' : ' class="pv2-n"';
         return '<td' + cls + '>' + fmtCell(c, r.v[c.key], r) + rec + '</td>';
@@ -407,12 +406,9 @@
       }
       const edit = e.target.closest('[data-edit]');
       if (edit) { if (cfg.onEdit) cfg.onEdit(edit.dataset.edit); return; }
-      // Écran tactile (pas de survol, donc pas de crayon visible) : toucher la ligne l'ouvre.
-      const ligne = e.target.closest('tbody tr');
-      if (ligne && cfg.editable && cfg.onEdit && TACTILE()) {
-        const crayon = ligne.querySelector('[data-edit]');
-        if (crayon) { cfg.onEdit(crayon.dataset.edit); return; }
-      }
+      // Toucher ou cliquer une ligne : la consultation de la course (le crayon, lui, ouvre la fiche).
+      const ligne = e.target.closest('tbody tr[data-id]');
+      if (ligne && cfg.onOpen && !e.target.closest('a, button')) { cfg.onOpen(ligne.dataset.id); return; }
       const grp = e.target.closest('[data-group]');
       if (grp) {
         const t = grp.dataset.group;
@@ -476,6 +472,8 @@
     // Remplace les courses (après un ajout, une modification ou une
     // suppression) en gardant tri, filtres, colonnes et groupes repliés.
     return {
+      // Identifiants des courses visibles, dans l'ordre du tableau (tri, filtres et groupes repliés compris).
+      ordre() { return [...root.querySelectorAll('tbody tr[data-id]')].map(tr => tr.dataset.id); },
       setRaces(list) {
         rows = (list || []).map(prepare);
         markRecords(rows);

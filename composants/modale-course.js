@@ -8,6 +8,8 @@
 //   mrtModaleCourse(page, { courses, surMaj })   branche la page ; rend { ouvrir(id, ancre, opts), fermer }
 //     courses()      liste de courses à jour de la page
 //     surMaj(liste)  la page se redessine avec la liste relue après un enregistrement
+//     courue         vrai (Palmarès) : la modale consulte les courses courues (§ 3.8) au lieu de celles de la feuille de route
+//     ordre()        (avec courue) identifiants des courses dans l'ordre du tableau : précédente et suivante
 //   window.mrtOuvrirCourse(id, ancre)   ouvre une course (pour le code qui n'a pas de lien : cases du Calendrier)
 (function () {
   window.mrtModaleCourse = function (page, opts) {
@@ -72,7 +74,7 @@
 
     // Dessine la course, ou la ferme si elle n'est plus sur la feuille de route (supprimée, courue).
     function dessiner(debut) {
-      const c = window.renderPageCourse(el, ctx.courses, id, edition, ctx);
+      const c = opts.courue ? window.renderPageCourseCourue(el, ctx.courses, id, edition, ctx) : window.renderPageCourse(el, ctx.courses, id, edition, ctx);
       if (c) document.title = window.mrtNomCourse(c) + ' · MyRunTools';
       else if (!debut) fermer();
       return c;
@@ -91,7 +93,7 @@
     async function ouvrir(i, ancre, o) {
       o = o || {};
       // Après un ajout : seulement si la course est sur la feuille de route.
-      if (o.siPresente && !window.mrtCoursesRoute(opts.courses()).some(x => x.id === i)) return;
+      if (o.siPresente && !opts.courue && !window.mrtCoursesRoute(opts.courses()).some(x => x.id === i)) return;
       if (voile) {
         // Déjà ouverte (précédente, suivante, autre candidate) : l'entrée d'historique est remplacée, pas ajoutée.
         if (ctx && i !== id) { if (poussee) historique('replaceState', i, ancre); afficher(i, ancre); }
@@ -115,7 +117,7 @@
       else poussee = !!o.deja;
       const plan = await page.relirePlan();
       if (!voile) return; // fermée pendant la lecture
-      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer } };
+      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer }, ordre: opts.ordre };
       ctx.relire = async () => {
         const [courses, p] = await Promise.all([page.relire(), page.relirePlan()]);
         return { courses, seances: p.seances, semaines: p.semaines };
@@ -130,6 +132,12 @@
         dessiner(false);
       };
       // Retenir : celui d'Objectif (mrtEdition) ; modifier et marquer basculent la feuille en édition.
+      if (opts.courue) {
+        // Course courue : seul le crayon, qui bascule la feuille en édition ; rien en lecture seule.
+        edition = page.lectureSeule ? null : { modifier: () => editer({ mode: 'courue' }) };
+        afficher(i, ancre);
+        return;
+      }
       const saisieObjectif = window.mrtEdition(page, () => (ctx ? ctx.courses : opts.courses()), () => ctx && ctx.actualiser());
       edition = saisieObjectif && { retenir: saisieObjectif.retenir, modifier: () => editer({ mode: 'a_venir' }), marquer: () => editer({ mode: 'courue', marquer: true }) };
       afficher(i, ancre);
