@@ -44,9 +44,9 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.21 |
 | [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.26 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.14 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.33 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.34 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.8 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.20 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.21 |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.11, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
@@ -92,7 +92,7 @@ Dans l'ordre :
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
-3. [ ] **Banc d'essai** : corriger l'échec intermittent « ERR_ABORTED » à l'ouverture d'une page (navigation interrompue, sans doute par le renvoi vers la page de démarrage) ; il passe en relançant.
+3. [ ] **Banc d'essai** : corriger les échecs intermittents : « ERR_ABORTED » à l'ouverture d'une page (navigation interrompue, sans doute par le renvoi vers la page de démarrage) et, une fois, « cap abandonné : retour au défaut » dans les Préférences ; ils passent en relançant.
 4. [ ] **Refonte login et mot de passe** : page de connexion et mot de passe, dont le changement de mot de passe dans les Préférences (connexion par lien magique seulement pour l'instant).
 5. [ ] **Profil** : état civil, poids, taille, pointure.
 6. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.

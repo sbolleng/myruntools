@@ -264,6 +264,66 @@
     return c;
   };
 
+  // ----- Consultation d'une course courue (§ 3.8) : ouverte depuis le Palmarès -----
+  const hms = s => (s == null ? '' : Math.floor(s / 3600) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
+  const hmsFiche = s => (s == null ? '' : pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
+  const allureTxt = s => (s == null ? '' : Math.floor(s / 60) + ':' + pad(s % 60) + ' /km');
+  // « place / effectif » (la place seule si l'effectif est inconnu) ; rien sans place.
+  const place = (p, n) => (p == null ? '' : p + (n != null ? ' / ' + n : ''));
+
+  // ctx.ordre() : identifiants des courses du Palmarès, dans l'ordre du tableau (précédente et suivante).
+  window.renderPageCourseCourue = function (el, courses, id, edition, ctx) {
+    el.classList.add('pc');
+    const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
+      '<button type="button" class="pc-fermer mrt-rond" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
+    const c = courses.find(x => x.id === id && x.etat === 'courue');
+    if (!c) {
+      el.innerHTML = barre + '<p class="ob-vide">Course introuvable.</p>';
+      brancher(el, { fermer: ctx.modale.fermer });
+      return null;
+    }
+    const ordre = (ctx.ordre ? ctx.ordre() : []).map(i => courses.find(x => x.id === i)).filter(Boolean);
+    const k = ordre.findIndex(x => x.id === id), prec = ordre[k - 1], suiv = ordre[k + 1];
+    const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => lienSur(l[0]));
+    const classements = [['Général', place(c.place, c.effectif)], ['Catégorie', place(c.place_categorie, c.effectif_categorie)],
+      ['Sexe', place(c.place_sexe, c.effectif_sexe)]].filter(l => l[1]);
+    const temps = c.dnf ? 'DNF' : hmsFiche(c.temps);
+    const montre = [['Temps', hms(c.montre_temps)], ['Distance', c.montre_distance != null ? nombre(c.montre_distance) + ' km' : ''],
+      ['D+', c.montre_dplus != null ? nombre(c.montre_dplus) + ' m' : ''], ['D−', c.montre_dmoins != null ? nombre(c.montre_dmoins) + ' m' : ''],
+      ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(l => l[1]);
+    el.innerHTML = barre +
+      '<p class="pc-sur"><span class="ob-role">Courue</span>' + (c.typeLibelle ? ' <span class="ob-lib">· ' + esc(c.typeLibelle) + '</span>' : '') + '</p>' +
+      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
+      '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
+      '<div class="ob-lignes pc-fiche">' +
+        (temps ? ligne('Temps', '<span class="pc-res"><b class="ob-cible pc-temps">' + esc(temps) + '</b>' +
+          (!c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '') + '</span>') : '') +
+        (classements.length ? ligne('Classements', '<span class="pc-clas">' + classements.map(l => '<span><span class="ob-lib">' + l[0] + '</span> <span class="ob-val">' + esc(l[1]) + '</span></span>').join('') + '</span>') : '') +
+        (distance(c) ? ligne('Distance', '<span class="ob-val">' + esc(distance(c)) + '</span>') : '') +
+        (c.dmoins != null ? ligne('D−', '<span class="ob-val">' + esc(nombre(c.dmoins)) + ' m</span>') : '') +
+        (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
+        (c.objectif_precisions ? ligne('Précisions', esc(c.objectif_precisions)) : '') +
+        (c.dossard ? ligne('Dossard', '<span class="ob-val">n° ' + esc(c.dossard) + '</span>') : '') +
+        (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
+      '</div>' +
+      '<div class="pc-textes">' +
+        cellule('Montre', montre.length ? '<p>' + montre.map(l => '<span class="ob-lib">' + l[0] + '</span> ' + esc(l[1])).join(' · ') + '</p>' : '') +
+        cellule('Rôle dans la préparation', texte(c.pourquoi)) +
+        cellule('Stratégie ou enchaînement', texte(c.strategie)) +
+        cellule('Logistique', texte(c.logistique)) +
+        cellule('Description', texte(c.description)) +
+        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>' : '') +
+      '</div>' +
+      '<nav class="pc-nav" aria-label="Courses voisines">' +
+        (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
+        (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
+      '</nav>';
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id) }));
+    replierCellules(el);
+    couperNoms();
+    return c;
+  };
+
   // ----- Saisie et édition (§ 3.7) -----
   window.mrtEdition = function (page, courses, apres) {
     if (page.lectureSeule) return null;

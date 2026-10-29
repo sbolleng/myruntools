@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.20 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.21 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -141,7 +141,8 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre outil.
 
 - **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre la fiche vide.
-- **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre la même fiche, remplie. Sur un écran tactile, sans survol : toucher la ligne l'ouvre.
+- **Consulter** : toucher une ligne (ou cliquer dessus) ouvre la consultation de la course courue, avec le résultat en tête ([spécification d'Objectif](module-objectif-specification.md), § 3.8) ; le crayon de la feuille passe en édition.
+- **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre directement la fiche, remplie. Sur un écran tactile, sans survol, le crayon reste visible au bout de la ligne.
 - **Fiche** : la fiche d'une course, commune avec Objectif ([spécification d'Objectif](module-objectif-specification.md), § 3.8), dans la feuille d'une course (barre « Annuler · Enregistrer », le mode en libellé dessous ; plein écran sur téléphone). Mêmes blocs, dans le même ordre, pour une course courue et une course à venir : Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard (numéro, prix), Résultat, Montre, Liens. Course et Résultat sont ouverts, les blocs de la préparation repliés ; Dossard, Montre et Liens ouverts quand ils ont une valeur. Le curseur est dans le champ Course.
 
 | Bloc (propre à une course courue) | Champs |
@@ -164,7 +165,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 - **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler** (barre du haut, toujours visible) ferme sans rien changer, après « Abandonner les modifications ? » s'il y a eu une saisie.
 - **Supprimer la course** : seulement dans la fiche d'une course existante, bouton à contour rouge avec une poubelle, en bas, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
 - **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire par défaut (modifiable dans Place dans le plan).
-- **Site partagé en lecture seule** : ni bouton d'ajout, ni crayon, ni ouverture au toucher ; le tableau se consulte seulement.
+- **Site partagé en lecture seule** : ni bouton d'ajout, ni crayon ; toucher une ligne ouvre la consultation, sans crayon.
 - **Depuis la page Objectif** (avec ce module) : cocher une course comme faite ouvre la même fiche, pré-remplie de ce que la page Objectif connaît ; à l'enregistrement, la course passe à l'état Courue et rejoint le Palmarès.
 
 ## 11. Affichage des valeurs

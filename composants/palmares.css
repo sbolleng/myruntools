@@ -172,8 +172,9 @@
 .pv2-edit { display: inline-flex; padding: 0.15rem; color: var(--muted); background: none; border: none; border-radius: 3px; cursor: pointer; opacity: 0; }
 .pv2-edit:focus-visible { opacity: 1; }
 .pv2-table td.pv2-pad { white-space: nowrap; vertical-align: middle; }
+.pv2-table tbody tr[data-id] { cursor: pointer; }
 @media (hover: none) {
-  .pv2-editable tbody tr:not(.pv2-group-row) { cursor: pointer; }
+  .pv2-edit { opacity: 1; }
 }
 
 /* Survols : seulement avec une souris. Sur écran tactile, un toucher laisserait

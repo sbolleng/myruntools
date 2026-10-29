@@ -821,6 +821,82 @@ const CONTROLES = {
     pb.push(egal([], erreurs, 'fiche, Palmarès, erreurs JavaScript'));
     await ctx.close();
 
+    // Consultation d'une course courue (§ 3.8) : toucher une ligne du Palmarès ouvre la feuille en consultation.
+    const SEB = '00000000-0000-0000-0001-000000000007';
+    const ligneSeb = p => p.evaluate(id => document.querySelector('#palmares tbody tr[data-id="' + id + '"] td').click(), SEB);
+    const fiche = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll('.pc-fiche > .ob-ligne')].map(l => [l.firstChild.textContent.trim(), l.lastChild.innerText.trim().replace(/\s+/g, ' ')])));
+    d = copie();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
+    await ligneSeb(p);
+    await consultation(p);
+    pb.push(egal({ titre: 'Semi de San Sebastián', mode: true, crayon: 1, croix: 1, actions: 0, compteur: 0, plan: 0, edition: 0 },
+      { titre: await p.locator('.pc-titre').textContent(), mode: /^Courue/.test(await p.locator('.pc-sur').textContent()), crayon: await p.locator('[data-ob="modifier"]').count(), croix: await p.locator('.pc-fermer').count(),
+        actions: await p.locator('.pc-actions').count(), compteur: await p.locator('.ob-cpt').count(), plan: await p.locator('#preparation').count(), edition: await p.locator('.fc-fiche').count() }, 'Palmarès : toucher une ligne ouvre la consultation d\'une course courue'));
+    pb.push(egal({ Temps: '01:56:05 5:30 /km', Classements: 'GÉNÉRAL 1951', Distance: '21,1 km' }, await fiche(p), 'consultation : temps et allure en tête, puis classement saisi, distance ; rien d\'autre'));
+    // Crayon : édition dans la même feuille ; Annuler sans saisie revient à la consultation, sans question.
+    await p.click('[data-ob="modifier"]');
+    await p.waitForSelector('.mc-panneau .fc-fiche');
+    pb.push(egal(['Annuler', 'Enregistrer', 'Modifier la course'], await barre(p), 'consultation : le crayon bascule en édition'));
+    await p.click('.fc-barre [data-fc="annuler"]');
+    await consultation(p);
+    pb.push(egal([1, 0], [await p.locator('.mc-voile').count(), await p.locator('.fc-fiche').count()], 'Annuler : retour à la consultation'));
+    // Précédente et suivante suivent l'ordre du tableau.
+    const ordre = await p.evaluate(() => [...document.querySelectorAll('#palmares tbody tr[data-id]')].map(tr => tr.querySelector('td').textContent.length && tr.dataset.id));
+    const suivante = await p.evaluate(([ordre, id]) => document.querySelector('.pc-nav .is-suivante').getAttribute('href') === 'course.html?id=' + ordre[ordre.indexOf(id) + 1], [ordre, SEB]);
+    pb.push(egal([0, true], [await p.locator('.pc-nav .is-precedente').count(), suivante], 'navigation : pas de précédente sur la première ligne, suivante = ligne suivante du tableau'));
+    await p.click('.pc-nav .is-suivante');
+    await p.waitForFunction(() => /Montauban/.test(document.querySelector('.pc-titre').textContent));
+    pb.push(egal(1, await p.locator('.mc-voile').count(), 'suivante : la feuille reste, la course change'));
+    await p.keyboard.press('Escape');
+    await p.waitForSelector('.mc-voile', { state: 'detached' });
+    // Crayon de la ligne : ouvre directement l'édition.
+    await p.evaluate(() => document.querySelector('#palmares [data-edit]').click());
+    await p.waitForSelector('.mc-panneau .fc-fiche');
+    pb.push(egal(['Annuler', 'Enregistrer', 'Modifier la course'], await barre(p), 'crayon de la ligne : édition directe'));
+    pb.push(egal([], erreurs, 'consultation d\'une course courue, erreurs JavaScript'));
+    await ctx.close();
+
+    // Course renseignée (classements, dossard, prix, montre, textes) et course non terminée.
+    d = copie();
+    Object.assign(d.courses.find(c => c.id === SEB), { place: 112, effectif: 640, place_categorie: 18, effectif_categorie: 96, place_sexe: 95, effectif_sexe: 510,
+      dossard: '1287', prix: 58, objectif: '01:50:00', montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, strategie: 'Partir prudemment.' });
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
+    await ligneSeb(p);
+    await consultation(p);
+    pb.push(egal({ Temps: '01:56:05 5:30 /km', Classements: 'GÉNÉRAL 112 / 640 CATÉGORIE 18 / 96 SEXE 95 / 510', Distance: '21,1 km', Objectif: '01:50:00', Dossard: 'n° 1287', Prix: '58 €' }, await fiche(p), 'consultation : classements, objectif, dossard sans état, prix'));
+    pb.push(egal(['Montre', 'Stratégie ou enchaînement'], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule summary')].map(x => x.textContent.trim())), 'consultation : Montre en premier texte, puis les textes renseignés'));
+    pb.push(egal(true, /Temps.*1:55:50.*Distance.*21,3 km.*D\+.*40 m.*FC moy\..*151 bpm/.test(await p.locator('.pc-cellule').first().textContent()), 'consultation : valeurs de la montre'));
+    await ctx.close();
+    d = copie();
+    Object.assign(d.courses.find(c => c.id === SEB), { dnf: true, temps: null, allure: null });
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
+    await ligneSeb(p);
+    await consultation(p);
+    pb.push(egal({ Temps: 'DNF', Classements: 'GÉNÉRAL 1951', Distance: '21,1 km' }, await fiche(p), 'course non terminée : DNF, pas d\'allure'));
+    await ctx.close();
+
+    // Site partagé en lecture seule : la consultation s'ouvre, sans crayon.
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = copie();
+    partage.courses = partage.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
+    partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
+    await ligneSeb(p);
+    await consultation(p);
+    pb.push(egal([0, 1], [await p.locator('[data-ob="modifier"]').count(), await p.locator('.pc-fermer').count()], 'lecture seule : la consultation s\'ouvre, sans crayon'));
+    await ctx.close();
+
+    // Téléphone : plein écran, rien ne dépasse, crayon visible au bout des lignes.
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 390, copie(), {}, Object.assign({ mobile: true }, PARIS)));
+    pb.push(egal('1', await p.evaluate(() => getComputedStyle(document.querySelector('.pv2-edit')).opacity), 'écran tactile : crayon de ligne visible'));
+    await ligneSeb(p);
+    await consultation(p);
+    await p.waitForFunction(() => !document.getAnimations().length);
+    pb.push(egal({ haut: 0, debordement: false, cellules: 0 }, await p.evaluate(() => ({ haut: Math.round(document.querySelector('.mc-panneau').getBoundingClientRect().top),
+      debordement: document.documentElement.scrollWidth > innerWidth || document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth, cellules: document.querySelectorAll('.pc-cellule').length })), 'téléphone : consultation en plein écran, rien ne dépasse'));
+    await ctx.close();
+
     // Marquer comme courue : bascule en édition, état Courue ; enregistrée, la feuille se ferme.
     d = copie();
     d.courses.find(c => c.id === id(1)).date = '2026-10-20';
