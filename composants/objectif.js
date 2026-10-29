@@ -7,9 +7,10 @@
 //   renderFeuilleDeRoute(el, courses, edition)   la feuille de route
 //   renderPageCourse(el, courses, id, edition)   la page d'une course ; rend la course, ou null
 //   renderCarteCourse(el, course)       une carte seule (Accueil)
-//   mrtEdition(page, courses, apres)    saisie et édition (§ 3.7) : ajouter, modifier, marquer, retenir ;
+//   mrtEdition(page, courses, apres)    saisie (§ 3.7) : ajouter (feuille de la fiche, fiche-course.js), retenir ;
 //                                       null sur un site partagé en lecture seule. courses : () => liste à jour
-// edition = { ajouter, modifier(id), marquer(id), retenir(id) } : les boutons n'existent que s'il est donné.
+// Page d'une course : edition = { modifier(id), marquer(id), retenir(id) }, fourni par modale-course.js (modifier et
+// marquer basculent la feuille en édition) ; les boutons n'existent que s'il est donné.
 (function () {
   const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -276,8 +277,6 @@
     const trouver = id => courses().find(x => x.id === id) || null;
     return {
       ajouter: () => ouvrir(null, { mode: 'a_venir' }),
-      modifier: id => ouvrir(trouver(id), { mode: 'a_venir' }),
-      marquer: id => ouvrir(trouver(id), { mode: 'courue', marquer: true }),
       // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);

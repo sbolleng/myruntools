@@ -1,6 +1,7 @@
-// ===== Page d'une course, en modale =====
+// ===== Page d'une course, en modale : consultation et édition dans la même feuille =====
 //
-// Décrite par docs/module-objectif-specification.md (§ 3.4) ; style : composants/modale-course.css.
+// Décrite par docs/module-objectif-specification.md (§ 3.4 et 3.8) ; style : composants/modale-course.css.
+// Le crayon et « Marquer comme courue » font basculer la feuille en édition (fiche-course.js), sans nouvelle couche.
 // La page d'une course s'ouvre au-dessus de la page d'origine (feuille de route, Calendrier, En un coup d'œil) :
 // fermer ramène exactement là où on était. Tout lien `course.html?id=…` de la page ouvre la modale ; la même
 // adresse, ouverte directement, affiche la feuille de route avec la modale par-dessus.
@@ -13,6 +14,7 @@
     const fichier = () => location.pathname.split('/').pop();
     let voile = null, panneau = null, corps = null, el = null;
     let ctx = null, edition = null, id = null;
+    let saisie = null; // fiche en cours d'édition ({ annuler }), sinon null
     let poussee = false, origineUrl = '', titreAvant = '', focusAvant = null;
 
     const url = (i, ancre) => 'course.html?id=' + encodeURIComponent(i) + (ancre || '');
@@ -26,7 +28,7 @@
     function retirer() {
       if (!voile) return;
       voile.remove();
-      voile = panneau = corps = el = ctx = edition = null;
+      voile = panneau = corps = el = ctx = edition = saisie = null;
       document.documentElement.classList.remove('mc-ouvert');
       document.removeEventListener('keydown', clavier);
       document.title = titreAvant;
@@ -43,7 +45,29 @@
 
     function clavier(e) {
       // Un formulaire ou une fenêtre ouverts par-dessus gardent la touche Échap pour eux.
-      if (e.key === 'Escape' && !document.querySelector('.fc-voile, .cal-voile')) fermer();
+      if (e.key !== 'Escape' || document.querySelector('.cal-voile')) return;
+      if (saisie) saisie.annuler(); else fermer();
+    }
+
+    // Édition : la fiche remplace la consultation dans la même feuille ; à la fin, retour à la consultation, relue
+    // après un enregistrement (une course qui quitte la feuille de route ferme la feuille).
+    async function editer(extra) {
+      const c = ctx.courses.find(x => x.id === id);
+      if (!c || saisie) return;
+      const references = await window.mrtReferences();
+      if (!ctx) return;
+      const groupes = [...new Set(ctx.courses.filter(x => x.statut === 'option' && x.groupe_options).map(x => x.groupe_options))];
+      el = document.createElement('div');
+      corps.replaceChildren(el);
+      panneau.scrollTop = 0;
+      saisie = window.mrtFicheCourse(Object.assign({ course: c, references, groupes, dans: el,
+        preparation: extra.mode === 'a_venir' ? { semaines: ctx.semaines } : null,
+        fin: async r => {
+          saisie = null;
+          if (!ctx) return;
+          afficher(id, '');
+          if (r !== 'annule') await ctx.actualiser();
+        } }, extra));
     }
 
     // Dessine la course, ou la ferme si elle n'est plus sur la feuille de route (supprimée, courue).
@@ -66,6 +90,8 @@
 
     async function ouvrir(i, ancre, o) {
       o = o || {};
+      // Après un ajout : seulement si la course est sur la feuille de route.
+      if (o.siPresente && !window.mrtCoursesRoute(opts.courses()).some(x => x.id === i)) return;
       if (voile) {
         // Déjà ouverte (précédente, suivante, autre candidate) : l'entrée d'historique est remplacée, pas ajoutée.
         if (ctx && i !== id) { if (poussee) historique('replaceState', i, ancre); afficher(i, ancre); }
@@ -83,7 +109,7 @@
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');
       document.addEventListener('keydown', clavier);
-      voile.addEventListener('click', e => { if (e.target === voile) fermer(); });
+      voile.addEventListener('click', e => { if (e.target !== voile) return; if (saisie) saisie.annuler(); else fermer(); });
       panneau.focus({ preventScroll: true });
       if (!o.direct && !o.deja) poussee = historique('pushState', i, ancre);
       else poussee = !!o.deja;
@@ -103,7 +129,9 @@
         opts.surMaj(ctx.courses);
         dessiner(false);
       };
-      edition = window.mrtEdition(page, () => (ctx ? ctx.courses : opts.courses()), () => ctx && ctx.actualiser());
+      // Retenir : celui d'Objectif (mrtEdition) ; modifier et marquer basculent la feuille en édition.
+      const saisieObjectif = window.mrtEdition(page, () => (ctx ? ctx.courses : opts.courses()), () => ctx && ctx.actualiser());
+      edition = saisieObjectif && { retenir: saisieObjectif.retenir, modifier: () => editer({ mode: 'a_venir' }), marquer: () => editer({ mode: 'courue', marquer: true }) };
       afficher(i, ancre);
     }
 
@@ -120,13 +148,15 @@
     // Retour du navigateur ou du téléphone : ferme la modale ; en avant, la rouvre.
     window.addEventListener('popstate', e => {
       const etat = e.state;
+      // En édition, le retour fait comme « Annuler » : la feuille reste, son entrée d'historique est remise.
+      if (voile && saisie) { if (poussee) historique('pushState', id, ''); saisie.annuler(); return; }
       if (voile && !(etat && etat.mrtCourse)) { poussee = false; retirer(); }
       else if (voile && etat.mrtCourse !== id) afficher(etat.mrtCourse, '');
       else if (!voile && etat && etat.mrtCourse) ouvrir(etat.mrtCourse, '', { deja: true });
     });
 
     const api = { ouvrir, fermer };
-    window.mrtOuvrirCourse = (i, ancre) => ouvrir(i, ancre);
+    window.mrtOuvrirCourse = (i, ancre, o) => ouvrir(i, ancre, o);
     return api;
   };
 })();

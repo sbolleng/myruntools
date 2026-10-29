@@ -1,29 +1,6 @@
-/* ===== Fiche d'une course (fiche-course.js) · design, § 6 =====
+/* ===== Fiche d'une course (fiche-course.js) · design, § 6 ; dans la feuille d'une course (modale-course.css) =====
    Reprend les éléments du site : surface des cartes, libellés, champs de la page de connexion,
    boutons communs (mrt-btn, mrt-rond, mrt-lien : en-tete.css). */
-html.fc-ouvert { overflow: hidden; }
-.fc-voile {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  place-items: center;
-  padding: 1.5rem;
-  background: color-mix(in srgb, var(--bg) 75%, transparent);
-}
-.fc-panneau {
-  width: 100%;
-  max-width: 40rem;
-  max-height: calc(100vh - 3rem);
-  overflow-y: auto;
-  padding: 1.25rem 1.5rem 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-.fc-haut { position: sticky; top: -1.25rem; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin: -1.25rem -1.5rem 0.6rem; padding: 1.25rem 1.5rem 0.6rem; background: var(--surface); }
-.fc-haut h2 { font-size: 1.2rem; }
-.fc-fermer { font-size: 1.3rem; }
 /* Listes déroulantes : chevron dessiné, la flèche native étant retirée. */
 .fc-champ select { padding-right: 2rem; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 1rem) 55%, calc(100% - 0.7rem) 55%; background-size: 0.3rem 0.3rem; background-repeat: no-repeat; }
 .fc-champ input[type="date"] { min-height: 2.35rem; text-align: left; }
@@ -102,9 +79,6 @@ html.fc-ouvert { overflow: hidden; }
 @media (max-width: 600px) {
   .fc-grille-3 { grid-template-columns: minmax(0, 1fr); }
   .fc-grille-3 .fc-moitie, .fc-grille-3 .fc-tiers { grid-column: auto; }
-  .fc-voile { padding: 0; place-items: stretch; grid-template-columns: minmax(0, 1fr); }
-  .fc-panneau { width: 100%; max-width: none; max-height: none; height: 100%; border-radius: 0; border: none; padding: 1rem 1.25rem 1.5rem; }
-  .fc-haut { top: -1rem; margin: -1rem -1.25rem 0.6rem; padding: 1rem 1.25rem 0.6rem; }
   .fc-grille { grid-template-columns: minmax(0, 1fr); }
   .fc-seul input { max-width: none; }
 }
@@ -147,3 +121,18 @@ html.fc-ouvert { overflow: hidden; }
 .fc-compte { margin: 0.15rem 0 0; font-size: 0.7rem; color: var(--muted); text-align: right; }
 /* Libellé lu par les lecteurs d'écran seulement : le titre du bloc le dit déjà. */
 .fc-sanslib > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ----- Barre du haut de la fiche (Objectif, § 3.8) : « Annuler », titre, « Enregistrer » ----- */
+.fc-barre { justify-content: space-between; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+.fc-barre h2 { flex: 1; min-width: 0; font-size: 1.05rem; text-align: center; }
+.fc-fiche .fc-msg { margin: 0.4rem 0 0; }
+.fc-fiche .fc-msg:empty { display: none; }
+.fc-fiche form > .fc-bloc:first-of-type { border-top: 0; }
+/* Résultat : temps et allure sur une demi-ligne chacun, puis les classements. */
+.fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: span 3; }
+.fc-fiche .fc-actions { justify-content: flex-start; margin-top: 1rem; }
+@media (max-width: 600px) {
+  .fc-barre h2 { font-size: 0.95rem; }
+  .fc-barre .mrt-btn { padding-left: 0.8rem; padding-right: 0.8rem; }
+  .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: auto; }
+}
