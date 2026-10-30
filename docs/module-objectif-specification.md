@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.34 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.35 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -290,16 +290,13 @@ Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut
 │ │ (C25) TEMPS        06:12:40       (C26) 8:51 /km   │           │
 │ │ (C27) CLASSEMENTS  Général 112 / 640               │           │
 │ │                    Catégorie 18 / 96 · Sexe 95 / 510│          │
-│ │ (C9)  DISTANCE     42 km · 2 100 m D+              │           │
-│ │ (C10) D−           2 100 m                         │           │
-│ │ (C11) OBJECTIF     06:30:00                        │           │
+│ │ (C9)  DISTANCE     42 km · 2 100 m D+ · 2 100 m D− │           │
+│ │ (C11) OBJECTIF     06:30:00          (C29) +00:12:40│           │
 │ │ (C12) DOSSARD      n° 1287                         │           │
 │ │ (C14) PRIX         58 €                            │           │
 │ └────────────────────────────────────────────────────┘           │
 │ (C28) ⌄ Montre   temps · distance · D+ · D− · allure · FC moy.  │
-│ (C15) ⌄ Rôle dans la préparation                                 │
-│ (C16) › Stratégie   (C17) › Logistique                           │
-│ (C18) › Description (C19) › Liens                                │
+│ (C19) › Liens                                                    │
 │ (C20) ← Course précédente                 Course suivante → (C21)│
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -310,15 +307,17 @@ Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut
 | C25 | Temps | Première ligne de la fiche ; valeur en Accent, plus grande ; « DNF » si non terminée |
 | C26 | Allure moyenne | Même ligne que C25, à droite ; absente si DNF ou vide |
 | C27 | Classements | Général, catégorie, sexe, en « place / effectif » ; chaque classement saisi s'affiche, les autres non ; la ligne entière disparaît s'il n'y en a aucun |
-| C28 | Montre | Premier texte sous la fiche ; replié (téléphone) ou ouvert (ordinateur) comme les autres ; absent si vide |
-| C9 à C12, C14 | Distance, D−, Objectif, Dossard, Prix | Comme à venir ; Dossard : le numéro seul, sans état d'inscription |
-| C15 à C19 | Textes | Comme à venir, mêmes titres |
+| C28 | Montre | Bloc sous la fiche ; replié (téléphone) ou ouvert (ordinateur) comme les autres ; absent si vide |
+| C9, C10 | Distance, D+ et D− | Sur une seule ligne, à la suite : « 42 km · 2 100 m D+ · 2 100 m D− » (pas de ligne D− à part) |
+| C11, C12, C14 | Objectif, Dossard, Prix | Comme à venir ; Dossard : le numéro seul, sans état d'inscription |
+| C29 | Écart à l'objectif | À droite de l'Objectif, en Texte : « + » si le temps officiel est plus lent, « − » s'il est plus rapide, en hh:mm:ss ; seulement pour un objectif chiffré (hh:mm:ss) et une course terminée |
+| C19 | Liens | Seul texte de la consultation (ni rôle dans la préparation, ni stratégie, ni logistique, ni description : ils restent saisis et modifiables en édition) ; le lien des résultats s'y appelle « Résultats » |
 | C20, C21 | Navigation | Parcourt le Palmarès dans l'ordre du tableau (tri et filtres du moment) |
 
-- **Retirés** : C7 (groupe d'options), C8 (actions), C13 (compte à rebours), C24 (plan de préparation). Pas d'écart à l'objectif calculé.
+- **Retirés** : C7 (groupe d'options), C8 (actions), C13 (compte à rebours), C24 (plan de préparation), C15 à C18 (textes), C10 (D− à part).
 - **Une ligne sans valeur n'est pas affichée**, comme à venir.
 - **Site partagé en lecture seule** : la feuille s'ouvre, sans crayon (C5).
-- **Téléphone** : même ordre, plein écran ; les textes (C15 à C19) et C28 sont repliés, sauf le premier.
+- **Téléphone** : même ordre, plein écran ; C28 et C19 sont repliés, sauf le premier.
 
 #### Une seule fiche de champs
 
@@ -541,7 +540,8 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
 - Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
-- Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, libellé « Courue », fiche avec Temps et Allure en première ligne, puis Classements saisis, Distance, D−, Objectif, Dossard, Prix, sans compte à rebours ni plan de préparation ni boutons « Retenir » et « Marquer comme courue » ; Montre, puis les textes dans l'ordre de la page d'une course ; une valeur vide n'est pas affichée.
+- Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, libellé « Courue », fiche avec Temps et Allure en première ligne, puis Classements saisis, Distance (D+ et D− à la suite), Objectif et son écart, Dossard, Prix, sans compte à rebours ni plan de préparation ni boutons « Retenir » et « Marquer comme courue » ; Montre, puis Liens seulement (« Résultats ») ; une valeur vide n'est pas affichée.
+- Écart à l'objectif : temps 01:56:05 pour un objectif 01:50:00 → « +00:06:05 » ; pour 02:10:00 → « −00:13:55 » ; objectif « Sub 2h » ou course non terminée : aucun écart.
 - Course non terminée (DNF) : « DNF » à la place du temps, pas d'allure.
 - Crayon de la feuille : bascule en édition ; Annuler sans saisie revient à la consultation. Crayon de la ligne du tableau : ouvre directement l'édition. « Course suivante » et « précédente » suivent l'ordre du tableau, tri et filtres compris.
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon.
