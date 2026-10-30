@@ -5,15 +5,13 @@
 /* Filtres : bouton rond commun (mrt-rond), trois traits ; Accent quand un filtre est actif ou le panneau ouvert,
    avec le nombre de filtres actifs en pastille. */
 .pv2-btn { position: relative; }
-.pv2-btn.is-on, .pv2-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.pv2-btn.is-on, .pv2-btn[aria-expanded="true"], .pv2-cols-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
 .pv2-badge { position: absolute; top: -0.3rem; right: -0.35rem; min-width: 1rem; height: 1rem; padding: 0 0.2rem; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; line-height: 1rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
 .pv2-badge[hidden] { display: none; }
 .pv2-ico { width: 0.95rem; height: 0.95rem; flex: none; }
 .pv2-chev { width: 0.85rem; height: 0.85rem; flex: none; transition: transform 0.15s; }
-.pv2-clear .pv2-chev { transform: rotate(180deg); }
-.pv2-clear .pv2-chev { width: 0.8rem; height: 0.8rem; margin-left: 0.3rem; vertical-align: -0.12em; }
 .pv2-count { font-size: 0.8rem; color: var(--muted); }
-.pv2-clear[hidden] { display: none; }
+.pv2-clear[hidden], .pv2-count[hidden] { display: none; }
 .pv2-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -86,34 +84,15 @@
 .pv2-sort-ico path { fill: currentColor; opacity: 0.45; }
 .pv2-table th[aria-sort="ascending"] .pv2-up, .pv2-table th[aria-sort="descending"] .pv2-down { opacity: 1; }
 .pv2-table th[aria-sort="ascending"] .pv2-down, .pv2-table th[aria-sort="descending"] .pv2-up { opacity: 0.2; }
-.pv2-table th.pv2-more-cell { width: 1%; padding: 0 0.3rem 0.4rem; text-align: center; vertical-align: bottom; }
-.pv2-more {
-  /* Même gabarit et mêmes nuances que les flèches de tri */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  height: 1.4rem;
-  padding: 0 0.45rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.85rem;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--muted);
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  cursor: pointer;
-}
-.pv2-more-txt { font-size: 0.65rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
-.pv2-more[aria-expanded="true"] { color: var(--accent); }
-.pv2-panel-foot { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+.pv2-table th.pv2-pad-cell { width: 1%; padding: 0 0.3rem 0.4rem; text-align: center; vertical-align: bottom; }
+/* Fermer le panneau : rond « × » en haut à droite, comme la croix des feuilles de course. */
+.pv2-close { grid-column: 1 / -1; justify-self: end; margin: -0.3rem -0.3rem -0.6rem 0; font-size: 1.1rem; }
 /* Défilement horizontal, quand il faut : barre fine aux couleurs du thème */
 .pv2 .table-scroll { margin-bottom: 0; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 .pv2 .table-scroll::-webkit-scrollbar { height: 6px; }
 .pv2 .table-scroll::-webkit-scrollbar-track { background: transparent; }
 .pv2 .table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-.pv2-sort:focus-visible, .pv2-more:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pv2-sort:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .pv2-table td.pv2-n { white-space: nowrap; }
 .pv2-table td.pv2-t { min-width: 8.5rem; }
 .pv2-table.pv2-wide { width: max-content; }
@@ -181,7 +160,6 @@
    l'effet « collé » (bouton qui reste orange). */
 @media (hover: hover) {
   .pv2-sort:hover { color: var(--text); }
-  .pv2-more:hover { color: var(--text); }
   .pv2-table tbody tr:hover .pv2-edit { opacity: 1; }
   .pv2-edit:hover { color: var(--accent); }
   .pv2-editable tbody tr:not(.pv2-group-row):hover td { background: color-mix(in srgb, var(--surface2) 45%, transparent); }

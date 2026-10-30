@@ -1,6 +1,6 @@
 # Design
 
-Version 0.26 · 27 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.27 · 30 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -123,11 +123,11 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 
 ## 7. Barre et lignes du Palmarès
 
-- **Barre** : boutons ronds espacés de 0,5 rem, le compteur à 0,85 rem. « Filtres », bouton rond (§ 1) à trois traits de plus en plus courts, en Accent quand un filtre est actif ou le panneau ouvert, le nombre de filtres actifs en petite pastille Accent en haut à droite ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; tout à droite, « + Ajouter une course » (« + Course » sur téléphone), bouton principal.
+- **Barre** : boutons ronds espacés de 0,5 rem, le compteur à 0,85 rem. « Filtres », bouton rond (§ 1) à trois traits de plus en plus courts, en Accent quand un filtre est actif ou le panneau ouvert, le nombre de filtres actifs en petite pastille Accent en haut à droite ; puis le bouton rond « Grouper par type » (icône de couches), en Accent quand le regroupement est actif ; puis le bouton rond « Colonnes » (icône de colonnes), en Accent quand sa liste est ouverte ; tout à droite, « + Ajouter une course » (« + Course » sur téléphone), bouton principal.
 - **Tableau** : dans son cadre (§ 1). Groupes : titre repliable (§ 1), filet en Bordure dessous.
 - **Téléphone tenu en hauteur** : sous la barre, « ↻ Tourne ton téléphone pour voir toutes les colonnes. », 0,8 rem, Texte discret. **Tenu en largeur** : une ligne par course (pas de retour à la ligne dans les cellules), cadre resserré.
-- **Compteur** « X courses sur Y » à droite du regroupement, 0,8 rem, Texte discret ; sur téléphone, il passe sous les boutons.
-- **Bouton des colonnes** (« Colonnes + » en bout d'en-tête) : petit bouton à contour, libellé en capitales Space Mono 0,65 rem, Texte discret, Accent quand la liste est ouverte.
+- **Compteur** « X courses sur Y » à droite des boutons, 0,8 rem, Texte discret, **seulement quand un filtre est actif** ; sur téléphone, il passe sous les boutons.
+- **Fermer un panneau** (filtres, colonnes) : rond « × » (§ 1) en haut à droite du panneau, comme la croix des feuilles de course.
 - **Pastilles** (panneau des filtres, tri, colonnes) : arrondies, contour Bordure, texte Texte 0,8 rem ; choisie : fond Accent, texte Fond. Libellés de rubrique comme les légendes (Space Mono, capitales, Texte discret).
 - **Intertitres du regroupement par type** : Space Grotesk 700, 0,95 rem, en Accent (orange dans le thème par défaut), chevron compris, pour repérer d'un coup d'œil Trail, Course sur route…
 - **Largeur** : toutes les pages ont la même largeur de contenu sur ordinateur (960 px, marges de 2 rem), page d'une course (modale) comprise ; seule la connexion garde sa colonne étroite.
