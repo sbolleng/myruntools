@@ -16,7 +16,7 @@
 .ob-cible { color: var(--accent2); }
 /* Lien officiel : icône ↗ à côté du nom. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
-.ob-fleche { width: 0.75em; height: 0.75em; flex: none; }
+.ob-fleche { width: 0.75em; height: 0.75em; flex: none; vertical-align: -0.05em; }
 
 /* Compteur : quatre cases fines ; chiffres en Accent 2, unités en Texte discret. */
 .ob-cpt { display: flex; gap: 0.25rem; }

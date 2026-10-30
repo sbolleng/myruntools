@@ -91,12 +91,12 @@
     return { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
   }
   function dossardHtml(c) {
-    const d = dossard(c), html = '<i></i>' + esc(d.texte) + (d.lien ? ' ↗' : '');
+    const d = dossard(c), html = '<i></i>' + esc(d.texte) + (d.lien ? ' ' + FLECHE : '');
     return d.lien
       ? '<a class="ob-ins is-ouvert" href="' + esc(d.lien) + '" target="_blank" rel="noopener">' + html + '</a>'
       : '<span class="ob-ins is-' + d.etat + '">' + html + '</span>';
   }
-  // Flèche dessinée : le caractère ↗ s'affiche en emoji sur iPhone.
+  // Flèche dessinée, pour tous les liens externes : le caractère ↗ s'affiche en emoji sur iPhone.
   const FLECHE = '<svg class="ob-fleche" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const lienOfficiel = c => (lienSur(c.lien)
     ? '<a class="ob-ext" href="' + esc(c.lien) + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">' + FLECHE + '</a>' : '');
@@ -246,7 +246,7 @@
         cellule('Stratégie ou enchaînement', texte(c.strategie)) +
         cellule('Logistique', texte(c.logistique)) +
         cellule('Description', texte(c.description)) +
-        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>' : '') +
+        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ' + FLECHE + '</a></li>').join('') + '</ul>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
