@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<title>Nouveau mot de passe · MyRunTools</title>
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<style>
+  /* Page d'accueil des visiteurs non connectés : sobre, sans en-tête ni menu. */
+  body { display: grid; place-items: center; padding: 1.5rem; }
+  .connexion { width: 100%; max-width: 22rem; text-align: center; }
+  .connexion h1 { font-size: 2rem; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+  .connexion .accroche { font-size: 0.85rem; color: var(--muted); margin-bottom: 2.2rem; }
+  .connexion form { text-align: left; }
+  .connexion label { display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .connexion input {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .connexion input:focus { outline: none; border-color: var(--accent); }
+  .connexion label.champ-suivant { margin-top: 0.9rem; }
+  .connexion .oubli { display: block; width: auto; margin: 0.6rem 0 0; padding: 0; font-size: 0.78rem; }
+  .connexion #captcha { margin-top: 0.8rem; display: flex; justify-content: center; }
+  .connexion button[type="submit"] { margin-top: 0.8rem; width: 100%; padding: 0.6rem; }
+  .connexion .message { min-height: 2.6em; margin-top: 1rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
+  .connexion .erreur { color: var(--red); }
+</style>
+</head>
+<body>
+<main class="connexion">
+  <h1>MyRunTools</h1>
+  <p class="accroche">Choisis un nouveau mot de passe</p>
+  <form id="form-mdp" hidden>
+    <label for="mdp">Nouveau mot de passe</label>
+    <input type="password" id="mdp" required autocomplete="new-password" placeholder="14 caractères au moins">
+    <label for="mdp2" class="champ-suivant">Confirmation</label>
+    <input type="password" id="mdp2" required autocomplete="new-password">
+    <button type="submit" class="mrt-btn is-principal">Enregistrer</button>
+  </form>
+  <p class="message" id="message" aria-live="polite">Vérification du lien…</p>
+  <p class="message"><a class="mrt-lien" href="connexion.html">Retour à la connexion</a></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script>
+  // Le lien reçu par e-mail ouvre cette page : supabase-js lit le jeton de l'adresse et ouvre une session de réinitialisation.
+  const form = document.getElementById('form-mdp'), msg = document.getElementById('message');
+  const mdp = document.getElementById('mdp'), mdp2 = document.getElementById('mdp2');
+  mrtOeil(mdp); mrtOeil(mdp2);
+  const dire = (texte, erreur) => { msg.className = 'message' + (erreur ? ' erreur' : ''); msg.textContent = texte; };
+  const expire = () => { form.hidden = true; dire('Lien expiré : demande-en un nouveau.', true); };
+  let adresse = '';
+  if (/error/.test(location.hash)) expire();
+  else mrtSession().then(s => {
+    if (!s) return expire();
+    adresse = s.email;
+    form.hidden = false;
+    dire('');
+    mdp.focus();
+  });
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const regle = mrtRegleMotDePasse(mdp.value, adresse);
+    if (regle) return dire(regle, true);
+    if (mdp.value !== mdp2.value) return dire('Les deux saisies sont différentes.', true);
+    const btn = form.querySelector('button');
+    btn.disabled = true;
+    dire('Enregistrement…');
+    try {
+      await mrtNouveauMotDePasse(mdp.value);
+      location.replace('index.html');
+    } catch (err) {
+      const meme = err && (err.code === 'same_password' || /different from the old/i.test(err.message || ''));
+      dire(meme ? 'Choisis un mot de passe différent de l\'ancien.' : mrtNatureErreur(err) === 'limite' ? 'Trop de tentatives, réessaie dans quelques minutes.' : 'Enregistrement impossible : le lien a peut-être expiré.', true);
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

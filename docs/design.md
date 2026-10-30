@@ -1,6 +1,6 @@
 # Design
 
-Version 0.27 · 30 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.28 · 30 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -101,9 +101,10 @@ Sobre, sans en-tête ni menu, centrée dans la page, 22 rem de large au plus.
 | --- | --- | --- | --- |
 | « MyRunTools » | Space Grotesk, graisse 700, espacement −0,02 em | 2 rem | Texte |
 | Accroche | Space Grotesk | 0,85 rem | Texte discret |
-| Libellé « Adresse e-mail » | Space Mono, capitales, espacement 0,1 em | 0,7 rem | Texte discret |
-| Champ e-mail | Space Grotesk | 0,85 rem | Texte ; fond transparent, bordure fine (Bordure), Accent au focus |
-| Bouton « Recevoir le lien de connexion » | Bouton principal (§ 1) : Space Grotesk 600, casse normale | 0,8 rem | Accent plein, coins arrondis, toute la largeur |
+| Libellés « Adresse e-mail », « Mot de passe » | Space Mono, capitales, espacement 0,1 em | 0,7 rem | Texte discret |
+| Champs e-mail et mot de passe (œil en Texte discret à droite du mot de passe, Accent quand le mot de passe est visible) | Space Grotesk | 0,85 rem | Texte ; fond transparent, bordure fine (Bordure), Accent au focus |
+| Bouton « Se connecter » | Bouton principal (§ 1) : Space Grotesk 600, casse normale | 0,8 rem | Accent plein, coins arrondis, toute la largeur |
+| Lien « Mot de passe oublié ? » | Space Grotesk, lien (§ 1) | 0,78 rem | Texte discret, sous le champ mot de passe, aligné à gauche |
 | Ligne d'aide et messages | Space Grotesk | 0,75 rem | Texte discret ; Alerte pour une erreur |
 
 ## 6. Formulaires et bandeau

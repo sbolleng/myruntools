@@ -205,3 +205,11 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
   .mrt-rond:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
   .mrt-lien:hover { color: var(--accent); }
 }
+
+/* Champ mot de passe avec son œil (session.js, mrtOeil) : affiche ou masque la saisie. */
+.mrt-mdp { position: relative; }
+.mrt-mdp input { padding-right: 2.6rem; }
+.mrt-oeil { position: absolute; top: 50%; right: 0.35rem; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin: 0; padding: 0; color: var(--muted); background: none; border: none; border-radius: 50%; cursor: pointer; transform: translateY(-50%); }
+.mrt-oeil[aria-pressed="true"] { color: var(--accent); }
+.mrt-oeil:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+@media (hover: hover) { .mrt-oeil:hover { color: var(--accent); } }
