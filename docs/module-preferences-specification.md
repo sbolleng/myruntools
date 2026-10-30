@@ -1,10 +1,10 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.8 · 28 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.9 · 30 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
-La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage ⚙️ (en-tête, ou barre fine) ; elle a la barre fine à la place de l'en-tête et n'est pas un module du menu.
+La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage (en-tête, ou barre fine), qui passe en Accent tant que la page est ouverte, comme l'onglet d'un module ; elle a la barre fine à la place de l'en-tête et n'est pas un module du menu.
 
 - **Ce qu'elle ne contient pas** : les données du coureur (Profil) et son équipement (Matériel), pour qu'une donnée ne se saisisse qu'à un seul endroit.
 - **Hors périmètre** : la présentation visuelle (document de design) ; le changement de mot de passe (connexion par lien magique seulement, voir la todo).
@@ -32,14 +32,14 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 
 ## 4. Menu
 
-- Texte d'aide : « Coche les modules à afficher et ordonne-les avec les flèches. Le premier s'ouvre en arrivant sur le site, avec le grand en-tête. »
+- Texte d'aide : « Coche les modules à afficher et ordonne-les avec les flèches. Le premier s'ouvre en arrivant sur le site, avec le grand en-tête. Un module « bientôt » entre dans le menu une fois construit. »
 - **Page de démarrage** : le premier module construit et affiché s'ouvre en arrivant sur le site, avec le grand en-tête (spécification générale, § 5 bis). Rien à choisir : la ligne de ce module porte la mention « à l'ouverture », et le texte d'aide le rappelle.
 - **En un coup d'œil** est un module comme les autres : premier par défaut, il se décoche et se déplace.
 
 - La liste reprend tous les modules du menu (catalogue, spécification générale § 7), dans l'ordre actuel du menu de l'utilisateur, puis ceux qu'il n'affiche pas.
 - Chaque module a une case « affiché » et deux flèches pour le monter ou le descendre d'un rang.
-- Les modules pas encore construits sont grisés, comme dans le menu : on peut quand même les cocher et les ranger, ils apparaîtront grisés dans le menu.
-- **Au moins un module** reste affiché : la dernière case cochée ne peut pas être décochée.
+- Les modules pas encore construits sont grisés, suivis de « · bientôt » : on peut quand même les cocher et les ranger, mais ils n'ont pas d'onglet dans le menu ; ils y entrent d'eux-mêmes, à leur place, une fois construits. (Avant le 30 octobre 2026, ils s'affichaient grisés dans le menu : sur téléphone, ils repoussaient les vrais onglets hors de l'écran.)
+- **Au moins un module construit** reste affiché : sa case ne peut pas être décochée (un module « bientôt » coché ne compte pas).
 - Par défaut (rien d'enregistré) : tous les modules, dans l'ordre du catalogue.
 - **Rétablir l'ordre par défaut** : un lien remet tous les modules, dans l'ordre du catalogue.
 
@@ -87,10 +87,11 @@ Résultats attendus :
 - Les blocs se suivent dans cet ordre : Compte, Cap, Thème, Menu, Page d'accueil, Partage ; aucun thème ne porte de mention.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
 - Page ouverte avec `?t=violet-turquoise` : sans effet, la page reste en vert et rose.
-- Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés.
-- Monter Palmarès d'un rang : le menu de la page change aussitôt ; recharger : l'ordre est conservé.
-- Décocher Guide : il disparaît du menu ; « Rétablir l'ordre par défaut » le fait revenir à sa place.
-- Décocher tous les modules sauf un : la dernière case ne peut pas être décochée.
+- Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés, « · bientôt » ; le menu de la page n'a que les modules construits : En un coup d'œil, Objectif, Calendrier, Palmarès.
+- Monter Calendrier d'un rang : le menu de la page change aussitôt (Calendrier avant Objectif) ; recharger : l'ordre est conservé.
+- Décocher Calendrier : il disparaît du menu ; « Rétablir l'ordre par défaut » le fait revenir à sa place.
+- Décocher tous les modules sauf un : la dernière case ne peut pas être décochée ; cocher Guide (bientôt) : il n'entre pas dans le menu, et la case d'En un coup d'œil reste non décochable.
+- L'engrenage est en Accent sur cette page, en Texte discret ailleurs.
 - Cap : la liste propose « Par défaut : la plus lointaine (Trail des Crêtes) », puis Trail du Lac, Course A, Trail des Crêtes, dans cet ordre ; ni Course B (à surveiller) ni Course C (courue).
 - Choisir Trail du Lac : l'en-tête d'En un coup d'œil affiche « Cap sur Trail du Lac » ; revenir aux Préférences : Trail du Lac est toujours choisi.
 - Marquer Trail du Lac comme abandonnée : l'en-tête revient à Trail des Crêtes, la liste affiche « Par défaut ».

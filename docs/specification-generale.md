@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.21 · 28 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.22 · 30 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -44,6 +44,7 @@ Règles transverses :
 - **Rechargement automatique** : quand une nouvelle version du site est en ligne, la page se recharge d'elle-même, une seule fois par version (utile sur iPhone, qui garde les pages en cache).
 - **Affichage automatique** : un bloc qui dépend de données (météo, suivi en course, graphique) apparaît de lui-même dès que ces données existent ; l'utilisateur n'a rien à activer. Chaque bloc est décrit dans la spécification de son module.
 - **Aucune donnée inventée** : un champ sans valeur n'est pas affiché, ou affiche « — ».
+- **Retour du navigateur ou du téléphone** : il ferme ce qui est ouvert par-dessus la page (page d'une course, fiche de saisie), comme la croix ou « Annuler » ; il ne quitte jamais la page en abandonnant une saisie sans le demander (« Abandonner les modifications ? »).
 
 ## 4. En-tête
 
@@ -58,7 +59,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. Sur ordinateur, en bas à droite de l'en-tête, son bas au niveau du bas des indicateurs ; sur téléphone, sur une ligne, juste sous le nom de la course, à gauche |
 | Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours ; sur téléphone, à part, sous les indicateurs et un filet. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
-| Engrenage ⚙️ | À droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) |
+| Engrenage | Dessiné en trait fin, à droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) ; en Accent sur la page des Préférences, comme l'onglet de la page ouverte |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |
 
 **Barre fine**, sur les pages sans en-tête : « Cap sur » et le nom du cap à gauche, discrets, qui mènent à la page de démarrage ; l'engrenage à droite.
@@ -96,7 +97,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 - **En un coup d'œil** (l'ancien Accueil) : un module comme les autres, le premier par défaut ; il se masque et se déplace. Son onglet s'écrit « En un coup d' » suivi d'un picto d'œil.
 
-- Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur, dans l'ordre qu'il a choisi (§ 8). L'onglet de la page ouverte est mis en avant.
+- Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur et déjà construit, dans l'ordre qu'il a choisi (§ 8). Un module « bientôt » n'a pas d'onglet : il reste dans les Préférences et entre dans le menu une fois construit. L'onglet de la page ouverte est mis en avant.
 - Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené. Elle reste visible en haut de l'écran quand on fait défiler la page.
 
 ## 5 bis. En un coup d'œil et page de démarrage
@@ -112,7 +113,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt, grisé | Affiché |
 | Bilan nutrition | Plan de ravitaillement de la prochaine course, avec le module Nutrition · bientôt, grisé | Affiché |
 | D'ici là | Les étapes de la feuille de route jusqu'au cap compris, le cap en Accent | Affiché |
-| Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; lien vers le Palmarès | Masqué |
+| Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Masqué |
 
 ## 6. Thèmes
 
@@ -230,6 +231,9 @@ Résultats attendus :
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
 - Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
 - En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac), Pense-bête et Bilan nutrition grisés, D'ici là jusqu'au Trail des Crêtes en Accent.
-- Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss.
+- Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
+- Menu par défaut : En un coup d'œil, Objectif, Calendrier, Palmarès (pas d'onglet pour Cette semaine, Nutrition, Profil, Guide) ; à 375 et 390 px de large, les quatre onglets tiennent dans l'écran, sur toutes les pages.
+- L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.
+- Retour du navigateur sur une fiche ouverte seule (« Ajouter une course ») : la fiche se ferme, la page reste ; après une saisie, « Abandonner les modifications ? » d'abord.
 - Objectif en tête du menu : ouvrir le site mène à la feuille de route, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
 - En un coup d'œil masqué dans le menu (Cette semaine, Objectif, Palmarès) : ouvrir le site mène à Objectif, avec le grand en-tête ; le nom de l'application y mène aussi.

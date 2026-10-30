@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.22 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.23 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -162,7 +162,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
   - durées : `49:18`, `1:56:05`, `01:56:05`, ou chiffres seuls lus par la droite (`4918` = 49:18, `15605` = 1:56:05), le clavier numérique des téléphones n'ayant pas de « : » ;
   - allure moyenne : la vitesse s'en déduit (§ 4).
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
-- **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler** (barre du haut, toujours visible) ferme sans rien changer, après « Abandonner les modifications ? » s'il y a eu une saisie.
+- **Enregistrer** range la course et met à jour le tableau (tri, filtres, records) ; **Annuler** (barre du haut, toujours visible) ferme sans rien changer, après « Abandonner les modifications ? » s'il y a eu une saisie. Le retour du navigateur ou du téléphone fait comme « Annuler » : la fiche se ferme, le Palmarès reste.
 - **Supprimer la course** : seulement dans la fiche d'une course existante, bouton à contour rouge avec une poubelle, en bas, après une confirmation (« Supprimer cette course ? Cette action est définitive. »).
 - **Course ajoutée ici** : statut Confirmée, état Courue, rôle Préparatoire par défaut (modifiable dans Place dans le plan).
 - **Site partagé en lecture seule** : ni bouton d'ajout, ni crayon ; toucher une ligne ouvre la consultation, sans crayon.
@@ -234,6 +234,8 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Supprimer la course « Test » : une confirmation est demandée ; après accord, elle disparaît.
 - Site partagé en lecture seule : ni bouton « Ajouter une course » ni crayon ; toucher une ligne ouvre la consultation, sans crayon.
 - Ordinateur : le crayon n'apparaît qu'au survol de sa ligne ; toucher la ligne ouvre la consultation. Écran tactile : le crayon est toujours visible.
+- Crayon d'une ligne, puis le retour du navigateur : la fiche se ferme, on reste sur le Palmarès.
+- Panneaux des filtres et des colonnes : pastilles et champs communs du site (design, § 1) ; leur « × » a la taille de la croix des feuilles.
 - Sans filtre : aucun compteur. Ouvrir les filtres : « Trier par » montre « Date↓ » ; la pastille Trail donne « 3 courses sur 7 » et un « 1 » sur le bouton Filtres ; la pastille 2025 filtre l'année, « Toutes » rétablit les 7 et le compteur disparaît ; le « × » en haut à droite referme le panneau (« Réduire les filtres » n'existe plus) ; le bouton rond « Colonnes » ouvre la liste, son « × » la referme, et l'en-tête du tableau n'a plus de bouton ; la pastille Temps trie du plus court au plus long (« Temps↑ »).
 - Téléphone, un filtre actif : « X courses sur Y » passe sous les boutons Filtres, regroupement, colonnes et « + Course ».
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.

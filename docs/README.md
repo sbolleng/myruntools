@@ -14,7 +14,7 @@ Chaque discussion lit d'abord `CLAUDE.md` (règles du projet), puis ce fichier. 
 - Dépôt public : aucune donnée personnelle, aucun secret ; le pilote route est « le compte test Rome ».
 - D'abord un plan de page en texte (schéma numéroté, tableau des éléments, options avec une recommandation) ; maquette en image seulement à la demande ou pour trancher, après accord.
 - Cycle : spécification → validation → construction → banc d'essai → mise en ligne ; chaque décision : une ligne au journal.
-- Apparence : les règles communes du [design](design.md), § 1 (peu de couleur, capitales pour les libellés, tout dans un cadre, trois sortes de boutons, un seul titre repliable).
+- Apparence : les règles communes du [design](design.md), § 1 (un seul accent, peu de couleur, capitales pour les libellés, tout dans un cadre, trois sortes de boutons, pastilles et champ communs, fenêtres comme la fiche, un seul titre repliable).
 - Git : branche de la session, fusion dans `main` (`--no-ff`), vérifier que la publication a réussi avant d'annoncer la mise en ligne.
 
 **Outils**
@@ -24,8 +24,8 @@ Chaque discussion lit d'abord `CLAUDE.md` (règles du projet), puis ce fichier. 
 | Todo | Ce fichier, « À faire » | Prochaines étapes dans l'ordre, questions ouvertes, idées |
 | Journal | [journal.md](journal.md) | Une ligne par décision, la plus récente en haut ; à lire seulement au besoin |
 | Spécifications | Sommaire ci-dessous | Une par module, avec plan de page, jeu d'essai et résultats attendus |
-| Banc d'essai | `outils/essais/` | `node essais.js` (dépendances installées au démarrage de la discussion) : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; le Chromium de la session est pris d'office |
-| Captures | `outils/essais/captures.js` | Images des pages, téléphone et ordinateur, données fictives : la façon économique de faire une maquette (avant/après avec une copie du site en ligne) |
+| Banc d'essai | `outils/essais/` | `node essais.js` (dépendances installées au démarrage de la discussion) : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; `node essais.js repasse calendrier` : seulement les groupes nommés ; le Chromium de la session est pris d'office |
+| Captures | `outils/essais/captures.js` | Images des pages, téléphone et ordinateur, données fictives : la façon économique de faire une maquette (avant/après avec une copie du site en ligne ; `THEME=vert-rose` pour un autre thème) |
 
 **Modèle conseillé**
 
@@ -41,13 +41,13 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.21 |
-| [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.26 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.22 |
+| [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.28 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.14 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.34 |
-| [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.8 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.21 |
-| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.11, préparation sur la page d'une course |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.37 |
+| [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.9 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.23 |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.12, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -87,7 +87,7 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
-2. [ ] **Calendrier** : [spécification 0.11](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+2. [ ] **Calendrier** : [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
@@ -98,16 +98,15 @@ Dans l'ordre :
 6. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
 7. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
 8. [ ] **Calculatrice** (module) : allure, vitesse, temps de passage, VMA, km-effort, pente ; liste des calculs à valider ; peut sortir tôt, car elle ne dépend d'aucune donnée.
-9. [ ] **Thèmes** : supprimer Accent 2, presque identique à l'Accent ; les repères (compte à rebours des courses, objectif, point du dossard, rôle Objectif intermédiaire) passent en Accent ou en neutre. Plan de page et maquette des trois thèmes d'abord.
-10. [ ] **Nutrition** : créer la page : spécification (périmètre ; repères glucides et eau par heure partagés avec la section stratégie de course d'Objectif), puis construction.
-11. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
-12. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
-13. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
-14. [ ] **En un coup d'œil** :
+9. [ ] **Nutrition** : créer la page : spécification (périmètre ; repères glucides et eau par heure partagés avec la section stratégie de course d'Objectif), puis construction.
+10. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
+11. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression).
+12. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
+13. [ ] **En un coup d'œil** :
    - Pense-bête : rappels tirés des courses et notes perso (table des notes, évolution à prévoir).
    - Bilan nutrition : avec le module Nutrition.
    - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
-15. [ ] **Prévoir un profil piste ?**
+14. [ ] **Prévoir un profil piste ?**
 
 ## Questions ouvertes
 
