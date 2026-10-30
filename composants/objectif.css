@@ -17,7 +17,7 @@
 .ob-cible { color: var(--text); }
 /* Lien officiel : icône ↗ à côté du nom. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
-.ob-fleche { width: 0.75em; height: 0.75em; flex: none; }
+.ob-fleche { width: 0.75em; height: 0.75em; flex: none; vertical-align: -0.05em; }
 
 /* Compteur : quatre cases fines ; chiffres en Texte, unités en Texte discret. */
 .ob-cpt { display: flex; gap: 0.25rem; }
@@ -101,6 +101,11 @@
 .ob-cible-1 { color: var(--accent); }
 .pc-sur-n { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
 .pc-cat { margin-left: 0.4rem; color: var(--muted); }
+/* Montre : valeurs en Texte discret ; à droite de Résultat dès que la largeur le permet. */
+.pc-section.is-montre .ob-val { color: var(--muted); }
+@media (min-width: 601px) {
+  .pc-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; align-items: start; }
+}
 /* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
 .pc-textes { padding: 0 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-cellule + .pc-cellule { border-top: 1px solid var(--border); }
