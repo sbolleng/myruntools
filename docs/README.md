@@ -41,7 +41,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.23 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.24 |
 | [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.30 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.14 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.41 |
@@ -94,7 +94,7 @@ Dans l'ordre :
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
 3. [ ] **Refonte login et mot de passe** : en ligne le 30 oct. 2026 ; essai réel réussi (premier mot de passe créé par « Mot de passe oublié ? »). Reste : confirmer « Changer le mot de passe » dans les Préférences, premier mot de passe du compte test Rome.
-4. [ ] **Mentions légales et crédits** : page des crédits légaux du site (éditeur, hébergeur, contact, crédits des polices et images), liée depuis toutes les pages.
+4. [ ] **Mentions légales et crédits** : plan validé ([Spécification générale 0.24](specification-generale.md), § 11 bis : éditeur particulier sans nom, pied de page sur toutes les pages) ; à fournir avant de construire : adresse e-mail de contact, région du projet Supabase.
 5. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression). À faire avant d'ouvrir les inscriptions (données de santé : poids, FC, VMA).
 6. [ ] **Anti-robot** (Cloudflare Turnstile) : plus tard, mais avant d'ouvrir l'inscription. Code prêt (`mrtCaptcha`, inactif) ; étapes : créer le widget pour `myruntools.fr`, me donner la clé du site, je publie, puis activer CAPTCHA dans Supabase avec la clé secrète ([réglages](reglages-supabase-connexion.md), n° 6). À mentionner dans la politique de confidentialité.
 7. [ ] **Inscription** : chacun crée son compte (décidé le 30 oct. 2026) : page « Créer un compte » (prénom et nom obligatoires, adresse, mot de passe et confirmation, anti-robot), confirmation de l'adresse par e-mail avant le premier accès, message neutre ; profil et préférences créés par la base (évolution 014). Préalables : connexion par mot de passe en ligne, mentions légales et RGPD, anti-robot actif, service d'envoi d'e-mails (SMTP).
