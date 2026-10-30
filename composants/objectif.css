@@ -95,9 +95,12 @@
 .pc-intertitre { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; padding-bottom: 0.35rem;
   font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
 .pc-lien-res { display: inline-flex; align-items: center; gap: 0.25rem; letter-spacing: 0.05em; color: var(--muted); text-decoration: none; }
-.pc-res { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.8rem; }
-.pc-temps { font-size: 1.5rem; font-weight: 700; }
-.pc-clas { display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; margin-top: 0.3rem; }
+/* Résultat : libellé à gauche, valeur à droite ; place et temps en grand. */
+.pc-res-ligne { display: grid; grid-template-columns: 6.4rem minmax(0, 1fr); align-items: baseline; padding: 0.15rem 0; }
+.pc-grand { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+.ob-cible-1 { color: var(--accent); }
+.pc-sur-n { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
+.pc-cat { margin-left: 0.4rem; color: var(--muted); }
 /* Parcours : Officiel et Montre en colonnes. */
 .pc-comp { border-collapse: collapse; }
 .pc-comp th, .pc-comp td { padding: 0.2rem 1.4rem 0.2rem 0; text-align: left; font-weight: 400; white-space: nowrap; }
