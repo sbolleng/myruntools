@@ -269,7 +269,8 @@
   const hmsFiche = s => (s == null ? '' : pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
   const allureTxt = s => (s == null ? '' : Math.floor(s / 60) + ':' + pad(s % 60) + ' /km');
   // « place / effectif » (la place seule si l'effectif est inconnu) ; rien sans place.
-  const place = (p, n) => (p == null ? '' : p + (n != null ? ' / ' + n : ''));
+  // Rang ordinal comme dans le Palmarès : « 1er » (« 1re » pour une coureuse), « 2e », « 14e », suivi de l'effectif s'il est connu.
+  const place = (p, n, feminin) => (p == null ? '' : (p === 1 ? (feminin ? '1re' : '1er') : nombre(p) + 'e') + (n != null ? ' / ' + nombre(n) : ''));
 
   // ctx.ordre() : identifiants des courses du Palmarès, dans l'ordre du tableau (précédente et suivante).
   window.renderPageCourseCourue = function (el, courses, id, edition, ctx) {
@@ -285,8 +286,8 @@
     const ordre = (ctx.ordre ? ctx.ordre() : []).map(i => courses.find(x => x.id === i)).filter(Boolean);
     const k = ordre.findIndex(x => x.id === id), prec = ordre[k - 1], suiv = ordre[k + 1];
     const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats']].filter(l => lienSur(l[0]));
-    const classements = [['Général', place(c.place, c.effectif)], ['Catégorie', place(c.place_categorie, c.effectif_categorie)],
-      ['Sexe', place(c.place_sexe, c.effectif_sexe)]].filter(l => l[1]);
+    const classements = [['Général', place(c.place, c.effectif, ctx.feminin)], ['Catégorie', place(c.place_categorie, c.effectif_categorie, ctx.feminin)],
+      ['Sexe', place(c.place_sexe, c.effectif_sexe, ctx.feminin)]].filter(l => l[1]);
     const temps = c.dnf ? 'DNF' : hmsFiche(c.temps);
     // Écart à l'objectif : seulement pour un objectif chiffré (hh:mm:ss) et une course terminée ; « + » si plus lent, « − » si plus rapide.
     const cible = /^(\d{1,2}):(\d\d):(\d\d)$/.exec(c.objectif || '');
@@ -301,19 +302,19 @@
       '<p class="pc-sur"><span class="ob-role">Courue</span>' + (c.typeLibelle ? ' <span class="ob-lib">· ' + esc(c.typeLibelle) + '</span>' : '') + '</p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
-      '<div class="ob-lignes pc-fiche">' +
+      '<div class="ob-lignes pc-fiche pc-compacte">' +
         (temps ? ligne('Temps', '<span class="pc-res"><b class="ob-cible pc-temps">' + esc(temps) + '</b>' +
           (!c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '') + '</span>') : '') +
         (classements.length ? ligne('Classements', '<span class="pc-clas">' + classements.map(l => '<span><span class="ob-lib">' + l[0] + '</span> <span class="ob-val">' + esc(l[1]) + '</span></span>').join('') + '</span>') : '') +
         (parcours ? ligne('Distance', '<span class="ob-val">' + esc(parcours) + '</span>') : '') +
-        (c.objectif ? ligne('Objectif', '<span class="pc-res"><span class="ob-cible">' + esc(c.objectif) + '</span>' + (ecartTxt ? '<span class="ob-val">' + ecartTxt + '</span>' : '') + '</span>') : '') +
+        (c.objectif ? ligne('Objectif', '<span class="pc-res"><span class="ob-cible">' + esc(c.objectif) + '</span>' + (ecartTxt ? '<span class="ob-val">(vs Temps ' + ecartTxt + ')</span>' : '') + '</span>') : '') +
         (c.objectif_precisions ? ligne('Précisions', esc(c.objectif_precisions)) : '') +
         (c.dossard ? ligne('Dossard', '<span class="ob-val">n° ' + esc(c.dossard) + '</span>') : '') +
         (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
       '</div>' +
       '<div class="pc-textes">' +
         cellule('Montre', montre.length ? '<p>' + montre.map(l => '<span class="ob-lib">' + l[0] + '</span> ' + esc(l[1])).join(' · ') + '</p>' : '') +
-        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>' : '') +
+        cellule('Liens', liens.length ? '<ul class="pc-liens pc-liens-ligne">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +

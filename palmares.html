@@ -54,10 +54,10 @@
     // Après un enregistrement ou une suppression : relire et redessiner.
     const apres = async () => { courses = await page.relire(); tableau.setRaces(versPalmares(courses)); };
     const ouvrir = id => mrtFicheCourse({ course: courses.find(c => c.id === id) || null, references, apres });
-    // Toucher une ligne : la consultation de la course courue, dans la modale (Objectif, § 3.8).
-    const modale = mrtModaleCourse(page, { courses: () => courses, courue: true, ordre: () => tableau.ordre(),
-      surMaj: liste => { courses = liste; tableau.setRaces(versPalmares(courses)); } });
     const profil = page.lectureSeule ? page.proprietaire : page.session.profil;
+    // Toucher une ligne : la consultation de la course courue, dans la modale (Objectif, § 3.8).
+    const modale = mrtModaleCourse(page, { courses: () => courses, courue: true, ordre: () => tableau.ordre(), feminin: !!(profil && profil.sexe === 'femme'),
+      surMaj: liste => { courses = liste; tableau.setRaces(versPalmares(courses)); } });
     const tableau = renderPalmares(document.getElementById('palmares'), {
       feminin: !!(profil && profil.sexe === 'femme'),
       editable: !page.lectureSeule,
