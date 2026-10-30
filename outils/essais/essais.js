@@ -840,13 +840,13 @@ const CONTROLES = {
     // Consultation d'une course courue (§ 3.8) : toucher une ligne du Palmarès ouvre la feuille en consultation.
     const SEB = '00000000-0000-0000-0001-000000000007';
     const ligneSeb = p => p.evaluate(id => document.querySelector('#palmares tbody tr[data-id="' + id + '"] td').click(), SEB);
-    // Consultation d'une course courue : lignes sous le titre, sections (intertitre → texte), tableau Parcours (une ligne par rangée).
+    // Consultation d'une course courue : lignes sous le titre, sections (intertitre → « Libellé | valeur » par ligne).
     const fiche = p => p.evaluate(() => {
       const t = e => e.innerText.trim().replace(/\s+/g, ' ');
       const r = { infos: [...document.querySelectorAll('.pc-info')].map(t) };
       document.querySelectorAll('.pc-section').forEach(s => {
         const titre = s.querySelector('.pc-intertitre > span').textContent.trim();
-        r[titre] = titre === 'Parcours' ? [...s.querySelectorAll('tr')].map(tr => [...tr.children].map(c => c.textContent.trim()).join(' | ')) : [...s.querySelectorAll('p')].map(t);
+        r[titre] = [...s.querySelectorAll('.pc-res-ligne')].map(l => l.firstChild.textContent.trim() + ' | ' + t(l.lastChild));
       });
       return r;
     });
@@ -854,11 +854,11 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal({ titre: 'Semi de San Sebastián', mode: true, crayon: 1, croix: 1, actions: 0, compteur: 0, plan: 0, edition: 0 },
-      { titre: await p.locator('.pc-titre').textContent(), mode: /^Courue/.test(await p.locator('.pc-sur').textContent()), crayon: await p.locator('[data-ob="modifier"]').count(), croix: await p.locator('.pc-fermer').count(),
+    pb.push(egal({ titre: 'Semi de San Sebastián', libelle: 0, crayon: 1, croix: 1, actions: 0, compteur: 0, plan: 0, edition: 0 },
+      { titre: await p.locator('.pc-titre').textContent(), libelle: await p.locator('.pc-sur').count(), crayon: await p.locator('[data-ob="modifier"]').count(), croix: await p.locator('.pc-fermer').count(),
         actions: await p.locator('.pc-actions').count(), compteur: await p.locator('.ob-cpt').count(), plan: await p.locator('#preparation').count(), edition: await p.locator('.fc-fiche').count() }, 'Palmarès : toucher une ligne ouvre la consultation d\'une course courue'));
-    pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon'], Résultat: ['01:56:05 5:30 /km', 'GÉNÉRAL 1 951e'], Parcours: ['Distance | 21,1 km'] }, await fiche(p),
-      'consultation : date sans heure, format ; Résultat (temps, allure, classement saisi) ; Parcours sans montre : la distance seule'));
+    pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon', '21,1 km'], Résultat: ['Temps | 01:56:05', 'Place | 1 951e', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'] }, await fiche(p),
+      'consultation : date sans heure, format, distance ; Résultat (temps, place, vitesse tirée de l\'allure, allure) ; pas de section Montre sans montre'));
     pb.push(egal([0, 0, 0], [await p.locator('.pc-cellule').count(), await p.locator('.pc-fiche').count(), await p.locator('.pc-lien-res').count()], 'consultation : ni bloc repliable, ni fiche encadrée, ni lien Résultats sans adresse'));
     // Crayon : édition dans la même feuille ; Annuler sans saisie revient à la consultation, sans question.
     await p.click('[data-ob="modifier"]');
@@ -886,42 +886,42 @@ const CONTROLES = {
     // Course renseignée (classements, dossard, prix, montre, textes) et course non terminée.
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { place: 112, effectif: 640, place_categorie: 18, effectif_categorie: 96, place_sexe: 95, effectif_sexe: 510,
-      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' });
+      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, categorie: 'M2', strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon · Dossard 1287'], Résultat: ['01:56:05 5:30 /km', 'GÉNÉRAL 112e / 640 CATÉGORIE 18e / 96 SEXE 95e / 510'],
-      Parcours: [' | Officiel | Montre', 'Temps | 01:56:05 | 01:55:50', 'Distance | 21,1 km | 21,3 km', 'D+ · D− | 40 · 38 m | 40 · — m', 'Allure | 5:30 /km | —', 'FC moy. | — | 151 bpm'] },
-      await fiche(p), 'consultation : dossard sous le titre ; Parcours Officiel et Montre côte à côte ; ni objectif, ni précisions, ni prix'));
-    pb.push(egal([['Résultat', 'Parcours'], 'https://example.org/resultats', 'Résultats', 0, 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
+    pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon · Dossard 1287', '21,1 km · 40 m D+'],
+      Résultat: ['Temps | 01:56:05', 'Place | 112e / 640', 'Catégorie | 18e / 96 Master 2 Homme', 'Sexe | 95e / 510', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'],
+      Montre: ['Temps | 01:55:50', 'Distance | 21,3 km', 'D+ · D− | 40 · — m', 'FC moy. | 151 bpm'] },
+      await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps puis place ; catégorie en clair ; Montre seule en bas ; ni objectif, ni précisions, ni prix'));
+    pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Résultats', 0, 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count(), await p.locator('.pc-cellule').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
     pb.push(egal([1, ''], [await p.locator('.pc-titre .ob-ext svg').count(), (await p.locator('.pc-titre .ob-ext').textContent()).trim()], 'site officiel : flèche dessinée, pas de caractère ↗ (emoji sur iPhone)'));
     await ctx.close();
-    // Téléphone : le tableau Officiel / Montre tient dans l'écran.
+    // Téléphone : rien ne dépasse.
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 390, d, {}, Object.assign({ mobile: true }, PARIS)));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal(false, await p.evaluate(() => document.querySelector('.pc-comp').getBoundingClientRect().right > document.querySelector('.mc-panneau').clientWidth), 'téléphone : le tableau Parcours ne dépasse pas'));
+    pb.push(egal(false, await p.evaluate(() => document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth), 'téléphone : Résultat et Montre ne dépassent pas'));
     await ctx.close();
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { dnf: true, temps: null, allure: null });
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal(['DNF', 'GÉNÉRAL 1 951e'], (await fiche(p)).Résultat, 'course non terminée : DNF, pas d\'allure'));
+    pb.push(egal(['Temps | DNF', 'Place | 1 951e'], (await fiche(p)).Résultat, 'course non terminée : DNF, ni vitesse ni allure'));
     await ctx.close();
 
-    // Première place : « 1er », « 1re » pour une coureuse ; allure et classements sur une seule ligne chacun.
-    for (const [sexe, attendu] of [['homme', 'GÉNÉRAL 1er / 640'], ['femme', 'GÉNÉRAL 1re / 640']]) {
+    // Première place : « 1er », « 1re » pour une coureuse ; chaque valeur sur une ligne.
+    for (const [sexe, attendu] of [['homme', 'Place | 1er / 640'], ['femme', 'Place | 1re / 640']]) {
       d = copie();
       d.profils[0].sexe = sexe;
       Object.assign(d.courses.find(c => c.id === SEB), { place: 1, effectif: 640 });
       ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
       await ligneSeb(p);
       await consultation(p);
-      const mesures = await p.evaluate(() => { const l = [...document.querySelectorAll('.pc-section p')], h = e => Math.round(e.getBoundingClientRect().height);
-        return { classementsUneLigne: h(l[1]) < 40, tempsUneLigne: h(l[0]) < 50 }; });
-      pb.push(egal([attendu, { classementsUneLigne: true, tempsUneLigne: true }], [(await fiche(p)).Résultat[1], mesures], 'première place ' + (sexe === 'femme' ? '« 1re »' : '« 1er »') + ' ; temps et classements chacun sur une ligne'));
+      const uneLigne = await p.evaluate(() => [...document.querySelectorAll('.pc-res-ligne')].every(l => l.getBoundingClientRect().height < 50));
+      pb.push(egal([attendu, true], [(await fiche(p)).Résultat[1], uneLigne], 'première place ' + (sexe === 'femme' ? '« 1re »' : '« 1er »') + ' ; chaque valeur sur une ligne'));
       await ctx.close();
     }
     // Site partagé en lecture seule : la consultation s'ouvre, sans crayon.
