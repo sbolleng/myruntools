@@ -390,8 +390,9 @@ const CONTROLES = {
     };
     const recharger = async () => { await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); };
     // Le cap se lit dans l'en-tête de l'Accueil (les Préférences n'ont pas d'en-tête).
+    // L'en-tête s'affiche d'abord depuis la copie gardée de la visite : on lit après la lecture des données (data-mrt-donnees), sinon l'ancien cap.
     const capEnTete = async () => {
-      await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
+      await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500);
       const cap = await q('h1 em', 'x.textContent');
       await p.goto(RACINE + 'preferences.html'); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500);
       return cap;
@@ -409,7 +410,7 @@ const CONTROLES = {
     pb.push(egal('Enregistré.', await q('#bloc-theme .pref-msg', 'x.textContent'), 'thème, message'));
     await recharger();
     pb.push(egal('vert-rose', await q('input[name=theme]:checked', 'x.value'), 'thème après rechargement'));
-    await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.clock.runFor(1500);
+    await p.goto(RACINE + 'index.html'); await p.waitForSelector('.mrt-header'); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500);
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), 'accueil en vert et rose'));
     await p.goto(RACINE + 'preferences.html?t=violet-turquoise'); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500);
     pb.push(egal(true, await q('html', 'x.classList.contains("t-vert-rose")'), '?t=… sans effet'));
