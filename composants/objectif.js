@@ -91,12 +91,12 @@
     return { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
   }
   function dossardHtml(c) {
-    const d = dossard(c), html = '<i></i>' + esc(d.texte) + (d.lien ? ' ↗' : '');
+    const d = dossard(c), html = '<i></i>' + esc(d.texte) + (d.lien ? ' ' + FLECHE : '');
     return d.lien
       ? '<a class="ob-ins is-ouvert" href="' + esc(d.lien) + '" target="_blank" rel="noopener">' + html + '</a>'
       : '<span class="ob-ins is-' + d.etat + '">' + html + '</span>';
   }
-  // Flèche dessinée : le caractère ↗ s'affiche en emoji sur iPhone.
+  // Flèche dessinée, pour tous les liens externes : le caractère ↗ s'affiche en emoji sur iPhone.
   const FLECHE = '<svg class="ob-fleche" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const lienOfficiel = c => (lienSur(c.lien)
     ? '<a class="ob-ext" href="' + esc(c.lien) + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">' + FLECHE + '</a>' : '');
@@ -246,7 +246,7 @@
         cellule('Stratégie ou enchaînement', texte(c.strategie)) +
         cellule('Logistique', texte(c.logistique)) +
         cellule('Description', texte(c.description)) +
-        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>' : '') +
+        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ' + FLECHE + '</a></li>').join('') + '</ul>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
@@ -309,15 +309,18 @@
     const montre = [['Temps', hmsFiche(c.montre_temps)], ['Distance', km(c.montre_distance)], ['D+ · D−', deniv(c.montre_dplus, c.montre_dmoins)],
       ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(r => r[1]).map(r => [r[0], '<span class="ob-val">' + esc(r[1]) + '</span>']);
     const liste = l => l.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join('');
-    const section = (titreSection, droite, html) => '<section class="pc-section"><h3 class="pc-intertitre"><span>' + titreSection + '</span>' + droite + '</h3>' + html + '</section>';
+    const section = (titreSection, droite, html, classe) => '<section class="pc-section' + (classe ? ' ' + classe : '') + '"><h3 class="pc-intertitre"><span>' + titreSection + '</span>' + droite + '</h3>' + html + '</section>';
     // Sous le titre : la date (sans heure) et le lieu ; le format et le dossard ; la distance et le D+.
     const infos = [[dateLongue(c, true), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
+      // Résultat et Montre côte à côte sur un grand écran, l'un sous l'autre sur téléphone.
+      '<div class="pc-colonnes">' +
       (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res" href="' + esc(resultats) + '" target="_blank" rel="noopener">Résultats' + FLECHE + '</a>' : '',
         liste(resultat)) : '') +
-      (montre.length ? section('Montre', '', liste(montre)) : '') +
+      (montre.length ? section('Montre', '', liste(montre), 'is-montre') : '') +
+      '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
