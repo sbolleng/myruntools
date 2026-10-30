@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : repasse de navigation et de design (croix de « Course introuvable », course courue ouverte de partout, menu sans modules « bientôt », retour = Annuler pour la fiche seule, pastilles et « Aujourd'hui » au Calendrier, engrenage dessiné ; Accent 2 supprimé, champ, pastille, croix et bouton Supprimer communs, fenêtres comme la fiche, libellés 0,7 rem) ; avant : connexion par adresse e-mail et mot de passe (`session.js`, `connexion.html`, `nouveau-mot-de-passe.html`, bloc Compte des Préférences ; réglages Supabase faits ; anti-robot prêt mais inactif) et consultation d'une course courue en liste (Résultat, Montre). Historique : `docs/journal.md`.
+- Dernier lot : repères de données en Accent (option B) et champs à fond « Champ » (entre Fond et Surface) ; avant : repasse de navigation et de design (menu sans modules « bientôt », course courue ouverte de partout, retour = Annuler, Accent 2 supprimé, champ, pastille, croix et bouton Supprimer communs, fenêtres comme la fiche). Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

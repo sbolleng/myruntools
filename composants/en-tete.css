@@ -3,6 +3,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 /* Thèmes : classe posée sur <html> par en-tete.js. */
+/* Fond des champs : entre le Fond et la Surface, tiré du thème. Plus sombre que le cadre qui entoure le champ,
+   plus clair que la page : un champ se voit partout, dans tous les thèmes. */
+:root { --champ: color-mix(in srgb, var(--bg) 60%, var(--surface)); }
 :root, .t-bleu-orange { --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --text:#eef3fa; --muted:#8fa8c9; --red:#e05c5c; }
 .t-vert-rose { --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --text:#EDF2E9; --muted:#8FA391; --red:#A56269; }
 .t-violet-turquoise { --bg:#14101F; --surface:#221A35; --surface2:#2D2347; --border:#40335F; --accent:#2EC4B6; --text:#F1EEF7; --muted:#A49BB8; --red:#E0607E; }
@@ -191,8 +194,8 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 .mrt-pastille.is-on, .mrt-pastille[aria-pressed="true"], .mrt-pastille:has(input:checked) { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 .mrt-pastille input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
 .mrt-btn:focus-visible, .mrt-rond:focus-visible, .mrt-lien:focus-visible, .mrt-pastille:focus-visible, .mrt-pastille:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
-/* Champ de saisie : fond transparent, bordure fine, Accent quand on y écrit ; la largeur est réglée par la page. */
-.mrt-champ { min-width: 0; max-width: 100%; padding: 0.5rem 0.65rem; font: inherit; font-size: 0.85rem; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; color-scheme: dark; -webkit-appearance: none; appearance: none; }
+/* Champ de saisie : fond Champ, bordure fine, Accent quand on y écrit ; la largeur est réglée par la page. */
+.mrt-champ { min-width: 0; max-width: 100%; padding: 0.5rem 0.65rem; font: inherit; font-size: 0.85rem; color: var(--text); background-color: var(--champ); border: 1px solid var(--border); border-radius: 6px; color-scheme: dark; -webkit-appearance: none; appearance: none; }
 .mrt-champ::placeholder { color: var(--muted); opacity: 1; }
 .mrt-champ[hidden] { display: none; }
 .mrt-champ:focus { outline: none; border-color: var(--accent); }
