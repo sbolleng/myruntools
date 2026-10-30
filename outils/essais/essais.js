@@ -925,6 +925,9 @@ const CONTROLES = {
       await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps puis place ; catégorie en clair ; Montre seule en bas ; ni objectif, ni précisions, ni prix'));
     pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Résultats', 0, 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count(), await p.locator('.pc-cellule').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
+    pb.push(egal([true, 'rgb', true], await p.evaluate(() => { const [r, m] = [...document.querySelectorAll('.pc-section')], br = r.getBoundingClientRect(), bm = m.getBoundingClientRect(), coul = e => getComputedStyle(e).color;
+      return [Math.abs(br.top - bm.top) < 2 && bm.left > br.right, coul(m.querySelector('.ob-val')).slice(0, 3), coul(m.querySelector('.ob-val')) !== coul(r.querySelector('.pc-res-ligne .ob-val'))]; }),
+      'ordinateur : Montre à droite de Résultat, valeurs en Texte discret'));
     pb.push(egal([1, ''], [await p.locator('.pc-titre .ob-ext svg').count(), (await p.locator('.pc-titre .ob-ext').textContent()).trim()], 'site officiel : flèche dessinée, pas de caractère ↗ (emoji sur iPhone)'));
     await ctx.close();
     // Téléphone : rien ne dépasse.
@@ -932,6 +935,7 @@ const CONTROLES = {
     await ligneSeb(p);
     await consultation(p);
     pb.push(egal(false, await p.evaluate(() => document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth), 'téléphone : Résultat et Montre ne dépassent pas'));
+    pb.push(egal(true, await p.evaluate(() => { const [r, m] = [...document.querySelectorAll('.pc-section')].map(x => x.getBoundingClientRect()); return m.top >= r.bottom; }), 'téléphone : Montre sous Résultat'));
     await ctx.close();
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { dnf: true, temps: null, allure: null });
