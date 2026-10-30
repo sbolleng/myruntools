@@ -46,14 +46,14 @@
       }
       return bloc('dicila', 'D\'ici là', null, etapes.length ? '<div class="ac-etapes">' + etapes.join('<i aria-hidden="true">›</i>') + '</div>' : vide('Aucune course à venir.'));
     },
-    // La dernière course courue.
+    // La dernière course courue ; son nom ouvre son résultat (la page de la course, en modale).
     derniere: courses => {
       const c = courses.filter(x => x.etat === 'courue' && x.date).sort((a, b) => (a.date < b.date ? 1 : -1))[0];
       if (!c) return bloc('derniere', 'Dernière course', ['palmares.html', 'Palmarès'], vide('Aucune course courue pour l\'instant.'));
       const temps = c.dnf ? 'DNF' : c.temps != null ? duree(c.temps) + (c.allure ? ' · ' + allure(c.allure) : '') : '—';
-      const ligne = (lib, val) => '<div class="ac-ligne"><span>' + lib + '</span><span>' + esc(val) + '</span></div>';
+      const ligne = (lib, html) => '<div class="ac-ligne"><span>' + lib + '</span><span>' + html + '</span></div>';
       return bloc('derniere', 'Dernière course', ['palmares.html', 'Palmarès'],
-        '<div class="ac-lignes">' + ligne('Course', window.mrtNomCourse(c)) + ligne('Date', dateCourte(c.date)) + ligne('Temps', temps) + '</div>');
+        '<div class="ac-lignes">' + ligne('Course', '<a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a>') + ligne('Date', esc(dateCourte(c.date))) + ligne('Temps', esc(temps)) + '</div>');
     }
   };
 

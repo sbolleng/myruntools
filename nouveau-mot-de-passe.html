@@ -16,17 +16,7 @@
   .connexion .accroche { font-size: 0.85rem; color: var(--muted); margin-bottom: 2.2rem; }
   .connexion form { text-align: left; }
   .connexion label { display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  .connexion input {
-    width: 100%;
-    padding: 0.55rem 0.7rem;
-    font: inherit;
-    font-size: 0.85rem;
-    color: var(--text);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-  }
-  .connexion input:focus { outline: none; border-color: var(--accent); }
+  .connexion input { width: 100%; } /* le champ commun (mrt-champ, en-tete.css), sur toute la largeur */
   .connexion label.champ-suivant { margin-top: 0.9rem; }
   .connexion .oubli { display: block; width: auto; margin: 0.6rem 0 0; padding: 0; font-size: 0.78rem; }
   .connexion #captcha { margin-top: 0.8rem; display: flex; justify-content: center; }
@@ -41,9 +31,9 @@
   <p class="accroche">Choisis un nouveau mot de passe</p>
   <form id="form-mdp" hidden>
     <label for="mdp">Nouveau mot de passe</label>
-    <input type="password" id="mdp" required autocomplete="new-password" placeholder="14 caractères au moins">
+    <input class="mrt-champ" type="password" id="mdp" required autocomplete="new-password" placeholder="14 caractères au moins">
     <label for="mdp2" class="champ-suivant">Confirmation</label>
-    <input type="password" id="mdp2" required autocomplete="new-password">
+    <input class="mrt-champ" type="password" id="mdp2" required autocomplete="new-password">
     <button type="submit" class="mrt-btn is-principal">Enregistrer</button>
   </form>
   <p class="message" id="message" aria-live="polite">Vérification du lien…</p>

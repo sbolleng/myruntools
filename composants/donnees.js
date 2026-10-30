@@ -30,9 +30,10 @@
     { id: 'dicila', nom: 'D\'ici là' },
     { id: 'derniere', nom: 'Dernière course', masque: true }
   ];
-  // Modules du menu, dans l'ordre choisi (rien d'enregistré : tout le catalogue).
+  // Modules du menu, dans l'ordre choisi (rien d'enregistré : tout le catalogue), construits seulement : un module
+  // « bientôt » reste dans les Préférences et n'entre dans le menu qu'une fois construit.
   const modulesAffiches = prefs => (prefs && prefs.modules && prefs.modules.length
-    ? prefs.modules.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES);
+    ? prefs.modules.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES).filter(m => m.page);
   window.mrtModulesAffiches = modulesAffiches;
   // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête :
   // le premier module construit du menu (par défaut En un coup d'œil).

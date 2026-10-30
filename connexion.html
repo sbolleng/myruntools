@@ -16,17 +16,7 @@
   .connexion .accroche { font-size: 0.85rem; color: var(--muted); margin-bottom: 2.2rem; }
   .connexion form { text-align: left; }
   .connexion label { display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  .connexion input {
-    width: 100%;
-    padding: 0.55rem 0.7rem;
-    font: inherit;
-    font-size: 0.85rem;
-    color: var(--text);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-  }
-  .connexion input:focus { outline: none; border-color: var(--accent); }
+  .connexion input { width: 100%; } /* le champ commun (mrt-champ, en-tete.css), sur toute la largeur */
   .connexion label.champ-suivant { margin-top: 0.9rem; }
   .connexion .oubli { display: block; width: auto; margin: 0.6rem 0 0; padding: 0; font-size: 0.78rem; }
   .connexion #captcha { margin-top: 0.8rem; display: flex; justify-content: center; }
@@ -41,9 +31,9 @@
   <p class="accroche">La boîte à outils du coureur</p>
   <form id="form-connexion">
     <label for="email">Adresse e-mail</label>
-    <input type="email" id="email" required autocomplete="username" inputmode="email" placeholder="toi@exemple.fr">
+    <input class="mrt-champ" type="email" id="email" required autocomplete="username" inputmode="email" placeholder="toi@exemple.fr">
     <label for="mdp" class="champ-suivant">Mot de passe</label>
-    <input type="password" id="mdp" required autocomplete="current-password">
+    <input class="mrt-champ" type="password" id="mdp" required autocomplete="current-password">
     <button type="button" class="mrt-lien oubli" id="oubli">Mot de passe oublié ?</button>
     <div id="captcha"></div>
     <button type="submit" class="mrt-btn is-principal">Se connecter</button>

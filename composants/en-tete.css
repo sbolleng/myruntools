@@ -3,9 +3,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 /* Thèmes : classe posée sur <html> par en-tete.js. */
-:root, .t-bleu-orange { --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --accent2:#ffd400; --text:#eef3fa; --muted:#8fa8c9; --red:#e05c5c; }
-.t-vert-rose { --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --accent2:#B76E78; --text:#EDF2E9; --muted:#8FA391; --red:#A56269; }
-.t-violet-turquoise { --bg:#14101F; --surface:#221A35; --surface2:#2D2347; --border:#40335F; --accent:#2EC4B6; --accent2:#5EDDD1; --text:#F1EEF7; --muted:#A49BB8; --red:#E0607E; }
+:root, .t-bleu-orange { --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --text:#eef3fa; --muted:#8fa8c9; --red:#e05c5c; }
+.t-vert-rose { --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --text:#EDF2E9; --muted:#8FA391; --red:#A56269; }
+.t-violet-turquoise { --bg:#14101F; --surface:#221A35; --surface2:#2D2347; --border:#40335F; --accent:#2EC4B6; --text:#F1EEF7; --muted:#A49BB8; --red:#E0607E; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 /* Page privée masquée tant que la session n'est pas vérifiée (session.js). */
@@ -50,7 +50,11 @@ td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-a
   color: var(--muted);
 }
 .mrt-brand a { color: inherit; text-decoration: none; }
-.mrt-gear { font-size: 0.9rem; letter-spacing: 0; line-height: 1; text-decoration: none; }
+/* Engrenage (Préférences) : dessiné en trait fin comme les autres icônes ; en Accent sur la page des Préférences,
+   comme l'onglet de la page ouverte. Zone de toucher agrandie sans changer la mise en page. */
+.mrt-gear { display: inline-flex; padding: 0.4rem; margin: -0.4rem; line-height: 1; color: var(--muted); text-decoration: none; }
+.mrt-gear svg { width: 1.05rem; height: 1.05rem; }
+.mrt-gear.is-on { color: var(--accent); }
 /* Barre fine (pages sans en-tête) : « Cap sur … » à gauche, discret (pas en Accent), l'engrenage à droite. */
 .mrt-barre { padding: 0.55rem 2rem; border-bottom: 1px solid var(--border); }
 .mrt-barre-in { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
@@ -91,24 +95,26 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 .mrt-stat { display: flex; flex-direction: column; gap: 0.15rem; max-width: 15rem; }
 .mrt-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text); }
 .mrt-stat-dplus { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
-.mrt-stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.mrt-stat-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
 .mrt-bas { text-align: right; }
 .mrt-days { display: block; font-family: 'Space Mono', monospace; font-size: 3.1rem; font-weight: 700; color: var(--accent); line-height: 1; }
-.mrt-days-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.mrt-days-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .mrt-hms { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 0.15rem; }
 .mrt-next { font-size: 0.65rem; color: var(--muted); margin-top: 0.2rem; }
 .mrt-next b { color: var(--text); font-weight: 600; }
+/* Filet en bandes, comme un profil de course : Accent, Accent atténué (mêlé de Surface 2) et Surface 2. */
 .mrt-bar {
+  --accent-doux: color-mix(in srgb, var(--accent) 45%, var(--surface2));
   height: 5px;
   margin: 1.6rem -2rem 0;
   background: linear-gradient(90deg,
     var(--surface2) 0%, var(--accent) 6%, var(--surface2) 9%,
-    var(--accent2) 14%, var(--surface2) 18%, var(--accent) 24%,
-    var(--surface2) 28%, var(--accent2) 35%, var(--accent) 42%,
-    var(--surface2) 47%, var(--accent2) 53%, var(--surface2) 58%,
-    var(--accent) 64%, var(--surface2) 69%, var(--accent2) 76%,
+    var(--accent-doux) 14%, var(--surface2) 18%, var(--accent) 24%,
+    var(--surface2) 28%, var(--accent-doux) 35%, var(--accent) 42%,
+    var(--surface2) 47%, var(--accent-doux) 53%, var(--surface2) 58%,
+    var(--accent) 64%, var(--surface2) 69%, var(--accent-doux) 76%,
     var(--surface2) 81%, var(--accent) 88%, var(--surface2) 93%,
-    var(--accent2) 97%, var(--surface2) 100%
+    var(--accent-doux) 97%, var(--surface2) 100%
   );
 }
 
@@ -142,6 +148,8 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
      dont il fait partie ; les indicateurs sur deux colonnes ; la prochaine course à part, sous un filet. */
   .mrt-header { padding: 1.25rem 1.25rem 0; }
   .mrt-barre { padding: 0.5rem 1.25rem; }
+  /* Onglets resserrés : les modules construits tiennent dans l'écran (375 px et plus). */
+  .mrt-tab { padding: 0.85rem 0.9rem; }
   .mrt-gauche, .mrt-droite, .mrt-bas { display: contents; }
   .mrt-grid { position: relative; grid-template-columns: minmax(0, 1fr); grid-template-areas: "titre" "compteur" "stats" "prochaine"; }
   .mrt-header .mrt-brand { position: absolute; top: 0; right: 0; }
@@ -163,19 +171,43 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 }
 
 /* ----- Éléments communs à toutes les pages (docs/design.md, § 1) -----
-   Bouton : contour fin, casse normale ; principal : Accent plein, un par écran au plus.
-   Bouton rond : une icône ; Accent quand il est actif. Lien d'action : souligné, Texte discret.
+   Bouton : contour fin, casse normale ; principal : Accent plein, un par écran au plus ; Supprimer : contour Alerte.
+   Bouton rond : une icône ; Accent quand il est actif ; « × » pour fermer. Lien d'action : souligné, Texte discret.
+   Pastille : un choix parmi d'autres, pleine (Accent) quand elle est choisie. Champ : celui de la page de connexion.
    Section : un bloc de page, séparé du précédent par un filet, sans cadre. */
 .mrt-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.5rem 1.1rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; font-weight: 600; line-height: 1.3; color: var(--text); text-decoration: none; background: none; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; }
 .mrt-btn.is-principal { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 .mrt-btn.is-actif { color: var(--accent); border-color: var(--accent); }
+.mrt-btn.is-danger { color: var(--red); border-color: var(--red); }
 .mrt-btn:disabled { opacity: 0.5; cursor: default; }
 .mrt-rond { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; font: inherit; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
 .mrt-rond.is-actif, .mrt-rond[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.mrt-rond.is-fermer { font-size: 1.2rem; } /* « × » : la même croix partout (feuilles, panneaux) */
 .mrt-rond:disabled { opacity: 0.3; cursor: default; }
 .mrt-lien { padding: 0; font: inherit; font-size: 0.8rem; color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; background: none; border: 0; cursor: pointer; }
 .mrt-lien.is-danger { color: var(--red); }
-.mrt-btn:focus-visible, .mrt-rond:focus-visible, .mrt-lien:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mrt-pastille { display: inline-flex; align-items: center; padding: 0.3rem 0.75rem; font: inherit; font-size: 0.8rem; line-height: 1.2; color: var(--text); text-decoration: none; background: none; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
+.mrt-pastille[hidden] { display: none; }
+.mrt-pastille.is-on, .mrt-pastille[aria-pressed="true"], .mrt-pastille:has(input:checked) { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.mrt-pastille input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.mrt-btn:focus-visible, .mrt-rond:focus-visible, .mrt-lien:focus-visible, .mrt-pastille:focus-visible, .mrt-pastille:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Champ de saisie : fond transparent, bordure fine, Accent quand on y écrit ; la largeur est réglée par la page. */
+.mrt-champ { min-width: 0; max-width: 100%; padding: 0.5rem 0.65rem; font: inherit; font-size: 0.85rem; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; color-scheme: dark; -webkit-appearance: none; appearance: none; }
+.mrt-champ::placeholder { color: var(--muted); opacity: 1; }
+.mrt-champ[hidden] { display: none; }
+.mrt-champ:focus { outline: none; border-color: var(--accent); }
+.mrt-champ[aria-invalid="true"] { border-color: var(--red); }
+.mrt-champ:disabled { opacity: 0.45; cursor: not-allowed; }
+/* Liste : un chevron dessiné à la place de la flèche du système. */
+select.mrt-champ { padding-right: 2rem; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 1rem) 55%, calc(100% - 0.7rem) 55%; background-size: 0.3rem 0.3rem; background-repeat: no-repeat; }
+select.mrt-champ option { background: var(--surface); color: var(--text); }
+/* Date : la hauteur des autres champs, le texte à gauche (Safari sur iPhone le centre). */
+input.mrt-champ[type="date"], input.mrt-champ[type="month"] { min-height: 2.35rem; text-align: left; }
+.mrt-champ::-webkit-date-and-time-value { text-align: left; }
+textarea.mrt-champ { resize: vertical; }
+/* Tableau serré (phases de « Paramétrer le plan ») : le même champ, en plus petit. */
+.mrt-champ.is-compact { padding: 0.25rem 0.4rem; font-size: 0.78rem; }
+select.mrt-champ.is-compact { padding-right: 1.6rem; background-position: calc(100% - 0.8rem) 55%, calc(100% - 0.5rem) 55%; }
 .mrt-section { padding: 1.4rem 0; border-top: 1px solid var(--border); }
 .mrt-section:first-child { padding-top: 0.2rem; border-top: 0; }
 .mrt-section-titre { margin-bottom: 0.7rem; font-size: 1rem; font-weight: 600; line-height: 1.4; color: var(--text); }
@@ -200,10 +232,15 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
   .mrt-brand a:hover { color: var(--text); }
   a.mrt-tab:hover { color: var(--text); }
   a:hover { color: var(--accent); }
+  a.mrt-gear:not(.is-on):hover { color: var(--text); }
   .mrt-btn:hover { color: var(--accent); border-color: var(--accent); }
-  .mrt-btn.is-principal:hover { color: var(--bg); background: var(--accent2); border-color: var(--accent2); }
+  /* Principal au survol : l'Accent un peu éclairci (mêlé de Texte), sans autre couleur. */
+  .mrt-btn.is-principal:hover { color: var(--bg); background: color-mix(in srgb, var(--accent) 80%, var(--text)); border-color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
+  .mrt-btn.is-danger:hover { color: var(--bg); background: var(--red); border-color: var(--red); }
   .mrt-rond:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
   .mrt-lien:hover { color: var(--accent); }
+  .mrt-pastille:hover { color: var(--text); border-color: var(--muted); }
+  .mrt-pastille.is-on:hover, .mrt-pastille[aria-pressed="true"]:hover, .mrt-pastille:has(input:checked):hover { color: var(--bg); border-color: var(--accent); }
 }
 
 /* Champ mot de passe avec son œil (session.js, mrtOeil) : affiche ou masque la saisie. */

@@ -1,35 +1,35 @@
 /* ===== Objectif : feuille de route et page d'une course (objectif.js) =====
    docs/module-objectif-specification.md, § 3 ; maquette docs/maquettes/objectif.html?v=b.
-   Rôles de couleur de docs/design.md ; rien d'écrit en dur.
+   Rôles de couleur de docs/design.md ; rien d'écrit en dur. Peu de couleur : l'Accent pour le titre de la page
+   d'une course et l'objectif principal ; les repères (compteur, objectif, dossard, objectif intermédiaire) en Texte.
    Trois styles de texte, un seul interligne (1,5) :
    Nom      Space Grotesk 1 rem, 600, Texte (Accent pour le titre de la page d'une course)
    Texte    Space Grotesk 0,8 rem, Texte discret ; valeurs en Texte
-   Libellé  Space Mono 0,62 rem, capitales (rôle, date, compteur, libellés) */
+   Libellé  Space Mono 0,7 rem, capitales (rôle, date, compteur, libellés) */
 .ob-vide { color: var(--muted); }
 .ob-lib, .ob-date, .ob-role, .ob-cpt { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
 .ob-lib { color: var(--muted); }
 .ob-date { color: var(--muted); }
 .ob-role { color: var(--muted); }
-.ob-role.is-cle { color: var(--accent2); }
+.ob-role.is-cle { color: var(--text); }
 .ob-role.is-obj { color: var(--accent); }
 .ob-val { color: var(--text); }
-.ob-cible { color: var(--accent2); }
+.ob-cible { color: var(--text); }
 /* Lien officiel : icône ↗ à côté du nom. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
 .ob-fleche { width: 0.75em; height: 0.75em; flex: none; vertical-align: -0.05em; }
 
-/* Compteur : quatre cases fines ; chiffres en Accent 2, unités en Texte discret. */
+/* Compteur : quatre cases fines ; chiffres en Texte, unités en Texte discret. */
 .ob-cpt { display: flex; gap: 0.25rem; }
 .ob-cpt-case { display: inline-flex; align-items: baseline; gap: 0.15rem; padding: 0 0.4rem; line-height: 1.5; text-transform: none; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; }
-.ob-cpt-case b { font-weight: 400; color: var(--accent2); font-variant-numeric: tabular-nums; }
+.ob-cpt-case b { font-weight: 400; color: var(--text); font-variant-numeric: tabular-nums; }
 .ob-cpt.is-fini { color: var(--muted); }
 
-/* Dossard : un point, puis l'état. */
+/* Dossard : un point, puis l'état ; point plein en Texte (inscrit), anneau en Texte (ouvre bientôt), Alerte (inscription ouverte). */
 .ob-ins { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.45rem; color: var(--muted); text-decoration: none; }
 .ob-ins i { flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; border: 2px solid currentColor; }
 .ob-ins.is-inscrit, .ob-ins.is-bientot { color: var(--text); }
-.ob-ins.is-inscrit i { background: var(--accent2); border-color: var(--accent2); }
-.ob-ins.is-bientot i { border-color: var(--accent2); }
+.ob-ins.is-inscrit i { background: currentColor; }
 .ob-ins.is-ouvert { color: var(--red); text-decoration: underline; text-underline-offset: 0.2em; }
 .ob-ins.is-ouvert i { background: var(--red); }
 
@@ -46,7 +46,7 @@
 .ob-et.suite-opt .ob-rail::after { background: repeating-linear-gradient(to top, transparent 0 0.15rem, var(--border) 0.15rem 0.5rem, transparent 0.5rem 0.65rem); }
 .ob-pt { position: absolute; z-index: 1; left: 50%; top: 1.3rem; width: 0.85rem; height: 0.85rem; transform: translate(-50%, -50%); border-radius: 50%; background: var(--muted); border: 2px solid var(--muted); }
 .ob-et.is-opt .ob-pt { background: var(--bg); }
-.ob-et.is-cle .ob-pt { background: var(--accent2); border-color: var(--accent2); }
+.ob-et.is-cle .ob-pt { background: var(--text); border-color: var(--text); }
 .ob-et.is-obj .ob-pt { width: 1rem; height: 1rem; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
 
 .ob-carte { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "role cpt" "nom date" "info info" "lignes lignes";

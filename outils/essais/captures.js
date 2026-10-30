@@ -7,6 +7,8 @@
 //   node captures.js course,palmares          quelques pages seulement
 //   node captures.js course ../../../en-ligne captures/avant
 //                                             une autre copie du site (ex. git archive origin/main), pour un avant/après
+//   THEME=vert-rose node captures.js objectif ../.. captures/vert-rose
+//                                             dans un autre thème que celui des données fictives (bleu-orange)
 // Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares, filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
@@ -21,6 +23,7 @@ const src = fs.readFileSync(E + 'essais.js', 'utf8');
 const a = src.indexOf('function jeuObjectif(db0) {'), b = src.indexOf('\n}\n', a) + 2;
 const jeuObjectif = eval('(' + src.slice(a, b) + ')');
 const { db: db0, id } = jeuObjectif(JSON.parse(fs.readFileSync(E + 'donnees-fictives.json', 'utf8')));
+if (process.env.THEME) db0.preferences[0].theme = process.env.THEME;
 let db = db0;
 const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 // Fait défiler le formulaire jusqu'à un bloc, son titre juste sous le haut fixe du panneau.

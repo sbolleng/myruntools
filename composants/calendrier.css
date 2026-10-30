@@ -4,7 +4,8 @@
 
 .cal-cadre { padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .cal-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.8rem 1.5rem; margin-bottom: 1.2rem; }
-.cal-vue { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.6rem; }
+/* Choix de la vue : deux pastilles (mrt-pastille, en-tete.css). */
+.cal-vues { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
 .cal-legende { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-size: 0.72rem; color: var(--muted); }
 .cal-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
 .cal-k { display: inline-block; width: 0.9rem; height: 0.55rem; border-radius: 2px; background: var(--border); }

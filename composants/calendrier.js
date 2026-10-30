@@ -1,9 +1,10 @@
 // ===== Calendrier : vue Année et vue 4 semaines =====
 //
 // docs/module-calendrier-specification.md. renderCalendrier(élément, ctx) dessine
-// l'une des deux vues, choisie par l'adresse (#annee, #semaines=AAAA-MM-JJ) : le
-// bouton retour du navigateur ramène à la vue d'avant. Une course touchée mène à
-// sa page, à la rubrique Préparation. Plan, séances et fenêtres : preparation.js.
+// l'une des deux vues, choisie par l'adresse (#annee, #semaines=AAAA-MM-JJ) et par deux
+// pastilles : le bouton retour du navigateur ramène à la vue d'avant. Une course touchée
+// mène à sa page, à la rubrique Préparation (une course courue : son résultat).
+// Plan, séances et fenêtres : preparation.js.
 //   ctx.courses, ctx.seances, ctx.semaines, ctx.lectureSeule, ctx.relire() : voir preparation.js.
 (function () {
   const P = window.mrtPreparation;
@@ -25,8 +26,9 @@
     };
 
     // ----- Éléments communs -----
-    const bandeau = vue => '<select class="cal-vue" aria-label="Vue"><option value="annee"' + (vue === 'annee' ? ' selected' : '') + '>Année</option>' +
-      '<option value="semaines"' + (vue === 'semaines' ? ' selected' : '') + '>4 semaines</option></select>';
+    // Choix de la vue : deux pastilles, d'un seul toucher (celle de la vue ouverte est pleine).
+    const bandeau = vue => '<nav class="cal-vues" aria-label="Vue">' + [['annee', 'Année'], ['semaines', '4 semaines']].map(([v, nom]) =>
+      '<a class="mrt-pastille' + (v === vue ? ' is-on" aria-current="true' : '') + '" href="#' + v + '" data-vue="' + v + '">' + nom + '</a>').join('') + '</nav>';
     const cle = (cls, txt) => '<span><i class="cal-k ' + cls + '"></i>' + txt + '</span>';
     const legendePhases = () => '<div class="cal-legende">' + PHASES.map(p => cle('ph-' + p[0], p[1])).join('') + cle('cal-k-sans', 'Sans objectif clair') +
       '<span>◆ Rendez-vous clé</span></div>';
@@ -35,7 +37,9 @@
     function vueSemaines(lundi) {
       const plans = tousLesPlans(ctx);
       let h = '<div class="cal-cadre"><div class="cal-haut">' + bandeau('semaines') +
-        '<span class="cal-nav"><a class="mrt-rond" href="#semaines=' + addDays(lundi, -28) + '" aria-label="4 semaines plus tôt">‹</a><a class="mrt-rond" href="#semaines=' + addDays(lundi, 28) + '" aria-label="4 semaines plus tard">›</a></span>' +
+        '<span class="cal-nav"><a class="mrt-rond" href="#semaines=' + addDays(lundi, -28) + '" aria-label="4 semaines plus tôt">‹</a>' +
+          '<a class="mrt-btn cal-auj" href="#semaines=' + lundiDe(iso(new Date())) + '">Aujourd\'hui</a>' +
+          '<a class="mrt-rond" href="#semaines=' + addDays(lundi, 28) + '" aria-label="4 semaines plus tard">›</a></span>' +
         legendePhases() + '</div><div class="cal-sem-liste">';
       for (let i = 0; i < 4; i++) {
         const l = addDays(lundi, 7 * i), p = phaseSemaine(l, plans);
@@ -85,7 +89,7 @@
               cls.push(c.courue ? 'courue' : 'c-' + c.famille + (c.validee ? '-v' : '-n'));
               tip.push(c.nom + ' · ' + (c.courue ? 'courue' : (c.famille === 'trail' ? 'trail' : 'route') + (c.validee ? ', validée' : ', non validée')));
               contenu += '<span class="cal-nom">' + esc(c.nom) + '</span>';
-              if (!c.courue) cible = ' data-course="' + esc(c.id) + '"';
+              cible = ' data-course="' + esc(c.id) + '"';
             }
             const enPrepa = prepas.filter(x => jour >= x.depart && jour < x.date); // jusqu'à la veille : le trait aboutit sur la case de la course
             if (enPrepa.length) {
@@ -118,12 +122,13 @@
 
     root.addEventListener('click', e => {
       const course = e.target.closest('[data-course]'), jour = e.target.closest('[data-jour]');
-      // La page de la course s'ouvre en modale, à la rubrique Préparation.
-      if (course) { if (window.mrtOuvrirCourse) window.mrtOuvrirCourse(course.dataset.course, '#preparation'); else location.href = lienCourse(course.dataset.course); return; }
+      // La page de la course s'ouvre en modale, à la rubrique Préparation ; une course courue, à son résultat.
+      if (course) {
+        const ancre = course.classList.contains('courue') ? '' : '#preparation';
+        if (window.mrtOuvrirCourse) window.mrtOuvrirCourse(course.dataset.course, ancre); else location.href = lienCourse(course.dataset.course).replace(/#.*/, ancre);
+        return;
+      }
       if (jour) location.hash = '#semaines=' + lundiDe(jour.dataset.jour);
-    });
-    root.addEventListener('change', e => {
-      if (e.target.classList.contains('cal-vue')) location.hash = '#' + e.target.value;
     });
     P.brancher(root, ctx, null);
     window.addEventListener('hashchange', dessiner);

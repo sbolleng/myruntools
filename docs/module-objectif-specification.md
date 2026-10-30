@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.39 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.40 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -54,13 +54,13 @@ Plan de page d'une carte (ordinateur) :
 
 | N° | Élément | Exemple | Place sur ordinateur | Style |
 | --- | --- | --- | --- | --- |
-| 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Accent 2 pour Objectif intermédiaire, Accent pour Objectif principal |
-| 5 | Compteur | `25 j` `23 h` `00 min` `00 s` | Ligne 1, à droite | Libellé, dans quatre cases fines ; chiffres en Accent 2, unités en Texte discret (§ 5.1) |
+| 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Texte pour Objectif intermédiaire, Accent pour Objectif principal |
+| 5 | Compteur | `25 j` `23 h` `00 min` `00 s` | Ligne 1, à droite | Libellé, dans quatre cases fines ; chiffres en Texte, unités en Texte discret (§ 5.1) |
 | 6, 7 | Course · Parcours, lien officiel | Trail du Lac · Le Tour du Lac ↗ | Ligne 2, à gauche | Nom ; Texte (le jaune est réservé au titre de l'écran). L'icône ↗ ouvre le site officiel dans un nouvel onglet |
 | 3 | Date | 15 NOV. 2026 | Ligne 2, à droite | Libellé ; Texte discret. Le mois seul si la date est approximative (« JUILLET 2027 ») |
 | 8 | Lieu · format | Mont-Clair · Trail court | Ligne 3 | Texte ; Texte discret |
 | — | Distance | DISTANCE `24 km · 650 m D+` | Ligne 4 | Libellé à gauche, valeur en Texte |
-| 9, 10 | Objectif | OBJECTIF `02:45:00` | Ligne 5 | Libellé à gauche, valeur en Accent 2 ; ligne absente si l'objectif est vide |
+| 9, 10 | Objectif | OBJECTIF `02:45:00` | Ligne 5 | Libellé à gauche, valeur en Texte ; ligne absente si l'objectif est vide |
 | 11 à 13 | Dossard | DOSSARD ● Inscrit · n° 412 | Ligne 6 | Libellé à gauche, puis le point et l'état (§ 3.5) |
 
 - **Trois styles de texte seulement**, un seul interligne (1,5), le même écart entre toutes les lignes : *Nom* (Space Grotesk 1 rem, 600), *Texte* (Space Grotesk 0,8 rem), *Libellé* (Space Mono 0,7 rem, capitales).
@@ -85,7 +85,7 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 | Cas | Signification | Rendu |
 | --- | --- | --- |
 | Confirmée | Course retenue (rôle Préparatoire ou Plaisir) | Trait plein, pastille pleine en Texte discret |
-| Rôle Objectif intermédiaire | Course clé de la saison | Pastille en Accent 2 |
+| Rôle Objectif intermédiaire | Course clé de la saison | Pastille pleine en Texte |
 | Rôle Objectif (affiché « Objectif principal ») | Une course visée ; il peut y en avoir plusieurs | Pastille en Accent, cerclée ; cadre en Accent |
 | Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait et cadre en pointillé ; une seule étape (§ 3.6) |
 | Option isolée | Course envisagée, pas encore retenue | Trait et cadre en pointillé, pastille vide |
@@ -94,9 +94,9 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 
 Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, qui reste en place (position et vue conservées) et s'assombrit. Une seule colonne de lecture, du même gabarit que les pages du site sur ordinateur (contenu de 896 px, marges de 2 rem). Elle passe sous les fenêtres de saisie (formulaire d'une course, séance, plan), qui s'ouvrent par-dessus.
 
-**Ouvrir** : toucher une course, où qu'elle soit (étape, candidat, jour ou case du Calendrier, rendez-vous clé, étape de « D'ici là »). Un clic avec Ctrl, Cmd ou Maj, ou le bouton du milieu, ouvre l'adresse dans un nouvel onglet.
+**Ouvrir** : toucher une course, où qu'elle soit (étape, candidat, jour ou case du Calendrier, rendez-vous clé, étape de « D'ici là », dernière course de l'accueil, ligne du Palmarès). Une course courue s'ouvre avec son résultat (§ 3.8), d'où qu'elle vienne, son adresse comprise. Un clic avec Ctrl, Cmd ou Maj, ou le bouton du milieu, ouvre l'adresse dans un nouvel onglet.
 
-**Fermer** : la croix (barre du haut, sans lien de retour), Échap, un toucher à côté de la modale, ou le retour du navigateur ou du téléphone. Fermer ramène exactement là où on était. Quand la course a été ouverte par son adresse, la feuille de route reste dessous. Une course supprimée, courue ou sortie de la feuille de route ferme la modale.
+**Fermer** : la croix (barre du haut, sans lien de retour), Échap, un toucher à côté de la modale, ou le retour du navigateur ou du téléphone. Fermer ramène exactement là où on était. Quand la course a été ouverte par son adresse, la feuille de route reste dessous. Une course supprimée, marquée courue ou sortie de la feuille de route ferme la modale. « Course introuvable » (adresse d'une course effacée ou d'un autre) : la croix seule, qui ferme.
 
 **Changer de course** : « course précédente » et « course suivante » changent la course dans la modale, sans la fermer ni ajouter d'entrée à l'historique ; l'adresse suit la course ouverte.
 
@@ -150,7 +150,7 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 | 22 | Fiche | Les lignes de la carte de la feuille de route, complétées : 13, 9, 10, 11, 23, 12, 14 | Encadrée comme une carte (un bloc de données garde son cadre) ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
 | 13 | Départ dans | Compte à rebours (§ 5.1) | Les quatre cases de la carte ; pas pour une option au mois seul |
 | 9, 10 | Distance, D− | « 45 km · 2 100 m D+ », « 2 100 m » | Valeur en Texte |
-| 11 | Objectif | « 06:30:00 » | Valeur en Accent 2, comme sur la carte |
+| 11 | Objectif | « 06:30:00 » | Valeur en Texte, comme sur la carte |
 | 23 | Précisions | « Sous 6 h 45 dans tous les cas. » | Juste sous l'Objectif, valeur en Texte ; absente si vide ; ni sur la carte, ni dans l'en-tête |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit |
 | 14 | Prix | « 58 € » | Seulement s'il est connu |
@@ -180,9 +180,9 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 
 | État | Condition | Rendu |
 | --- | --- | --- |
-| Inscrit | `inscrit` vrai | ● plein en Accent 2, « Inscrit · n° 412 » (« Inscrit » seul sans numéro) |
+| Inscrit | `inscrit` vrai | ● plein en Texte, « Inscrit · n° 412 » (« Inscrit » seul sans numéro) |
 | Inscription ouverte | Pas inscrit, ouverture passée ou du jour | ● plein et texte en Alerte, souligné : « Inscription ouverte ↗ », lien vers le site d'inscription s'il est connu |
-| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Accent 2 : « Ouvre le 10/01/2027 » |
+| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Texte : « Ouvre le 10/01/2027 » |
 | Ouverture à venir | Pas inscrit, date d'ouverture inconnue | ○ vide en Texte discret : « Ouverture à venir » |
 
 ### 3.6 Groupe d'options (course à choisir)
@@ -220,12 +220,12 @@ Site partagé en lecture seule : aucun de ces boutons.
 | --- | --- |
 | Course | Course et parcours ; date, ou mois seul (case « Date approximative (mois seulement) » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
-| Préparation | En tête, le plan de préparation, comme sur la page de la course (§ 3.4) : durée et dates (39), frise des phases (40), bouton principal « Paramétrer le plan » (41). Seulement pour une course Confirmée ou Option ; calculé sur la date, le format et le statut saisis, il suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) remplace 39 et 40 et le bouton est grisé : « Choisis d'abord la date et le format. ». Date approximative : le plan vise le 1er du mois, avec sous 39 la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. » ; case décochée, le plan se recalcule sur la date précise, selon les règles (Calendrier, § 5.1). Date précise changée : les phases réglées à la main suivent la course, au même numéro de semaine. Le bouton ouvre la fenêtre de réglage (Calendrier, § 5.3) par-dessus le formulaire, avec « Valider » : rien n'est rangé avant « Enregistrer » du formulaire, qui range la course, sa durée de prépa et ses phases modifiées ; « Annuler » abandonne le tout ; Échap ne ferme que la fenêtre du plan. Même comportement pour une nouvelle course et une course existante. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
+| Préparation | En tête, le plan de préparation, comme sur la page de la course (§ 3.4) : durée et dates (39), frise des phases (40), bouton à contour « Paramétrer le plan » (41) (« Enregistrer » reste le seul bouton principal). Seulement pour une course Confirmée ou Option ; calculé sur la date, le format et le statut saisis, il suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) remplace 39 et 40 et le bouton est grisé : « Choisis d'abord la date et le format. ». Date approximative : le plan vise le 1er du mois, avec sous 39 la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. » ; case décochée, le plan se recalcule sur la date précise, selon les règles (Calendrier, § 5.1). Date précise changée : les phases réglées à la main suivent la course, au même numéro de semaine. Le bouton ouvre la fenêtre de réglage (Calendrier, § 5.3) par-dessus le formulaire, avec « Valider » : rien n'est rangé avant « Enregistrer » du formulaire, qui range la course, sa durée de prépa et ses phases modifiées ; « Annuler » abandonne le tout ; Échap ne ferme que la fenêtre du plan. Même comportement pour une nouvelle course et une course existante. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Logistique | Logistique |
 | Dossard | Date d'ouverture des inscriptions et case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Liens | Site officiel ; résultats en direct |
 
-- **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course » et « Marquer comme courue » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein).
+- **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Paramétrer le plan » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
 - **Obligatoires** : course ; type et format ; date (ou mois) pour une course Confirmée ou Option. Une course À surveiller peut rester sans date.
 - **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 02:45:00, Finisher ou Sub 3h », « ex. Partir prudemment, sous 4 h dans tous les cas », « ex. https://… ».
 - **Objectif normé** : un temps `hh:mm:ss`, « Finisher », « Sub 3h » / « Sub 1h30 » ou « Sub 45 min » ; tout le reste (intention, fourchette, contexte) va dans Précisions.
@@ -249,7 +249,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 | --- | --- | --- |
 | Contenu | La page d'une course (§ 3.4) | La fiche de champs (ci-dessous) |
 | Barre du haut, fixe | Crayon (C5) puis croix (C1), à droite | « Annuler » (F24) à gauche, « Enregistrer » (F25) à droite ; dessous, le mode (F1) en libellé : capitales discrètes, comme « Préparatoire · Étape 2 sur 14 » en consultation |
-| Fermer | La croix, Échap, un toucher à côté, le retour du téléphone | Pas de croix : « Annuler » revient à la consultation (ou ferme, pour un ajout) ; s'il y a eu une saisie, « Abandonner les modifications ? » d'abord. Échap, un toucher à côté et le retour du téléphone font comme « Annuler » |
+| Fermer | La croix, Échap, un toucher à côté, le retour du téléphone | Pas de croix : « Annuler » revient à la consultation (ou ferme, pour un ajout) ; s'il y a eu une saisie, « Abandonner les modifications ? » d'abord. Échap, un toucher à côté et le retour du navigateur ou du téléphone font comme « Annuler », aussi pour la fiche ouverte seule (« Ajouter une course », crayon d'une ligne du Palmarès) : on ne quitte jamais la page |
 | Forme | Ordinateur : fenêtre au gabarit des pages (896 px de contenu) ; téléphone : plein écran, qui monte du bas (§ 3.4) | La même : on bascule dans la même feuille, sans nouvelle couche |
 
 - **Le crayon (C5)** bascule la feuille en édition ; **Enregistrer (F25)** range la course et rebascule en consultation, mise à jour. Une course qui quitte la feuille de route (courue, à surveiller, supprimée) ferme la feuille.
@@ -278,7 +278,7 @@ Ordinateur : mêmes deux modes, même barre du haut ; la fiche garde ses deux co
 
 #### Consultation d'une course courue
 
-Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut que la consultation d'une course à venir ; le crayon (C5) bascule en édition, et Annuler ramène à cette consultation. Sous le titre, deux sections titrées, **Résultat** et **Montre**, en liste « libellé, valeur », sans cadre ni bloc repliable (décidé le 30 oct. 2026).
+Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course courue se touche (case du Calendrier, dernière course de l'accueil) ou par son adresse (la feuille de route dessous). « Course précédente » et « suivante » : l'ordre du tableau depuis le Palmarès, ailleurs de la plus récente à la plus ancienne. Même feuille et même barre du haut que la consultation d'une course à venir ; le crayon (C5) bascule en édition, et Annuler ramène à cette consultation. Sous le titre, deux sections titrées, **Résultat** et **Montre**, en liste « libellé, valeur », sans cadre ni bloc repliable (décidé le 30 oct. 2026).
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -315,7 +315,7 @@ Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut
 | C9 | Distance et D+ | Troisième ligne, même style : « 10 km · 128 m D+ » (sans D−) |
 | C30 | Intertitres | « Résultat », « Montre » : capitales discrètes, un filet fin dessous ; une section sans valeur n'est pas affichée |
 | C32 | Résultats | Petit lien « Résultats » et sa flèche, à droite de l'intertitre Résultat ; absent sans adresse |
-| C25 | Temps | Première ligne de Résultat ; valeur en grand, en Accent 2 ; « DNF » si non terminée |
+| C25 | Temps | Première ligne de Résultat ; valeur en grand, en Texte (plus d'Accent 2) ; « DNF » si non terminée |
 | C34 | Place | Rang général en grand, en Accent ; l'effectif (« / 174 ») plus petit, en Texte discret |
 | C27 | Catégorie, Sexe | Une ligne chacun, rang puis effectif ; la catégorie d'âge en clair après le rang, avec le sexe du profil (« Master 2 Homme », « Senior Femme ») |
 | C35 | Vitesse | En km/h, celle de la base, sinon tirée de l'allure ; absente si DNF |
@@ -372,7 +372,7 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 ### 5.1 Comptes à rebours
 
-- Quatre cases (jours, heures, minutes, secondes : `25 j` `23 h` `00 min` `00 s`), sur chaque étape de la feuille de route (sauf les candidates d'un groupe) et dans la fiche de la page de la course (§ 3.4) ; chiffres en Accent 2, unités en Texte discret. Heures, minutes et secondes sur deux chiffres. Mise à jour chaque seconde, un seul minuteur pour toute la page.
+- Quatre cases (jours, heures, minutes, secondes : `25 j` `23 h` `00 min` `00 s`), sur chaque étape de la feuille de route (sauf les candidates d'un groupe) et dans la fiche de la page de la course (§ 3.4) ; chiffres en Texte, unités en Texte discret. Heures, minutes et secondes sur deux chiffres. Mise à jour chaque seconde, un seul minuteur pour toute la page.
 - Le temps restant est le temps réel jusqu'au départ : un changement d'heure (été, hiver) d'ici là est compté.
 - Date approximative (mois seul) : jusqu'au 1er du mois, à minuit, pour une course Confirmée ; pas de compte à rebours pour une option.
 - L'heure de départ est saisie en heure locale de la course, sans fuseau ; elle est lue dans le fuseau du navigateur. Correct tant que la course et le coureur sont dans le même fuseau (France, Espagne, Italie). Une course dans un autre fuseau demandera de préciser le fuseau (à traiter le moment venu).
@@ -472,7 +472,7 @@ Résultats attendus, feuille de route :
 - En-tête : « Cap sur Trail des Crêtes » (et non Trail des Sommets, à surveiller) ; « 5 courses » D'ici là ; « prochaine course · Trail du Lac · J-26 ».
 - Trail du Lac : rôle PRÉPARATOIRE ; compteur `26 j` `00 h` `00 min` `00 s` (une heure de plus avec le passage à l'heure d'hiver, le 25 octobre) ; « Trail du Lac · Le Tour du Lac ↗ » ; date 15 NOV. 2026 ; « Mont-Clair · Trail court » ; DISTANCE 24 km · 650 m D+ ; OBJECTIF 02:45:00 ; DOSSARD ● Inscrit · n° 412.
 - Corrida de Noël : rôle PLAISIR ; compteur `54 j` `09 h` `30 min` `00 s` ; DISTANCE 10 km · 40 m D+ ; OBJECTIF Sub 45 min ; DOSSARD ○ Ouvre le 01/11/2026.
-- Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Accent 2, pastille en Accent 2 ; compteur `137 j` `22 h` `30 min` `00 s` ; OBJECTIF 06:30:00.
+- Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Texte, pastille pleine en Texte ; compteur `137 j` `22 h` `30 min` `00 s` ; OBJECTIF 06:30:00.
 - Printemps 2027 : une seule carte, en pointillé ; « Printemps 2027 », puis « PRÉPARATOIRE • 2 CANDIDATS » ; Trail des Cimes (30 MAI 2027, DOSSARD ○ Ouvre le 10/01/2027), puis Ultra du Plateau · Le 55 (26 JUIN 2027, DOSSARD ● Inscription ouverte ↗, en Alerte) ; ni rôle, ni objectif, ni compteur pour les candidates.
 - Trail des Cimes sorti du groupe (groupe vidé dans ses données) : la carte Printemps 2027 affiche « • 1 candidat », Trail des Cimes devient une option isolée, et l'en-tête affiche « 6 courses ».
 - Trail de la Forêt : cadre en pointillé, pastille vide ; rôle PRÉPARATOIRE, sans le mot « Option » ; date JUILLET 2027 ; pas de compteur ; pas de ligne Objectif ; DOSSARD ○ Ouverture à venir.
@@ -497,13 +497,13 @@ Résultats attendus, page d'une course :
 - Ordinateur : modale dont le contenu a la largeur des autres pages (896 px) ; la fiche encadrée ; les six textes (Préparation comprise) ouverts, sans pouvoir les replier. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; premier texte ouvert, les quatre autres repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
-- Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et le lien la croix seule dans la modale.
+- Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et la croix seule dans la modale ; la croix la ferme, la feuille de route dessous (téléphone compris).
 - Modale : toucher une étape l'ouvre au-dessus de la feuille de route, qui reste en place et ne défile plus ; « course suivante » puis « course précédente » changent la course sans fermer ni ajouter d'entrée à l'historique ; la croix, Échap, un clic à côté et le retour du navigateur la ferment, la feuille de route dessous. Adresse `course.html?id=…` ouverte directement : la feuille de route dessous, la modale dessus ; fermer laisse la feuille de route.
 - Modale, téléphone (390 px) : plein écran (aucune marge), la croix ferme ; rien ne dépasse.
 - Modale depuis le Calendrier (à la rubrique Préparation) et depuis En un coup d'œil. Barre du haut : le crayon puis la croix, à droite, sans lien de retour.
 - Site partagé en lecture seule : la feuille de route et les pages de course du propriétaire s'affichent à l'identique.
 - Chargement de la feuille de route et d'une page de course (ordinateur, téléphone) : à l'instant où la page devient visible, le menu (et l'en-tête, sur la feuille de route) est en place et le contenu n'a plus à bouger.
-- Feuille de route, thème Bleu et orange : nom de la course en Texte, date en Texte discret, chiffres du compteur et objectif en Accent 2 ; libellés à 0,7 rem ; indicateurs de l'en-tête en Texte.
+- Feuille de route, thème Bleu et orange : nom de la course en Texte, date en Texte discret, chiffres du compteur et objectif en Texte (plus d'Accent 2 dans aucun thème) ; points du dossard « Inscrit » et « Ouvre bientôt » en Texte ; libellés à 0,7 rem ; indicateurs de l'en-tête en Texte.
 
 Résultats attendus, saisie et édition (mêmes données, même date) :
 
@@ -554,7 +554,9 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Même course renseignée (classements 112e / 640, 18e / 96 en M2, 95e / 510 ; dossard 1287 ; D+ 40 ; montre 1:55:50, 21,3 km, D+ 40, FC 151 ; objectif, prix, liens) : « Semi-marathon · Dossard 1287 » puis « 21,1 km · 40 m D+ » ; Résultat : Temps, Place 112e / 640, Catégorie 18e / 96 Master 2 Homme, Sexe 95e / 510, Vitesse, Allure ; Montre : Temps 01:55:50, Distance 21,3 km, D+ · D− 40 · — m, FC moy. 151 bpm ; lien « Résultats » dans l'intertitre ; ni objectif, ni précisions, ni prix, ni bloc Liens ; site officiel par une flèche dessinée. Sur ordinateur, Montre à droite de Résultat, valeurs en Texte discret ; sur téléphone, Montre dessous, rien ne dépasse.
 - Première place : « 1er » pour un coureur, « 1re » pour une coureuse ; chaque valeur sur une ligne.
 - Course non terminée (DNF) : « DNF » à la place du temps, ni vitesse ni allure.
-- Crayon de la feuille : bascule en édition ; Annuler sans saisie revient à la consultation. Crayon de la ligne du tableau : ouvre directement l'édition. « Course suivante » et « précédente » suivent l'ordre du tableau, tri et filtres compris.
+- Crayon de la feuille : bascule en édition ; Annuler sans saisie revient à la consultation. Crayon de la ligne du tableau : ouvre directement l'édition ; le retour du navigateur la ferme, le Palmarès reste. « Course suivante » et « précédente » suivent l'ordre du tableau, tri et filtres compris.
+- Semi de San Sebastián ouvert par son adresse, ou touché dans la vue Année du Calendrier, ou depuis « Dernière course » sur l'accueil : sa consultation (section Résultat, ligne Temps) ; par son adresse, une seule course voisine (la plus récente n'a pas de « précédente ») ; la croix laisse la feuille de route.
+- « + Ajouter une course » puis le retour du navigateur : sans saisie, la fiche se ferme et la feuille de route reste ; après une saisie, « Abandonner les modifications ? » ; refusé, la fiche reste ; accepté, elle se ferme. « Annuler » retire aussi l'entrée d'historique de la fiche.
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon.
 - Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.
 

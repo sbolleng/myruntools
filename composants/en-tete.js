@@ -74,9 +74,12 @@
       ["D'ici là", esc(o.dIciLa != null ? o.dIciLa + (o.dIciLa > 1 ? ' courses' : ' course') : dash)]
     ];
 
-    // Nom de l'application (vers l'Accueil) et engrenage (vers les Préférences).
+    // Nom de l'application (vers l'Accueil) et engrenage (vers les Préférences), dessiné : il prend l'Accent sur les Préférences.
     // Site partagé en lecture seule : pas d'engrenage, les Préférences sont celles du visiteur, pas du site regardé.
-    const engrenage = cfg.partage ? '' : '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur">⚙️</a>';
+    const ROUE = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="2.356 2.356"/>' +
+      '<circle cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
+    const engrenage = cfg.partage ? '' : '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur"' +
+      (cfg.courant === 'preferences.html' ? ' aria-current="page"' : '') + '>' + ROUE + '</a>';
     const marque = '<div class="mrt-brand"><a href="' + lien(cfg.accueil || 'index.html') + '">MyRunTools</a>' + engrenage + '</div>';
     const header = document.createElement('header');
     header.className = 'mrt-header';
