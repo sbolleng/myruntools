@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 30 oct. 2026 | Inscription | Chacun pourra créer son compte (fin des comptes créés à la main) : confirmation de l'adresse par e-mail, prénom et nom obligatoires, profil et préférences créés par la base. Ordre : d'abord la connexion par mot de passe, puis mentions légales et RGPD, puis l'inscription (anti-robot et SMTP requis). Site publié sur `https://myruntools.fr` (adresse de retour corrigée). |
 | 30 oct. 2026 | Connexion, construction | Connexion par mot de passe construite et testée sur la branche (`session.js`, `connexion.html`, `nouveau-mot-de-passe.html`, bloc Compte des Préférences, banc d'essai) ; fusion en attente des réglages Supabase (`docs/reglages-supabase-connexion.md`) pour ne pas bloquer l'accès ; contrôle anti-robot prêt mais inactif tant que la clé du site n'est pas renseignée. |
 | 30 oct. 2026 | Connexion | Connexion par adresse e-mail et mot de passe (14 caractères au moins, sans règle de composition), mot de passe oublié par e-mail (lien à usage unique, 1 h), changement dans les Préférences ; plus de lien magique ; pas de second facteur (option B retenue sur A, application d'authentification) ; anti-robot et limitation des essais ; messages neutres (Spécification générale 0.22, Préférences 1.9). |
 | 30 oct. 2026 | Banc d'essai | Échec « cap abandonné » corrigé : l'en-tête de l'Accueil s'affiche d'abord depuis la copie gardée de la visite ; le banc lit désormais le cap après la lecture des données (`data-mrt-donnees`). Plus d'échec intermittent connu. |
