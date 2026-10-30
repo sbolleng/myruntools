@@ -87,6 +87,10 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
+   - **Inspiration** : la page d'une course de <https://oleno.fr/courses/clam-trail> :
+     - « Course à surveiller » pourrait reprendre sa mise en forme ;
+     - les petites cartes (chiffres clés de la course) : voir si on peut en ajouter ;
+     - idem pour la trace (parcours).
 2. [ ] **Calendrier** : [spécification 0.11](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
