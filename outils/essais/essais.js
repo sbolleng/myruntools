@@ -25,10 +25,37 @@ const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 // Base simulée : lecture filtrée par les « eq. » de l'adresse ; fonctions lues
 // dans db.rpc ; les préférences enregistrées (upsert) sont gardées dans db,
 // les suppressions par id sont appliquées, les autres écritures acceptées sans rien changer ; db.panne : écritures en échec ;
-// db.ecritures (liste, si elle existe) : les écritures reçues, pour les relire.
+// db.ecritures (liste, si elle existe) : les écritures reçues, pour les relire ;
+// db.auth : connexion par mot de passe simulée (voir plus bas), db.auth.appels : les appels reçus.
 function simulerBase(ctx, db) {
   return ctx.route(PROJET + '/**', route => {
     const req = route.request(), u = new URL(req.url());
+    // Connexion (db.auth : { mdp: { adresse: mot de passe }, appels: [], maintenant }) : mots de passe fictifs, réponses de Supabase Auth.
+    if (db.auth && u.pathname.startsWith('/auth/v1/')) {
+      const chemin = u.pathname.slice('/auth/v1/'.length), corps = req.postData() ? req.postDataJSON() : {};
+      const adresse = db.auth.adresse || 'essai@exemple.fr';
+      const utilisateur = { id: db.profils[0].id, aud: 'authenticated', role: 'authenticated', email: adresse, app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' };
+      db.auth.appels.push({ chemin, methode: req.method(), requete: u.search, corps });
+      const json = (statut, o) => route.fulfill({ status: statut, contentType: 'application/json', body: JSON.stringify(o) });
+      if (chemin === 'token') {
+        const t0 = Math.floor((db.auth.maintenant || new Date()).getTime() / 1000);
+        if (u.searchParams.get('grant_type') === 'refresh_token') return json(200, { access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t0 + 3600, refresh_token: 'essai', user: utilisateur });
+        if (db.auth.mdp[corps.email] !== undefined && db.auth.mdp[corps.email] === corps.password) {
+          const t = Math.floor((db.auth.maintenant || new Date()).getTime() / 1000);
+          return json(200, { access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: Object.assign({}, utilisateur, { email: corps.email }) });
+        }
+        return json(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+      }
+      if (chemin === 'recover') return json(200, {});
+      if (chemin === 'logout') return route.fulfill({ status: 204, body: '' });
+      if (chemin === 'user' && req.method() === 'PUT') {
+        if (corps.password === db.auth.mdp[adresse]) return json(422, { code: 422, error_code: 'same_password', msg: 'New password should be different from the old password.' });
+        db.auth.mdp[adresse] = corps.password;
+        return json(200, utilisateur);
+      }
+      if (chemin === 'user') return json(200, utilisateur);
+      return json(404, { msg: 'inconnu' });
+    }
     if (u.pathname.startsWith('/rest/v1/rpc/')) {
       const r = (db.rpc || {})[u.pathname.split('/').pop()] || [];
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify(r) });
@@ -847,15 +874,26 @@ const CONTROLES = {
     // Consultation d'une course courue (§ 3.8) : toucher une ligne du Palmarès ouvre la feuille en consultation.
     const SEB = '00000000-0000-0000-0001-000000000007';
     const ligneSeb = p => p.evaluate(id => document.querySelector('#palmares tbody tr[data-id="' + id + '"] td').click(), SEB);
-    const fiche = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll('.pc-fiche > .ob-ligne')].map(l => [l.firstChild.textContent.trim(), l.lastChild.innerText.trim().replace(/\s+/g, ' ')])));
+    // Consultation d'une course courue : lignes sous le titre, sections (intertitre → « Libellé | valeur » par ligne).
+    const fiche = p => p.evaluate(() => {
+      const t = e => e.innerText.trim().replace(/\s+/g, ' ');
+      const r = { infos: [...document.querySelectorAll('.pc-info')].map(t) };
+      document.querySelectorAll('.pc-section').forEach(s => {
+        const titre = s.querySelector('.pc-intertitre > span').textContent.trim();
+        r[titre] = [...s.querySelectorAll('.pc-res-ligne')].map(l => l.firstChild.textContent.trim() + ' | ' + t(l.lastChild));
+      });
+      return r;
+    });
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal({ titre: 'Semi de San Sebastián', mode: true, crayon: 1, croix: 1, actions: 0, compteur: 0, plan: 0, edition: 0 },
-      { titre: await p.locator('.pc-titre').textContent(), mode: /^Courue/.test(await p.locator('.pc-sur').textContent()), crayon: await p.locator('[data-ob="modifier"]').count(), croix: await p.locator('.pc-fermer').count(),
+    pb.push(egal({ titre: 'Semi de San Sebastián', libelle: 0, crayon: 1, croix: 1, actions: 0, compteur: 0, plan: 0, edition: 0 },
+      { titre: await p.locator('.pc-titre').textContent(), libelle: await p.locator('.pc-sur').count(), crayon: await p.locator('[data-ob="modifier"]').count(), croix: await p.locator('.pc-fermer').count(),
         actions: await p.locator('.pc-actions').count(), compteur: await p.locator('.ob-cpt').count(), plan: await p.locator('#preparation').count(), edition: await p.locator('.fc-fiche').count() }, 'Palmarès : toucher une ligne ouvre la consultation d\'une course courue'));
-    pb.push(egal({ Temps: '01:56:05 5:30 /km', Classements: 'GÉNÉRAL 1 951e', Distance: '21,1 km' }, await fiche(p), 'consultation : temps et allure en tête, puis classement saisi (rang ordinal), distance ; rien d\'autre'));
+    pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon', '21,1 km'], Résultat: ['Temps | 01:56:05', 'Place | 1 951e', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'] }, await fiche(p),
+      'consultation : date sans heure, format, distance ; Résultat (temps, place, vitesse tirée de l\'allure, allure) ; pas de section Montre sans montre'));
+    pb.push(egal([0, 0, 0], [await p.locator('.pc-cellule').count(), await p.locator('.pc-fiche').count(), await p.locator('.pc-lien-res').count()], 'consultation : ni bloc repliable, ni fiche encadrée, ni lien Résultats sans adresse'));
     // Crayon : édition dans la même feuille ; Annuler sans saisie revient à la consultation, sans question.
     await p.click('[data-ob="modifier"]');
     await p.waitForSelector('.mc-panneau .fc-fiche');
@@ -882,52 +920,44 @@ const CONTROLES = {
     // Course renseignée (classements, dossard, prix, montre, textes) et course non terminée.
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { place: 112, effectif: 640, place_categorie: 18, effectif_categorie: 96, place_sexe: 95, effectif_sexe: 510,
-      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' });
+      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, categorie: 'M2', strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal({ Temps: '01:56:05 5:30 /km', Classements: 'GÉNÉRAL 112e / 640 CATÉGORIE 18e / 96 SEXE 95e / 510', Distance: '21,1 km · 40 m D+ · 38 m D−', Objectif: '01:50:00 (vs Temps +00:06:05)', Dossard: 'n° 1287', Prix: '58 €' }, await fiche(p), 'consultation : classements, D+ et D− à la suite, objectif avec son écart, dossard sans état, prix'));
-    pb.push(egal([['Montre', 'Liens'], 'Résultats ↗'], [await p.evaluate(() => [...document.querySelectorAll('.pc-cellule summary')].map(x => x.textContent.trim())), await p.locator('.pc-liens a').last().textContent()], 'consultation : Montre puis Liens seulement (ni rôle, ni stratégie, ni logistique, ni description) ; « Résultats »'));
-    pb.push(egal(true, /Temps.*1:55:50.*Distance.*21,3 km.*D\+.*40 m.*FC moy\..*151 bpm/.test(await p.locator('.pc-cellule').first().textContent()), 'consultation : valeurs de la montre'));
-    pb.push(egal(true, await p.evaluate(() => { const t = [...document.querySelectorAll('.pc-liens-ligne a')].map(a => Math.round(a.getBoundingClientRect().top)); return t.length > 1 && t.every(x => x === t[0]); }), 'consultation : les liens sont alignés sur une même ligne'));
+    pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon · Dossard 1287', '21,1 km · 40 m D+'],
+      Résultat: ['Temps | 01:56:05', 'Place | 112e / 640', 'Catégorie | 18e / 96 Master 2 Homme', 'Sexe | 95e / 510', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'],
+      Montre: ['Temps | 01:55:50', 'Distance | 21,3 km', 'D+ · D− | 40 · — m', 'FC moy. | 151 bpm'] },
+      await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps puis place ; catégorie en clair ; Montre seule en bas ; ni objectif, ni précisions, ni prix'));
+    pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Résultats', 0, 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
+      (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count(), await p.locator('.pc-cellule').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
+    pb.push(egal([1, ''], [await p.locator('.pc-titre .ob-ext svg').count(), (await p.locator('.pc-titre .ob-ext').textContent()).trim()], 'site officiel : flèche dessinée, pas de caractère ↗ (emoji sur iPhone)'));
+    await ctx.close();
+    // Téléphone : rien ne dépasse.
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 390, d, {}, Object.assign({ mobile: true }, PARIS)));
+    await ligneSeb(p);
+    await consultation(p);
+    pb.push(egal(false, await p.evaluate(() => document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth), 'téléphone : Résultat et Montre ne dépassent pas'));
     await ctx.close();
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { dnf: true, temps: null, allure: null });
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal({ Temps: 'DNF', Classements: 'GÉNÉRAL 1 951e', Distance: '21,1 km' }, await fiche(p), 'course non terminée : DNF, pas d\'allure'));
+    pb.push(egal(['Temps | DNF', 'Place | 1 951e'], (await fiche(p)).Résultat, 'course non terminée : DNF, ni vitesse ni allure'));
     await ctx.close();
 
-    // Première place : « 1er », « 1re » pour une coureuse ; allure et classements sur une seule ligne chacun.
-    for (const [sexe, attendu] of [['homme', 'GÉNÉRAL 1er / 640'], ['femme', 'GÉNÉRAL 1re / 640']]) {
+    // Première place : « 1er », « 1re » pour une coureuse ; chaque valeur sur une ligne.
+    for (const [sexe, attendu] of [['homme', 'Place | 1er / 640'], ['femme', 'Place | 1re / 640']]) {
       d = copie();
       d.profils[0].sexe = sexe;
       Object.assign(d.courses.find(c => c.id === SEB), { place: 1, effectif: 640 });
       ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
       await ligneSeb(p);
       await consultation(p);
-      const mesures = await p.evaluate(() => { const l = [...document.querySelectorAll('.pc-fiche > .ob-ligne')], h = e => Math.round(e.getBoundingClientRect().height);
-        return { lignes: l.length, classementsUneLigne: h(l[1]) < 40, tempsUneLigne: h(l[0]) < 40 }; });
-      pb.push(egal([attendu, { lignes: 3, classementsUneLigne: true, tempsUneLigne: true }], [(await fiche(p)).Classements, mesures], 'première place ' + (sexe === 'femme' ? '« 1re »' : '« 1er »') + ' ; fiche compacte (3 lignes ici, classements et temps chacun sur une ligne)'));
+      const uneLigne = await p.evaluate(() => [...document.querySelectorAll('.pc-res-ligne')].every(l => l.getBoundingClientRect().height < 50));
+      pb.push(egal([attendu, true], [(await fiche(p)).Résultat[1], uneLigne], 'première place ' + (sexe === 'femme' ? '« 1re »' : '« 1er »') + ' ; chaque valeur sur une ligne'));
       await ctx.close();
     }
-    // Plus rapide que l'objectif : « − » ; objectif non chiffré : pas d'écart.
-    d = copie();
-    Object.assign(d.courses.find(c => c.id === SEB), { objectif: '02:10:00' });
-    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
-    await ligneSeb(p);
-    await consultation(p);
-    pb.push(egal('02:10:00 (vs Temps −00:13:55)', (await fiche(p)).Objectif, 'plus rapide que l\'objectif : « − » devant l\'écart'));
-    await ctx.close();
-    d = copie();
-    Object.assign(d.courses.find(c => c.id === SEB), { objectif: 'Sub 2h' });
-    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
-    await ligneSeb(p);
-    await consultation(p);
-    pb.push(egal('Sub 2h', (await fiche(p)).Objectif, 'objectif non chiffré : aucun écart'));
-    await ctx.close();
-
     // Site partagé en lecture seule : la consultation s'ouvre, sans crayon.
     const autre = '00000000-0000-0000-0000-00000000000b';
     const partage = copie();
@@ -1629,6 +1659,124 @@ const CONTROLES = {
   },
 
   // Spécification générale, thèmes : chaque page prend le thème de l'utilisateur, cadres compris.
+  // Connexion par adresse e-mail et mot de passe (specification-generale.md, § 3 ; module-preferences-specification.md, § 6).
+  async connexion(nav, db0) {
+    const pb = [];
+    const ADRESSE = 'essai@exemple.fr', MDP = 'phrase-de-passe-essai', NEUF = 'une-autre-phrase-de-passe';
+    const neuve = (extra = {}) => { const d = JSON.parse(JSON.stringify(db0)); d.ecritures = []; d.auth = Object.assign({ mdp: { [ADRESSE]: MDP }, appels: [], maintenant: AUJOURDHUI }, extra); return d; };
+    // Visiteur sans session : la page est ouverte directement, sans le jeton posé par ouvrir().
+    const visiteur = async (page, d, largeur = 1200) => {
+      const ctx = await nav.newContext({ viewport: { width: largeur, height: 900 }, timezoneId: PARIS.fuseau });
+      await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+      await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
+      await simulerBase(ctx, d);
+      const p = await ctx.newPage();
+      const erreurs = [];
+      p.on('pageerror', e => erreurs.push(e.message));
+      await p.goto(RACINE + page);
+      return { p, ctx, erreurs };
+    };
+    const message = p => p.locator('#message').textContent();
+    const qui = d => d.auth.appels.map(a => a.methode + ' ' + a.chemin);
+
+    // Sans connexion : renvoi vers la page de connexion ; page sans en-tête ni menu.
+    let d = neuve({ maintenant: null });
+    let { p, ctx, erreurs } = await visiteur('index.html', d);
+    await p.waitForURL(/connexion\.html/);
+    pb.push(egal({ champs: ['email', 'password'], bouton: 'Se connecter', oubli: 'Mot de passe oublié ?', entete: 0, menu: 0, captcha: 0, ancien: false },
+      { champs: await p.evaluate(() => [document.getElementById('email').type, document.getElementById('mdp').type]), bouton: await p.locator('button[type="submit"]').textContent(),
+        oubli: await p.locator('#oubli').textContent(), entete: await p.locator('.mrt-header').count(), menu: await p.locator('.mrt-nav').count(),
+        captcha: await p.locator('#captcha > *').count(), ancien: /lien de connexion|Pas de mot de passe/.test(await p.locator('main').textContent()) }, 'connexion : adresse, mot de passe, bouton, sans en-tête ni menu ni lien magique'));
+    // Œil : affiche puis masque.
+    await p.fill('#mdp', 'secret');
+    await p.click('.mrt-oeil');
+    const vu = await p.evaluate(() => [document.getElementById('mdp').type, document.querySelector('.mrt-oeil').getAttribute('aria-pressed')]);
+    await p.click('.mrt-oeil');
+    pb.push(egal([['text', 'true'], 'password'], [vu, await p.evaluate(() => document.getElementById('mdp').type)], 'œil : affiche puis masque le mot de passe'));
+    // Mauvais mot de passe et adresse inconnue : exactement le même message.
+    await p.fill('#email', ADRESSE); await p.fill('#mdp', 'mauvais-mot-de-passe');
+    await p.click('button[type="submit"]');
+    await p.waitForFunction(() => /incorrect/.test(document.getElementById('message').textContent));
+    const mauvais = await message(p);
+    await p.fill('#email', 'inconnu@exemple.fr');
+    await p.click('button[type="submit"]');
+    await p.waitForFunction(() => /incorrect/.test(document.getElementById('message').textContent) && !document.querySelector('button[type="submit"]').disabled);
+    pb.push(egal(['Adresse ou mot de passe incorrect.', 'Adresse ou mot de passe incorrect.'], [mauvais, await message(p)], 'mauvais mot de passe et adresse inconnue : même message'));
+    // Mot mal retiré par le navigateur ? Non : le champ garde sa saisie, le bon mot de passe connecte et mène à l'accueil.
+    await p.fill('#email', ADRESSE); await p.fill('#mdp', MDP);
+    await p.click('button[type="submit"]');
+    await p.waitForURL(/index\.html/);
+    await p.waitForSelector('html[data-mrt-donnees]');
+    pb.push(egal([true, 'password token'], [/index\.html/.test(p.url()), qui(d).filter(x => /token/.test(x)).length === 3 ? 'password token' : qui(d).join()], 'bon mot de passe : connecté, direction l\'accueil'));
+    pb.push(egal([], erreurs, 'connexion, erreurs JavaScript'));
+    await ctx.close();
+
+    // Mot de passe oublié : champ vide refusé ; même réponse pour une adresse connue ou inconnue ; lien de retour sur la page « nouveau mot de passe ».
+    d = neuve({ maintenant: null });
+    ({ p, ctx, erreurs } = await visiteur('connexion.html', d));
+    await p.click('#oubli');
+    pb.push(egal('Saisis ton adresse e-mail.', await message(p), 'mot de passe oublié : adresse vide refusée'));
+    const envoi = async adresse => { await p.fill('#email', adresse); await p.click('#oubli'); await p.waitForFunction(() => /e-mail vient/.test(document.getElementById('message').textContent)); return message(p); };
+    const connu = await envoi(ADRESSE), inconnu = await envoi('inconnu@exemple.fr');
+    pb.push(egal(['Si un compte existe pour cette adresse, un e-mail vient d\'être envoyé.', true], [connu, connu === inconnu], 'mot de passe oublié : même réponse pour une adresse connue ou inconnue'));
+    const recup = d.auth.appels.filter(a => a.chemin === 'recover');
+    pb.push(egal([2, true], [recup.length, recup.every(a => /redirect_to=[^&]*nouveau-mot-de-passe\.html/.test(a.requete))], 'mot de passe oublié : deux demandes, lien de retour vers la page du nouveau mot de passe'));
+    pb.push(egal([], erreurs, 'mot de passe oublié, erreurs JavaScript'));
+    await ctx.close();
+
+    // Lien reçu : nouveau mot de passe (14 caractères au moins, deux saisies identiques) ; autres appareils déconnectés ; accueil.
+    d = neuve({ maintenant: null });
+    const lien = '#access_token=essai&refresh_token=essai&expires_in=3600&token_type=bearer&type=recovery';
+    ({ p, ctx, erreurs } = await visiteur('nouveau-mot-de-passe.html' + lien, d));
+    await p.waitForSelector('#form-mdp:not([hidden])');
+    await p.fill('#mdp', 'treize-caract'); await p.fill('#mdp2', 'treize-caract');
+    await p.click('button[type="submit"]');
+    pb.push(egal('Au moins 14 caractères.', await message(p), 'nouveau mot de passe : 13 caractères refusés'));
+    await p.fill('#mdp', NEUF); await p.fill('#mdp2', NEUF + 'x');
+    await p.click('button[type="submit"]');
+    pb.push(egal('Les deux saisies sont différentes.', await message(p), 'nouveau mot de passe : confirmation différente refusée'));
+    pb.push(egal(false, qui(d).includes('PUT user'), 'nouveau mot de passe : rien d\'enregistré tant qu\'une erreur demeure'));
+    await p.fill('#mdp2', NEUF);
+    await p.click('button[type="submit"]');
+    await p.waitForURL(/index\.html/);
+    pb.push(egal([NEUF, true, true], [d.auth.mdp[ADRESSE], d.auth.appels.some(a => a.chemin === 'logout' && /scope=others/.test(a.requete)), /index\.html/.test(p.url())],
+      'nouveau mot de passe : enregistré, autres appareils déconnectés, direction l\'accueil'));
+    pb.push(egal([], erreurs, 'nouveau mot de passe, erreurs JavaScript'));
+    await ctx.close();
+    // Lien périmé ou déjà utilisé.
+    d = neuve({ maintenant: null });
+    ({ p, ctx } = await visiteur('nouveau-mot-de-passe.html#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired', d));
+    await p.waitForFunction(() => /expiré/.test(document.getElementById('message').textContent));
+    pb.push(egal([ 'Lien expiré : demande-en un nouveau.', true], [await message(p), await p.locator('#form-mdp').isHidden()], 'lien périmé : « Lien expiré », pas de formulaire'));
+    await ctx.close();
+
+    // Préférences : changer le mot de passe.
+    d = neuve();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, d, {}, PARIS));
+    const msgPref = () => p.locator('#mdp-msg').textContent();
+    const saisir = async (actuel, nouveau, confirmation) => { await p.fill('#mdp-actuel', actuel); await p.fill('#mdp-nouveau', nouveau); await p.fill('#mdp-confirmation', confirmation); await p.click('#form-mdp button[type="submit"]'); };
+    pb.push(egal([true, true], [await p.locator('#mdp-ouvrir').isVisible(), await p.locator('#form-mdp').isHidden()], 'Préférences : « Changer le mot de passe », formulaire replié'));
+    await p.click('#mdp-ouvrir');
+    pb.push(egal(['Mot de passe actuel', 'Nouveau mot de passe', 'Confirmation'], await p.evaluate(() => [...document.querySelectorAll('#form-mdp label')].map(l => l.textContent)), 'Préférences : trois champs'));
+    await saisir(MDP, 'treize-caract', 'treize-caract');
+    pb.push(egal('Au moins 14 caractères.', await msgPref(), 'Préférences : 13 caractères refusés'));
+    await saisir(MDP, NEUF, NEUF + 'x');
+    pb.push(egal('Les deux saisies sont différentes.', await msgPref(), 'Préférences : confirmation différente refusée'));
+    await saisir('pas-le-bon-mot-de-passe', NEUF, NEUF);
+    await p.waitForFunction(() => /actuel incorrect/.test(document.getElementById('mdp-msg').textContent));
+    pb.push(egal([MDP, false], [d.auth.mdp[ADRESSE], qui(d).includes('PUT user')], 'Préférences : mot de passe actuel incorrect, rien de modifié'));
+    await saisir(MDP, MDP, MDP);
+    await p.waitForFunction(() => /différent de l'actuel/.test(document.getElementById('mdp-msg').textContent));
+    pb.push(egal('Choisis un mot de passe différent de l\'actuel.', await msgPref(), 'Préférences : nouveau identique à l\'actuel refusé'));
+    await saisir(MDP, NEUF, NEUF);
+    await p.waitForFunction(() => /Mot de passe modifié/.test(document.getElementById('mdp-msg').textContent));
+    pb.push(egal([NEUF, true, true, 'Mot de passe modifié.'], [d.auth.mdp[ADRESSE], await p.locator('#form-mdp').isHidden(), d.auth.appels.some(a => a.chemin === 'logout' && /scope=others/.test(a.requete)), await msgPref()],
+      'Préférences : mot de passe modifié, formulaire replié, autres appareils déconnectés'));
+    pb.push(egal([], erreurs, 'Préférences, mot de passe, erreurs JavaScript'));
+    await ctx.close();
+    return pb;
+  },
+
   async themes(nav, db0) {
     const pb = [];
     const db = JSON.parse(JSON.stringify(db0));
@@ -1683,22 +1831,22 @@ const CONTROLES = {
     await ctx.close();
 
     // N2 : une course courue s'ouvre avec son résultat, d'où qu'elle vienne.
-    const resultat = q => q.evaluate(() => ({ sur: document.querySelector('.pc-sur').textContent.trim().split(' ')[0],
-      temps: [...document.querySelectorAll('.pc-fiche .ob-lib')].some(l => l.textContent === 'Temps'), voisines: document.querySelectorAll('.pc-nav a').length }));
+    const resultat = q => q.evaluate(() => ({ sur: (document.querySelector('.pc-section .pc-intertitre span') || {}).textContent || null,
+      temps: [...document.querySelectorAll('.pc-res-ligne .ob-lib')].some(l => l.textContent === 'Temps'), voisines: document.querySelectorAll('.pc-nav a').length }));
     ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + SEMI, 1200, copie(), {}, PARIS));
-    pb.push(egal({ sur: 'Courue', temps: true, voisines: 1 }, await resultat(p), 'adresse d\'une course courue : son résultat ; la plus récente, une seule voisine (par date)'));
+    pb.push(egal({ sur: 'Résultat', temps: true, voisines: 1 }, await resultat(p), 'adresse d\'une course courue : son résultat ; la plus récente, une seule voisine (par date)'));
     await p.click('.pc-fermer'); await pause();
     pb.push(egal([false, true], [await ouverte(p), await route(p)], 'course courue ouverte par son adresse : fermer laisse la feuille de route'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), {}, PARIS));
     await p.locator('[data-course="' + SEMI + '"]').scrollIntoViewIfNeeded();
     await p.click('[data-course="' + SEMI + '"]'); await p.waitForSelector('.mc-panneau .pc-titre');
-    pb.push(egal([SEMI, 'Courue'], [await p.evaluate(() => history.state && history.state.mrtCourse), (await resultat(p)).sur], 'Calendrier, vue Année : une course courue ouvre son résultat'));
+    pb.push(egal([SEMI, 'Résultat'], [await p.evaluate(() => history.state && history.state.mrtCourse), (await resultat(p)).sur], 'Calendrier, vue Année : une course courue ouvre son résultat'));
     await ctx.close();
     const accueil = copie(); accueil.preferences[0].accueil_blocs = ['derniere'];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, accueil, {}, PARIS));
     await p.click('[data-bloc="derniere"] .ac-ligne a'); await p.waitForSelector('.mc-panneau .pc-titre');
-    pb.push(egal(['Semi de San Sebastián', 'Courue'], [(await p.textContent('.pc-titre')).trim(), (await resultat(p)).sur], 'En un coup d\'œil, Dernière course : son nom ouvre son résultat'));
+    pb.push(egal(['Semi de San Sebastián', 'Résultat'], [(await p.textContent('.pc-titre')).trim(), (await resultat(p)).sur], 'En un coup d\'œil, Dernière course : son nom ouvre son résultat'));
     await ctx.close();
 
     // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.

@@ -1,6 +1,6 @@
 # Design
 
-Version 0.28 · 30 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.29 · 30 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -15,13 +15,13 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 
 | Règle | En pratique |
 | --- | --- |
-| Peu de couleur | Un seul accent. L'Accent marque le titre de l'écran (le cap dans l'en-tête, le nom de la course sur sa page), l'objectif principal et ce qui est actif (onglet ou engrenage de la page ouverte, tri, filtre actif, pastille choisie, bouton principal, champ en cours de saisie). Les repères de données (compte à rebours des courses, objectif, point du dossard, objectif intermédiaire) sont en Texte. |
+| Peu de couleur | Un seul accent. L'Accent marque le titre de l'écran (le cap dans l'en-tête, le nom de la course sur sa page), l'objectif principal, la place au général d'une course courue et ce qui est actif (onglet ou engrenage de la page ouverte, tri, filtre actif, pastille choisie, bouton principal, champ en cours de saisie). Les repères de données (compte à rebours des courses, objectif, point du dossard, objectif intermédiaire) sont en Texte. |
 | Le reste en blanc et gris | Valeurs et noms en Texte ; libellés et informations secondaires en Texte discret ; liens dans le texte soulignés, en Texte. |
 | Capitales pour les libellés seulement | Libellés de données (à gauche ou au-dessus d'une valeur, d'un champ, en-tête de colonne), toujours en Space Mono 0,7 rem, en-tête compris ; seule la grille de la vue Année du Calendrier est plus fine (§ 10). Onglets, boutons, titres de section en casse normale. |
 | Tout dans un cadre | Chaque bloc de la page a son cadre (fond Surface, bordure fine, coins de 8 px) : tableau du Palmarès, carte d'une étape, fiche d'une course, liste des textes d'une course, Préférences (un cadre pour toute la page), panneaux. Dans un cadre, les sections sont séparées par un filet (Bordure). Jamais de cadre dans un cadre. |
 | Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien, Ajouter une course) ; au survol, l'Accent s'éclaircit (mêlé de Texte). À contour : bordure fine, texte en Texte (Annuler, Retenir cette course, Paramétrer le plan, Aujourd'hui) ; en Alerte, avec une poubelle, pour Supprimer (la course, la séance), plein Alerte au survol. Rond : une icône (filtres, crayon, regroupement, flèches, fermer) ; « × » pour fermer, la même croix partout (feuilles, panneaux). Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Effacer les filtres, Recalculer selon les règles). Tous en casse normale, Accent au survol. |
 | Pastilles | Un choix parmi d'autres (filtres, tri et colonnes du Palmarès, vue du Calendrier) : arrondies, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond. |
-| Un seul champ | Fiche, fenêtres, filtres, Préférences, connexion : fond transparent, bordure fine (Bordure), coins de 6 px, 0,85 rem, exemple en Texte discret dans le champ vide, bordure en Accent pendant la saisie, en Alerte sur une erreur ; listes avec un chevron dessiné. Seul le tableau des phases de « Paramétrer le plan » le prend en plus petit. |
+| Un seul champ | Fiche, fenêtres, filtres, Préférences (changement du mot de passe compris), connexion et nouveau mot de passe : fond transparent, bordure fine (Bordure), coins de 6 px, 0,85 rem, exemple en Texte discret dans le champ vide, bordure en Accent pendant la saisie, en Alerte sur une erreur ; listes avec un chevron dessiné. Seul le tableau des phases de « Paramétrer le plan » le prend en plus petit. |
 | Fenêtres comme la fiche | Une fenêtre de saisie (séance, Paramétrer le plan) se présente comme la fiche d'une course (§ 6) : le voile de la feuille, « Annuler » à gauche et le bouton principal à droite en haut, le titre en libellé, une action à part (Supprimer, Recalculer) seule en bas. |
 | Un seul titre repliable | Chevron à gauche, titre en Texte, 600, casse normale : textes d'une course, blocs du formulaire, groupes du Palmarès. |
 
@@ -105,9 +105,10 @@ Sobre, sans en-tête ni menu, centrée dans la page, 22 rem de large au plus.
 | --- | --- | --- | --- |
 | « MyRunTools » | Space Grotesk, graisse 700, espacement −0,02 em | 2 rem | Texte |
 | Accroche | Space Grotesk | 0,85 rem | Texte discret |
-| Libellé « Adresse e-mail » | Space Mono, capitales, espacement 0,1 em | 0,7 rem | Texte discret |
-| Champ e-mail | Space Grotesk | 0,85 rem | Texte ; fond transparent, bordure fine (Bordure), Accent au focus |
-| Bouton « Recevoir le lien de connexion » | Bouton principal (§ 1) : Space Grotesk 600, casse normale | 0,8 rem | Accent plein, coins arrondis, toute la largeur |
+| Libellés « Adresse e-mail », « Mot de passe » | Space Mono, capitales, espacement 0,1 em | 0,7 rem | Texte discret |
+| Champs e-mail et mot de passe (œil en Texte discret à droite du mot de passe, Accent quand le mot de passe est visible) | Le champ commun (§ 1) : Space Grotesk | 0,85 rem | Texte ; fond transparent, bordure fine (Bordure), Accent au focus |
+| Bouton « Se connecter » | Bouton principal (§ 1) : Space Grotesk 600, casse normale | 0,8 rem | Accent plein, coins arrondis, toute la largeur |
+| Lien « Mot de passe oublié ? » | Space Grotesk, lien (§ 1) | 0,78 rem | Texte discret, sous le champ mot de passe, aligné à gauche |
 | Ligne d'aide et messages | Space Grotesk | 0,75 rem | Texte discret ; Alerte pour une erreur |
 
 ## 6. Formulaires et bandeau

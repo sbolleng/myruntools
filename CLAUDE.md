@@ -40,8 +40,8 @@ Spécification → validation → modèle de données si besoin → construction
 ## Technique
 
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
-- Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
-- `composants/` : composants partagés, avec leur feuille de style : En un coup d'œil (`accueil`, page `index.html`), en-tête et menu (`en-tete`, thèmes et éléments communs compris : boutons `mrt-btn` (`is-principal`, `is-danger`), `mrt-rond` (`is-fermer`), lien `mrt-lien`, pastille `mrt-pastille`, champ `mrt-champ`, section `mrt-section`), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), feuille de route et page d'une course en modale (`objectif`, `modale-course`), calendrier (vues Année et 4 semaines), préparation d'une course (`preparation` : plan, phases, séances, partagé par le Calendrier et la page d'une course).
+- Données : Supabase (offre gratuite), règles par ligne, connexion par adresse e-mail et mot de passe (réglages Supabase : `docs/reglages-supabase-connexion.md`).
+- `composants/` : composants partagés, avec leur feuille de style : En un coup d'œil (`accueil`, page `index.html`), en-tête et menu (`en-tete`, thèmes et éléments communs compris : boutons `mrt-btn` (`is-principal`, `is-danger`), `mrt-rond` (`is-fermer`), lien `mrt-lien`, pastille `mrt-pastille`, champ `mrt-champ` (`mrt-mdp` et son œil pour un mot de passe), section `mrt-section`), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), feuille de route et page d'une course en modale (`objectif`, `modale-course`), calendrier (vues Année et 4 semaines), préparation d'une course (`preparation` : plan, phases, séances, partagé par le Calendrier et la page d'une course).
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise`, proposés à tous, choisis dans les Préférences seulement (plus de `?t=…` sur le site) ; un seul accent (plus d'Accent 2).
@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : repasse de navigation et de design (croix de « Course introuvable », course courue ouverte de partout, menu sans modules « bientôt », retour = Annuler pour la fiche seule, pastilles et « Aujourd'hui » au Calendrier, engrenage dessiné ; Accent 2 supprimé, champ, pastille, croix et bouton Supprimer communs, fenêtres comme la fiche, libellés 0,7 rem) ; avant : consultation d'une course courue compacte. Historique : `docs/journal.md`.
+- Dernier lot : repasse de navigation et de design (croix de « Course introuvable », course courue ouverte de partout, menu sans modules « bientôt », retour = Annuler pour la fiche seule, pastilles et « Aujourd'hui » au Calendrier, engrenage dessiné ; Accent 2 supprimé, champ, pastille, croix et bouton Supprimer communs, fenêtres comme la fiche, libellés 0,7 rem) ; avant : connexion par adresse e-mail et mot de passe (`session.js`, `connexion.html`, `nouveau-mot-de-passe.html`, bloc Compte des Préférences ; réglages Supabase faits ; anti-robot prêt mais inactif) et consultation d'une course courue en liste (Résultat, Montre). Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

@@ -17,7 +17,10 @@
   .connexion form { text-align: left; }
   .connexion label { display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .connexion input { width: 100%; } /* le champ commun (mrt-champ, en-tete.css), sur toute la largeur */
-  .connexion button { margin-top: 0.8rem; width: 100%; padding: 0.6rem; }
+  .connexion label.champ-suivant { margin-top: 0.9rem; }
+  .connexion .oubli { display: block; width: auto; margin: 0.6rem 0 0; padding: 0; font-size: 0.78rem; }
+  .connexion #captcha { margin-top: 0.8rem; display: flex; justify-content: center; }
+  .connexion button[type="submit"] { margin-top: 0.8rem; width: 100%; padding: 0.6rem; }
   .connexion .message { min-height: 2.6em; margin-top: 1rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
   .connexion .erreur { color: var(--red); }
 </style>
@@ -28,10 +31,14 @@
   <p class="accroche">La boîte à outils du coureur</p>
   <form id="form-connexion">
     <label for="email">Adresse e-mail</label>
-    <input class="mrt-champ" type="email" id="email" required autocomplete="email" inputmode="email" placeholder="toi@exemple.fr">
-    <button type="submit" class="mrt-btn is-principal">Recevoir le lien de connexion</button>
+    <input class="mrt-champ" type="email" id="email" required autocomplete="username" inputmode="email" placeholder="toi@exemple.fr">
+    <label for="mdp" class="champ-suivant">Mot de passe</label>
+    <input class="mrt-champ" type="password" id="mdp" required autocomplete="current-password">
+    <button type="button" class="mrt-lien oubli" id="oubli">Mot de passe oublié ?</button>
+    <div id="captcha"></div>
+    <button type="submit" class="mrt-btn is-principal">Se connecter</button>
   </form>
-  <p class="message" id="message" aria-live="polite">Pas de mot de passe : un lien arrive par e-mail.</p>
+  <p class="message" id="message" aria-live="polite"></p>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>
@@ -40,24 +47,41 @@
 <script>
   // Pas d'en-tête ici : thème par défaut, le visiteur n'est pas encore connu.
   const form = document.getElementById('form-connexion'), msg = document.getElementById('message');
-  // Déjà connecté (retour du lien magique) : direction l'accueil.
+  const email = document.getElementById('email'), mdp = document.getElementById('mdp'), oubli = document.getElementById('oubli');
+  mrtOeil(mdp);
+  const captcha = mrtCaptcha(document.getElementById('captcha'));
+  // Déjà connecté : direction l'accueil.
   mrtSession().then(s => { if (s) location.replace('index.html' + location.search); });
+  const dire = (texte, erreur) => { msg.className = 'message' + (erreur ? ' erreur' : ''); msg.textContent = texte; };
+  const limite = 'Trop de tentatives, réessaie dans quelques minutes.';
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = form.querySelector('button');
+    const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
-    msg.className = 'message';
-    msg.textContent = 'Envoi en cours…';
+    dire('Connexion…');
     try {
-      await mrtEnvoyerLien(document.getElementById('email').value.trim(), location.href.split('#')[0]);
-      msg.textContent = 'Lien envoyé : ouvre l\'e-mail et touche le lien. Il peut mettre une minute à arriver.';
+      await mrtConnecter(email.value.trim(), mdp.value, await captcha.jeton());
+      location.replace('index.html' + location.search);
     } catch (err) {
-      msg.className = 'message erreur';
-      msg.textContent = /rate|limit/i.test(err.message || '')
-        ? 'Trop de demandes pour l\'instant : réessaie dans quelques minutes.'
-        : 'Lien non envoyé : vérifie l\'adresse. Seuls les comptes existants peuvent se connecter.';
+      captcha.reinitialiser();
+      // Une seule erreur pour tout échec : on ne dit jamais si c'est l'adresse ou le mot de passe.
+      dire(mrtNatureErreur(err) === 'limite' ? limite : 'Adresse ou mot de passe incorrect.', true);
       btn.disabled = false;
     }
+  });
+  // Mot de passe oublié : la même réponse, que l'adresse ait un compte ou non.
+  oubli.addEventListener('click', async () => {
+    if (!email.value.trim() || !email.checkValidity()) { dire('Saisis ton adresse e-mail.', true); email.focus(); return; }
+    oubli.disabled = true;
+    dire('Envoi en cours…');
+    try {
+      await mrtMotDePasseOublie(email.value.trim(), new URL('nouveau-mot-de-passe.html', location.href).href, await captcha.jeton());
+      dire('Si un compte existe pour cette adresse, un e-mail vient d\'être envoyé.');
+    } catch (err) {
+      dire(mrtNatureErreur(err) === 'limite' ? limite : 'Envoi impossible pour l\'instant.', true);
+    }
+    captcha.reinitialiser();
+    oubli.disabled = false;
   });
 </script>
 </body>

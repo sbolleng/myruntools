@@ -40,7 +40,7 @@ const PAGES = {
   palmares: { url: 'palmares.html' },
   // Consultation d'une course courue : le semi de San Sebastián, avec des valeurs fictives ajoutées.
   'consultation-courue': { url: 'palmares.html', hauteur: { ordi: 700 }, donnees: d => { Object.assign(d.courses.find(c => c.id === '00000000-0000-0000-0001-000000000007'),
-    { place: 14, effectif: 174, place_categorie: 2, effectif_categorie: 8, place_sexe: 6, objectif: '01:50:00', objectif_precisions: 'Temps prévu par le plan, visée : environ 1 h 50.', dplus: 128, dmoins: 128,
+    { place: 14, effectif: 174, place_categorie: 2, effectif_categorie: 8, place_sexe: 6, categorie: 'M2', dossard: '271', objectif: '01:50:00', objectif_precisions: 'Temps prévu par le plan, visée : environ 1 h 50.', dplus: 128, dmoins: 128,
       lieu: 'Saint-Sébastien', montre_temps: 6924, montre_distance: 21.28, montre_dplus: 200, montre_dmoins: 200, montre_allure: 330, fc_moyenne: 158, lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' }); return d; },
     action: async p => { await p.evaluate(() => document.querySelector('#palmares tbody tr[data-id] td').click()); await p.waitForSelector('.mc-panneau .pc-titre'); } },
   filtres: { url: 'palmares.html', action: async p => { await p.locator('.pv2-btn').first().click(); } },

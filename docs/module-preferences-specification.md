@@ -1,13 +1,13 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.9 · 30 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.10 · 30 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
 La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage (en-tête, ou barre fine), qui passe en Accent tant que la page est ouverte, comme l'onglet d'un module ; elle a la barre fine à la place de l'en-tête et n'est pas un module du menu.
 
 - **Ce qu'elle ne contient pas** : les données du coureur (Profil) et son équipement (Matériel), pour qu'une donnée ne se saisisse qu'à un seul endroit.
-- **Hors périmètre** : la présentation visuelle (document de design) ; le changement de mot de passe (connexion par lien magique seulement, voir la todo).
+- **Hors périmètre** : la présentation visuelle (document de design).
 
 ## 2. Organisation
 
@@ -57,7 +57,8 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 ## 6. Partage et Compte
 
 - **Partage** : décrit dans la spécification générale (§ 9).
-- **Compte** : prénom et nom, adresse de connexion, lien « Se déconnecter ».
+- **Compte** : prénom et nom, adresse de connexion, « Changer le mot de passe », lien « Se déconnecter ».
+- **Changer le mot de passe** : un bouton à contour déplie trois champs, « Mot de passe actuel », « Nouveau mot de passe » et « Confirmation », avec l'œil de la page de connexion et les mêmes règles (14 caractères au moins, deux saisies identiques). L'ancien mot de passe est vérifié avant tout changement ; un échec affiche « Mot de passe actuel incorrect. » sans rien modifier. Enregistré : « Mot de passe modifié. », les champs se referment, les autres appareils sont déconnectés et un e-mail d'alerte est envoyé. Utilisable aussi quand on regarde le site d'un autre : c'est toujours le compte de l'utilisateur connecté.
 
 ## 7. Site partagé en lecture seule
 
@@ -97,6 +98,7 @@ Résultats attendus :
 - Marquer Trail du Lac comme abandonnée : l'en-tête revient à Trail des Crêtes, la liste affiche « Par défaut ».
 - Choisir « Par défaut » : l'en-tête affiche Trail des Crêtes.
 - Échec d'enregistrement (base injoignable) : « Enregistrement impossible pour l'instant », le réglage revient à sa valeur précédente.
+- Changer le mot de passe : actuel erroné → « Mot de passe actuel incorrect. » ; nouveau de 13 caractères refusé ; confirmation différente refusée ; 14 caractères identiques acceptés → « Mot de passe modifié. ».
 - Site partagé en lecture seule : Thème, Menu et Cap affichent « Reviens à ton site pour modifier tes réglages. » ; Partage et Compte restent utilisables.
 - Téléphone : la page tient dans la largeur de l'écran, sans défilement horizontal.
 - Menu : pas de choix de page de démarrage ; « à l'ouverture » sur la ligne En un coup d'œil ; le décocher : la mention passe sur Objectif.

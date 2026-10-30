@@ -39,12 +39,12 @@
     if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
     return (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS[d[1] - 1] + ' ' + d[0];
   }
-  function dateLongue(c) {
+  function dateLongue(c, sansHeure) {
     const d = c.date.split('-').map(Number);
     if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
     const jour = JOURS[new Date(d[0], d[1] - 1, d[2]).getDay()];
     let txt = jour + ' ' + (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS[d[1] - 1] + ' ' + d[0];
-    if (c.heure) {
+    if (c.heure && !sansHeure) {
       const h = c.heure.split(':').map(Number);
       txt += ', ' + h[0] + ' h' + (h[1] ? ' ' + pad(h[1]) : '');
     }
@@ -96,8 +96,10 @@
       ? '<a class="ob-ins is-ouvert" href="' + esc(d.lien) + '" target="_blank" rel="noopener">' + html + '</a>'
       : '<span class="ob-ins is-' + d.etat + '">' + html + '</span>';
   }
+  // Flèche dessinée : le caractère ↗ s'affiche en emoji sur iPhone.
+  const FLECHE = '<svg class="ob-fleche" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const lienOfficiel = c => (lienSur(c.lien)
-    ? '<a class="ob-ext" href="' + esc(c.lien) + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">↗</a>' : '');
+    ? '<a class="ob-ext" href="' + esc(c.lien) + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">' + FLECHE + '</a>' : '');
 
   // Compteur (§ 5.1) : quatre cases, mises à jour par un seul minuteur pour toute la page.
   // Mois seul : compteur pour une course confirmée (jusqu'au 1er du mois), aucun pour une option.
@@ -266,11 +268,13 @@
   };
 
   // ----- Consultation d'une course courue (§ 3.8) : ouverte depuis le Palmarès -----
-  const hms = s => (s == null ? '' : Math.floor(s / 3600) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
   const hmsFiche = s => (s == null ? '' : pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
   const allureTxt = s => (s == null ? '' : Math.floor(s / 60) + ':' + pad(s % 60) + ' /km');
   // « place / effectif » (la place seule si l'effectif est inconnu) ; rien sans place.
   // Rang ordinal comme dans le Palmarès : « 1er » (« 1re » pour une coureuse), « 2e », « 14e », suivi de l'effectif s'il est connu.
+  // Catégorie d'âge FFA, en clair, suivie du sexe : « Master 2 Homme ».
+  const CATEGORIES = { CA: 'Cadet', JU: 'Junior', ES: 'Espoir', SE: 'Senior' };
+  const categorie = (code, feminin) => (code ? (CATEGORIES[code] || 'Master ' + code.slice(1)) + (feminin ? ' Femme' : ' Homme') : '');
   const place = (p, n, feminin) => (p == null ? '' : (p === 1 ? (feminin ? '1re' : '1er') : nombre(p) + 'e') + (n != null ? ' / ' + nombre(n) : ''));
 
   // ctx.ordre() : identifiants des courses du Palmarès, dans l'ordre du tableau (précédente et suivante).
@@ -288,43 +292,40 @@
     const ordre = ctx.ordre ? ctx.ordre().map(i => courses.find(x => x.id === i)).filter(Boolean)
       : courses.filter(x => x.etat === 'courue' && x.date).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     const k = ordre.findIndex(x => x.id === id), prec = ordre[k - 1], suiv = ordre[k + 1];
-    const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats']].filter(l => lienSur(l[0]));
-    const classements = [['Général', place(c.place, c.effectif, ctx.feminin)], ['Catégorie', place(c.place_categorie, c.effectif_categorie, ctx.feminin)],
-      ['Sexe', place(c.place_sexe, c.effectif_sexe, ctx.feminin)]].filter(l => l[1]);
     const temps = c.dnf ? 'DNF' : hmsFiche(c.temps);
-    // Écart à l'objectif : seulement pour un objectif chiffré (hh:mm:ss) et une course terminée ; « + » si plus lent, « − » si plus rapide.
-    const cible = /^(\d{1,2}):(\d\d):(\d\d)$/.exec(c.objectif || '');
-    const ecart = cible && !c.dnf && c.temps != null ? c.temps - (Number(cible[1]) * 3600 + Number(cible[2]) * 60 + Number(cible[3])) : null;
-    const ecartTxt = ecart == null ? '' : (ecart > 0 ? '+' : ecart < 0 ? '−' : '') + hmsFiche(Math.abs(ecart));
-    // Distance, puis D+ et D− à la suite, sur la même ligne.
-    const parcours = [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : '', c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ');
-    const montre = [['Temps', hms(c.montre_temps)], ['Distance', c.montre_distance != null ? nombre(c.montre_distance) + ' km' : ''],
-      ['D+', c.montre_dplus != null ? nombre(c.montre_dplus) + ' m' : ''], ['D−', c.montre_dmoins != null ? nombre(c.montre_dmoins) + ' m' : ''],
-      ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(l => l[1]);
+    const resultats = lienSur(c.lien_resultats);
+    // Résultat : une ligne par valeur (libellé, valeur), le temps puis la place en grand ; une ligne vide n'est pas affichée.
+    const effectif = n => (n != null ? ' <span class="pc-sur-n">/ ' + nombre(n) + '</span>' : '');
+    const rang = (p, n) => (p == null ? '' : esc(place(p, null, ctx.feminin)) + effectif(n));
+    const vitesse = c.dnf ? null : c.vitesse || (c.allure ? Math.round(36000 / c.allure) / 10 : null);
+    const cat = categorie(c.categorie, ctx.feminin);
+    const resultat = [
+      ['Temps', temps ? '<b class="pc-grand ob-cible">' + esc(temps) + '</b>' : ''],
+      ['Place', c.place != null ? '<b class="pc-grand ob-cible-1">' + rang(c.place, c.effectif) + '</b>' : ''],
+      ['Catégorie', c.place_categorie != null ? '<span class="ob-val">' + rang(c.place_categorie, c.effectif_categorie) + '</span>' + (cat ? ' <span class="pc-cat">' + esc(cat) + '</span>' : '') : ''],
+      ['Sexe', c.place_sexe != null ? '<span class="ob-val">' + rang(c.place_sexe, c.effectif_sexe) + '</span>' : ''],
+      ['Vitesse', vitesse ? '<span class="ob-val">' + esc(nombre(vitesse)) + ' km/h</span>' : ''],
+      ['Allure', !c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '']].filter(r => r[1]);
+    // Montre : ses valeurs seules, en liste comme Résultat ; section absente sans aucune valeur.
+    const km = v => (v != null ? nombre(v) + ' km' : '');
+    const deniv = (p, m) => (p == null && m == null ? '' : (p != null ? nombre(p) : '—') + ' · ' + (m != null ? nombre(m) : '—') + ' m');
+    const montre = [['Temps', hmsFiche(c.montre_temps)], ['Distance', km(c.montre_distance)], ['D+ · D−', deniv(c.montre_dplus, c.montre_dmoins)],
+      ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(r => r[1]).map(r => [r[0], '<span class="ob-val">' + esc(r[1]) + '</span>']);
+    const liste = l => l.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join('');
+    const section = (titreSection, droite, html) => '<section class="pc-section"><h3 class="pc-intertitre"><span>' + titreSection + '</span>' + droite + '</h3>' + html + '</section>';
+    // Sous le titre : la date (sans heure) et le lieu ; le format et le dossard ; la distance et le D+.
+    const infos = [[dateLongue(c, true), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
     el.innerHTML = barre +
-      '<p class="pc-sur"><span class="ob-role">Courue</span>' + (c.typeLibelle ? ' <span class="ob-lib">· ' + esc(c.typeLibelle) + '</span>' : '') + '</p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
-      '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
-      '<div class="ob-lignes pc-fiche pc-compacte">' +
-        (temps ? ligne('Temps', '<span class="pc-res"><b class="ob-cible pc-temps">' + esc(temps) + '</b>' +
-          (!c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '') + '</span>') : '') +
-        (classements.length ? ligne('Classements', '<span class="pc-clas">' + classements.map(l => '<span><span class="ob-lib">' + l[0] + '</span> <span class="ob-val">' + esc(l[1]) + '</span></span>').join('') + '</span>') : '') +
-        (parcours ? ligne('Distance', '<span class="ob-val">' + esc(parcours) + '</span>') : '') +
-        (c.objectif ? ligne('Objectif', '<span class="pc-res"><span class="ob-cible">' + esc(c.objectif) + '</span>' + (ecartTxt ? '<span class="ob-val">(vs Temps ' + ecartTxt + ')</span>' : '') + '</span>') : '') +
-        (c.objectif_precisions ? ligne('Précisions', esc(c.objectif_precisions)) : '') +
-        (c.dossard ? ligne('Dossard', '<span class="ob-val">n° ' + esc(c.dossard) + '</span>') : '') +
-        (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
-      '</div>' +
-      '<div class="pc-textes">' +
-        cellule('Montre', montre.length ? '<p>' + montre.map(l => '<span class="ob-lib">' + l[0] + '</span> ' + esc(l[1])).join(' · ') + '</p>' : '') +
-        cellule('Liens', liens.length ? '<ul class="pc-liens pc-liens-ligne">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>' : '') +
-      '</div>' +
+      infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
+      (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res" href="' + esc(resultats) + '" target="_blank" rel="noopener">Résultats' + FLECHE + '</a>' : '',
+        liste(resultat)) : '') +
+      (montre.length ? section('Montre', '', liste(montre)) : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
     brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id) }));
-    replierCellules(el);
     couperNoms();
     return c;
   };

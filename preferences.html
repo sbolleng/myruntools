@@ -47,6 +47,14 @@
   .pref-rond { font-size: 0.75rem; }
   .pref-defaut { margin-top: 0.6rem; }
   .pref-fixe { font-size: 0.72rem; color: var(--muted); }
+  /* Changer le mot de passe : trois champs l'un sous l'autre. */
+  #mdp-ouvrir { margin-top: 0.7rem; }
+  .pref-mdp { max-width: 22rem; margin-top: 0.8rem; }
+  .pref-mdp label { display: block; margin: 0.8rem 0 0.35rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .pref-mdp label:first-child { margin-top: 0; }
+  .pref-mdp input { width: 100%; } /* le champ commun (mrt-champ), sur toute la largeur */
+  .pref-actions { margin-top: 1rem; }
+  #mdp-captcha { margin-top: 0.8rem; }
   .pref-modules .pref-fleches { width: 4.2rem; justify-content: flex-end; }
   @media (max-width: 600px) { .pref-modules .pref-fixe:not(.pref-ouverture) { display: none; } }
 </style>
@@ -57,6 +65,23 @@
   <section class="mrt-section" id="bloc-compte">
     <h2 class="mrt-section-titre">Compte</h2>
     <p id="compte" class="muted">Lecture…</p>
+    <div id="mdp-zone" hidden>
+      <button type="button" class="mrt-btn" id="mdp-ouvrir" aria-expanded="false" aria-controls="form-mdp">Changer le mot de passe</button>
+      <form id="form-mdp" class="pref-mdp" hidden>
+        <label for="mdp-actuel">Mot de passe actuel</label>
+        <input class="mrt-champ" type="password" id="mdp-actuel" required autocomplete="current-password">
+        <label for="mdp-nouveau">Nouveau mot de passe</label>
+        <input class="mrt-champ" type="password" id="mdp-nouveau" required autocomplete="new-password" placeholder="14 caractères au moins">
+        <label for="mdp-confirmation">Confirmation</label>
+        <input class="mrt-champ" type="password" id="mdp-confirmation" required autocomplete="new-password">
+        <div id="mdp-captcha"></div>
+        <div class="pref-ligne pref-actions">
+          <button type="submit" class="mrt-btn is-principal">Enregistrer</button>
+          <button type="button" class="mrt-btn" id="mdp-annuler">Annuler</button>
+        </div>
+      </form>
+      <p class="pref-msg" id="mdp-msg" aria-live="polite"></p>
+    </div>
   </section>
   <section class="mrt-section" id="bloc-cap">
     <h2 class="mrt-section-titre">Cap</h2>
@@ -326,6 +351,45 @@
       e.preventDefault();
       await mrtDeconnecter();
       location.reload();
+    });
+    // Changer le mot de passe : l'actuel est vérifié d'abord ; le compte est celui de l'utilisateur connecté, même sur un site partagé.
+    const zone = document.getElementById('mdp-zone'), formMdp = document.getElementById('form-mdp'), ouvrir = document.getElementById('mdp-ouvrir');
+    const mdpMsg = document.getElementById('mdp-msg');
+    const champs = ['mdp-actuel', 'mdp-nouveau', 'mdp-confirmation'].map(i => document.getElementById(i));
+    champs.forEach(mrtOeil);
+    const captcha = mrtCaptcha(document.getElementById('mdp-captcha'));
+    const dire = (texte, erreur) => { mdpMsg.className = 'pref-msg' + (erreur ? ' erreur' : ''); mdpMsg.textContent = texte; };
+    const fermer = () => { formMdp.hidden = true; formMdp.reset(); ouvrir.setAttribute('aria-expanded', 'false'); };
+    zone.hidden = false;
+    ouvrir.addEventListener('click', () => {
+      formMdp.hidden = !formMdp.hidden;
+      ouvrir.setAttribute('aria-expanded', String(!formMdp.hidden));
+      dire('');
+      if (!formMdp.hidden) champs[0].focus();
+    });
+    document.getElementById('mdp-annuler').addEventListener('click', () => { fermer(); dire(''); });
+    formMdp.addEventListener('submit', async e => {
+      e.preventDefault();
+      const [actuel, nouveau, confirmation] = champs.map(c => c.value);
+      const regle = mrtRegleMotDePasse(nouveau, s.email);
+      if (regle) return dire(regle, true);
+      if (nouveau !== confirmation) return dire('Les deux saisies sont différentes.', true);
+      const btn = formMdp.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      dire('Enregistrement…');
+      try {
+        await mrtChangerMotDePasse(s.email, actuel, nouveau, await captcha.jeton());
+        fermer();
+        dire('Mot de passe modifié.');
+      } catch (err) {
+        const nature = mrtNatureErreur(err);
+        dire(nature === 'identifiants' ? 'Mot de passe actuel incorrect.'
+          : nature === 'limite' ? 'Trop de tentatives, réessaie dans quelques minutes.'
+          : err && (err.code === 'same_password' || /different from the old/i.test(err.message || '')) ? 'Choisis un mot de passe différent de l\'actuel.'
+          : 'Changement impossible pour l\'instant.', true);
+      }
+      captcha.reinitialiser();
+      btn.disabled = false;
     });
   });
 </script>
