@@ -23,10 +23,37 @@ const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 // Base simulée : lecture filtrée par les « eq. » de l'adresse ; fonctions lues
 // dans db.rpc ; les préférences enregistrées (upsert) sont gardées dans db,
 // les suppressions par id sont appliquées, les autres écritures acceptées sans rien changer ; db.panne : écritures en échec ;
-// db.ecritures (liste, si elle existe) : les écritures reçues, pour les relire.
+// db.ecritures (liste, si elle existe) : les écritures reçues, pour les relire ;
+// db.auth : connexion par mot de passe simulée (voir plus bas), db.auth.appels : les appels reçus.
 function simulerBase(ctx, db) {
   return ctx.route(PROJET + '/**', route => {
     const req = route.request(), u = new URL(req.url());
+    // Connexion (db.auth : { mdp: { adresse: mot de passe }, appels: [], maintenant }) : mots de passe fictifs, réponses de Supabase Auth.
+    if (db.auth && u.pathname.startsWith('/auth/v1/')) {
+      const chemin = u.pathname.slice('/auth/v1/'.length), corps = req.postData() ? req.postDataJSON() : {};
+      const adresse = db.auth.adresse || 'essai@exemple.fr';
+      const utilisateur = { id: db.profils[0].id, aud: 'authenticated', role: 'authenticated', email: adresse, app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' };
+      db.auth.appels.push({ chemin, methode: req.method(), requete: u.search, corps });
+      const json = (statut, o) => route.fulfill({ status: statut, contentType: 'application/json', body: JSON.stringify(o) });
+      if (chemin === 'token') {
+        const t0 = Math.floor((db.auth.maintenant || new Date()).getTime() / 1000);
+        if (u.searchParams.get('grant_type') === 'refresh_token') return json(200, { access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t0 + 3600, refresh_token: 'essai', user: utilisateur });
+        if (db.auth.mdp[corps.email] !== undefined && db.auth.mdp[corps.email] === corps.password) {
+          const t = Math.floor((db.auth.maintenant || new Date()).getTime() / 1000);
+          return json(200, { access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: Object.assign({}, utilisateur, { email: corps.email }) });
+        }
+        return json(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+      }
+      if (chemin === 'recover') return json(200, {});
+      if (chemin === 'logout') return route.fulfill({ status: 204, body: '' });
+      if (chemin === 'user' && req.method() === 'PUT') {
+        if (corps.password === db.auth.mdp[adresse]) return json(422, { code: 422, error_code: 'same_password', msg: 'New password should be different from the old password.' });
+        db.auth.mdp[adresse] = corps.password;
+        return json(200, utilisateur);
+      }
+      if (chemin === 'user') return json(200, utilisateur);
+      return json(404, { msg: 'inconnu' });
+    }
     if (u.pathname.startsWith('/rest/v1/rpc/')) {
       const r = (db.rpc || {})[u.pathname.split('/').pop()] || [];
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify(r) });
@@ -1625,6 +1652,124 @@ const CONTROLES = {
   },
 
   // Spécification générale, thèmes : chaque page prend le thème de l'utilisateur, cadres compris.
+  // Connexion par adresse e-mail et mot de passe (specification-generale.md, § 3 ; module-preferences-specification.md, § 6).
+  async connexion(nav, db0) {
+    const pb = [];
+    const ADRESSE = 'essai@exemple.fr', MDP = 'phrase-de-passe-essai', NEUF = 'une-autre-phrase-de-passe';
+    const neuve = (extra = {}) => { const d = JSON.parse(JSON.stringify(db0)); d.ecritures = []; d.auth = Object.assign({ mdp: { [ADRESSE]: MDP }, appels: [], maintenant: AUJOURDHUI }, extra); return d; };
+    // Visiteur sans session : la page est ouverte directement, sans le jeton posé par ouvrir().
+    const visiteur = async (page, d, largeur = 1200) => {
+      const ctx = await nav.newContext({ viewport: { width: largeur, height: 900 }, timezoneId: PARIS.fuseau });
+      await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+      await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
+      await simulerBase(ctx, d);
+      const p = await ctx.newPage();
+      const erreurs = [];
+      p.on('pageerror', e => erreurs.push(e.message));
+      await p.goto(RACINE + page);
+      return { p, ctx, erreurs };
+    };
+    const message = p => p.locator('#message').textContent();
+    const qui = d => d.auth.appels.map(a => a.methode + ' ' + a.chemin);
+
+    // Sans connexion : renvoi vers la page de connexion ; page sans en-tête ni menu.
+    let d = neuve({ maintenant: null });
+    let { p, ctx, erreurs } = await visiteur('index.html', d);
+    await p.waitForURL(/connexion\.html/);
+    pb.push(egal({ champs: ['email', 'password'], bouton: 'Se connecter', oubli: 'Mot de passe oublié ?', entete: 0, menu: 0, captcha: 0, ancien: false },
+      { champs: await p.evaluate(() => [document.getElementById('email').type, document.getElementById('mdp').type]), bouton: await p.locator('button[type="submit"]').textContent(),
+        oubli: await p.locator('#oubli').textContent(), entete: await p.locator('.mrt-header').count(), menu: await p.locator('.mrt-nav').count(),
+        captcha: await p.locator('#captcha > *').count(), ancien: /lien de connexion|Pas de mot de passe/.test(await p.locator('main').textContent()) }, 'connexion : adresse, mot de passe, bouton, sans en-tête ni menu ni lien magique'));
+    // Œil : affiche puis masque.
+    await p.fill('#mdp', 'secret');
+    await p.click('.mrt-oeil');
+    const vu = await p.evaluate(() => [document.getElementById('mdp').type, document.querySelector('.mrt-oeil').getAttribute('aria-pressed')]);
+    await p.click('.mrt-oeil');
+    pb.push(egal([['text', 'true'], 'password'], [vu, await p.evaluate(() => document.getElementById('mdp').type)], 'œil : affiche puis masque le mot de passe'));
+    // Mauvais mot de passe et adresse inconnue : exactement le même message.
+    await p.fill('#email', ADRESSE); await p.fill('#mdp', 'mauvais-mot-de-passe');
+    await p.click('button[type="submit"]');
+    await p.waitForFunction(() => /incorrect/.test(document.getElementById('message').textContent));
+    const mauvais = await message(p);
+    await p.fill('#email', 'inconnu@exemple.fr');
+    await p.click('button[type="submit"]');
+    await p.waitForFunction(() => /incorrect/.test(document.getElementById('message').textContent) && !document.querySelector('button[type="submit"]').disabled);
+    pb.push(egal(['Adresse ou mot de passe incorrect.', 'Adresse ou mot de passe incorrect.'], [mauvais, await message(p)], 'mauvais mot de passe et adresse inconnue : même message'));
+    // Mot mal retiré par le navigateur ? Non : le champ garde sa saisie, le bon mot de passe connecte et mène à l'accueil.
+    await p.fill('#email', ADRESSE); await p.fill('#mdp', MDP);
+    await p.click('button[type="submit"]');
+    await p.waitForURL(/index\.html/);
+    await p.waitForSelector('html[data-mrt-donnees]');
+    pb.push(egal([true, 'password token'], [/index\.html/.test(p.url()), qui(d).filter(x => /token/.test(x)).length === 3 ? 'password token' : qui(d).join()], 'bon mot de passe : connecté, direction l\'accueil'));
+    pb.push(egal([], erreurs, 'connexion, erreurs JavaScript'));
+    await ctx.close();
+
+    // Mot de passe oublié : champ vide refusé ; même réponse pour une adresse connue ou inconnue ; lien de retour sur la page « nouveau mot de passe ».
+    d = neuve({ maintenant: null });
+    ({ p, ctx, erreurs } = await visiteur('connexion.html', d));
+    await p.click('#oubli');
+    pb.push(egal('Saisis ton adresse e-mail.', await message(p), 'mot de passe oublié : adresse vide refusée'));
+    const envoi = async adresse => { await p.fill('#email', adresse); await p.click('#oubli'); await p.waitForFunction(() => /e-mail vient/.test(document.getElementById('message').textContent)); return message(p); };
+    const connu = await envoi(ADRESSE), inconnu = await envoi('inconnu@exemple.fr');
+    pb.push(egal(['Si un compte existe pour cette adresse, un e-mail vient d\'être envoyé.', true], [connu, connu === inconnu], 'mot de passe oublié : même réponse pour une adresse connue ou inconnue'));
+    const recup = d.auth.appels.filter(a => a.chemin === 'recover');
+    pb.push(egal([2, true], [recup.length, recup.every(a => /redirect_to=[^&]*nouveau-mot-de-passe\.html/.test(a.requete))], 'mot de passe oublié : deux demandes, lien de retour vers la page du nouveau mot de passe'));
+    pb.push(egal([], erreurs, 'mot de passe oublié, erreurs JavaScript'));
+    await ctx.close();
+
+    // Lien reçu : nouveau mot de passe (14 caractères au moins, deux saisies identiques) ; autres appareils déconnectés ; accueil.
+    d = neuve({ maintenant: null });
+    const lien = '#access_token=essai&refresh_token=essai&expires_in=3600&token_type=bearer&type=recovery';
+    ({ p, ctx, erreurs } = await visiteur('nouveau-mot-de-passe.html' + lien, d));
+    await p.waitForSelector('#form-mdp:not([hidden])');
+    await p.fill('#mdp', 'treize-caract'); await p.fill('#mdp2', 'treize-caract');
+    await p.click('button[type="submit"]');
+    pb.push(egal('Au moins 14 caractères.', await message(p), 'nouveau mot de passe : 13 caractères refusés'));
+    await p.fill('#mdp', NEUF); await p.fill('#mdp2', NEUF + 'x');
+    await p.click('button[type="submit"]');
+    pb.push(egal('Les deux saisies sont différentes.', await message(p), 'nouveau mot de passe : confirmation différente refusée'));
+    pb.push(egal(false, qui(d).includes('PUT user'), 'nouveau mot de passe : rien d\'enregistré tant qu\'une erreur demeure'));
+    await p.fill('#mdp2', NEUF);
+    await p.click('button[type="submit"]');
+    await p.waitForURL(/index\.html/);
+    pb.push(egal([NEUF, true, true], [d.auth.mdp[ADRESSE], d.auth.appels.some(a => a.chemin === 'logout' && /scope=others/.test(a.requete)), /index\.html/.test(p.url())],
+      'nouveau mot de passe : enregistré, autres appareils déconnectés, direction l\'accueil'));
+    pb.push(egal([], erreurs, 'nouveau mot de passe, erreurs JavaScript'));
+    await ctx.close();
+    // Lien périmé ou déjà utilisé.
+    d = neuve({ maintenant: null });
+    ({ p, ctx } = await visiteur('nouveau-mot-de-passe.html#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired', d));
+    await p.waitForFunction(() => /expiré/.test(document.getElementById('message').textContent));
+    pb.push(egal([ 'Lien expiré : demande-en un nouveau.', true], [await message(p), await p.locator('#form-mdp').isHidden()], 'lien périmé : « Lien expiré », pas de formulaire'));
+    await ctx.close();
+
+    // Préférences : changer le mot de passe.
+    d = neuve();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, d, {}, PARIS));
+    const msgPref = () => p.locator('#mdp-msg').textContent();
+    const saisir = async (actuel, nouveau, confirmation) => { await p.fill('#mdp-actuel', actuel); await p.fill('#mdp-nouveau', nouveau); await p.fill('#mdp-confirmation', confirmation); await p.click('#form-mdp button[type="submit"]'); };
+    pb.push(egal([true, true], [await p.locator('#mdp-ouvrir').isVisible(), await p.locator('#form-mdp').isHidden()], 'Préférences : « Changer le mot de passe », formulaire replié'));
+    await p.click('#mdp-ouvrir');
+    pb.push(egal(['Mot de passe actuel', 'Nouveau mot de passe', 'Confirmation'], await p.evaluate(() => [...document.querySelectorAll('#form-mdp label')].map(l => l.textContent)), 'Préférences : trois champs'));
+    await saisir(MDP, 'treize-caract', 'treize-caract');
+    pb.push(egal('Au moins 14 caractères.', await msgPref(), 'Préférences : 13 caractères refusés'));
+    await saisir(MDP, NEUF, NEUF + 'x');
+    pb.push(egal('Les deux saisies sont différentes.', await msgPref(), 'Préférences : confirmation différente refusée'));
+    await saisir('pas-le-bon-mot-de-passe', NEUF, NEUF);
+    await p.waitForFunction(() => /actuel incorrect/.test(document.getElementById('mdp-msg').textContent));
+    pb.push(egal([MDP, false], [d.auth.mdp[ADRESSE], qui(d).includes('PUT user')], 'Préférences : mot de passe actuel incorrect, rien de modifié'));
+    await saisir(MDP, MDP, MDP);
+    await p.waitForFunction(() => /différent de l'actuel/.test(document.getElementById('mdp-msg').textContent));
+    pb.push(egal('Choisis un mot de passe différent de l\'actuel.', await msgPref(), 'Préférences : nouveau identique à l\'actuel refusé'));
+    await saisir(MDP, NEUF, NEUF);
+    await p.waitForFunction(() => /Mot de passe modifié/.test(document.getElementById('mdp-msg').textContent));
+    pb.push(egal([NEUF, true, true, 'Mot de passe modifié.'], [d.auth.mdp[ADRESSE], await p.locator('#form-mdp').isHidden(), d.auth.appels.some(a => a.chemin === 'logout' && /scope=others/.test(a.requete)), await msgPref()],
+      'Préférences : mot de passe modifié, formulaire replié, autres appareils déconnectés'));
+    pb.push(egal([], erreurs, 'Préférences, mot de passe, erreurs JavaScript'));
+    await ctx.close();
+    return pb;
+  },
+
   async themes(nav, db0) {
     const pb = [];
     const db = JSON.parse(JSON.stringify(db0));

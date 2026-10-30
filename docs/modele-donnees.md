@@ -190,7 +190,7 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 
 ## 8. Accès et confidentialité
 
-- Connexion par lien magique ; un compte = un profil.
+- Connexion par adresse e-mail et mot de passe (gérés par Supabase Auth, rien dans nos tables) ; un compte = un profil.
 - Règle par ligne sur toutes les tables d'utilisateur : lecture et écriture seulement si la ligne appartient à l'utilisateur connecté.
 - Exception, en lecture seulement : courses, circuits, phases modifiées, séances et préférences d'un propriétaire qui a partagé son site avec l'utilisateur connecté (`partages`).
 - Listes de référence : lecture pour tout utilisateur connecté, écriture pour l'administrateur seulement.
