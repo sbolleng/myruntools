@@ -65,6 +65,7 @@
   const PLUS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const PENCIL = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
   // Filtres : trois traits de plus en plus courts, l'usage courant.
+  const COLONNES = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v9h-11z M6.2 3.5v9 M9.8 3.5v9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const FILTRE = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M4.75 8h6.5M7 11.5h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const CHEVRON = '<svg class="pv2-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // Deux flèches sur chaque en-tête : la colonne se trie ; celle du sens choisi s'allume.
@@ -251,12 +252,14 @@
         '<button type="button" class="pv2-btn mrt-rond" data-act="filters" aria-expanded="false" aria-controls="' + uid + '-filters" aria-label="Filtres" title="Filtres">' +
           FILTRE + '<span class="pv2-badge" hidden></span></button>' +
         '<button type="button" class="pv2-rond mrt-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
-        '<span class="pv2-count" aria-live="polite"></span>' +
+        '<button type="button" class="pv2-rond mrt-rond pv2-cols-btn" data-act="cols" aria-expanded="false" aria-controls="' + uid + '-cols" aria-label="Ajouter ou retirer des colonnes" title="Ajouter ou retirer des colonnes">' + COLONNES + '</button>' +
+        '<span class="pv2-count" aria-live="polite" hidden></span>' +
         '<button type="button" class="pv2-clear mrt-lien" data-act="clear" hidden>Effacer les filtres</button>' +
         (cfg.editable ? '<button type="button" class="pv2-add mrt-btn is-principal" data-act="add" title="Ajouter une course">' + PLUS + '<span class="pv2-add-long">Ajouter une course</span><span class="pv2-add-court">Course</span></button>' : '') +
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
+        '<button type="button" class="pv2-close mrt-rond" data-act="cols-close" aria-label="Fermer les colonnes" title="Fermer">×</button>' +
         '<div class="pv2-field"><div class="pv2-legend">Colonnes</div><div class="pv2-row">' +
           COLUMNS.filter(c => !FIXED.has(c.key)).map(c =>
             '<label class="pv2-check"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
@@ -271,6 +274,7 @@
 
     function renderPanel() {
       panel.innerHTML =
+        '<button type="button" class="pv2-close mrt-rond" data-act="filters-close" aria-label="Fermer les filtres" title="Fermer">×</button>' +
         '<fieldset class="pv2-field pv2-large"><legend class="pv2-legend">Trier par</legend><div class="pv2-row">' +
           shownCols().map(c => '<button type="button" class="pv2-check pv2-tri" data-sort="' + c.key + '" aria-pressed="false">' + esc(c.label) + '<span class="pv2-sens"></span></button>').join('') +
         '</div></fieldset>' + shownCols().map(c => {
@@ -300,8 +304,7 @@
         }
         const content = c.kind === 'date' ? body : '<div class="pv2-row">' + body + '</div>';
         return '<fieldset class="pv2-field"><legend class="pv2-legend">' + esc(c.label) + '</legend>' + content + '</fieldset>';
-      }).join('') +
-        '<div class="pv2-panel-foot"><button type="button" class="pv2-clear mrt-lien" data-act="filters-close">Réduire les filtres' + CHEVRON + '</button></div>';
+      }).join('');
     }
 
     function renderTable() {
@@ -319,7 +322,7 @@
         const label = esc(c.label.slice(0, cut)) + '<span class="pv2-nw">' + esc(c.label.slice(cut)) + SORT_ICON + '</span>';
         return '<th aria-sort="' + aria + '"><button type="button" class="pv2-sort" data-sort="' + c.key + '">' + label + '</button></th>';
       }).join('') +
-        '<th class="pv2-more-cell"><button type="button" class="pv2-more" data-act="cols" aria-expanded="' + !colsPanel.hidden + '" aria-controls="' + uid + '-cols" aria-label="Ajouter ou retirer des colonnes" title="Ajouter ou retirer des colonnes"><span class="pv2-more-txt">Colonnes</span><span class="pv2-more-sign">' + (colsPanel.hidden ? '+' : '−') + '</span></button></th></tr>';
+        '<th class="pv2-pad-cell"></th></tr>';
 
       const line = r => '<tr' + (cfg.onOpen && r.id ? ' data-id="' + esc(r.id) + '"' : '') + '>' + cols.map(c => {
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
@@ -346,7 +349,10 @@
       $('[data-act="group"]').setAttribute('aria-pressed', String(state.group));
 
       const n = shownCols().filter(c => isActive(c, state.filters[c.key])).length;
-      $('.pv2-count').textContent = list.length + (list.length > 1 ? ' courses' : ' course') + ' sur ' + total;
+      // Le compteur n'apparaît que lorsqu'un filtre est actif.
+      const compteur = $('.pv2-count');
+      compteur.hidden = n === 0;
+      compteur.textContent = n ? list.length + (list.length > 1 ? ' courses' : ' course') + ' sur ' + total : '';
       const badge = $('.pv2-badge');
       badge.hidden = n === 0; badge.textContent = n;
       $('.pv2-btn').setAttribute('aria-label', n ? 'Filtres · ' + n + ' actif' + (n > 1 ? 's' : '') : 'Filtres');
@@ -389,9 +395,7 @@
     }
     function setCols(open) {
       colsPanel.hidden = !open;
-      const b = $('.pv2-more');
-      b.setAttribute('aria-expanded', String(open));
-      b.querySelector('.pv2-more-sign').textContent = open ? '−' : '+';
+      $('.pv2-cols-btn').setAttribute('aria-expanded', String(open));
     }
 
     root.addEventListener('click', e => {
@@ -421,6 +425,7 @@
       if (!act) return;
       if (act.dataset.act === 'filters') setPanel(panel.hidden);
       if (act.dataset.act === 'filters-close') { setPanel(false); $('.pv2-btn').focus(); }
+      if (act.dataset.act === 'cols-close') { setCols(false); $('.pv2-cols-btn').focus(); }
       if (act.dataset.act === 'cols') setCols(colsPanel.hidden);
       if (act.dataset.act === 'clear') { state.filters = {}; renderPanel(); renderTable(); }
       if (act.dataset.act === 'add' && cfg.onAdd) cfg.onAdd();

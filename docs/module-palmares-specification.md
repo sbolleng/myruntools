@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.21 · 29 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.22 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -24,7 +24,7 @@ Affichées par défaut, de gauche à droite :
 | 7 | Temps | Temps réalisé | Durée |
 | 8 | Allure moyenne | Allure moyenne, par km | Durée |
 
-Facultatives, affichées à la demande depuis le bouton « Colonnes + » (§ 9) :
+Facultatives, affichées à la demande depuis le bouton rond « Colonnes » (§ 9) :
 
 | # | Colonne | Contenu | Saisie |
 | --- | --- | --- | --- |
@@ -106,8 +106,8 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 | Choix | Une ou plusieurs pastilles choisies, parmi les valeurs présentes dans le tableau | Trail découverte et Trail court |
 | Nombre et durée | Minimum, maximum, ou les deux ; une durée s'écrit 2h, 1h30, 00:49:18… | Temps sous 2 h |
 
-- **Panneau de filtres** : un bouton rond « Filtres » (trois traits), au-dessus du tableau, ouvre un panneau qui se déplie au-dessus du tableau : d'abord « Trier par » (une pastille par colonne affichée ; toucher celle du tri en cours inverse le sens, ↓ ou ↑), puis un réglage par colonne affichée. Les choix se font par pastilles (choisie : pleine) et s'appliquent aussitôt. Le bouton porte le nombre de filtres actifs en pastille. Le même bouton, ou « Réduire les filtres » en bas du panneau, le referme ; les filtres restent actifs.
-- À côté du bouton : le nombre de courses affichées, par exemple « 4 courses sur 7 », et, dès qu'un filtre est actif, une action unique qui les efface tous.
+- **Panneau de filtres** : un bouton rond « Filtres » (trois traits), au-dessus du tableau, ouvre un panneau qui se déplie au-dessus du tableau : d'abord « Trier par » (une pastille par colonne affichée ; toucher celle du tri en cours inverse le sens, ↓ ou ↑), puis un réglage par colonne affichée. Les choix se font par pastilles (choisie : pleine) et s'appliquent aussitôt. Le bouton porte le nombre de filtres actifs en pastille. Le même bouton, ou le rond « × » en haut à droite du panneau, le referme ; les filtres restent actifs.
+- À côté des boutons, seulement quand un filtre est actif : le nombre de courses affichées, par exemple « 4 courses sur 7 », et une action unique qui les efface tous. Sans filtre, rien n'est affiché.
 - Les filtres de plusieurs colonnes se cumulent : une course doit les passer tous.
 - Plusieurs valeurs cochées dans une même colonne : une seule suffit.
 - Une course sans valeur dans une colonne filtrée est écartée.
@@ -130,7 +130,7 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 ## 9. Plus d'infos : choix des colonnes
 
-- Un bouton à contour « Colonnes + » (infobulle « Ajouter ou retirer des colonnes »), en bout de ligne d'en-tête, ouvre la liste de toutes les colonnes (§ 2), chacune en pastille, pleine quand elle est affichée ; son signe devient « − » tant que la liste est ouverte.
+- Un bouton rond « Colonnes » (icône de colonnes, infobulle « Ajouter ou retirer des colonnes »), dans la barre après le regroupement, ouvre la liste de toutes les colonnes (§ 2), chacune en pastille, pleine quand elle est affichée ; il est en Accent tant que la liste est ouverte, et un rond « × » en haut à droite de la liste la referme.
 - Au départ, les colonnes affichées par défaut sont cochées, les facultatives décochées.
 - Date et Course restent toujours affichées.
 - Cocher une colonne l'affiche, la décocher la masque. Masquer une colonne retire son filtre et, si elle était triée, ramène le tri par date.
@@ -232,10 +232,10 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Type Trail, distance 24 : le format proposé est Trail court.
 - Modifier la course « Test » (temps `5200`) : 00:52:00, le 🥇 revient au 00:49:18.
 - Supprimer la course « Test » : une confirmation est demandée ; après accord, elle disparaît.
-- Site partagé en lecture seule : ni bouton « Ajouter une course » ni crayon ; toucher une ligne n'ouvre rien.
-- Ordinateur : le crayon n'apparaît qu'au survol de sa ligne. Écran tactile : toucher la ligne ouvre sa fiche.
-- Ouvrir les filtres : « Trier par » montre « Date↓ » ; la pastille Trail donne « 3 courses sur 7 » et un « 1 » sur le bouton Filtres ; la pastille 2025 filtre l'année, « Toutes » rétablit les 7 ; la pastille Temps trie du plus court au plus long (« Temps↑ »).
-- Téléphone : « X courses sur Y » passe sous les boutons Filtres, regroupement et « + Course ».
+- Site partagé en lecture seule : ni bouton « Ajouter une course » ni crayon ; toucher une ligne ouvre la consultation, sans crayon.
+- Ordinateur : le crayon n'apparaît qu'au survol de sa ligne ; toucher la ligne ouvre la consultation. Écran tactile : le crayon est toujours visible.
+- Sans filtre : aucun compteur. Ouvrir les filtres : « Trier par » montre « Date↓ » ; la pastille Trail donne « 3 courses sur 7 » et un « 1 » sur le bouton Filtres ; la pastille 2025 filtre l'année, « Toutes » rétablit les 7 et le compteur disparaît ; le « × » en haut à droite referme le panneau (« Réduire les filtres » n'existe plus) ; le bouton rond « Colonnes » ouvre la liste, son « × » la referme, et l'en-tête du tableau n'a plus de bouton ; la pastille Temps trie du plus court au plus long (« Temps↑ »).
+- Téléphone, un filtre actif : « X courses sur Y » passe sous les boutons Filtres, regroupement, colonnes et « + Course ».
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
 - Téléphone : la fiche tient dans la largeur de l'écran ; « Annuler » et « Enregistrer » restent visibles quand on fait défiler.

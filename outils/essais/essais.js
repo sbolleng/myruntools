@@ -251,9 +251,12 @@ const CONTROLES = {
       egal(true, /San Sebasti/.test(l[0]), 'San Sebastián en premier'),
       egal(true, /Montauban/.test(l[6]) && /00:51:46/.test(l[6]), 'Montauban 2025 en dernier : temps en hh:mm:ss'),
       egal(2, l.filter(x => x.includes('🥇')).length, 'records 🥇'),
-      egal(['Ajouter une course', 'COLONNES +'], await p.evaluate(() => [document.querySelector('.pv2-add').innerText.trim(), document.querySelector('.pv2-more').innerText.trim().replace(/\s+/g, ' ')]), 'boutons explicites : Ajouter une course, Colonnes +'),
+      egal({ ajout: 'Ajouter une course', colonnes: { rond: true, texte: '', titre: 'Ajouter ou retirer des colonnes', apresGroupe: true }, enTete: 0 },
+        await p.evaluate(() => { const c = document.querySelector('.pv2-cols-btn'), g = document.querySelector('.pv2-toggle');
+          return { ajout: document.querySelector('.pv2-add').innerText.trim(), colonnes: { rond: c.classList.contains('mrt-rond'), texte: c.innerText.trim(), titre: c.title, apresGroupe: g.nextElementSibling === c },
+            enTete: document.querySelectorAll('thead button:not(.pv2-sort)').length }; }), 'boutons : Ajouter une course ; Colonnes en rond après le regroupement, plus rien dans l\'en-tête du tableau'),
       egal(true, await p.evaluate(() => [...document.querySelectorAll('#palmares tbody td.pv2-n')].map(td => td.textContent).filter(x => /^\d+:\d\d:\d\d$|^\d+:\d\d \/km$|^—$|^\d/.test(x)).every(x => !/['h]/.test(x))), 'temps sans h ni apostrophe'),
-      egal('7 courses sur 7', await p.evaluate(() => document.querySelector('.pv2-count').textContent), 'compteur'),
+      egal({ cache: true, texte: '' }, await p.evaluate(() => { const c = document.querySelector('.pv2-count'); return { cache: c.hidden && getComputedStyle(c).display === 'none', texte: c.textContent }; }), 'sans filtre : pas de compteur'),
       egal([], erreurs, 'erreurs JavaScript')
     ];
     // Filtres : bouton rond à trois traits ; panneau en pastilles (tri, choix, années) ; pastille du nombre de filtres actifs.
@@ -267,7 +270,17 @@ const CONTROLES = {
     await p.click('.pv2-panel label.pv2-check:has(input[data-part="year"][value="2025"])');
     const en2025 = await p.textContent('.pv2-count');
     await p.click('.pv2-panel label.pv2-check:has(input[data-part="year"][value=""])');
-    pb.push(egal([true, '7 courses sur 7'], [/sur 7$/.test(en2025) && !/^7 /.test(en2025), await p.textContent('.pv2-count')], 'année : pastille 2025 filtre, « Toutes » rétablit'));
+    pb.push(egal([true, true], [/sur 7$/.test(en2025) && !/^7 /.test(en2025), await p.evaluate(() => document.querySelector('.pv2-count').hidden)], 'année : pastille 2025 filtre, « Toutes » rétablit (compteur retiré)'));
+    // Fermer un panneau : rond « × » en haut à droite ; plus de lien « Réduire les filtres ».
+    pb.push(egal({ croix: '×', enHaut: true, aDroite: true, reduire: false }, await p.evaluate(() => { const pan = document.querySelector('.pv2-panel:not(.pv2-cols)'), x = pan.querySelector('.pv2-close'), r = pan.getBoundingClientRect(), b = x.getBoundingClientRect();
+      return { croix: x.textContent, enHaut: b.top - r.top < 24, aDroite: r.right - b.right < 24, reduire: /Réduire/.test(pan.textContent) }; }), 'panneau des filtres : « × » en haut à droite, plus de « Réduire les filtres »'));
+    await p.click('.pv2-panel:not(.pv2-cols) .pv2-close');
+    pb.push(egal(['false', true], [await p.getAttribute('.pv2-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-panel:not(.pv2-cols)').hidden)], '« × » ferme le panneau des filtres'));
+    await p.click('.pv2-cols-btn');
+    pb.push(egal(['true', false], [await p.getAttribute('.pv2-cols-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-cols').hidden)], 'bouton Colonnes : ouvre le panneau des colonnes'));
+    await p.click('.pv2-cols .pv2-close');
+    pb.push(egal([true, 'false'], [await p.evaluate(() => document.querySelector('.pv2-cols').hidden), await p.getAttribute('.pv2-cols-btn', 'aria-expanded')], '« × » ferme le panneau des colonnes'));
+    await p.click('.pv2-btn');
     await p.click('.pv2-tri[data-sort="time"]');
     pb.push(egal('Temps↑', await p.evaluate(() => document.querySelector('.pv2-tri[aria-pressed="true"]').textContent), 'pastille de tri : Temps, plus court d\'abord'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'palmares-filtres.png'), fullPage: true });
