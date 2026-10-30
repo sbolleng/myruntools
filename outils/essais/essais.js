@@ -874,13 +874,14 @@ const CONTROLES = {
     // Course renseignée (classements, dossard, prix, montre, textes) et course non terminée.
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { place: 112, effectif: 640, place_categorie: 18, effectif_categorie: 96, place_sexe: 95, effectif_sexe: 510,
-      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien_resultats: 'https://example.org/resultats' });
+      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
     pb.push(egal({ Temps: '01:56:05 5:30 /km', Classements: 'GÉNÉRAL 112e / 640 CATÉGORIE 18e / 96 SEXE 95e / 510', Distance: '21,1 km · 40 m D+ · 38 m D−', Objectif: '01:50:00 (vs Temps +00:06:05)', Dossard: 'n° 1287', Prix: '58 €' }, await fiche(p), 'consultation : classements, D+ et D− à la suite, objectif avec son écart, dossard sans état, prix'));
-    pb.push(egal([['Montre', 'Liens'], 'Résultats ↗'], [await p.evaluate(() => [...document.querySelectorAll('.pc-cellule summary')].map(x => x.textContent.trim())), await p.locator('.pc-liens a').first().textContent()], 'consultation : Montre puis Liens seulement (ni rôle, ni stratégie, ni logistique, ni description) ; « Résultats »'));
+    pb.push(egal([['Montre', 'Liens'], 'Résultats ↗'], [await p.evaluate(() => [...document.querySelectorAll('.pc-cellule summary')].map(x => x.textContent.trim())), await p.locator('.pc-liens a').last().textContent()], 'consultation : Montre puis Liens seulement (ni rôle, ni stratégie, ni logistique, ni description) ; « Résultats »'));
     pb.push(egal(true, /Temps.*1:55:50.*Distance.*21,3 km.*D\+.*40 m.*FC moy\..*151 bpm/.test(await p.locator('.pc-cellule').first().textContent()), 'consultation : valeurs de la montre'));
+    pb.push(egal(true, await p.evaluate(() => { const t = [...document.querySelectorAll('.pc-liens-ligne a')].map(a => Math.round(a.getBoundingClientRect().top)); return t.length > 1 && t.every(x => x === t[0]); }), 'consultation : les liens sont alignés sur une même ligne'));
     await ctx.close();
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { dnf: true, temps: null, allure: null });

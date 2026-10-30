@@ -106,6 +106,7 @@
 .pc-corps p + p { margin-top: 0.4rem; }
 .pc-liens { list-style: none; }
 .pc-liens li + li { margin-top: 0.3rem; }
+.pc-liens-ligne li + li { margin-top: 0; } /* liens sur une ligne : après la règle de la liste verticale, à spécificité égale */
 .pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
 .pc-nav a { max-width: 48%; text-decoration: none; }
 .pc-nav a.is-suivante { margin-left: auto; text-align: right; }
