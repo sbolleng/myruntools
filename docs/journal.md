@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 30 oct. 2026 | Connexion, essai réel | Premier mot de passe créé par « Mot de passe oublié ? » sur myruntools.fr : lien reçu, page « Nouveau mot de passe », connexion réussie. |
 | 30 oct. 2026 | Connexion, mise en ligne | Réglages Supabase faits (adresses de retour, création de comptes désactivée, 14 caractères, e-mail de réinitialisation en français) ; e-mail d'alerte après changement non disponible dans le tableau de bord ; connexion par mot de passe fusionnée et publiée. |
 | 30 oct. 2026 | Inscription | Chacun pourra créer son compte (fin des comptes créés à la main) : confirmation de l'adresse par e-mail, prénom et nom obligatoires, profil et préférences créés par la base. Ordre : d'abord la connexion par mot de passe, puis mentions légales et RGPD, puis l'inscription (anti-robot et SMTP requis). Site publié sur `https://myruntools.fr` (adresse de retour corrigée). |
 | 30 oct. 2026 | Connexion, construction | Connexion par mot de passe construite et testée sur la branche (`session.js`, `connexion.html`, `nouveau-mot-de-passe.html`, bloc Compte des Préférences, banc d'essai) ; fusion en attente des réglages Supabase (`docs/reglages-supabase-connexion.md`) pour ne pas bloquer l'accès ; contrôle anti-robot prêt mais inactif tant que la clé du site n'est pas renseignée. |
