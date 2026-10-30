@@ -89,10 +89,12 @@
 .pc-fiche { gap: 0.55rem; margin: 1.4rem 0 1.6rem; padding: 0.95rem 1.1rem; font-size: 0.85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
 .pc-fiche .ob-cpt { font-size: 0.72rem; }
-/* Course courue : temps et allure sur une ligne, classements l'un sous l'autre. */
-.pc-res { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 1rem; }
+/* Course courue : temps et allure, objectif et écart côte à côte ; classements sur une ligne ; fiche et liens resserrés. */
+.pc-res { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.8rem; }
 .pc-temps { font-size: 1.15rem; font-weight: 700; }
-.pc-clas { display: grid; gap: 0.2rem; }
+.pc-clas { display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; }
+.pc-compacte { gap: 0.35rem; margin: 1rem 0 1.1rem; padding: 0.7rem 1rem; }
+.pc-liens-ligne { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; }
 /* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
 .pc-textes { padding: 0 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-cellule + .pc-cellule { border-top: 1px solid var(--border); }

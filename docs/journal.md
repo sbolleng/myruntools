@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 30 oct. 2026 | Course courue, consultation compacte | Rangs ordinaux (1er, 1re, 2e…) ; classements sur une ligne ; allure collée au temps ; écart à l'objectif entre parenthèses « (vs Temps +00:01:48) » ; fiche resserrée ; liens sur une ligne ; titres Montre et Liens gardés repliables ; maquette validée en image (Objectif 0.36). |
 | 30 oct. 2026 | Course courue, consultation | D+ et D− sur la même ligne que la distance ; écart à l'objectif (+ ou −) à droite de l'Objectif, finalement retenu (refusé le 29 oct.) ; seuls les Liens restent comme textes (rôle, stratégie, logistique, description masqués), « Résultats en direct » devient « Résultats » (Objectif 0.35). |
 | 30 oct. 2026 | Palmarès, barre | Bouton « Colonnes » : rond avec icône, dans la barre après le regroupement (plus dans l'en-tête du tableau) ; compteur « X courses sur Y » seulement quand un filtre est actif ; « Réduire les filtres » remplacé par un rond « × » en haut à droite des panneaux Filtres et Colonnes (Palmarès 1.22, Design 0.27). |
 | 30 oct. 2026 | Banc d'essai | Échec « ERR_ABORTED » corrigé : la page de départ qui pose la session n'est plus `connexion.html` (elle se redirige vers l'accueil et abandonnait la navigation suivante) mais `robots.txt`, sans script. |

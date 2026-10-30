@@ -9,6 +9,7 @@
 //     courses()      liste de courses à jour de la page
 //     surMaj(liste)  la page se redessine avec la liste relue après un enregistrement
 //     courue         vrai (Palmarès) : la modale consulte les courses courues (§ 3.8) au lieu de celles de la feuille de route
+//     feminin        (avec courue) « 1re » plutôt que « 1er » aux classements
 //     ordre()        (avec courue) identifiants des courses dans l'ordre du tableau : précédente et suivante
 //   window.mrtOuvrirCourse(id, ancre)   ouvre une course (pour le code qui n'a pas de lien : cases du Calendrier)
 (function () {
@@ -117,7 +118,7 @@
       else poussee = !!o.deja;
       const plan = await page.relirePlan();
       if (!voile) return; // fermée pendant la lecture
-      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer }, ordre: opts.ordre };
+      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer }, ordre: opts.ordre, feminin: opts.feminin };
       ctx.relire = async () => {
         const [courses, p] = await Promise.all([page.relire(), page.relirePlan()]);
         return { courses, seances: p.seances, semaines: p.semaines };
