@@ -16,6 +16,7 @@
 .ob-cible { color: var(--accent2); }
 /* Lien officiel : icône ↗ à côté du nom. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
+.ob-fleche { width: 0.75em; height: 0.75em; flex: none; }
 
 /* Compteur : quatre cases fines ; chiffres en Accent 2, unités en Texte discret. */
 .ob-cpt { display: flex; gap: 0.25rem; }
@@ -89,12 +90,19 @@
 .pc-fiche { gap: 0.55rem; margin: 1.4rem 0 1.6rem; padding: 0.95rem 1.1rem; font-size: 0.85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
 .pc-fiche .ob-cpt { font-size: 0.72rem; }
-/* Course courue : temps et allure, objectif et écart côte à côte ; classements sur une ligne ; fiche et liens resserrés. */
+/* Course courue : deux sections titrées (Résultat, Parcours), sans cadre ni repli. */
+.pc-section { margin-top: 1.4rem; font-size: 0.85rem; color: var(--muted); }
+.pc-intertitre { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; padding-bottom: 0.35rem;
+  font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+.pc-lien-res { display: inline-flex; align-items: center; gap: 0.25rem; letter-spacing: 0.05em; color: var(--muted); text-decoration: none; }
 .pc-res { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.8rem; }
-.pc-temps { font-size: 1.15rem; font-weight: 700; }
-.pc-clas { display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; }
-.pc-compacte { gap: 0.35rem; margin: 1rem 0 1.1rem; padding: 0.7rem 1rem; }
-.pc-liens-ligne { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; }
+.pc-temps { font-size: 1.5rem; font-weight: 700; }
+.pc-clas { display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; margin-top: 0.3rem; }
+/* Parcours : Officiel et Montre en colonnes. */
+.pc-comp { border-collapse: collapse; }
+.pc-comp th, .pc-comp td { padding: 0.2rem 1.4rem 0.2rem 0; text-align: left; font-weight: 400; white-space: nowrap; }
+.pc-comp thead th { padding-bottom: 0.35rem; }
+.pc-comp tbody th { padding-right: 1.6rem; }
 /* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
 .pc-textes { padding: 0 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-cellule + .pc-cellule { border-top: 1px solid var(--border); }
@@ -106,7 +114,6 @@
 .pc-corps p + p { margin-top: 0.4rem; }
 .pc-liens { list-style: none; }
 .pc-liens li + li { margin-top: 0.3rem; }
-.pc-liens-ligne li + li { margin-top: 0; } /* liens sur une ligne : après la règle de la liste verticale, à spécificité égale */
 .pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
 .pc-nav a { max-width: 48%; text-decoration: none; }
 .pc-nav a.is-suivante { margin-left: auto; text-align: right; }
@@ -139,6 +146,7 @@
   .ob-cand:hover .ob-nom a { text-decoration: underline; }
   .ob-ext:hover { color: var(--accent); background: var(--bg); }
   .pc-nav a:hover b { text-decoration: underline; }
+  .pc-lien-res:hover { color: var(--accent); }
 }
 
 /* ----- Saisie et édition (§ 3.7) : boutons ronds du Palmarès, pastilles du formulaire ----- */

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 30 oct. 2026 | Course courue, consultation structurée | Deux sections titrées, Résultat (temps, allure, classements, lien « Résultats » dans l'intertitre) et Parcours (tableau Officiel / Montre) ; plus de cadre ni de blocs repliables ; objectif, écart, précisions, prix et bloc Liens retirés de la consultation ; sous le titre, date sans heure et lieu, puis format et dossard ; flèche du site officiel dessinée (emoji sur iPhone) (Objectif 0.37). |
 | 30 oct. 2026 | Banc d'essai | Échec « cap abandonné » corrigé : l'en-tête de l'Accueil s'affiche d'abord depuis la copie gardée de la visite ; le banc lit désormais le cap après la lecture des données (`data-mrt-donnees`). Plus d'échec intermittent connu. |
 | 30 oct. 2026 | Course courue, consultation compacte | Rangs ordinaux (1er, 1re, 2e…) ; classements sur une ligne ; allure collée au temps ; écart à l'objectif entre parenthèses « (vs Temps +00:01:48) » ; fiche resserrée ; liens sur une ligne ; titres Montre et Liens gardés repliables ; maquette validée en image (Objectif 0.36). |
 | 30 oct. 2026 | Course courue, consultation | D+ et D− sur la même ligne que la distance ; écart à l'objectif (+ ou −) à droite de l'Objectif, finalement retenu (refusé le 29 oct.) ; seuls les Liens restent comme textes (rôle, stratégie, logistique, description masqués), « Résultats en direct » devient « Résultats » (Objectif 0.35). |
