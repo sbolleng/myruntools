@@ -259,10 +259,10 @@
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
-        '<button type="button" class="pv2-close mrt-rond" data-act="cols-close" aria-label="Fermer les colonnes" title="Fermer">×</button>' +
+        '<button type="button" class="pv2-close mrt-rond is-fermer" data-act="cols-close" aria-label="Fermer les colonnes" title="Fermer">×</button>' +
         '<div class="pv2-field"><div class="pv2-legend">Colonnes</div><div class="pv2-row">' +
           COLUMNS.filter(c => !FIXED.has(c.key)).map(c =>
-            '<label class="pv2-check"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
+            '<label class="pv2-check mrt-pastille"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
         '</div></div>' +
       '</div>' +
       // Téléphone tenu en hauteur : le tableau déborde ; un site ne peut pas tourner l'écran, il y invite.
@@ -274,9 +274,9 @@
 
     function renderPanel() {
       panel.innerHTML =
-        '<button type="button" class="pv2-close mrt-rond" data-act="filters-close" aria-label="Fermer les filtres" title="Fermer">×</button>' +
+        '<button type="button" class="pv2-close mrt-rond is-fermer" data-act="filters-close" aria-label="Fermer les filtres" title="Fermer">×</button>' +
         '<fieldset class="pv2-field pv2-large"><legend class="pv2-legend">Trier par</legend><div class="pv2-row">' +
-          shownCols().map(c => '<button type="button" class="pv2-check pv2-tri" data-sort="' + c.key + '" aria-pressed="false">' + esc(c.label) + '<span class="pv2-sens"></span></button>').join('') +
+          shownCols().map(c => '<button type="button" class="pv2-check mrt-pastille pv2-tri" data-sort="' + c.key + '" aria-pressed="false">' + esc(c.label) + '<span class="pv2-sens"></span></button>').join('') +
         '</div></fieldset>' + shownCols().map(c => {
         const f = state.filters[c.key] || {};
         const id = uid + '-f-' + c.key;
@@ -285,22 +285,22 @@
           const years = Array.from(new Set(rows.map(r => r.v.date && r.v.date.slice(0, 4)).filter(Boolean))).sort().reverse();
           body =
             '<div class="pv2-row">' + [''].concat(years).map(y =>
-              '<label class="pv2-check"><input type="radio" name="' + uid + '-annee" data-f="' + c.key + '" data-part="year" value="' + y + '"' +
+              '<label class="pv2-check mrt-pastille"><input type="radio" name="' + uid + '-annee" data-f="' + c.key + '" data-part="year" value="' + y + '"' +
                 ((f.year || '') === y ? ' checked' : '') + '> ' + (y || 'Toutes') + '</label>').join('') + '</div>' +
-            '<div class="pv2-row"><span>du</span><input type="date" data-f="' + c.key + '" data-part="from" value="' + esc(f.from || '') + '" aria-label="Du">' +
-            '<span>au</span><input type="date" data-f="' + c.key + '" data-part="to" value="' + esc(f.to || '') + '" aria-label="Au"></div>';
+            '<div class="pv2-row"><span>du</span><input class="mrt-champ" type="date" data-f="' + c.key + '" data-part="from" value="' + esc(f.from || '') + '" aria-label="Du">' +
+            '<span>au</span><input class="mrt-champ" type="date" data-f="' + c.key + '" data-part="to" value="' + esc(f.to || '') + '" aria-label="Au"></div>';
         } else if (c.kind === 'text') {
-          body = '<input type="search" id="' + id + '" data-f="' + c.key + '" data-part="q" value="' + esc(f.q || '') + '" placeholder="contient…" autocomplete="off">';
+          body = '<input class="mrt-champ" type="search" id="' + id + '" data-f="' + c.key + '" data-part="q" value="' + esc(f.q || '') + '" placeholder="contient…" autocomplete="off">';
         } else if (c.kind === 'choice') {
           const vals = choicesFor(c);
           body = vals.length ? vals.map(v =>
-            '<label class="pv2-check"><input type="checkbox" data-f="' + c.key + '" data-part="set" value="' + esc(v) + '"' +
+            '<label class="pv2-check mrt-pastille"><input type="checkbox" data-f="' + c.key + '" data-part="set" value="' + esc(v) + '"' +
               (f.set && f.set.has(v) ? ' checked' : '') + '> ' + esc(v) + '</label>').join('') : '<span>Aucune valeur</span>';
         } else {
           const hint = c.kind === 'duration' ? HINT[c.fmt] : (UNIT[c.fmt] || '');
           body =
-            '<span>min</span><input type="text" class="pv2-num" data-f="' + c.key + '" data-part="min" value="' + esc(f.minRaw || '') + '" placeholder="' + hint + '" inputmode="' + (c.kind === 'number' ? 'decimal' : 'text') + '" aria-label="' + esc(c.label) + ' minimum">' +
-            '<span>max</span><input type="text" class="pv2-num" data-f="' + c.key + '" data-part="max" value="' + esc(f.maxRaw || '') + '" placeholder="' + hint + '" inputmode="' + (c.kind === 'number' ? 'decimal' : 'text') + '" aria-label="' + esc(c.label) + ' maximum">';
+            '<span>min</span><input type="text" class="mrt-champ pv2-num" data-f="' + c.key + '" data-part="min" value="' + esc(f.minRaw || '') + '" placeholder="' + hint + '" inputmode="' + (c.kind === 'number' ? 'decimal' : 'text') + '" aria-label="' + esc(c.label) + ' minimum">' +
+            '<span>max</span><input type="text" class="mrt-champ pv2-num" data-f="' + c.key + '" data-part="max" value="' + esc(f.maxRaw || '') + '" placeholder="' + hint + '" inputmode="' + (c.kind === 'number' ? 'decimal' : 'text') + '" aria-label="' + esc(c.label) + ' maximum">';
         }
         const content = c.kind === 'date' ? body : '<div class="pv2-row">' + body + '</div>';
         return '<fieldset class="pv2-field"><legend class="pv2-legend">' + esc(c.label) + '</legend>' + content + '</fieldset>';

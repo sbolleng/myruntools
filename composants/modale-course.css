@@ -29,7 +29,6 @@ html.mc-ouvert { overflow: hidden; }
 
 /* Barre du haut : « Modifier » et la croix, à droite, toujours à portée du pouce. */
 .pc-barre { position: sticky; top: 0; z-index: 1; display: flex; justify-content: flex-end; align-items: center; gap: 0.6rem; margin: 0 -2rem 0.4rem; padding: 0.85rem 2rem 0.4rem; background: var(--surface); }
-.pc-fermer { font-size: 1.3rem; }
 
 @media (max-width: 600px) {
   .mc-voile { padding: 0; place-items: stretch; grid-template-columns: minmax(0, 1fr); background: var(--bg); }

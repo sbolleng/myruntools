@@ -22,10 +22,9 @@
   .pref-intro { margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--muted); }
   .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .pref-ligne { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
-  .pref-ligne input, .pref-select { flex: 1 1 14rem; min-width: 0; padding: 0.55rem 0.7rem; font: inherit; font-size: 0.85rem; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; }
-  .pref-select { width: 100%; max-width: 100%; color-scheme: dark; }
-  .pref-select option { background: var(--surface); color: var(--text); }
-  .pref-ligne input:focus, .pref-select:focus { outline: none; border-color: var(--accent); }
+  /* Champs : l'élément commun (mrt-champ, en-tete.css) ; ici, leur largeur seulement. */
+  .pref-ligne input { flex: 1 1 14rem; }
+  .pref-select { width: 100%; }
   .pref-liste { list-style: none; }
   .pref-liste li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
   .pref-liste li:last-child { border-bottom: none; }
@@ -84,7 +83,7 @@
     <p class="pref-intro">Le partage donne à un autre compte un accès en lecture seule à ton site : courses et réglages. Les données de santé ne sont jamais partagées. L'accès peut être retiré à tout moment.</p>
     <div class="pref-legende">Partager mon site avec</div>
     <form class="pref-ligne" id="form-partage">
-      <input type="email" id="partage-email" required autocomplete="off" placeholder="adresse e-mail de son compte" aria-label="Adresse e-mail">
+      <input class="mrt-champ" type="email" id="partage-email" required autocomplete="off" placeholder="adresse e-mail de son compte" aria-label="Adresse e-mail">
       <button class="pref-btn mrt-btn is-principal" type="submit">Partager</button>
     </form>
     <p class="pref-msg" id="partage-msg" aria-live="polite"></p>
@@ -167,14 +166,15 @@
     let liste = depuisPrefs();
     const pageDe = nom => mrtModules.find(x => x.nom === nom).page;
     function dessinerMenu() {
-      const nbAffiches = liste.filter(m => m.affiche).length;
+      // Au moins un module construit reste affiché : un module « bientôt » n'entre pas dans le menu.
+      const nbAffiches = liste.filter(m => m.affiche && pageDe(m.nom)).length;
       // Page de démarrage : le premier module construit et affiché (rien à choisir, seulement à rappeler).
       const premier = liste.find(m => m.affiche && pageDe(m.nom));
-      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et ordonne-les avec les flèches. Le premier s\'ouvre en arrivant sur le site, avec le grand en-tête.</p>' +
+      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et ordonne-les avec les flèches. Le premier s\'ouvre en arrivant sur le site, avec le grand en-tête. Un module « bientôt » entre dans le menu une fois construit.</p>' +
         '<ul class="pref-liste pref-modules">' + liste.map((m, i) => {
         const construit = pageDe(m.nom);
-        const seul = m.affiche && nbAffiches === 1;
-        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) +
+        const seul = m.affiche && construit && nbAffiches === 1;
+        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) + (construit ? '' : ' · bientôt') +
           (m === premier ? ' <span class="pref-fixe pref-ouverture">à l\'ouverture</span>' : '') + '</label>' +
           '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
           '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
@@ -212,7 +212,7 @@
       const plusLointaine = candidates[candidates.length - 1];
       const capActuel = () => (candidates.some(c => c.id === prefs.course_cap) ? prefs.course_cap : '');
       blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Course affichée dans le titre de l\'en-tête.</p>' +
-        '<select class="pref-select" aria-label="Cap"><option value="">Par défaut : la plus lointaine (' + esc(mrtNomCourse(plusLointaine)) + ')</option>' +
+        '<select class="mrt-champ pref-select" aria-label="Cap"><option value="">Par défaut : la plus lointaine (' + esc(mrtNomCourse(plusLointaine)) + ')</option>' +
         candidates.map(c => '<option value="' + esc(c.id) + '">' + esc(mrtNomCourse(c)) + ' · ' + esc(dateCourte(c)) + '</option>').join('') + '</select>';
       const select = blocCap.querySelector('select');
       select.value = capActuel();

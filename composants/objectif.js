@@ -203,7 +203,7 @@
     el.classList.add('pc');
     // Barre du haut de la modale (modale-course.js) : « Modifier » et la croix, à droite.
     const barre = avecModifier => '<div class="pc-barre">' + (avecModifier && edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
-      '<button type="button" class="pc-fermer mrt-rond" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
+      '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
     const retour = barre(false);
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
@@ -211,6 +211,7 @@
     const i = suite.findIndex(c => c.id === id);
     if (i < 0) {
       el.innerHTML = retour + '<p class="ob-vide">Course introuvable.</p>';
+      brancher(el, { fermer: ctx.modale.fermer });
       return null;
     }
     const c = suite[i], prec = suite[i - 1], suiv = suite[i + 1];
@@ -276,14 +277,16 @@
   window.renderPageCourseCourue = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
     const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
-      '<button type="button" class="pc-fermer mrt-rond" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
+      '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
     const c = courses.find(x => x.id === id && x.etat === 'courue');
     if (!c) {
       el.innerHTML = barre + '<p class="ob-vide">Course introuvable.</p>';
       brancher(el, { fermer: ctx.modale.fermer });
       return null;
     }
-    const ordre = (ctx.ordre ? ctx.ordre() : []).map(i => courses.find(x => x.id === i)).filter(Boolean);
+    // Précédente et suivante : l'ordre du tableau du Palmarès ; ailleurs (Calendrier, accueil, adresse), de la plus récente à la plus ancienne.
+    const ordre = ctx.ordre ? ctx.ordre().map(i => courses.find(x => x.id === i)).filter(Boolean)
+      : courses.filter(x => x.etat === 'courue' && x.date).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     const k = ordre.findIndex(x => x.id === id), prec = ordre[k - 1], suiv = ordre[k + 1];
     const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats']].filter(l => lienSur(l[0]));
     const classements = [['Général', place(c.place, c.effectif, ctx.feminin)], ['Catégorie', place(c.place_categorie, c.effectif_categorie, ctx.feminin)],

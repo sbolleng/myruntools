@@ -1,10 +1,6 @@
 /* ===== Fiche d'une course (fiche-course.js) · design, § 6 ; dans la feuille d'une course (modale-course.css) =====
-   Reprend les éléments du site : surface des cartes, libellés, champs de la page de connexion,
+   Reprend les éléments du site : surface des cartes, libellés, champs communs (mrt-champ),
    boutons communs (mrt-btn, mrt-rond, mrt-lien : en-tete.css). */
-/* Listes déroulantes : chevron dessiné, la flèche native étant retirée. */
-.fc-champ select { padding-right: 2rem; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 1rem) 55%, calc(100% - 0.7rem) 55%; background-size: 0.3rem 0.3rem; background-repeat: no-repeat; }
-.fc-champ input[type="date"] { min-height: 2.35rem; text-align: left; }
-.fc-champ input[type="date"]::-webkit-date-and-time-value { text-align: left; }
 
 .fc-bloc { border-top: 1px solid var(--border); padding: 0.4rem 0 0.6rem; }
 /* Titre d'un bloc : comme les textes repliables de la page d'une course (chevron, Texte, casse normale). */
@@ -29,7 +25,6 @@
 .fc-grille-3 { grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: end; } /* un libellé sur deux lignes ne décale pas les cases */
 .fc-grille-3 .fc-moitie { grid-column: span 3; }
 .fc-grille-3 .fc-tiers { grid-column: span 2; }
-.fc-champ input:disabled { opacity: 0.45; cursor: not-allowed; }
 /* La date seule sur sa ligne, à la largeur d'une colonne. */
 .fc-seul { grid-column: 1 / -1; }
 .fc-champ.fc-seul input { max-width: calc(50% - 0.5rem); }
@@ -43,30 +38,14 @@
   text-transform: uppercase;
   color: var(--muted);
 }
-.fc-oblig { color: var(--accent); }
+.fc-oblig { color: var(--muted); } /* astérisque discret : l'Accent marque ce qui est actif */
 .fc-champ { min-width: 0; }
-.fc-champ input, .fc-champ select {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  padding: 0.5rem 0.65rem;
-  font: inherit;
-  font-size: 0.85rem;
-  color: var(--text);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color-scheme: dark;
-}
-.fc-champ select option { background: var(--surface); color: var(--text); }
-.fc-champ input:focus, .fc-champ select:focus { outline: none; border-color: var(--accent); }
-.fc-champ [aria-invalid="true"] { border-color: var(--red); }
+/* Champs (mrt-champ) : toute la largeur de leur colonne. */
+.fc-champ .mrt-champ { display: block; width: 100%; }
+.fc-champ .mrt-champ[hidden] { display: none; } /* « Nouveau groupe » : seulement quand on le choisit */
 .fc-erreur { min-height: 1.1em; margin: 0.15rem 0 0.2rem; font-size: 0.72rem; color: var(--red); }
 .fc-champ .fc-case { display: flex; align-items: center; gap: 0.5rem; margin: 0.45rem 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; letter-spacing: 0; text-transform: none; color: var(--muted); cursor: pointer; }
-.fc-champ .fc-case input { display: inline-block; flex: none; width: 1rem; height: 1rem; min-width: 0; margin: 0; padding: 0; -webkit-appearance: checkbox; appearance: auto; accent-color: var(--accent); }
+.fc-champ .fc-case input { flex: none; width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
 
 .fc-msg { min-height: 1.2em; margin: 0.4rem 0; font-size: 0.75rem; color: var(--muted); }
 .fc-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.6rem; }
@@ -74,20 +53,18 @@
 .fc-supprimer { margin-right: auto; }
 .fc-confirmer { margin-top: 0.4rem; padding: 0.8rem 1rem; border: 1px solid var(--red); border-radius: 8px; }
 .fc-confirmer p { margin-bottom: 0.6rem; font-size: 0.85rem; }
-.fc-danger { color: var(--red); border-color: var(--red); }
 
 @media (max-width: 600px) {
   .fc-grille-3 { grid-template-columns: minmax(0, 1fr); }
   .fc-grille-3 .fc-moitie, .fc-grille-3 .fc-tiers { grid-column: auto; }
   .fc-grille { grid-template-columns: minmax(0, 1fr); }
-  .fc-seul input { max-width: none; }
+  .fc-champ.fc-seul input { max-width: none; }
 }
 
 /* Survols : seulement avec une souris. Sur écran tactile, un toucher laisserait
    l'effet « collé » (bouton qui reste orange). */
 @media (hover: hover) {
   .fc-bloc-titre:hover { color: var(--accent); }
-  .fc-danger:hover { color: var(--bg); background: var(--red); }
 }
 
 /* Formulaire d'une course à venir (§ 3.7) : champs sur toute la largeur, cases alignées sur le bas des champs. */
@@ -102,21 +79,7 @@
 .fc-ligne-date { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
 .fc-bas { align-self: end; padding-bottom: 1.5rem; }
 .fc-bas .fc-case { margin: 0; }
-.fc-champ textarea {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  min-height: 4.5rem;
-  resize: vertical;
-  padding: 0.5rem 0.65rem;
-  font: inherit;
-  font-size: 0.85rem;
-  color: var(--text);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-}
-.fc-champ textarea:focus { outline: none; border-color: var(--accent); }
+.fc-champ textarea.mrt-champ { min-height: 4.5rem; }
 .fc-champ .fc-nouveau { margin-top: 0.4rem; }
 .fc-compte { margin: 0.15rem 0 0; font-size: 0.7rem; color: var(--muted); text-align: right; }
 /* Libellé lu par les lecteurs d'écran seulement : le titre du bloc le dit déjà. */

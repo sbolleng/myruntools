@@ -31,6 +31,9 @@
   const REGLAGES = '<svg class="cal-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h12M2 11.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="4.5" r="2" fill="currentColor"/><circle cx="6" cy="11.5" r="2" fill="currentColor"/></svg>';
   // Page d'une course (modale), à la rubrique Préparation.
   const lienCourse = id => 'course.html?id=' + encodeURIComponent(id) + '#preparation';
+  // Chevron des titres repliables (le même que sur la page d'une course) ; poubelle de « Supprimer ».
+  const CHEVRON = '<svg class="cal-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const POUBELLE = '<svg class="cal-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   // ----- Plan d'une course : règles générales (spécification du Calendrier, § 5.1) -----
 
@@ -103,10 +106,12 @@
       if (d.getDay() === 0 || d.getDay() === 6) cls.push('we');
       if (jour < auj) cls.push('passe');
       if (jour === auj) cls.push('auj');
-      const courseJour = courses.filter(c => c.date === jour).map(c => c.courue
-        ? '<span class="cal-jr-course courue">' + esc(c.nom) + '</span>'
-        : opts.liens === false ? '<span class="cal-jr-course c-' + c.famille + (c.validee ? '-v' : '-n') + '">' + esc(c.nom) + '</span>'
-          : '<a class="cal-jr-course c-' + c.famille + (c.validee ? '-v' : '-n') + '" href="' + lienCourse(c.id) + '">' + esc(c.nom) + '</a>').join('');
+      // Jour de course : un lien vers sa page (une course courue : son résultat), sauf sur la page de la course elle-même.
+      const courseJour = courses.filter(c => c.date === jour).map(c => {
+        const cls = 'cal-jr-course ' + (c.courue ? 'courue' : 'c-' + c.famille + (c.validee ? '-v' : '-n'));
+        return opts.liens === false ? '<span class="' + cls + '">' + esc(c.nom) + '</span>'
+          : '<a class="' + cls + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + esc(c.nom) + '</a>';
+      }).join('');
       const rdv = ctx.courses.filter(c => aPlan(c) && c.ouverture_inscriptions === jour).map(c =>
         opts.liens === false ? '<span class="cal-rdv">◆ Ouverture des inscriptions · ' + esc(c.course) + '</span>'
           : '<a class="cal-rdv" href="' + lienCourse(c.id) + '">◆ Ouverture des inscriptions · ' + esc(c.course) + '</a>').join('');
@@ -141,7 +146,7 @@
 
   // ----- Rubrique « Préparation » de la page d'une course (spécification § 5.2) -----
   function rubrique(ctx, c) {
-    const preparer = ecriture(ctx) ? '<button type="button" class="mrt-btn is-principal cal-parametrer" data-preparer="' + esc(c.id) + '">' + REGLAGES + 'Paramétrer le plan</button>' : '';
+    const preparer = ecriture(ctx) ? '<button type="button" class="mrt-btn cal-parametrer" data-preparer="' + esc(c.id) + '">' + REGLAGES + 'Paramétrer le plan</button>' : '';
     const plan = planDe(c, modifsDe(ctx.semaines, c.id));
     if (!plan) {
       return '<p class="cal-vide">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.' + (ecriture(ctx) ? ' Paramètre le plan pour en choisir une.' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
@@ -157,14 +162,18 @@
       (c.date_approx ? '<p class="cal-vide">Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.</p>' : '') +
       frise(plan, false) +
       '<p class="cal-prep-lib">' + etiquette + '</p>' + bloc(w) +
-      '<details class="cal-toutes"><summary>Toutes les semaines (' + plan.n + ')</summary><div class="cal-sem-liste">' + plan.semaines.map(bloc).join('') + '</div></details>';
+      '<details class="cal-toutes"><summary>' + CHEVRON + 'Toutes les semaines (' + plan.n + ')</summary><div class="cal-sem-liste">' + plan.semaines.map(bloc).join('') + '</div></details>';
   }
 
-  // ----- Fenêtres : séance, « Préparer » -----
+  // ----- Fenêtres : séance, « Paramétrer le plan » -----
+  // Comme la fiche d'une course (design, § 6) : « Annuler » à gauche et le bouton principal à droite, en haut ; le titre
+  // en libellé ; les champs communs (mrt-champ) ; une action à part (« Supprimer », « Recalculer ») seule, en bas.
+  const barre = principal => '<div class="cal-barre"><button type="button" class="mrt-btn" data-act="annuler">Annuler</button>' + principal + '</div>';
+  const titreFenetre = t => '<p class="cal-panneau-titre" id="cal-titre">' + t + '</p><p class="cal-msg" role="alert"></p>';
   function fenetre(contenu, classe) {
     const voile = document.createElement('div');
     voile.className = 'cal-voile';
-    voile.innerHTML = '<div class="cal-panneau ' + (classe || '') + '" role="dialog" aria-modal="true">' + contenu + '</div>';
+    voile.innerHTML = '<div class="cal-panneau ' + (classe || '') + '" role="dialog" aria-modal="true" aria-labelledby="cal-titre">' + contenu + '</div>';
     document.body.appendChild(voile);
     const echap = e => { if (e.key === 'Escape') voile.fermer(); };
     voile.fermer = () => { voile.remove(); document.removeEventListener('keydown', echap); };
@@ -175,13 +184,12 @@
 
   function ouvrirSeance(ctx, opts) {
     const s = opts.seance;
-    const v = fenetre('<form novalidate><h3 class="cal-panneau-titre">' + (s ? 'Modifier la séance' : 'Ajouter une séance') + '</h3>' +
-      '<label class="cal-champ"><span>Date</span><input type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
-      '<label class="cal-champ"><span>Type</span><select name="type"><option value="run">Run</option><option value="renfo">Renfo</option></select></label>' +
-      '<label class="cal-champ"><span>Libellé</span><input name="libelle" maxlength="100" placeholder="Footing 45 min" value="' + esc(s ? s.libelle : '') + '"></label>' +
-      '<p class="cal-msg" role="alert"></p><div class="cal-actions">' +
-      (s ? '<button type="button" class="mrt-lien is-danger" data-act="supprimer">Supprimer</button>' : '') + '<span></span>' +
-      '<button type="button" class="mrt-btn" data-act="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form>', 'cal-seance');
+    const v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
+      titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') +
+      '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
+      '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type"><option value="run">Run</option><option value="renfo">Renfo</option></select></label>' +
+      '<label class="cal-champ"><span>Libellé</span><input class="mrt-champ" name="libelle" maxlength="100" placeholder="ex. Footing 45 min" value="' + esc(s ? s.libelle : '') + '"></label>' +
+      (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '') + '</form>', 'cal-seance');
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
     if (s) f.type.value = s.type;
     f.libelle.focus();
@@ -215,19 +223,19 @@
     if (!c) return;
     const draft = brouillon ? { duree: brouillon.duree || c.prepaFormat || 12, modifs: new Map(brouillon.modifs) }
       : { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
-    const v = fenetre('<h3 class="cal-panneau-titre">Paramétrer le plan · ' + esc(c.course) + '</h3><div class="cal-prep"></div>' +
-      '<p class="cal-msg" role="alert"></p><div class="cal-actions"><button type="button" class="mrt-lien" data-act="recalculer">Recalculer selon les règles</button><span></span>' +
-      '<button type="button" class="mrt-btn" data-act="annuler">Annuler</button><button type="button" class="mrt-btn is-principal" data-act="enregistrer">' + (brouillon ? 'Valider' : 'Enregistrer') + '</button></div>', 'cal-preparer');
+    const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">' + (brouillon ? 'Valider' : 'Enregistrer') + '</button>') +
+      titreFenetre('Paramétrer le plan · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
+      '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Recalculer selon les règles</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
     const courant = () => planDe(c, draft.modifs, draft.duree);
 
     function dessinerPrep() {
       const plan = courant();
-      corps.innerHTML = '<label class="cal-champ cal-duree"><span>Durée en semaines</span><input type="number" min="1" max="52" name="duree" value="' + draft.duree + '"></label>' +
+      corps.innerHTML = '<label class="cal-champ cal-duree"><span>Durée en semaines</span><input class="mrt-champ" type="number" min="1" max="52" name="duree" value="' + draft.duree + '"></label>' +
         '<p class="cal-plan-dates">Début : ' + longue(plan.premier) + ' → jour J : ' + longue(c.date) + (c.prepaFormat ? ' · durée du format : ' + c.prepaFormat + ' sem.' : '') + '</p>' +
         frise(plan, true) +
         '<div class="cal-tab">' + plan.semaines.map(w => '<div class="cal-tab-l"><span>Semaine ' + w.n + '</span><span>' + dateCourte(w.lundi) + '</span>' +
-          '<select data-sem="' + w.lundi + '" aria-label="Phase de la semaine ' + w.n + '">' + PHASES.map(p => '<option value="' + p[0] + '"' + (p[0] === w.phase ? ' selected' : '') + '>' + p[1] + '</option>').join('') + '</select></div>').join('') + '</div>';
+          '<select class="mrt-champ is-compact" data-sem="' + w.lundi + '" aria-label="Phase de la semaine ' + w.n + '">' + PHASES.map(p => '<option value="' + p[0] + '"' + (p[0] === w.phase ? ' selected' : '') + '>' + p[1] + '</option>').join('') + '</select></div>').join('') + '</div>';
     }
     dessinerPrep();
 

@@ -6,7 +6,7 @@
 // montrés et ceux qui sont ouverts. Barre du haut : « Annuler », titre, « Enregistrer » ; pas de croix.
 // mrtFicheCourse({ course, references, apres, mode, groupes, marquer, preparation, dans, fin })
 //   dans  élément où dessiner la fiche (la feuille d'une course, modale-course.js) ; sans lui, la fiche ouvre
-//         sa propre feuille (Palmarès, « + Ajouter une course ») et la ferme à la fin
+//         sa propre feuille (Palmarès, « + Ajouter une course ») et la ferme à la fin ; le retour du navigateur y fait « Annuler »
 //   fin(r, id)  appelé à la fin : r = 'annule', 'enregistre' ou 'supprime'
 // Rend { annuler() } : « Annuler », avec « Abandonner les modifications ? » s'il y a eu une saisie.
 (function () {
@@ -182,18 +182,18 @@
           : sousDe(typeDe(c.format)).map(s => [s.id, s.libelle]);
         const vide = DEFAUT[k] ? '' : '<option value="">—</option>';
         const courant = valeur || DEFAUT[k] || '';
-        input = '<select id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
+        input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
       } else if (genre === 'groupe') {
         const noms = (groupes || []).slice();
         if (valeur && !noms.includes(valeur)) noms.push(valeur);
-        input = '<select id="' + id + '" data-k="' + k + '"><option value="">—</option>' +
+        input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '"><option value="">—</option>' +
           noms.map(n => '<option value="' + esc(n) + '"' + (n === valeur ? ' selected' : '') + '>' + esc(n) + '</option>').join('') +
           '<option value="' + NOUVEAU + '">Nouveau groupe…</option></select>' +
-          '<input type="text" id="fc-groupe_nouveau" data-k="groupe_nouveau" class="fc-nouveau" hidden placeholder="' + AIDE.groupe_nouveau + '" autocomplete="off" aria-label="Nom du nouveau groupe">';
+          '<input type="text" id="fc-groupe_nouveau" data-k="groupe_nouveau" class="mrt-champ fc-nouveau" hidden placeholder="' + AIDE.groupe_nouveau + '" autocomplete="off" aria-label="Nom du nouveau groupe">';
       } else if (genre === 'long') {
         const max = LONGUEURS[k] ? ' maxlength="' + LONGUEURS[k] + '"' : '';
         const lignes = LONGUEURS[k] && LONGUEURS[k] <= 100 ? 2 : 3;
-        input = '<textarea id="' + id + '" data-k="' + k + '" rows="' + lignes + '"' + max + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + '>' + esc(valeur == null ? '' : valeur) + '</textarea>' +
+        input = '<textarea class="mrt-champ" id="' + id + '" data-k="' + k + '" rows="' + lignes + '"' + max + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + '>' + esc(valeur == null ? '' : valeur) + '</textarea>' +
           (LONGUEURS[k] ? '<p class="fc-compte" data-compte="' + k + '"></p>' : '');
       } else {
         const v = genre === 'duree' ? fmtDuree(valeur) : genre === 'allure' ? fmtAllure(valeur)
@@ -203,7 +203,7 @@
         const type = genre === 'date' ? (venir && c.date_approx ? 'month' : 'date') : genre === 'dateLibre' ? 'date' : 'text';
         const saisie = genre === 'nombre' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'allure' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
         const borne = genre !== 'date' ? '' : venir ? ' min="' + (c.date_approx ? today().slice(0, 7) : today()) + '"' : ' max="' + today() + '"';
-        input = '<input type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + saisie + borne + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
+        input = '<input class="mrt-champ" type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + saisie + borne + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
       }
       // La case DNF se range juste sous le temps : les deux vont ensemble.
       const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
@@ -244,11 +244,11 @@
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
               (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
           '</section>').join('') +
-        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' +
+        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' +
           '<div class="fc-confirmer" hidden>' +
             '<p>Supprimer cette course ? Cette action est définitive.</p>' +
             '<div class="fc-actions"><button type="button" class="fc-btn mrt-btn" data-fc="garder">Annuler</button>' +
-            '<button type="button" class="fc-btn mrt-btn fc-danger" data-fc="confirmer">Supprimer</button></div>' +
+            '<button type="button" class="fc-btn mrt-btn is-danger fc-danger" data-fc="confirmer">Supprimer</button></div>' +
           '</div>' : '') +
       '</form>';
     hote.replaceChildren(racine);
@@ -270,6 +270,8 @@
         voile.remove();
         document.documentElement.classList.remove('mc-ouvert');
         document.removeEventListener('keydown', clavier);
+        window.removeEventListener('popstate', surRetour);
+        retirerEntree();
         if (avant && avant.focus) avant.focus();
       }
       if (fin) fin(r, id);
@@ -282,9 +284,29 @@
       terminer('annule');
     }
     function clavier(e) { if (e.key === 'Escape' && !document.querySelector('.cal-voile')) annuler(); }
+    // Retour du navigateur ou du téléphone, feuille à elle seule : comme « Annuler », sans quitter la page. La feuille
+    // ajoute une entrée d'historique à son ouverture et la retire à la fin, quelle qu'en soit la façon.
+    let entree = false, sortie = Promise.resolve();
+    function pousser() { try { history.pushState({ mrtFiche: true }, ''); entree = true; } catch (e) { /* historique refusé */ } }
+    function retirerEntree() {
+      if (!entree) return;
+      entree = false;
+      // Le retour s'achève avant toute nouvelle entrée (la course ouverte après un ajout).
+      sortie = new Promise(ok => { const fait = () => { window.removeEventListener('popstate', fait); ok(); }; window.addEventListener('popstate', fait); setTimeout(fait, 600); });
+      history.back();
+    }
+    function surRetour() {
+      if (!entree) return;
+      entree = false;
+      // Saisie en cours, abandon refusé : la feuille reste, son entrée d'historique est remise.
+      if (etat() !== depart && !window.confirm('Abandonner les modifications ?')) { pousser(); return; }
+      terminer('annule');
+    }
     if (seule) {
       document.addEventListener('keydown', clavier);
       voile.addEventListener('click', e => { if (e.target === voile) annuler(); });
+      pousser();
+      window.addEventListener('popstate', surRetour);
     }
 
     // ----- Plan de préparation (mode à venir) -----
@@ -323,7 +345,7 @@
         : plan ? '<p class="cal-plan-dates">Plan de ' + plan.n + ' semaines · début : ' + P.longue(plan.premier) + ' → jour J : ' + P.longue(v.date) + '</p>' +
           (val('date_approx').checked ? note(APPROX) : '') + P.frise(plan, false)
         : note('Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.')) +
-        '<div class="fc-prep-bas"><button type="button" class="mrt-btn is-principal cal-parametrer" data-fc="preparer"' + (attente ? ' disabled' : '') + '>' + P.REGLAGES + 'Paramétrer le plan</button></div>';
+        '<div class="fc-prep-bas"><button type="button" class="mrt-btn cal-parametrer" data-fc="preparer"' + (attente ? ' disabled' : '') + '>' + P.REGLAGES + 'Paramétrer le plan</button></div>';
     }
     if (preparation) {
       racine.addEventListener('change', e => { if (['date', 'date_approx', 'type', 'format', 'distance', 'statut'].includes(e.target.dataset.k)) majPrep(); });
@@ -525,7 +547,7 @@
       terminer('enregistre', id);
       if (apres) await apres();
       // Nouvelle course à venir, ajoutée depuis sa propre feuille : sa consultation, si elle est sur la feuille de route.
-      if (seule && !existe && venir && window.mrtOuvrirCourse) window.mrtOuvrirCourse(id, '', { siPresente: true });
+      if (seule && !existe && venir && window.mrtOuvrirCourse) { await sortie; window.mrtOuvrirCourse(id, '', { siPresente: true }); }
     });
     depart = etat();
     return { annuler };

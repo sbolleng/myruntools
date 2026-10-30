@@ -7,6 +7,7 @@
 //
 // Usage, depuis ce dossier : npm install (une fois), puis
 //   node essais.js              tous les contrôles
+//   node essais.js repasse      seulement ceux qu'on nomme (noms de CONTROLES, séparés par des espaces)
 //   node essais.js --captures   et des captures dans captures/ (non versionnées)
 // Ajouter un module : écrire une fonction dans CONTROLES.
 const { chromium } = require('playwright');
@@ -18,6 +19,7 @@ const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 const AUJOURDHUI = new Date('2026-10-20T10:00:00');
 const LIB = fs.readFileSync(require.resolve('@supabase/supabase-js/dist/umd/supabase.js'), 'utf8');
 const CAPTURES = process.argv.includes('--captures');
+const SEULS = process.argv.slice(2).filter(a => !a.startsWith('--'));
 const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 
 // Base simulée : lecture filtrée par les « eq. » de l'adresse ; fonctions lues
@@ -418,21 +420,26 @@ const CONTROLES = {
     // Menu
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     const catalogue = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
-    pb.push(egal(catalogue, await menu(), 'menu par défaut'));
+    // Le menu ne montre que les modules construits ; les autres restent dans la liste, « bientôt ».
+    const construits = ['En un coup d\'œil', 'Objectif', 'Calendrier', 'Palmarès'];
+    pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(8, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'tous les modules cochés, En un coup d\'œil compris'));
-    pb.push(egal(4, await p.locator('.pref-modules .bientot').count(), 'modules non construits grisés'));
-    await p.click('[aria-label="Monter Palmarès"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'Palmarès', 'Nutrition', 'Profil', 'Guide'];
-    pb.push(egal(monte, await menu(), 'Palmarès monté, menu aussitôt'));
+    pb.push(egal(['Cette semaine · bientôt', 'Nutrition · bientôt', 'Profil · bientôt', 'Guide · bientôt'], await p.evaluate(() => [...document.querySelectorAll('.pref-modules .bientot')].map(l => l.textContent.trim())), 'modules non construits grisés, « bientôt »'));
+    await p.click('[aria-label="Monter Calendrier"]'); await attendre();
+    const monte = ['En un coup d\'œil', 'Calendrier', 'Objectif', 'Palmarès'];
+    pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
-    await p.locator('.pref-modules label', { hasText: 'Guide' }).locator('input').uncheck(); await attendre();
-    pb.push(egal(false, (await menu()).includes('Guide'), 'Guide décoché, absent du menu'));
+    await p.locator('.pref-modules label', { hasText: 'Calendrier' }).locator('input').uncheck(); await attendre();
+    pb.push(egal(false, (await menu()).includes('Calendrier'), 'Calendrier décoché, absent du menu'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
-    pb.push(egal(catalogue, await menu(), 'ordre par défaut rétabli'));
+    pb.push(egal(construits, await menu(), 'ordre par défaut rétabli'));
     for (const n of catalogue.slice(1)) { await p.locator('.pref-modules label', { hasText: n }).locator('input').uncheck(); await attendre(); }
     pb.push(egal(['En un coup d\'œil'], await menu(), 'un seul module affiché'));
     pb.push(egal(true, await q('.pref-modules input[data-i]:checked', 'x.disabled'), 'dernière case non décochable'));
+    // Un module « bientôt » coché ne compte pas : le dernier module construit reste non décochable.
+    await p.locator('.pref-modules label', { hasText: 'Guide' }).locator('input').check(); await attendre();
+    pb.push(egal([true, ['En un coup d\'œil']], [await p.isDisabled('.pref-modules label:has-text("En un coup") input'), await menu()], 'Guide coché : hors du menu, En un coup d\'œil toujours non décochable'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
 
     // Cap
@@ -522,8 +529,8 @@ const CONTROLES = {
     pb.push(egal({ obj: true, role: 'Objectif principal', compteur: '311j 19h 00min 00s', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
       { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
     pb.push(egal(['311', '19h 00m 00s'], await p.evaluate(() => [document.querySelector('.mrt-days').textContent, document.querySelector('.mrt-hms').textContent]), 'en-tête : compte à rebours jusqu\'à l\'heure de départ'));
-    // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Accent 2 ; libellés à 0,7 rem.
-    pb.push(egal({ nom: 'rgb(238, 243, 250)', date: 'rgb(143, 168, 201)', compteur: 'rgb(255, 212, 0)', objectif: 'rgb(255, 212, 0)', libelle: '11.2px', indicateur: 'rgb(238, 243, 250)' },
+    // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Texte (plus d'Accent 2) ; libellés à 0,7 rem.
+    pb.push(egal({ nom: 'rgb(238, 243, 250)', date: 'rgb(143, 168, 201)', compteur: 'rgb(238, 243, 250)', objectif: 'rgb(238, 243, 250)', libelle: '11.2px', indicateur: 'rgb(238, 243, 250)' },
       await p.evaluate(() => { const c = document.querySelector('.ob-carte'), st = s => getComputedStyle(c.querySelector(s));
         return { nom: st('.ob-nom').color, date: st('.ob-date').color, compteur: st('.ob-cpt-case b').color, objectif: st('.ob-cible').color, libelle: st('.ob-lib').fontSize,
           indicateur: getComputedStyle(document.querySelector('.mrt-stat-val')).color }; }), 'couleurs et libellés'));
@@ -1437,7 +1444,7 @@ const CONTROLES = {
       egal([['lun. 19', 'Renfo Gainage 30 min', true], ['mar. 20', 'Run 8×400 m', false], ['jeu. 22', 'Run Footing 45 min', false], ['sam. 24', 'Run Sortie 1 h 30', false]], await seances(p), '4 semaines : séances'),
       egal([['dim. 1', '◆ Ouverture des inscriptions · Corrida de Noël']], await p.evaluate(() => [...document.querySelectorAll('.cal-rdv')].map(e => [e.closest('.cal-jr').querySelector('.cal-jr-nom').textContent, e.textContent])), '4 semaines : rendez-vous clé'),
       egal([['dim. 15', 'Trail du Lac', true]], await p.evaluate(() => [...document.querySelectorAll('.cal-jr-course')].map(e => [e.closest('.cal-jr').querySelector('.cal-jr-nom').textContent, e.textContent, e.classList.contains('c-trail-v')])), '4 semaines : jour de course'),
-      egal(true, await p.evaluate(() => document.querySelector('.cal-vue').value === 'semaines'), 'bandeau sur « 4 semaines »'),
+      egal(['4 semaines'], await p.evaluate(() => [...document.querySelectorAll('.cal-vues .mrt-pastille.is-on')].map(a => a.textContent)), 'pastille « 4 semaines » pleine'),
       egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), '4 semaines : débordement horizontal'));
     // Case « faite »
     await p.locator('[data-fait="se-2"]').check();
@@ -1475,9 +1482,9 @@ const CONTROLES = {
     pb.push(egal('#semaines=2026-10-19', await p.evaluate(() => location.hash), 'toucher le 22 octobre : 4 semaines depuis le lundi 19'));
     await p.goBack();
     pb.push(egal(true, await p.locator('.cal-bloc').count() > 0, 'bouton retour du navigateur : la vue Année'));
-    await p.selectOption('.cal-vue', 'semaines');
-    pb.push(egal('Sem. du 19 oct.', (await semaines(p))[0][0], 'bandeau : 4 semaines'));
-    await p.selectOption('.cal-vue', 'annee');
+    await p.click('[data-vue="semaines"]');
+    pb.push(egal('Sem. du 19 oct.', (await semaines(p))[0][0], 'pastille : 4 semaines, d\'un toucher'));
+    await p.click('[data-vue="annee"]');
     await p.locator('[data-course="' + GORGES + '"]').scrollIntoViewIfNeeded();
     await p.click('[data-course="' + GORGES + '"]');
     await p.waitForSelector('.mc-panneau #preparation');
@@ -1571,7 +1578,7 @@ const CONTROLES = {
     d.courses.find(c => c.id === id(2)).format = 'tri_s';
     ({ p, ctx } = await ouvertePrep(d, id(2)));
     pb.push(egal(true, (await p.textContent('#preparation .cal-vide')).startsWith('Pas encore de plan'), 'format sans durée : pas de plan'));
-    pb.push(egal(['Paramétrer le plan', true], await p.evaluate(() => { const b = document.querySelector('#preparation [data-preparer]'); return [b.textContent.trim(), b.classList.contains('is-principal')]; }), 'bouton « Paramétrer le plan » : bouton principal'));
+    pb.push(egal(['Paramétrer le plan', false], await p.evaluate(() => { const b = document.querySelector('#preparation [data-preparer]'); return [b.textContent.trim(), b.classList.contains('is-principal')]; }), 'bouton « Paramétrer le plan » : à contour'));
     await p.click('#preparation [data-preparer]');
     await p.fill('.cal-prep [name="duree"]', '10'); await p.dispatchEvent('.cal-prep [name="duree"]', 'change');
     await p.click('[data-act="enregistrer"]');
@@ -1654,6 +1661,179 @@ const CONTROLES = {
     return pb;
   },
 
+  // Repasse de navigation et de design (30 oct. 2026) : croix de « Course introuvable », course courue ouverte de partout,
+  // menu sans modules « bientôt », retour = Annuler pour la fiche seule, pastilles et « Aujourd'hui » du Calendrier,
+  // engrenage dessiné ; plus d'Accent 2 ; champs, fenêtres, boutons, croix et libellés communs (design.md, § 1).
+  async repasse(nav, db0) {
+    const pb = [];
+    const { db, id } = jeuObjectif(db0);
+    const copie = () => JSON.parse(JSON.stringify(db));
+    const SEMI = '00000000-0000-0000-0001-000000000007';
+    const style = (p, sel, prop = 'color') => p.evaluate(([s, pr]) => { const e = document.querySelector(s); return e ? getComputedStyle(e)[pr] : null; }, [sel, prop]);
+    const role = (p, nom) => p.evaluate(n => { const d = document.createElement('i'); d.style.color = 'var(' + n + ')'; document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; }, nom);
+    const ouverte = p => p.evaluate(() => !!document.querySelector('.mc-voile'));
+    const page = p => p.url().split('/').pop();
+
+    // N1 : course introuvable, la croix ferme la feuille (plein écran sur téléphone).
+    let { p, ctx } = await ouvrir(nav, 'course.html?id=' + id(99), 390, copie(), {}, PARIS);
+    await p.click('.pc-fermer'); await pause();
+    // (En file://, le navigateur refuse de changer l'adresse : on regarde la page laissée dessous.)
+    const route = q => q.evaluate(() => !!document.querySelector('.ob-carte'));
+    pb.push(egal([false, true], [await ouverte(p), await route(p)], 'course introuvable : la croix ferme la feuille, la feuille de route dessous'));
+    await ctx.close();
+
+    // N2 : une course courue s'ouvre avec son résultat, d'où qu'elle vienne.
+    const resultat = q => q.evaluate(() => ({ sur: document.querySelector('.pc-sur').textContent.trim().split(' ')[0],
+      temps: [...document.querySelectorAll('.pc-fiche .ob-lib')].some(l => l.textContent === 'Temps'), voisines: document.querySelectorAll('.pc-nav a').length }));
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + SEMI, 1200, copie(), {}, PARIS));
+    pb.push(egal({ sur: 'Courue', temps: true, voisines: 1 }, await resultat(p), 'adresse d\'une course courue : son résultat ; la plus récente, une seule voisine (par date)'));
+    await p.click('.pc-fermer'); await pause();
+    pb.push(egal([false, true], [await ouverte(p), await route(p)], 'course courue ouverte par son adresse : fermer laisse la feuille de route'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), {}, PARIS));
+    await p.locator('[data-course="' + SEMI + '"]').scrollIntoViewIfNeeded();
+    await p.click('[data-course="' + SEMI + '"]'); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal([SEMI, 'Courue'], [await p.evaluate(() => history.state && history.state.mrtCourse), (await resultat(p)).sur], 'Calendrier, vue Année : une course courue ouvre son résultat'));
+    await ctx.close();
+    const accueil = copie(); accueil.preferences[0].accueil_blocs = ['derniere'];
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, accueil, {}, PARIS));
+    await p.click('[data-bloc="derniere"] .ac-ligne a'); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal(['Semi de San Sebastián', 'Courue'], [(await p.textContent('.pc-titre')).trim(), (await resultat(p)).sur], 'En un coup d\'œil, Dernière course : son nom ouvre son résultat'));
+    await ctx.close();
+
+    // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
+    for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
+      ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Objectif', 'Calendrier', 'Palmarès'], visibles: true }, await p.evaluate(() => {
+        const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
+        return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
+          visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
+      }), 'menu à ' + w + ' px, ' + pg + ' : les modules construits, tous dans l\'écran'));
+      await ctx.close();
+    }
+
+    // N4 : fiche à elle seule (« Ajouter une course », crayon du Palmarès) : le retour du navigateur fait « Annuler ».
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, copie(), {}, PARIS));
+    const questions = [];
+    let reponse = 'dismiss';
+    p.on('dialog', x => { questions.push(x.message()); x[reponse](); });
+    const fiche = q => q.evaluate(() => !!document.querySelector('.fc-fiche'));
+    await p.click('[data-ob="ajouter"]'); await p.waitForSelector('.fc-fiche');
+    await p.goBack(); await pause();
+    pb.push(egal([false, 'objectif.html', []], [await fiche(p), page(p), questions.slice()], 'Ajouter une course, retour sans saisie : la fiche se ferme, la page reste'));
+    await p.click('[data-ob="ajouter"]'); await p.waitForSelector('.fc-fiche');
+    await p.fill('#fc-course', 'Essai');
+    await p.goBack(); await pause();
+    pb.push(egal([true, ['Abandonner les modifications ?']], [await fiche(p), questions.slice()], 'retour après une saisie : « Abandonner les modifications ? » ; refusé, la fiche reste'));
+    reponse = 'accept';
+    await p.goBack(); await pause();
+    pb.push(egal([false, 'objectif.html'], [await fiche(p), page(p)], 'abandon accepté : la fiche se ferme, la page reste'));
+    await p.click('[data-ob="ajouter"]'); await p.waitForSelector('.fc-fiche');
+    await p.click('.fc-barre [data-fc="annuler"]'); await pause();
+    pb.push(egal([false, null], [await fiche(p), await p.evaluate(() => history.state)], '« Annuler » : la fiche se ferme et retire son entrée d\'historique'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, copie(), {}, PARIS));
+    await p.evaluate(() => document.querySelector('.pv2-edit').click()); await p.waitForSelector('.fc-fiche');
+    await p.goBack(); await pause();
+    pb.push(egal([false, 'palmares.html'], [await fiche(p), page(p)], 'crayon du Palmarès, retour : la fiche se ferme, le Palmarès reste'));
+    await ctx.close();
+
+    // N5 : Calendrier, deux pastilles de vue (un toucher) et « Aujourd'hui » dans la vue 4 semaines.
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), {}, PARIS));
+    const vues = () => p.evaluate(() => [...document.querySelectorAll('.cal-vues .mrt-pastille')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : '')));
+    pb.push(egal(['Année *', '4 semaines'], await vues(), 'Calendrier : deux pastilles de vue, Année pleine'));
+    await p.click('[data-vue="semaines"]'); await pause();
+    pb.push(egal(['Année', '4 semaines *'], await vues(), 'un toucher : la vue 4 semaines'));
+    await p.click('[aria-label="4 semaines plus tard"]'); await pause(); await p.click('[aria-label="4 semaines plus tard"]'); await pause();
+    const loin = await p.textContent('.cal-sem-titre');
+    await p.click('.cal-auj'); await pause();
+    pb.push(egal(['Sem. du 14 déc.', 'Sem. du 19 oct.'], [loin, await p.textContent('.cal-sem-titre')], '« Aujourd\'hui » ramène à la semaine en cours'));
+    await ctx.close();
+
+    // N6 : engrenage dessiné, en Accent sur les Préférences seulement.
+    for (const [pg, attendu] of [['objectif.html', '--muted'], ['preferences.html', '--accent']]) {
+      ({ p, ctx } = await ouvrir(nav, pg, 1200, copie(), {}, PARIS));
+      pb.push(egal([true, '', await role(p, attendu)], [await p.evaluate(() => !!document.querySelector('.mrt-gear svg')), (await p.textContent('.mrt-gear')).trim(), await style(p, '.mrt-gear')],
+        pg + ' : engrenage dessiné, ' + (attendu === '--accent' ? 'en Accent' : 'discret')));
+      await ctx.close();
+    }
+
+    // D1 : plus d'Accent 2 ; les repères en Texte ; le bouton principal s'éclaircit au survol.
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, copie(), {}, PARIS));
+    pb.push(egal(['', '', ''], await p.evaluate(() => ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(t => { window.appliquerTheme(t); return getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(); })), 'plus d\'Accent 2 dans les trois thèmes'));
+    await p.evaluate(() => window.appliquerTheme('bleu-orange'));
+    const texte = await role(p, '--text');
+    pb.push(egal({ role: texte, pastille: texte, inscrit: texte, bientot: texte }, await p.evaluate(() => {
+      const st = (s, pr) => getComputedStyle(document.querySelector(s))[pr];
+      return { role: st('.ob-role.is-cle', 'color'), pastille: st('.ob-et.is-cle .ob-pt', 'backgroundColor'), inscrit: st('.ob-ins.is-inscrit i', 'backgroundColor'), bientot: st('.ob-ins.is-bientot i', 'borderTopColor') };
+    }), 'objectif intermédiaire (rôle, pastille) et points du dossard en Texte'));
+    await p.hover('.ob-ajout');
+    const survol = await style(p, '.ob-ajout', 'backgroundColor');
+    pb.push(egal([false, false], [survol === 'rgb(255, 212, 0)', survol === await role(p, '--accent')], 'bouton principal au survol : Accent éclairci (' + survol + ')'));
+    await ctx.close();
+
+    // D2 à D6 : champs communs (fond transparent, coins de 6 px, Accent au focus) ; fenêtres comme la fiche ; un seul bouton
+    // principal ; libellés à 0,7 rem en Space Mono ; astérisque discret ; une seule croix ; « Toutes les semaines » au chevron.
+    const champs = q => q.evaluate(() => [...document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), select, textarea')]
+      .filter(e => e.getClientRects().length).map(e => { const st = getComputedStyle(e); return (e.classList.contains('mrt-champ') ? '' : 'sans mrt-champ : ') + st.backgroundColor + ' ' + st.borderTopLeftRadius; })
+      .filter((x, i, t) => t.indexOf(x) === i));
+    const COMMUN = ['rgba(0, 0, 0, 0) 6px'];
+    const fenetre = q => q.evaluate(() => { const v = document.querySelector('.cal-panneau'), t = v.querySelector('.cal-panneau-titre'), d = document.createElement('div');
+      d.className = 'mc-voile'; d.style.display = 'none'; document.body.append(d); const voile = getComputedStyle(d).backgroundColor; d.remove();
+      return { barre: [...v.querySelectorAll('.cal-barre .mrt-btn')].map(x => x.textContent.trim() + (x.classList.contains('is-principal') ? ' *' : '')),
+        titre: getComputedStyle(t).textTransform + ' ' + getComputedStyle(t).fontFamily.split(',')[0].replace(/"/g, ''), voile: getComputedStyle(document.querySelector('.cal-voile')).backgroundColor === voile,
+        libelles: [...new Set([...v.querySelectorAll('.cal-champ span')].map(s => getComputedStyle(s).fontSize))] }; });
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, copie(), {}, PARIS));
+    pb.push(egal({ libelles: ['11.2px'], chevron: true, croix: '19.2px' }, await p.evaluate(() => ({
+      libelles: [...new Set([...document.querySelectorAll('#preparation .cal-sem-titre, #preparation .cal-prep-lib, #preparation .cal-jr-nom')].map(e => getComputedStyle(e).fontSize))],
+      chevron: !!document.querySelector('.cal-toutes > summary .cal-chev') && getComputedStyle(document.querySelector('.cal-toutes > summary')).display === 'flex',
+      croix: getComputedStyle(document.querySelector('.pc-fermer')).fontSize })), 'rubrique Préparation : libellés à 0,7 rem, « Toutes les semaines » au chevron ; croix de la feuille'));
+    await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
+    pb.push(egal(COMMUN, await champs(p), 'fiche d\'une course : champs communs'));
+    pb.push(egal({ principaux: 1, parametrer: false, oblig: await role(p, '--muted') }, await p.evaluate(() => ({ principaux: document.querySelectorAll('.fc-fiche .mrt-btn.is-principal').length,
+      parametrer: document.querySelector('[data-fc="preparer"]').classList.contains('is-principal'), oblig: getComputedStyle(document.querySelector('.fc-oblig')).color })), 'fiche : un seul bouton principal (Paramétrer à contour), astérisque discret'));
+    await p.focus('#fc-lieu');
+    pb.push(egal(await role(p, '--accent'), await style(p, '#fc-lieu', 'borderTopColor'), 'champ en cours de saisie : bordure en Accent'));
+    await p.selectOption('#fc-statut', 'option');
+    const nouveau = () => p.evaluate(() => document.querySelector('#fc-groupe_nouveau').getClientRects().length > 0);
+    const avantChoix = await nouveau();
+    await p.selectOption('#fc-groupe_options', '__nouveau__');
+    pb.push(egal([false, true], [avantChoix, await nouveau()], 'Option : le champ « Nouveau groupe » n\'apparaît qu\'une fois choisi'));
+    await p.selectOption('#fc-statut', 'confirmee');
+    await p.click('[data-fc="preparer"]'); await p.waitForSelector('.cal-preparer');
+    pb.push(egal(COMMUN, await champs(p), 'fenêtre « Paramétrer le plan » : champs communs'));
+    pb.push(egal({ barre: ['Annuler', 'Valider *'], titre: 'uppercase Space Mono', voile: true, libelles: ['11.2px'] }, await fenetre(p), 'fenêtre « Paramétrer le plan » : comme la fiche'));
+    await ctx.close();
+    const seances = copie();
+    seances.seances = [{ id: 'se-1', utilisateur: seances.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Footing 45 min', faite: false, course: null }];
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines', 1200, seances, {}, PARIS));
+    await p.click('[data-edit="se-1"]'); await p.waitForSelector('.cal-seance');
+    pb.push(egal(COMMUN, await champs(p), 'fenêtre d\'une séance : champs communs'));
+    pb.push(egal({ barre: ['Annuler', 'Enregistrer *'], titre: 'uppercase Space Mono', voile: true, libelles: ['11.2px'] }, await fenetre(p), 'fenêtre d\'une séance : comme la fiche'));
+    pb.push(egal(['Supprimer la séance', true, true], await p.evaluate(() => { const b = document.querySelector('.cal-bas .mrt-btn.is-danger'); return b ? [b.textContent.trim(), !!b.querySelector('svg'), b.getBoundingClientRect().top > document.querySelector('.cal-champ:last-of-type').getBoundingClientRect().bottom] : null; }),
+      'séance : « Supprimer la séance » à contour Alerte, seul en bas'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, copie(), {}, PARIS));
+    await p.click('.pv2-btn');
+    pb.push(egal(COMMUN, await champs(p), 'filtres du Palmarès : champs communs'));
+    pb.push(egal('19.2px', await style(p, '.pv2-panel:not(.pv2-cols) .pv2-close', 'fontSize'), 'panneau des filtres : la même croix que la feuille'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'preferences.html', 1200, copie(), {}, PARIS));
+    pb.push(egal(COMMUN, await champs(p), 'Préférences : champs communs'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, copie(), {}, PARIS));
+    pb.push(egal(['Space Mono', 'Space Mono'], await p.evaluate(() => ['.mrt-stat-label', '.mrt-days-label'].map(s => getComputedStyle(document.querySelector(s)).fontFamily.split(',')[0].replace(/"/g, ''))), 'en-tête : libellés en Space Mono'));
+    await ctx.close();
+    const anonyme = await nav.newContext({ viewport: { width: 1200, height: 900 } });
+    await anonyme.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+    await anonyme.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
+    p = await anonyme.newPage();
+    await p.goto(RACINE + 'connexion.html'); await p.waitForSelector('#email');
+    pb.push(egal(COMMUN, await champs(p), 'connexion : le champ commun'));
+    await anonyme.close();
+    return pb;
+  },
+
   // Spécification générale : la page s'affiche d'un seul coup, en-tête compris.
   async affichage(nav, db) {
     const pb = [];
@@ -1669,6 +1849,7 @@ const CONTROLES = {
   const nav = await chromium.launch(navigateur());
   let echecs = 0;
   for (const [nom, f] of Object.entries(CONTROLES)) {
+    if (SEULS.length && !SEULS.includes(nom)) continue;
     const pb = (await f(nav, db)).filter(Boolean);
     echecs += pb.length;
     console.log((pb.length ? 'ÉCHEC ' : 'OK    ') + nom + pb.map(x => '\n      - ' + x).join(''));

@@ -2,21 +2,27 @@
 //
 // Décrite par docs/module-objectif-specification.md (§ 3.4 et 3.8) ; style : composants/modale-course.css.
 // Le crayon et « Marquer comme courue » font basculer la feuille en édition (fiche-course.js), sans nouvelle couche.
-// La page d'une course s'ouvre au-dessus de la page d'origine (feuille de route, Calendrier, En un coup d'œil) :
+// La page d'une course s'ouvre au-dessus de la page d'origine (feuille de route, Calendrier, En un coup d'œil, Palmarès) :
 // fermer ramène exactement là où on était. Tout lien `course.html?id=…` de la page ouvre la modale ; la même
 // adresse, ouverte directement, affiche la feuille de route avec la modale par-dessus.
+// Une course courue s'affiche avec son résultat (§ 3.8), d'où qu'elle soit ouverte ; les autres comme sur la feuille de route.
 //   mrtModaleCourse(page, { courses, surMaj })   branche la page ; rend { ouvrir(id, ancre, opts), fermer }
 //     courses()      liste de courses à jour de la page
 //     surMaj(liste)  la page se redessine avec la liste relue après un enregistrement
-//     courue         vrai (Palmarès) : la modale consulte les courses courues (§ 3.8) au lieu de celles de la feuille de route
-//     feminin        (avec courue) « 1re » plutôt que « 1er » aux classements
-//     ordre()        (avec courue) identifiants des courses dans l'ordre du tableau : précédente et suivante
+//     courue         vrai (Palmarès) : une course introuvable s'annonce comme une course courue
+//     feminin        « 1re » plutôt que « 1er » aux classements (par défaut : le sexe du profil affiché)
+//     ordre()        identifiants des courses courues dans l'ordre du tableau (Palmarès) : précédente et suivante
 //   window.mrtOuvrirCourse(id, ancre)   ouvre une course (pour le code qui n'a pas de lien : cases du Calendrier)
 (function () {
   window.mrtModaleCourse = function (page, opts) {
     const fichier = () => location.pathname.split('/').pop();
+    // Classements au féminin pour une coureuse : le profil du site affiché (le sien, ou celui du site partagé).
+    const feminin = () => { const p = page.lectureSeule ? page.proprietaire : page.session && page.session.profil; return !!(p && p.sexe === 'femme'); };
     let voile = null, panneau = null, corps = null, el = null;
     let ctx = null, edition = null, id = null;
+    // Présentation de la course ouverte, choisie à son affichage et gardée ensuite : une course qui devient courue
+    // (« Marquer comme courue ») quitte la feuille de route et ferme la feuille.
+    let courue = false;
     let saisie = null; // fiche en cours d'édition ({ annuler }), sinon null
     let poussee = false, origineUrl = '', titreAvant = '', focusAvant = null;
 
@@ -75,7 +81,7 @@
 
     // Dessine la course, ou la ferme si elle n'est plus sur la feuille de route (supprimée, courue).
     function dessiner(debut) {
-      const c = opts.courue ? window.renderPageCourseCourue(el, ctx.courses, id, edition, ctx) : window.renderPageCourse(el, ctx.courses, id, edition, ctx);
+      const c = courue ? window.renderPageCourseCourue(el, ctx.courses, id, edition, ctx) : window.renderPageCourse(el, ctx.courses, id, edition, ctx);
       if (c) document.title = window.mrtNomCourse(c) + ' · MyRunTools';
       else if (!debut) fermer();
       return c;
@@ -83,6 +89,8 @@
 
     function afficher(i, ancre) {
       id = i;
+      const c = ctx.courses.find(x => x.id === i);
+      courue = c ? c.etat === 'courue' : !!opts.courue;
       ctx.ancre = ancre || '';
       ctx.ancreFaite = false;
       el = document.createElement('div');
@@ -118,7 +126,8 @@
       else poussee = !!o.deja;
       const plan = await page.relirePlan();
       if (!voile) return; // fermée pendant la lecture
-      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer }, ordre: opts.ordre, feminin: opts.feminin };
+      ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer }, ordre: opts.ordre,
+        feminin: opts.feminin != null ? opts.feminin : feminin() };
       ctx.relire = async () => {
         const [courses, p] = await Promise.all([page.relire(), page.relirePlan()]);
         return { courses, seances: p.seances, semaines: p.semaines };
@@ -132,15 +141,10 @@
         opts.surMaj(ctx.courses);
         dessiner(false);
       };
-      // Retenir : celui d'Objectif (mrtEdition) ; modifier et marquer basculent la feuille en édition.
-      if (opts.courue) {
-        // Course courue : seul le crayon, qui bascule la feuille en édition ; rien en lecture seule.
-        edition = page.lectureSeule ? null : { modifier: () => editer({ mode: 'courue' }) };
-        afficher(i, ancre);
-        return;
-      }
+      // Retenir : celui d'Objectif (mrtEdition) ; modifier et marquer basculent la feuille en édition, une course courue
+      // dans sa fiche de résultat (seul le crayon s'y affiche). Rien en lecture seule.
       const saisieObjectif = window.mrtEdition(page, () => (ctx ? ctx.courses : opts.courses()), () => ctx && ctx.actualiser());
-      edition = saisieObjectif && { retenir: saisieObjectif.retenir, modifier: () => editer({ mode: 'a_venir' }), marquer: () => editer({ mode: 'courue', marquer: true }) };
+      edition = saisieObjectif && { retenir: saisieObjectif.retenir, modifier: () => editer({ mode: courue ? 'courue' : 'a_venir' }), marquer: () => editer({ mode: 'courue', marquer: true }) };
       afficher(i, ancre);
     }
 
