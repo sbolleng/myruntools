@@ -98,7 +98,9 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
   });
   const maintenant = opts.maintenant || AUJOURDHUI;
   await p.clock.install({ time: maintenant });
-  await p.goto(RACINE + 'connexion.html');
+  // Page de départ sans script, seulement pour poser le stockage : connexion.html se redirige vers l'accueil dès qu'elle voit
+  // la session, et cette redirection, si elle tombe pendant la navigation suivante, l'abandonne (ERR_ABORTED).
+  await p.goto(RACINE + 'robots.txt');
   const t = Math.floor(maintenant / 1000);
   // Palmarès sans regroupement, comme dans son jeu d'essai.
   await p.evaluate(() => localStorage.setItem('mrt-palmares-groupe', '0'));

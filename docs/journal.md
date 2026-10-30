@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 30 oct. 2026 | Banc d'essai | Échec « ERR_ABORTED » corrigé : la page de départ qui pose la session n'est plus `connexion.html` (elle se redirige vers l'accueil et abandonnait la navigation suivante) mais `robots.txt`, sans script. |
 | 29 oct. 2026 | Course courue | Consultation d'une course courue en touchant une ligne du Palmarès : résultat (temps, allure, classements) en tête de la fiche, à la place du compte à rebours ; pas d'écart à l'objectif ; crayon de la ligne gardé (édition directe) ; ouverture aussi en lecture seule, sans crayon (Objectif 0.34, Palmarès 1.21). |
 | 29 oct. 2026 | Fiche d'une course | Le mode (« Modifier la course »…) passe en libellé sous la barre « Annuler · Enregistrer » ; téléphone : modale en plein écran, montée du bas (bord transparent abandonné) ; « Supprimer la course » : bouton à contour rouge avec poubelle, laissé en bas, loin d'« Enregistrer » (Objectif 0.33, Palmarès 1.20). |
 | 29 oct. 2026 | Fiche d'une course | Fiche v2 validée après essai : elle remplace la v1 pour tous (consultation et édition dans la même feuille, fiche de champs unique pour Objectif et Palmarès) ; version d'essai retirée (`essai.js`, `?essai=v2`, bandeau) (Objectif 0.32, Palmarès 1.19). |
