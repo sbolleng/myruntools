@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.40 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.41 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -54,13 +54,13 @@ Plan de page d'une carte (ordinateur) :
 
 | N° | Élément | Exemple | Place sur ordinateur | Style |
 | --- | --- | --- | --- | --- |
-| 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Texte pour Objectif intermédiaire, Accent pour Objectif principal |
-| 5 | Compteur | `25 j` `23 h` `00 min` `00 s` | Ligne 1, à droite | Libellé, dans quatre cases fines ; chiffres en Texte, unités en Texte discret (§ 5.1) |
+| 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Accent pour Objectif intermédiaire et Objectif principal |
+| 5 | Compteur | `25 j` `23 h` `00 min` `00 s` | Ligne 1, à droite | Libellé, dans quatre cases fines ; chiffres en Accent, unités en Texte discret (§ 5.1) |
 | 6, 7 | Course · Parcours, lien officiel | Trail du Lac · Le Tour du Lac ↗ | Ligne 2, à gauche | Nom ; Texte (le jaune est réservé au titre de l'écran). L'icône ↗ ouvre le site officiel dans un nouvel onglet |
 | 3 | Date | 15 NOV. 2026 | Ligne 2, à droite | Libellé ; Texte discret. Le mois seul si la date est approximative (« JUILLET 2027 ») |
 | 8 | Lieu · format | Mont-Clair · Trail court | Ligne 3 | Texte ; Texte discret |
 | — | Distance | DISTANCE `24 km · 650 m D+` | Ligne 4 | Libellé à gauche, valeur en Texte |
-| 9, 10 | Objectif | OBJECTIF `02:45:00` | Ligne 5 | Libellé à gauche, valeur en Texte ; ligne absente si l'objectif est vide |
+| 9, 10 | Objectif | OBJECTIF `02:45:00` | Ligne 5 | Libellé à gauche, valeur en Accent ; ligne absente si l'objectif est vide |
 | 11 à 13 | Dossard | DOSSARD ● Inscrit · n° 412 | Ligne 6 | Libellé à gauche, puis le point et l'état (§ 3.5) |
 
 - **Trois styles de texte seulement**, un seul interligne (1,5), le même écart entre toutes les lignes : *Nom* (Space Grotesk 1 rem, 600), *Texte* (Space Grotesk 0,8 rem), *Libellé* (Space Mono 0,7 rem, capitales).
@@ -85,7 +85,7 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 | Cas | Signification | Rendu |
 | --- | --- | --- |
 | Confirmée | Course retenue (rôle Préparatoire ou Plaisir) | Trait plein, pastille pleine en Texte discret |
-| Rôle Objectif intermédiaire | Course clé de la saison | Pastille pleine en Texte |
+| Rôle Objectif intermédiaire | Course clé de la saison | Pastille pleine en Accent (sans cercle autour, à la différence de l'objectif principal) |
 | Rôle Objectif (affiché « Objectif principal ») | Une course visée ; il peut y en avoir plusieurs | Pastille en Accent, cerclée ; cadre en Accent |
 | Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait et cadre en pointillé ; une seule étape (§ 3.6) |
 | Option isolée | Course envisagée, pas encore retenue | Trait et cadre en pointillé, pastille vide |
@@ -150,7 +150,7 @@ Téléphone : même ordre, même colonne. Les textes (15) à (19) sont repliés 
 | 22 | Fiche | Les lignes de la carte de la feuille de route, complétées : 13, 9, 10, 11, 23, 12, 14 | Encadrée comme une carte (un bloc de données garde son cadre) ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
 | 13 | Départ dans | Compte à rebours (§ 5.1) | Les quatre cases de la carte ; pas pour une option au mois seul |
 | 9, 10 | Distance, D− | « 45 km · 2 100 m D+ », « 2 100 m » | Valeur en Texte |
-| 11 | Objectif | « 06:30:00 » | Valeur en Texte, comme sur la carte |
+| 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
 | 23 | Précisions | « Sous 6 h 45 dans tous les cas. » | Juste sous l'Objectif, valeur en Texte ; absente si vide ; ni sur la carte, ni dans l'en-tête |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit |
 | 14 | Prix | « 58 € » | Seulement s'il est connu |
@@ -180,9 +180,9 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 
 | État | Condition | Rendu |
 | --- | --- | --- |
-| Inscrit | `inscrit` vrai | ● plein en Texte, « Inscrit · n° 412 » (« Inscrit » seul sans numéro) |
+| Inscrit | `inscrit` vrai | ● plein en Accent, « Inscrit · n° 412 » (« Inscrit » seul sans numéro) |
 | Inscription ouverte | Pas inscrit, ouverture passée ou du jour | ● plein et texte en Alerte, souligné : « Inscription ouverte ↗ », lien vers le site d'inscription s'il est connu |
-| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Texte : « Ouvre le 10/01/2027 » |
+| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Accent : « Ouvre le 10/01/2027 » |
 | Ouverture à venir | Pas inscrit, date d'ouverture inconnue | ○ vide en Texte discret : « Ouverture à venir » |
 
 ### 3.6 Groupe d'options (course à choisir)
@@ -315,7 +315,7 @@ Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course c
 | C9 | Distance et D+ | Troisième ligne, même style : « 10 km · 128 m D+ » (sans D−) |
 | C30 | Intertitres | « Résultat », « Montre » : capitales discrètes, un filet fin dessous ; une section sans valeur n'est pas affichée |
 | C32 | Résultats | Petit lien « Résultats » et sa flèche, à droite de l'intertitre Résultat ; absent sans adresse |
-| C25 | Temps | Première ligne de Résultat ; valeur en grand, en Texte (plus d'Accent 2) ; « DNF » si non terminée |
+| C25 | Temps | Première ligne de Résultat ; valeur en grand, en Accent ; « DNF » si non terminée |
 | C34 | Place | Rang général en grand, en Accent ; l'effectif (« / 174 ») plus petit, en Texte discret |
 | C27 | Catégorie, Sexe | Une ligne chacun, rang puis effectif ; la catégorie d'âge en clair après le rang, avec le sexe du profil (« Master 2 Homme », « Senior Femme ») |
 | C35 | Vitesse | En km/h, celle de la base, sinon tirée de l'allure ; absente si DNF |
@@ -372,7 +372,7 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 ### 5.1 Comptes à rebours
 
-- Quatre cases (jours, heures, minutes, secondes : `25 j` `23 h` `00 min` `00 s`), sur chaque étape de la feuille de route (sauf les candidates d'un groupe) et dans la fiche de la page de la course (§ 3.4) ; chiffres en Texte, unités en Texte discret. Heures, minutes et secondes sur deux chiffres. Mise à jour chaque seconde, un seul minuteur pour toute la page.
+- Quatre cases (jours, heures, minutes, secondes : `25 j` `23 h` `00 min` `00 s`), sur chaque étape de la feuille de route (sauf les candidates d'un groupe) et dans la fiche de la page de la course (§ 3.4) ; chiffres en Accent, unités en Texte discret. Heures, minutes et secondes sur deux chiffres. Mise à jour chaque seconde, un seul minuteur pour toute la page.
 - Le temps restant est le temps réel jusqu'au départ : un changement d'heure (été, hiver) d'ici là est compté.
 - Date approximative (mois seul) : jusqu'au 1er du mois, à minuit, pour une course Confirmée ; pas de compte à rebours pour une option.
 - L'heure de départ est saisie en heure locale de la course, sans fuseau ; elle est lue dans le fuseau du navigateur. Correct tant que la course et le coureur sont dans le même fuseau (France, Espagne, Italie). Une course dans un autre fuseau demandera de préciser le fuseau (à traiter le moment venu).
@@ -472,7 +472,7 @@ Résultats attendus, feuille de route :
 - En-tête : « Cap sur Trail des Crêtes » (et non Trail des Sommets, à surveiller) ; « 5 courses » D'ici là ; « prochaine course · Trail du Lac · J-26 ».
 - Trail du Lac : rôle PRÉPARATOIRE ; compteur `26 j` `00 h` `00 min` `00 s` (une heure de plus avec le passage à l'heure d'hiver, le 25 octobre) ; « Trail du Lac · Le Tour du Lac ↗ » ; date 15 NOV. 2026 ; « Mont-Clair · Trail court » ; DISTANCE 24 km · 650 m D+ ; OBJECTIF 02:45:00 ; DOSSARD ● Inscrit · n° 412.
 - Corrida de Noël : rôle PLAISIR ; compteur `54 j` `09 h` `30 min` `00 s` ; DISTANCE 10 km · 40 m D+ ; OBJECTIF Sub 45 min ; DOSSARD ○ Ouvre le 01/11/2026.
-- Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Texte, pastille pleine en Texte ; compteur `137 j` `22 h` `30 min` `00 s` ; OBJECTIF 06:30:00.
+- Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Accent, pastille pleine en Accent ; compteur `137 j` `22 h` `30 min` `00 s` ; OBJECTIF 06:30:00.
 - Printemps 2027 : une seule carte, en pointillé ; « Printemps 2027 », puis « PRÉPARATOIRE • 2 CANDIDATS » ; Trail des Cimes (30 MAI 2027, DOSSARD ○ Ouvre le 10/01/2027), puis Ultra du Plateau · Le 55 (26 JUIN 2027, DOSSARD ● Inscription ouverte ↗, en Alerte) ; ni rôle, ni objectif, ni compteur pour les candidates.
 - Trail des Cimes sorti du groupe (groupe vidé dans ses données) : la carte Printemps 2027 affiche « • 1 candidat », Trail des Cimes devient une option isolée, et l'en-tête affiche « 6 courses ».
 - Trail de la Forêt : cadre en pointillé, pastille vide ; rôle PRÉPARATOIRE, sans le mot « Option » ; date JUILLET 2027 ; pas de compteur ; pas de ligne Objectif ; DOSSARD ○ Ouverture à venir.
@@ -503,7 +503,7 @@ Résultats attendus, page d'une course :
 - Modale depuis le Calendrier (à la rubrique Préparation) et depuis En un coup d'œil. Barre du haut : le crayon puis la croix, à droite, sans lien de retour.
 - Site partagé en lecture seule : la feuille de route et les pages de course du propriétaire s'affichent à l'identique.
 - Chargement de la feuille de route et d'une page de course (ordinateur, téléphone) : à l'instant où la page devient visible, le menu (et l'en-tête, sur la feuille de route) est en place et le contenu n'a plus à bouger.
-- Feuille de route, thème Bleu et orange : nom de la course en Texte, date en Texte discret, chiffres du compteur et objectif en Texte (plus d'Accent 2 dans aucun thème) ; points du dossard « Inscrit » et « Ouvre bientôt » en Texte ; libellés à 0,7 rem ; indicateurs de l'en-tête en Texte.
+- Feuille de route, thème Bleu et orange : nom de la course en Texte, date en Texte discret, chiffres du compteur et objectif en Accent (un seul accent, plus d'Accent 2) ; points du dossard « Inscrit » et « Ouvre bientôt » en Accent ; libellés à 0,7 rem ; indicateurs de l'en-tête en Texte.
 
 Résultats attendus, saisie et édition (mêmes données, même date) :
 

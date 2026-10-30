@@ -556,8 +556,8 @@ const CONTROLES = {
     pb.push(egal({ obj: true, role: 'Objectif principal', compteur: '311j 19h 00min 00s', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
       { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
     pb.push(egal(['311', '19h 00m 00s'], await p.evaluate(() => [document.querySelector('.mrt-days').textContent, document.querySelector('.mrt-hms').textContent]), 'en-tête : compte à rebours jusqu\'à l\'heure de départ'));
-    // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Texte (plus d'Accent 2) ; libellés à 0,7 rem.
-    pb.push(egal({ nom: 'rgb(238, 243, 250)', date: 'rgb(143, 168, 201)', compteur: 'rgb(238, 243, 250)', objectif: 'rgb(238, 243, 250)', libelle: '11.2px', indicateur: 'rgb(238, 243, 250)' },
+    // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Accent (un seul accent) ; libellés à 0,7 rem.
+    pb.push(egal({ nom: 'rgb(238, 243, 250)', date: 'rgb(143, 168, 201)', compteur: 'rgb(255, 183, 0)', objectif: 'rgb(255, 183, 0)', libelle: '11.2px', indicateur: 'rgb(238, 243, 250)' },
       await p.evaluate(() => { const c = document.querySelector('.ob-carte'), st = s => getComputedStyle(c.querySelector(s));
         return { nom: st('.ob-nom').color, date: st('.ob-date').color, compteur: st('.ob-cpt-case b').color, objectif: st('.ob-cible').color, libelle: st('.ob-lib').fontSize,
           indicateur: getComputedStyle(document.querySelector('.mrt-stat-val')).color }; }), 'couleurs et libellés'));
@@ -1912,26 +1912,31 @@ const CONTROLES = {
       await ctx.close();
     }
 
-    // D1 : plus d'Accent 2 ; les repères en Texte ; le bouton principal s'éclaircit au survol.
+    // D1 : plus d'Accent 2 ; les repères en Accent (option B) ; le bouton principal s'éclaircit au survol.
     ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, copie(), {}, PARIS));
     pb.push(egal(['', '', ''], await p.evaluate(() => ['bleu-orange', 'vert-rose', 'violet-turquoise'].map(t => { window.appliquerTheme(t); return getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(); })), 'plus d\'Accent 2 dans les trois thèmes'));
     await p.evaluate(() => window.appliquerTheme('bleu-orange'));
-    const texte = await role(p, '--text');
-    pb.push(egal({ role: texte, pastille: texte, inscrit: texte, bientot: texte }, await p.evaluate(() => {
+    const accent = await role(p, '--accent');
+    pb.push(egal({ role: accent, pastille: accent, inscrit: accent, bientot: accent }, await p.evaluate(() => {
       const st = (s, pr) => getComputedStyle(document.querySelector(s))[pr];
       return { role: st('.ob-role.is-cle', 'color'), pastille: st('.ob-et.is-cle .ob-pt', 'backgroundColor'), inscrit: st('.ob-ins.is-inscrit i', 'backgroundColor'), bientot: st('.ob-ins.is-bientot i', 'borderTopColor') };
-    }), 'objectif intermédiaire (rôle, pastille) et points du dossard en Texte'));
+    }), 'objectif intermédiaire (rôle, pastille) et points du dossard en Accent'));
     await p.hover('.ob-ajout');
     const survol = await style(p, '.ob-ajout', 'backgroundColor');
     pb.push(egal([false, false], [survol === 'rgb(255, 212, 0)', survol === await role(p, '--accent')], 'bouton principal au survol : Accent éclairci (' + survol + ')'));
     await ctx.close();
 
-    // D2 à D6 : champs communs (fond transparent, coins de 6 px, Accent au focus) ; fenêtres comme la fiche ; un seul bouton
+    // D2 à D6 : champs communs (fond Champ, entre Fond et Surface ; coins de 6 px ; Accent au focus) ; fenêtres comme la fiche ; un seul bouton
     // principal ; libellés à 0,7 rem en Space Mono ; astérisque discret ; une seule croix ; « Toutes les semaines » au chevron.
-    const champs = q => q.evaluate(() => [...document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), select, textarea')]
-      .filter(e => e.getClientRects().length).map(e => { const st = getComputedStyle(e); return (e.classList.contains('mrt-champ') ? '' : 'sans mrt-champ : ') + st.backgroundColor + ' ' + st.borderTopLeftRadius; })
-      .filter((x, i, t) => t.indexOf(x) === i));
-    const COMMUN = ['rgba(0, 0, 0, 0) 6px'];
+    const champs = q => q.evaluate(() => {
+      const t = document.createElement('i'); t.style.backgroundColor = 'var(--champ)'; document.body.append(t);
+      const fond = getComputedStyle(t).backgroundColor, page = getComputedStyle(document.body).backgroundColor; t.remove();
+      return [...document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), select, textarea')]
+        .filter(e => e.getClientRects().length).map(e => { const st = getComputedStyle(e);
+          return (e.classList.contains('mrt-champ') ? '' : 'sans mrt-champ : ') + (st.backgroundColor === fond && fond !== page && fond !== 'rgba(0, 0, 0, 0)' ? 'fond Champ' : st.backgroundColor) + ' ' + st.borderTopLeftRadius; })
+        .filter((x, i, l) => l.indexOf(x) === i);
+    });
+    const COMMUN = ['fond Champ 6px'];
     const fenetre = q => q.evaluate(() => { const v = document.querySelector('.cal-panneau'), t = v.querySelector('.cal-panneau-titre'), d = document.createElement('div');
       d.className = 'mc-voile'; d.style.display = 'none'; document.body.append(d); const voile = getComputedStyle(d).backgroundColor; d.remove();
       return { barre: [...v.querySelectorAll('.cal-barre .mrt-btn')].map(x => x.textContent.trim() + (x.classList.contains('is-principal') ? ' *' : '')),
