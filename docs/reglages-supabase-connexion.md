@@ -9,7 +9,7 @@ Version 1.0 · 30 octobre 2026 · [Retour au sommaire](README.md)
 | 1 | URL Configuration | **Site URL** : `https://myruntools.fr` (domaine du site, publié par GitHub Pages). **Redirect URLs** : ajouter `https://myruntools.fr/nouveau-mot-de-passe.html`. Sans cette ligne, le lien de réinitialisation n'arrive pas sur la bonne page. |
 | 2 | Sign In / Providers → Email | Fournisseur e-mail activé ; **longueur minimale du mot de passe : 14**. |
 | 3 | Sign In / Providers | **Désactiver la création de comptes** (« Allow new users to sign up ») : les comptes sont créés à la main. |
-| 4 | Emails (modèles) | Modèle **Reset password** en français, au vouvoiement (texte dans la spécification générale) ; activer l'e-mail d'alerte après changement de mot de passe s'il existe (« Password changed »). |
+| 4 | Emails (modèles) | Modèle **Reset password** en français, au vouvoiement (texte dans la spécification générale) ; activer l'e-mail d'alerte après changement de mot de passe s'il existe (« Password changed » ; absent du tableau de bord au 30 oct. 2026). |
 | 5 | Durée du lien | Lien de réinitialisation valable 1 h (3 600 s, la valeur par défaut). |
 | 6 | Attack Protection | **CAPTCHA** : créer un widget Cloudflare Turnstile pour le domaine `myruntools.fr` ; coller sa **clé secrète** dans Supabase ; me donner (ou coller dans `donnees/supabase.js`, champ `captcha`) sa **clé du site**, qui est publique. Active-le seulement une fois la clé du site en place dans le code, sinon plus personne ne peut se connecter. |
 | 7 | Project Settings → SMTP | Si les e-mails n'arrivent pas, ou trop lentement : brancher un service d'envoi (SMTP personnalisé) au lieu de l'envoi par défaut, limité. |
