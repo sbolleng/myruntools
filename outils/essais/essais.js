@@ -874,12 +874,12 @@ const CONTROLES = {
     // Course renseignée (classements, dossard, prix, montre, textes) et course non terminée.
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { place: 112, effectif: 640, place_categorie: 18, effectif_categorie: 96, place_sexe: 95, effectif_sexe: 510,
-      dossard: '1287', prix: 58, objectif: '01:50:00', montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, strategie: 'Partir prudemment.' });
+      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien_resultats: 'https://example.org/resultats' });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal({ Temps: '01:56:05 5:30 /km', Classements: 'GÉNÉRAL 112 / 640 CATÉGORIE 18 / 96 SEXE 95 / 510', Distance: '21,1 km', Objectif: '01:50:00', Dossard: 'n° 1287', Prix: '58 €' }, await fiche(p), 'consultation : classements, objectif, dossard sans état, prix'));
-    pb.push(egal(['Montre', 'Stratégie ou enchaînement'], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule summary')].map(x => x.textContent.trim())), 'consultation : Montre en premier texte, puis les textes renseignés'));
+    pb.push(egal({ Temps: '01:56:05 5:30 /km', Classements: 'GÉNÉRAL 112 / 640 CATÉGORIE 18 / 96 SEXE 95 / 510', Distance: '21,1 km · 40 m D+ · 38 m D−', Objectif: '01:50:00 +00:06:05', Dossard: 'n° 1287', Prix: '58 €' }, await fiche(p), 'consultation : classements, D+ et D− à la suite, objectif avec son écart, dossard sans état, prix'));
+    pb.push(egal([['Montre', 'Liens'], 'Résultats ↗'], [await p.evaluate(() => [...document.querySelectorAll('.pc-cellule summary')].map(x => x.textContent.trim())), await p.locator('.pc-liens a').first().textContent()], 'consultation : Montre puis Liens seulement (ni rôle, ni stratégie, ni logistique, ni description) ; « Résultats »'));
     pb.push(egal(true, /Temps.*1:55:50.*Distance.*21,3 km.*D\+.*40 m.*FC moy\..*151 bpm/.test(await p.locator('.pc-cellule').first().textContent()), 'consultation : valeurs de la montre'));
     await ctx.close();
     d = copie();
@@ -888,6 +888,22 @@ const CONTROLES = {
     await ligneSeb(p);
     await consultation(p);
     pb.push(egal({ Temps: 'DNF', Classements: 'GÉNÉRAL 1951', Distance: '21,1 km' }, await fiche(p), 'course non terminée : DNF, pas d\'allure'));
+    await ctx.close();
+
+    // Plus rapide que l'objectif : « − » ; objectif non chiffré : pas d'écart.
+    d = copie();
+    Object.assign(d.courses.find(c => c.id === SEB), { objectif: '02:10:00' });
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
+    await ligneSeb(p);
+    await consultation(p);
+    pb.push(egal('02:10:00 −00:13:55', (await fiche(p)).Objectif, 'plus rapide que l\'objectif : « − » devant l\'écart'));
+    await ctx.close();
+    d = copie();
+    Object.assign(d.courses.find(c => c.id === SEB), { objectif: 'Sub 2h' });
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
+    await ligneSeb(p);
+    await consultation(p);
+    pb.push(egal('Sub 2h', (await fiche(p)).Objectif, 'objectif non chiffré : aucun écart'));
     await ctx.close();
 
     // Site partagé en lecture seule : la consultation s'ouvre, sans crayon.

@@ -284,10 +284,16 @@
     }
     const ordre = (ctx.ordre ? ctx.ordre() : []).map(i => courses.find(x => x.id === i)).filter(Boolean);
     const k = ordre.findIndex(x => x.id === id), prec = ordre[k - 1], suiv = ordre[k + 1];
-    const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => lienSur(l[0]));
+    const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats']].filter(l => lienSur(l[0]));
     const classements = [['Général', place(c.place, c.effectif)], ['Catégorie', place(c.place_categorie, c.effectif_categorie)],
       ['Sexe', place(c.place_sexe, c.effectif_sexe)]].filter(l => l[1]);
     const temps = c.dnf ? 'DNF' : hmsFiche(c.temps);
+    // Écart à l'objectif : seulement pour un objectif chiffré (hh:mm:ss) et une course terminée ; « + » si plus lent, « − » si plus rapide.
+    const cible = /^(\d{1,2}):(\d\d):(\d\d)$/.exec(c.objectif || '');
+    const ecart = cible && !c.dnf && c.temps != null ? c.temps - (Number(cible[1]) * 3600 + Number(cible[2]) * 60 + Number(cible[3])) : null;
+    const ecartTxt = ecart == null ? '' : (ecart > 0 ? '+' : ecart < 0 ? '−' : '') + hmsFiche(Math.abs(ecart));
+    // Distance, puis D+ et D− à la suite, sur la même ligne.
+    const parcours = [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : '', c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ');
     const montre = [['Temps', hms(c.montre_temps)], ['Distance', c.montre_distance != null ? nombre(c.montre_distance) + ' km' : ''],
       ['D+', c.montre_dplus != null ? nombre(c.montre_dplus) + ' m' : ''], ['D−', c.montre_dmoins != null ? nombre(c.montre_dmoins) + ' m' : ''],
       ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(l => l[1]);
@@ -299,19 +305,14 @@
         (temps ? ligne('Temps', '<span class="pc-res"><b class="ob-cible pc-temps">' + esc(temps) + '</b>' +
           (!c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '') + '</span>') : '') +
         (classements.length ? ligne('Classements', '<span class="pc-clas">' + classements.map(l => '<span><span class="ob-lib">' + l[0] + '</span> <span class="ob-val">' + esc(l[1]) + '</span></span>').join('') + '</span>') : '') +
-        (distance(c) ? ligne('Distance', '<span class="ob-val">' + esc(distance(c)) + '</span>') : '') +
-        (c.dmoins != null ? ligne('D−', '<span class="ob-val">' + esc(nombre(c.dmoins)) + ' m</span>') : '') +
-        (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
+        (parcours ? ligne('Distance', '<span class="ob-val">' + esc(parcours) + '</span>') : '') +
+        (c.objectif ? ligne('Objectif', '<span class="pc-res"><span class="ob-cible">' + esc(c.objectif) + '</span>' + (ecartTxt ? '<span class="ob-val">' + ecartTxt + '</span>' : '') + '</span>') : '') +
         (c.objectif_precisions ? ligne('Précisions', esc(c.objectif_precisions)) : '') +
         (c.dossard ? ligne('Dossard', '<span class="ob-val">n° ' + esc(c.dossard) + '</span>') : '') +
         (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
       '</div>' +
       '<div class="pc-textes">' +
         cellule('Montre', montre.length ? '<p>' + montre.map(l => '<span class="ob-lib">' + l[0] + '</span> ' + esc(l[1])).join(' · ') + '</p>' : '') +
-        cellule('Rôle dans la préparation', texte(c.pourquoi)) +
-        cellule('Stratégie ou enchaînement', texte(c.strategie)) +
-        cellule('Logistique', texte(c.logistique)) +
-        cellule('Description', texte(c.description)) +
         cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +

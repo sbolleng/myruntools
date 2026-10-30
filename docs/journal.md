@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 30 oct. 2026 | Course courue, consultation | D+ et D− sur la même ligne que la distance ; écart à l'objectif (+ ou −) à droite de l'Objectif, finalement retenu (refusé le 29 oct.) ; seuls les Liens restent comme textes (rôle, stratégie, logistique, description masqués), « Résultats en direct » devient « Résultats » (Objectif 0.35). |
 | 30 oct. 2026 | Palmarès, barre | Bouton « Colonnes » : rond avec icône, dans la barre après le regroupement (plus dans l'en-tête du tableau) ; compteur « X courses sur Y » seulement quand un filtre est actif ; « Réduire les filtres » remplacé par un rond « × » en haut à droite des panneaux Filtres et Colonnes (Palmarès 1.22, Design 0.27). |
 | 30 oct. 2026 | Banc d'essai | Échec « ERR_ABORTED » corrigé : la page de départ qui pose la session n'est plus `connexion.html` (elle se redirige vers l'accueil et abandonnait la navigation suivante) mais `robots.txt`, sans script. |
 | 29 oct. 2026 | Course courue | Consultation d'une course courue en touchant une ligne du Palmarès : résultat (temps, allure, classements) en tête de la fiche, à la place du compte à rebours ; pas d'écart à l'objectif ; crayon de la ligne gardé (édition directe) ; ouverture aussi en lecture seule, sans crayon (Objectif 0.34, Palmarès 1.21). |
