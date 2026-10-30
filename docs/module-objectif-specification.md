@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.37 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.38 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -278,27 +278,30 @@ Ordinateur : mêmes deux modes, même barre du haut ; la fiche garde ses deux co
 
 #### Consultation d'une course courue
 
-Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut que la consultation d'une course à venir ; le crayon (C5) bascule en édition, et Annuler ramène à cette consultation. Sous le titre, deux sections titrées, **Résultat** et **Parcours**, sans cadre ni bloc repliable (décidé le 30 oct. 2026).
+Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut que la consultation d'une course à venir ; le crayon (C5) bascule en édition, et Annuler ramène à cette consultation. Sous le titre, deux sections titrées, **Résultat** et **Montre**, en liste « libellé, valeur », sans cadre ni bloc repliable (décidé le 30 oct. 2026).
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │                                                  (C5) ✎ (C1) ×  │
-│ (C2) COURUE · TRAIL                                              │
 │ (C3) Clam Trail · Le 10 K (C4) ↗                                 │
 │ (C6) dim. 18 oct. 2026 · Clamart (92)                            │
 │ (C33) Trail découverte · (C12) Dossard 1287                      │
+│ (C9) 10 km · 128 m D+                                            │
 │                                                                  │
 │ (C30) RÉSULTAT ──────────────────────────────── (C32) Résultats ↗│
-│ (C25) 00:49:48   (C26) 4:58 /km                                  │
-│ (C27) Général 14e / 174 · Catégorie 2e / 8 · Sexe 6e             │
+│ (C25) TEMPS        00:49:48                                      │
+│ (C34) PLACE        14e / 174                                     │
+│ (C27) CATÉGORIE    2e / 8  Master 2 Homme                        │
+│       SEXE         6e                                            │
+│ (C35) VITESSE      12,05 km/h                                    │
+│ (C26) ALLURE       4:58 /km                                      │
 │                                                                  │
-│ (C30) PARCOURS ──────────────────────────────────────────────────│
-│                     (C31) Officiel     Montre                    │
-│       Temps               00:49:48     00:55:24                  │
-│       Distance            10 km        10,08 km                  │
-│       D+ · D−             128 · 128 m  200 · 200 m               │
-│       Allure              4:58 /km     5:30 /km                  │
-│       FC moy.             —            158 bpm                   │
+│ (C30) MONTRE ────────────────────────────────────────────────────│
+│ (C31) TEMPS        00:55:24                                      │
+│       DISTANCE     10,08 km                                      │
+│       D+ · D−      200 · 200 m                                   │
+│       ALLURE       5:30 /km                                      │
+│       FC MOY.      158 bpm                                       │
 │                                                                  │
 │ (C20) ← Course précédente                 Course suivante → (C21)│
 └──────────────────────────────────────────────────────────────────┘
@@ -306,21 +309,24 @@ Ouverte en touchant une ligne du Palmarès. Même feuille et même barre du haut
 
 | N° | Élément | Règle et style |
 | --- | --- | --- |
-| C2 | Libellé | « Courue · » et le type, en capitales discrètes ; remplace « rôle · étape x sur y » |
 | C4 | Site officiel | Flèche dessinée (pas le caractère ↗, affiché en emoji sur iPhone), discrète, à côté du titre ; seul accès au site officiel |
 | C6 | Date et lieu | Première ligne sous le titre, en Texte discret : la date **sans l'heure**, puis le lieu |
-| C33 | Format et dossard | Deuxième ligne, même style : le format, puis « Dossard » et son numéro ; chaque morceau vide disparaît, la ligne aussi |
-| C30 | Intertitres | « Résultat », « Parcours » : capitales discrètes, un filet fin dessous ; une section sans valeur n'est pas affichée |
+| C33 | Format et dossard | Deuxième ligne, même style : le format, puis « Dossard » et son numéro |
+| C9 | Distance et D+ | Troisième ligne, même style : « 10 km · 128 m D+ » (sans D−) |
+| C30 | Intertitres | « Résultat », « Montre » : capitales discrètes, un filet fin dessous ; une section sans valeur n'est pas affichée |
 | C32 | Résultats | Petit lien « Résultats » et sa flèche, à droite de l'intertitre Résultat ; absent sans adresse |
-| C25 | Temps | Valeur en Accent, en grand ; « DNF » si non terminée |
-| C26 | Allure moyenne | Juste après le temps, en Texte ; absente si DNF ou vide |
-| C27 | Classements | Une seule ligne : général, catégorie, sexe, en rang ordinal puis effectif (« 14e / 174 », « 6e ») ; « 1er », ou « 1re » pour une coureuse (comme le Palmarès) ; chaque classement saisi s'affiche, les autres non ; elle passe à la ligne si l'écran est étroit |
-| C31 | Officiel / Montre | Tableau : Temps, Distance, D+ · D−, Allure, FC moy. ; une valeur vide s'écrit « — », une rangée vide des deux côtés disparaît. Sans aucune valeur de montre : ni colonnes, seulement Distance et D+ · D− (temps et allure sont déjà dans Résultat) |
+| C25 | Temps | Première ligne de Résultat ; valeur en grand, en Accent 2 ; « DNF » si non terminée |
+| C34 | Place | Rang général en grand, en Accent ; l'effectif (« / 174 ») plus petit, en Texte discret |
+| C27 | Catégorie, Sexe | Une ligne chacun, rang puis effectif ; la catégorie d'âge en clair après le rang, avec le sexe du profil (« Master 2 Homme », « Senior Femme ») |
+| C35 | Vitesse | En km/h, celle de la base, sinon tirée de l'allure ; absente si DNF |
+| C26 | Allure moyenne | En Texte ; absente si DNF ou vide |
+| C31 | Montre | Temps, Distance, D+ · D− (« — » pour une valeur manquante des deux), Allure, FC moy. ; la section disparaît sans aucune valeur de montre |
 | C20, C21 | Navigation | Parcourt le Palmarès dans l'ordre du tableau (tri et filtres du moment) |
 
-- **Retirés de la consultation** (gardés en base, modifiables en édition) : C7 (groupe d'options), C8 (actions), C13 (compte à rebours), C24 (plan), C15 à C18 (textes), C9 et C10 (passés dans C31), C11 (objectif), C29 (écart à l'objectif), C23 (précisions), C14 (prix), C19 (Liens : site officiel sur C4, résultats sur C32), C28 (Montre : passée dans C31), C22 (le cadre de la fiche).
+- Rang ordinal partout : « 1er », ou « 1re » pour une coureuse (comme le Palmarès), « 2e », « 14e ». Une ligne sans valeur n'est pas affichée.
+- **Retirés de la consultation** (gardés en base, modifiables en édition) : C2 (libellé « Courue · type »), C7, C8, C13, C24, C15 à C18, C10 (D−), C11 (objectif), C29 (écart), C23 (précisions), C14 (prix), C19 (Liens), C28 (bloc Montre repliable), C22 (cadre de la fiche).
 - **Site partagé en lecture seule** : la feuille s'ouvre, sans crayon (C5).
-- **Téléphone** : même ordre, plein écran ; le tableau tient dans la largeur.
+- **Téléphone** : même ordre, plein écran ; rien ne dépasse.
 
 #### Une seule fiche de champs
 
@@ -343,7 +349,7 @@ Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès 
 
 **Questions ouvertes**
 
-- [x] Consultation d'une course courue : oui, en touchant une ligne du Palmarès ; crayon de la ligne gardé, ouverture aussi en lecture seule (décidé le 29 oct. 2026) ; sections Résultat et Parcours, Officiel et Montre côte à côte, sans objectif ni bloc repliable (décidé le 30 oct. 2026 ; construit).
+- [x] Consultation d'une course courue : oui, en touchant une ligne du Palmarès ; crayon de la ligne gardé, ouverture aussi en lecture seule (décidé le 29 oct. 2026) ; sections Résultat et Montre en liste, sans objectif ni bloc repliable (décidé le 30 oct. 2026 ; construit).
 - [x] Ordre des blocs : le même pour tous ; Résultat et Classements fusionnés (résultat d'abord) ; Place dans le plan, Préparation et Logistique avant Résultat, Dossard juste sous Logistique (décidé le 28 oct. 2026).
 
 ## 4. Données d'une course
@@ -543,10 +549,10 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
 - Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
-- Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, libellé « Courue », sous le titre « dim. 4 oct. 2026 » puis « Semi-marathon » ; section Résultat : « 01:56:05 » et « 5:30 /km », « Général 1 951e » ; section Parcours : la distance seule (« 21,1 km »), sans colonnes ; ni bloc repliable, ni cadre, ni lien Résultats, ni compte à rebours, ni plan, ni boutons « Retenir » et « Marquer comme courue ».
-- Même course renseignée (classements 112e / 640, 18e / 96, 95e / 510 ; dossard 1287 ; D+ 40, D− 38 ; montre 1:55:50, 21,3 km, D+ 40, FC 151 ; objectif, prix, liens) : « Semi-marathon · Dossard 1287 » sous la date ; Parcours en colonnes Officiel et Montre : Temps 01:56:05 | 01:55:50, Distance 21,1 km | 21,3 km, D+ · D− 40 · 38 m | 40 · — m, Allure 5:30 /km | —, FC moy. — | 151 bpm ; lien « Résultats » dans l'intertitre ; ni objectif, ni précisions, ni prix, ni bloc Liens ; site officiel par une flèche dessinée, sans caractère ↗. Sur téléphone, le tableau ne dépasse pas.
-- Première place : « 1er » pour un coureur, « 1re » pour une coureuse ; temps et classements chacun sur une ligne.
-- Course non terminée (DNF) : « DNF » à la place du temps, pas d'allure.
+- Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, sans libellé « Courue » ; sous le titre « dim. 4 oct. 2026 », « Semi-marathon », « 21,1 km » ; Résultat : Temps 01:56:05, Place 1 951e, Vitesse 10,9 km/h, Allure 5:30 /km ; pas de section Montre ; ni bloc repliable, ni cadre, ni lien Résultats, ni compte à rebours, ni plan, ni boutons « Retenir » et « Marquer comme courue ».
+- Même course renseignée (classements 112e / 640, 18e / 96 en M2, 95e / 510 ; dossard 1287 ; D+ 40 ; montre 1:55:50, 21,3 km, D+ 40, FC 151 ; objectif, prix, liens) : « Semi-marathon · Dossard 1287 » puis « 21,1 km · 40 m D+ » ; Résultat : Temps, Place 112e / 640, Catégorie 18e / 96 Master 2 Homme, Sexe 95e / 510, Vitesse, Allure ; Montre : Temps 01:55:50, Distance 21,3 km, D+ · D− 40 · — m, FC moy. 151 bpm ; lien « Résultats » dans l'intertitre ; ni objectif, ni précisions, ni prix, ni bloc Liens ; site officiel par une flèche dessinée. Sur téléphone, rien ne dépasse.
+- Première place : « 1er » pour un coureur, « 1re » pour une coureuse ; chaque valeur sur une ligne.
+- Course non terminée (DNF) : « DNF » à la place du temps, ni vitesse ni allure.
 - Crayon de la feuille : bascule en édition ; Annuler sans saisie revient à la consultation. Crayon de la ligne du tableau : ouvre directement l'édition. « Course suivante » et « précédente » suivent l'ordre du tableau, tri et filtres compris.
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon.
 - Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.

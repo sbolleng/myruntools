@@ -291,39 +291,33 @@
     const k = ordre.findIndex(x => x.id === id), prec = ordre[k - 1], suiv = ordre[k + 1];
     const temps = c.dnf ? 'DNF' : hmsFiche(c.temps);
     const resultats = lienSur(c.lien_resultats);
-    // Résultat : une ligne par valeur (libellé, valeur), la place puis le temps en grand ; une ligne vide n'est pas affichée.
+    // Résultat : une ligne par valeur (libellé, valeur), le temps puis la place en grand ; une ligne vide n'est pas affichée.
     const effectif = n => (n != null ? ' <span class="pc-sur-n">/ ' + nombre(n) + '</span>' : '');
     const rang = (p, n) => (p == null ? '' : esc(place(p, null, ctx.feminin)) + effectif(n));
     const vitesse = c.dnf ? null : c.vitesse || (c.allure ? Math.round(36000 / c.allure) / 10 : null);
     const cat = categorie(c.categorie, ctx.feminin);
     const resultat = [
+      ['Temps', temps ? '<b class="pc-grand ob-cible">' + esc(temps) + '</b>' : ''],
       ['Place', c.place != null ? '<b class="pc-grand ob-cible-1">' + rang(c.place, c.effectif) + '</b>' : ''],
       ['Catégorie', c.place_categorie != null ? '<span class="ob-val">' + rang(c.place_categorie, c.effectif_categorie) + '</span>' + (cat ? ' <span class="pc-cat">' + esc(cat) + '</span>' : '') : ''],
       ['Sexe', c.place_sexe != null ? '<span class="ob-val">' + rang(c.place_sexe, c.effectif_sexe) + '</span>' : ''],
-      ['Temps', temps ? '<b class="pc-grand ob-cible">' + esc(temps) + '</b>' : ''],
       ['Vitesse', vitesse ? '<span class="ob-val">' + esc(nombre(vitesse)) + ' km/h</span>' : ''],
       ['Allure', !c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '']].filter(r => r[1]);
-    // Parcours : Officiel et Montre côte à côte. Sans montre, la distance et le dénivelé seuls (temps et allure sont déjà dans Résultat).
+    // Montre : ses valeurs seules, en liste comme Résultat ; section absente sans aucune valeur.
     const km = v => (v != null ? nombre(v) + ' km' : '');
     const deniv = (p, m) => (p == null && m == null ? '' : (p != null ? nombre(p) : '—') + ' · ' + (m != null ? nombre(m) : '—') + ' m');
-    const officiel = { temps, distance: km(c.distance), deniv: deniv(c.dplus, c.dmoins), allure: c.dnf ? '' : allureTxt(c.allure), fc: '' };
-    const montre = { temps: hmsFiche(c.montre_temps), distance: km(c.montre_distance), deniv: deniv(c.montre_dplus, c.montre_dmoins), allure: allureTxt(c.montre_allure),
-      fc: c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '' };
-    const avecMontre = Object.values(montre).some(Boolean);
-    const rangs = [['temps', 'Temps'], ['distance', 'Distance'], ['deniv', 'D+ · D−'], ['allure', 'Allure'], ['fc', 'FC moy.']]
-      .filter(r => (avecMontre ? officiel[r[0]] || montre[r[0]] : officiel[r[0]] && (r[0] === 'distance' || r[0] === 'deniv')));
-    const cell = v => '<td class="ob-val">' + esc(v || '—') + '</td>';
+    const montre = [['Temps', hmsFiche(c.montre_temps)], ['Distance', km(c.montre_distance)], ['D+ · D−', deniv(c.montre_dplus, c.montre_dmoins)],
+      ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(r => r[1]).map(r => [r[0], '<span class="ob-val">' + esc(r[1]) + '</span>']);
+    const liste = l => l.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join('');
     const section = (titreSection, droite, html) => '<section class="pc-section"><h3 class="pc-intertitre"><span>' + titreSection + '</span>' + droite + '</h3>' + html + '</section>';
-    // Ligne sous le titre : la date (sans heure) et le lieu ; dessous, le format et le dossard.
-    const infos = [[dateLongue(c, true), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
+    // Sous le titre : la date (sans heure) et le lieu ; le format et le dossard ; la distance et le D+.
+    const infos = [[dateLongue(c, true), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
       (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res" href="' + esc(resultats) + '" target="_blank" rel="noopener">Résultats' + FLECHE + '</a>' : '',
-        resultat.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join('')) : '') +
-      (rangs.length ? section('Parcours', '', '<table class="pc-comp">' +
-        (avecMontre ? '<thead><tr><td></td><th class="ob-lib">Officiel</th><th class="ob-lib">Montre</th></tr></thead>' : '') +
-        '<tbody>' + rangs.map(r => '<tr><th class="ob-lib" scope="row">' + r[1] + '</th>' + cell(officiel[r[0]]) + (avecMontre ? cell(montre[r[0]]) : '') + '</tr>').join('') + '</tbody></table>') : '') +
+        liste(resultat)) : '') +
+      (montre.length ? section('Montre', '', liste(montre)) : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
