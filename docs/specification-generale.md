@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.21 · 28 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.22 · 30 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -31,9 +31,37 @@ Chaque page suit le même gabarit, de haut en bas :
 
 L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur la page de démarrage (Palmarès, Préférences, page d'une course…), une barre fine remplace l'en-tête : « Cap sur » et le nom du cap (vers l'Accueil), et l'engrenage ; l'en-tête complet n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
 
-**Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu : le nom de l'application, une accroche (« La boîte à outils du coureur »), un champ « Adresse e-mail », un bouton « Recevoir le lien de connexion » et une ligne d'aide qui accueille aussi les messages (envoi, erreur). Le lien n'est envoyé qu'aux comptes existants ; au retour du lien, l'utilisateur arrive connecté sur l'accueil.
+**Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu. Connexion par **adresse e-mail et mot de passe** (décidé le 30 oct. 2026 ; plus de lien magique, pas de second facteur). Les comptes sont créés à la main : aucune inscription.
 
-**E-mail du lien**, en français, au vouvoiement. Objet : « Votre lien de connexion à MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour vous connecter sur MyRunTools : Me connecter. Ce lien ne sert qu'une fois. Si vous n'avez rien demandé, ignorez cet e-mail. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
+```
+┌────────────────────────────┐
+│ MyRunTools                 │
+│ La boîte à outils du coureur│
+│ (L1) Adresse e-mail        │
+│ (L2) Mot de passe     (L3) 👁│
+│ (L4) Mot de passe oublié ? │
+│ (L5) [Se connecter]        │
+│ (L6) message               │
+└────────────────────────────┘
+```
+
+| N° | Élément | Règle |
+| --- | --- | --- |
+| L1, L2 | Adresse e-mail, mot de passe | Le navigateur peut les mémoriser ; le collage est permis |
+| L3 | Œil | Affiche ou masque le mot de passe |
+| L4 | « Mot de passe oublié ? » | Envoie le lien de réinitialisation à l'adresse saisie en L1 (message « Saisis ton adresse e-mail » si le champ est vide) ; la réponse est toujours « Si un compte existe pour cette adresse, un e-mail vient d'être envoyé. », que l'adresse existe ou non |
+| L5 | « Se connecter » | Désactivé pendant l'envoi ; connecté, direction l'accueil |
+| L6 | Message | Une seule erreur pour tout échec : « Adresse ou mot de passe incorrect. » (on ne dit jamais lequel) ; « Trop de tentatives, réessaie dans quelques minutes. » en cas de limitation |
+
+**Règles du mot de passe** : 14 caractères au moins, aucune règle de composition (une phrase de passe longue protège mieux) ; refusé s'il est identique à l'adresse e-mail. Il est haché par Supabase ; il ne figure jamais dans le dépôt et n'est jamais affiché en dehors de l'œil (L3).
+
+**Nouveau mot de passe** : le lien reçu par e-mail ouvre une page du même gabarit que la connexion, avec « Nouveau mot de passe » (L10), « Confirmation » (L11) et « Enregistrer » (L12) ; les deux saisies doivent être identiques. Enregistré, l'utilisateur est connecté et arrive sur l'accueil. Le lien ne sert qu'une fois et expire au bout d'une heure ; périmé ou déjà utilisé : « Lien expiré : demande-en un nouveau. » avec retour à la page de connexion.
+
+**Premier accès** : les comptes existants n'ont pas encore de mot de passe ; on le choisit par « Mot de passe oublié ? ».
+
+**Protection contre les essais** : limitation des demandes et des tentatives par Supabase, et contrôle anti-robot (Cloudflare Turnstile ou hCaptcha) sur la page de connexion. Après un changement de mot de passe, les autres appareils sont déconnectés.
+
+**E-mail de réinitialisation**, en français, au vouvoiement. Objet : « Réinitialisation de votre mot de passe MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe : Choisir un mot de passe. Ce lien ne sert qu'une fois et expire dans une heure. Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe reste inchangé. » **E-mail d'alerte** après chaque changement : « Le mot de passe de votre compte MyRunTools vient d'être modifié. Si ce n'est pas vous, répondez à ce message. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
 
 **Affichage d'une page.** Une page privée reste invisible tant que la session n'est pas vérifiée, que le menu (et l'en-tête, s'il y en a un) n'est pas dessiné et que son contenu n'est pas prêt, puis elle apparaît d'un seul coup : l'en-tête et le menu ne s'ajoutent jamais après coup en poussant le contenu vers le bas, sur ordinateur comme sur téléphone. Si un chargement échoue, la page apparaît quand même au bout de quelques secondes.
 
@@ -150,7 +178,7 @@ Page ouverte par l'engrenage de l'en-tête ou de la barre fine ; elle n'est pas 
 | Cap | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) ; par défaut la plus lointaine |
 | Compte | Nom, adresse de connexion, déconnexion |
 
-Changement de mot de passe : plus tard (connexion par lien magique seulement pour l'instant).
+Changement de mot de passe : dans le bloc Compte (spécification des Préférences, § 6).
 
 ## 9. Partage en lecture seule
 
@@ -223,7 +251,11 @@ Résultats attendus :
 - Par défaut, l'en-tête figure sur En un coup d'œil seulement ; la feuille de route, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
 - Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
-- Page de connexion : ni en-tête ni menu ; une adresse inconnue reçoit le message « Lien non envoyé » ; le lien reçu ramène sur l'accueil, connecté.
+- Page de connexion : ni en-tête ni menu ; adresse, mot de passe, œil, « Mot de passe oublié ? ».
+- Bon mot de passe : connecté, direction l'accueil. Mauvais mot de passe ou adresse inconnue : le même message « Adresse ou mot de passe incorrect. ».
+- « Mot de passe oublié ? » : même réponse pour une adresse connue et pour une inconnue ; champ vide : « Saisis ton adresse e-mail ».
+- Nouveau mot de passe : 13 caractères refusés, deux saisies différentes refusées, 14 caractères identiques acceptés ; enregistré, connecté sur l'accueil ; lien périmé : « Lien expiré : demande-en un nouveau. ».
+- L'œil affiche puis masque le mot de passe.
 - A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son site » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · site de A ».
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
