@@ -4,5 +4,8 @@
 // rien lire. La clé secrète ne doit jamais figurer ici.
 window.MRT_SUPABASE = {
   url: 'https://gifrpodrwesuhtgkxbuc.supabase.co',
-  cle: 'sb_publishable_85VoCMn5Qkd33Uq0qhSE5g_CTs-cUZy'
+  cle: 'sb_publishable_85VoCMn5Qkd33Uq0qhSE5g_CTs-cUZy',
+  // Clé du site (publique) du contrôle anti-robot Cloudflare Turnstile ; vide tant qu'il n'est pas activé dans Supabase.
+  // La clé secrète du contrôle se saisit dans Supabase, jamais ici.
+  captcha: ''
 };

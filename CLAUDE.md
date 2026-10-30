@@ -40,7 +40,7 @@ Spécification → validation → modèle de données si besoin → construction
 ## Technique
 
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
-- Données : Supabase (offre gratuite), règles par ligne, connexion par lien magique.
+- Données : Supabase (offre gratuite), règles par ligne, connexion par adresse e-mail et mot de passe (réglages Supabase : `docs/reglages-supabase-connexion.md`).
 - `composants/` : composants partagés, avec leur feuille de style : En un coup d'œil (`accueil`, page `index.html`), en-tête et menu (`en-tete`, thèmes et éléments communs compris : boutons `mrt-btn`, `mrt-rond`, lien `mrt-lien`, section `mrt-section`), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), feuille de route et page d'une course en modale (`objectif`, `modale-course`), calendrier (vues Année et 4 semaines), préparation d'une course (`preparation` : plan, phases, séances, partagé par le Calendrier et la page d'une course).
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
 - Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL).

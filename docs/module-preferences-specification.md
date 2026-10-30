@@ -58,7 +58,7 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 
 - **Partage** : décrit dans la spécification générale (§ 9).
 - **Compte** : prénom et nom, adresse de connexion, « Changer le mot de passe », lien « Se déconnecter ».
-- **Changer le mot de passe** : un bouton à contour déplie trois champs, « Mot de passe actuel », « Nouveau mot de passe » et « Confirmation », avec l'œil de la page de connexion et les mêmes règles (14 caractères au moins, deux saisies identiques). L'ancien mot de passe est vérifié avant tout changement ; un échec affiche « Mot de passe actuel incorrect. » sans rien modifier. Enregistré : « Mot de passe modifié. », les champs se referment, les autres appareils sont déconnectés et un e-mail d'alerte est envoyé. Absent d'un site partagé en lecture seule (le bloc Compte reste celui de l'utilisateur connecté).
+- **Changer le mot de passe** : un bouton à contour déplie trois champs, « Mot de passe actuel », « Nouveau mot de passe » et « Confirmation », avec l'œil de la page de connexion et les mêmes règles (14 caractères au moins, deux saisies identiques). L'ancien mot de passe est vérifié avant tout changement ; un échec affiche « Mot de passe actuel incorrect. » sans rien modifier. Enregistré : « Mot de passe modifié. », les champs se referment, les autres appareils sont déconnectés et un e-mail d'alerte est envoyé. Utilisable aussi quand on regarde le site d'un autre : c'est toujours le compte de l'utilisateur connecté.
 
 ## 7. Site partagé en lecture seule
 

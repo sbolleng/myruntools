@@ -42,11 +42,12 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | Document | Contenu | État |
 | --- | --- | --- |
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion | Version 0.22 |
-| [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.26 |
+| [Design](design.md) | Règles communes (couleurs, capitales, cadres, boutons, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès | Version 0.28 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.14 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.34 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.9 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone | Version 1.21 |
+| [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.11, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
@@ -92,7 +93,7 @@ Dans l'ordre :
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
-3. [ ] **Refonte login et mot de passe** : spécifiée ([Spécification générale 0.22](specification-generale.md), § 3 ; Préférences 1.9, § 6) ; à construire après validation. Réglages Supabase à faire par toi avant la mise en ligne (liste donnée à la construction).
+3. [ ] **Refonte login et mot de passe** : construite et testée sur la branche (connexion, mot de passe oublié, nouvelle page, changement dans les Préférences) ; reste à faire par toi les [réglages Supabase](reglages-supabase-connexion.md), puis la fusion dans `main` et un essai réel. Anti-robot : clé du site Turnstile à fournir.
 4. [ ] **Profil** : état civil, poids, taille, pointure.
 5. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
 6. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
