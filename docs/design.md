@@ -1,6 +1,6 @@
 # Design
 
-Version 0.31 · 31 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.32 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -192,3 +192,18 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Fenêtres** (séance, Paramétrer le plan) : comme la fiche (§ 1 et 6) : voile de la feuille d'une course (Fond à 75 %), panneau Surface avec cadre, 30 rem (44 rem pour Paramétrer le plan) ; barre du haut fixe, « Annuler » à gauche, « Enregistrer » ou « Valider » à droite ; titre en libellé (Space Mono 0,75 rem, capitales, Texte discret) ; libellés de champ à 0,7 rem, champs communs (à 16 px sur écran tactile) ; « Supprimer la séance » (à contour Alerte, poubelle) ou « Recalculer selon les règles » (lien) seul en bas.
 - **Choix de la vue** : deux pastilles (§ 1), « Année » et « 4 semaines », en haut à gauche du cadre ; vue 4 semaines : ‹, « Aujourd'hui » (à contour), ›.
 
+
+## 11. Panneau des boutons
+
+Les boutons du site, à reprendre tels quels (feuille de style partagée, `composants/en-tete.css`) : un module n'en dessine pas d'autre. Tous en Space Grotesk, casse normale ; Accent au survol (souris seulement) ; contour Accent de 2 px au focus clavier ; estompés quand ils sont inactifs.
+
+| Bouton | Classe | Apparence | Exemples sur le site |
+| --- | --- | --- | --- |
+| Principal | `mrt-btn is-principal` | Accent plein, texte Fond, 0,8 rem, 600, coins arrondis (20 px) ; au survol, l'Accent mêlé de Texte. Un par écran au plus | Enregistrer, Valider, Se connecter, Partager, + Ajouter une course |
+| À contour | `mrt-btn` | Bordure fine (Bordure), texte en Texte, même taille que le principal ; icône facultative à gauche | Annuler, Retenir cette course, Marquer comme courue, Paramétrer le plan, Aujourd'hui, Changer le mot de passe |
+| Actif | `mrt-btn is-actif` | À contour, texte et bordure en Accent | Bouton à contour dont l'état est en cours |
+| Danger | `mrt-btn is-danger` | À contour en Alerte, avec une poubelle ; plein Alerte au survol | Supprimer la course, Supprimer la séance, Supprimer (confirmation) |
+| Rond | `mrt-rond` | Cercle de 2 rem, bordure fine, icône en Texte discret ; en Accent quand il est actif ou enfoncé | Filtres, Grouper par type, Colonnes, crayon, ‹ et ›, ↑ et ↓ |
+| Fermer | `mrt-rond is-fermer` | Rond avec « × » de 1,2 rem, la même croix partout | Fermer une feuille, un panneau |
+| Lien d'action | `mrt-lien` | Souligné, Texte discret, 0,8 rem, sans cadre ; `is-danger` en Alerte | Se déconnecter, Mot de passe oublié ?, Retour à la connexion, Rétablir l'ordre par défaut, Effacer les filtres, Recalculer selon les règles, Retirer |
+| Pastille | `mrt-pastille` | Arrondie, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond | Vue Année / 4 semaines, filtres, tri et colonnes du Palmarès |
