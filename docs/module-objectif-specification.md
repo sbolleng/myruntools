@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.46 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.47 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -102,36 +102,34 @@ Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, q
 
 **Téléphone** : la modale prend tout l'écran, en montant du bas (animation courte, supprimée si l'appareil demande moins de mouvements) ; la croix la ferme. (Le bord transparent essayé d'abord a été abandonné : de la place perdue et des fermetures par erreur.)
 
-Plan de page (option B, retenue le 31 oct. 2026 ; numéros stables ; (5) et (1) sont dans la barre du haut, fixe). Ordinateur : deux colonnes dans la largeur habituelle (896 px), la fiche à gauche, le Parcours à droite ; dessous, toute la largeur. Sans bloc Parcours, une seule colonne.
+Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; numéros stables ; (5) et (1) sont dans la barre du haut, fixe). Une seule colonne, sur ordinateur comme sur téléphone, de la largeur habituelle (896 px). Deux cadres : la fiche, avec la Description repliée dedans ; puis les textes. Tous les textes sont repliés à l'ouverture (le titre seul, précédé d'un chevron) ; un toucher sur le titre les ouvre ou les ferme.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │                                                  (5) ✎  (1) ×   │
-│ (2) RÔLE · ÉTAPE 3 SUR 6         │ ┌ (25) PARCOURS ── (27) GPX ↓ ┐│
-│ (3) Course · Parcours            │ │ (26) carte du tracé         ││
-│ (6) Lieu ⌖ · Format · date, heure│ │                             ││
-│ (7) Groupe · autres candidates   │ │ (32) profil altimétrique    ││
-│ (30) Site officiel ↗             │ │ (16) › Stratégie ou         ││
-│ (29) S'inscrire ↗                │ │        enchaînement         ││
-│ (8) [Retenir] [Marquer courue]   │ └─────────────────────────────┘│
-│ ┌ (22) fiche ────────────────┐   │                                │
-│ │ (13) DÉPART DANS  [137 j]… │   │                                │
-│ │ (31) RÉSULTATS EN DIRECT ↗ │   │                                │
-│ │ (9)  DISTANCE  45 km ·     │   │                                │
-│ │      2 100 m D+ · 2 100 m D−│  │                                │
-│ │ (11) OBJECTIF  06:30:00    │   │                                │
-│ │ (12) DOSSARD   ● Inscrit · │   │                                │
-│ │                n° 1287     │   │                                │
-│ └────────────────────────────┘   │                                │
-│ (18) › Description               │                                │
-├──────────────────────────────────┴────────────────────────────────┤
-│ (24) › Préparation   (fermée : 15, [Paramétrer le plan], plan)    │
-│ (17) › Logistique                                                 │
-│ (20) ← Course précédente                  Course suivante → (21)  │
+│ (2) OBJECTIF INTERMÉDIAIRE · ÉTAPE 3 SUR 6                        │
+│ (3) Course · Parcours                                            │
+│ (6) ⌖ Lieu · Format · jour abrégé, date, heure                   │
+│ (7) Groupe · autres candidates : …                               │
+│ (30) Site officiel ↗   (29) S'inscrire ↗                         │
+│ (8) [Retenir cette course]  [Marquer comme courue]               │
+│ ┌ (22) fiche ────────────────────────────────────────────┐       │
+│ │ (13) DÉPART DANS  [137 j][22 h][30 min][00 s]          │       │
+│ │ (31) RÉSULTATS    En direct ↗ (jour J)                 │       │
+│ │ (9)  DISTANCE     45 km · 2 100 m D+ · 2 100 m D−      │       │
+│ │ (11) OBJECTIF     06:30:00                             │       │
+│ │ (12) DOSSARD      ● Inscrit · n° 1287                  │       │
+│ │ ────────────────────────────────────────────           │       │
+│ │ (18) › Description                                     │       │
+│ └────────────────────────────────────────────────────────┘       │
+│ ┌────────────────────────────────────────────────────────┐       │
+│ │ (25) › Parcours   (stratégie ; plus tard carte, profil, GPX)   │
+│ │ (24) › Préparation (15, [Paramétrer le plan], plan)    │       │
+│ │ (17) › Logistique                                      │       │
+│ └────────────────────────────────────────────────────────┘       │
+│ (20) ← Course précédente                  Course suivante → (21) │
 └──────────────────────────────────────────────────────────────────┘
 ```
-
-Téléphone : une colonne, dans l'ordre 2, 3, 6, 7, 30, 29, 8, 22, 18, 25, 24, 17, 20-21. Tous les textes sont repliés (le titre seul, précédé d'un chevron). Sur ordinateur, 18, 16 et 17 sont ouverts et 24 fermée ; tous se plient et se déplient d'un toucher sur le titre.
 
 | N° | Élément | Contenu | Règle et style |
 | --- | --- | --- | --- |
@@ -144,22 +142,22 @@ Téléphone : une colonne, dans l'ordre 2, 3, 6, 7, 30, 29, 8, 22, 18, 25, 24, 1
 | 30 | Site officiel | « Site officiel ↗ » | Lien écrit en toutes lettres, nouvel onglet ; seulement si le site officiel est connu |
 | 29 | Inscription | « S'inscrire ↗ » | Seulement si le site d'inscription est connu et que le dossard n'est pas à « Inscrit » ; même ligne que 30 |
 | 8 | Actions | « Retenir cette course », « Marquer comme courue » | Boutons à contour (§ 3.7) |
-| 22 | Fiche | 13, 31, 9, 11, 12 | Encadrée comme une carte ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
+| 22 | Fiche | 13, 31, 9, 11, 12, puis 18 | Encadrée comme une carte ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
 | 13 | Départ dans | Compte à rebours (§ 5.1) | Les quatre cases de la carte ; pas pour une option au mois seul |
 | 31 | Résultats en direct | Libellé RÉSULTATS, valeur « En direct ↗ » | Le jour de la course seulement, si le lien est connu ; ensuite, rien : le résultat est dans le Palmarès et dans la consultation de la course courue (§ 3.8) |
 | 9 | Distance | « 45 km · 2 100 m D+ · 2 100 m D− » | Valeur en Texte ; D− seulement s'il est connu (l'ancienne ligne D− (10) disparaît) |
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit ; sur la page, sans lien (l'inscription passe par 29) |
-| 18 | Description | Quelques infos sur la course | Juste sous la fiche ; texte repliable |
-| 25 | Parcours | Carte, profil, téléchargement, stratégie | Un cadre à lui seul ; colonne de droite sur ordinateur, sous 18 sur téléphone ; sans GPX ni stratégie : absent en lecture seule, sinon le seul bouton « Importer un GPX » |
+| 18 | Description | Quelques infos sur la course | Dans le cadre de la fiche, sous un filet ; repliée ; absente si vide |
+| 25 | Parcours | Stratégie ou enchaînement ; au lot GPX, carte, profil et téléchargement | Premier texte du cadre des textes, replié ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX ni stratégie : absent en lecture seule, sinon (au lot GPX) le seul bouton « Importer un GPX » |
 | 26 | Carte du tracé | Tracé du GPX sur fond topographique, départ et arrivée marqués | Leaflet, fond OpenTopoMap ; tracé en Accent ; zoom à la souris ou aux doigts |
 | 32 | Profil altimétrique | Altitude selon la distance, tirée du GPX | Courbe en Accent, axes discrets |
 | 27 | GPX | « GPX ↓ » | Lien qui télécharge le fichier ; aussi en lecture seule |
 | 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Dans le formulaire (bloc Course) et dans 25 quand il est vide ; fichier `.gpx`, 5 Mo au plus ; absent en lecture seule |
-| 16 | Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante | Texte repliable, dans 25, sous le profil |
-| 24 | Préparation | Dans l'ordre : 15, bouton « Paramétrer le plan », puis le plan (durée, frise des phases, semaine en cours, séances ; [Calendrier](module-calendrier-specification.md), § 5) | Fermée par défaut ; course à venir avec une date seulement ; date approximative : plan au 1er du mois, mentionné sous la ligne du plan ; ancre `#preparation` (ouverte quand on arrive par elle) ; bouton absent en lecture seule |
+| 16 | Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante | Le texte de 25, sous le profil (au lot GPX) ; plus de titre à part |
+| 24 | Préparation | Dans l'ordre : 15, bouton « Paramétrer le plan », puis le plan (durée, frise des phases, semaine en cours, séances ; [Calendrier](module-calendrier-specification.md), § 5) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : plan au 1er du mois, mentionné sous la ligne du plan ; ancre `#preparation` (ouverte quand on arrive par elle) ; bouton absent en lecture seule |
 | 15 | Rôle dans la préparation | Pourquoi cette course figure dans le plan | En tête de 24 ; absent si vide |
-| 17 | Logistique | Transport, horaires, retrait du dossard | Dernier texte, juste avant la navigation |
+| 17 | Logistique | Transport, horaires, retrait du dossard | Dernier texte du cadre, juste avant la navigation |
 | 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la feuille de route | Libellé, puis le nom en Texte |
 
 Ne sont plus affichés sur la page (ils restent dans le formulaire) : Prix (14), Précisions de l'objectif (23), le bloc Liens (19), réparti entre 30, 29 et 31.
@@ -466,7 +464,7 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 ## 6. Téléphone
 
 - Feuille de route : ordre des éléments au § 3.1.
-- Page d'une course : plan du § 3.4, en modale plein écran, une colonne ; la fiche dans le premier écran, les textes repliés.
+- Page d'une course : plan du § 3.4, en modale plein écran ; la fiche dans le premier écran, les textes repliés.
 - Les cartes du suivi en course passent sur deux colonnes ; les libellés secondaires de la jauge sont masqués pour éviter les chevauchements.
 - Les champs de saisie ouvrent le clavier numérique.
 
@@ -548,13 +546,13 @@ Résultats attendus, page d'une course :
 
 - Trail des Gorges : « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30 », Mont-Clair en lien vers OpenStreetMap (nouvel onglet) ; « Site officiel ↗ » ; pas de « S'inscrire » (inscrit).
 - Trail des Gorges, fiche encadrée : DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; DOSSARD ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
-- Trail des Gorges, dans cet ordre : Description sous la fiche ; bloc Parcours avec Stratégie ou enchaînement (et, au lot GPX, « Importer un GPX ») ; Préparation fermée, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
-- Trail des Gorges avec un GPX : carte du tracé et profil altimétrique dans le bloc Parcours, à droite de la fiche sur ordinateur ; « GPX ↓ » télécharge le fichier ; en lecture seule, même bloc, sans import.
+- Trail des Gorges : Description repliée dans le cadre de la fiche ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
+- Trail des Gorges avec un GPX : carte du tracé et profil altimétrique dans Parcours ; « GPX ↓ » télécharge le fichier ; en lecture seule, même bloc, sans import.
 - Ultra du Plateau · Le 55 (pas inscrit, site d'inscription connu) : « S'inscrire ↗ » en tête ; la ligne Dossard sans lien.
 - Course du jour (Trail du Lac placé au 20 oct. 2026, lien des résultats connu) : ligne RÉSULTATS « En direct ↗ » en tête de la fiche ; placée au 21 octobre, pas de ligne.
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
-- Corrida de Noël : « Site officiel ↗ » ; fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; seul texte : Préparation (plan de 8 semaines du format 10 km) ; pas de bloc Parcours tant que le GPX n'est pas construit (ensuite, le seul « Importer un GPX »).
-- Ordinateur : modale dont le contenu a la largeur des autres pages (896 px) ; fiche à gauche, Parcours à droite ; Description, Stratégie et Logistique ouverts, Préparation fermée ; tous se replient. Téléphone (390 px) : une colonne, rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; tous les textes repliés ; toucher un titre ouvre le texte.
+- Corrida de Noël : « Site officiel ↗ » ; fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; seul texte : Préparation (plan de 8 semaines du format 10 km) ; pas de Parcours tant que le GPX n'est pas construit (ensuite, le seul « Importer un GPX »).
+- Ordinateur : modale dont le contenu a la largeur des autres pages (896 px), une colonne, deux cadres ; tous les textes repliés, un toucher sur le titre les ouvre. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; tous les textes repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.
 - Adresse d'une course inconnue, d'un autre utilisateur, ou absente de la feuille de route : « Course introuvable. » et la croix seule dans la modale ; la croix la ferme, la feuille de route dessous (téléphone compris).

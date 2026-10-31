@@ -604,7 +604,7 @@ const CONTROLES = {
           vide: t(q('.ob-vide')), titreDoc: document.title,
           fleches: [document.querySelectorAll('.pc-liens-haut a .ob-fleche').length, /↗/.test((q('.pc') || document.body).textContent)],
           lieu: q('.pc-info .pc-lieu') ? [t(q('.pc-lieu')), q('.pc-lieu').getAttribute('href'), q('.pc-lieu').target] : null, titreLien: document.querySelectorAll('.pc-titre a').length,
-          parcours: [...document.querySelectorAll('.pc-parcours .pc-cellule > summary')].map(t), prepa: q('#preparation') ? [t(q('#preparation .pc-role')), !!q('#preparation .pc-role + .cal-lignes .cal-parametrer')] : null,
+          descFiche: !!q('.pc-fiche > .pc-cellule'), prepa: q('#preparation') ? [t(q('#preparation .pc-role')), !!q('#preparation .pc-role + .cal-lignes .cal-parametrer')] : null,
           insLien: document.querySelectorAll('.pc-fiche a.ob-ins').length
         };
       });
@@ -615,8 +615,8 @@ const CONTROLES = {
     pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30',
       compteur: '137j 22h 30min 00s', fiche: ['Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00', 'Dossard | Inscrit · n° 1287'], dossards: 1 },
       { modale: r.modale, barre: r.barre, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
-    pb.push(egal(['Description', 'Stratégie ou enchaînement', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : Description, Parcours, Préparation, Logistique en dernier'));
-    pb.push(egal(['Stratégie ou enchaînement'], r.parcours, 'page Trail des Gorges, la stratégie dans le bloc Parcours'));
+    pb.push(egal(['Description', 'Parcours', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : Description, Parcours, Préparation, Logistique en dernier'));
+    pb.push(egal(true, r.descFiche, 'page Trail des Gorges, la Description dans le cadre de la fiche'));
     pb.push(egal(['Répétition générale du matériel et de la nutrition.', true], r.prepa, 'page Trail des Gorges, Préparation : le rôle, puis « Paramétrer le plan » et le plan'));
     pb.push(egal(['Site officiel'], r.liens, 'page Trail des Gorges, liens en tête : site officiel, pas de « S\'inscrire » (inscrit)'));
     pb.push(egal([1, false, 0], [...r.fleches, r.titreLien], 'liens : flèche dessinée, plus de caractère ↗ (emoji sur iPhone), plus de flèche dans le titre'));
@@ -625,8 +625,8 @@ const CONTROLES = {
     pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
     pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
     [r] = await pageCourse(id(2));
-    pb.push(egal({ cellules: ['Préparation'], fiche: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 01/11/2026'], liens: ['Site officiel'], parcours: [] },
-      { cellules: r.cellules, fiche: r.fiche, liens: r.liens, parcours: r.parcours }, 'page Corrida de Noël : ni D−, ni prix, pas de bloc Parcours'));
+    pb.push(egal({ cellules: ['Préparation'], fiche: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 01/11/2026'], liens: ['Site officiel'] },
+      { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix, ni Parcours'));
     [r] = await pageCourse(id(5));
     pb.push(egal({ liens: ['Site officiel', 'S\'inscrire'], insLien: 0, fiche: ['Distance | 55 km · 2 800 m D+', 'Dossard | Inscription ouverte'] }, { liens: r.liens, insLien: r.insLien, fiche: r.fiche },
       'page Ultra du Plateau : « S\'inscrire » en tête, la ligne Dossard sans lien'));
@@ -646,12 +646,13 @@ const CONTROLES = {
     pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
     // Ordinateur : la modale (marges de 2 rem et cadre de 1 px : 896 px de texte, comme les pages), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
     ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
-    pb.push(egal({ largeur: 896, cadre: '1px', textes: 4, ouverts: ['Description', 'Stratégie ou enchaînement', 'Logistique'], repliable: 'auto', colonnes: true },
-      await p.evaluate(() => { const f = document.querySelector('.pc-fiche').getBoundingClientRect(), pa = document.querySelector('.pc-parcours').getBoundingClientRect();
+    pb.push(egal({ largeur: 896, cadre: '1px', textes: 4, ouverts: [], repliable: 'auto', cadres: 2 },
+      await p.evaluate(() => {
         return { largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
           cadre: getComputedStyle(document.querySelector('.pc-fiche')).borderTopWidth, textes: document.querySelectorAll('.pc-cellule').length,
           ouverts: [...document.querySelectorAll('.pc-cellule[open] > summary')].map(x => x.textContent.trim()), repliable: getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents,
-          colonnes: pa.left >= f.right && pa.top < f.top }; }), 'ordinateur : deux colonnes (Parcours à droite de la fiche), Préparation fermée, les autres textes ouverts'));
+          cadres: document.querySelectorAll('.pc > .pc-fiche, .pc > .pc-textes').length
+        }; }), 'ordinateur : une colonne, deux cadres (fiche et Description, puis Parcours, Préparation, Logistique), tout replié'));
     await p.locator('#preparation > summary').click();
     await p.waitForTimeout(400);
     pb.push(egal(true, await p.evaluate(() => document.querySelector('#preparation').open), 'ordinateur : toucher Préparation l\'ouvre'));

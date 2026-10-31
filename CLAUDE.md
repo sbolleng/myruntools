@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : spécification des graphiques (mesures normées km-effort et allure-effort, spécification générale § 12 bis ; difficulté, Objectif § 5.2 ; progression, Palmarès § 12), à valider avant construction ; avant : page d'une course, mise en page B (deux colonnes, liens répartis, lieu vers OpenStreetMap, bloc Parcours avec la stratégie) ; avant : déroulé commun et lien « Classement complet » ; avant : Montre repliée sous le Résultat. Lot suivant : bloc Parcours GPX. Historique : `docs/journal.md`.
+- Dernier lot : page d'une course, mise en page A (une colonne ; Description dans le cadre de la fiche ; Parcours, Préparation, Logistique dans un cadre, tout replié ; liens en tête, lieu vers OpenStreetMap) ; avant : spécification des graphiques (km-effort, difficulté, progression). Lot suivant : Parcours GPX. Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
