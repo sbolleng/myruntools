@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.43 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.44 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -42,7 +42,7 @@ Plan de page d'une carte (ordinateur) :
 ```
 (2)●  ┌──────────────────────────────────────────────────────────────────┐
  │    │ (4) PRÉPARATOIRE                  (5) [25 j][23 h][59 min][56 s] │
- │    │ (6) Trail du Lac · Le Tour du Lac (7)↗          (3) 15 NOV. 2026 │
+ │    │ (6) Trail du Lac · Le Tour du Lac               (3) 15 NOV. 2026 │
 (1)   │ (8) Mont-Clair · Trail court                                     │
  │    │ DISTANCE       24 km · 650 m D+                                  │
  │    │ (9) OBJECTIF   (10) 02:45:00                                     │
@@ -50,13 +50,13 @@ Plan de page d'une carte (ordinateur) :
  │    └──────────────────────────────────────────────────────────────────┘
 ```
 
-(1) trait du chemin, (2) pastille du chemin.
+(1) trait du chemin, (2) pastille du chemin. Le n° 7 (lien officiel) a été retiré : le site officiel n'est que sur la page de la course.
 
 | N° | Élément | Exemple | Place sur ordinateur | Style |
 | --- | --- | --- | --- | --- |
 | 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Accent pour Objectif intermédiaire et Objectif principal |
 | 5 | Compteur | `25 j` `23 h` `00 min` `00 s` | Ligne 1, à droite | Libellé, dans quatre cases fines ; chiffres en Accent, unités en Texte discret (§ 5.1) |
-| 6, 7 | Course · Parcours, lien officiel | Trail du Lac · Le Tour du Lac ↗ | Ligne 2, à gauche | Nom ; Texte (le jaune est réservé au titre de l'écran). L'icône ↗ ouvre le site officiel dans un nouvel onglet |
+| 6 | Course · Parcours | Trail du Lac · Le Tour du Lac | Ligne 2, à gauche | Nom ; Texte (le jaune est réservé au titre de l'écran) |
 | 3 | Date | 15 NOV. 2026 | Ligne 2, à droite | Libellé ; Texte discret. Le mois seul si la date est approximative (« JUILLET 2027 ») |
 | 8 | Lieu · format | Mont-Clair · Trail court | Ligne 3 | Texte ; Texte discret |
 | — | Distance | DISTANCE `24 km · 650 m D+` | Ligne 4 | Libellé à gauche, valeur en Texte |
@@ -70,7 +70,7 @@ Plan de page d'une carte (ordinateur) :
 - **Sans compteur** (option dont seul le mois est connu) : la date remonte en ligne 1, à droite, son haut aligné sur celui du rôle.
 - **Course · Parcours** trop longs pour une ligne : le parcours passe à la ligne suivante, sans le point.
 - **Téléphone**, de haut en bas : rôle à gauche, son haut aligné sur celui du compteur à droite (un rôle trop long passe sur deux lignes, à côté du compteur et de la date) ; date juste sous le compteur, à droite ; un interligne ; nom ; puis les autres lignes sur toute la largeur. Pour un candidat, sans rôle ni compteur : date, un interligne, nom.
-- Toucher la carte (hors icône ↗ et lien d'inscription) ouvre la page de la course.
+- Toucher la carte (hors lien d'inscription) ouvre la page de la course. Pas de lien vers le site officiel sur la carte : deux cibles voisines prêteraient à confusion ; il est sur la page de la course.
 - Une option isolée ne porte pas le mot « Option » : son cadre et son trait en pointillé suffisent.
 
 ### 3.2 Lien avec l'en-tête
@@ -191,7 +191,7 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 
 - Une seule carte par groupe, placée dans la feuille de route à la date de sa première candidate.
 - En tête : le nom du groupe (« Printemps 2027 »), dans le style du nom d'une course, en couleur Texte ; dessous, le rôle et « • x candidats », x étant calculé : le nombre de courses du groupe au statut Option et à l'état À venir (« • 1 candidat » au singulier).
-- Puis un bloc par candidate, dans l'ordre chronologique, séparé par un filet : nom ↗ et date, lieu · format, distance, dossard. Ni rôle, ni objectif, ni compteur.
+- Puis un bloc par candidate, dans l'ordre chronologique, séparé par un filet : nom et date, lieu · format, distance, dossard. Ni rôle, ni objectif, ni compteur.
 - Toucher une candidate ouvre sa page.
 
 - **Rôles différents** : si les candidats n'ont pas le même rôle, les rôles se suivent (« Préparatoire · Plaisir • 2 candidats »).
@@ -466,7 +466,7 @@ Résultats attendus, feuille de route :
 
 - Six étapes, dans cet ordre : Trail du Lac, Corrida de Noël, Trail des Gorges, Printemps 2027, Trail de la Forêt, Trail des Crêtes. Ni Cross des Collines (abandonnée), ni Trail des Sommets (à surveiller), ni Semi de San Sebastián (courue).
 - En-tête : « Cap sur Trail des Crêtes » (et non Trail des Sommets, à surveiller) ; « 5 courses » D'ici là ; « prochaine course · Trail du Lac · J-26 ».
-- Trail du Lac : rôle PRÉPARATOIRE ; compteur `26 j` `00 h` `00 min` `00 s` (une heure de plus avec le passage à l'heure d'hiver, le 25 octobre) ; « Trail du Lac · Le Tour du Lac ↗ » ; date 15 NOV. 2026 ; « Mont-Clair · Trail court » ; DISTANCE 24 km · 650 m D+ ; OBJECTIF 02:45:00 ; DOSSARD ● Inscrit · n° 412.
+- Trail du Lac : rôle PRÉPARATOIRE ; compteur `26 j` `00 h` `00 min` `00 s` (une heure de plus avec le passage à l'heure d'hiver, le 25 octobre) ; « Trail du Lac · Le Tour du Lac », sans lien vers le site officiel ; date 15 NOV. 2026 ; « Mont-Clair · Trail court » ; DISTANCE 24 km · 650 m D+ ; OBJECTIF 02:45:00 ; DOSSARD ● Inscrit · n° 412.
 - Corrida de Noël : rôle PLAISIR ; compteur `54 j` `09 h` `30 min` `00 s` ; DISTANCE 10 km · 40 m D+ ; OBJECTIF Sub 45 min ; DOSSARD ○ Ouvre le 01/11/2026.
 - Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Accent, pastille pleine en Accent ; compteur `137 j` `22 h` `30 min` `00 s` ; OBJECTIF 06:30:00.
 - Printemps 2027 : une seule carte, en pointillé ; « Printemps 2027 », puis « PRÉPARATOIRE • 2 CANDIDATS » ; Trail des Cimes (30 MAI 2027, DOSSARD ○ Ouvre le 10/01/2027), puis Ultra du Plateau · Le 55 (26 JUIN 2027, DOSSARD ● Inscription ouverte ↗, en Alerte) ; ni rôle, ni objectif, ni compteur pour les candidates.
@@ -475,7 +475,7 @@ Résultats attendus, feuille de route :
 - Trail des Crêtes : rôle OBJECTIF PRINCIPAL en Accent, cadre en Accent, pastille cerclée ; compteur `311 j` `19 h` `00 min` `00 s` ; OBJECTIF Finisher ; DOSSARD ● Inscrit · n° 88.
 - Une seconde plus tard, les secondes de chaque compteur sont passées à 59 (`25 j 23 h 59 min 59 s` pour Trail du Lac).
 - Au 15 novembre 2026 à 9 h, le compteur du Trail du Lac affiche « Course courue ».
-- Toucher la carte du Trail du Lac ouvre sa page ; toucher ↗ ouvre son site officiel dans un nouvel onglet, sans ouvrir la page ; toucher « Inscription ouverte ↗ » ouvre le site d'inscription de l'Ultra du Plateau.
+- Toucher la carte du Trail du Lac ouvre sa page ; aucune carte ne porte de lien vers le site officiel ; toucher « Inscription ouverte ↗ » ouvre le site d'inscription de l'Ultra du Plateau.
 - Toucher Trail des Cimes, dans la carte du groupe, ouvre la page de Trail des Cimes.
 - Téléphone : sur chaque carte, le rôle à gauche aligné sur le compteur à droite (OBJECTIF INTERMÉDIAIRE sur deux lignes), la date dessous à droite, un interligne, puis le nom ; rien ne dépasse de l'écran.
 - Trail de la Forêt (sans compteur) : la date JUILLET 2027 en haut à droite, face au rôle.

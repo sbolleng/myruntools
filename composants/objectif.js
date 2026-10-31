@@ -133,7 +133,7 @@
       (avecObjectif && c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
       ligne('Dossard', dossardHtml(c)) + '</div>';
   }
-  const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a>' + lienOfficiel(c) + '</' + balise + '>';
+  const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a></' + balise + '>';
   const info = c => (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '');
 
   function carteCourse(c) {

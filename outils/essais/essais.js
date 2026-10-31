@@ -568,14 +568,14 @@ const CONTROLES = {
           indicateur: getComputedStyle(document.querySelector('.mrt-stat-val')).color }; }), 'couleurs et libellés'));
     await figer(p, 1000);
     pb.push(egal('25j 23h 59min 59s', (await cartes(p))[0].compteur, 'une seconde plus tard'));
-    // Liens : ↗ et inscription au-dessus du lien de la carte ; la carte ouvre la page de la course.
-    pb.push(egal([true, true], await p.evaluate(() => ['.ob-carte .ob-ext', '.ob-ins.is-ouvert'].map(sel => {
+    // Liens : inscription au-dessus du lien de la carte ; pas de site officiel sur la carte ; la carte ouvre la page de la course.
+    pb.push(egal([true], await p.evaluate(() => ['.ob-ins.is-ouvert'].map(sel => {
       const a = document.querySelector(sel);
       a.scrollIntoView({ block: 'center' });
       const b = a.getBoundingClientRect();
       return document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2).closest('a') === a;
-    })), '↗ et inscription cliquables à part'));
-    pb.push(egal(['_blank', 'https://example.org/trail-du-lac'], await p.evaluate(() => { const a = document.querySelector('.ob-carte .ob-ext'); return [a.target, a.getAttribute('href')]; }), '↗ : site officiel, nouvel onglet'));
+    })), 'inscription cliquable à part'));
+    pb.push(egal(0, await p.locator('.ob-carte .ob-ext').count(), 'pas de site officiel sur la feuille de route'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif.png'), fullPage: true });
     await toucher(p, '.ob-et:first-child .ob-info');
     await p.waitForSelector('.mc-panneau .pc-titre');
