@@ -85,11 +85,11 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - **Mise en page de la page d'une course** (option B validée, [Objectif 0.45](module-objectif-specification.md), § 3.4) : deux colonnes sur ordinateur, liens répartis (Site officiel, S'inscrire, Résultats en direct le jour J), lieu vers OpenStreetMap, Préparation fermée avec le rôle dedans, Prix et Précisions masqués. À construire en deux lots : la mise en page, puis le bloc Parcours (GPX : stockage Supabase, évolution 016, carte Leaflet et OpenTopoMap, profil, téléchargement, stratégie dedans).
+   - **Page d'une course, bloc Parcours (GPX)** ([Objectif 0.45](module-objectif-specification.md), § 3.4, n° 25 à 28 et 32) : la mise en page B est en ligne ; reste l'import du GPX (stockage Supabase, évolution 016), la carte Leaflet sur OpenTopoMap, le profil altimétrique et le téléchargement.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : graphique de difficulté, badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
-2. [ ] **Calendrier** : [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+2. [ ] **Calendrier** : **banc d'essai** : le groupe `calendrierPlan` échoue (« pastille : 4 semaines, d'un toucher », ligne 1561), déjà sur `main` avant le 31 oct. 2026 au soir ; à réparer. [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.

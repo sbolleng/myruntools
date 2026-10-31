@@ -146,7 +146,7 @@ Téléphone : une colonne, dans l'ordre 2, 3, 6, 7, 30, 29, 8, 22, 18, 25, 24, 1
 | 8 | Actions | « Retenir cette course », « Marquer comme courue » | Boutons à contour (§ 3.7) |
 | 22 | Fiche | 13, 31, 9, 11, 12 | Encadrée comme une carte ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
 | 13 | Départ dans | Compte à rebours (§ 5.1) | Les quatre cases de la carte ; pas pour une option au mois seul |
-| 31 | Résultats en direct | « Résultats en direct ↗ » | Le jour de la course seulement, si le lien est connu ; ensuite, rien : le résultat est dans le Palmarès et dans la consultation de la course courue (§ 3.8) |
+| 31 | Résultats en direct | Libellé RÉSULTATS, valeur « En direct ↗ » | Le jour de la course seulement, si le lien est connu ; ensuite, rien : le résultat est dans le Palmarès et dans la consultation de la course courue (§ 3.8) |
 | 9 | Distance | « 45 km · 2 100 m D+ · 2 100 m D− » | Valeur en Texte ; D− seulement s'il est connu (l'ancienne ligne D− (10) disparaît) |
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit ; sur la page, sans lien (l'inscription passe par 29) |
@@ -488,12 +488,12 @@ Résultats attendus, page d'une course :
 
 - Trail des Gorges : « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30 », Mont-Clair en lien vers OpenStreetMap (nouvel onglet) ; « Site officiel ↗ » ; pas de « S'inscrire » (inscrit).
 - Trail des Gorges, fiche encadrée : DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; DOSSARD ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
-- Trail des Gorges, dans cet ordre : Description sous la fiche ; bloc Parcours avec « Importer un GPX » (pas de tracé dans les données fictives) et Stratégie ou enchaînement ; Préparation fermée, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
+- Trail des Gorges, dans cet ordre : Description sous la fiche ; bloc Parcours avec Stratégie ou enchaînement (et, au lot GPX, « Importer un GPX ») ; Préparation fermée, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
 - Trail des Gorges avec un GPX : carte du tracé et profil altimétrique dans le bloc Parcours, à droite de la fiche sur ordinateur ; « GPX ↓ » télécharge le fichier ; en lecture seule, même bloc, sans import.
 - Ultra du Plateau · Le 55 (pas inscrit, site d'inscription connu) : « S'inscrire ↗ » en tête ; la ligne Dossard sans lien.
-- Trail des Gorges à la date du 7 mars 2027 : ligne RÉSULTATS EN DIRECT ↗ dans la fiche ; le 8 mars, plus de ligne.
+- Course du jour (Trail du Lac placé au 20 oct. 2026, lien des résultats connu) : ligne RÉSULTATS « En direct ↗ » en tête de la fiche ; placée au 21 octobre, pas de ligne.
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
-- Corrida de Noël : « Site officiel ↗ » ; fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; seul texte : Préparation (plan de 8 semaines du format 10 km) ; bloc Parcours avec le seul « Importer un GPX ».
+- Corrida de Noël : « Site officiel ↗ » ; fiche DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; seul texte : Préparation (plan de 8 semaines du format 10 km) ; pas de bloc Parcours tant que le GPX n'est pas construit (ensuite, le seul « Importer un GPX »).
 - Ordinateur : modale dont le contenu a la largeur des autres pages (896 px) ; fiche à gauche, Parcours à droite ; Description, Stratégie et Logistique ouverts, Préparation fermée ; tous se replient. Téléphone (390 px) : une colonne, rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; tous les textes repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.

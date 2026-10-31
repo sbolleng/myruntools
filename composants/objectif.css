@@ -110,11 +110,31 @@ details.pc-section > summary::-webkit-details-marker { display: none; }
 details.pc-section > summary .ob-chev { display: block; order: -1; }
 details.pc-section:not([open]) > summary { margin-bottom: 0; }
 details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
-/* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
+/* Option B : deux colonnes sur ordinateur (fiche à gauche, Parcours à droite) ; une seule sans Parcours ni sur téléphone. */
+.pc-grille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.6rem; align-items: start; }
+.pc-grille.is-seule { grid-template-columns: minmax(0, 1fr); }
+.pc-gauche > .pc-textes { margin-bottom: 1rem; }
+.pc-gauche > .pc-fiche:last-child { margin-bottom: 1rem; }
+/* Lieu (vers OpenStreetMap) et liens écrits en toutes lettres (Site officiel, S'inscrire, En direct). */
+.pc-lieu { display: inline-flex; align-items: baseline; gap: 0.2rem; color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
+.pc-repere { width: 0.8em; height: 0.8em; flex: none; align-self: center; }
+.pc-liens-haut { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.5rem; }
+.pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; }
+.pc-ext.is-ouvert { color: var(--red); } /* inscription ouverte : en Alerte, comme sur la carte */
+.pc-fiche .pc-ext { font-size: inherit; color: var(--text); }
+/* Parcours : un cadre à lui seul, titré en libellé ; la stratégie dedans, sans second cadre. */
+.pc-parcours { padding: 0.7rem 1.1rem 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.pc-parcours .pc-intertitre { margin-bottom: 0; }
+.pc-parcours .pc-textes { padding: 0; background: none; border: 0; border-radius: 0; }
+/* Préparation : le rôle dans la préparation en tête, puis le plan. */
+.pc-role { margin-bottom: 0.9rem; }
+/* Textes : une liste séparée par des filets ; un toucher sur le titre les ouvre ou les ferme. */
 .pc-textes { padding: 0 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.pc-textes.is-bas { margin-top: 1rem; }
 .pc-cellule + .pc-cellule { border-top: 1px solid var(--border); }
-.pc-cellule > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 0; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: default; pointer-events: none; }
+.pc-cellule > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 0; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
 .pc-cellule > summary::-webkit-details-marker { display: none; }
+.pc-cellule > summary .ob-chev { display: block; }
 .ob-chev { display: none; flex: none; width: 0.8rem; height: 0.8rem; color: var(--muted); transition: transform 0.15s; }
 .pc-cellule:not([open]) .ob-chev { transform: rotate(-90deg); }
 .pc-corps { padding-bottom: 1rem; }
@@ -141,9 +161,9 @@ details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
   .ob-cpt { gap: 0.2rem; }
   .ob-cpt-case { padding: 0 0.3rem; }
   .ob-ligne { grid-template-columns: 5rem minmax(0, 1fr); }
-  /* Textes repliables : le titre, précédé d'un chevron, ouvre ou ferme. */
-  .pc-cellule > summary { cursor: pointer; pointer-events: auto; }
-  .ob-chev { display: block; }
+  /* Une colonne : la fiche, la description, puis le Parcours. */
+  .pc-grille { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .pc-grille > .pc-parcours { margin-top: 0; }
 }
 
 /* Survols : seulement avec une souris (docs/design.md, § 1). */
@@ -153,7 +173,7 @@ details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
   .ob-cand:hover .ob-nom a { text-decoration: underline; }
   .ob-ext:hover { color: var(--accent); background: var(--bg); }
   .pc-nav a:hover b { text-decoration: underline; }
-  .pc-lien-res:hover { color: var(--accent); }
+  .pc-lien-res:hover, .pc-ext:hover, .pc-lieu:hover { color: var(--accent); }
 }
 
 /* ----- Saisie et édition (§ 3.7) : boutons ronds du Palmarès, pastilles du formulaire ----- */
