@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : thèmes Blanc et orange, Noir et orange et Automatique (évolution 014 à passer dans Supabase) ; avant : repères en Accent (option B) et champs à fond « Champ ». Historique : `docs/journal.md`.
+- Dernier lot : thèmes Blanc et orange, Noir et orange et Automatique (évolution 014 passée dans Supabase) ; avant : repères en Accent (option B) et champs à fond « Champ ». Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
