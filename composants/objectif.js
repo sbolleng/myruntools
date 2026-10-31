@@ -182,7 +182,7 @@
     lancerCompteurs();
   };
 
-  // ----- Page d'une course (§ 3.4, option B) -----
+  // ----- Page d'une course (§ 3.4, option A) -----
   // Texte repliable : le titre, précédé d'un chevron ; un toucher sur le titre l'ouvre ou le ferme.
   const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule mrt-deroule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
@@ -201,12 +201,12 @@
   // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
   const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ');
 
-  // Téléphone : tous les textes repliés ; ordinateur : ouverts, sauf la Préparation (fermée par défaut).
+  // Tous les textes repliés à l'ouverture, sur ordinateur comme sur téléphone.
   const telephone = window.matchMedia('(max-width: 600px)');
   let replier = null;
   function replierCellules(el) {
     const cellules = [...el.querySelectorAll('.pc-cellule')];
-    const regler = () => cellules.forEach(d => { d.open = !telephone.matches && d.id !== 'preparation'; });
+    const regler = () => cellules.forEach(d => { d.open = false; });
     regler();
     if (replier) telephone.removeEventListener('change', replier);
     replier = regler;
@@ -240,12 +240,9 @@
     const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
     const preparation = (c.pourquoi ? '<div class="pc-role">' + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
-    // Bloc Parcours (n° 25) : pour l'instant la stratégie seule (le tracé GPX viendra au lot suivant).
-    const parcours = c.strategie ? '<section class="pc-parcours"><p class="pc-intertitre"><span>Parcours</span></p>' +
-      '<div class="pc-textes">' + cellule('Stratégie ou enchaînement', texte(c.strategie)) + '</div></section>' : '';
-    const bas = cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
+    // Textes, dans un seul cadre : Parcours (n° 25 : la stratégie ; le tracé GPX viendra au lot suivant), Préparation, Logistique.
+    const bas = cellule('Parcours', texte(c.strategie)) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
-      '<div class="pc-grille' + (parcours ? '' : ' is-seule') + '"><div class="pc-gauche">' +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
       '<p class="pc-info">' + [lieuHtml(c), esc(c.formatLibelle || ''), esc(dateLongue(c))].filter(Boolean).join(' · ') + '</p>' +
@@ -255,16 +252,15 @@
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
         (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
-      // La fiche (n° 22) : compteur, résultats en direct, distance, objectif, dossard.
+      // La fiche (n° 22) : compteur, résultats en direct, distance, objectif, dossard ; la Description (n° 18) repliée dans le même cadre.
       '<div class="ob-lignes pc-fiche">' +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
         ligne('Dossard', dossardHtml(c, true)) +
+        cellule('Description', texte(c.description)) +
       '</div>' +
-      (c.description ? '<div class="pc-textes">' + cellule('Description', texte(c.description)) + '</div>' : '') +
-      '</div>' + parcours + '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
