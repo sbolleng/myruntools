@@ -15,7 +15,7 @@
 .ob-role.is-obj { color: var(--accent); }
 .ob-val { color: var(--text); }
 .ob-cible { color: var(--accent); }
-/* Lien officiel : icône ↗ à côté du nom. */
+/* Lien officiel : icône ↗ à côté du nom, sur la page d'une course seulement. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
 .ob-fleche { width: 0.75em; height: 0.75em; flex: none; vertical-align: -0.05em; }
 
@@ -67,7 +67,7 @@
 .ob-p { display: inline-block; }
 .is-coupe .ob-c { display: block; }
 .is-coupe .ob-sep { display: none; }
-/* Toute la carte ouvre la page de la course ; l'icône ↗ et le lien d'inscription restent à part. */
+/* Toute la carte ouvre la page de la course ; seul le lien d'inscription reste à part. */
 .ob-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
 .ob-info { grid-area: info; }
 .ob-lignes { grid-area: lignes; display: grid; gap: 0.3rem; }
