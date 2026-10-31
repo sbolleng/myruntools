@@ -389,12 +389,14 @@
       window.addEventListener('resize', fitTable);
     }
 
+    // Ouverture et fermeture en déroulé (design § 1).
+    const derouler = (el, open) => (window.mrtDeroule ? window.mrtDeroule(el, open) : (el.hidden = !open));
     function setPanel(open) {
-      panel.hidden = !open;
+      derouler(panel, open);
       $('.pv2-btn').setAttribute('aria-expanded', String(open));
     }
     function setCols(open) {
-      colsPanel.hidden = !open;
+      derouler(colsPanel, open);
       $('.pv2-cols-btn').setAttribute('aria-expanded', String(open));
     }
 
@@ -423,10 +425,10 @@
       }
       const act = e.target.closest('[data-act]');
       if (!act) return;
-      if (act.dataset.act === 'filters') setPanel(panel.hidden);
+      if (act.dataset.act === 'filters') setPanel($('.pv2-btn').getAttribute('aria-expanded') !== 'true');
       if (act.dataset.act === 'filters-close') { setPanel(false); $('.pv2-btn').focus(); }
       if (act.dataset.act === 'cols-close') { setCols(false); $('.pv2-cols-btn').focus(); }
-      if (act.dataset.act === 'cols') setCols(colsPanel.hidden);
+      if (act.dataset.act === 'cols') setCols($('.pv2-cols-btn').getAttribute('aria-expanded') !== 'true');
       if (act.dataset.act === 'clear') { state.filters = {}; renderPanel(); renderTable(); }
       if (act.dataset.act === 'add' && cfg.onAdd) cfg.onAdd();
       if (act.dataset.act === 'group') {

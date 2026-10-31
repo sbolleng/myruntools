@@ -304,10 +304,14 @@ const CONTROLES = {
     pb.push(egal({ croix: '×', enHaut: true, aDroite: true, reduire: false }, await p.evaluate(() => { const pan = document.querySelector('.pv2-panel:not(.pv2-cols)'), x = pan.querySelector('.pv2-close'), r = pan.getBoundingClientRect(), b = x.getBoundingClientRect();
       return { croix: x.textContent, enHaut: b.top - r.top < 24, aDroite: r.right - b.right < 24, reduire: /Réduire/.test(pan.textContent) }; }), 'panneau des filtres : « × » en haut à droite, plus de « Réduire les filtres »'));
     await p.click('.pv2-panel:not(.pv2-cols) .pv2-close');
-    pb.push(egal(['false', true], [await p.getAttribute('.pv2-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-panel:not(.pv2-cols)').hidden)], '« × » ferme le panneau des filtres'));
+    // Déroulé commun (design § 1) : la fermeture est animée, puis le panneau est masqué.
+    const anime = await p.evaluate(() => document.querySelector('.pv2-panel:not(.pv2-cols)').getAnimations().length > 0);
+    await p.waitForFunction(() => document.querySelector('.pv2-panel:not(.pv2-cols)').hidden);
+    pb.push(egal(['false', true, true], [await p.getAttribute('.pv2-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-panel:not(.pv2-cols)').hidden), anime], '« × » ferme le panneau des filtres, en déroulé'));
     await p.click('.pv2-cols-btn');
     pb.push(egal(['true', false], [await p.getAttribute('.pv2-cols-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-cols').hidden)], 'bouton Colonnes : ouvre le panneau des colonnes'));
     await p.click('.pv2-cols .pv2-close');
+    await p.waitForFunction(() => document.querySelector('.pv2-cols').hidden);
     pb.push(egal([true, 'false'], [await p.evaluate(() => document.querySelector('.pv2-cols').hidden), await p.getAttribute('.pv2-cols-btn', 'aria-expanded')], '« × » ferme le panneau des colonnes'));
     await p.click('.pv2-btn');
     await p.click('.pv2-tri[data-sort="time"]');
@@ -932,7 +936,7 @@ const CONTROLES = {
       Résultat: ['Temps | 01:56:05', 'Place | 112e / 640', 'Catégorie | 18e / 96 Master 2 Homme', 'Sexe | 95e / 510', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'],
       Montre: ['Temps | 01:55:50', 'Distance | 21,3 km', 'D+ · D− | 40 · — m', 'FC moy. | 151 bpm'] },
       await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps puis place ; catégorie en clair ; Montre seule en bas ; ni objectif, ni précisions, ni prix'));
-    pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Résultats', 0, 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
+    pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0, 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count(), await p.locator('.pc-cellule').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
     pb.push(egal([true, 'rgb', true], await p.evaluate(() => { const [r, m] = [...document.querySelectorAll('.pc-section')], coul = e => getComputedStyle(e).color;
       return [m.getBoundingClientRect().top >= r.getBoundingClientRect().bottom, coul(m.querySelector('.ob-val')).slice(0, 3), coul(m.querySelector('.ob-val')) !== coul(r.querySelector('.pc-res-ligne .ob-val'))]; }),

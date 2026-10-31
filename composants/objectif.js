@@ -182,7 +182,7 @@
   // ----- Page d'une course (§ 3.4) -----
   // Texte repliable : sur téléphone, seul le titre se voit, un toucher l'ouvre ; sur ordinateur, toujours ouvert.
   const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
+  const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule mrt-deroule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   const euros = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 })
     .format(Number(n)).replace(/ /g, ' ');
@@ -320,9 +320,9 @@
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
       // Résultat, puis la Montre dessous, dans une section repliée (un toucher sur son titre l'ouvre).
       '<div class="pc-colonnes">' +
-      (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res" href="' + esc(resultats) + '" target="_blank" rel="noopener">Résultats' + FLECHE + '</a>' : '',
+      (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res mrt-lien" href="' + esc(resultats) + '" target="_blank" rel="noopener">Classement complet' + FLECHE + '</a>' : '',
         liste(resultat)) : '') +
-      (montre.length ? '<details class="pc-section is-montre"><summary class="pc-intertitre"><span>Montre</span>' + CHEVRON + '</summary>' + liste(montre) + '</details>' : '') +
+      (montre.length ? '<details class="pc-section is-montre mrt-deroule"><summary class="pc-intertitre"><span>Montre</span>' + CHEVRON + '</summary><div class="pc-repli-corps">' + liste(montre) + '</div></details>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
