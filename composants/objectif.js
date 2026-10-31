@@ -90,8 +90,11 @@
     if (o > aujourdhui()) return { etat: 'bientot', texte: 'Ouvre le ' + o.split('-').reverse().join('/') };
     return { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
   }
-  function dossardHtml(c) {
-    const d = dossard(c), html = '<i></i>' + esc(d.texte) + (d.lien ? ' ' + FLECHE : '');
+  // sansLien : page d'une course, où l'inscription passe par « S'inscrire » (§ 3.4, n° 29).
+  function dossardHtml(c, sansLien) {
+    const d = dossard(c);
+    if (sansLien) d.lien = null;
+    const html = '<i></i>' + esc(d.texte) + (d.lien ? ' ' + FLECHE : '');
     return d.lien
       ? '<a class="ob-ins is-ouvert" href="' + esc(d.lien) + '" target="_blank" rel="noopener">' + html + '</a>'
       : '<span class="ob-ins is-' + d.etat + '">' + html + '</span>';
@@ -179,20 +182,31 @@
     lancerCompteurs();
   };
 
-  // ----- Page d'une course (§ 3.4) -----
-  // Texte repliable : sur téléphone, seul le titre se voit, un toucher l'ouvre ; sur ordinateur, toujours ouvert.
+  // ----- Page d'une course (§ 3.4, option B) -----
+  // Texte repliable : le titre, précédé d'un chevron ; un toucher sur le titre l'ouvre ou le ferme.
   const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule mrt-deroule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
-  const euros = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 })
-    .format(Number(n)).replace(/ /g, ' ');
+  // Lien externe écrit en toutes lettres, suivi de la flèche dessinée.
+  const lienExterne = (url, txt, classe) => '<a class="pc-ext' + (classe ? ' ' + classe : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>';
+  // Lieu (n° 6) : OpenStreetMap, sur les coordonnées si elles sont connues, sinon une recherche du nom.
+  const REPERE = '<svg class="pc-repere" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11s3.6-3.4 3.6-6.1A3.6 3.6 0 0 0 2.4 4.9C2.4 7.6 6 11 6 11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="6" cy="4.9" r="1.2" fill="currentColor"/></svg>';
+  function lieuHtml(c) {
+    if (!c.lieu) return '';
+    const url = c.latitude != null && c.longitude != null
+      ? 'https://www.openstreetmap.org/?mlat=' + c.latitude + '&mlon=' + c.longitude + '#map=13/' + c.latitude + '/' + c.longitude
+      : 'https://www.openstreetmap.org/search?query=' + encodeURIComponent(c.lieu);
+    return '<a class="pc-lieu" href="' + esc(url) + '" target="_blank" rel="noopener" title="Voir sur la carte">' + REPERE + esc(c.lieu) + '</a>';
+  }
+  // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
+  const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ');
 
-  // Téléphone : cellules repliées, sauf la première ; ordinateur : toutes ouvertes, sans pouvoir les replier.
+  // Téléphone : tous les textes repliés ; ordinateur : ouverts, sauf la Préparation (fermée par défaut).
   const telephone = window.matchMedia('(max-width: 600px)');
   let replier = null;
   function replierCellules(el) {
     const cellules = [...el.querySelectorAll('.pc-cellule')];
-    const regler = () => cellules.forEach((d, i) => { d.open = !telephone.matches || i === 0; });
+    const regler = () => cellules.forEach(d => { d.open = !telephone.matches && d.id !== 'preparation'; });
     regler();
     if (replier) telephone.removeEventListener('change', replier);
     replier = regler;
@@ -221,34 +235,37 @@
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
     const marquable = c.statut === 'confirmee' && c.date <= aujourdhui();
-    const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => lienSur(l[0]));
+    // Liens en tête (n° 30 et 29) ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
+    const liensHaut = [lienSur(c.lien) ? lienExterne(c.lien, 'Site officiel') : '', lienSur(c.inscription) && !c.inscrit ? lienExterne(c.inscription, 'S\'inscrire', dossard(c).etat === 'ouvert' ? 'is-ouvert' : '') : ''].filter(Boolean);
+    const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
+    const preparation = (c.pourquoi ? '<div class="pc-role">' + texte(c.pourquoi) + '</div>' : '') +
+      (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
+    // Bloc Parcours (n° 25) : pour l'instant la stratégie seule (le tracé GPX viendra au lot suivant).
+    const parcours = c.strategie ? '<section class="pc-parcours"><p class="pc-intertitre"><span>Parcours</span></p>' +
+      '<div class="pc-textes">' + cellule('Stratégie ou enchaînement', texte(c.strategie)) + '</div></section>' : '';
+    const bas = cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
+      '<div class="pc-grille' + (parcours ? '' : ' is-seule') + '"><div class="pc-gauche">' +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
-      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
-      '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
+      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
+      '<p class="pc-info">' + [lieuHtml(c), esc(c.formatLibelle || ''), esc(dateLongue(c))].filter(Boolean).join(' · ') + '</p>' +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
+      (liensHaut.length ? '<p class="pc-liens-haut">' + liensHaut.join('') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
         (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
-      // La fiche : les lignes de la carte de la feuille de route, complétées (D−, prix).
+      // La fiche (n° 22) : compteur, résultats en direct, distance, objectif, dossard.
       '<div class="ob-lignes pc-fiche">' +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
-        (distance(c) ? ligne('Distance', '<span class="ob-val">' + esc(distance(c)) + '</span>') : '') +
-        (c.dmoins != null ? ligne('D−', '<span class="ob-val">' + esc(nombre(c.dmoins)) + ' m</span>') : '') +
+        (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
+        (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
-        (c.objectif_precisions ? ligne('Précisions', esc(c.objectif_precisions)) : '') +
-        ligne('Dossard', dossardHtml(c)) +
-        (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
+        ligne('Dossard', dossardHtml(c, true)) +
       '</div>' +
-      '<div class="pc-textes">' +
-        (ctx && window.mrtPreparation.aPlan(c) ? cellule('Préparation', '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>', 'preparation') : '') +
-        cellule('Rôle dans la préparation', texte(c.pourquoi)) +
-        cellule('Stratégie ou enchaînement', texte(c.strategie)) +
-        cellule('Logistique', texte(c.logistique)) +
-        cellule('Description', texte(c.description)) +
-        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ' + FLECHE + '</a></li>').join('') + '</ul>' : '') +
-      '</div>' +
+      (c.description ? '<div class="pc-textes">' + cellule('Description', texte(c.description)) + '</div>' : '') +
+      '</div>' + parcours + '</div>' +
+      (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
