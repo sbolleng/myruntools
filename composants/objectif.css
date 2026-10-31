@@ -83,7 +83,7 @@
 /* ----- Page d'une course : sans en-tête ; la carte en grand, puis les textes repliables ----- */
 /* Même largeur que les autres pages (main) : pas de limite propre. */
 .pc-sur { display: flex; flex-wrap: wrap; gap: 0 0.5rem; }
-.pc-titre { margin: 0.45rem 0 0.3rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }
+.pc-titre { margin: 0.2rem 0 0.25rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }
 .pc-titre .ob-ext { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
 .pc-info, .pc-groupe { color: var(--muted); }
 .pc-groupe { margin-top: 0.3rem; font-size: 0.8rem; }
@@ -92,21 +92,23 @@
 .pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
 .pc-fiche .ob-cpt { font-size: 0.72rem; }
 /* Course courue : deux sections titrées (Résultat, Montre), sans cadre ni repli. */
-.pc-section { margin-top: 1.4rem; font-size: 0.85rem; color: var(--muted); }
-.pc-intertitre { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; padding-bottom: 0.35rem;
+.pc-section { margin-top: 1.1rem; font-size: 0.85rem; color: var(--muted); }
+.pc-intertitre { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.45rem; padding-bottom: 0.3rem;
   font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
 .pc-lien-res { display: inline-flex; align-items: center; gap: 0.25rem; letter-spacing: 0.05em; color: var(--muted); text-decoration: none; }
 /* Résultat et Montre : libellé à gauche, valeur à droite ; temps et place en grand. */
-.pc-res-ligne { display: grid; grid-template-columns: 6.4rem minmax(0, 1fr); align-items: baseline; padding: 0.15rem 0; }
-.pc-grand { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+.pc-res-ligne { display: grid; grid-template-columns: 6.4rem minmax(0, 1fr); align-items: baseline; padding: 0.1rem 0; }
+.pc-grand { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
 .ob-cible-1 { color: var(--accent); }
 .pc-sur-n { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
 .pc-cat { margin-left: 0.4rem; color: var(--muted); }
-/* Montre : valeurs en Texte discret ; à droite de Résultat dès que la largeur le permet. */
+/* Montre : sous Résultat, repliée ; un toucher sur son titre (chevron) l'ouvre ; valeurs en Texte discret. */
 .pc-section.is-montre .ob-val { color: var(--muted); }
-@media (min-width: 601px) {
-  .pc-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; align-items: start; }
-}
+details.pc-section > summary { justify-content: flex-start; gap: 0.5rem; list-style: none; cursor: pointer; }
+details.pc-section > summary::-webkit-details-marker { display: none; }
+details.pc-section > summary .ob-chev { display: block; order: -1; }
+details.pc-section:not([open]) > summary { margin-bottom: 0; }
+details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
 /* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
 .pc-textes { padding: 0 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-cellule + .pc-cellule { border-top: 1px solid var(--border); }
