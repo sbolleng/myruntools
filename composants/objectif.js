@@ -318,11 +318,11 @@
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
-      // Résultat et Montre côte à côte sur un grand écran, l'un sous l'autre sur téléphone.
+      // Résultat, puis la Montre dessous, dans une section repliée (un toucher sur son titre l'ouvre).
       '<div class="pc-colonnes">' +
       (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res" href="' + esc(resultats) + '" target="_blank" rel="noopener">Résultats' + FLECHE + '</a>' : '',
         liste(resultat)) : '') +
-      (montre.length ? section('Montre', '', liste(montre), 'is-montre') : '') +
+      (montre.length ? '<details class="pc-section is-montre"><summary class="pc-intertitre"><span>Montre</span>' + CHEVRON + '</summary>' + liste(montre) + '</details>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
