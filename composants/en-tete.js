@@ -24,8 +24,11 @@
     if (vp && !/maximum-scale/.test(vp.content)) vp.content += ', maximum-scale=1';
   }
   const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  // Thèmes : seules les couleurs changent ; le premier sert par défaut.
-  const THEMES = ['bleu-orange', 'vert-rose', 'violet-turquoise'];
+  // Thèmes : seules les couleurs changent ; le premier sert par défaut. « auto » : blanc-orange ou noir-orange,
+  // selon le réglage clair ou sombre de l'appareil, et il suit ce réglage s'il change pendant la visite.
+  const THEMES = ['bleu-orange', 'vert-rose', 'violet-turquoise', 'blanc-orange', 'noir-orange'];
+  const sombre = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  let choisi = null;
   const DAY = 86400000;
   const pad = n => String(n).padStart(2, '0');
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -50,11 +53,15 @@
   const dash = '—';
   let minuteur = null;
 
-  // Thème venu des préférences ; inconnu ou absent : le premier.
+  // Thème venu des préférences ; inconnu ou absent : le premier. Retenu sur l'appareil : la page suivante le pose
+  // dès son chargement (script en tête de chaque page), sans montrer d'abord un autre fond.
   window.appliquerTheme = function (name) {
-    const t = THEMES.indexOf(name) !== -1 ? name : THEMES[0];
+    choisi = name === 'auto' ? 'auto' : THEMES.indexOf(name) !== -1 ? name : THEMES[0];
+    const t = choisi === 'auto' ? (sombre && sombre.matches ? 'noir-orange' : 'blanc-orange') : choisi;
     THEMES.forEach(x => document.documentElement.classList.toggle('t-' + x, x === t));
+    try { localStorage.setItem('mrt-theme', choisi); } catch (e) { /* stockage indisponible */ }
   };
+  if (sombre && sombre.addEventListener) sombre.addEventListener('change', () => { if (choisi === 'auto') window.appliquerTheme('auto'); });
 
   window.renderEnTete = function (cfg) {
     const o = cfg.objectif || {};

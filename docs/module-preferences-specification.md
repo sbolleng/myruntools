@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.10 · 30 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.11 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -19,8 +19,8 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 
 ## 3. Thème
 
-- Trois choix, un seul actif : **Bleu et orange**, **Vert et rose**, **Violet et turquoise**.
-- Chaque choix montre un petit aperçu de ses couleurs (fond et accent).
+- Six choix, un seul actif : **Bleu et orange**, **Vert et rose**, **Violet et turquoise**, **Blanc et orange** (fond blanc), **Noir et orange** (fond noir) et **Automatique** (« blanc ou noir selon le réglage de l'appareil » : Blanc et orange en mode clair, Noir et orange en mode sombre).
+- Chaque choix montre un petit aperçu de ses couleurs (fond et accent) ; Automatique, ses deux fonds (blanc et noir).
 - Choisir un thème recolore aussitôt la page.
 - Le thème ne se choisit qu'ici : une adresse ne l'impose pas. La page de connexion, avant que l'utilisateur soit connu, est dans le premier thème.
 

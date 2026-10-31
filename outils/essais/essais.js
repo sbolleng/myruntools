@@ -430,7 +430,8 @@ const CONTROLES = {
       return [g.getAttribute('href').endsWith('preferences.html'), g.classList.contains('is-on'), !!document.querySelector('.mrt-header'), !!document.querySelector('.mrt-barre')]; }), 'engrenage dans la barre fine, page sans en-tête'));
     pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors des modules du menu'));
     pb.push(egal(['Compte', 'Cap', 'Thème', 'Menu', 'En un coup d\'œil', 'Partage'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
-    pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise'], await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes, sans mention'));
+    pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise', 'Blanc et orange', 'Noir et orange', 'Automatique · blanc ou noir selon le réglage de l\'appareil'],
+      await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes : trois en couleurs, blanc, noir, Automatique'));
 
     // Thème
     pb.push(egal('bleu-orange', await q('input[name=theme]:checked', 'x.value'), 'thème coché à l\'ouverture'));
@@ -1795,6 +1796,37 @@ const CONTROLES = {
         return { classe: document.documentElement.className.split(' ').filter(c => c.startsWith('t-')), fond: getComputedStyle(document.body).backgroundColor, cadre: e ? getComputedStyle(e).backgroundColor : null };
       }, sel);
       pb.push(egal({ classe: ['t-vert-rose'], fond: 'rgb(14, 29, 25)', cadre: 'rgb(24, 51, 46)' }, r, page + ' : thème Vert et rose'));
+      await ctx.close();
+    }
+    // Fond blanc et fond noir (lecture claire ou sombre) : fond, cadres, contrôles du navigateur ; encre fixe sur la couleur
+    // d'une course ; phases plus foncées sur fond blanc.
+    for (const [theme, fond, cadre, schema] of [['blanc-orange', 'rgb(255, 255, 255)', 'rgb(243, 245, 248)', 'light'], ['noir-orange', 'rgb(0, 0, 0)', 'rgb(18, 18, 18)', 'dark']]) {
+      const d = jeuObjectif(db0).db; // Trail du Lac le 15 novembre, dans les quatre semaines du 19 octobre
+      d.preferences[0].theme = theme;
+      const { p, ctx } = await ouvrir(nav, 'calendrier.html#semaines', 1200, d, {}, PARIS);
+      pb.push(egal({ classe: ['t-' + theme], fond, cadre, schema, encre: 'rgb(11, 18, 32)', retenu: theme }, await p.evaluate(() => ({
+        classe: document.documentElement.className.split(' ').filter(c => c.startsWith('t-')), fond: getComputedStyle(document.body).backgroundColor,
+        cadre: getComputedStyle(document.querySelector('.cal-cadre')).backgroundColor, schema: getComputedStyle(document.documentElement).colorScheme,
+        encre: getComputedStyle(document.querySelector('.cal-jr-course.c-trail-v')).color, retenu: localStorage.getItem('mrt-theme') })), theme + ' : fond, cadre, contrôles, encre sur la couleur d\'une course, thème retenu'));
+      if (theme === 'blanc-orange') pb.push(egal('rgb(148, 98, 0)', await p.evaluate(() => getComputedStyle(document.querySelector('.cal-sem.ph-developpement .cal-sem-phase')).color),
+        'fond blanc : Développement en orange foncé, lisible sur blanc'));
+      await ctx.close();
+    }
+    // Automatique : noir-orange quand l'appareil est en mode sombre, blanc-orange en mode clair, et il suit le changement sans recharger.
+    {
+      const d = JSON.parse(JSON.stringify(db0));
+      d.preferences[0].theme = 'auto';
+      const { p, ctx } = await ouvrir(nav, 'index.html', 1200, d, {}, PARIS);
+      const classe = () => p.evaluate(() => document.documentElement.className.split(' ').filter(c => c.startsWith('t-')));
+      await p.emulateMedia({ colorScheme: 'dark' }); await pause();
+      const nuit = await classe();
+      await p.emulateMedia({ colorScheme: 'light' }); await pause();
+      pb.push(egal([['t-noir-orange'], ['t-blanc-orange']], [nuit, await classe()], 'Automatique : noir en mode sombre, blanc en mode clair, sans recharger'));
+      // Page suivante : le thème retenu est posé dès le chargement, avant la lecture des préférences (pas d'éclair d'un autre fond).
+      await p.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { window.__theme = document.documentElement.className.split(' ').filter(c => c.startsWith('t-')); }));
+      await p.emulateMedia({ colorScheme: 'dark' });
+      await p.goto(RACINE + 'objectif.html'); await p.waitForSelector('html[data-mrt-donnees]');
+      pb.push(egal(['t-noir-orange'], await p.evaluate(() => window.__theme), 'page suivante : le thème (Automatique, appareil sombre) posé dès le chargement'));
       await ctx.close();
     }
     // Site partagé : le thème du propriétaire (Vert et rose), pas celui du visiteur (Bleu et orange), même en passant

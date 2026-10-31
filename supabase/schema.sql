@@ -10,7 +10,7 @@
 create type statut_course as enum ('a_surveiller', 'option', 'confirmee');
 create type role_course   as enum ('preparatoire', 'plaisir', 'objectif_intermediaire', 'objectif');
 create type etat_course   as enum ('a_venir', 'abandonnee', 'courue');
-create type theme         as enum ('bleu-orange', 'vert-rose', 'violet-turquoise');
+create type theme         as enum ('bleu-orange', 'vert-rose', 'violet-turquoise', 'blanc-orange', 'noir-orange', 'auto');
 create type sexe          as enum ('femme', 'homme', 'non_precise');
 create type phase_plan    as enum ('base', 'developpement', 'affutage', 'deload');
 create type seance_type   as enum ('run', 'renfo');

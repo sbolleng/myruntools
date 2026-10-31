@@ -1,13 +1,13 @@
 # Design
 
-Version 0.30 · 30 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.31 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
 ## 1. Principes
 
 - Une seule mise en page pour tous ; seules les couleurs changent d'un thème à l'autre.
-- Fond sombre, chiffres en police à chasse fixe, libellés en petites capitales.
+- Fond sombre, ou blanc pour la lecture claire (thème Blanc et orange) ; chiffres en police à chasse fixe, libellés en petites capitales.
 - Toute couleur passe par un rôle (§ 2) : aucune couleur écrite en dur dans un module.
 - Les effets de survol ne s'appliquent qu'aux appareils avec une souris : sur écran tactile, un toucher les laisserait « collés » (un bouton resterait en couleur d'accent).
 
@@ -29,19 +29,21 @@ Les boutons, liens d'action, pastilles, champs et sections sont des éléments c
 
 ## 2. Thèmes
 
-| Rôle | Bleu et orange | Vert et rose | Violet et turquoise |
-| --- | --- | --- | --- |
-| Fond | `#060b14` | `#0E1D19` | `#14101F` |
-| Surface | `#122a4a` | `#18332E` | `#221A35` |
-| Surface 2 | `#163a66` | `#21453D` | `#2D2347` |
-| Bordure | `#1f4c80` | `#2F5A4E` | `#40335F` |
-| Accent | `#ffb700` | `#D07B87` | `#2EC4B6` |
-| Texte | `#eef3fa` | `#EDF2E9` | `#F1EEF7` |
-| Texte discret | `#8fa8c9` | `#8FA391` | `#A49BB8` |
-| Alerte | `#e05c5c` | `#A56269` | `#E0607E` |
-| Champ (fond des champs) | Fond à 60 %, Surface à 40 % | idem | idem |
+| Rôle | Bleu et orange | Vert et rose | Violet et turquoise | Blanc et orange | Noir et orange |
+| --- | --- | --- | --- | --- | --- |
+| Fond | `#060b14` | `#0E1D19` | `#14101F` | `#ffffff` | `#000000` |
+| Surface | `#122a4a` | `#18332E` | `#221A35` | `#f3f5f8` | `#121212` |
+| Surface 2 | `#163a66` | `#21453D` | `#2D2347` | `#e7ecf2` | `#1c1c1c` |
+| Bordure | `#1f4c80` | `#2F5A4E` | `#40335F` | `#d2dae4` | `#333333` |
+| Accent | `#ffb700` | `#D07B87` | `#2EC4B6` | `#c2410c` | `#ffb700` |
+| Texte | `#eef3fa` | `#EDF2E9` | `#F1EEF7` | `#132030` | `#f2f2f2` |
+| Texte discret | `#8fa8c9` | `#8FA391` | `#A49BB8` | `#5a6a7e` | `#9b9b9b` |
+| Alerte | `#e05c5c` | `#A56269` | `#E0607E` | `#c62828` | `#f0605d` |
+| Champ (fond des champs) | Fond à 60 %, Surface à 40 % | idem | idem | idem | idem |
 
-Identifiants : `bleu-orange`, `vert-rose`, `violet-turquoise`. Dans les maquettes seulement, `?t=bleu-orange`, `?t=vert-rose` ou `?t=violet-turquoise` choisit le thème.
+Identifiants : `bleu-orange`, `vert-rose`, `violet-turquoise`, `blanc-orange`, `noir-orange`, et `auto` (« Automatique ») : Blanc et orange quand l'appareil est en mode clair, Noir et orange en mode sombre, et il suit ce réglage s'il change pendant la visite. Dans les maquettes seulement, `?t=bleu-orange`, `?t=vert-rose` ou `?t=violet-turquoise` choisit le thème.
+
+**Lecture claire et sombre** : Blanc et orange et Noir et orange sont faits pour lire, sur fond blanc ou noir. Sur fond blanc, l'orange du site (`#ffb700`) serait illisible (contraste 1,8) : l'Accent y est un orange foncé, `#c2410c` (5,2 sur blanc, texte blanc sur le bouton principal compris). Les contrôles du navigateur (dates, listes, barres de défilement) prennent la version claire ou sombre du thème. Le thème choisi est retenu sur l'appareil et posé dès le chargement de chaque page : jamais d'éclair d'un autre fond.
 
 Le Champ n'a pas de valeur propre : il mêle le Fond et la Surface du thème, pour qu'un champ soit plus sombre que le cadre qui l'entoure et plus clair que la page, dans tous les thèmes.
 
@@ -169,8 +171,9 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 | --- | --- | --- |
 | Route | `#4db8ff` | Course sur route (tout ce qui n'est pas trail) |
 | Trail | `#ff7a45` | Course de trail |
+| Encre | `#0b1220` | Texte écrit sur la couleur pleine d'une course, lisible sur fond blanc comme sur fond sombre |
 
-- **Course validée** : case pleine de la couleur de la famille, nom en Fond.
+- **Course validée** : case pleine de la couleur de la famille, nom en Encre.
 - **Course non validée** : couleur de la famille à 30 % sur Surface, cadre de 1 px de la couleur pleine, nom en Texte.
 - **Course courue** : case en Texte discret, nom en Fond.
 - **Trait de prépa** : vertical, 3 px de large, à gauche des cases, de la couleur pleine de la famille (à 60 % pour une course non validée) ; il franchit l'écart d'un pixel entre deux jours ; un couloir de 5 px par prépa qui en chevauche une autre ; le nom de la course est décalé d'autant.
@@ -180,7 +183,7 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 
 **Vue 4 semaines et rubrique Préparation (page d'une course)**
 
-- **Phases** : Base `#5fb49c`, Développement `#e6b84d`, Affûtage `#b48ef0`, Deload `#8fa8c9` ; mêmes valeurs dans les trois thèmes. Une semaine : trait vertical de 4 px à gauche dans la couleur de sa phase (pointillé en Bordure pour « Sans objectif clair »), nom de la phase en 0,85 rem, 600, dans cette couleur.
+- **Phases** : Base `#5fb49c`, Développement `#e6b84d`, Affûtage `#b48ef0`, Deload `#8fa8c9`, dans les thèmes sombres ; sur fond blanc (Blanc et orange), plus foncées pour rester lisibles en texte : Base `#2f7d69`, Développement `#946200`, Affûtage `#7a4fc4`, Deload `#52698a`. Une semaine : trait vertical de 4 px à gauche dans la couleur de sa phase (pointillé en Bordure pour « Sans objectif clair »), nom de la phase en 0,85 rem, 600, dans cette couleur.
 - **Semaine** : titre en Space Mono 0,7 rem capitales, Texte discret ; sept jours côte à côte (un par ligne sur téléphone), cases entre Fond et Surface, week-end plus clair, jour passé à 55 %, aujourd'hui cerclé de 1 px de Texte.
 - **Séance** : case à cocher en Accent, type en Space Mono 0,7 rem capitales Texte discret (nom du jour de même), libellé en 0,72 rem ; barrée et en Texte discret quand elle est faite. Bouton « + » rond en bas à droite de la case du jour. Course du jour : pastille aux quatre couleurs du § 10 ; rendez-vous clé : « ◆ » et texte en 0,68 rem.
 - **Frise** des phases : cases de la couleur de la phase, côte à côte, largeur proportionnelle à leur nombre de semaines ; poignées de 8 px en Texte, curseur de redimensionnement.

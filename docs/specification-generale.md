@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.24 · 30 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.25 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -146,7 +146,8 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 ## 6. Thèmes
 
 - Chaque utilisateur choisit un thème parmi ceux proposés ; un thème ne change que les couleurs, jamais la mise en page.
-- Trois thèmes : **Bleu et orange**, **Vert et rose**, et **Violet et turquoise**, proposés à tous. Valeurs dans le [document de design](design.md).
+- Cinq thèmes, proposés à tous : trois sombres en couleurs, **Bleu et orange**, **Vert et rose** et **Violet et turquoise** ; deux pour la lecture, **Blanc et orange** (fond blanc, lecture claire) et **Noir et orange** (fond noir, lecture sombre). Valeurs dans le [document de design](design.md).
+- **Automatique** : Blanc et orange quand l'appareil (téléphone, ordinateur) est réglé en mode clair, Noir et orange en mode sombre ; la page suit le réglage s'il change, sans recharger.
 - Aucune couleur libre : l'utilisateur choisit un thème, pas des couleurs une à une.
 
 ## 7. Catalogue des modules
@@ -284,6 +285,8 @@ Résultats attendus :
 - Une seule course avant l'objectif : « 1 course ».
 - Sans objectif renseigné : l'indicateur Objectif affiche « — ».
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
+- Blanc et orange : fond blanc, cadres `#f3f5f8`, contrôles du navigateur en clair ; le nom d'une course pleine en Encre ; Développement en `#946200`. Noir et orange : fond noir, cadres `#121212`.
+- Automatique : appareil en mode sombre, Noir et orange ; passé en mode clair, Blanc et orange, sans recharger ; la page suivante s'affiche d'emblée dans le bon thème.
 - L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
 - Par défaut, l'en-tête figure sur En un coup d'œil seulement ; la feuille de route, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
 - Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.

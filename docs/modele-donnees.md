@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.14 · 28 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.15 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -50,7 +50,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | Champ | Contenu | Défaut |
 | --- | --- | --- |
 | `utilisateur` | Profil concerné | — |
-| `theme` | Bleu et orange, vert et rose, violet et turquoise | Selon la pratique |
+| `theme` | Bleu et orange, vert et rose, violet et turquoise, blanc et orange, noir et orange, automatique (`auto` : blanc ou noir selon l'appareil ; évolution 014) | Selon la pratique |
 | `modules` | Modules du menu, dans l'ordre choisi, En un coup d'œil compris (évolution 010) | Tous les modules, En un coup d'œil en tête |
 | `course_cap` | La course du cap, affichée dans l'en-tête ; son champ `objectif` alimente l'indicateur « Objectif » | La dernière course de la page Objectif (la plus lointaine à venir) |
 | `palmares_colonnes` | Colonnes affichées dans le Palmarès | Colonnes par défaut |

@@ -1,7 +1,10 @@
 /* ===== Préparation : phases, semaines, séances, fenêtres (preparation.js) =====
    docs/module-calendrier-specification.md, § 4 et 5 ; couleurs : docs/design.md, § 9 et 10.
    Partagé par le Calendrier (calendrier.html) et la page d'une course (course.html). */
-:root { --route: #4db8ff; --trail: #ff7a45; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; }
+/* Couleurs fixes, les mêmes dans tous les thèmes ; l'encre : le texte écrit sur la couleur d'une course. */
+:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; }
+/* Fond blanc : des phases plus foncées, lisibles quand leur nom est écrit dans leur couleur. */
+.t-blanc-orange { --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; }
 
 /* ----- Phases (base, développement, affûtage, deload) ----- */
 .cal-k.ph-base, .cal-seg.ph-base { background: var(--ph-base); }
@@ -32,8 +35,8 @@
 .cal-jr.auj { outline: 1px solid var(--text); outline-offset: -1px; }
 .cal-jr-nom { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-jr-course { display: block; padding: 0.05rem 0.3rem; font-size: 0.7rem; font-weight: 600; line-height: 1.35; color: var(--bg); text-decoration: none; border-radius: 3px; overflow-wrap: anywhere; }
-.cal-jr-course.c-route-v { background: var(--route); }
-.cal-jr-course.c-trail-v { background: var(--trail); }
+.cal-jr-course.c-route-v { background: var(--route); color: var(--encre); }
+.cal-jr-course.c-trail-v { background: var(--trail); color: var(--encre); }
 .cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
 .cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
 .cal-jr-course.courue { background: var(--muted); }

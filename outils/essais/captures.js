@@ -9,7 +9,8 @@
 //                                             une autre copie du site (ex. git archive origin/main), pour un avant/après
 //   THEME=vert-rose node captures.js objectif ../.. captures/vert-rose
 //                                             dans un autre thème que celui des données fictives (bleu-orange)
-// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares, filtres, preferences,
+// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares, calendrier,
+//         calendrier-semaines, filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -38,6 +39,8 @@ const PAGES = {
   fiche: { url: 'course.html?id=' + id(3), largeurs: { tel: [390, 844] }, action: async p => { await p.locator('[data-ob="modifier"]').click(); await p.waitForSelector('.fc-fiche'); } },
   modale: { url: 'objectif.html', largeurs: { tel: [390, 844] }, action: async p => { await p.locator('.ob-et:nth-child(3) .ob-nom a:not(.ob-ext)').click(); await p.waitForSelector('.mc-panneau .pc-titre'); } },
   palmares: { url: 'palmares.html' },
+  calendrier: { url: 'calendrier.html' },
+  'calendrier-semaines': { url: 'calendrier.html#semaines' },
   // Consultation d'une course courue : le semi de San Sebastián, avec des valeurs fictives ajoutées.
   'consultation-courue': { url: 'palmares.html', hauteur: { ordi: 700 }, donnees: d => { Object.assign(d.courses.find(c => c.id === '00000000-0000-0000-0001-000000000007'),
     { place: 14, effectif: 174, place_categorie: 2, effectif_categorie: 8, place_sexe: 6, categorie: 'M2', dossard: '271', objectif: '01:50:00', objectif_precisions: 'Temps prévu par le plan, visée : environ 1 h 50.', dplus: 128, dmoins: 128,
