@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.25 · 31 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.26 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -267,6 +267,19 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | Météo | Open-Meteo : gratuit, sans clé, modèle européen ECMWF inclus |
 | Bilan hebdomadaire | Routine Claude |
 | Cache navigateur | Numéro de version posé automatiquement dans les liens CSS et JS à chaque publication |
+
+## 12 bis. Mesures communes
+
+Mesures normées, les mêmes partout dans l'application (graphique de difficulté d'Objectif, progression du Palmarès, et plus tard Calculatrice). On s'en tient à la norme publiée, sans correction maison.
+
+| Mesure | Définition | Unité, affichage | Sert à |
+| --- | --- | --- | --- |
+| km-effort | Distance (km) + D+ (m) ÷ 100 : 100 m de montée comptent comme 1 km à plat. C'est la règle de l'ITRA (association internationale du trail), reprise par l'UTMB ; la descente n'y entre pas. | km-effort, une décimale (66,0 ; 30,5) ; arrondi à l'unité dans une étiquette | Comparer la difficulté de deux courses |
+| Allure-effort | Temps ÷ km-effort : le temps mis pour un km-effort. Sur une course plate, elle est égale à l'allure moyenne. | min:s par km-effort (5:24 /km-effort), à la seconde | Comparer des performances d'une course à l'autre, route et trail sur une même échelle |
+
+- **D+ non renseigné** : compté 0 (course sur route le plus souvent), et signalé dans le détail (« D+ non renseigné »).
+- **Distance non renseignée** : pas de km-effort, donc pas de point sur un graphique.
+- **Limites, à connaître** : ni le terrain (sable, technique), ni l'altitude, ni la chaleur ne sont comptés ; l'allure-effort ralentit naturellement avec la distance : pour suivre une vraie progression, comparer des courses de même format.
 
 ## 13. Contrôles
 

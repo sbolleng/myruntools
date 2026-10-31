@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.23 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.24 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -189,7 +189,57 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 - Téléphone tenu en hauteur : le tableau défile sur le côté ; une ligne, sous la barre, invite à tourner le téléphone : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » (un site ne peut pas tourner l'écran lui-même sur iPhone).
 - Téléphone tenu en largeur : une ligne par course, sans retour à la ligne dans les cellules ; le tableau défile sur le côté s'il le faut. Ni invitation, ni sur ordinateur.
 
-## 12. Contrôles
+## 12. Graphique de progression
+
+Il montre si l'on court plus vite d'une course à l'autre. Chaque course courue est placée selon sa date et son **allure-effort** (temps ÷ km-effort), la mesure normée de la [spécification générale](specification-generale.md) (§ 12 bis) : route et trail sur une même échelle. Un graphique fonctionnel : axes gradués, chiffres lisibles, aucune décoration.
+
+- **Place** : sous la barre (Filtres, regroupement, colonnes, « + Ajouter une course ») et au-dessus du tableau, dans son propre cadre ; titre repliable « Progression » (déroulé commun), ouvert par défaut, état retenu sur l'appareil.
+- **Il suit les filtres** (§ 7) : il montre exactement les courses du tableau, et se redessine à chaque changement de filtre, d'ajout, de modification ou de suppression. Le tri et le regroupement n'y changent rien.
+- **Courses placées** : celles qui ont un temps et une distance ; les DNF et les courses sans temps ou sans distance n'ont pas de point. Si des courses du tableau sont écartées, une ligne sous le graphique le dit : « 2 courses sans point (DNF, temps ou distance manquant) ».
+- **Moins de 2 points** : le cadre reste, avec « Pas assez de courses pour un graphique » à la place du tracé.
+- **Pour une vraie progression**, filtrer un format (10 km, semi-marathon…) : l'allure-effort ralentit avec la distance (§ 12 bis).
+
+Plan de page (ordinateur) :
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ (1) ▾ Progression                      (8) ↘ 13 s /km-effort │
+│                                            plus lent par an  │
+│ (2) ALLURE-EFFORT · plus rapide en haut                      │
+│ 4:30 ┤ (9) ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  │
+│ 5:00 ┤ ●🥇(4)   ● (3)                    ●🥇                 │
+│      ┤                 ●🥇      ╌╌╌╌(5)╌╌╌╌╌╌╌╌╌╌╌╌╌         │
+│ 5:30 ┤ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌    ●            ●            │
+│ 6:00 ┤                       ●                               │
+│      ┼────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬──   │
+│ (6)   avr. 25  juil.  oct.  janv. 26  avr.  juil.  oct.      │
+│ (7) 7 courses · 0 sans point                                  │
+└──────────────────────────────────────────────────────────────┘
+(10) bulle au survol ou au toucher :
+     5:18 /km-effort
+     Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+
+```
+
+Téléphone : même ordre, toute la largeur du cadre ; la tendance (8) passe sous le titre.
+
+| N° | Élément | Exemple | Place | Style |
+| --- | --- | --- | --- | --- |
+| 1 | Titre repliable | ▾ Progression | En haut du cadre | Titre repliable commun (design § 1) |
+| 2 | Axe vertical | ALLURE-EFFORT · 4:30 5:00 5:30 6:00 | À gauche | Libellé ; graduations toutes les 30 s, bornes arrondies à 30 s autour des points ; le plus rapide en haut ; Space Mono 0,7 rem, Texte discret |
+| 3 | Course | Point d'une course | À sa date | Point plein, Accent |
+| 4 | Record | 🥇 à côté du point | À côté du point | La course porte 🥇 dans le tableau (§ 5) : même marque sur le graphique |
+| 5 | Tendance | Droite pointillée | À travers les points | Droite de régression (moindres carrés) sur les points affichés, à partir de 3 points ; pointillé, Texte discret |
+| 6 | Axe du temps | avr. 25 · juil. · oct. | En bas | De la première à la dernière course placée ; un repère par trimestre, l'année sur le premier et sur janvier ; Space Mono 0,7 rem, Texte discret |
+| 7 | Bilan | 7 courses · 2 sans point | Sous le graphique | Texte discret, 0,8 rem ; « sans point » seulement s'il y en a |
+| 8 | Pente de la tendance | ↗ 12 s /km-effort plus rapide par an | Au bout du titre | Chiffre en Space Mono ; Accent quand on va plus vite, Texte discret sinon ; à partir de 3 points ; « stable » sous 1 s par an |
+| 9 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
+| 10 | Bulle | 5:18 /km-effort · Semi-marathon de Sète… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface ; une seule à la fois ; « D+ non renseigné » quand c'est le cas |
+
+- **Toucher le nom dans la bulle** : ouvre la consultation de la course (§ 10), comme une ligne du tableau.
+- **Accessibilité** : chaque point est un bouton, nommé (« Semi-marathon de Sète, 5:18 par km-effort »), atteignable au clavier.
+- **Fait main en SVG**, sans bibliothèque, toutes les couleurs par leurs rôles (design § 2) ; même code de dessin que le graphique de difficulté d'Objectif (axes, quadrillage, bulle).
+
+## 13. Contrôles
 
 Jeu d'essai de sept courses :
 
@@ -241,3 +291,10 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
 - Téléphone : la fiche tient dans la largeur de l'écran ; « Annuler » et « Enregistrer » restent visibles quand on fait défiler.
+- **Progression**, données ci-dessus, sans filtre : 7 points ; allures-effort 5:00 (Montauban 2025), 5:04 (Épicurienne), 5:18 (Sète), 5:39 (Biscatrail), 5:24 (Forez), 4:49 (Montauban 2026), 5:30 (San Sebastián, « D+ non renseigné » dans la bulle) ; axe de 4:30 à 6:00 ; 🥇 sur Montauban 2026 et Sète ; tendance « 13 s /km-effort plus lent par an ».
+- Progression, filtre Trail : 3 points (Épicurienne, Biscatrail, Forez) ; tendance « 36 s /km-effort plus lent par an ».
+- Progression, filtre format 10 km : 2 points (5:00 puis 4:49), pas de tendance.
+- Progression, filtre Course « sete » : « Pas assez de courses pour un graphique ».
+- Progression, la course « Test » ajoutée (1er oct. 2026, 10 km, 00:45:00, sans distance) : pas de point, « 8 courses · 1 sans point » ; une course marquée DNF : idem.
+- Progression, survol du point de Sète : bulle « 5:18 /km-effort », « Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+ » ; le nom ouvre sa consultation.
+- Progression repliée, page rechargée : toujours repliée.
