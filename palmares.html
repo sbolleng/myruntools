@@ -8,8 +8,12 @@
 <meta name="site-version" content="__VERSION__">
 <script>
   // Masquée jusqu'à ce qu'elle soit prête. Déjà dans le site (en-tête gardé pour la visite) : seul le contenu attend,
-  // l'en-tête et le menu s'affichent aussitôt, sans page blanche entre deux pages.
-  (function () { var c = null; try { c = sessionStorage.getItem('mrt-entete'); } catch (e) {} document.documentElement.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
+  // l'en-tête et le menu s'affichent aussitôt, sans page blanche entre deux pages. Le thème de la dernière visite est posé
+  // tout de suite (« auto » : selon le réglage de l'appareil) : pas d'éclair d'un autre fond avant la lecture des préférences.
+  (function () { var c = null, t = null, h = document.documentElement; try { c = sessionStorage.getItem('mrt-entete'); t = localStorage.getItem('mrt-theme'); } catch (e) {}
+    if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noir-orange' : 'blanc-orange';
+    if (t) h.classList.add('t-' + t);
+    h.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
 </script>
 <title>Palmarès · MyRunTools</title>
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
