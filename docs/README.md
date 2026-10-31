@@ -102,7 +102,7 @@ Dans l'ordre :
 7. [ ] **Inscription** (« Créer son compte ») : chacun crée son compte (décidé le 30 oct. 2026) : page « Créer un compte » (prénom et nom obligatoires, adresse, mot de passe et confirmation, anti-robot), confirmation de l'adresse par e-mail avant le premier accès, message neutre ; profil et préférences créés par la base (évolution 015). Préalables : connexion par mot de passe en ligne, mentions légales et RGPD, anti-robot actif, service d'envoi d'e-mails (SMTP).
 8. [ ] **Changer son adresse e-mail** : dans les Préférences (bloc Compte), avec confirmation envoyée à la nouvelle adresse.
 9. [ ] **Refonte des Préférences utilisateur** : s'inspirer d'Oleno et de Babelio ; plan de page d'abord.
-10. [ ] **Alimenter par Finishers** : importer ou compléter les courses depuis Finishers ; périmètre et faisabilité à définir.
+10. [ ] **Catalogue des courses** : d'abord un catalogue partagé (une course saisie par un coureur sert aux suivants, recherche, doublons à gérer) ; ensuite, demander un partenariat d'accès aux données à Le Sportif (la plus large couverture), puis à Finishers. Pas de récupération automatique de leurs pages (conditions d'utilisation, droit des bases de données).
 11. [ ] **Profil** : état civil, poids, taille, pointure.
 12. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
 13. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
