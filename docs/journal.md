@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 31 oct. 2026 | Déroulé, lien des résultats | Règle commune « Déroulé » (design § 1) : hauteur et fondu, 0,25 s / 0,2 s, ease-out, sans mouvement si l'appareil le demande ; appliquée aux panneaux Filtres et Colonnes du Palmarès, à la Montre et aux textes repliables d'une course. Lien des résultats officiels renommé « Classement complet », lien et non bouton (Design 0.32, Objectif 0.43). |
 | 31 oct. 2026 | Course courue, consultation | Montre (temps, distance, D+ · D−, allure, FC) en section repliée sous le Résultat, fermée à l'ouverture ; plus de colonnes côte à côte ; espacements resserrés : la feuille tient sans défilement sur ordinateur (1200 × 700). |
 | 31 oct. 2026 | Thèmes, base | Évolution 014 passée dans Supabase : Blanc et orange, Noir et orange et Automatique s'enregistrent depuis les Préférences. |
 | 31 oct. 2026 | Thèmes | Deux thèmes pour la lecture, ajoutés aux trois sombres : Blanc et orange (fond blanc, Accent orange foncé `#c2410c`, lisible sur blanc) et Noir et orange (fond noir, Accent `#ffb700`) ; plus « Automatique », qui suit le réglage clair ou sombre de l'appareil (option B). Encre fixe `#0b1220` pour le texte sur la couleur d'une course ; phases plus foncées sur fond blanc ; contrôles du navigateur assortis ; thème retenu sur l'appareil et posé dès le chargement (pas d'éclair d'un autre fond). Évolution 014 (valeurs du type `theme`) ; l'inscription prendra la 015 (design 0.31, générale 0.25, Préférences 1.11, modèle 0.15). |

@@ -1,6 +1,6 @@
 # Design
 
-Version 0.31 · 31 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.32 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -24,6 +24,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 | Un seul champ | Fiche, fenêtres, filtres, Préférences (changement du mot de passe compris), connexion et nouveau mot de passe : fond Champ (§ 2), bordure fine (Bordure), coins de 6 px, 0,85 rem, exemple en Texte discret dans le champ vide, bordure en Accent pendant la saisie, en Alerte sur une erreur ; listes avec un chevron dessiné. Seul le tableau des phases de « Paramétrer le plan » le prend en plus petit. |
 | Fenêtres comme la fiche | Une fenêtre de saisie (séance, Paramétrer le plan) se présente comme la fiche d'une course (§ 6) : le voile de la feuille, « Annuler » à gauche et le bouton principal à droite en haut, le titre en libellé, une action à part (Supprimer, Recalculer) seule en bas. |
 | Un seul titre repliable | Chevron à gauche, titre en Texte, 600, casse normale : textes d'une course, blocs du formulaire, groupes du Palmarès. |
+| Déroulé | Ouvrir ou fermer une zone (panneaux Filtres et Colonnes du Palmarès, section Montre, textes repliables d'une course) : elle se déplie en hauteur avec un fondu, 0,25 s à l'ouverture, 0,2 s à la fermeture, ease-out, de la même famille que le passage de l'en-tête ; le contenu dessous glisse au lieu de sauter ; le chevron tourne en même temps ; aucun mouvement si l'appareil demande moins d'animations. Code commun : `mrtDeroule` et `details.mrt-deroule` (`en-tete.js`). |
 
 Les boutons, liens d'action, pastilles, champs et sections sont des éléments communs de la feuille de style partagée (`mrt-btn`, avec `is-principal` et `is-danger` ; `mrt-rond`, avec `is-fermer` ; `mrt-lien`, `mrt-pastille`, `mrt-champ`, `mrt-section`) : un module les reprend, il ne les redessine pas.
 

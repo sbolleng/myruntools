@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.42 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.43 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -288,7 +288,7 @@ Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course c
 │ (C33) Trail découverte · (C12) Dossard 1287                      │
 │ (C9) 10 km · 128 m D+                                            │
 │                                                                  │
-│ (C30) RÉSULTAT ──────────────────────────────── (C32) Résultats ↗│
+│ (C30) RÉSULTAT ──────────────────────────────── (C32) Classement complet ↗│
 │ (C25) TEMPS        00:49:48                                      │
 │ (C34) PLACE        14e / 174                                     │
 │ (C27) CATÉGORIE    2e / 8  Master 2 Homme                        │
@@ -310,7 +310,7 @@ Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course c
 | C33 | Format et dossard | Deuxième ligne, même style : le format, puis « Dossard » et son numéro |
 | C9 | Distance et D+ | Troisième ligne, même style : « 10 km · 128 m D+ » (sans D−) |
 | C30 | Intertitres | « Résultat », « Montre » : capitales discrètes, un filet fin dessous ; une section sans valeur n'est pas affichée |
-| C32 | Résultats | Petit lien « Résultats » et sa flèche, à droite de l'intertitre Résultat ; absent sans adresse |
+| C32 | Classement complet | Lien (pas un bouton : il mène hors du site) « Classement complet » et sa flèche, casse normale, à droite de l'intertitre Résultat ; il ouvre la page des résultats officiels ; absent sans adresse (décidé le 31 oct. 2026) |
 | C25 | Temps | Première ligne de Résultat ; valeur en grand, en Accent ; « DNF » si non terminée |
 | C34 | Place | Rang général en grand, en Accent ; l'effectif (« / 174 ») plus petit, en Texte discret |
 | C27 | Catégorie, Sexe | Une ligne chacun, rang puis effectif ; la catégorie d'âge en clair après le rang, avec le sexe du profil (« Master 2 Homme », « Senior Femme ») |
