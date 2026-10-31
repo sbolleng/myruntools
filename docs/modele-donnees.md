@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.15 · 31 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.16 · 31 octobre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -82,6 +82,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Identité | `course` (obligatoire : « Forez Trails », « Biscatrail »), `parcours` (facultatif : « L'Olmetoise »), `lieu`, `latitude`, `longitude` | Affichage (« Course · Parcours »), météo |
 | Liens | `lien` (site officiel), `inscription` (site d'inscription), `lien_resultats` (résultats en direct) | Liens de l'étape, suivi en course |
 | Description | `description` : texte libre, 1 000 caractères au plus | Quelques infos sur la course |
+| Tracé | `gpx` : chemin du fichier GPX dans le stockage Supabase (dossier `traces/<utilisateur>/`), 5 Mo au plus ; vide : pas de tracé (évolution 016, à construire) | Carte, profil altimétrique, téléchargement (Objectif, § 3.4) |
 | Classement | `format` (le type s'en déduit) ; circuits dans `courses_circuits` (§ 4.3) | Palmarès, records, badges |
 | Date | `date`, `heure` (heure locale), `date_approx` (vrai si seul le mois est connu) | Comptes à rebours, ordre, en-tête |
 | Profil officiel | `distance`, `dplus`, `dmoins` | En-tête, Palmarès, km-effort |
@@ -193,6 +194,7 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 - Connexion par adresse e-mail et mot de passe (gérés par Supabase Auth, rien dans nos tables) ; un compte = un profil.
 - Règle par ligne sur toutes les tables d'utilisateur : lecture et écriture seulement si la ligne appartient à l'utilisateur connecté.
 - Exception, en lecture seulement : courses, circuits, phases modifiées, séances et préférences d'un propriétaire qui a partagé son site avec l'utilisateur connecté (`partages`).
+- Fichiers GPX (stockage `traces`, privé) : mêmes règles que les courses, par dossier d'utilisateur ; lecture aussi pour ceux avec qui le site est partagé.
 - Listes de référence : lecture pour tout utilisateur connecté, écriture pour l'administrateur seulement.
 - Seule la clé publique de Supabase figure dans le code ; les scripts d'import des données des anciens sites ne sont jamais versionnés.
 
