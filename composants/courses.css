@@ -1,9 +1,9 @@
 /* ===== Courses à surveiller (courses.js) · docs/module-courses-a-surveiller-specification.md =====
-   La carte est celle d'Objectif (objectif.css) : seuls changent la grille (statut à la place du rôle, pas de compteur),
-   la barre du haut (vues en pastilles, tri, année) et les repères de mois. Rien d'écrit en dur : les rôles de couleur du thème. */
+   La carte est celle d'Objectif (objectif.css) : statut et date sur la première ligne, le nom dessous, ni rôle ni compteur.
+   Cartes les moins larges possibles, rangées côte à côte quand l'écran le permet (une colonne sur téléphone).
+   Rien d'écrit en dur : les rôles de couleur du thème. */
 .cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 1rem; margin-bottom: 1.1rem; }
 .cs-vues, .cs-tris, .cs-annees { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-/* Téléphone : les quatre vues défilent sur le côté plutôt que de passer à la ligne. */
 .cs-vues { flex: 1 1 100%; }
 .cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
 .cs-outils { display: flex; flex: 1 1 100%; align-items: center; flex-wrap: wrap; gap: 0.6rem 1rem; }
@@ -16,30 +16,21 @@
   .cs-pastille { flex: none; white-space: nowrap; }
 }
 
-/* Carte : statut, puis nom et date ; téléphone, la date juste sous le nom, à droite. */
-.cs-carte { grid-template-areas: "role role" "nom date" "info info" "lignes lignes" "bas bas"; }
-.cs-carte > .ob-role { grid-area: role; }
-.cs-carte .ob-date { align-self: start; }
-.cs-bas { grid-area: bas; display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; margin-top: -0.2rem; }
-/* Le rond « Détails » passe au-dessus du lien qui couvre la carte ; la flèche est un simple repère. */
-.cs-detail { position: relative; z-index: 2; width: 1.6rem; height: 1.6rem; }
-.cs-site { display: inline-flex; color: var(--muted); }
-.cs-site .ob-fleche { width: 0.9rem; height: 0.9rem; }
-@media (max-width: 600px) {
-  .cs-carte { grid-template-areas: "role role" "nom nom" "date date" "info info" "lignes lignes" "bas bas"; }
-  .cs-carte .ob-date { justify-self: end; }
-}
+/* Liste : cartes de 18 rem au moins, autant de colonnes que la largeur en permet. */
+.cs-liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 0.8rem; align-items: start; }
 
-/* Pastilles du chemin : confirmée pleine (Objectif), option et à surveiller en pointillé, à surveiller vide, courue atténuée. */
-.ob-et.is-veille .ob-pt { background: var(--bg); }
-.ob-et.is-courue .ob-pt { opacity: 0.45; }
-.ob-et.is-courue .ob-carte { background: transparent; }
-/* Les repères de mois s'insèrent dans le chemin : le trait continue à travers eux. */
-.cs-mois { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); column-gap: 0.9rem; align-items: center; min-height: 1.8rem; }
-.cs-mois .ob-rail { align-self: stretch; }
-.cs-mois .ob-rail::before { display: none; }
-.cs-mois .ob-rail::after { top: 0; bottom: 0; }
-.cs-mois.is-debut .ob-rail::after { top: 50%; }
-.cs-liste .ob-et:first-child .ob-rail::before { display: block; }
-.cs-liste .ob-et.is-debut .ob-rail::before, .cs-liste .ob-et.is-fin .ob-rail::after { display: none; }
+/* Carte : fond comme celle d'Objectif ; statut et date en tête, le nom dessous ; pointillé : option et à surveiller ; courue atténuée. */
+.cs-carte { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes" "bas bas"; grid-template-columns: minmax(0, 1fr) auto; margin: 0; cursor: pointer; background: var(--surface); }
+.cs-carte:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cs-carte.is-opt { border-style: dashed; }
+.cs-carte.is-courue { opacity: 0.8; }
+.cs-carte > .ob-role { grid-area: role; min-width: 0; white-space: normal; } /* « Option · Printemps 2027 » passe à la ligne plutôt que de recouvrir la date */
+.cs-carte > .ob-date { align-self: start; }
+.cs-carte > .ob-date { grid-area: date; justify-self: end; }
+.cs-carte .ob-nom { margin-top: 0.15rem; }
+.cs-carte .ob-ligne { grid-template-columns: 4.6rem minmax(0, 1fr); }
+/* Le lien « Site officiel » reste un lien à part ; grisé quand le site n'est pas renseigné. */
+.cs-bas { grid-area: bas; display: flex; justify-content: flex-end; margin-top: 0.2rem; }
+.cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
+.cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }

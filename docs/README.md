@@ -48,7 +48,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.11 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.31 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
-| [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.1, construit |
+| [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.2, construit |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.13, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
