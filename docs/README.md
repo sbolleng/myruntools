@@ -120,6 +120,7 @@ Dans l'ordre :
    - Bilan nutrition : avec le module Nutrition.
    - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
 20. [ ] **Prévoir un profil piste ?**
+21. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales, n° 5) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).
 
 ## Questions ouvertes
 
