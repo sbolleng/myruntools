@@ -177,11 +177,12 @@
   };
 
   // Briques de la carte, partagées avec la page Courses à surveiller (courses.js).
-  window.mrtCartes = { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
+  window.mrtCartes = { dossardEtat: c => dossard(c).etat, esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
 
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
+    document.querySelectorAll('.ob-haut').forEach(h => { if (!el.contains(h)) h.remove(); }); // bouton déplacé par le dessin précédent
     el.innerHTML = (edition ? '<div class="ob-haut">' + '<button type="button" class="ob-ajout mrt-btn is-principal" data-ob="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button></div>' : '') + (etapes.length
       ? '<div class="ob-route">' + etapes.map((e, i) => {
         const k = ['ob-et', option(e) ? 'is-opt' : '', option(etapes[i + 1]) ? 'suite-opt' : '', i === etapes.length - 1 ? 'is-fin' : '',
@@ -190,6 +191,9 @@
       }).join('') + '</div>'
       : '<p class="ob-vide">Aucune course à venir.</p>');
     if (edition) brancher(el, { ajouter: edition.ajouter });
+    // Le bouton « Ajouter une course » passe au-dessus du cadre « Évolution de l’effort » (quand la page en a un).
+    const haut = el.querySelector('.ob-haut'), effort = document.getElementById('difficulte');
+    if (haut && effort && effort.parentNode) effort.parentNode.insertBefore(haut, effort);
     couperNoms();
     lancerCompteurs();
     miniatures(el, etapes);
@@ -455,8 +459,8 @@
       ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(r => r[1]).map(r => [r[0], '<span class="ob-val">' + esc(r[1]) + '</span>']);
     const liste = l => l.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join('');
     const section = (titreSection, droite, html, classe) => '<section class="pc-section' + (classe ? ' ' + classe : '') + '"><h3 class="pc-intertitre"><span>' + titreSection + '</span>' + droite + '</h3>' + html + '</section>';
-    // Sous le titre : la date (sans heure) et le lieu ; le format et le dossard ; la distance et le D+.
-    const infos = [[dateLongue(c, true), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
+    // Sous le titre : la date, l'heure (si connue et date exacte) et le lieu ; le format et le dossard ; la distance et le D+.
+    const infos = [[dateLongue(c, true), heureTxt(c) !== '—' ? heureTxt(c) : '', c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +

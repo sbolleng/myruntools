@@ -2,13 +2,13 @@
 //
 // Décrit par docs/module-courses-a-surveiller-specification.md ; style : composants/courses.css (et objectif.css, dont la
 // carte est reprise). Cartes d'Objectif sans rôle, objectif ni compteur, rangées en colonnes (une sur téléphone).
-//   renderCourses(el, courses, edition, etat)   la barre (vues, tri, année) et la liste ; etat : { vue, tri, annee }, modifié sur place
+//   renderCourses(el, courses, edition, etat)   la barre (sélection, vue, année) et la liste ; etat : { vue, mode, annee, col, dir }, modifié sur place
 //   mrtVuesCourses(courses)                     les courses de chaque vue : { surveiller, venir, courue, tout }
 (function () {
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, FLECHE, PLUS, STATUTS_LIB } = window.mrtCartes;
-    const VUES = [['surveiller', 'À surveiller'], ['courue', 'Déjà couru'], ['venir', 'À venir'], ['tout', 'Tout']];
-  const VIDE = { surveiller: 'Aucune course à surveiller.', courue: 'Aucune course courue.', venir: 'Aucune course à venir.', tout: 'Aucune course.' };
+    const VUES = [['surveiller', 'À surveiller'], ['ouvertes', 'Inscriptions ouvertes'], ['courue', 'Déjà couru'], ['venir', 'À venir'], ['tout', 'Tout']];
+  const VIDE = { surveiller: 'Aucune course à surveiller.', ouvertes: 'Aucune inscription ouverte pour l\'instant.', courue: 'Aucune course courue.', venir: 'Aucune course à venir.', tout: 'Aucune course.' };
 
   // Les courses de chaque vue (une course dans une seule vue ; les abandonnées nulle part). Dates et statuts : docs, § 4.
   const croissant = (a, b) => (!a.date ? (b.date ? 1 : 0) : !b.date ? -1 : a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
@@ -17,12 +17,13 @@
     const venir = window.mrtCoursesRoute(courses);
     const courue = courses.filter(c => c.etat === 'courue').sort((a, b) => croissant(b, a));
     // Tout : ce qui reste à venir (à surveiller et à venir) du plus proche au plus lointain, puis les courues, les plus récentes d'abord.
-    return { surveiller, venir, courue, tout: surveiller.concat(venir).sort(croissant).concat(courue) };
+    // Inscriptions ouvertes : à venir, pas encore inscrit, ouverture atteinte (date et heure), quel que soit le statut.
+    const ouvertes = courses.filter(c => c.etat === 'a_venir' && window.mrtCartes.dossardEtat(c) === 'ouvert').sort(croissant);
+    return { surveiller, ouvertes, venir, courue, tout: surveiller.concat(venir).sort(croissant).concat(courue) };
   };
 
   // Tri par ouverture des inscriptions : les plus proches d'abord, puis les dates inconnues ; les inscrits à la fin.
-  const cleOuverture = c => (c.inscrit ? '9' : c.ouverture_inscriptions ? '0' + c.ouverture_inscriptions + (c.ouverture_heure || '') : '5');
-  const parOuverture = (a, b) => (cleOuverture(a) < cleOuverture(b) ? -1 : cleOuverture(a) > cleOuverture(b) ? 1 : croissant(a, b));
+  const cleOuverture = c => (c.etat === 'courue' ? '99' : c.inscrit ? '9' : c.ouverture_inscriptions ? '0' + c.ouverture_inscriptions + (c.ouverture_heure || '') : '5');
 
   const statut = c => (c.etat === 'courue' ? 'Courue' : c.statut === 'option' ? 'Option' + (c.groupe_options ? ' · ' + c.groupe_options : '') : STATUTS_LIB[c.statut]);
   const classe = c => (c.etat === 'courue' ? 'is-courue' : c.statut === 'confirmee' ? '' : 'is-opt');
@@ -55,6 +56,13 @@
       '<td>' + dateCourte(c) + (c.heure && !c.date_approx ? '<br><span class="cs-sous">' + heureTxt(c.heure) + '</span>' : '') + '</td>' +
       '<td>' + (c.etat === 'courue' ? '<span class="cs-sous">—</span>' : dossardHtml(c, true)) + '</td></tr>';
   }
+  // Pictos des deux affichages : une grille de cartes, un tableau ; et le double triangle des colonnes triables (comme le Palmarès).
+  const GRILLE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5v4.5h-4.5z M9 2.5h4.5v4.5h-4.5z M2.5 9h4.5v4.5h-4.5z M9 9h4.5v4.5h-4.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  const TABLE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v9h-11z M2.5 7h11 M2.5 10h11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  const TRI = '<svg class="cs-tri-ico" viewBox="0 0 10 14" aria-hidden="true"><path class="cs-haut" d="M5 1l4 5H1z"/><path class="cs-bas-tri" d="M5 13L1 8h8z"/></svg>';
+  const COLONNES = [['evenement', 'Événement'], ['course', 'Course'], ['distance', 'Distance · D+'], ['date', 'Date'], ['ouverture', 'Ouverture des dossards']];
+  // Valeur de tri de chaque colonne (une valeur vide passe toujours en dernier).
+  const CLES = { evenement: c => c.course.toLowerCase(), course: c => (c.parcours || '').toLowerCase() || null, distance: c => (c.distance != null ? Number(c.distance) : null), date: c => c.date || null, ouverture: cleOuverture };
   const CLE_MODE = 'mrt-courses-affichage';
   const lireMode = () => { try { return localStorage.getItem(CLE_MODE) === 'tableau' ? 'tableau' : 'cartes'; } catch (e) { return 'cartes'; } };
   const ecrireMode = m => { try { localStorage.setItem(CLE_MODE, m); } catch (e) { /* stockage indisponible */ } };
@@ -63,29 +71,42 @@
     if (!etat.mode) etat.mode = lireMode();
     const vues = window.mrtVuesCourses(courses);
     if (!vues[etat.vue]) etat.vue = 'surveiller';
-    const nonCourue = etat.vue !== 'courue';
     // Année : seulement pour les vues qui montrent des courues, et s'il y en a plus d'une.
     const anneesDe = l => [...new Set(l.filter(c => c.date).map(c => c.date.slice(0, 4)))].sort().reverse();
     const annees = etat.vue === 'courue' || etat.vue === 'tout' ? anneesDe(vues[etat.vue]) : [];
     if (!annees.includes(etat.annee)) etat.annee = null;
     let liste = vues[etat.vue].filter(c => !etat.annee || (c.date && c.date.slice(0, 4) === etat.annee));
-    const parOuv = etat.tri === 'ouverture' && nonCourue;
-    if (parOuv) { const f = liste.filter(c => c.etat !== 'courue'); liste = f.sort(parOuverture).concat(liste.filter(c => c.etat === 'courue')); }
+    const tab = etat.mode === 'tableau';
+    // Cartes : toujours par date, regroupées par mois ; tableau : les colonnes se trient (premier toucher croissant, deuxième décroissant, troisième : ordre d'origine).
+    const col = tab ? etat.col : null;
+    if (tab && col) {
+      const f = CLES[col], sens = etat.dir === 'desc' ? -1 : 1;
+      liste = liste.slice().sort((x, y) => {
+        const u = f(x), v = f(y);
+        if (u == null && v == null) return croissant(x, y);
+        if (u == null) return 1;
+        if (v == null) return -1;
+        return (u < v ? -1 : u > v ? 1 : 0) * sens || croissant(x, y);
+      });
+    }
+    const parMois = !tab;
 
     const pastille = (attr, cle, texte, on) => '<button type="button" class="mrt-pastille cs-pastille' + (on ? ' is-on' : '') + '" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
-    const haut = '<div class="cs-barre"><div class="cs-vues" role="group" aria-label="Vue">' +
+    // Réglages discrets : un libellé, puis les choix en texte (le choix actif souligné).
+    const choix = (attr, cle, texte, on) => '<button type="button" class="cs-choix" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
+    const reglage = (libelle, html) => '<div class="cs-reglage"><span class="cs-lib">' + libelle + '</span>' + html + '</div>';
+    const rond = (cle, texte, picto) => '<button type="button" class="mrt-rond cs-rond" data-mode="' + cle + '" aria-pressed="' + (etat.mode === cle) + '" aria-label="' + texte + '" title="' + texte + '">' + picto + '</button>';
+    const haut = '<div class="cs-barre"><div class="cs-vues" role="group" aria-label="Sélection">' +
       VUES.map(([k, lib]) => pastille('vue', k, lib + ' <span class="cs-n">' + vues[k].length + '</span>', k === etat.vue)).join('') + '</div>' +
-      '<div class="cs-outils"><span class="cs-compte">' + liste.length + (liste.length > 1 ? ' courses' : ' course') + '</span>' +
-        '<div class="cs-modes" role="group" aria-label="Affichage">' + pastille('mode', 'cartes', 'Cartes', etat.mode === 'cartes') + pastille('mode', 'tableau', 'Tableau', etat.mode === 'tableau') + '</div>' +
-        (nonCourue ? '<div class="cs-tris" role="group" aria-label="Trier">' + pastille('tri', 'date', 'Par date', !parOuv) + pastille('tri', 'ouverture', 'Par ouverture', parOuv) + '</div>' : '') +
-        (edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-cs="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div>' +
-      (annees.length > 1 ? '<div class="cs-annees" role="group" aria-label="Année">' + pastille('annee', '', 'Toutes', !etat.annee) +
-        annees.map(a => pastille('annee', a, a, a === etat.annee)).join('') + '</div>' : '') + '</div>';
+      '<div class="cs-outils">' +
+        reglage('Vue', '<span class="cs-ronds" role="group" aria-label="Affichage">' + rond('cartes', 'Cartes', GRILLE) + rond('tableau', 'Tableau', TABLE) + '</span>') +
+        (annees.length > 1 ? reglage('Année', choix('annee', '', 'Toutes', !etat.annee) + annees.map(a => choix('annee', a, a, a === etat.annee)).join('')) : '') +
+        (edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-cs="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div></div>';
 
     // Regroupées par mois (tri par date) : un titre, puis les cartes du mois côte à côte ; « Date à définir » en dernier.
     const groupes = [];
     liste.forEach(c => {
-      const m = parOuv ? '' : c.date ? c.date.slice(0, 7) : 'sans';
+      const m = parMois ? (c.date ? c.date.slice(0, 7) : 'sans') : '';
       if (!groupes.length || groupes[groupes.length - 1].m !== m) groupes.push({ m, cartes: [] });
       groupes[groupes.length - 1].cartes.push(c);
     });
@@ -93,16 +114,22 @@
       (g.m === 'sans' ? 'Date à définir' : MOIS_LONG[Number(g.m.slice(5)) - 1] + ' ' + g.m.slice(0, 4)) + '</h2>' : '') +
       '<div class="cs-grille">' + g.cartes.map(carte).join('') + '</div></section>').join('');
     // Tableau : les mêmes groupes (titres de mois en lignes), dans un cadre ; il défile sur le côté s'il est plus large que l'écran.
-    const tableau = '<div class="cs-tableau"><div class="table-scroll"><table><thead><tr><th>Événement</th><th>Course</th><th>Distance · D+</th><th>Date</th><th>Ouverture des dossards</th></tr></thead><tbody>' +
-      groupes.map(g => (g.m ? '<tr class="cs-ligne-mois"><th colspan="5">' + (g.m === 'sans' ? 'Date à définir' : MOIS_LONG[Number(g.m.slice(5)) - 1] + ' ' + g.m.slice(0, 4)) + '</th></tr>' : '') +
-        g.cartes.map(ligneTableau).join('')).join('') + '</tbody></table></div></div>';
+    const tableau = '<div class="cs-tableau"><div class="table-scroll"><table><thead><tr>' + COLONNES.map(([k, lib]) => {
+        const actif = col ? col === k : k === 'date', sens = col ? etat.dir : etat.vue === 'courue' ? 'desc' : 'asc';
+        return '<th aria-sort="' + (actif ? (sens === 'desc' ? 'descending' : 'ascending') : 'none') + '"><button type="button" class="cs-tri-col" data-col="' + k + '">' + lib + TRI + '</button></th>';
+      }).join('') + '</tr></thead><tbody>' +
+      liste.map(ligneTableau).join('') + '</tbody></table></div></div>';
     el.innerHTML = haut + (liste.length ? (etat.mode === 'tableau' ? tableau : '<div class="cs-liste">' + html + '</div>') : '<p class="ob-vide cs-vide">' + VIDE[etat.vue] + '</p>');
     couperNoms();
 
     const redessiner = () => window.renderCourses(el, courses, edition, etat);
     el.querySelectorAll('[data-vue]').forEach(b => b.addEventListener('click', () => { etat.vue = b.dataset.vue; if (etat.onVue) etat.onVue(etat.vue); redessiner(); }));
     el.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { etat.mode = b.dataset.mode; ecrireMode(etat.mode); redessiner(); }));
-    el.querySelectorAll('[data-tri]').forEach(b => b.addEventListener('click', () => { etat.tri = b.dataset.tri; redessiner(); }));
+    el.querySelectorAll('[data-col]').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.col;
+      if (etat.col !== k) { etat.col = k; etat.dir = 'asc'; } else if (etat.dir === 'asc') etat.dir = 'desc'; else etat.col = null;
+      redessiner();
+    }));
     el.querySelectorAll('[data-annee]').forEach(b => b.addEventListener('click', () => { etat.annee = b.dataset.annee || null; redessiner(); }));
     // Toucher une carte (hors lien « Site officiel ») : la fiche de modification ; en lecture seule, la page de la course.
     const ouvrir = id => (edition ? edition.modifier(id) : window.mrtOuvrirCourse(id));

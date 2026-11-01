@@ -217,6 +217,19 @@
     el.__deroule = a;
     a.onfinish = () => { el.style.overflow = ''; el.__deroule = null; termine(); };
   };
+  // ----- Pied de page (spécification générale § 11 bis, M12) : en bas de toutes les pages, page de connexion comprise -----
+  // Lien rangé d'après l'adresse de ce script (composants/en-tete.js) : juste aussi pour une page d'un sous-dossier.
+  // Pas sur les maquettes (docs/), ni sur la page des mentions elle-même.
+  const piedLien = document.currentScript ? new URL('../mentions-legales.html', document.currentScript.src).href : 'mentions-legales.html';
+  function poserPied() {
+    if (/\/docs\//.test(location.pathname) || document.querySelector('.mrt-pied')) return;
+    const f = document.createElement('footer');
+    f.className = 'mrt-pied';
+    f.innerHTML = /mentions-legales\.html$/.test(location.pathname) ? '<span>Mentions légales</span>' : '<a href="' + piedLien + '">Mentions légales</a>';
+    document.body.appendChild(f);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', poserPied); else poserPied();
+
   document.addEventListener('click', e => {
     const resume = e.target.closest('details.mrt-deroule > summary');
     if (!resume || getComputedStyle(resume).pointerEvents === 'none') return;

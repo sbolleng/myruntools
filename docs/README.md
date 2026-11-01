@@ -41,14 +41,14 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.29 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.30 |
 | [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.36 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.18 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.63 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.11 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.31 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
-| [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.4, construit |
+| [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.7, construit |
 | [Module Calendrier](module-calendrier-specification.md) | Deux vues : la semaine (par défaut : séances, repère de prépa, trois semaines à suivre) et l'année en frise (prépas qui s'enchaînent et se chevauchent) ; la préparation d'une course est sur sa page | Version 0.14, refonte en essai (boutons violets) |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
@@ -90,9 +90,10 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
+   - **Nombre de ravitaillements** : pouvoir l'indiquer sur la course (fiche d'édition et page), distinct de la stratégie de ravitaillement ci-dessus ; format de saisie et place à décider (ajouté le 1er nov. 2026).
    - **Règlement de la course** : pouvoir l'importer (fichier) et le consulter depuis la page de la course.
    - **Retrait des dossards** : infos de retrait (lieu, jours et horaires, pièces à présenter), sur la page de la course ; à situer par rapport à la Logistique (ajouté le 1er nov. 2026).
-2. [ ] **Courses à surveiller** (spécification 0.4, en ligne ; vue tableau au choix en ligne) :
+2. [ ] **Courses à surveiller** (spécification 0.7, en ligne) :
    - **Dupliquer une course pour l'année suivante** (à rediscuter) : une ligne par édition ; bouton sur la fiche d'une course courue qui crée une copie À surveiller, un an plus tard (mois seul), sans résultat, dossard ni ouverture ; question ouverte : recopier le tracé GPX ?
    - Index UTMB (plus tard).
 3. [ ] **Calendrier** : [spécification 0.14](module-calendrier-specification.md) ; vues, modèle de données et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
@@ -103,7 +104,7 @@ Dans l'ordre :
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
 4. [ ] **Refonte login et mot de passe** : en ligne le 30 oct. 2026 ; essais réels réussis (« Mot de passe oublié ? », « Changer le mot de passe »). Reste : premier mot de passe du compte test Rome.
-5. [ ] **Mentions légales et crédits** : plan validé ([Spécification générale 0.24](specification-generale.md), § 11 bis : éditeur particulier sans nom, pied de page sur toutes les pages) ; à fournir avant de construire : adresse e-mail de contact, région du projet Supabase.
+5. [x] **Mentions légales et crédits** : en ligne le 1er nov. 2026 ([Spécification générale 0.29](specification-generale.md), § 11 bis) ; contact `contact@myruntools.fr` (redirection OVH, réponse depuis Gmail par Resend). Le lien « Confidentialité » viendra avec le lot RGPD.
 6. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression). À faire avant d'ouvrir les inscriptions (données de santé : poids, FC, VMA).
 7. [ ] **Anti-robot** (Cloudflare Turnstile) : plus tard, mais avant d'ouvrir l'inscription. Code prêt (`mrtCaptcha`, inactif) ; étapes : créer le widget pour `myruntools.fr`, me donner la clé du site, je publie, puis activer CAPTCHA dans Supabase avec la clé secrète ([réglages](reglages-supabase-connexion.md), n° 6). À mentionner dans la politique de confidentialité.
 8. [ ] **Inscription** (« Créer son compte ») : chacun crée son compte (décidé le 30 oct. 2026) : page « Créer un compte » (prénom et nom obligatoires, adresse, mot de passe et confirmation, anti-robot), confirmation de l'adresse par e-mail avant le premier accès, message neutre ; profil et préférences créés par la base (évolution 015). Préalables : connexion par mot de passe en ligne, mentions légales et RGPD, anti-robot actif, service d'envoi d'e-mails (SMTP).
@@ -122,6 +123,7 @@ Dans l'ordre :
    - Bilan nutrition : avec le module Nutrition.
    - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
 20. [ ] **Prévoir un profil piste ?**
+21. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales, n° 5) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).
 
 ## Questions ouvertes
 

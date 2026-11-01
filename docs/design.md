@@ -149,7 +149,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 ## 8. Menu
 
 - Seuls les modules construits ont un onglet ; un module « bientôt » reste dans les Préférences.
-- Onglets en Space Grotesk, casse normale, 0,8 rem, graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés (0,6 rem sur téléphone, pour que « Objectif & Plan » tienne avec les autres : les quatre modules construits tiennent dans un écran de 375 px).
+- Onglets en Space Grotesk, casse normale, 0,8 rem, graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés (0,6 rem sur téléphone, pour que « Objectif & plan » tienne avec les autres : les quatre modules construits tiennent dans un écran de 375 px).
 - Onglet En un coup d'œil : « En un coup d' » suivi d'un picto d'œil (contour et pupille, couleur de l'onglet, 1,15 em de large) ; le nom complet en infobulle et pour les lecteurs d'écran.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.
 - **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Accent, 600, comme le grand titre dont il prend le relais (0,8 rem, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite (§ 4 : dessiné, en Accent sur les Préférences). Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.

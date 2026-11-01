@@ -3,13 +3,11 @@
    Cartes les moins larges possibles, de même hauteur, regroupées par mois et rangées côte à côte quand l'écran le permet (une colonne sur téléphone).
    Rien d'écrit en dur : les rôles de couleur du thème. */
 .cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 1rem; margin-bottom: 1.1rem; }
-.cs-vues, .cs-tris, .cs-annees { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.cs-vues { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .cs-vues { flex: 1 1 100%; }
 .cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
-.cs-outils { display: flex; flex: 1 1 100%; align-items: center; flex-wrap: wrap; gap: 0.6rem 1rem; }
-.cs-compte { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.cs-outils { display: flex; flex: 1 1 100%; align-items: center; flex-wrap: wrap; gap: 0.5rem 1.4rem; }
 .cs-outils .ob-ajout { margin-left: auto; }
-.cs-annees { flex: 1 1 100%; }
 @media (max-width: 600px) {
   .cs-vues { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -1rem; padding: 0 1rem; }
   .cs-vues::-webkit-scrollbar { display: none; }
@@ -39,8 +37,16 @@
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
 
-/* Affichage : Cartes ou Tableau (pastilles, choix gardé sur l'appareil). */
-.cs-modes { display: flex; gap: 0.4rem; }
+/* Réglages discrets (vue, tri, année) : un libellé, puis les choix en texte ; le choix actif est souligné et en Texte.
+   Les deux ronds de la vue sont ceux du Palmarès (Filtres, Colonnes) : le rond actif est en Accent. */
+.cs-reglage { display: flex; align-items: center; gap: 0.2rem 0.7rem; flex-wrap: wrap; }
+.cs-lib { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cs-ronds { display: inline-flex; gap: 0.4rem; }
+.cs-rond { width: 1.8rem; height: 1.8rem; }
+.cs-choix { padding: 0.15rem 0; font: inherit; font-size: 0.8rem; color: var(--muted); background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; }
+.cs-choix[aria-pressed="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.cs-choix:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) { .cs-choix:hover { color: var(--text); } }
 /* Tableau : colonnes de la veille dans un cadre ; une ligne par course, toucher une ligne ouvre la fiche. */
 .cs-tableau { padding: 0.3rem 0.6rem 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .cs-tableau table { min-width: 44rem; }
@@ -49,6 +55,15 @@
 .cs-ligne:hover td { background: color-mix(in srgb, var(--border) 35%, transparent); }
 .cs-ligne:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .cs-ligne td strong { font-weight: 600; color: var(--text); }
-.cs-ligne-mois th { padding-top: 1rem; border-bottom: 1px solid var(--border); }
 .cs-sous { font-size: 0.75rem; color: var(--muted); }
 .cs-lien-nom { color: inherit; text-underline-offset: 0.2em; }
+
+/* Colonnes triables, comme le Palmarès : le titre est un bouton ; la colonne triée est en Accent, son triangle s'allume. */
+.cs-tableau th[aria-sort] { padding: 0; }
+.cs-tri-col { display: inline-flex; align-items: center; padding: 0.6rem 0.75rem; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; white-space: nowrap; background: none; border: 0; cursor: pointer; }
+.cs-tableau th[aria-sort="ascending"] .cs-tri-col, .cs-tableau th[aria-sort="descending"] .cs-tri-col { color: var(--accent); }
+.cs-tri-ico { width: 0.6rem; height: 0.85rem; margin-left: 0.4rem; }
+.cs-tri-ico path { fill: currentColor; opacity: 0.45; }
+.cs-tableau th[aria-sort="ascending"] .cs-haut, .cs-tableau th[aria-sort="descending"] .cs-bas-tri { opacity: 1; }
+.cs-tableau th[aria-sort="ascending"] .cs-bas-tri, .cs-tableau th[aria-sort="descending"] .cs-haut { opacity: 0.2; }
+.cs-rond .ob-ico { width: 1rem; height: 1rem; }

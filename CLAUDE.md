@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : Calendrier 0.14, refonte en essai (Année en frise, vue Semaine par défaut avec repère, bilan, consigne de phase et trois semaines à suivre ; boutons violets pour revoir l'ancienne grille, l'ancienne vue 4 semaines et les jours en colonnes) ; avant : graphique « Évolution de l’effort » toujours fermé à l'ouverture (Objectif 0.63) ; avant : distance, D+ et D− d'après le tracé importé (Objectif 0.62) ; avant : module Courses à surveiller (spécification 0.4). Historique : `docs/journal.md`.
+- Dernier lot : Calendrier 0.14, refonte en essai (Année en frise, vue Semaine par défaut avec repère, bilan, consigne de phase et trois semaines à suivre ; boutons violets pour revoir l'ancienne grille, l'ancienne vue 4 semaines et les jours en colonnes) ; avant : heure de départ grisée sans date exacte, et affichée à droite de la date sur la page d'une course (Objectif 0.65) ; avant : mentions légales (`mentions-legales.html`, page publique, pied de page posé par `en-tete.js` sur toutes les pages, Spécification générale 0.29) ; avant : graphique « Évolution de l’effort » toujours fermé à l'ouverture de la page (Objectif 0.63). Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

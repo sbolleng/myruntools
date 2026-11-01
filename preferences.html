@@ -196,7 +196,7 @@
 
     // ----- Menu : modules affichés dans l'ordre choisi, puis les autres.
     const blocMenu = blocs[1];
-    // Libellé affiché d'un module (« Objectif & Plan ») ; la clé rangée reste son nom.
+    // Libellé affiché d'un module (« Objectif & plan ») ; la clé rangée reste son nom.
     const libelle = n => ((mrtModules.find(m => m.nom === n) || {}).libelle || n);
     const parDefaut = () => mrtModules.map(m => ({ nom: m.nom, affiche: true }));
     const depuisPrefs = () => {
