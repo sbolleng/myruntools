@@ -86,11 +86,11 @@ Dans l'ordre :
 
 1. [ ] **Objectif** :
    - **Page d'une course, bloc Parcours (GPX)** ([Objectif 0.45](module-objectif-specification.md), § 3.4, n° 25 à 28 et 32) : la mise en page B est en ligne ; reste l'import du GPX (stockage Supabase, évolution 016), la carte Leaflet sur OpenTopoMap, le profil altimétrique et le téléchargement.
-   - **Graphique de difficulté** : spécifié ([Objectif 0.46](module-objectif-specification.md), § 5.2), à valider puis construire.
+   - **Graphique de difficulté** : spécifié et validé ([Objectif 0.46](module-objectif-specification.md), § 5.2), à construire.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
-2. [ ] **Palmarès, graphique de progression** : spécifié ([Palmarès 1.24](module-palmares-specification.md), § 12), à valider puis construire, après celui d'Objectif (même code de dessin).
+2. [ ] **Palmarès, graphique de progression** : spécifié ([Palmarès 1.24](module-palmares-specification.md), § 12), validé, à construire après celui d'Objectif (même code de dessin).
 3. [ ] **Calendrier** : **banc d'essai** : le groupe `calendrierPlan` échoue (« pastille : 4 semaines, d'un toucher », ligne 1561), déjà sur `main` avant le 31 oct. 2026 au soir ; à réparer. [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
