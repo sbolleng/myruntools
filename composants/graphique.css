@@ -3,6 +3,9 @@
 .mg.card { padding: 0.9rem 1.1rem 1rem; }
 .mg-titre { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
 .mg-titre::-webkit-details-marker { display: none; }
+/* Titre d'un bloc fixe (Progression, Résultats du Palmarès) : le même texte, sans chevron ni toucher. */
+.mg-titre.is-fixe { margin: 0; cursor: default; }
+.mg-haut:not(:empty) { display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; margin-top: 0.7rem; }
 .mg-chev { width: 0.8rem; height: 0.8rem; flex: none; color: var(--muted); transition: transform 0.2s ease-out; }
 details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-droite { margin-left: auto; font-size: 0.8rem; font-weight: 400; color: var(--muted); text-align: right; }
@@ -42,6 +45,9 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-marque { position: absolute; transform: translate(-50%, -150%); font-size: 0.8rem; line-height: 1.2; pointer-events: none; }
 .mg-etiq.is-gauche { transform: translate(calc(-100% - 10px), -50%); }
 .mg-etiq.is-dessous { transform: translate(-50%, 9px); }
+/* Aux bords du graphique, l'étiquette s'aligne sur le point au lieu de déborder sur les graduations. */
+.mg-etiq.is-dessous.is-debut { transform: translate(-6px, 9px); }
+.mg-etiq.is-dessous.is-fin { transform: translate(calc(-100% + 6px), 9px); }
 /* Liseré du fond : une étiquette reste lisible quand une ligne la traverse. */
 .mg-etiq { text-shadow: 0 0 3px var(--surface), 0 0 3px var(--surface), 0 0 2px var(--surface); }
 

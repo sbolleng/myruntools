@@ -42,7 +42,10 @@
 .pv2-panel input[type="search"] { width: 100%; }
 .pv2-panel input.pv2-num { width: 6.5rem; }
 .pv2-sens:not(:empty) { margin-left: 0.3rem; }
-.pv2-table th { padding: 0; vertical-align: bottom; }
+/* Cadre du tableau : les mêmes marges que le cadre Progression (titre à 0,9 rem du haut), titre « Résultats » au-dessus des colonnes. */
+.pv2-card { padding: 0.9rem 1.1rem 1rem; }
+.pv2-titre { margin-bottom: 0.2rem; }
+.pv2-table th { padding: 0; vertical-align: top; } /* en haut : un titre sur deux lignes ne fait pas descendre les autres */
 .pv2-table td { padding: 0.6rem 0.45rem; }
 .pv2-sort {
   display: block;
@@ -64,7 +67,7 @@
 .pv2-sort-ico path { fill: currentColor; opacity: 0.45; }
 .pv2-table th[aria-sort="ascending"] .pv2-up, .pv2-table th[aria-sort="descending"] .pv2-down { opacity: 1; }
 .pv2-table th[aria-sort="ascending"] .pv2-down, .pv2-table th[aria-sort="descending"] .pv2-up { opacity: 0.2; }
-.pv2-table th.pv2-pad-cell { width: 1%; padding: 0 0.3rem 0.4rem; text-align: center; vertical-align: bottom; }
+.pv2-table th.pv2-pad-cell { width: 1%; padding: 0 0.3rem 0.4rem; text-align: center; vertical-align: top; }
 /* Fermer le panneau : rond « × » en haut à droite, comme la croix des feuilles de course. */
 .pv2-close { grid-column: 1 / -1; justify-self: end; margin: -0.3rem -0.3rem -0.6rem 0; }
 /* Défilement horizontal, quand il faut : barre fine aux couleurs du thème */
@@ -99,7 +102,7 @@
 .pv2-paysage { display: none; margin: -0.3rem 0 0.7rem; font-size: 0.8rem; color: var(--muted); }
 /* Téléphone tenu en largeur : une ligne par course ; le tableau défile sur le côté s'il le faut. */
 @media (orientation: landscape) and (max-height: 500px) {
-  .pv2-card { padding: 0.4rem 0.6rem; }
+  .pv2-card { padding: 0.8rem 0.6rem 0.4rem; }
   .pv2-table td { white-space: nowrap; }
 }
 @media (max-width: 600px) and (orientation: portrait) {

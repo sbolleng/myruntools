@@ -10,7 +10,7 @@
 //
 // cfg = {
 //   cle        : clé de stockage de l'état replié (sur l'appareil)
-//   titre      : titre du cadre ; fermeParDefaut : replié tant que l'utilisateur ne l'a pas ouvert ; droite : html au bout du titre (tendance) ; classe : classe du cadre (is-intertitre :
+//   titre      : titre du cadre ; fixe : bloc non repliable, avec haut (html sous le titre : sélecteur) ; fermeParDefaut : replié tant que l'utilisateur ne l'a pas ouvert ; droite : html au bout du titre (tendance) ; classe : classe du cadre (is-intertitre :
 //                titre au style des intertitres du Palmarès)
 //   axeY       : { libelle, min, max, pas, fmt(v), inverse } ; inverse : la plus petite valeur en haut
 //   debut, fin : bornes du temps (ms) ; aujourdhui : trait pointillé (ms), facultatif
@@ -54,6 +54,8 @@
   function dessiner(el, cfg) {
     const corps = el.querySelector('.mg-corps');
     el.querySelector('.mg-droite').innerHTML = cfg.droite || '';
+    const haut = el.querySelector('.mg-haut');
+    if (haut) haut.innerHTML = cfg.haut || '';
     if (cfg.vide) {
       corps.innerHTML = '<p class="mg-vide">' + esc(cfg.vide) + '</p>' + (cfg.bas || '');
       return;
@@ -85,7 +87,7 @@
           '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + svg + '</svg>' +
           pts.map((p, k) => '<button type="button" class="mg-pt is-' + p.forme + (p.t2 != null ? ' is-periode' : '') + '" data-k="' + k + '" style="' + pos(p) + '" aria-label="' + esc(p.aria) + '"></button>' +
             (p.marque ? '<span class="mg-marque" style="' + pos(p) + '" aria-hidden="true">' + esc(p.marque) + '</span>' : '') +
-            (p.etiquette ? '<span class="mg-etiq' + (cfg.etiquettesDessous ? ' is-dessous' : p.x > 50 ? ' is-gauche' : '') + '" style="' + pos(p) + '">' + esc(p.etiquette) + '</span>' : '')).join('') +
+            (p.etiquette ? '<span class="mg-etiq' + (cfg.etiquettesDessous ? ' is-dessous' + (p.x < 8 ? ' is-debut' : p.x > 92 ? ' is-fin' : '') : p.x > 50 ? ' is-gauche' : '') + '" style="' + pos(p) + '">' + esc(p.etiquette) + '</span>' : '')).join('') +
           '<div class="mg-bulle" role="status" hidden></div>' +
         '</div>' +
         '<div class="mg-gx">' + reperes(d0, d1).map(r => '<span' + (r.mineur ? ' class="is-mineur"' : '') + ' style="left:' + xAt(r.t) + '%">' + esc(r.txt) + '</span>').join('') + '</div>' +
@@ -128,10 +130,15 @@
     const memo = lire(cfg.cle), ouvert = cfg.fermeParDefaut ? memo === '1' : memo !== '0';
     el.classList.add('mg', 'card');
     if (cfg.classe) el.classList.add(cfg.classe);
-    el.innerHTML = '<details class="mg-cadre mrt-deroule"' + (ouvert ? ' open' : '') + '>' +
-      '<summary class="mg-titre">' + CHEVRON + '<span>' + esc(cfg.titre) + '</span><span class="mg-droite"></span></summary>' +
-      '<div class="mg-corps"></div></details>';
-    el.querySelector('details').addEventListener('toggle', e => ecrire(cfg.cle, e.target.open ? '1' : '0'));
+    // Bloc fixe (Progression du Palmarès) : un titre simple, rien à replier ; sinon un cadre repliable (Difficulté).
+    if (cfg.fixe) el.innerHTML = '<div class="mg-cadre"><h2 class="mg-titre is-fixe"><span>' + esc(cfg.titre) + '</span><span class="mg-droite"></span></h2>' +
+      '<div class="mg-haut"></div><div class="mg-corps"></div></div>';
+    else {
+      el.innerHTML = '<details class="mg-cadre mrt-deroule"' + (ouvert ? ' open' : '') + '>' +
+        '<summary class="mg-titre">' + CHEVRON + '<span>' + esc(cfg.titre) + '</span><span class="mg-droite"></span></summary>' +
+        '<div class="mg-corps"></div></details>';
+      el.querySelector('details').addEventListener('toggle', e => ecrire(cfg.cle, e.target.open ? '1' : '0'));
+    }
     // Toucher ailleurs ferme la bulle.
     if (!el.__docBranche) {
       el.__docBranche = true;
