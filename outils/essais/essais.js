@@ -434,7 +434,7 @@ const CONTROLES = {
     pb.push(egal([0, ['En un coup d\'œil']], [await p.locator('.pref-modules input[type="radio"]').count(), await ouverture()], 'menu : pas de choix de démarrage, le premier module marqué « à l\'ouverture »'));
     await p.uncheck('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
-    pb.push(egal(['Objectif & Plan'], await ouverture(), 'En un coup d\'œil décoché : Objectif & Plan s\'ouvre en arrivant'));
+    pb.push(egal(['Objectif et plan'], await ouverture(), 'En un coup d\'œil décoché : Objectif et plan s\'ouvre en arrivant'));
     await p.check('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
     pb.push(egal(['Prochaine course', 'Pense-bête · bientôt', 'Bilan nutrition · bientôt', 'D\'ici là', 'Dernière course'], await p.evaluate(() => [...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim())), 'page d\'accueil : les cinq blocs'));
@@ -494,12 +494,12 @@ const CONTROLES = {
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     const catalogue = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'À surveiller', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
     // Le menu ne montre que les modules construits ; les autres restent dans la liste, « bientôt ».
-    const construits = ['En un coup d\'œil', 'Objectif & Plan', 'Calendrier', 'À surveiller', 'Palmarès'];
+    const construits = ['En un coup d\'œil', 'Objectif et plan', 'Calendrier', 'À surveiller', 'Palmarès'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(9, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'tous les modules cochés, En un coup d\'œil compris'));
     pb.push(egal(['Cette semaine · bientôt', 'Nutrition · bientôt', 'Profil · bientôt', 'Guide · bientôt'], await p.evaluate(() => [...document.querySelectorAll('.pref-modules .bientot')].map(l => l.textContent.trim())), 'modules non construits grisés, « bientôt »'));
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Calendrier', 'Objectif & Plan', 'À surveiller', 'Palmarès'];
+    const monte = ['En un coup d\'œil', 'Calendrier', 'Objectif et plan', 'À surveiller', 'Palmarès'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -2114,7 +2114,7 @@ const CONTROLES = {
     // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Objectif & Plan', 'Calendrier', 'À surveiller', 'Palmarès'], visibles: true }, await p.evaluate(() => {
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Objectif et plan', 'Calendrier', 'À surveiller', 'Palmarès'], visibles: true }, await p.evaluate(() => {
         const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
           visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
