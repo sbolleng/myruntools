@@ -44,11 +44,11 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.28 |
 | [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.35 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.17 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.56 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.57 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.11 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.31 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
-| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.12, préparation sur la page d'une course |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues en zoom (année, 4 semaines, plan d'une course) : courses, préparation, phases, séances, rendez-vous clés | Version 0.13, préparation sur la page d'une course |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -89,12 +89,13 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
+   - **Règlement de la course** : pouvoir l'importer (fichier) et le consulter depuis la page de la course.
+   - **Retrait des dossards** : infos de retrait (lieu, jours et horaires, pièces à présenter), sur la page de la course ; à situer par rapport à la Logistique (ajouté le 1er nov. 2026).
 2. [ ] **Calendrier** : [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
    - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
-   - **Frise de préparation sur téléphone** : elle doit défiler de gauche à droite (balayage horizontal) quand elle ne tient pas dans la largeur (ajouté le 31 oct. 2026).
 3. [ ] **Refonte login et mot de passe** : en ligne le 30 oct. 2026 ; essais réels réussis (« Mot de passe oublié ? », « Changer le mot de passe »). Reste : premier mot de passe du compte test Rome.
 4. [ ] **Mentions légales et crédits** : plan validé ([Spécification générale 0.24](specification-generale.md), § 11 bis : éditeur particulier sans nom, pied de page sur toutes les pages) ; à fournir avant de construire : adresse e-mail de contact, région du projet Supabase.
 5. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression). À faire avant d'ouvrir les inscriptions (données de santé : poids, FC, VMA).

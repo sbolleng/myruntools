@@ -1723,7 +1723,7 @@ const CONTROLES = {
       egal(['Première semaine', 'Semaine 1 · Sem. du 16 nov.', B], await p.evaluate(() => [document.querySelector('.cal-prep-lib').textContent, document.querySelector('.cal-prep-lib + .cal-sem .cal-sem-titre').textContent, document.querySelector('.cal-prep-lib + .cal-sem .cal-sem-phase').textContent]), 'rubrique : première semaine mise en avant'),
       egal(attendu, await p.evaluate(() => [...document.querySelectorAll('.cal-toutes .cal-sem-phase')].map(e => e.textContent)), 'rubrique : phases des 16 semaines'),
       egal(['Base 3 sem.', 'Deload 1 sem.', 'Base 2 sem.', 'Développement 1 sem.', 'Deload 1 sem.', 'Développement 3 sem.', 'Deload 1 sem.', 'Développement 2 sem.', 'Affûtage 2 sem.'],
-        await p.evaluate(() => [...document.querySelectorAll('#preparation > .pc-corps > .cal-lignes > .cal-frise .cal-seg')].map(e => e.textContent.replace(/\s+/g, ' ').replace(/(\D)(\d)/, '$1 $2').trim())), 'rubrique : frise'),
+        await p.evaluate(() => [...document.querySelectorAll('#preparation > .pc-corps > .cal-lignes > .cal-frise-defile > .cal-frise .cal-seg')].map(e => e.textContent.replace(/\s+/g, ' ').replace(/(\D)(\d)/, '$1 $2').trim())), 'rubrique : frise'),
       egal(false, await p.evaluate(() => document.querySelector('.cal-toutes').open), 'rubrique : « Toutes les semaines » repliée'),
       egal([['dim. 13', 'Corrida de Noël'], ['dim. 7', 'Trail des Gorges']], await p.evaluate(() => [...document.querySelectorAll('.cal-toutes .cal-jr-course')].map(e => [e.closest('.cal-jr').querySelector('.cal-jr-nom').textContent, e.textContent])), 'rubrique : jours de course dans leurs semaines'));
     // Séance ajoutée depuis la rubrique : liée à la course
@@ -1751,6 +1751,14 @@ const CONTROLES = {
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal([], d.plan_semaines, 'Recalculer : plus aucune semaine modifiée'),
       egal('Deload', await p.evaluate(() => document.querySelector('.cal-toutes .cal-sem[data-lundi="2026-12-07"] .cal-sem-phase').textContent), 'Recalculer : la semaine du 7 décembre est de nouveau en Deload'));
+    // Téléphone : la frise des 16 semaines (2 rem par semaine) dépasse la largeur et défile de gauche à droite
+    {
+      const t = await ouvertePrep(copie(), GORGES, 390);
+      const f = await t.p.evaluate(() => { const z = document.querySelector('#preparation .cal-frise-defile'); z.scrollLeft = 120;
+        return { defile: z.scrollWidth > z.clientWidth, decale: z.scrollLeft > 0, page: document.documentElement.scrollWidth <= innerWidth }; });
+      pb.push(egal({ defile: true, decale: true, page: true }, f, 'téléphone : frise de préparation plus large que l\'écran, qui défile de gauche à droite, sans élargir la page'));
+      await t.ctx.close();
+    }
     // Frise : glisser la première poignée d'une semaine vers la droite
     await p.click('#preparation [data-preparer]');
     const poignee = await p.locator('.cal-poignee').first().boundingBox(), frise = await p.locator('.cal-frise.is-edit').boundingBox();
