@@ -14,6 +14,7 @@
     { nom: 'Cette semaine' },
     { nom: 'Objectif', libelle: 'Objectif & Plan', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
     { nom: 'Calendrier', page: 'calendrier.html' },
+    { nom: 'Courses à surveiller', libelle: 'À surveiller', page: 'courses-a-surveiller.html' },
     { nom: 'Nutrition' },
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil' },

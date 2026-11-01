@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.57 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.58 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -182,8 +182,8 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 | État | Condition | Rendu |
 | --- | --- | --- |
 | Inscrit | `inscrit` vrai | ● plein en Accent, « Inscrit · n° 412 » (« Inscrit » seul sans numéro) |
-| Inscription ouverte | Pas inscrit, ouverture passée ou du jour | ● plein et texte en Alerte, souligné : « Inscription ouverte ↗ », lien vers le site d'inscription s'il est connu |
-| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Accent : « Ouvre le 10/01/2027 » |
+| Inscription ouverte | Pas inscrit, ouverture passée ou du jour (le jour même, avec une heure d'ouverture : une fois l'heure atteinte) | ● plein et texte en Alerte, souligné : « Inscription ouverte ↗ », lien vers le site d'inscription s'il est connu |
+| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Accent : « Ouvre le 10/01/2027 », « à 12:00 » si l'heure est connue ; mois seul : « Ouverture : janvier 2027 » ([Courses à surveiller](module-courses-a-surveiller-specification.md), § 5) |
 | Ouverture à venir | Pas inscrit, date d'ouverture inconnue | ○ vide en Texte discret : « Ouverture à venir » |
 
 ### 3.6 Groupe d'options (course à choisir)

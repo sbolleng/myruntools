@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.17 · 1er novembre 2026 · [Retour au sommaire](README.md)
+Version 0.18 · 1er novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -87,7 +87,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Date | `date`, `heure` (heure locale), `date_approx` (vrai si seul le mois est connu) | Comptes à rebours, ordre, en-tête |
 | Profil officiel | `distance`, `dplus`, `dmoins` | En-tête, Palmarès, km-effort |
 | Place dans le plan | `statut`, `role`, `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
-| Dossard | `inscrit`, `dossard`, `prix`, `ouverture_inscriptions` | Cellule Dossard |
+| Dossard | `inscrit`, `dossard`, `prix`, `ouverture_inscriptions`, `ouverture_heure` (heure locale, facultative), `ouverture_approx` (vrai si seul le mois est connu : date rangée au 1er du mois ; évolution 017) | Cellule Dossard |
 | Durée de prépa | `prepa_semaines` : durée de la préparation en semaines, de 1 à 52 ; vide : celle du format (§ 4.4) | Calendrier |
 | Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
 | Suivi en course | `passages` : liste de points (distance depuis le départ, temps visé) ; `chronos_reference` : liste de chronos (libellé, temps) | Suivi en course (§ 4.2) |
@@ -103,7 +103,7 @@ Trois réglages indépendants décrivent la place d'une course dans le plan.
 
 | Réglage | Valeurs | Effet |
 | --- | --- | --- |
-| **Statut** | À surveiller · Option · Confirmée | À surveiller : module Courses à surveiller. Option et Confirmée : page Objectif. |
+| **Statut** | À surveiller · Option · Confirmée | À surveiller : module Courses à surveiller (qui montre aussi toutes les autres). Option et Confirmée : page Objectif. |
 | **Rôle** | Préparatoire · Plaisir · Objectif intermédiaire · Objectif | Rendu de l'étape ; une ou plusieurs courses peuvent avoir le rôle Objectif. |
 | **État** | À venir · Abandonnée · Courue | Courue : Palmarès. Abandonnée : affichée nulle part, gardée pour mémoire. |
 
