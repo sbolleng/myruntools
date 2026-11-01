@@ -331,19 +331,19 @@ const CONTROLES = {
     const en2025 = await p.textContent('.pv2-count');
     await p.click('.pv2-panel label.pv2-check:has(input[data-part="year"][value=""])');
     pb.push(egal([true, true], [/sur 7$/.test(en2025) && !/^7 /.test(en2025), await p.evaluate(() => document.querySelector('.pv2-count').hidden)], 'année : pastille 2025 filtre, « Toutes » rétablit (compteur retiré)'));
-    // Fermer un panneau : rond « × » en haut à droite ; plus de lien « Réduire les filtres ».
-    pb.push(egal({ croix: '×', enHaut: true, aDroite: true, reduire: false }, await p.evaluate(() => { const pan = document.querySelector('.pv2-panel:not(.pv2-cols)'), x = pan.querySelector('.pv2-close'), r = pan.getBoundingClientRect(), b = x.getBoundingClientRect();
-      return { croix: x.textContent, enHaut: b.top - r.top < 24, aDroite: r.right - b.right < 24, reduire: /Réduire/.test(pan.textContent) }; }), 'panneau des filtres : « × » en haut à droite, plus de « Réduire les filtres »'));
+    // Replier un panneau : rond « Réduire » (chevron vers le haut) en haut à droite, sans « × ».
+    pb.push(egal({ croix: '', chevron: true, titre: 'Réduire', enHaut: true, aDroite: true }, await p.evaluate(() => { const pan = document.querySelector('.pv2-panel:not(.pv2-cols)'), x = pan.querySelector('.pv2-close'), r = pan.getBoundingClientRect(), b = x.getBoundingClientRect();
+      return { croix: x.textContent.trim(), chevron: !!x.querySelector('svg path[d="M4 10l4-4 4 4"]'), titre: x.title, enHaut: b.top - r.top < 24, aDroite: r.right - b.right < 24 }; }), 'panneau des filtres : rond « Réduire » (chevron) en haut à droite'));
     await p.click('.pv2-panel:not(.pv2-cols) .pv2-close');
     // Déroulé commun (design § 1) : la fermeture est animée, puis le panneau est masqué.
     const anime = await p.evaluate(() => document.querySelector('.pv2-panel:not(.pv2-cols)').getAnimations().length > 0);
     await p.waitForFunction(() => document.querySelector('.pv2-panel:not(.pv2-cols)').hidden);
-    pb.push(egal(['false', true, true], [await p.getAttribute('.pv2-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-panel:not(.pv2-cols)').hidden), anime], '« × » ferme le panneau des filtres, en déroulé'));
+    pb.push(egal(['false', true, true], [await p.getAttribute('.pv2-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-panel:not(.pv2-cols)').hidden), anime], '« Réduire » replie le panneau des filtres, en déroulé'));
     await p.click('.pv2-cols-btn');
     pb.push(egal(['true', false], [await p.getAttribute('.pv2-cols-btn', 'aria-expanded'), await p.evaluate(() => document.querySelector('.pv2-cols').hidden)], 'bouton Colonnes : ouvre le panneau des colonnes'));
     await p.click('.pv2-cols .pv2-close');
     await p.waitForFunction(() => document.querySelector('.pv2-cols').hidden);
-    pb.push(egal([true, 'false'], [await p.evaluate(() => document.querySelector('.pv2-cols').hidden), await p.getAttribute('.pv2-cols-btn', 'aria-expanded')], '« × » ferme le panneau des colonnes'));
+    pb.push(egal([true, 'false'], [await p.evaluate(() => document.querySelector('.pv2-cols').hidden), await p.getAttribute('.pv2-cols-btn', 'aria-expanded')], '« Réduire » replie le panneau des colonnes'));
     await p.click('.pv2-btn');
     await p.click('.pv2-tri[data-sort="time"]');
     pb.push(egal('Temps↑', await p.evaluate(() => document.querySelector('.pv2-tri[aria-pressed="true"]').textContent), 'pastille de tri : Temps, plus court d\'abord'));
@@ -2128,7 +2128,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, copie(), {}, PARIS));
     await p.click('.pv2-btn');
     pb.push(egal(COMMUN, await champs(p), 'filtres du Palmarès : champs communs'));
-    pb.push(egal('19.2px', await style(p, '.pv2-panel:not(.pv2-cols) .pv2-close', 'fontSize'), 'panneau des filtres : la même croix que la feuille'));
+    pb.push(egal(['Réduire les filtres', true], await p.evaluate(() => { const b = document.querySelector('.pv2-panel:not(.pv2-cols) .pv2-close'); return [b.getAttribute('aria-label'), b.classList.contains('mrt-rond')]; }), 'panneau des filtres : rond commun « Réduire »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preferences.html', 1200, copie(), {}, PARIS));
     pb.push(egal(COMMUN, await champs(p), 'Préférences : champs communs'));
@@ -2223,40 +2223,6 @@ const CONTROLES = {
     pb.push(egal('Pas assez de courses pour un graphique', g.vide, 'progression, « sete » : pas assez de courses'));
     pb.push(egal([], erreurs, 'progression : erreurs JavaScript'));
     await ctx.close();
-    // ----- Filtre rapide (Palmarès, § 7.1) -----
-    ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, db0));
-    const rapide = () => p.evaluate(tx => { const t = eval(tx); const r = document.querySelector('.pv2-rapide');
-      return { types: [...r.querySelectorAll('[data-rapide-type]')].map(b => t(b) + (b.getAttribute('aria-pressed') === 'true' ? '*' : '')),
-        coches: r.querySelectorAll('.pv2-coche').length, dedans: r.querySelectorAll('.pv2-coche.is-in').length, annees: [...r.querySelectorAll('.pv2-annee')].map(t),
-        periode: t(r.querySelector('.pv2-periode')), compteur: document.querySelector('.pv2-count').hidden ? null : t(document.querySelector('.pv2-count')),
-        lignes: document.querySelectorAll('#palmares tbody tr[data-id]').length, points: document.querySelectorAll('.pv2-graphe .mg-pt').length,
-        avant: !!(r.compareDocumentPosition(document.querySelector('.pv2-card')) & 4) }; }, t.toString());
-    pb.push(egal({ types: ['Course sur route', 'Trail'], coches: 7, dedans: 7, annees: ['2025', '2026'], periode: '', compteur: null, lignes: 7, points: 7, avant: true }, await rapide(p), 'filtre rapide : à l\'ouverture'));
-    await p.click('[data-rapide-type="Trail"]');
-    let r = await rapide(p);
-    pb.push(egal({ types: ['Course sur route', 'Trail*'], compteur: '3 courses sur 7', lignes: 3, points: 3, badge: '1' },
-      { types: r.types, compteur: r.compteur, lignes: r.lignes, points: r.points, badge: await p.textContent('.pv2-badge') }, 'filtre rapide : Trail'));
-    await p.click('[data-rapide-type="Trail"]');
-    await p.click('.pv2-annee[data-annee="2026"]');
-    r = await rapide(p);
-    pb.push(egal({ periode: 'janv. 2026 → oct. 2026', compteur: '3 courses sur 7', dedans: 3, points: 3 }, { periode: r.periode, compteur: r.compteur, dedans: r.dedans, points: r.points }, 'filtre rapide : toucher 2026'));
-    await p.focus('.pv2-poignee[data-bout="a"]');
-    for (let k = 0; k < 3; k++) await p.keyboard.press('ArrowLeft');
-    r = await rapide(p);
-    pb.push(egal({ periode: 'janv. 2026 → juil. 2026', compteur: '2 courses sur 7' }, { periode: r.periode, compteur: r.compteur }, 'filtre rapide : poignée de droite, trois mois plus tôt'));
-    // Glisser la poignée de gauche tout à gauche : période du début de 2025.
-    const rail = await p.locator('.pv2-rail').boundingBox(), pg = await p.locator('.pv2-poignee[data-bout="de"]').boundingBox();
-    await p.mouse.move(pg.x + pg.width / 2, pg.y + pg.height / 2); await p.mouse.down();
-    await p.mouse.move(rail.x - 20, pg.y + pg.height / 2, { steps: 5 }); await p.mouse.up();
-    r = await rapide(p);
-    pb.push(egal({ periode: 'mars 2025 → juil. 2026', compteur: '6 courses sur 7' }, { periode: r.periode, compteur: r.compteur }, 'filtre rapide : poignée de gauche glissée au bout'));
-    await p.emulateMedia({ reducedMotion: 'reduce' }); await p.click('.pv2-btn');
-    pb.push(egal(['2025-03-01', '2026-07-31'], await p.evaluate(() => [...document.querySelectorAll('.pv2-panel input[type="date"]')].map(i => i.value)), 'filtre rapide : dates reportées dans le panneau'));
-    await p.click('[data-act="clear"]');
-    r = await rapide(p);
-    pb.push(egal({ types: ['Course sur route', 'Trail'], periode: '', dedans: 7, compteur: null }, { types: r.types, periode: r.periode, dedans: r.dedans, compteur: r.compteur }, 'filtre rapide : « Effacer les filtres »'));
-    pb.push(egal([], erreurs, 'filtre rapide : erreurs JavaScript'));
-    await ctx.close();
     // Une course de plus au 10 km (00:45:00, sans D+) et une non terminée.
     const db2 = JSON.parse(JSON.stringify(db0));
     const modele = db2.courses.find(c => c.date === '2026-03-29');
@@ -2268,6 +2234,8 @@ const CONTROLES = {
     g = await lire(p);
     pb.push(egal({ n: 3, droite: '↗ 19 s /km-effort plus rapide par an', mieux: true, tendance: true },
       { n: g.points.length, droite: g.droite, mieux: await p.evaluate(() => !!document.querySelector('.mg-droite .is-mieux')), tendance: g.tendance }, 'progression, 10 km, 3 points : tendance en Accent'));
+    pb.push(egal({ ligne: ['1px', true], pointilles: true }, await p.evaluate(() => { const l = document.querySelector('.mg-ligne'), t = document.querySelector('.mg-tendance');
+      return { ligne: [getComputedStyle(l).strokeWidth, l.classList.contains('is-discrete')], pointilles: getComputedStyle(t).strokeDasharray !== 'none' }; }), 'progression : ligne fine et discrète, tendance en pointillé'));
     await replier(p, 'mrt-graphe-progression');
     pb.push(egal('0', await p.evaluate(() => localStorage.getItem('mrt-graphe-progression')), 'progression : repliée, retenue sur l\'appareil'));
     await ctx.close();

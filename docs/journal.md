@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Palmarès | Version 1.27 : filtre rapide (pastilles des types, frise des années) retiré, mal compris : l'idée était de filtrer directement sur le graphique (à reprendre si besoin). Panneaux Filtres et Colonnes : rond « Réduire » (chevron vers le haut) au lieu de « × » (design 0.34). Progression : ligne entre les points fine (1 px), Texte discret estompé ; tendance toujours en pointillé. |
 | 1er nov. 2026 | Page d'une course, fiche | « À propos de la course » et « Site officiel » sur la même ligne de base ; la description dépliée prend toute la largeur. |
 | 1er nov. 2026 | Palmarès, progression | Version 1.26 : graphique sous le tableau ; points reliés par une ligne (n° 12) ; axe « MIN / KM-EFFORT » (plus de « plus rapide en haut ») ; bilan des courses supprimé ; titre au style des intertitres des groupes (Accent, gras) ; étiquettes de temps sous les points. Filtre rapide (§ 7.1, option B) : pastilles des types et frise des années à deux poignées, sous la barre ; ce sont les filtres Type et Date du panneau. Tendance inchangée : un seul format, au moins 3 points. |
 | 1er nov. 2026 | Page d'une course, titres | Site officiel en bas à droite de la fiche, sur la ligne d'« À propos de la course », dont le titre passe en libellé (Space Mono, capitales) ; sous-titres en libellé « Stratégie de course » (Parcours) et « Rôle dans le plan » (Préparation) (Objectif 0.50). |

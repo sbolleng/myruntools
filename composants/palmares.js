@@ -61,6 +61,8 @@
   // Pas d'entonnoir parmi les emojis : on le dessine, comme les flèches, plus
   // lisibles en icônes qu'en caractères.
   // Boutons ronds (regroupement, ajout) et crayon : icônes dessinées, dans les nuances des flèches de tri.
+  // Réduire un panneau (filtres, colonnes) : un chevron vers le haut, le panneau se replie au-dessus du tableau.
+  const REDUIRE = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const LAYERS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l6 3-6 3-6-3z M2 8l6 3 6-3 M2 11l6 3 6-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const PLUS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const PENCIL = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
@@ -259,14 +261,13 @@
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
       '<div class="pv2-panel pv2-cols" id="' + uid + '-cols" hidden>' +
-        '<button type="button" class="pv2-close mrt-rond is-fermer" data-act="cols-close" aria-label="Fermer les colonnes" title="Fermer">×</button>' +
+        '<button type="button" class="pv2-close mrt-rond" data-act="cols-close" aria-label="Réduire les colonnes" title="Réduire">' + REDUIRE + '</button>' +
         '<div class="pv2-field"><div class="pv2-legend">Colonnes</div><div class="pv2-row">' +
           COLUMNS.filter(c => !FIXED.has(c.key)).map(c =>
             '<label class="pv2-check mrt-pastille"><input type="checkbox" data-col="' + c.key + '"' + (c.optional ? '' : ' checked') + '> ' + esc(c.label) + '</label>').join('') +
         '</div></div>' +
       '</div>' +
       // Téléphone tenu en hauteur : le tableau déborde ; un site ne peut pas tourner l'écran, il y invite.
-      '<div class="pv2-rapide"></div>' +
       '<p class="pv2-paysage">↻ Tourne ton téléphone pour voir toutes les colonnes.</p>' +
       '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>' +
       '<div class="pv2-graphe"></div>';
@@ -276,7 +277,7 @@
 
     function renderPanel() {
       panel.innerHTML =
-        '<button type="button" class="pv2-close mrt-rond is-fermer" data-act="filters-close" aria-label="Fermer les filtres" title="Fermer">×</button>' +
+        '<button type="button" class="pv2-close mrt-rond" data-act="filters-close" aria-label="Réduire les filtres" title="Réduire">' + REDUIRE + '</button>' +
         '<fieldset class="pv2-field pv2-large"><legend class="pv2-legend">Trier par</legend><div class="pv2-row">' +
           shownCols().map(c => '<button type="button" class="pv2-check mrt-pastille pv2-tri" data-sort="' + c.key + '" aria-pressed="false">' + esc(c.label) + '<span class="pv2-sens"></span></button>').join('') +
         '</div></fieldset>' + shownCols().map(c => {
@@ -370,7 +371,6 @@
 
       if (focused) { const b = root.querySelector('th [data-sort="' + focused + '"]'); if (b) b.focus(); }
       fitTable();
-      renderRapide();
       renderGraphe(list);
     }
 
@@ -400,7 +400,7 @@
         let min = Math.floor(Math.min(...ys) / 30) * 30, max = Math.ceil(Math.max(...ys) / 30) * 30;
         if (max === min) max += 30;
         const debut = points[0].t, fin = points[points.length - 1].t;
-        cfg = Object.assign(cfg, { axeY: { libelle: 'min / km-effort', min, max, pas: 30, fmt: mmss, inverse: true }, debut, fin, points, ligne: points.map(p => p.id), etiquettesDessous: true });
+        cfg = Object.assign(cfg, { axeY: { libelle: 'min / km-effort', min, max, pas: 30, fmt: mmss, inverse: true }, debut, fin, points, ligne: points.map(p => p.id), ligneDiscrete: true, etiquettesDessous: true });
         // Tendance : moindres carrés, seulement sur un seul format et à partir de 3 points (l'allure-effort dépend de la distance).
         if (points.length >= 3 && new Set(places.map(r => r.v.sub)).size === 1) {
           const xs = points.map(p => (p.t - debut) / AN), n = xs.length;
@@ -419,124 +419,6 @@
       }
       if (graphe) graphe.maj(cfg); else graphe = window.mrtGraphique(grapheEl, cfg);
     }
-
-    // ----- Filtre rapide (§ 7.1) : pastilles des types et frise des années ; ce sont les filtres Type et Date du panneau -----
-    const rapide = $('.pv2-rapide');
-    const moisDe = iso => { const d = iso.split('-').map(Number); return d[0] * 12 + d[1] - 1; };
-    const debutMois = m => new Date(Math.floor(m / 12), m % 12, 1).getTime();
-    const isoMois = (m, fin) => { const a = Math.floor(m / 12), mm = m % 12; return a + '-' + pad(mm + 1) + '-' + pad(fin ? new Date(a, mm + 1, 0).getDate() : 1); };
-    const moisTxt = m => MONTHS[m % 12] + ' ' + Math.floor(m / 12);
-    let glisse = null; // poignée en cours de glissement : la frise n'est pas redessinée
-    // Bornes de la frise (mois de la première et de la dernière course) et période retenue [de, a] en mois.
-    function frise() {
-      const dates = rows.map(r => r.v.date).filter(Boolean).sort();
-      if (!dates.length) return null;
-      const M0 = moisDe(dates[0]), M1 = moisDe(dates[dates.length - 1]);
-      const f = state.filters.date || {};
-      let de = M0, a = M1;
-      if (f.year) { de = Math.max(M0, Number(f.year) * 12); a = Math.min(M1, Number(f.year) * 12 + 11); }
-      if (f.from) de = Math.max(de, moisDe(f.from));
-      if (f.to) a = Math.min(a, moisDe(f.to));
-      if (a < de) a = de;
-      return { M0, M1, de, a, T0: debutMois(M0), T1: debutMois(M1 + 1) };
-    }
-    const xDe = (fr, t) => (100 * (t - fr.T0) / (fr.T1 - fr.T0));
-    function poserPeriode(de, a) {
-      const fr = frise();
-      if (de <= fr.M0 && a >= fr.M1) delete state.filters.date;
-      else state.filters.date = { from: isoMois(de), to: isoMois(a, true) };
-    }
-    function placerFrise() {
-      const fr = frise(), z = rapide.querySelector('.pv2-frise');
-      if (!fr || !z) return;
-      const g = xDe(fr, debutMois(fr.de)), d = xDe(fr, debutMois(fr.a + 1));
-      z.querySelector('.pv2-plage').style.cssText = 'left:' + g + '%;width:' + (d - g) + '%';
-      const [p1, p2] = z.querySelectorAll('.pv2-poignee');
-      p1.style.left = g + '%'; p2.style.left = d + '%';
-      p1.setAttribute('aria-valuetext', moisTxt(fr.de)); p2.setAttribute('aria-valuetext', moisTxt(fr.a));
-      z.querySelectorAll('.pv2-coche').forEach(c => { const m = Number(c.dataset.m); c.classList.toggle('is-in', m >= fr.de && m <= fr.a); });
-      const plein = fr.de === fr.M0 && fr.a === fr.M1;
-      rapide.querySelector('.pv2-periode').textContent = plein ? '' : moisTxt(fr.de) + ' → ' + moisTxt(fr.a);
-    }
-    function renderRapide() {
-      if (glisse) { placerFrise(); return; }
-      const typeVisible = state.shown.has('type');
-      const types = typeVisible ? choicesFor(colOf('type')) : [];
-      const choisis = (state.filters.type && state.filters.type.set) || new Set();
-      const fr = frise();
-      const avecFrise = fr && fr.M1 > fr.M0;
-      if (types.length < 2 && !avecFrise) { rapide.innerHTML = ''; rapide.hidden = true; return; }
-      rapide.hidden = false;
-      let html = types.length > 1 ? '<div class="pv2-types">' + types.map(t => '<button type="button" class="mrt-pastille" data-rapide-type="' + esc(t) + '" aria-pressed="' + choisis.has(t) + '">' + esc(t) + '</button>').join('') + '</div>' : '';
-      if (avecFrise) {
-        const annees = [];
-        for (let y = Math.floor(fr.M0 / 12); y <= Math.floor(fr.M1 / 12); y++) annees.push(y);
-        html += '<div class="pv2-frise">' +
-          '<div class="pv2-rail"><span class="pv2-plage"></span>' +
-          rows.filter(r => r.v.date).map(r => '<i class="pv2-coche" data-m="' + moisDe(r.v.date) + '" style="left:' + xDe(fr, (d => new Date(d[0], d[1] - 1, d[2]).getTime())(r.v.date.split('-').map(Number))) + '%"></i>').join('') +
-          '<button type="button" class="pv2-poignee" data-bout="de" role="slider" aria-label="Début de la période"></button>' +
-          '<button type="button" class="pv2-poignee" data-bout="a" role="slider" aria-label="Fin de la période"></button></div>' +
-          '<div class="pv2-annees">' + annees.map(y => '<button type="button" class="pv2-annee" data-annee="' + y + '" style="left:' + Math.max(0, xDe(fr, new Date(y, 0, 1).getTime())) + '%">' + y + '</button>').join('') + '</div>' +
-          '</div><p class="pv2-periode" aria-live="polite"></p>';
-      }
-      rapide.innerHTML = html;
-      placerFrise();
-    }
-    rapide.addEventListener('click', e => {
-      const t = e.target.closest('[data-rapide-type]');
-      if (t) {
-        const f = state.filters.type || (state.filters.type = {});
-        f.set = f.set || new Set();
-        if (f.set.has(t.dataset.rapideType)) f.set.delete(t.dataset.rapideType); else f.set.add(t.dataset.rapideType);
-        renderPanel(); renderTable();
-        return;
-      }
-      const y = e.target.closest('[data-annee]');
-      if (y) {
-        const fr = frise(), a = Number(y.dataset.annee);
-        poserPeriode(Math.max(fr.M0, a * 12), Math.min(fr.M1, a * 12 + 11));
-        renderPanel(); renderTable();
-      }
-    });
-    // Poignées : glisser (doigt ou souris), ou flèches du clavier, mois par mois.
-    function bouger(bout, mois) {
-      const fr = frise();
-      if (bout === 'de') poserPeriode(Math.min(Math.max(mois, fr.M0), fr.a), fr.a);
-      else poserPeriode(fr.de, Math.max(Math.min(mois, fr.M1), fr.de));
-      renderTable();
-    }
-    rapide.addEventListener('keydown', e => {
-      const p = e.target.closest('.pv2-poignee');
-      if (!p || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
-      e.preventDefault();
-      const fr = frise(), pas = e.key === 'ArrowLeft' ? -1 : 1;
-      glisse = p.dataset.bout;
-      bouger(p.dataset.bout, (p.dataset.bout === 'de' ? fr.de : fr.a) + pas);
-      glisse = null;
-      renderPanel();
-    });
-    rapide.addEventListener('pointerdown', e => {
-      const p = e.target.closest('.pv2-poignee');
-      if (!p) return;
-      e.preventDefault();
-      p.setPointerCapture(e.pointerId);
-      glisse = p.dataset.bout;
-      p.classList.add('is-glisse');
-      const rail = rapide.querySelector('.pv2-rail').getBoundingClientRect();
-      const suivre = ev => {
-        const fr = frise(), r = Math.min(Math.max((ev.clientX - rail.left) / rail.width, 0), 1);
-        // Bord de mois le plus proche : début d'un mois pour « de », fin (début du suivant) pour « a ».
-        const bord = fr.M0 + Math.round(r * (fr.M1 + 1 - fr.M0));
-        bouger(glisse, glisse === 'de' ? bord : bord - 1);
-      };
-      const fin = () => {
-        p.removeEventListener('pointermove', suivre); p.removeEventListener('pointerup', fin); p.removeEventListener('pointercancel', fin);
-        p.classList.remove('is-glisse');
-        glisse = null;
-        renderPanel(); renderTable();
-      };
-      p.addEventListener('pointermove', suivre); p.addEventListener('pointerup', fin); p.addEventListener('pointercancel', fin);
-    });
 
     // Tableau trop large pour l'écran : plutôt que d'écraser les colonnes, on le
     // laisse à sa largeur naturelle, une ligne par cellule, et il défile.
