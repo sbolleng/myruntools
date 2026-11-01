@@ -148,8 +148,8 @@
   const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a></' + balise + '>';
   const info = c => (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '');
 
-  function carteCourse(c) {
-    return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '">' +
+  function carteCourse(c, avecMini) {
+    return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '"' + (avecMini && c.gpx ? ' data-mini="' + esc(c.id) + '"' : '') + '>' +
       '<span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span>' + compteurHtml(c) +
       titre(c, 'h3') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, true) + '</article>';
   }
@@ -186,13 +186,33 @@
       ? '<div class="ob-route">' + etapes.map((e, i) => {
         const k = ['ob-et', option(e) ? 'is-opt' : '', option(etapes[i + 1]) ? 'suite-opt' : '', i === etapes.length - 1 ? 'is-fin' : '',
           e.course ? classeRole(e.course) : ''].filter(Boolean).join(' ');
-        return '<div class="' + k + '"><div class="ob-rail"><span class="ob-pt"></span></div>' + (e.groupe ? carteGroupe(e) : carteCourse(e.course)) + '</div>';
+        return '<div class="' + k + '"><div class="ob-rail"><span class="ob-pt"></span></div>' + (e.groupe ? carteGroupe(e) : carteCourse(e.course, true)) + '</div>';
       }).join('') + '</div>'
       : '<p class="ob-vide">Aucune course à venir.</p>');
     if (edition) brancher(el, { ajouter: edition.ajouter });
     couperNoms();
     lancerCompteurs();
+    miniatures(el, etapes);
   };
+
+  // Mini carte du tracé (§ 3.1, n° 14) : sur la carte d'une étape seulement, quand la course a un tracé ; ordinateur seulement (CSS).
+  // Dessinée une fois la feuille de route affichée : chaque tracé se télécharge, la liste n'attend pas.
+  function miniatures(el, etapes) {
+    if (!window.mrtTrace || !window.mrtTrace.miniature) return;
+    const cartes = el.querySelectorAll('.ob-carte[data-mini]');
+    etapes.filter(e => e.course && e.course.gpx).forEach(e => {
+      const carte = [...cartes].find(x => x.dataset.mini === e.course.id);
+      if (!carte) return;
+      window.mrtTrace.miniature(e.course).then(svg => {
+        if (!svg || !carte.isConnected || carte.querySelector('.ob-mini')) return;
+        const m = document.createElement('div');
+        m.className = 'ob-mini';
+        m.innerHTML = svg;
+        carte.appendChild(m);
+        carte.classList.add('a-mini');
+      }).catch(() => {});
+    });
+  }
 
   // ----- Graphique de difficulté (§ 5.2) : km-effort de chaque course, dans le temps -----
   // Courses de la feuille de route, d'aujourd'hui à la dernière du plan (règle commune à tous) ; dessin : graphique.js.
