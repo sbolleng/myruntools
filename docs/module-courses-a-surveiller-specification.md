@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.5 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.6 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Rôle
 
@@ -25,7 +25,7 @@ Une course est dans une seule vue. L'adresse `courses-a-surveiller.html?vue=cour
 
 ```
 (20) [ À surveiller 12 ] [ Déjà couru 9 ] [ À venir 6 ] [ Tout 27 ]
-(21) 12 COURSES   (25) VUE (▦)(☰)   (23) TRI  Date · Ouverture   (24) ANNÉE  Toutes · 2026 · 2025   (22) [+ Ajouter une course]
+(25) VUE (▦)(☰)   (26) REGROUPER  Par mois · Aucun   (23) TRI  Date · Ouverture   (24) ANNÉE  Toutes · 2026 · 2025   (22) [+ Ajouter une course]
 
 ┌────────────────────────────┐ ┌────────────────────────────┐ ┌──────────────────
 │ (4) CONFIRMÉE   (3) 15 NOV.│ │ (4) À SURVEILLER  (3) 11 AV│ │ …
@@ -37,7 +37,7 @@ Une course est dans une seule vue. L'adresse `courses-a-surveiller.html?vue=cour
 └────────────────────────────┘ └────────────────────────────┘ └──────────────────
 ```
 
-Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteur** (13 rem ; le nom sur deux lignes au plus, le lieu sur une), **regroupées par mois** : un titre de mois (17), puis les cartes de ce mois côte à côte, autant de colonnes que l'écran en permet, **une seule sur téléphone**. Les courses sans date forment le dernier groupe, « Date à définir ». Pas de regroupement avec le tri par ouverture. Les pastilles (20) défilent sur le côté sur téléphone ; « + Course » passe sur sa ligne.
+Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteur** (13 rem ; le nom sur deux lignes au plus, le lieu sur une), **regroupées par mois** (au choix, § 4) : un titre de mois (17), puis les cartes de ce mois côte à côte, autant de colonnes que l'écran en permet, **une seule sur téléphone**. Les courses sans date forment le dernier groupe, « Date à définir ». Sans regroupement (choix « Aucun » ou tri par ouverture), les cartes se suivent sans titres. Le nombre de courses n'est pas écrit : les compteurs des pastilles suffisent. Les pastilles (20) défilent sur le côté sur téléphone ; « + Course » passe sur sa ligne.
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
@@ -48,11 +48,11 @@ Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteu
 | — | Distance | 24 km · 650 m D+ | Ligne 4 | Comme Objectif |
 | 11–13 | Dossard | ● Ouvre le 10/01/2027 à 12:00 | Ligne 5 | Comme Objectif ([§ 3.5](module-objectif-specification.md)) ; absent pour une course courue ; jamais un lien ici |
 | 14 | Site officiel ↗ | | Bas droite | Lien souligné en Texte ; **grisé, sans adresse, quand `lien` n'est pas renseigné** |
-| 17 | Titre de mois | NOVEMBRE 2026, DATE À DÉFINIR | Au-dessus de chaque groupe | Libellé, Texte discret, filet dessous |
+| 17 | Titre de mois | NOVEMBRE 2026, DATE À DÉFINIR | Au-dessus de chaque groupe, en cartes | Libellé, Texte discret, filet dessous |
 | 20 | Sélection | À surveiller 12 | Haut de page | Pastilles communes (`mrt-pastille`), choix unique, compteur de la vue ; seule rangée de pastilles de la page |
-| 21 | Compte | 12 COURSES | Sous les vues | Libellé, Texte discret ; tient compte du filtre d'année |
 | 22 | Ajouter | + Ajouter une course | Sous les vues, à droite | Bouton principal ; absent en lecture seule |
 | 25 | Vue | Libellé VUE, puis deux ronds : grille (cartes) et tableau | Sous la sélection, après le compte | Ronds `mrt-rond` du Palmarès ; le rond actif en Accent ; infobulles « Cartes » et « Tableau » ; choix gardé sur l'appareil (`mrt-courses-affichage`), cartes par défaut |
+| 26 | Regroupement | Libellé REGROUPER, puis Par mois · Aucun | Après la vue | Choix en texte discret, comme le tri ; **cartes seulement**, absent avec le tri par ouverture ; « Par mois » par défaut, gardé sur l'appareil (`mrt-courses-groupe`) |
 | 23 | Tri | Libellé TRI, puis Date · Ouverture | Après la vue | Choix en texte discret, le choix actif souligné en Accent ; **cartes seulement** (pas pour Déjà couru) ; gardé en changeant de vue |
 | 24 | Année | Libellé ANNÉE, puis Toutes · 2026 · 2025 | Après le tri | Même style que le tri ; seulement pour Déjà couru et Tout, avec plus d'une année |
 
@@ -60,7 +60,7 @@ Numéros repris d'Objectif ([§ 3.1](module-objectif-specification.md)) pour les
 
 ### 3.1 Affichage en tableau
 
-Au choix (25), les mêmes courses, les mêmes vues, le même tri et le même filtre d'année : un tableau dans un cadre, une ligne par course, avec les titres de mois en lignes de séparation (« Date à définir » en dernier ; pas de titres avec le tri par ouverture). Il défile sur le côté s'il est plus large que l'écran (téléphone). Colonnes, reprises de la veille de l'ancien suivi, sans l'index UTMB (idée « plus tard ») :
+Au choix (25), les mêmes courses, les mêmes vues, le même tri et le même filtre d'année : un tableau dans un cadre, une ligne par course, avec **sans regroupement par mois** : les lignes se suivent, la date est dans sa colonne. Il défile sur le côté s'il est plus large que l'écran (téléphone). Colonnes, reprises de la veille de l'ancien suivi, sans l'index UTMB (idée « plus tard ») :
 
 | Colonne | Contenu | Exemple |
 | --- | --- | --- |
@@ -72,9 +72,11 @@ Au choix (25), les mêmes courses, les mêmes vues, le même tri et le même fil
 
 Toucher une ligne ouvre la fiche de modification (la page de la course en lecture seule) ; le lien du nom n'ouvre pas la fiche.
 
-**Colonnes triables, comme le Palmarès** : en tableau, le choix « Tri » (23) disparaît ; chaque titre de colonne est un bouton avec le double triangle du Palmarès. Premier toucher : croissant ; deuxième : décroissant ; troisième : retour à l'ordre d'origine (date croissante, ou décroissante pour Déjà couru). La colonne triée est en Accent. Tri par Événement et Course : alphabétique ; Distance : numérique ; Date : chronologique ; Ouverture : les inscriptions déjà ouvertes d'abord, puis les plus proches, les inscrits puis les courues à la fin. Une valeur vide passe toujours en dernier. Les titres de mois restent avec la colonne Date (ou sans tri) ; ils disparaissent pour un tri sur une autre colonne (liste à plat).
+**Colonnes triables, comme le Palmarès** : en tableau, le choix « Tri » (23) disparaît ; chaque titre de colonne est un bouton avec le double triangle du Palmarès. Premier toucher : croissant ; deuxième : décroissant ; troisième : retour à l'ordre d'origine (date croissante, ou décroissante pour Déjà couru). La colonne triée est en Accent. Tri par Événement et Course : alphabétique ; Distance : numérique ; Date : chronologique ; Ouverture : les inscriptions déjà ouvertes d'abord, puis les plus proches, les inscrits puis les courues à la fin. Une valeur vide passe toujours en dernier. 
 
 ## 4. La carte
+
+- **Regroupement par mois** (26) : proposé en vue cartes seulement ; jamais dans le tableau.
 
 - **Fond** comme la carte d'Objectif ; cadre en pointillé pour une option ou une course à surveiller, plein pour une confirmée, atténuée pour une courue.
 - **Toucher la carte ouvre la fiche de modification** (la même que depuis Objectif et le Palmarès) : une course à venir ou à surveiller dans sa fiche, une course courue dans sa fiche de résultat. En lecture seule (site partagé), la page de la course s'ouvre à la place, en consultation.
@@ -116,7 +118,8 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 
 | Essai | Résultat attendu |
 | --- | --- |
-| Ouverture de la page | Vue À surveiller ; pastilles : À surveiller 3, Déjà couru 7, À venir 7, Tout 17 |
+| Ouverture de la page | Vue À surveiller ; pastilles : À surveiller 3, Déjà couru 7, À venir 7, Tout 17 ; aucun texte « n courses » ; regroupement Par mois actif |
+| Regroupement | « Aucun » retire les titres de mois, même cartes, choix gardé après rechargement ; absent en tableau et avec le tri par ouverture |
 | À surveiller | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; titres avril 2027, septembre 2028, date à définir |
 | Carte du Marathon | Fond ; statut « À surveiller » et date sur la même ligne, nom dessous ; ni compteur ni objectif ; « Ouvre le 03/11/2026 à 12:00 » ; lien « Site officiel » dans un nouvel onglet ; Ultra des Lacs : lien grisé sans adresse, date « À définir », « Ouverture : janvier 2027 » |
 | À venir, tri par ouverture | Ultra du Plateau, Corrida de Noël, Trail des Cimes, Trail de la Forêt, puis les trois inscrits ; pas de repères ; le tri est gardé en changeant de vue |
@@ -126,7 +129,7 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | + Course | Dans À surveiller : statut préchoisi ; dans À venir : Confirmée |
 | Fiche | Date et heure d'ouverture relues ; « Mois seulement » : la date devient un mois, l'heure se vide ; enregistré au 1er du mois, sans heure ; sans date d'ouverture, ni mois seul ni heure |
 | Ouverture le jour même | Avant l'heure : « Ouvre le 20/10/2026 à 14:00 » ; après : « Inscription ouverte » |
-| Tableau | Choisi par le rond : colonnes Événement, Course, Distance · D+, Date, Ouverture des dossards ; titres de mois ; une ligne par course (À surveiller : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour le dossard d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement ; pas de choix « Tri » ; Date croissante par défaut ; Distance : croissante puis décroissante, à plat (sans distance en dernier) ; Ouverture : les plus proches d'abord ; Événement : alphabétique ; troisième toucher : retour à l'ordre d'origine ; rien ne dépasse de la page sur téléphone |
+| Tableau | Choisi par le rond : colonnes Événement, Course, Distance · D+, Date, Ouverture des dossards ; sans titres de mois ; une ligne par course (À surveiller : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour le dossard d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement ; pas de choix « Tri » ; Date croissante par défaut ; Distance : croissante puis décroissante, à plat (sans distance en dernier) ; Ouverture : les plus proches d'abord ; Événement : alphabétique ; troisième toucher : retour à l'ordre d'origine ; rien ne dépasse de la page sur téléphone |
 | Ordinateur (1200 px) | Deux cartes du même mois côte à côte, moins de 420 px de large ; toutes les cartes de la même hauteur (aussi sur téléphone) |
 | Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
 | Menu | Onglet « À surveiller » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |
