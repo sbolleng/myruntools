@@ -30,8 +30,14 @@ const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 // Fait défiler le formulaire jusqu'à un bloc, son titre juste sous le haut fixe du panneau.
 const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[data-bloc="' + b + '"]'), pan = document.querySelector('.mc-panneau');
   pan.scrollTop += t.getBoundingClientRect().top - pan.getBoundingClientRect().top - document.querySelector('.fc-barre').offsetHeight - 16; }, bloc);
+// Tracé fictif (le même que le banc d'essai) pour la capture « parcours ».
+const GPX = eval('(' + src.slice(src.indexOf("const GPX = ") + 12, src.indexOf("'</trkseg></trk></gpx>';") + 23) + ')');
 const PAGES = {
   accueil: { url: 'index.html' },
+  // Page d'une course, Parcours ouvert : carte et profil du GPX.
+  parcours: { url: 'course.html?id=' + id(3), donnees: d => { const c = d.courses.find(x => x.id === id(3)); c.gpx = c.utilisateur + '/' + c.id + '.gpx'; d.fichiers = { ['traces/' + c.gpx]: GPX }; return d; },
+    action: async p => { await p.waitForSelector('.mc-panneau .pc-titre'); await p.click('#parcours > summary'); await p.waitForSelector('.tr-carte .leaflet-overlay-pane path'); await p.waitForTimeout(1500);
+      await p.evaluate(() => document.querySelector('#parcours').scrollIntoView()); } },
   connexion: { url: 'connexion.html', anonyme: true },
   objectif: { url: 'objectif.html' },
   course: { url: 'course.html?id=' + id(3) },
@@ -65,8 +71,16 @@ fs.mkdirSync(sortie, { recursive: true });
     for (const [l, [w, h]] of Object.entries(cfg.largeurs || LARG)) {
       const ctx = await nav.newContext({ viewport: { width: w, height: (cfg.hauteur && cfg.hauteur[l]) || h }, deviceScaleFactor: 2, timezoneId: 'Europe/Paris' });
       await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+      await ctx.route('https://cdnjs.cloudflare.com/ajax/libs/leaflet/**', r => {
+        const f = /\.css$/.test(r.request().url()) ? 'leaflet.css' : 'leaflet.js';
+        r.fulfill({ body: fs.readFileSync(E + 'node_modules/leaflet/dist/' + f, 'utf8'), contentType: f.endsWith('css') ? 'text/css' : 'application/javascript' });
+      });
       await ctx.route(PROJET + '/**', route => {
         const u = new URL(route.request().url());
+        if (u.pathname.startsWith('/storage/v1/object/')) {
+          const t = (db.fichiers || {})[decodeURIComponent(u.pathname.slice('/storage/v1/object/'.length))];
+          return t == null ? route.fulfill({ status: 400, contentType: 'application/json', body: '{"message":"not found"}' }) : route.fulfill({ contentType: 'application/gpx+xml', body: t });
+        }
         if (route.request().method() !== 'GET') return route.fulfill({ contentType: 'application/json', body: '[]' });
         if (u.pathname.startsWith('/rest/v1/rpc/')) return route.fulfill({ contentType: 'application/json', body: '[]' });
         const table = u.pathname.split('/').pop();

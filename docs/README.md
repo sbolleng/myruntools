@@ -43,8 +43,8 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | --- | --- | --- |
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.26 |
 | [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.33 |
-| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.16 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.47 |
+| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.17 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.48 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.11 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.24 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
@@ -85,7 +85,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 Dans l'ordre :
 
 1. [ ] **Objectif** :
-   - **Page d'une course, Parcours (GPX)** ([Objectif 0.47](module-objectif-specification.md), § 3.4, n° 25 à 28 et 32) : la mise en page A est en ligne ; reste, dans le texte Parcours, l'import du GPX (stockage Supabase, évolution 016), la carte Leaflet sur OpenTopoMap, le profil altimétrique et le téléchargement.
+   - **Tracé GPX** : construit ([Objectif 0.48](module-objectif-specification.md), § 3.4) ; **à faire de ton côté** : coller `supabase/evolutions/016-traces-gpx.sql` dans l'éditeur SQL de Supabase (colonne `gpx`, espace de stockage `traces` et ses règles), puis essayer un import en réel.
    - **Graphique de difficulté** : spécifié et validé ([Objectif 0.47](module-objectif-specification.md), § 5.2), à construire.
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
