@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.2 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.3 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Rôle
 
@@ -38,7 +38,7 @@ Une course est dans une seule vue. L'adresse `courses-a-surveiller.html?vue=cour
 └────────────────────────────┘ └────────────────────────────┘ └──────────────────
 ```
 
-Cartes les moins larges possibles (18 rem au moins) : autant de colonnes que l'écran en permet, **une seule sur téléphone**. Les pastilles (20) défilent sur le côté sur téléphone ; « + Course » passe sur sa ligne. Pas de chemin ni de repères de mois : la date est sur chaque carte, et plusieurs cartes se côtoient.
+Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteur** (13 rem ; le nom sur deux lignes au plus, le lieu sur une), **regroupées par mois** : un titre de mois (17), puis les cartes de ce mois côte à côte, autant de colonnes que l'écran en permet, **une seule sur téléphone**. Les courses sans date forment le dernier groupe, « Date à définir ». Pas de regroupement avec le tri par ouverture. Les pastilles (20) défilent sur le côté sur téléphone ; « + Course » passe sur sa ligne.
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
@@ -49,13 +49,14 @@ Cartes les moins larges possibles (18 rem au moins) : autant de colonnes que l'�
 | — | Distance | 24 km · 650 m D+ | Ligne 4 | Comme Objectif |
 | 11–13 | Dossard | ● Ouvre le 10/01/2027 à 12:00 | Ligne 5 | Comme Objectif ([§ 3.5](module-objectif-specification.md)) ; absent pour une course courue ; jamais un lien ici |
 | 14 | Site officiel ↗ | | Bas droite | Lien souligné en Texte ; **grisé, sans adresse, quand `lien` n'est pas renseigné** |
+| 17 | Titre de mois | NOVEMBRE 2026, DATE À DÉFINIR | Au-dessus de chaque groupe | Libellé, Texte discret, filet dessous |
 | 20 | Vues | À surveiller 12 | Haut de page | Pastilles communes (`mrt-pastille`), choix unique, compteur de la vue |
 | 21 | Compte | 12 COURSES | Sous les vues | Libellé, Texte discret ; tient compte du filtre d'année |
 | 22 | Ajouter | + Ajouter une course | Sous les vues, à droite | Bouton principal ; absent en lecture seule |
 | 23 | Tri | Par date · Par ouverture | Sous les vues | Pastilles ; pas pour Déjà couru ; gardé en changeant de vue |
 | 24 | Année | Toutes · 2026 · 2025 | Sous les vues | Pastilles ; seulement pour Déjà couru et Tout, avec plus d'une année |
 
-Numéros repris d'Objectif ([§ 3.1](module-objectif-specification.md)) pour les éléments communs ; ni rôle, ni objectif, ni compteur. Retirés par rapport à la version 0.1 : le trait et les pastilles du chemin (1, 2), les repères de mois (17) et le rond Détails (15).
+Numéros repris d'Objectif ([§ 3.1](module-objectif-specification.md)) pour les éléments communs ; ni rôle, ni objectif, ni compteur. Retirés par rapport à la version 0.1 : le trait et les pastilles du chemin (1, 2) et le rond Détails (15).
 
 ## 4. La carte
 
@@ -100,7 +101,7 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | Essai | Résultat attendu |
 | --- | --- |
 | Ouverture de la page | Vue À surveiller ; pastilles : À surveiller 3, Déjà couru 7, À venir 7, Tout 17 |
-| À surveiller | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; pas de repères de mois |
+| À surveiller | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; titres avril 2027, septembre 2028, date à définir |
 | Carte du Marathon | Fond ; statut « À surveiller » et date sur la même ligne, nom dessous ; ni compteur ni objectif ; « Ouvre le 03/11/2026 à 12:00 » ; lien « Site officiel » dans un nouvel onglet ; Ultra des Lacs : lien grisé sans adresse, date « À définir », « Ouverture : janvier 2027 » |
 | À venir, tri par ouverture | Ultra du Plateau, Corrida de Noël, Trail des Cimes, Trail de la Forêt, puis les trois inscrits ; pas de repères ; le tri est gardé en changeant de vue |
 | Déjà couru | 7 courses, la plus récente d'abord, sans ligne Dossard, pastille atténuée ; années Toutes, 2026, 2025 ; 2025 : 4 courses, pas de tri |
@@ -109,7 +110,7 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | + Course | Dans À surveiller : statut préchoisi ; dans À venir : Confirmée |
 | Fiche | Date et heure d'ouverture relues ; « Mois seulement » : la date devient un mois, l'heure se vide ; enregistré au 1er du mois, sans heure ; sans date d'ouverture, ni mois seul ni heure |
 | Ouverture le jour même | Avant l'heure : « Ouvre le 20/10/2026 à 14:00 » ; après : « Inscription ouverte » |
-| Ordinateur (1200 px) | Deux cartes côte à côte, moins de 420 px de large |
+| Ordinateur (1200 px) | Deux cartes du même mois côte à côte, moins de 420 px de large ; toutes les cartes de la même hauteur (aussi sur téléphone) |
 | Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
 | Menu | Onglet « À surveiller » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |
 | `?vue=courue` | La vue Déjà couru |

@@ -5,6 +5,7 @@
 //   renderCourses(el, courses, edition, etat)   la barre (vues, tri, année) et la liste ; etat : { vue, tri, annee }, modifié sur place
 //   mrtVuesCourses(courses)                     les courses de chaque vue : { surveiller, venir, courue, tout }
 (function () {
+  const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, FLECHE, PLUS, STATUTS_LIB } = window.mrtCartes;
     const VUES = [['surveiller', 'À surveiller'], ['courue', 'Déjà couru'], ['venir', 'À venir'], ['tout', 'Tout']];
   const VIDE = { surveiller: 'Aucune course à surveiller.', courue: 'Aucune course courue.', venir: 'Aucune course à venir.', tout: 'Aucune course.' };
@@ -63,7 +64,16 @@
       (annees.length > 1 ? '<div class="cs-annees" role="group" aria-label="Année">' + pastille('annee', '', 'Toutes', !etat.annee) +
         annees.map(a => pastille('annee', a, a, a === etat.annee)).join('') + '</div>' : '') + '</div>';
 
-    const html = liste.map(carte).join('');
+    // Regroupées par mois (tri par date) : un titre, puis les cartes du mois côte à côte ; « Date à définir » en dernier.
+    const groupes = [];
+    liste.forEach(c => {
+      const m = parOuv ? '' : c.date ? c.date.slice(0, 7) : 'sans';
+      if (!groupes.length || groupes[groupes.length - 1].m !== m) groupes.push({ m, cartes: [] });
+      groupes[groupes.length - 1].cartes.push(c);
+    });
+    const html = groupes.map(g => '<section class="cs-groupe">' + (g.m ? '<h2 class="cs-mois ob-lib">' +
+      (g.m === 'sans' ? 'Date à définir' : MOIS_LONG[Number(g.m.slice(5)) - 1] + ' ' + g.m.slice(0, 4)) + '</h2>' : '') +
+      '<div class="cs-grille">' + g.cartes.map(carte).join('') + '</div></section>').join('');
     el.innerHTML = haut + (liste.length ? '<div class="cs-liste">' + html + '</div>' : '<p class="ob-vide cs-vide">' + VIDE[etat.vue] + '</p>');
     couperNoms();
 
