@@ -90,6 +90,7 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
+   - **Nombre de ravitaillements** : pouvoir l'indiquer sur la course (fiche d'édition et page), distinct de la stratégie de ravitaillement ci-dessus ; format de saisie et place à décider (ajouté le 1er nov. 2026).
    - **Règlement de la course** : pouvoir l'importer (fichier) et le consulter depuis la page de la course.
    - **Retrait des dossards** : infos de retrait (lieu, jours et horaires, pièces à présenter), sur la page de la course ; à situer par rapport à la Logistique (ajouté le 1er nov. 2026).
 2. [ ] **Courses à surveiller** (spécification 0.7, en ligne) :

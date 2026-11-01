@@ -1389,7 +1389,7 @@ const CONTROLES = {
     await p.check('#fc-date_approx');
     pb.push(egal('month', await p.getAttribute('#fc-date', 'type'), 'jour inconnu : la date devient un mois'));
     await p.fill('#fc-date', '2027-10');
-    await p.fill('#fc-heure', '8h');
+    pb.push(egal(true, await p.isDisabled('#fc-heure'), 'mois seul : l\'heure de départ est grisée'));
     await p.click('.fc-plein');
     await p.waitForSelector('.fc-fiche', { state: 'detached' });
     const w2 = o.copie.ecritures[0].corps;
