@@ -110,7 +110,7 @@
     nav.className = 'mrt-nav';
     // Nom d'un onglet ; « œil » en picto pour En un coup d'œil (le nom complet reste lu par les lecteurs d'écran).
     const OEIL = '<svg class="mrt-picto" viewBox="0 0 24 16" aria-hidden="true"><path d="M1.5 8C4 3.5 7.8 1.5 12 1.5S20 3.5 22.5 8C20 12.5 16.2 14.5 12 14.5S4 12.5 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8" r="3" fill="currentColor"/></svg>';
-    const nomOnglet = m => (m.picto === 'oeil' ? esc(m.nom.replace(/œil$/, '')) + OEIL : esc(m.nom));
+    const nomOnglet = m => (m.picto === 'oeil' ? esc(m.nom.replace(/œil$/, '')) + OEIL : esc(m.libelle || m.nom));
     nav.innerHTML = '<div class="mrt-nav-inner">' + (cfg.modules || []).map(m => {
       const titre = m.picto ? ' aria-label="' + esc(m.nom) + '" title="' + esc(m.nom) + '"' : '';
       if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + nomOnglet(m) + '</span>';
@@ -196,4 +196,34 @@
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkNewVersion(); });
   window.addEventListener('pageshow', e => { if (e.persisted) checkNewVersion(); });
   window.addEventListener('load', checkNewVersion);
+
+  // ----- Déroulé commun (design § 1) : ouvrir ou fermer une zone en hauteur, avec un fondu -----
+  // 0,25 s à l'ouverture, 0,2 s à la fermeture, ease-out ; rien ne bouge si l'appareil demande moins d'animations.
+  //   mrtDeroule(el, ouvrir)   el : la zone (attribut hidden), ou le contenu d'un <details class="mrt-deroule">
+  //   les <details class="mrt-deroule"> s'ouvrent et se ferment ainsi d'eux-mêmes (le contenu : l'élément qui suit le <summary>)
+  const moinsDeMouvement = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.mrtDeroule = function (el, ouvrir, fin) {
+    if (el.__deroule) { el.__deroule.onfinish = null; el.__deroule.cancel(); el.__deroule = null; }
+    const termine = () => { if (!ouvrir) el.hidden = true; if (fin) fin(); };
+    if (ouvrir) el.hidden = false;
+    if (moinsDeMouvement() || !el.animate) return termine();
+    const st = getComputedStyle(el);
+    const plein = { height: el.getBoundingClientRect().height - parseFloat(st.paddingTop) - parseFloat(st.paddingBottom) - parseFloat(st.borderTopWidth) - parseFloat(st.borderBottomWidth) + 'px',
+      paddingTop: st.paddingTop, paddingBottom: st.paddingBottom, marginTop: st.marginTop, marginBottom: st.marginBottom, opacity: 1 };
+    const vide = { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', marginBottom: '0px', opacity: 0 };
+    if (st.boxSizing === 'border-box') plein.height = el.getBoundingClientRect().height + 'px';
+    el.style.overflow = 'hidden';
+    const a = el.animate(ouvrir ? [vide, plein] : [plein, vide], { duration: ouvrir ? 250 : 200, easing: 'ease-out' });
+    el.__deroule = a;
+    a.onfinish = () => { el.style.overflow = ''; el.__deroule = null; termine(); };
+  };
+  document.addEventListener('click', e => {
+    const resume = e.target.closest('details.mrt-deroule > summary');
+    if (!resume || getComputedStyle(resume).pointerEvents === 'none') return;
+    const d = resume.parentNode, corps = resume.nextElementSibling;
+    if (!corps || moinsDeMouvement()) return; // ouverture native, sans animation
+    e.preventDefault();
+    if (d.open && !corps.hidden) window.mrtDeroule(corps, false, () => { d.open = false; corps.hidden = false; });
+    else { d.open = true; window.mrtDeroule(corps, true); }
+  });
 })();

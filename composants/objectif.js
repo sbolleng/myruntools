@@ -16,6 +16,7 @@
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
   const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif intermédiaire', objectif: 'Objectif principal' };
+  const STATUTS_LIB = { a_surveiller: 'À surveiller', option: 'Option', confirmee: 'Confirmée' };
   const UNITES = [['j', 'j'], ['h', 'h'], ['m', 'min'], ['s', 's']];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad = n => String(n).padStart(2, '0');
@@ -35,11 +36,13 @@
     return new Date(d[0], d[1] - 1, d[2], h[0], h[1]);
   }
   function dateCourte(c) {
+    if (!c.date) return 'À définir';
     const d = c.date.split('-').map(Number);
     if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
     return (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS[d[1] - 1] + ' ' + d[0];
   }
   function dateLongue(c, sansHeure) {
+    if (!c.date) return 'À définir';
     const d = c.date.split('-').map(Number);
     if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
     const jour = JOURS[new Date(d[0], d[1] - 1, d[2]).getDay()];
@@ -87,11 +90,20 @@
     if (c.inscrit) return { etat: 'inscrit', texte: 'Inscrit' + (c.dossard ? ' · n° ' + c.dossard : '') };
     const o = c.ouverture_inscriptions;
     if (!o) return { etat: 'inconnu', texte: 'Ouverture à venir' };
-    if (o > aujourdhui()) return { etat: 'bientot', texte: 'Ouvre le ' + o.split('-').reverse().join('/') };
-    return { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
+    const auj = aujourdhui(), ouvert = { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
+    // Mois seul (évolution 017) : « Ouverture : janvier 2027 » tant que le mois n'est pas passé.
+    if (c.ouverture_approx) return o.slice(0, 7) >= auj.slice(0, 7) ? { etat: 'bientot', texte: 'Ouverture : ' + MOIS_LONG[Number(o.slice(5, 7)) - 1] + ' ' + o.slice(0, 4) } : ouvert;
+    // Avec une heure d'ouverture, le jour même, l'inscription n'est ouverte qu'à partir de cette heure (heure locale).
+    const h = c.ouverture_heure ? String(c.ouverture_heure).slice(0, 5) : '';
+    const maintenant = new Date(), hm = pad(maintenant.getHours()) + ':' + pad(maintenant.getMinutes());
+    if (o > auj || (o === auj && h && h > hm)) return { etat: 'bientot', texte: 'Ouvre le ' + o.split('-').reverse().join('/') + (h ? ' à ' + h : '') };
+    return ouvert;
   }
-  function dossardHtml(c) {
-    const d = dossard(c), html = '<i></i>' + esc(d.texte) + (d.lien ? ' ' + FLECHE : '');
+  // sansLien : page d'une course, où l'inscription passe par « S'inscrire » (§ 3.4, n° 29).
+  function dossardHtml(c, sansLien) {
+    const d = dossard(c);
+    if (sansLien) d.lien = null;
+    const html = '<i></i>' + esc(d.texte) + (d.lien ? ' ' + FLECHE : '');
     return d.lien
       ? '<a class="ob-ins is-ouvert" href="' + esc(d.lien) + '" target="_blank" rel="noopener">' + html + '</a>'
       : '<span class="ob-ins is-' + d.etat + '">' + html + '</span>';
@@ -103,7 +115,7 @@
 
   // Compteur (§ 5.1) : quatre cases, mises à jour par un seul minuteur pour toute la page.
   // Mois seul : compteur pour une course confirmée (jusqu'au 1er du mois), aucun pour une option.
-  const sansCompteur = c => c.date_approx && c.statut !== 'confirmee';
+  const sansCompteur = c => !c.date || (c.date_approx && c.statut !== 'confirmee');
   const compteurHtml = c => (sansCompteur(c) ? '' : '<div class="ob-cpt" data-depart="' + depart(c).getTime() + '">' +
     UNITES.map(u => '<span class="ob-cpt-case"><b data-u="' + u[0] + '"></b>' + u[1] + '</span>').join('') + '</div>');
   let minuteur = null;
@@ -133,11 +145,11 @@
       (avecObjectif && c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
       ligne('Dossard', dossardHtml(c)) + '</div>';
   }
-  const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a>' + lienOfficiel(c) + '</' + balise + '>';
+  const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a></' + balise + '>';
   const info = c => (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '');
 
-  function carteCourse(c) {
-    return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '">' +
+  function carteCourse(c, avecMini) {
+    return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '"' + (avecMini && c.gpx ? ' data-mini="' + esc(c.id) + '"' : '') + '>' +
       '<span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span>' + compteurHtml(c) +
       titre(c, 'h3') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, true) + '</article>';
   }
@@ -164,35 +176,123 @@
     couperNoms();
   };
 
+  // Briques de la carte, partagées avec la page Courses à surveiller (courses.js).
+  window.mrtCartes = { dossardEtat: c => dossard(c).etat, esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
+
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
+    document.querySelectorAll('.ob-haut').forEach(h => { if (!el.contains(h)) h.remove(); }); // bouton déplacé par le dessin précédent
     el.innerHTML = (edition ? '<div class="ob-haut">' + '<button type="button" class="ob-ajout mrt-btn is-principal" data-ob="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button></div>' : '') + (etapes.length
       ? '<div class="ob-route">' + etapes.map((e, i) => {
         const k = ['ob-et', option(e) ? 'is-opt' : '', option(etapes[i + 1]) ? 'suite-opt' : '', i === etapes.length - 1 ? 'is-fin' : '',
           e.course ? classeRole(e.course) : ''].filter(Boolean).join(' ');
-        return '<div class="' + k + '"><div class="ob-rail"><span class="ob-pt"></span></div>' + (e.groupe ? carteGroupe(e) : carteCourse(e.course)) + '</div>';
+        return '<div class="' + k + '"><div class="ob-rail"><span class="ob-pt"></span></div>' + (e.groupe ? carteGroupe(e) : carteCourse(e.course, true)) + '</div>';
       }).join('') + '</div>'
       : '<p class="ob-vide">Aucune course à venir.</p>');
     if (edition) brancher(el, { ajouter: edition.ajouter });
+    // Le bouton « Ajouter une course » passe au-dessus du cadre « Évolution de l’effort » (quand la page en a un).
+    const haut = el.querySelector('.ob-haut'), effort = document.getElementById('difficulte');
+    if (haut && effort && effort.parentNode) effort.parentNode.insertBefore(haut, effort);
     couperNoms();
     lancerCompteurs();
+    miniatures(el, etapes);
   };
 
-  // ----- Page d'une course (§ 3.4) -----
-  // Texte repliable : sur téléphone, seul le titre se voit, un toucher l'ouvre ; sur ordinateur, toujours ouvert.
-  const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
-  const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
-  const euros = n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 })
-    .format(Number(n)).replace(/ /g, ' ');
+  // Mini carte du tracé (§ 3.1, n° 14) : sur la carte d'une étape seulement, quand la course a un tracé ; ordinateur seulement (CSS).
+  // Dessinée une fois la feuille de route affichée : chaque tracé se télécharge, la liste n'attend pas.
+  function miniatures(el, etapes) {
+    if (!window.mrtTrace || !window.mrtTrace.miniature) return;
+    const cartes = el.querySelectorAll('.ob-carte[data-mini]');
+    etapes.filter(e => e.course && e.course.gpx).forEach(e => {
+      const carte = [...cartes].find(x => x.dataset.mini === e.course.id);
+      if (!carte) return;
+      window.mrtTrace.miniature(e.course).then(svg => {
+        if (!svg || !carte.isConnected || carte.querySelector('.ob-mini')) return;
+        const m = document.createElement('div');
+        m.className = 'ob-mini';
+        m.innerHTML = svg;
+        carte.appendChild(m);
+        carte.classList.add('a-mini');
+      }).catch(() => {});
+    });
+  }
 
-  // Téléphone : cellules repliées, sauf la première ; ordinateur : toutes ouvertes, sans pouvoir les replier.
+  // ----- Graphique de difficulté (§ 5.2) : km-effort de chaque course, dans le temps -----
+  // Courses de la feuille de route, d'aujourd'hui à la dernière du plan (règle commune à tous) ; dessin : graphique.js.
+  const nf1 = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const un = v => nf1.format(v).replace(/ /g, ' ');
+  window.renderDifficulte = function (el, courses) {
+    if (!el || !window.mrtGraphique) return;
+    const maint = new Date(), t0 = new Date(maint.getFullYear(), maint.getMonth(), maint.getDate()).getTime();
+    const jour = c => { const d = c.date.split('-').map(Number); return new Date(d[0], d[1] - 1, d[2]).getTime(); };
+    // Fin d'une course : sa date, ou le dernier jour du mois quand seul le mois est connu.
+    const finDe = c => (c.date_approx ? new Date(new Date(jour(c)).getFullYear(), new Date(jour(c)).getMonth() + 1, 0).getTime() : jour(c));
+    const liste = window.mrtCoursesRoute(courses).filter(c => c.etat !== 'courue' && c.date && finDe(c) >= t0).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    const ke = c => window.mrtKmEffort(c.distance, c.dplus);
+    const places = liste.filter(c => ke(c) != null);
+    if (!places.length) { el.hidden = true; el.innerHTML = ''; return; }
+    el.hidden = false;
+    // Trois signes : une course de préparation (point plein), une course en option (point à contour) et un objectif, principal ou intermédiaire (losange).
+    const forme = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
+        const quand = c => (c.date_approx ? MOIS_LONG[Number(c.date.slice(5, 7)) - 1] + ' ' + c.date.slice(0, 4) : dateCourte(c));
+    const profil = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ');
+    const points = places.map(c => {
+      // Date au mois seul : le point au milieu du mois, sans trait.
+      const t = c.date_approx ? Math.max((jour(c) + finDe(c)) / 2, t0) : Math.max(jour(c), t0), v = ke(c);
+      return {
+        id: c.id, t, y: v, forme: forme(c),
+        aria: nom(c) + ', ' + un(v) + ' km-effort',
+        bulle: { valeur: un(v) + ' km-effort', nom: nom(c), lien: pageCourse(c), details: quand(c) + ' · ' + profil(c) }
+      };
+    });
+    const max = Math.max(20, Math.ceil(Math.max(...points.map(p => p.y)) / 20) * 20);
+    const fin = Math.max(t0, ...places.map(finDe));
+    // La ligne : les étapes confirmées et l'objectif, dans l'ordre ; ni options, ni courues.
+    const ligne = places.filter(c => c.etat !== 'courue' && c.statut === 'confirmee').map(c => c.id);
+    // Sous le graphique : la légende, puis la définition du km-effort, en clair (spécification générale, § 12 bis).
+    const legende = '<ul class="mg-legende"><li><span class="mg-sym is-plein" aria-hidden="true"></span>Course de préparation</li>' +
+      '<li><span class="mg-sym is-vide" aria-hidden="true"></span>Course en option</li>' +
+      '<li><span class="mg-sym is-losange" aria-hidden="true"></span>Objectif</li></ul>';
+    const definition = '<p class="mg-definition">L\'effort d\'une course se mesure ici en <b>km-effort</b>, la mesure normée de l\'ITRA (association internationale du trail). ' +
+      'Le principe : on ajoute au kilométrage l\'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. ' +
+      'Un trail de 40 km avec 2 000 m de D+ pèse donc comme une course de 60 km à plat. La descente n\'est pas comptée.</p>';
+    window.mrtGraphique(el, {
+      cle: 'mrt-graphe-difficulte', titre: 'Évolution de l’effort', toujoursFerme: true,
+      axeY: { libelle: 'km-effort', min: 0, max, pas: 20, fmt: v => String(v) },
+      debut: t0, fin, points, ligne, ligneDiscrete: true, bas: legende + definition
+    });
+  };
+
+  // ----- Page d'une course (§ 3.4, option A) -----
+  // Texte repliable : le titre, précédé d'un chevron ; un toucher sur le titre l'ouvre ou le ferme.
+  const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule mrt-deroule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
+  const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
+  // Lien externe écrit en toutes lettres, suivi de la flèche dessinée.
+  const lienExterne = (url, txt, classe) => '<a class="pc-ext' + (classe ? ' ' + classe : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>';
+  // Lieu (n° 6) : OpenStreetMap, sur les coordonnées si elles sont connues, sinon une recherche du nom.
+  const REPERE = '<svg class="pc-repere" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11s3.6-3.4 3.6-6.1A3.6 3.6 0 0 0 2.4 4.9C2.4 7.6 6 11 6 11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="6" cy="4.9" r="1.2" fill="currentColor"/></svg>';
+  function lieuHtml(c) {
+    if (!c.lieu) return '';
+    const url = c.latitude != null && c.longitude != null
+      ? 'https://www.openstreetmap.org/?mlat=' + c.latitude + '&mlon=' + c.longitude + '#map=13/' + c.latitude + '/' + c.longitude
+      : 'https://www.openstreetmap.org/search?query=' + encodeURIComponent(c.lieu);
+    return '<a class="pc-lieu" href="' + esc(url) + '" target="_blank" rel="noopener" title="Voir sur la carte">' + REPERE + esc(c.lieu) + '</a>';
+  }
+  // Heure de départ, « 7 h 30 » ; vide (ou date au mois seul) : « — », comme partout sur le site.
+  const heureTxt = c => { if (c.date_approx || !c.heure) return '—'; const h = c.heure.split(':').map(Number); return h[0] + ' h' + (h[1] ? ' ' + pad(h[1]) : ''); };
+  // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
+  const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ').replace(/ (m D|km)/g, '\u00a0$1');
+
+  let parcoursOuvert = null;
+
+  // Tous les textes repliés à l'ouverture, sur ordinateur comme sur téléphone.
   const telephone = window.matchMedia('(max-width: 600px)');
   let replier = null;
   function replierCellules(el) {
     const cellules = [...el.querySelectorAll('.pc-cellule')];
-    const regler = () => cellules.forEach((d, i) => { d.open = !telephone.matches || i === 0; });
+    const regler = () => cellules.forEach(d => { d.open = false; });
     regler();
     if (replier) telephone.removeEventListener('change', replier);
     replier = regler;
@@ -203,6 +303,8 @@
   // modale (ctx.modale = { fermer } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
+    // Même course redessinée (séance ajoutée, plan paramétré, tracé importé) : les textes ouverts le restent.
+    const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     // Barre du haut de la modale (modale-course.js) : « Modifier » et la croix, à droite.
     const barre = avecModifier => '<div class="pc-barre">' + (avecModifier && edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
@@ -210,51 +312,95 @@
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
     const suite = etapes.flatMap(e => (e.course ? [e.course] : e.candidats));
-    const i = suite.findIndex(c => c.id === id);
+    let i = suite.findIndex(c => c.id === id);
+    // Hors feuille de route (course à surveiller, sans date ou option passée) : la page s'ouvre sans voisines ni numéro d'étape.
+    const horsRoute = i < 0 ? courses.find(x => x.id === id && x.etat === 'a_venir') : null;
+    if (horsRoute) { suite.push(horsRoute); i = suite.length - 1; }
     if (i < 0) {
       el.innerHTML = retour + '<p class="ob-vide">Course introuvable.</p>';
       brancher(el, { fermer: ctx.modale.fermer });
       return null;
     }
-    const c = suite[i], prec = suite[i - 1], suiv = suite[i + 1];
+    const c = suite[i], prec = horsRoute ? null : suite[i - 1], suiv = horsRoute ? null : suite[i + 1];
     const rang = etapes.findIndex(e => e.course === c || (e.candidats || []).includes(c)) + 1;
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
-    const marquable = c.statut === 'confirmee' && c.date <= aujourdhui();
-    const liens = [[c.lien, 'Site officiel'], [c.inscription, 'Inscription'], [c.lien_resultats, 'Résultats en direct']].filter(l => lienSur(l[0]));
+    const marquable = c.statut === 'confirmee' && !!c.date && c.date <= aujourdhui();
+    // Site officiel (n° 30) en bas à droite de la fiche, sur la ligne d'« À propos de la course » ; « S'inscrire » (n° 29) en tête ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
+    const officiel = lienSur(c.lien) ? lienExterne(c.lien, 'Site officiel', 'pc-officiel') : '';
+    const liensHaut = [lienSur(c.inscription) && !c.inscrit ? lienExterne(c.inscription, 'S\'inscrire', dossard(c).etat === 'ouvert' ? 'is-ouvert' : '') : ''].filter(Boolean);
+    const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
+    // Sous-titres des textes : en libellé (Space Mono, capitales), comme ceux de la fiche.
+    const sousTitre = t => '<p class="pc-sous-titre">' + t + '</p>';
+    const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Rôle dans le plan') + texte(c.pourquoi) + '</div>' : '') +
+      (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
+    // Parcours (n° 25) : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ; sans GPX, « Importer un GPX » (28),
+    // sauf en lecture seule.
+    const T = window.mrtTrace;
+    const trace = !T ? '' : c.gpx
+      ? '<div class="tr-zone"></div>'
+      : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
+        '<div class="tr-choix-zone" hidden></div><p class="tr-erreur" aria-live="polite"></p>' : '';
+    // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
+    const bas = cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie">' + sousTitre('Stratégie de course') + texte(c.strategie) + '</div>' : ''), 'parcours') + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
-      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
-      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
-      '<p class="pc-info">' + esc([lieuFormat(c), dateLongue(c)].filter(Boolean).join(' · ')) + '</p>' +
+      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
+      '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
+      (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
+      (liensHaut.length ? '<p class="pc-liens-haut">' + liensHaut.join('') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
         (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
-      // La fiche : les lignes de la carte de la feuille de route, complétées (D−, prix).
+      // La fiche (n° 22) : lieu, date et heure, compteur, résultats en direct, distance, objectif, dossard ; « À propos de la course » (n° 18)
+      // repliée dans le même cadre, le site officiel à sa droite.
       '<div class="ob-lignes pc-fiche">' +
+        (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
+        ligne('Date / heure', '<span class="ob-val">' + esc(dateLongue(c, true)) + ' · ' + esc(heureTxt(c)) + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
-        (distance(c) ? ligne('Distance', '<span class="ob-val">' + esc(distance(c)) + '</span>') : '') +
-        (c.dmoins != null ? ligne('D−', '<span class="ob-val">' + esc(nombre(c.dmoins)) + ' m</span>') : '') +
+        (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
+        (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
-        (c.objectif_precisions ? ligne('Précisions', esc(c.objectif_precisions)) : '') +
-        ligne('Dossard', dossardHtml(c)) +
-        (c.prix != null ? ligne('Prix', '<span class="ob-val">' + esc(euros(c.prix)) + '</span>') : '') +
+        ligne('Dossard', dossardHtml(c, true)) +
+        (c.description || officiel ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
       '</div>' +
-      '<div class="pc-textes">' +
-        (ctx && window.mrtPreparation.aPlan(c) ? cellule('Préparation', '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>', 'preparation') : '') +
-        cellule('Rôle dans la préparation', texte(c.pourquoi)) +
-        cellule('Stratégie ou enchaînement', texte(c.strategie)) +
-        cellule('Logistique', texte(c.logistique)) +
-        cellule('Description', texte(c.description)) +
-        cellule('Liens', liens.length ? '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + esc(l[0]) + '" target="_blank" rel="noopener">' + l[1] + ' ' + FLECHE + '</a></li>').join('') + '</ul>' : '') +
-      '</div>' +
+      (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
-    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id) }));
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
+      importer: () => el.querySelector('.tr-fichier').click() }));
     replierCellules(el);
+    el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
+    el.dataset.pcId = id;
+    // Tracé : dessiné à la première ouverture de Parcours (la carte a besoin de sa taille).
+    const parcours = el.querySelector('#parcours');
+    if (parcours && c.gpx && T) parcours.addEventListener('toggle', () => { if (parcours.open) T.dessiner(parcours.querySelector('.tr-zone'), c); });
+    const fichier = el.querySelector('.tr-fichier');
+    if (fichier) fichier.addEventListener('change', async () => {
+      const f = fichier.files[0], msg = el.querySelector('.tr-erreur'), b = el.querySelector('[data-ob="importer"]');
+      if (!f) return;
+      fichier.value = '';
+      const v = await T.verifier(f);
+      msg.textContent = v.erreur || '';
+      if (v.erreur) return;
+      // Plusieurs tracés dans le fichier : on garde celui de la course.
+      const zone = el.querySelector('.tr-choix-zone');
+      const choisi = v.pistes.length > 1 ? await T.choisir(zone, v.pistes, Number(c.distance)) : v.pistes[0];
+      zone.hidden = true;
+      if (!choisi) return;
+      b.disabled = true;
+      msg.textContent = 'Envoi du GPX…';
+      const err = await T.ranger(c, choisi.texte);
+      b.disabled = false;
+      msg.textContent = err || '';
+      if (err) return;
+      parcoursOuvert = c.id; // la page redessinée rouvre Parcours, avec la carte
+      if (ctx.actualiser) await ctx.actualiser();
+    });
+    if (parcoursOuvert === c.id && parcours) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
     if (ctx.ancre === '#preparation' && !ctx.ancreFaite) {
@@ -318,11 +464,11 @@
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
-      // Résultat et Montre côte à côte sur un grand écran, l'un sous l'autre sur téléphone.
+      // Résultat, puis la Montre dessous, dans une section repliée (un toucher sur son titre l'ouvre).
       '<div class="pc-colonnes">' +
-      (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res" href="' + esc(resultats) + '" target="_blank" rel="noopener">Résultats' + FLECHE + '</a>' : '',
+      (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res mrt-lien" href="' + esc(resultats) + '" target="_blank" rel="noopener">Classement complet' + FLECHE + '</a>' : '',
         liste(resultat)) : '') +
-      (montre.length ? section('Montre', '', liste(montre), 'is-montre') : '') +
+      (montre.length ? '<details class="pc-section is-montre mrt-deroule"><summary class="pc-intertitre"><span>Montre</span>' + CHEVRON + '</summary><div class="pc-repli-corps">' + liste(montre) + '</div></details>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
@@ -345,7 +491,9 @@
     };
     const trouver = id => courses().find(x => x.id === id) || null;
     return {
-      ajouter: () => ouvrir(null, { mode: 'a_venir' }),
+      ajouter: extra => ouvrir(null, Object.assign({ mode: 'a_venir' }, extra)),
+      // Modifier : la fiche d'édition directement (cartes de Courses à surveiller) ; une course courue s'ouvre dans sa fiche de résultat.
+      modifier: id => { const c = trouver(id); if (c) ouvrir(c, { mode: c.etat === 'courue' ? 'courue' : 'a_venir' }); },
       // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);

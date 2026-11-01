@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.12 · 30 octobre 2026 · [Retour au sommaire](README.md) · Durées de prépa validées, récupération facultative après la course, questions tranchées ; vue choisie par deux pastilles, « Aujourd'hui », courses courues touchables
+Version 0.13 · 1er novembre 2026 · [Retour au sommaire](README.md) · Durées de prépa validées, récupération facultative après la course, questions tranchées ; vue choisie par deux pastilles, « Aujourd'hui », courses courues touchables
 
 ## 1. Rôle
 
@@ -142,7 +142,7 @@ Exemple, plan de 10 semaines : Base ×3, Deload, Développement ×3, Deload, Aff
     (6) ▸ Toutes les semaines (16)
 ```
 
-La rubrique est le premier texte de la page de la course, juste sous la fiche, dans le même cadre que les autres textes ; elle est ouverte par défaut. Une semaine tient sur une ligne par jour, à toute largeur. Sur téléphone, comme les autres textes, elle se replie sous son titre.
+La rubrique est le premier texte de la page de la course, juste sous la fiche, dans le même cadre que les autres textes ; elle est ouverte par défaut. Une semaine tient sur une ligne par jour, à toute largeur. **Frise sur téléphone** : chaque semaine garde 2 rem au moins ; quand la frise ne tient pas dans la largeur, elle défile de gauche à droite (balayage horizontal). Sur téléphone, comme les autres textes, elle se replie sous son titre.
 
 | N° | Élément | Contenu | Règle |
 | --- | --- | --- | --- |
@@ -293,7 +293,7 @@ Résultats attendus, rubrique Préparation de la page d'une course :
 - Page du Trail du Lac (plan de 12 semaines commencé le 24 août) : « Semaine en cours », semaine 9 (19 octobre), Développement, avec ses séances ; « Toutes les semaines (12) » repliée ; dépliée, douze blocs.
 - « Paramétrer le plan » : durée portée à 20 semaines, « Début : lun. 19 oct. 2026 » ; semaine du 7 décembre en Base puis « Enregistrer » : la durée de la course (20) et une seule semaine modifiée sont rangées, la semaine s'affiche « Base · modifiée » ; « Recalculer selon les règles » puis « Enregistrer » : plus de semaine modifiée, la semaine du 7 décembre est de nouveau en Deload ; « Annuler » ne range rien.
 - Frise : une poignée entre deux phases ; glisser la première d'une semaine vers la droite met la semaine 4 en Base dans le tableau.
-- Ajouter une séance depuis la rubrique : elle est liée à la course (`course` renseignée).
+- Ajouter une séance depuis la rubrique : elle est liée à la course (`course` renseignée) ; la rubrique reste ouverte (les textes ouverts de la page le restent quand elle se redessine).
 - Course de format sans durée (Corrida de Noël en Triathlon S) : « Pas encore de plan… » et « Paramétrer le plan » ; durée 10 : « Plan de 10 semaines ».
 - Course courue, abandonnée ou à surveiller : pas de rubrique Préparation.
 - Page ouverte sans `#preparation` : pas de défilement ; avec `#preparation` : la rubrique s'ouvre, même repliée.

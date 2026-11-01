@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.11 · 31 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.12 · 1er novembre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -88,7 +88,7 @@ Résultats attendus :
 - Les blocs se suivent dans cet ordre : Compte, Cap, Thème, Menu, Page d'accueil, Partage ; aucun thème ne porte de mention.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
 - Page ouverte avec `?t=violet-turquoise` : sans effet, la page reste en vert et rose.
-- Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés, « · bientôt » ; le menu de la page n'a que les modules construits : En un coup d'œil, Objectif, Calendrier, Palmarès.
+- Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés, « · bientôt » ; le menu de la page n'a que les modules construits : En un coup d'œil, Objectif, Calendrier, Courses à surveiller, Palmarès.
 - Monter Calendrier d'un rang : le menu de la page change aussitôt (Calendrier avant Objectif) ; recharger : l'ordre est conservé.
 - Décocher Calendrier : il disparaît du menu ; « Rétablir l'ordre par défaut » le fait revenir à sa place.
 - Décocher tous les modules sauf un : la dernière case ne peut pas être décochée ; cocher Guide (bientôt) : il n'entre pas dans le menu, et la case d'En un coup d'œil reste non décochable.

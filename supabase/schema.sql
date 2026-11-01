@@ -87,6 +87,7 @@ create table courses (
   inscription    text,
   lien_resultats text,
   description    text check (char_length(description) <= 1000),
+  gpx            text,          -- chemin du tracé dans le stockage : traces/<utilisateur>/<course>.gpx (évolution 016)
 
   -- Classement (le type se déduit du format)
   format         text references formats (id),
@@ -112,6 +113,8 @@ create table courses (
   dossard                text,
   prix                   numeric(7,2) check (prix >= 0),
   ouverture_inscriptions date,
+  ouverture_heure        time,                       -- heure locale d'ouverture, facultative (évolution 017)
+  ouverture_approx       boolean not null default false, -- vrai si seul le mois d'ouverture est connu (date rangée au 1er du mois)
 
   -- Préparation
   objectif   text, -- normé : temps visé (« 02:45:00 »), « Finisher » ou « Sub 3h » / « Sub 45 min »
@@ -373,3 +376,14 @@ $$;
 
 revoke execute on function partager(text), mes_partages(), partages_avec_moi() from public, anon;
 grant execute on function partager(text), mes_partages(), partages_avec_moi() to authenticated;
+
+-- ===== Stockage : tracés GPX (évolution 016) =====
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('traces', 'traces', false, 5242880)
+on conflict (id) do nothing;
+create policy "traces : les miennes" on storage.objects for all to authenticated
+  using (bucket_id = 'traces' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'traces' and (storage.foldername(name))[1] = (select auth.uid())::text);
+create policy "traces : partagées avec moi" on storage.objects for select to authenticated
+  using (bucket_id = 'traces' and exists (select 1 from public.partages p
+    where p.proprietaire::text = (storage.foldername(name))[1] and p.invite = (select auth.uid())));
