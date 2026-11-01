@@ -750,6 +750,24 @@ const CONTROLES = {
       pb.push(egal('Trail des Gorges.gpx', dl.suggestedFilename(), 'GPX : le bouton « ↓ GPX » télécharge le fichier, au nom de la course'));
       pb.push(egal([], o.erreurs, 'GPX, erreurs JavaScript'));
       await o.ctx.close();
+      // Mini carte de l'étape (§ 3.1, n° 14) : seulement avec un tracé, sous la date et le compteur, sur ordinateur
+      const mini = () => ({ cartes: document.querySelectorAll('.ob-carte .ob-mini').length, svg: document.querySelectorAll('.ob-mini svg .tr-mini-trace').length,
+        pointsDepartArrivee: document.querySelectorAll('.ob-mini .tr-mini-depart, .ob-mini .tr-mini-arrivee').length,
+        visible: !!document.querySelector('.ob-mini') && getComputedStyle(document.querySelector('.ob-mini')).display !== 'none' });
+      o = await ouvrir(nav, 'objectif.html', 1200, avecTrace, {}, PARIS);
+      await o.p.waitForSelector('.ob-carte .ob-mini svg', { timeout: 8000 });
+      const pos = await o.p.evaluate(() => { const m = document.querySelector('.ob-mini').getBoundingClientRect(), c = m.top, d = document.querySelector('.ob-mini').closest('.ob-carte');
+        const date = d.querySelector('.ob-date').getBoundingClientRect(), cr = d.getBoundingClientRect();
+        return { sousDate: m.top > date.bottom, dansCarte: m.bottom <= cr.bottom && m.right <= cr.right, droite: m.right > cr.right - 40, sansDebord: document.documentElement.scrollWidth <= innerWidth }; });
+      pb.push(egal({ cartes: 1, svg: 1, pointsDepartArrivee: 2, visible: true }, await o.p.evaluate(mini), 'mini carte : une seule étape a un tracé, tracé, départ et arrivée dessinés'),
+        egal({ sousDate: true, dansCarte: true, droite: true, sansDebord: true }, pos, 'mini carte : à droite, sous la date, dans la carte d\'étape'),
+        egal([], o.erreurs, 'mini carte, erreurs JavaScript'));
+      await o.ctx.close();
+      o = await ouvrir(nav, 'objectif.html', 390, avecTrace, {}, PARIS);
+      await o.p.waitForSelector('.ob-carte');
+      await o.p.waitForTimeout(600);
+      pb.push(egal(false, (await o.p.evaluate(mini)).visible, 'mini carte : absente sur téléphone'));
+      await o.ctx.close();
       // Import depuis la page : Corrida de Noël, sans tracé.
       const imp = JSON.parse(JSON.stringify(db));
       imp.persister = true; imp.ecritures = [];
