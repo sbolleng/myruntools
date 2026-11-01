@@ -88,7 +88,7 @@ Dans l'ordre :
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
-2. [ ] **Calendrier** : **banc d'essai** : le groupe `calendrierPlan` échoue (« pastille : 4 semaines, d'un toucher », ligne 1561), déjà sur `main` avant le 31 oct. 2026 au soir ; à réparer. [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+2. [ ] **Calendrier** : [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.

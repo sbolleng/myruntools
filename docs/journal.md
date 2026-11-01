@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Banc d'essai | Groupe `calendrierPlan` réparé : la cause était dans la page, pas dans le banc. Une séance ajoutée depuis la rubrique Préparation redessinait la page d'une course et refermait la rubrique (« Paramétrer le plan » devenait invisible). Désormais, quand la même course est redessinée, les textes ouverts le restent. Les 15 groupes passent. |
 | 1er nov. 2026 | Tracé GPX | Essai réel réussi : import depuis la page, carte affichée. |
 | 1er nov. 2026 | Tracé GPX, base | Évolution 016 passée dans Supabase : colonne `gpx`, espace de stockage `traces` et ses règles. |
 | 1er nov. 2026 | Graphiques | En ligne : difficulté en tête de la feuille de route, progression au-dessus du tableau du Palmarès ; code de dessin commun `composants/graphique.js` (SVG et HTML, couleurs par rôles) ; sur téléphone, repères du temps à janvier et juillet seulement ; une étape confirmée au mois seul est sur la ligne, par le milieu de son mois. Banc d'essai : groupe `graphiques`. |

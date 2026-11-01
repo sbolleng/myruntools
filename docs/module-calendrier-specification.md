@@ -293,7 +293,7 @@ Résultats attendus, rubrique Préparation de la page d'une course :
 - Page du Trail du Lac (plan de 12 semaines commencé le 24 août) : « Semaine en cours », semaine 9 (19 octobre), Développement, avec ses séances ; « Toutes les semaines (12) » repliée ; dépliée, douze blocs.
 - « Paramétrer le plan » : durée portée à 20 semaines, « Début : lun. 19 oct. 2026 » ; semaine du 7 décembre en Base puis « Enregistrer » : la durée de la course (20) et une seule semaine modifiée sont rangées, la semaine s'affiche « Base · modifiée » ; « Recalculer selon les règles » puis « Enregistrer » : plus de semaine modifiée, la semaine du 7 décembre est de nouveau en Deload ; « Annuler » ne range rien.
 - Frise : une poignée entre deux phases ; glisser la première d'une semaine vers la droite met la semaine 4 en Base dans le tableau.
-- Ajouter une séance depuis la rubrique : elle est liée à la course (`course` renseignée).
+- Ajouter une séance depuis la rubrique : elle est liée à la course (`course` renseignée) ; la rubrique reste ouverte (les textes ouverts de la page le restent quand elle se redessine).
 - Course de format sans durée (Corrida de Noël en Triathlon S) : « Pas encore de plan… » et « Paramétrer le plan » ; durée 10 : « Plan de 10 semaines ».
 - Course courue, abandonnée ou à surveiller : pas de rubrique Préparation.
 - Page ouverte sans `#preparation` : pas de défilement ; avec `#preparation` : la rubrique s'ouvre, même repliée.
