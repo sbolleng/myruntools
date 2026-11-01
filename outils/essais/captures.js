@@ -9,8 +9,9 @@
 //                                             une autre copie du site (ex. git archive origin/main), pour un avant/après
 //   THEME=vert-rose node captures.js objectif ../.. captures/vert-rose
 //                                             dans un autre thème que celui des données fictives (bleu-orange)
-// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares, calendrier,
-//         calendrier-semaines, filtres, preferences,
+// Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares,
+//         calendrier (Année en frise), calendrier-semaine (vue Semaine, par défaut), calendrier-colonnes (jours en colonnes),
+//         calendrier-grille et calendrier-semaines (anciennes vues, en essai), filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -32,6 +33,10 @@ const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[d
   pan.scrollTop += t.getBoundingClientRect().top - pan.getBoundingClientRect().top - document.querySelector('.fc-barre').offsetHeight - 16; }, bloc);
 // Tracé fictif (le même que le banc d'essai) pour la capture « parcours ».
 const GPX = eval('(' + src.slice(src.indexOf("const GPX = ") + 12, src.indexOf("'</trkseg></trk></gpx>';") + 23) + ')');
+// Séances d'essai du Calendrier (spécification § 10) ; stockage : réglages posés sur l'appareil avant d'ouvrir la page (boutons d'essai).
+const SEANCES = d => { const moi = d.profils[0].id; d.seances = [['se-1', '2026-10-19', 'renfo', 'Gainage 30 min', true], ['se-2', '2026-10-20', 'run', '8×400 m', false],
+  ['se-3', '2026-10-22', 'run', 'Footing 45 min', false], ['se-4', '2026-10-24', 'run', 'Sortie 1 h 30', false]]
+  .map(([id, date, type, libelle, faite]) => ({ id, utilisateur: moi, date, type, libelle, faite, course: null })); return d; };
 const PAGES = {
   accueil: { url: 'index.html' },
   // Feuille de route : mini carte du tracé sur la carte d'étape (ordinateur).
@@ -56,8 +61,11 @@ const PAGES = {
   'courses-tout': { url: 'courses-a-surveiller.html?vue=tout' },
   'courses-tableau': { url: 'courses-a-surveiller.html?vue=tout', action: async p => { await p.click('[data-mode="tableau"]'); } },
   palmares: { url: 'palmares.html' },
-  calendrier: { url: 'calendrier.html' },
-  'calendrier-semaines': { url: 'calendrier.html#semaines' },
+  calendrier: { url: 'calendrier.html#annee' },
+  'calendrier-grille': { url: 'calendrier.html#annee', stockage: { 'mrt-essai-annee': 'grille' } },
+  'calendrier-semaine': { url: 'calendrier.html', donnees: SEANCES },
+  'calendrier-colonnes': { url: 'calendrier.html', donnees: SEANCES, stockage: { 'mrt-essai-jours': 'colonnes' }, largeurs: { ordi: [1200, 900] } },
+  'calendrier-semaines': { url: 'calendrier.html#semaines', donnees: SEANCES, stockage: { 'mrt-essai-semaine': 'ancienne' } },
   // Consultation d'une course courue : le semi de San Sebastián, avec des valeurs fictives ajoutées.
   'consultation-courue': { url: 'palmares.html', hauteur: { ordi: 700 }, donnees: d => { Object.assign(d.courses.find(c => c.id === '00000000-0000-0000-0001-000000000007'),
     { place: 14, effectif: 174, place_categorie: 2, effectif_categorie: 8, place_sexe: 6, categorie: 'M2', dossard: '271', objectif: '01:50:00', objectif_precisions: 'Temps prévu par le plan, visée : environ 1 h 50.', dplus: 128, dmoins: 128,
@@ -109,6 +117,7 @@ fs.mkdirSync(sortie, { recursive: true });
       if (!cfg.anonyme) {
         const t = Math.floor(maintenant / 1000);
         await p.evaluate(() => localStorage.setItem('mrt-palmares-groupe', '0'));
+        if (cfg.stockage) await p.evaluate(st => Object.entries(st).forEach(([k, v]) => localStorage.setItem(k, v)), cfg.stockage);
         await p.evaluate(s => localStorage.setItem('sb-gifrpodrwesuhtgkxbuc-auth-token', s), JSON.stringify({
           access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
         await p.goto('file://' + racine + cfg.url);

@@ -1,6 +1,6 @@
-/* ===== Calendrier : vue Année (calendrier.js) =====
-   docs/module-calendrier-specification.md, § 3 ; couleurs : docs/design.md, § 9 et 10. Phases, semaines, fenêtres : preparation.css.
-   Une ligne très fine par jour, une colonne par mois. */
+/* ===== Calendrier : vue Année et vue Semaine (calendrier.js) =====
+   docs/module-calendrier-specification.md, § 3 et 4 ; couleurs : docs/design.md, § 10. Phases, semaines, fenêtres : preparation.css.
+   Année en frise (une ligne par course) ou, en essai, l'ancienne grille (une ligne très fine par jour, une colonne par mois). */
 
 .cal-cadre { padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .cal-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.8rem 1.5rem; margin-bottom: 1.2rem; }
@@ -57,4 +57,114 @@
   .cal-j { height: 0.72rem; }
   .cal-n { line-height: 0.72rem; padding-right: 0.2rem; }
   .cal-nom { font-size: 0.52rem; line-height: 0.72rem; }
+}
+
+/* ----- Essai (temporaire) : boutons violets, hors des règles communes, pour basculer d'une présentation à l'autre ----- */
+.cal-essais { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
+.cal-essai { padding: 0.35rem 0.85rem; font: inherit; font-size: 0.75rem; font-weight: 600; line-height: 1.25; color: #fff; background: #7c3aed; border: 0; border-radius: 999px; cursor: pointer; }
+@media (hover: hover) { .cal-essai:hover { background: #6d28d9; } }
+
+/* ----- Vue Année en frise (spécification § 3) : le temps de gauche à droite, une ligne par course -----
+   Colonne des noms à gauche (au-dessus de la barre sur téléphone) ; dans chaque piste, filets des mois, semaine en cours, aujourd'hui. */
+.fr { --lab: 9.5rem; }
+.fr-ligne { display: grid; grid-template-columns: var(--lab) minmax(0, 1fr); align-items: center; }
+.fr-lab { min-width: 0; padding-right: 0.7rem; line-height: 1.25; }
+.fr-lab b { display: block; min-width: 0; font-size: 0.8rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fr-lab small { display: block; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.fr-ligne.is-option .fr-lab b { font-weight: 500; color: var(--muted); }
+.fr-piste { position: relative; height: 2.2rem; }
+.fr-filet { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--border); }
+.fr-sem { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--text) 7%, transparent); }
+.fr-auj { position: absolute; top: 0; bottom: 0; width: 1px; margin-left: -0.5px; background: var(--text); }
+/* Barre de prépa : une case par semaine, de la couleur de sa phase ; option atténuée ; commencée avant la période : bord gauche droit. */
+.fr-barre { position: absolute; top: 50%; display: flex; height: 0.6rem; transform: translateY(-50%); border-radius: 3px; overflow: hidden; }
+.fr-barre.is-avant { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.fr-barre.is-option { opacity: 0.45; }
+.fr-barre i { flex: 1 1 0; min-width: 0; }
+.fr-barre i.ph-base { background: var(--ph-base); }
+.fr-barre i.ph-developpement { background: var(--ph-developpement); }
+.fr-barre i.ph-affutage { background: var(--ph-affutage); }
+.fr-barre i.ph-deload { background: var(--ph-deload); }
+/* Course : losange à son jour (plein : confirmée ; contour : option ; Texte discret : courue), détaché de la barre par un liseré. */
+.fr-course { position: absolute; top: 50%; z-index: 1; width: 0.62rem; height: 0.62rem; margin: -0.31rem 0 0 -0.31rem; transform: rotate(45deg); border-radius: 1px; box-shadow: 0 0 0 1.5px var(--surface); }
+.fr-course.c-route-v { background: var(--route); }
+.fr-course.c-trail-v { background: var(--trail); }
+.fr-course.c-route-n { background: var(--surface); box-shadow: inset 0 0 0 2px var(--route), 0 0 0 1.5px var(--surface); }
+.fr-course.c-trail-n { background: var(--surface); box-shadow: inset 0 0 0 2px var(--trail), 0 0 0 1.5px var(--surface); }
+.fr-course.courue { background: var(--muted); }
+/* Mois, au-dessus de la frise : au début de chaque mois, à côté de son filet ; initiale sur téléphone. */
+.fr-entete .fr-piste { height: 1.3rem; }
+.fr-mois { position: absolute; bottom: 0.3rem; padding-left: 4px; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.fr-mois i { font-style: normal; }
+.fr-m-court { display: none; }
+/* Ligne Saison : la phase suivie chaque semaine, plus haute ; semaine sans prépa vide, en pointillé (« Sans objectif clair »). */
+.fr-saison .fr-lab { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.fr-barre-saison { left: 0; right: 0; height: 0.8rem; }
+.fr-barre i.sans { border-top: 1px dashed var(--muted); border-bottom: 1px dashed var(--muted); opacity: 0.7; }
+/* Écarts entre deux courses : sous la ligne Saison, ordinateur seulement ; un filet sépare la ligne Saison des courses. */
+.fr-ecarts { padding-bottom: 0.3rem; margin-bottom: 0.2rem; border-bottom: 1px solid var(--border); }
+.fr-ecarts .fr-piste { height: 0.95rem; }
+.fr-ecart { position: absolute; top: 0; transform: translateX(-50%); font-size: 0.62rem; line-height: 0.95rem; color: var(--muted); white-space: nowrap; }
+.fr-ligne[data-course], .fr-vers-semaine { cursor: pointer; }
+@media (hover: hover) { .fr-ligne[data-course]:hover .fr-lab b { color: var(--accent); } }
+.fr-legende { margin-top: 1rem; }
+.fr-k { display: inline-block; flex: none; width: 0.55rem; height: 0.55rem; transform: rotate(45deg); border-radius: 1px; }
+.fr-k + .fr-k { margin-left: -0.15rem; }
+.fr-k.c-route-v { background: var(--route); }
+.fr-k.c-trail-v { background: var(--trail); }
+.fr-k.option { box-shadow: inset 0 0 0 1.5px var(--muted); }
+.fr-k.courue { background: var(--muted); }
+
+/* ----- Vue Semaine (spécification § 4) : la semaine en détail, puis les trois suivantes en résumé ----- */
+.cs-tete { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 0.35rem 1rem; margin-bottom: 0.8rem; }
+.cs-titre { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cs-bilan { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--text); white-space: nowrap; }
+.cs-bilan span { margin-right: 0.15rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cs-repere { grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); }
+.cs-course { font-size: 0.95rem; font-weight: 600; color: var(--text); text-decoration: none; }
+@media (hover: hover) { .cs-course:hover { color: var(--accent); } }
+.cs-compte { font-family: 'Space Mono', monospace; color: var(--accent); }
+.cs-consigne { font-size: 0.8rem; color: var(--muted); }
+.cs-focus .cal-aussi { flex-basis: 100%; }
+.cal-semaine .cal-se { font-size: 0.85rem; }
+/* Aujourd'hui : la ligne du jour plus claire, cerclée, et le mot écrit au bout de la ligne (sous le jour, en colonnes). */
+.cal-semaine .cal-jr.auj { background: var(--surface2); }
+.cal-jr-auj { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+.cal-lignes .cal-jr-auj { order: 9; margin-left: auto; }
+/* À suivre : une ligne repliable par semaine (chevron du site), qui garde repliée la phase, les rendez-vous et les courses. */
+.cs-suite-lib { margin-top: 1.5rem; }
+.cs-suite { border-top: 1px solid var(--border); }
+.cs-suite:last-child { border-bottom: 1px solid var(--border); }
+.cs-suite > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.8rem; padding: 0.6rem 0; list-style: none; cursor: pointer; font-size: 0.8rem; color: var(--muted); }
+.cs-suite > summary::-webkit-details-marker { display: none; }
+.cs-suite > summary .cal-chev { align-self: center; }
+.cs-suite:not([open]) .cal-chev { transform: rotate(-90deg); }
+.cs-s-date { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cs-s-phase { font-weight: 600; }
+.cs-s-phase.ph-base { color: var(--ph-base); }
+.cs-s-phase.ph-developpement { color: var(--ph-developpement); }
+.cs-s-phase.ph-affutage { color: var(--ph-affutage); }
+.cs-s-phase.ph-deload { color: var(--ph-deload); }
+.cs-s-rdv { color: var(--text); }
+.cs-s-course { padding: 0 0.35rem; font-weight: 600; border-radius: 3px; }
+.cs-s-course.c-route-v { background: var(--route); color: var(--encre); }
+.cs-s-course.c-trail-v { background: var(--trail); color: var(--encre); }
+.cs-s-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
+.cs-s-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
+.cs-s-course.courue { background: var(--muted); color: var(--bg); }
+.cs-suite-corps { padding-bottom: 0.9rem; }
+
+@media (max-width: 600px) {
+  .cal-essai[data-essai="jours"] { display: none; }
+  .fr-ligne { grid-template-columns: minmax(0, 1fr); }
+  .fr-lab { display: flex; align-items: baseline; gap: 0.35rem; padding: 0.4rem 0 0; }
+  .fr-lab:empty { display: none; }
+  .fr-lab b::after { content: ' ·'; font-weight: 400; color: var(--muted); }
+  .fr-piste { height: 1.15rem; }
+  .fr-saison .fr-piste { height: 1.4rem; }
+  .fr-m-long { display: none; }
+  .fr-m-court { display: inline; }
+  .fr-mois { padding-left: 2px; }
+  .fr-ecarts { display: none; }
+  .fr-ligne.fr-saison + .fr-ecarts + .fr-ligne { margin-top: 0.3rem; border-top: 1px solid var(--border); }
 }
