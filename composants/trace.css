@@ -1,0 +1,21 @@
+/* ===== Tracé GPX d'une course (trace.js) · Objectif, § 3.4, n° 25 à 28 et 32 =====
+   Dans le texte Parcours : la carte, le profil, le téléchargement, puis la stratégie. Un seul accent : le tracé et le profil. */
+.tr-zone { margin-bottom: 0.6rem; }
+.tr-carte { position: relative; z-index: 0; isolation: isolate; height: 300px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface2); }
+.tr-carte .leaflet-control-attribution { font-size: 0.6rem; }
+.tr-attente { color: var(--muted); padding: 0.5rem 0; }
+.tr-profil { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 90px auto; column-gap: 0.4rem; margin-top: 0.7rem; }
+.tr-profil svg { grid-column: 2; grid-row: 1; width: 100%; height: 100%; display: block; }
+.tr-aire { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: none; }
+.tr-courbe { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+.tr-alt { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: right; }
+.tr-alt, .tr-km { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+.tr-km { grid-column: 2; grid-row: 2; display: flex; justify-content: space-between; padding-top: 0.2rem; }
+.tr-actions { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.6rem; }
+.tr-telecharger { display: inline-flex; align-items: center; gap: 0.3rem; }
+.tr-ico { width: 0.8rem; height: 0.8rem; }
+.tr-erreur { color: var(--red); font-size: 0.8rem; }
+.tr-erreur:empty { display: none; }
+@media (max-width: 600px) {
+  .tr-carte { height: 240px; }
+}

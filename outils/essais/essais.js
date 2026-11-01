@@ -19,6 +19,12 @@ const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 const AUJOURDHUI = new Date('2026-10-20T10:00:00');
 const LIB = fs.readFileSync(require.resolve('@supabase/supabase-js/dist/umd/supabase.js'), 'utf8');
 const CAPTURES = process.argv.includes('--captures');
+// Tuile de carte fictive : un pixel gris.
+const TUILE = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+// Tracé fictif : une boucle de quatre points, de 500 à 620 m.
+const GPX = '<?xml version="1.0"?><gpx version="1.1" creator="essai"><trk><trkseg>' +
+  [[45.0, 4.0, 500], [45.01, 4.0, 580], [45.01, 4.02, 620], [45.0, 4.02, 540], [45.0, 4.0, 500]].map(p => '<trkpt lat="' + p[0] + '" lon="' + p[1] + '"><ele>' + p[2] + '</ele></trkpt>').join('') +
+  '</trkseg></trk></gpx>';
 const SEULS = process.argv.slice(2).filter(a => !a.startsWith('--'));
 const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 
@@ -55,6 +61,25 @@ function simulerBase(ctx, db) {
       }
       if (chemin === 'user') return json(200, utilisateur);
       return json(404, { msg: 'inconnu' });
+    }
+    // Stockage (tracés GPX) : db.fichiers = { 'traces/<utilisateur>/<course>.gpx': texte }.
+    if (u.pathname.startsWith('/storage/v1/object/')) {
+      if (!db.fichiers) db.fichiers = {};
+      const cle = decodeURIComponent(u.pathname.slice('/storage/v1/object/'.length));
+      if (db.ecritures && req.method() !== 'GET') db.ecritures.push({ methode: req.method(), table: 'stockage', filtres: cle, corps: null });
+      if (req.method() === 'GET') {
+        const t = db.fichiers[cle];
+        return t == null ? route.fulfill({ status: 400, contentType: 'application/json', body: '{"statusCode":"404","error":"not_found","message":"Object not found"}' })
+          : route.fulfill({ contentType: 'application/gpx+xml', body: t });
+      }
+      if (req.method() === 'DELETE') {
+        (JSON.parse(req.postData() || '{}').prefixes || []).forEach(x => { delete db.fichiers[cle + '/' + x]; });
+        return route.fulfill({ contentType: 'application/json', body: '[]' });
+      }
+      const brut = req.postDataBuffer() ? req.postDataBuffer().toString('utf8') : '';
+      const m = brut.match(/<\?xml[\s\S]*<\/gpx>|<gpx[\s\S]*<\/gpx>/);
+      db.fichiers[cle] = m ? m[0] : brut;
+      return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ Key: cle, Id: 'essai' }) });
     }
     if (u.pathname.startsWith('/rest/v1/rpc/')) {
       const r = (db.rpc || {})[u.pathname.split('/').pop()] || [];
@@ -109,6 +134,12 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
   await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
   // Sans réseau, polices comprises : sinon leur arrivée, plus ou moins tardive, décale la page d'une fraction de pixel.
   await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
+  // Carte du tracé : Leaflet du banc d'essai (même version), tuiles vides (pas de réseau).
+  await ctx.route('https://cdnjs.cloudflare.com/ajax/libs/leaflet/**', r => {
+    const f = /\.css$/.test(r.request().url()) ? 'leaflet.css' : 'leaflet.js';
+    r.fulfill({ body: fs.readFileSync(path.join(path.dirname(require.resolve('leaflet/package.json')), 'dist', f), 'utf8'), contentType: f.endsWith('css') ? 'text/css' : 'application/javascript' });
+  });
+  await ctx.route(/tile\.opentopomap\.org/, r => r.fulfill({ body: TUILE, contentType: 'image/png' }));
   await simulerBase(ctx, db);
   const p = await ctx.newPage();
   const erreurs = [];
@@ -625,8 +656,8 @@ const CONTROLES = {
     pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
     pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
     [r] = await pageCourse(id(2));
-    pb.push(egal({ cellules: ['Préparation'], fiche: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 01/11/2026'], liens: ['Site officiel'] },
-      { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix, ni Parcours'));
+    pb.push(egal({ cellules: ['Parcours', 'Préparation'], fiche: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 01/11/2026'], liens: ['Site officiel'] },
+      { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix ; Parcours pour importer un GPX'));
     [r] = await pageCourse(id(5));
     pb.push(egal({ liens: ['Site officiel', 'S\'inscrire'], insLien: 0, fiche: ['Distance | 55 km · 2 800 m D+', 'Dossard | Inscription ouverte'] }, { liens: r.liens, insLien: r.insLien, fiche: r.fiche },
       'page Ultra du Plateau : « S\'inscrire » en tête, la ligne Dossard sans lien'));
@@ -674,6 +705,57 @@ const CONTROLES = {
     pb.push(egal([false, true], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(0, 2).map(d => d.open)), 'téléphone : toucher le titre ouvre la cellule'));
     pb.push(egal([], erreurs, 'téléphone, page d\'une course, erreurs JavaScript'));
     await ctx.close();
+    // ----- Tracé GPX (§ 3.4, n° 25 à 28 et 32) -----
+    {
+      const moi = db.profils[0].id, chemin = n => 'traces/' + moi + '/' + n + '.gpx';
+      const avecTrace = JSON.parse(JSON.stringify(db));
+      avecTrace.courses.find(c => c.id === id(3)).gpx = moi + '/' + id(3) + '.gpx';
+      avecTrace.fichiers = { [chemin(id(3))]: GPX };
+      let o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, avecTrace, {}, PARIS);
+      await o.p.click('#parcours > summary');
+      await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
+      pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'tr-actions', 'P'] }, await o.p.evaluate(() => ({
+        alt: [...document.querySelectorAll('.tr-alt span')].map(x => x.textContent), km: [...document.querySelectorAll('.tr-km span')].map(x => x.textContent.replace(/[  ]/g, ' ')),
+        bornes: document.querySelectorAll('.tr-carte .leaflet-overlay-pane path').length,
+        ordre: [...document.querySelector('#parcours .pc-corps').children].map(x => x.className || x.tagName) })), 'GPX : carte (tracé, départ, arrivée), profil, téléchargement, puis la stratégie'));
+      const [dl] = await Promise.all([o.p.waitForEvent('download'), o.p.click('[data-ob="gpx"]')]);
+      pb.push(egal('Trail des Gorges.gpx', dl.suggestedFilename(), 'GPX : « Télécharger le GPX » télécharge le fichier, au nom de la course'));
+      pb.push(egal([], o.erreurs, 'GPX, erreurs JavaScript'));
+      await o.ctx.close();
+      // Import depuis la page : Corrida de Noël, sans tracé.
+      const imp = JSON.parse(JSON.stringify(db));
+      imp.persister = true; imp.ecritures = [];
+      o = await ouvrir(nav, 'course.html?id=' + id(2), 1200, imp, {}, PARIS);
+      await o.p.click('#parcours > summary');
+      await o.p.setInputFiles('.tr-fichier', { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('rien') });
+      await o.p.waitForFunction(() => document.querySelector('.tr-erreur').textContent);
+      pb.push(egal('Fichier .gpx attendu.', (await o.p.textContent('.tr-erreur')).trim(), 'import : un fichier qui n\'est pas un GPX est refusé'));
+      await o.p.setInputFiles('.tr-fichier', { name: 'corrida.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(GPX) });
+      await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
+      pb.push(egal([true, moi + '/' + id(2) + '.gpx', true], [!!imp.fichiers[chemin(id(2))], imp.courses.find(c => c.id === id(2)).gpx, await o.p.evaluate(() => document.querySelector('#parcours').open)],
+        'import depuis la page : fichier rangé dans le dossier de l\'utilisateur, chemin noté dans la course, Parcours rouvert avec la carte'));
+      pb.push(egal([], o.erreurs, 'import GPX, erreurs JavaScript'));
+      await o.ctx.close();
+      // Import depuis le formulaire : rangé à l'enregistrement ; puis suppression.
+      const form = JSON.parse(JSON.stringify(db));
+      form.persister = true; form.ecritures = [];
+      o = await ouvrir(nav, 'course.html?id=' + id(1), 1200, form, {}, PARIS);
+      await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
+      pb.push(egal('Aucun tracé', (await o.p.textContent('.fc-gpx-etat')).trim(), 'formulaire : bloc Course, « Tracé GPX », aucun tracé'));
+      await o.p.setInputFiles('.fc-gpx-fichier', { name: 'lac.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(GPX) });
+      await o.p.waitForFunction(() => /Nouveau tracé/.test(document.querySelector('.fc-gpx-etat').textContent));
+      pb.push(egal(0, Object.keys(form.fichiers || {}).length, 'formulaire : rien n\'est rangé avant « Enregistrer »'));
+      await o.p.click('.fc-plein');
+      await o.p.waitForSelector('.mc-panneau .pc-titre');
+      pb.push(egal([true, moi + '/' + id(1) + '.gpx'], [!!form.fichiers[chemin(id(1))], form.courses.find(c => c.id === id(1)).gpx], 'formulaire : « Enregistrer » range le GPX avec la course'));
+      await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
+      await o.p.click('[data-fc="gpx-supprimer"]');
+      await o.p.click('.fc-plein');
+      await o.p.waitForSelector('.mc-panneau .pc-titre');
+      pb.push(egal([false, null], [!!form.fichiers[chemin(id(1))], form.courses.find(c => c.id === id(1)).gpx], 'formulaire : « Supprimer », puis « Enregistrer », efface le tracé'));
+      pb.push(egal([], o.erreurs, 'formulaire GPX, erreurs JavaScript'));
+      await o.ctx.close();
+    }
     for (const n of ['inconnue', id(99)]) {
       [r] = await pageCourse(n);
       pb.push(egal(['Course introuvable.', ['fermer']], [r.vide, r.barre], 'course introuvable (' + n + '), la croix seule'));

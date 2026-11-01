@@ -201,6 +201,10 @@
   // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
   const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ');
 
+  // Flèche de téléchargement (GPX).
+  const TELECHARGER = '<svg class="tr-ico" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5v6.5M3 5.5L6 8.5l3-3M2 10.5h8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  let parcoursOuvert = null;
+
   // Tous les textes repliés à l'ouverture, sur ordinateur comme sur téléphone.
   const telephone = window.matchMedia('(max-width: 600px)');
   let replier = null;
@@ -240,8 +244,15 @@
     const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
     const preparation = (c.pourquoi ? '<div class="pc-role">' + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
-    // Textes, dans un seul cadre : Parcours (n° 25 : la stratégie ; le tracé GPX viendra au lot suivant), Préparation, Logistique.
-    const bas = cellule('Parcours', texte(c.strategie)) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
+    // Parcours (n° 25) : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ; sans GPX, « Importer un GPX » (28),
+    // sauf en lecture seule.
+    const T = window.mrtTrace;
+    const trace = !T ? '' : c.gpx
+      ? '<div class="tr-zone"></div><p class="tr-actions"><button type="button" class="mrt-lien tr-telecharger" data-ob="gpx">' + TELECHARGER + 'Télécharger le GPX</button></p>'
+      : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
+        '<p class="tr-erreur" aria-live="polite"></p>' : '';
+    // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
+    const bas = cellule('Parcours', trace + texte(c.strategie), 'parcours') + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
@@ -266,8 +277,27 @@
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
-    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id) }));
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer, gpx: () => T.telecharger(c) }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
+      importer: () => el.querySelector('.tr-fichier').click() }));
     replierCellules(el);
+    // Tracé : dessiné à la première ouverture de Parcours (la carte a besoin de sa taille).
+    const parcours = el.querySelector('#parcours');
+    if (parcours && c.gpx && T) parcours.addEventListener('toggle', () => { if (parcours.open) T.dessiner(parcours.querySelector('.tr-zone'), c); });
+    const fichier = el.querySelector('.tr-fichier');
+    if (fichier) fichier.addEventListener('change', async () => {
+      const f = fichier.files[0], msg = el.querySelector('.tr-erreur'), b = el.querySelector('[data-ob="importer"]');
+      if (!f) return;
+      b.disabled = true;
+      msg.textContent = 'Envoi du GPX…';
+      const err = await T.ranger(c, f);
+      fichier.value = '';
+      b.disabled = false;
+      msg.textContent = err || '';
+      if (err) return;
+      parcoursOuvert = c.id; // la page redessinée rouvre Parcours, avec la carte
+      if (ctx.actualiser) await ctx.actualiser();
+    });
+    if (parcoursOuvert === c.id && parcours) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
     if (ctx.ancre === '#preparation' && !ctx.ancreFaite) {

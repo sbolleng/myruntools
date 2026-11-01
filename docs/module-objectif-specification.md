@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.47 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.48 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -149,11 +149,11 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit ; sur la page, sans lien (l'inscription passe par 29) |
 | 18 | Description | Quelques infos sur la course | Dans le cadre de la fiche, sous un filet ; repliée ; absente si vide |
-| 25 | Parcours | Stratégie ou enchaînement ; au lot GPX, carte, profil et téléchargement | Premier texte du cadre des textes, replié ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX ni stratégie : absent en lecture seule, sinon (au lot GPX) le seul bouton « Importer un GPX » |
-| 26 | Carte du tracé | Tracé du GPX sur fond topographique, départ et arrivée marqués | Leaflet, fond OpenTopoMap ; tracé en Accent ; zoom à la souris ou aux doigts |
-| 32 | Profil altimétrique | Altitude selon la distance, tirée du GPX | Courbe en Accent, axes discrets |
-| 27 | GPX | « GPX ↓ » | Lien qui télécharge le fichier ; aussi en lecture seule |
-| 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Dans le formulaire (bloc Course) et dans 25 quand il est vide ; fichier `.gpx`, 5 Mo au plus ; absent en lecture seule |
+| 25 | Parcours | Carte (26), profil (32), téléchargement (27), puis la stratégie (16) | Premier texte du cadre des textes, replié ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX : « Importer un GPX » (28) au-dessus de la stratégie, sauf en lecture seule ; sans GPX ni stratégie en lecture seule : absent |
+| 26 | Carte du tracé | Tracé du GPX sur fond topographique, départ et arrivée marqués | Leaflet (chargé à la première carte), fond OpenTopoMap, crédits en bas à droite ; tracé en Accent ; dessinée à la première ouverture de Parcours ; zoom par les boutons ou aux doigts (pas à la molette, qui fait défiler la page) |
+| 32 | Profil altimétrique | Altitude selon la distance, tirée du GPX | Courbe et aire en Accent ; altitudes mini et maxi à gauche, « 0 km » et la longueur du tracé dessous, en Space Mono discret ; absent si le GPX n'a pas d'altitudes |
+| 27 | GPX | « Télécharger le GPX », précédé d'une flèche vers le bas | Lien d'action ; le fichier prend le nom de la course ; aussi en lecture seule |
+| 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Formulaire, bloc Course, ligne « Tracé GPX » sous le D− : rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; absent en lecture seule et pour une course courue |
 | 16 | Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante | Le texte de 25, sous le profil (au lot GPX) ; plus de titre à part |
 | 24 | Préparation | Dans l'ordre : 15, bouton « Paramétrer le plan », puis le plan (durée, frise des phases, semaine en cours, séances ; [Calendrier](module-calendrier-specification.md), § 5) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : plan au 1er du mois, mentionné sous la ligne du plan ; ancre `#preparation` (ouverte quand on arrive par elle) ; bouton absent en lecture seule |
 | 15 | Rôle dans la préparation | Pourquoi cette course figure dans le plan | En tête de 24 ; absent si vide |
@@ -547,7 +547,9 @@ Résultats attendus, page d'une course :
 - Trail des Gorges : « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Mont-Clair · Trail long · dim. 7 mars 2027, 7 h 30 », Mont-Clair en lien vers OpenStreetMap (nouvel onglet) ; « Site officiel ↗ » ; pas de « S'inscrire » (inscrit).
 - Trail des Gorges, fiche encadrée : DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; DOSSARD ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
 - Trail des Gorges : Description repliée dans le cadre de la fiche ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
-- Trail des Gorges avec un GPX : carte du tracé et profil altimétrique dans Parcours ; « GPX ↓ » télécharge le fichier ; en lecture seule, même bloc, sans import.
+- Trail des Gorges avec un GPX (boucle fictive de 5,4 km, de 500 à 620 m) : Parcours ouvert, la carte (tracé, départ, arrivée), le profil (620 m et 500 m à gauche, 0 km et 5,4 km dessous), « Télécharger le GPX », puis la stratégie ; le lien télécharge « Trail des Gorges.gpx ».
+- Corrida de Noël, Parcours : « Importer un GPX » ; `notes.txt` : « Fichier .gpx attendu. » ; un GPX : rangé dans `traces/<utilisateur>/<course>.gpx`, chemin noté dans la course, Parcours rouvert avec la carte.
+- Trail du Lac, crayon : bloc Course, « Tracé GPX · Aucun tracé » ; un GPX choisi : « Nouveau tracé : lac.gpx (rangé à l'enregistrement) », rien de rangé ; « Enregistrer » : le fichier et le chemin ; crayon, « Supprimer », « Enregistrer » : fichier et chemin effacés.
 - Ultra du Plateau · Le 55 (pas inscrit, site d'inscription connu) : « S'inscrire ↗ » en tête ; la ligne Dossard sans lien.
 - Course du jour (Trail du Lac placé au 20 oct. 2026, lien des résultats connu) : ligne RÉSULTATS « En direct ↗ » en tête de la fiche ; placée au 21 octobre, pas de ligne.
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».

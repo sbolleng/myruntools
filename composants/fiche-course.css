@@ -29,7 +29,7 @@
 .fc-seul { grid-column: 1 / -1; }
 .fc-champ.fc-seul input { max-width: calc(50% - 0.5rem); }
 
-.fc-champ label {
+.fc-champ label, .fc-lib-seul {
   display: block;
   margin-bottom: 0.3rem;
   font-family: 'Space Mono', monospace;
@@ -100,3 +100,7 @@
 @media (max-width: 600px) {
   .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: auto; }
 }
+
+/* Tracé GPX : l'état, puis « Importer un GPX » ou « Remplacer » et « Supprimer ». */
+.fc-gpx { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.fc-gpx-etat { color: var(--muted); }
