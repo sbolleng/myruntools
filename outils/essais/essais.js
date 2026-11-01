@@ -41,8 +41,11 @@ const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 // db.ecritures (liste, si elle existe) : les écritures reçues, pour les relire ;
 // db.auth : connexion par mot de passe simulée (voir plus bas), db.auth.appels : les appels reçus.
 function simulerBase(ctx, db) {
-  return ctx.route(PROJET + '/**', route => {
+  return ctx.route(PROJET + '/**', async route => {
     const req = route.request(), u = new URL(req.url());
+    // db.latence (ms) : chaque réponse attend ; db.depart : instant où chaque table est demandée (requêtes en parallèle).
+    if (db.depart) db.depart.push([u.pathname.split('/').pop(), Date.now()]);
+    if (db.latence) await new Promise(r => setTimeout(r, db.latence));
     // Connexion (db.auth : { mdp: { adresse: mot de passe }, appels: [], maintenant }) : mots de passe fictifs, réponses de Supabase Auth.
     if (db.auth && u.pathname.startsWith('/auth/v1/')) {
       const chemin = u.pathname.slice('/auth/v1/'.length), corps = req.postData() ? req.postDataJSON() : {};
@@ -559,6 +562,23 @@ const CONTROLES = {
     const { db, id } = jeuObjectif(db0);
     db.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès']; // Objectif en tête : la feuille de route porte le grand en-tête
     const pb = [];
+    // Changement de page : profil, préférences, courses et listes de référence demandés ensemble (une seule vague),
+    // les listes de référence une seule fois par visite.
+    {
+      const lent = JSON.parse(JSON.stringify(db));
+      lent.latence = 300; lent.depart = [];
+      const o = await ouvrir(nav, 'objectif.html', 1200, lent, {}, PARIS);
+      await o.p.waitForSelector('.ob-carte');
+      const t = n => (lent.depart.find(x => x[0] === n) || [])[1];
+      const ecart = Math.max(...['profils', 'preferences', 'courses', 'courses_circuits', 'formats', 'types_course'].map(t)) - Math.min(...['profils', 'preferences', 'courses'].map(t));
+      pb.push(egal(true, ecart < 250, 'changement de page : profil, préférences, courses et formats demandés ensemble (écart ' + ecart + ' ms, une réponse = 300 ms)'));
+      lent.depart = [];
+      await o.p.goto(o.p.url().replace('objectif.html', 'palmares.html'));
+      await o.p.waitForSelector('.mrt-nav');
+      await o.p.waitForTimeout(1000);
+      pb.push(egal([0, 0], [lent.depart.filter(x => x[0] === 'formats').length, lent.depart.filter(x => x[0] === 'types_course').length], 'page suivante : formats et types gardés pour la visite, pas relus'));
+      await o.ctx.close();
+    }
     // Une carte : ses éléments, tels qu'affichés (espaces insécables ramenés à des espaces).
     const cartes = p => p.evaluate(() => [...document.querySelectorAll('.ob-et')].map(et => {
       const t = x => (x ? x.textContent.replace(/[  ]/g, ' ').trim() : null);
@@ -1666,6 +1686,7 @@ const CONTROLES = {
     await p.goBack();
     pb.push(egal(true, await p.locator('.cal-bloc').count() > 0, 'bouton retour du navigateur : la vue Année'));
     await p.click('[data-vue="semaines"]');
+    await p.waitForSelector('.cal-sem'); // la vue se dessine juste après le toucher : l'attendre (sinon, échec par moments)
     pb.push(egal('Sem. du 19 oct.', (await semaines(p))[0][0], 'pastille : 4 semaines, d\'un toucher'));
     await p.click('[data-vue="annee"]');
     await p.locator('[data-course="' + GORGES + '"]').scrollIntoViewIfNeeded();

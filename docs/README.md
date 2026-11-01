@@ -41,7 +41,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.27 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.28 |
 | [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.35 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.17 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.53 |
@@ -90,7 +90,6 @@ Dans l'ordre :
    - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la feuille de route ; aujourd'hui seulement dans les Préférences, `course_cap`).
    - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
 2. [ ] **Calendrier** : [spécification 0.12](module-calendrier-specification.md) ; vue Année, modèle de données, vue 4 semaines et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
-   - **Banc d'essai** : `calendrierPlan` instable (« pastille : 4 semaines, d'un toucher » échoue parfois dans le banc complet, passe seul) ; à fiabiliser.
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.
    - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.

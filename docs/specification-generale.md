@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.27 · 1er novembre 2026 · [Retour au sommaire](README.md)
+Version 0.28 · 1er novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -216,6 +216,7 @@ Le propriétaire du projet Supabase garde, lui, l'accès à toute la base depuis
 
 - **Trois couches** : les modules (affichage), le contenu et les préférences de chaque utilisateur, et entre les deux une couche d'accès aux données. Les modules ne savent pas d'où viennent les données : passer des fichiers à Supabase ne réécrit aucun module.
 - **Protection du site** : par la connexion Supabase. Sans connexion, toute page renvoie vers la page de connexion, sans rien montrer de son contenu ; des règles par ligne garantissent que chacun n'accède qu'à ses propres données. Tant qu'un contenu est écrit dans le code plutôt que rangé dans Supabase, il reste lisible par qui consulte le dépôt public.
+- **Rapidité d'un changement de page** : les données d'une page sont demandées toutes ensemble (profil, préférences, courses, et le plan pour le Calendrier), dès que l'identifiant de l'utilisateur est connu, en un seul aller-retour ; les listes de référence (types et formats), qui ne changent presque jamais, sont lues une fois par visite et gardées dans l'onglet jusqu'à la version suivante du site ; les polices sont chargées en même temps que la feuille de style.
 - **Clés** : seule la clé publique de Supabase figure dans le code ; la clé de service et le secret Strava restent côté serveur (fonctions Supabase), jamais dans le dépôt.
 - **Tiers** : aucun nom complet de tiers, aucune référence de réservation.
 - **Ouverture à d'autres coureurs** : poids, repas et séances sont des données de santé au sens du RGPD ; l'ouverture suppose une politique de confidentialité, l'export et la suppression des données sur demande, et la validation de l'application par Strava.

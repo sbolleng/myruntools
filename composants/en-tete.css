@@ -1,6 +1,6 @@
 /* ===== Socle : thèmes, base des pages, en-tête et menu (en-tete.js) =====
    Valeurs : docs/design.md. Un thème ne change que les couleurs. */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+/* Polices (Space Grotesk, Space Mono) : liées dans chaque page, avant cette feuille (chargement en parallèle). */
 
 /* Thèmes : classe posée sur <html> par en-tete.js, et dès le chargement de la page (thème de la dernière visite).
    Trois thèmes sombres en couleurs ; deux pour la lecture, fond blanc et fond noir (« Automatique » choisit
