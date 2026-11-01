@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : page d'une course, titres (site officiel en bas à droite de la fiche, « À propos de la course » en libellé, sous-titres « Stratégie de course » et « Rôle dans le plan ») ; avant : lieu et date / heure dans la fiche. Historique : `docs/journal.md`.
+- Dernier lot : Palmarès, progression sous le tableau (points reliés, axe MIN / KM-EFFORT, titre en Accent) et filtre rapide (types et frise des années) ; avant : page d'une course, titres (site officiel en bas à droite de la fiche, « À propos de la course » en libellé, sous-titres « Stratégie de course » et « Rôle dans le plan ») ; avant : lieu et date / heure dans la fiche. Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

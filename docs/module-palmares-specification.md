@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.25 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.26 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -115,6 +115,32 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 - Masquer une colonne retire son filtre.
 - Tri et filtres ne sont pas gardés en mémoire : chaque ouverture revient à la vue par défaut (seul le regroupement est retenu, § 8).
 
+### 7.1 Filtre rapide
+
+Sous la barre, au-dessus du tableau, deux réglages d'un geste, pour le tableau et le graphique ensemble. Ce sont les filtres Type et Date du panneau, présentés autrement : le panneau, le compteur (« 4 courses sur 7 »), la pastille du bouton Filtres et « Effacer les filtres » restent justes.
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│ (13) [Course sur route] [Trail]                               │
+│ (14) ●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●              │
+│       |      |   |  |        |  |              |              │
+│      2025                  2026                               │
+│ (15) mars 2025 → oct. 2026                                    │
+└───────────────────────────────────────────────────────────────┘
+```
+
+| N° | Élément | Exemple | Place | Style |
+| --- | --- | --- | --- | --- |
+| 13 | Pastilles des types | Course sur route · Trail | Première ligne | Pastilles communes ; seulement les types présents ; aucune choisie = tous ; plusieurs possibles ; absentes s'il n'y a qu'un type ou si la colonne Type est masquée |
+| 14 | Frise des années | ●━━━━━● | Sous les pastilles, toute la largeur | Une coche par course, à sa date ; deux poignées rondes à glisser (au doigt, à la souris, ou aux flèches du clavier, mois par mois) ; la plage retenue et ses coches en Accent, le reste en Texte discret ; les années (Space Mono 0,7 rem) sous la frise : en toucher une ne garde que cette année |
+| 15 | Période choisie | mars 2025 → oct. 2026 | Sous la frise | Texte discret, 0,8 rem ; rien quand toute la période est retenue |
+
+- **Pas d'un mois** : une poignée se pose au début d'un mois ; la période va du 1er du premier mois au dernier jour du dernier mois.
+- **En direct** : le tableau et le graphique suivent pendant le glissement.
+- **Toute la période** : aucun filtre de date (les deux poignées aux bouts).
+- **Lien avec le panneau** : une année ou des dates choisies dans le panneau placent les poignées ; glisser une poignée remplace l'année choisie dans le panneau par les dates « du … au ».
+- La frise n'apparaît que si les courses couvrent au moins deux mois.
+
 ## 8. Regroupement par type
 
 Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
@@ -193,11 +219,11 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 Il montre si l'on court plus vite d'une course à l'autre. Chaque course courue est placée selon sa date et son **allure-effort** (temps ÷ km-effort), la mesure normée de la [spécification générale](specification-generale.md) (§ 12 bis) : route et trail sur une même échelle. Un graphique fonctionnel : axes gradués, chiffres lisibles, aucune décoration.
 
-- **Place** : sous la barre (Filtres, regroupement, colonnes, « + Ajouter une course ») et au-dessus du tableau, dans son propre cadre ; titre repliable « Progression » (déroulé commun), ouvert par défaut, état retenu sur l'appareil.
-- **Il suit les filtres** (§ 7) : il montre exactement les courses du tableau, et se redessine à chaque changement de filtre, d'ajout, de modification ou de suppression. Le tri et le regroupement n'y changent rien.
-- **Courses placées** : celles qui ont un temps et une distance ; les DNF et les courses sans temps ou sans distance n'ont pas de point. Si des courses du tableau sont écartées, une ligne sous le graphique le dit : « 2 courses sans point (DNF, temps ou distance manquant) ».
+- **Place** : sous le tableau, dans son propre cadre ; titre repliable « Progression », au style des intertitres des groupes du tableau (§ 8 : Accent, gras, chevron Accent), ouvert par défaut, état retenu sur l'appareil.
+- **Il suit les filtres** (§ 7, filtre rapide compris) : il montre exactement les courses du tableau, et se redessine à chaque changement de filtre, d'ajout, de modification ou de suppression. Le tri et le regroupement n'y changent rien.
+- **Courses placées** : celles qui ont un temps et une distance ; les DNF et les courses sans temps ou sans distance n'ont pas de point (le tableau les montre).
 - **Moins de 2 points** : le cadre reste, avec « Pas assez de courses pour un graphique » à la place du tracé.
-- **Pour une vraie progression**, filtrer un format (10 km, semi-marathon…) : l'allure-effort ralentit avec la distance (§ 12 bis). C'est pourquoi la tendance (5, 8) n'apparaît que sur un seul format.
+- **Pour une vraie progression**, filtrer un format (10 km, semi-marathon…) : l'allure-effort ralentit avec la distance (§ 12 bis). C'est pourquoi la tendance (5, 8) n'apparaît que sur un seul format : le filtre rapide (§ 7.1) ou le filtre Format la font apparaître.
 
 Plan de page (ordinateur) :
 
@@ -205,36 +231,36 @@ Plan de page (ordinateur) :
 ┌──────────────────────────────────────────────────────────────┐
 │ (1) ▾ Progression                      (8) ↗ 19 s /km-effort │
 │                                         plus rapide par an   │
-│ (2) ALLURE-EFFORT · plus rapide en haut                      │
+│ (2) MIN / KM-EFFORT                                          │
 │ 4:30 ┤ (9) ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  │
-│ 5:00 ┤ ●🥇(4) 00:51:46 (11)   ● 01:04:24     ●🥇 00:49:18     │
+│ 5:00 ┤ ●🥇(4)─00:51:46 (11)───● 01:04:24 ────●🥇 00:49:18     │
 │      ┤                 ●🥇      ╌╌╌╌(5)╌╌╌╌╌╌╌╌╌╌╌╌╌         │
 │ 5:30 ┤ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌    ●            ●            │
 │ 6:00 ┤                       ●                               │
 │      ┼────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬──   │
 │ (6)   avr. 25  juil.  oct.  janv. 26  avr.  juil.  oct.      │
-│ (7) 7 courses · 0 sans point                                  │
 └──────────────────────────────────────────────────────────────┘
 (10) bulle au survol ou au toucher :
      5:18 /km-effort
      Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+
 ```
 
-Téléphone : même ordre, toute la largeur du cadre ; la tendance (8) passe sous le titre ; pas d'étiquettes (11).
+Ligne (12) : elle relie les points dans l'ordre des dates. Téléphone : même ordre, toute la largeur du cadre ; la tendance (8) passe sous le titre ; pas d'étiquettes (11).
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
-| 1 | Titre repliable | ▾ Progression | En haut du cadre | Titre repliable commun (design § 1) |
-| 2 | Axe vertical | ALLURE-EFFORT · 4:30 5:00 5:30 6:00 | À gauche | Libellé ; graduations toutes les 30 s, bornes arrondies à 30 s autour des points ; le plus rapide en haut ; Space Mono 0,7 rem, Texte discret |
+| 1 | Titre repliable | ▾ Progression | En haut du cadre | Comme les intertitres des groupes (§ 8) : Space Grotesk 0,95 rem, gras, Accent, chevron Accent |
+| 2 | Axe vertical | MIN / KM-EFFORT · 4:30 5:00 5:30 6:00 | À gauche | Libellé ; graduations toutes les 30 s, bornes arrondies à 30 s autour des points ; le plus rapide en haut ; Space Mono 0,7 rem, Texte discret |
 | 3 | Course | Point d'une course | À sa date | Point plein, Accent |
 | 4 | Record | 🥇 à côté du point | À côté du point | La course porte 🥇 dans le tableau (§ 5) : même marque sur le graphique |
 | 5 | Tendance | Droite pointillée | À travers les points | Droite de régression (moindres carrés) sur les points affichés, seulement quand ils sont tous du même format (sinon l'écart de distance fausserait la pente) et au moins 3 ; pointillé, Texte discret |
 | 6 | Axe du temps | avr. 25 · juil. · oct. | En bas | De la première à la dernière course placée ; un repère par trimestre (sur téléphone, janvier et juillet seulement), l'année sur le premier et sur janvier ; Space Mono 0,7 rem, Texte discret |
-| 7 | Bilan | 7 courses · 2 sans point | Sous le graphique | Texte discret, 0,8 rem ; « sans point » seulement s'il y en a |
+| 7 | (retiré) | — | — | Le bilan sous le graphique est supprimé |
 | 8 | Pente de la tendance | ↗ 19 s /km-effort plus rapide par an | Au bout du titre | Chiffre en Space Mono ; Accent quand on va plus vite, Texte discret sinon ; mêmes conditions que la tendance (5) ; « stable » sous 1 s par an |
 | 9 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
 | 10 | Bulle | 5:18 /km-effort · Semi-marathon de Sète… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface ; une seule à la fois ; « D+ non renseigné » quand c'est le cas |
-| 11 | Étiquette | 00:49:18 | À droite du point | Le temps réalisé, comme dans la colonne Temps ; Space Mono 0,7 rem, Texte discret ; vers la gauche si le point est au bord droit ; masquées sur téléphone et au-delà de 20 points (la bulle prend le relais) |
+| 11 | Étiquette | 00:49:18 | Sous le point, centrée | Le temps réalisé, comme dans la colonne Temps ; Space Mono 0,7 rem, Texte discret, liseré de la couleur du cadre (lisible sur la ligne) ; masquées sur téléphone et au-delà de 20 points (la bulle prend le relais) |
+| 12 | Ligne | — | D'un point à l'autre | Relie les points dans l'ordre des dates ; Accent, 2 px |
 
 - **Toucher le nom dans la bulle** : ouvre la consultation de la course (§ 10), comme une ligne du tableau.
 - **Accessibilité** : chaque point est un bouton, nommé (« Semi-marathon de Sète, 5:18 par km-effort »), atteignable au clavier.
@@ -292,11 +318,12 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
 - Téléphone : la fiche tient dans la largeur de l'écran ; « Annuler » et « Enregistrer » restent visibles quand on fait défiler.
-- **Progression**, données ci-dessus, sans filtre : 7 points ; allures-effort 5:00 (Montauban 2025), 5:04 (Épicurienne), 5:18 (Sète), 5:39 (Biscatrail), 5:24 (Forez), 4:49 (Montauban 2026), 5:30 (San Sebastián, « D+ non renseigné » dans la bulle) ; axe de 4:30 à 6:00 ; 🥇 sur Montauban 2026 et Sète ; étiquettes 00:51:46, 01:04:24, 01:53:12, 02:02:30, 03:00:23, 00:49:18, 01:56:05 ; pas de tendance (plusieurs formats).
+- **Progression**, données ci-dessus, sans filtre : 7 points ; allures-effort 5:00 (Montauban 2025), 5:04 (Épicurienne), 5:18 (Sète), 5:39 (Biscatrail), 5:24 (Forez), 4:49 (Montauban 2026), 5:30 (San Sebastián, « D+ non renseigné » dans la bulle) ; axe de 4:30 à 6:00 ; 🥇 sur Montauban 2026 et Sète ; étiquettes 00:51:46, 01:04:24, 01:53:12, 02:02:30, 03:00:23, 00:49:18, 01:56:05 ; une ligne relie les 7 points ; axe « MIN / KM-EFFORT » ; pas de bilan sous le graphique ; pas de tendance (plusieurs formats) ; le graphique est sous le tableau.
 - Progression, filtre Trail : 3 points (Épicurienne, Biscatrail, Forez) ; pas de tendance (Trail découverte et Trail court).
 - Progression, la course « Test » ajoutée avec 10,0 km en plus (1er oct. 2026, 10 km, 00:45:00, D+ vide), filtre format 10 km : 3 points (5:00, 4:49, 4:30) ; droite de tendance ; « ↗ 19 s /km-effort plus rapide par an », en Accent.
 - Progression, filtre format 10 km : 2 points (5:00 puis 4:49), pas de tendance.
 - Progression, filtre Course « sete » : « Pas assez de courses pour un graphique ».
-- Progression, la course « Test » ajoutée (1er oct. 2026, 10 km, 00:45:00, sans distance) : pas de point, « 8 courses · 1 sans point » ; une course marquée DNF : idem.
+- Progression, une course marquée DNF : pas de point.
+- Filtre rapide : pastilles « Course sur route » et « Trail » ; « Trail » : 3 courses sur 7 au tableau, 3 points, pastille « 1 » sur Filtres. Frise de mars 2025 à oct. 2026, 7 coches, aucune période affichée. Toucher « 2026 » : « 3 courses sur 7 », période « janv. 2026 → oct. 2026 ». Poignée de droite ramenée de trois mois au clavier (← trois fois) : « juil. 2026 », 2 courses. « Effacer les filtres » : poignées aux bouts, pastilles vides.
 - Progression, survol du point de Sète : bulle « 5:18 /km-effort », « Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+ » ; le nom ouvre sa consultation.
 - Progression repliée, page rechargée : toujours repliée.

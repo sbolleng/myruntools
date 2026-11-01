@@ -10,13 +10,14 @@
 //
 // cfg = {
 //   cle        : clé de stockage de l'état replié (sur l'appareil)
-//   titre      : titre du cadre ; droite : html au bout du titre (tendance)
+//   titre      : titre du cadre ; droite : html au bout du titre (tendance) ; classe : classe du cadre (is-intertitre :
+//                titre au style des intertitres du Palmarès)
 //   axeY       : { libelle, min, max, pas, fmt(v), inverse } ; inverse : la plus petite valeur en haut
 //   debut, fin : bornes du temps (ms) ; aujourdhui : trait pointillé (ms), facultatif
 //   points     : [{ id, t (ms), t2 (ms, trait sur une période), y, forme, etiquette, aria, bulle: { valeur, nom, lien, details } }]
 //                forme : 'plein' (Accent), 'discret', 'vide', 'losange', 'grand' (grand losange) ; avec t2 : trait pointillé de t à t2,
 //                la marque au milieu (date au mois seul) ; marque : signe au-dessus du point (🥇)
-//   ligne      : identifiants des points reliés, dans l'ordre
+//   ligne      : identifiants des points reliés, dans l'ordre ; etiquettesDessous : étiquettes centrées sous les points
 //   tendance   : { y0, y1 } droite de debut à fin, facultative
 //   vide       : texte à la place du tracé (pas assez de points)
 //   bas        : html sous le graphique (bilan, tableau des chiffres)
@@ -83,7 +84,7 @@
           '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + svg + '</svg>' +
           pts.map((p, k) => '<button type="button" class="mg-pt is-' + p.forme + (p.t2 != null ? ' is-periode' : '') + '" data-k="' + k + '" style="' + pos(p) + '" aria-label="' + esc(p.aria) + '"></button>' +
             (p.marque ? '<span class="mg-marque" style="' + pos(p) + '" aria-hidden="true">' + esc(p.marque) + '</span>' : '') +
-            (p.etiquette ? '<span class="mg-etiq' + (p.x > 50 ? ' is-gauche' : '') + '" style="' + pos(p) + '">' + esc(p.etiquette) + '</span>' : '')).join('') +
+            (p.etiquette ? '<span class="mg-etiq' + (cfg.etiquettesDessous ? ' is-dessous' : p.x > 50 ? ' is-gauche' : '') + '" style="' + pos(p) + '">' + esc(p.etiquette) + '</span>' : '')).join('') +
           '<div class="mg-bulle" role="status" hidden></div>' +
         '</div>' +
         '<div class="mg-gx">' + reperes(d0, d1).map(r => '<span' + (r.mineur ? ' class="is-mineur"' : '') + ' style="left:' + xAt(r.t) + '%">' + esc(r.txt) + '</span>').join('') + '</div>' +
@@ -125,6 +126,7 @@
   window.mrtGraphique = function (el, cfg) {
     const ouvert = lire(cfg.cle) !== '0';
     el.classList.add('mg', 'card');
+    if (cfg.classe) el.classList.add(cfg.classe);
     el.innerHTML = '<details class="mg-cadre mrt-deroule"' + (ouvert ? ' open' : '') + '>' +
       '<summary class="mg-titre">' + CHEVRON + '<span>' + esc(cfg.titre) + '</span><span class="mg-droite"></span></summary>' +
       '<div class="mg-corps"></div></details>';

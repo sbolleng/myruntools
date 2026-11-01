@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Palmarès, progression | Version 1.26 : graphique sous le tableau ; points reliés par une ligne (n° 12) ; axe « MIN / KM-EFFORT » (plus de « plus rapide en haut ») ; bilan des courses supprimé ; titre au style des intertitres des groupes (Accent, gras) ; étiquettes de temps sous les points. Filtre rapide (§ 7.1, option B) : pastilles des types et frise des années à deux poignées, sous la barre ; ce sont les filtres Type et Date du panneau. Tendance inchangée : un seul format, au moins 3 points. |
 | 1er nov. 2026 | Page d'une course, titres | Site officiel en bas à droite de la fiche, sur la ligne d'« À propos de la course », dont le titre passe en libellé (Space Mono, capitales) ; sous-titres en libellé « Stratégie de course » (Parcours) et « Rôle dans le plan » (Préparation) (Objectif 0.50). |
 | 1er nov. 2026 | Page d'une course, fiche | Lieu (33) et Date / heure (34) passent dans la fiche, en tête ; heure vide : « — » ; sous le titre, le format seul (6) ; « Site officiel ↗ » en haut à droite de la fiche ; plus de filet avant la description, renommée « À propos de la course » (Objectif 0.49). |
 | 1er nov. 2026 | Banc d'essai | Groupe `calendrierPlan` réparé : la cause était dans la page, pas dans le banc. Une séance ajoutée depuis la rubrique Préparation redessinait la page d'une course et refermait la rubrique (« Paramétrer le plan » devenait invisible). Désormais, quand la même course est redessinée, les textes ouverts le restent. Les 15 groupes passent. |
