@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Carte et profil du tracé | Objectif 0.58 (construit) : bouton plein écran sur la carte (47), lignes d'altitude à pas rond dans le profil (48), lecture de la pente au survol (49) avec repère sur la carte (50). Pente sur 100 m centrés, altitude lissée sur 50 m : le GPS est trop bruité pour une pente point par point. |
 | 1er nov. 2026 | Fiche : stratégie ; frise sur téléphone | Objectif 0.57, Calendrier 0.13 : « Stratégie ou enchaînement » devient « Stratégie de course » (fiche d'édition). La frise de préparation défile de gauche à droite sur téléphone (2 rem par semaine au moins). À la todo : importer le règlement de la course, infos de retrait des dossards. |
 | 1er nov. 2026 | Harmonisation page / édition d'une course | Objectif 0.56 (construit) : l'objectif et ses précisions passent dans le bloc Course. Objectif 0.54 (spécification) : les blocs de la fiche d'édition suivent l'ordre de lecture de la consultation : Course, Place dans le plan, Dossard, Parcours (nouveau bloc F46 : GPX et stratégie), Préparation, Logistique, Liens ; Résultat et Montre (course courue) avant Liens.  |
 | 1er nov. 2026 | Graphique Difficulté | Renommé « Évolution de l’effort » (Objectif 0.55) : on suit une trajectoire, une baisse d'effort n'est pas un recul. Définition en pédagogie par l'exemple (40 km + 2 000 m de D+ = 60 km-effort), « L'effort d'une course se mesure ici en km-effort… ». |

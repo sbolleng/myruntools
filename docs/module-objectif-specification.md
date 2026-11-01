@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.57 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.58 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -124,7 +124,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 │ │ (18) › À PROPOS DE LA COURSE            (30) Site officiel ↗ │ │
 │ └───────────────────────────────────────────────────────────────┘ │
 │ ┌──────────────────────────────────────────────────────────────┐ │
-│ │ (25) › Parcours  (26 carte, 32 profil, 27 GPX, STRATÉGIE DE COURSE 16) │
+│ │ (25) › Parcours  (26 carte, 47 plein écran, 32 profil, 48 lignes, 49 pente, 27 GPX, STRATÉGIE DE COURSE 16) │
 │ │ (24) › Préparation (RÔLE DANS LE PLAN 15, [Paramétrer le plan], plan) │
 │ │ (17) › Logistique                                             │ │
 │ └──────────────────────────────────────────────────────────────┘ │
@@ -153,8 +153,12 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit ; sur la page, sans lien (l'inscription passe par 29) |
 | 18 | À propos de la course | La description : quelques infos sur la course | En bas de la fiche, sous le Dossard, sans filet ; titre en libellé (Space Mono, capitales, discret), comme DOSSARD, sur la même ligne de base que 30 ; dépliée, elle prend toute la largeur de la fiche ; repliée à l'ouverture ; absente si vide |
 | 25 | Parcours | Carte (26), profil (32), téléchargement (27), puis la stratégie (16) | Premier texte du cadre des textes, replié ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX : « Importer un GPX » (28) au-dessus de la stratégie, sauf en lecture seule ; sans GPX ni stratégie en lecture seule : absent |
-| 26 | Carte du tracé | Tracé du GPX sur fond topographique, départ et arrivée marqués | Leaflet (chargé à la première carte), fond OpenTopoMap, crédits en bas à droite ; tracé en Accent ; dessinée à la première ouverture de Parcours ; zoom par les boutons ou aux doigts (pas à la molette, qui fait défiler la page) |
+| 26 | Carte du tracé | Tracé du GPX sur fond topographique, départ et arrivée marqués | Leaflet (chargé à la première carte), fond OpenTopoMap, crédits en bas à droite ; tracé en Accent ; dessinée à la première ouverture de Parcours ; zoom par les boutons ou aux doigts (pas à la molette, qui fait défiler la page, sauf en plein écran) ; un repère (50) suit la position survolée sur le profil |
 | 32 | Profil altimétrique | Altitude selon la distance, tirée du GPX | Courbe et aire en Accent ; altitudes mini et maxi à gauche, « 0 km » et la longueur du tracé dessous, en Space Mono discret ; un tracé coupé en segments ne compte pas le saut entre deux segments ; absent si le GPX n'a pas d'altitudes |
+| 47 | Plein écran | Bouton rond ⛶ (✕ en plein écran) | Sur la carte, sous les boutons + et −. Plein écran du navigateur, sinon plein écran « posé » (iPhone) ; la carte prend la place et le profil reste dessous ; la molette zoome en plein écran ; Échap ou ✕ en sort (Échap ne ferme pas la page de la course) |
+| 48 | Lignes d'altitude | Traits pointillés, étiquettes « 550 », « 600 » | Dans le profil, à l'horizontale, à un pas rond (10, 20, 50, 100, 200, 500 m…) qui donne cinq lignes au plus ; fines, couleur des filets ; étiquette à gauche (Space Mono discret) sauf si elle recouvre l'altitude mini ou maxi ; légende « 1 trait = 50 m » au centre de la ligne des distances |
+| 49 | Lecture de la pente | « km 12,4 · 842 m · +8 % » | Au survol du profil (souris) ou au glissement du doigt : trait vertical et bulle qui suit le curseur ; pente en Accent en montée, en Texte discret en descente ; altitude lissée (moyenne sur 50 m), pente sur 100 m centrés (moins aux extrémités) ; au doigt, la lecture reste jusqu'au prochain toucher ailleurs |
+| 50 | Repère sur la carte | Pastille | Sur le tracé, à la position lue en 49, en Accent à contour sombre comme départ et arrivée ; disparaît avec la lecture |
 | 27 | GPX | « ↓ GPX » | Bouton à contour, à droite, juste sous la ligne des distances du profil ; télécharge le fichier rangé, au nom de la course ; aussi en lecture seule |
 | 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Formulaire, bloc Course, ligne « Tracé GPX » sous le D− : rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; fichier à plusieurs tracés (toutes les distances d'une épreuve) : « Ce fichier contient N tracés : lequel garder ? », un bouton par tracé (nom · longueur), le plus proche de la distance de la course en premier, et « Annuler » ; seul le tracé choisi est rangé ; un fichier déjà rangé avec plusieurs tracés montre le plus proche de la distance ; pour corriger, « Remplacer » ; absent en lecture seule et pour une course courue |
 | 16 | Stratégie de course | Plan de course, allures, liaison avec la course suivante | Dans 25, sous le GPX ; sous-titre « Stratégie de course » en libellé ; absente si vide |
@@ -557,6 +561,7 @@ Résultats attendus, page d'une course :
 - Trail des Gorges, fiche encadrée : LIEU Mont-Clair (lien vers OpenStreetMap, nouvel onglet) ; DATE / HEURE dim. 7 mars 2027 · 7 h 30 ; DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; DOSSARD ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
 - Trail des Gorges : « À propos de la course » repliée dans le cadre de la fiche, sans filet ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
 - Trail des Gorges avec un GPX (boucle fictive de 5,4 km, de 500 à 620 m) : Parcours ouvert, la carte (tracé, départ, arrivée), le profil (620 m et 500 m à gauche, 0 km et 5,4 km dessous), « ↓ GPX » sous les distances du profil, puis la stratégie ; le bouton télécharge « Trail des Gorges.gpx ».
+- Même tracé : lignes d'altitude à 550 et 600 m (légende « 1 trait = 50 m »). Survol à 500 m du départ : « km 0,5 · 536 m · +7 % » et un repère sur la carte ; la souris sort : tout disparaît. Bouton plein écran : la carte s'agrandit, le bouton devient « Quitter le plein écran » ; Échap : retour à la page, la page de la course reste ouverte.
 - Corrida de Noël, fichier à deux tracés (« Le petit » 5,4 km, « Le grand » 10,7 km) : « Le grand · 10,7 km », « Le petit · 5,4 km », « Annuler » ; « Le grand » : seul ce tracé est rangé. Tracé en deux segments éloignés : 5,3 km, le saut non compté.
 - Corrida de Noël, Parcours : « Importer un GPX » ; `notes.txt` : « Fichier .gpx attendu. » ; un GPX : rangé dans `traces/<utilisateur>/<course>.gpx`, chemin noté dans la course, Parcours rouvert avec la carte.
 - Trail du Lac, crayon : bloc Course, « Tracé GPX · Aucun tracé » ; un GPX choisi : « Nouveau tracé : lac.gpx (rangé à l'enregistrement) », rien de rangé ; « Enregistrer » : le fichier et le chemin ; crayon, « Supprimer », « Enregistrer » : fichier et chemin effacés.

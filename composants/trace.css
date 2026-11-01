@@ -4,7 +4,6 @@
 .tr-carte .leaflet-control-attribution { font-size: 0.6rem; }
 .tr-attente { color: var(--muted); padding: 0.5rem 0; }
 .tr-profil { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 90px auto; column-gap: 0.4rem; margin-top: 0.7rem; }
-.tr-profil > svg { grid-column: 2; grid-row: 1; width: 100%; height: 100%; display: block; }
 .tr-aire { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: none; }
 .tr-courbe { fill: none; stroke: var(--accent); stroke-width: 1.6; }
 .tr-alt { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: right; }
@@ -25,3 +24,26 @@
 @media (max-width: 600px) {
   .tr-carte { height: 240px; }
 }
+
+/* ===== Plein écran (n° 47), lignes d'altitude (n° 48), lecture de la pente (n° 49), repère (n° 50) ===== */
+.tr-plein-zone { border: none; box-shadow: none; background: none; }
+.tr-plein { width: 2.1rem; height: 2.1rem; color: var(--text); background: var(--surface); }
+.tr-plein svg { width: 1rem; height: 1rem; }
+.tr-trace { position: relative; grid-column: 2; grid-row: 1; min-width: 0; touch-action: pan-y; cursor: crosshair; }
+.tr-trace > svg { width: 100%; height: 100%; display: block; }
+.tr-ligne { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
+.tr-alt { position: relative; }
+.tr-alt i { position: absolute; right: 0; font-style: normal; transform: translateY(-50%); }
+.tr-pas { font-style: normal; opacity: 0.8; }
+.tr-reperes { position: absolute; inset: 0; pointer-events: none; }
+.tr-trait { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--text); opacity: 0.7; }
+.tr-bulle { position: absolute; top: 2px; white-space: nowrap; padding: 0.15rem 0.4rem; border-radius: 4px; background: var(--surface2); color: var(--text); border: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 0.65rem; }
+.tr-bulle b { font-weight: 700; }
+.tr-montee { color: var(--accent); }
+.tr-descente { color: var(--muted); }
+/* Plein écran : la carte prend la place, le profil reste dessous. */
+.tr-pleine { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; padding: 0.6rem; background: var(--bg); overflow: auto; }
+.tr-pleine:fullscreen { position: static; }
+.tr-pleine .tr-carte { flex: 1 1 auto; height: auto; min-height: 40vh; }
+.tr-pleine .tr-profil { flex: none; grid-template-rows: 120px auto; }
+html.tr-plein-ouvert { overflow: hidden; }
