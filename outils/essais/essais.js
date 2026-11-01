@@ -25,6 +25,13 @@ const TUILE = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQ
 const GPX = '<?xml version="1.0"?><gpx version="1.1" creator="essai"><trk><trkseg>' +
   [[45.0, 4.0, 500], [45.01, 4.0, 580], [45.01, 4.02, 620], [45.0, 4.02, 540], [45.0, 4.0, 500]].map(p => '<trkpt lat="' + p[0] + '" lon="' + p[1] + '"><ele>' + p[2] + '</ele></trkpt>').join('') +
   '</trkseg></trk></gpx>';
+// Deux tracés (« Le petit », la boucle de 5,4 km ; « Le grand », la même deux fois plus large) ; un tracé en deux segments éloignés.
+const boucle = (k, d) => [[45.0, 4.0, 500], [45.01, 4.0, 580], [45.01, 4.02, 620], [45.0, 4.02, 540], [45.0, 4.0, 500]]
+  .map(p => '<trkpt lat="' + (p[0] + (p[0] - 45) * (k - 1) + d) + '" lon="' + (p[1] + (p[1] - 4) * (k - 1)) + '"><ele>' + p[2] + '</ele></trkpt>').join('');
+const GPX_DEUX = '<?xml version="1.0"?><gpx version="1.1" creator="essai"><trk><name>Le petit</name><trkseg>' + boucle(1, 0) + '</trkseg></trk>' +
+  '<trk><name>Le grand</name><trkseg>' + boucle(2, 0) + '</trkseg></trk></gpx>';
+const GPX_SEGMENTS = '<?xml version="1.0"?><gpx version="1.1"><trk><trkseg>' + boucle(1, 0).split('</trkpt>').slice(0, 3).join('</trkpt>') + '</trkpt></trkseg><trkseg>' +
+  boucle(1, 1).split('</trkpt>').slice(2).join('</trkpt>') + '</trkseg></trk></gpx>';
 const SEULS = process.argv.slice(2).filter(a => !a.startsWith('--'));
 const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 
@@ -714,12 +721,13 @@ const CONTROLES = {
       let o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, avecTrace, {}, PARIS);
       await o.p.click('#parcours > summary');
       await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
-      pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'tr-actions', 'pc-strategie'], strategie: 'Stratégie de course' }, await o.p.evaluate(() => ({
+      pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'pc-strategie'], strategie: 'Stratégie de course', bouton: 'GPX', boutonClasse: true }, await o.p.evaluate(() => ({
         alt: [...document.querySelectorAll('.tr-alt span')].map(x => x.textContent), km: [...document.querySelectorAll('.tr-km span')].map(x => x.textContent.replace(/[  ]/g, ' ')),
         bornes: document.querySelectorAll('.tr-carte .leaflet-overlay-pane path').length,
-        ordre: [...document.querySelector('#parcours .pc-corps').children].map(x => x.className || x.tagName), strategie: document.querySelector('.pc-strategie .pc-sous-titre').textContent })), 'GPX : carte (tracé, départ, arrivée), profil, téléchargement, puis la stratégie'));
-      const [dl] = await Promise.all([o.p.waitForEvent('download'), o.p.click('[data-ob="gpx"]')]);
-      pb.push(egal('Trail des Gorges.gpx', dl.suggestedFilename(), 'GPX : « Télécharger le GPX » télécharge le fichier, au nom de la course'));
+        ordre: [...document.querySelector('#parcours .pc-corps').children].map(x => x.className || x.tagName), strategie: document.querySelector('.pc-strategie .pc-sous-titre').textContent,
+        bouton: document.querySelector('.tr-profil .tr-bas .tr-telecharger').textContent.trim(), boutonClasse: document.querySelector('.tr-telecharger').classList.contains('mrt-btn') })), 'GPX : carte (tracé, départ, arrivée), profil, bouton à contour « ↓ GPX » sous les distances, puis la stratégie'));
+      const [dl] = await Promise.all([o.p.waitForEvent('download'), o.p.click('.tr-telecharger')]);
+      pb.push(egal('Trail des Gorges.gpx', dl.suggestedFilename(), 'GPX : le bouton « ↓ GPX » télécharge le fichier, au nom de la course'));
       pb.push(egal([], o.erreurs, 'GPX, erreurs JavaScript'));
       await o.ctx.close();
       // Import depuis la page : Corrida de Noël, sans tracé.
@@ -734,6 +742,23 @@ const CONTROLES = {
       await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
       pb.push(egal([true, moi + '/' + id(2) + '.gpx', true], [!!imp.fichiers[chemin(id(2))], imp.courses.find(c => c.id === id(2)).gpx, await o.p.evaluate(() => document.querySelector('#parcours').open)],
         'import depuis la page : fichier rangé dans le dossier de l\'utilisateur, chemin noté dans la course, Parcours rouvert avec la carte'));
+      // Fichier à deux tracés : le choix, le plus proche des 10 km de la course en premier ; seul le tracé gardé est rangé.
+      const deux = JSON.parse(JSON.stringify(db));
+      deux.persister = true; deux.ecritures = [];
+      const o2 = await ouvrir(nav, 'course.html?id=' + id(2), 1200, deux, {}, PARIS);
+      await o2.p.click('#parcours > summary');
+      await o2.p.setInputFiles('.tr-fichier', { name: 'epreuve.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(GPX_DEUX) });
+      await o2.p.waitForSelector('.tr-choix [data-piste]');
+      pb.push(egal(['Le grand · 10,7 km', 'Le petit · 5,4 km', 'Annuler'], (await o2.p.$$eval('.tr-choix [data-piste]', bs => bs.map(b => b.textContent.replace(/[  ]/g, ' ')))),
+        'deux tracés : un bouton par tracé, le plus proche de la distance de la course en premier'));
+      await o2.p.click('.tr-choix [data-piste="0"]');
+      await o2.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
+      const range = deux.fichiers[chemin(id(2))] || '';
+      pb.push(egal([1, true, false], [(range.match(/<trk>/g) || []).length, /Le grand/.test(range), /Le petit/.test(range)], 'deux tracés : seul le tracé choisi est rangé'));
+      // Tracé en deux segments éloignés : le saut ne compte pas dans la distance.
+      pb.push(egal('5,3', await o2.p.evaluate(g => window.mrtTrace.lire(g).km.toFixed(1).replace('.', ','), GPX_SEGMENTS), 'segments : le saut d\'un segment au suivant ne compte pas'));
+      pb.push(egal([], o2.erreurs, 'deux tracés, erreurs JavaScript'));
+      await o2.ctx.close();
       pb.push(egal([], o.erreurs, 'import GPX, erreurs JavaScript'));
       await o.ctx.close();
       // Import depuis le formulaire : rangé à l'enregistrement ; puis suppression.

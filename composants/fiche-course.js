@@ -181,7 +181,7 @@
           '<span class="fc-gpx-etat">' + (valeur ? 'Tracé importé' : 'Aucun tracé') + '</span>' +
           '<button type="button" class="mrt-btn" data-fc="gpx-choisir">' + (valeur ? 'Remplacer' : 'Importer un GPX') + '</button>' +
           (valeur ? '<button type="button" class="mrt-lien is-danger" data-fc="gpx-supprimer">Supprimer</button>' : '') +
-          '<input type="file" class="fc-gpx-fichier" accept=".gpx" hidden></div><p class="fc-erreur" id="fc-gpx-err" aria-live="polite"></p></div>';
+          '<input type="file" class="fc-gpx-fichier" accept=".gpx" hidden></div><div class="tr-choix-zone" hidden></div><p class="fc-erreur" id="fc-gpx-err" aria-live="polite"></p></div>';
       }
       if (genre === 'choix') {
         const opts = k === 'type' ? references.types.map(t => [t.id, t.libelle])
@@ -320,7 +320,7 @@
     }
 
     // ----- Tracé GPX (mode à venir) : choisi ici, rangé avec la course -----
-    const gpx = { fichier: null, supprimer: false };
+    const gpx = { fichier: null, texte: null, supprimer: false };
     const gpxZone = $('.fc-gpx');
     if (gpxZone) {
       const entree = $('.fc-gpx-fichier'), err = $('#fc-gpx-err');
@@ -331,7 +331,12 @@
         const v = await window.mrtTrace.verifier(f);
         err.textContent = v.erreur || '';
         if (v.erreur) return;
-        gpx.fichier = f; gpx.supprimer = false;
+        // Plusieurs tracés dans le fichier : on garde celui de la course.
+        const zone = $('.tr-choix-zone');
+        const choisi = v.pistes.length > 1 ? await window.mrtTrace.choisir(zone, v.pistes, parseNombre(val('distance').value)) : v.pistes[0];
+        zone.hidden = true;
+        if (!choisi) return;
+        gpx.fichier = f; gpx.texte = choisi.texte; gpx.supprimer = false;
         $('.fc-gpx-etat').textContent = 'Nouveau tracé : ' + f.name + ' (rangé à l\'enregistrement)';
         $('[data-fc="gpx-choisir"]').textContent = 'Remplacer';
       });
@@ -583,7 +588,7 @@
       }
       if ((gpx.fichier || (gpx.supprimer && c.gpx)) && window.mrtTrace) {
         const cc = Object.assign({}, c, { id });
-        const err = gpx.fichier ? await window.mrtTrace.ranger(cc, gpx.fichier) : await window.mrtTrace.retirer(cc);
+        const err = gpx.fichier ? await window.mrtTrace.ranger(cc, gpx.texte) : await window.mrtTrace.retirer(cc);
         if (err) window.alert('Course enregistrée, mais pas le tracé : ' + err);
       }
       terminer('enregistre', id);

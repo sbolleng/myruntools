@@ -251,8 +251,6 @@
   // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
   const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ').replace(/ (m D|km)/g, '\u00a0$1');
 
-  // Flèche de téléchargement (GPX).
-  const TELECHARGER = '<svg class="tr-ico" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5v6.5M3 5.5L6 8.5l3-3M2 10.5h8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   let parcoursOuvert = null;
 
   // Tous les textes repliés à l'ouverture, sur ordinateur comme sur téléphone.
@@ -303,9 +301,9 @@
     // sauf en lecture seule.
     const T = window.mrtTrace;
     const trace = !T ? '' : c.gpx
-      ? '<div class="tr-zone"></div><p class="tr-actions"><button type="button" class="mrt-lien tr-telecharger" data-ob="gpx">' + TELECHARGER + 'Télécharger le GPX</button></p>'
+      ? '<div class="tr-zone"></div>'
       : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
-        '<p class="tr-erreur" aria-live="polite"></p>' : '';
+        '<div class="tr-choix-zone" hidden></div><p class="tr-erreur" aria-live="polite"></p>' : '';
     // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
     const bas = cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie">' + sousTitre('Stratégie de course') + texte(c.strategie) + '</div>' : ''), 'parcours') + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
@@ -335,7 +333,7 @@
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
-    brancher(el, Object.assign({ fermer: ctx.modale.fermer, gpx: () => T.telecharger(c) }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
       importer: () => el.querySelector('.tr-fichier').click() }));
     replierCellules(el);
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
@@ -347,10 +345,18 @@
     if (fichier) fichier.addEventListener('change', async () => {
       const f = fichier.files[0], msg = el.querySelector('.tr-erreur'), b = el.querySelector('[data-ob="importer"]');
       if (!f) return;
+      fichier.value = '';
+      const v = await T.verifier(f);
+      msg.textContent = v.erreur || '';
+      if (v.erreur) return;
+      // Plusieurs tracés dans le fichier : on garde celui de la course.
+      const zone = el.querySelector('.tr-choix-zone');
+      const choisi = v.pistes.length > 1 ? await T.choisir(zone, v.pistes, Number(c.distance)) : v.pistes[0];
+      zone.hidden = true;
+      if (!choisi) return;
       b.disabled = true;
       msg.textContent = 'Envoi du GPX…';
-      const err = await T.ranger(c, f);
-      fichier.value = '';
+      const err = await T.ranger(c, choisi.texte);
       b.disabled = false;
       msg.textContent = err || '';
       if (err) return;

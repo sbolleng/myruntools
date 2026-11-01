@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Tracé GPX, plusieurs tracés | Téléchargement : bouton à contour « ↓ GPX » sous les distances du profil (option A). Fichier à plusieurs tracés : choix à l'import (le plus proche de la distance de la course en premier), seul le tracé choisi est rangé ; un fichier déjà rangé montre le tracé le plus proche ; segments d'un tracé sans le saut entre eux (Objectif 0.51). |
 | 1er nov. 2026 | Palmarès | Version 1.27 : filtre rapide (pastilles des types, frise des années) retiré, mal compris : l'idée était de filtrer directement sur le graphique (à reprendre si besoin). Panneaux Filtres et Colonnes : rond « Réduire » (chevron vers le haut) au lieu de « × » (design 0.34). Progression : ligne entre les points fine (1 px), Texte discret estompé ; tendance toujours en pointillé. |
 | 1er nov. 2026 | Page d'une course, fiche | « À propos de la course » et « Site officiel » sur la même ligne de base ; la description dépliée prend toute la largeur. |
 | 1er nov. 2026 | Palmarès, progression | Version 1.26 : graphique sous le tableau ; points reliés par une ligne (n° 12) ; axe « MIN / KM-EFFORT » (plus de « plus rapide en haut ») ; bilan des courses supprimé ; titre au style des intertitres des groupes (Accent, gras) ; étiquettes de temps sous les points. Filtre rapide (§ 7.1, option B) : pastilles des types et frise des années à deux poignées, sous la barre ; ce sont les filtres Type et Date du panneau. Tendance inchangée : un seul format, au moins 3 points. |
