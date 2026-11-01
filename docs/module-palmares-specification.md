@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.27 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.28 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -193,7 +193,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 Il montre si l'on court plus vite d'une course à l'autre. Chaque course courue est placée selon sa date et son **allure-effort** (temps ÷ km-effort), la mesure normée de la [spécification générale](specification-generale.md) (§ 12 bis) : route et trail sur une même échelle. Un graphique fonctionnel : axes gradués, chiffres lisibles, aucune décoration.
 
-- **Place** : sous le tableau, dans son propre cadre ; titre repliable « Progression », au style des intertitres des groupes du tableau (§ 8 : Accent, gras, chevron Accent), ouvert par défaut, état retenu sur l'appareil.
+- **Place** : sous le tableau, dans son propre cadre ; titre repliable « Progression », le titre repliable commun du site (design § 1), ouvert par défaut, état retenu sur l'appareil.
 - **Il suit les filtres** (§ 7) : il montre exactement les courses du tableau, et se redessine à chaque changement de filtre, d'ajout, de modification ou de suppression. Le tri et le regroupement n'y changent rien.
 - **Courses placées** : celles qui ont un temps et une distance ; les DNF et les courses sans temps ou sans distance n'ont pas de point (le tableau les montre).
 - **Moins de 2 points** : le cadre reste, avec « Pas assez de courses pour un graphique » à la place du tracé.
@@ -223,7 +223,7 @@ Ligne (12) : elle relie les points dans l'ordre des dates. Téléphone : même o
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
-| 1 | Titre repliable | ▾ Progression | En haut du cadre | Comme les intertitres des groupes (§ 8) : Space Grotesk 0,95 rem, gras, Accent, chevron Accent |
+| 1 | Titre repliable | ▾ Progression | En haut du cadre | Titre repliable commun (design § 1) : chevron Texte discret, Space Grotesk 0,85 rem, 600, Texte ; le même que Difficulté (Objectif) |
 | 2 | Axe vertical | MIN / KM-EFFORT · 4:30 5:00 5:30 6:00 | À gauche | Libellé ; graduations toutes les 30 s, bornes arrondies à 30 s autour des points ; le plus rapide en haut ; Space Mono 0,7 rem, Texte discret |
 | 3 | Course | Point d'une course | À sa date | Point plein, Accent |
 | 4 | Record | 🥇 à côté du point | À côté du point | La course porte 🥇 dans le tableau (§ 5) : même marque sur le graphique |

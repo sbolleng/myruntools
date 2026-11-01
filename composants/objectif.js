@@ -197,8 +197,7 @@
     if (!places.length) { el.hidden = true; el.innerHTML = ''; return; }
     el.hidden = false;
     const forme = c => (c.etat === 'courue' ? 'discret' : c.role === 'objectif' ? 'grand' : c.role === 'objectif_intermediaire' ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
-    const statut = c => (c.etat === 'courue' ? 'Courue' : c.statut === 'option' ? 'Option' : ROLES[c.role]);
-    const quand = c => (c.date_approx ? MOIS_LONG[Number(c.date.slice(5, 7)) - 1] + ' ' + c.date.slice(0, 4) : dateCourte(c));
+        const quand = c => (c.date_approx ? MOIS_LONG[Number(c.date.slice(5, 7)) - 1] + ' ' + c.date.slice(0, 4) : dateCourte(c));
     const profil = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ');
     const points = places.map(c => {
       const t = jour(c), v = ke(c);
@@ -214,20 +213,14 @@
     const fin = Math.max(maint.getTime(), ...points.map(p => p.t2 || p.t));
     // La ligne : les étapes confirmées et l'objectif, dans l'ordre ; ni options, ni courues.
     const ligne = places.filter(c => c.etat !== 'courue' && c.statut === 'confirmee').map(c => c.id);
-    const chiffres = '<details class="mg-chiffres mrt-deroule"><summary><svg class="mg-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Les chiffres</summary>' +
-      '<div class="table-scroll"><table><tbody>' + liste.map(c => '<tr data-id="' + esc(c.id) + '"><td class="d">' + esc(quand(c)) + '</td><td>' + esc(nom(c)) + '</td><td class="d">' + esc(statut(c)) + '</td>' +
-        '<td class="n">' + (c.distance != null ? esc(un(Number(c.distance))) + ' km' : '—') + '</td><td class="n">' + (c.dplus != null ? esc(nombre(c.dplus)) + ' m' : '—') + '</td>' +
-        '<td class="n">' + (ke(c) != null ? esc(un(ke(c))) : '—') + '</td></tr>').join('') + '</tbody></table></div></details>';
+    // Sous le graphique : la définition du km-effort, en clair (spécification générale, § 12 bis).
+    const definition = '<p class="mg-definition"><b>km-effort = distance (km) + dénivelé positif (m) ÷ 100.</b> 100 m de montée comptent comme 1 km à plat : ' +
+      '42 km et 2 000 m de D+ font 62 km-effort. C\'est la mesure normée de l\'ITRA (association internationale du trail), reprise par l\'UTMB ; la descente n\'est pas comptée.</p>';
     window.mrtGraphique(el, {
-      cle: 'mrt-graphe-difficulte', titre: 'Difficulté',
+      cle: 'mrt-graphe-difficulte', titre: 'Difficulté', fermeParDefaut: true,
       axeY: { libelle: 'km-effort', min: 0, max, pas: 20, fmt: v => String(v) },
-      debut: t0, fin, aujourdhui: maint.getTime(), points, ligne, bas: chiffres
+      debut: t0, fin, aujourdhui: maint.getTime(), points, ligne, ligneDiscrete: true, etiquettesDessous: true, bas: definition
     });
-    // Une ligne du tableau : la bulle de sa course (une course sans distance ouvre sa page).
-    el.querySelectorAll('.mg-chiffres tr[data-id]').forEach(tr => tr.addEventListener('click', () => {
-      if (points.some(p => p.id === tr.dataset.id)) el.__montrer(tr.dataset.id);
-      else { const c = liste.find(x => x.id === tr.dataset.id); const a = document.createElement('a'); a.href = pageCourse(c); document.body.appendChild(a); a.click(); a.remove(); }
-    }));
   };
 
   // ----- Page d'une course (§ 3.4, option A) -----
