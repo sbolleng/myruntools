@@ -182,6 +182,54 @@
     lancerCompteurs();
   };
 
+  // ----- Graphique de difficulté (§ 5.2) : km-effort de chaque course, dans le temps -----
+  // Courses de la feuille de route et courses courues des 12 derniers mois ; dessin : graphique.js.
+  const nf1 = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const un = v => nf1.format(v).replace(/ /g, ' ');
+  window.renderDifficulte = function (el, courses) {
+    if (!el || !window.mrtGraphique) return;
+    const maint = new Date(), t0 = new Date(maint.getFullYear() - 1, maint.getMonth(), maint.getDate()).getTime();
+    const jour = c => { const d = c.date.split('-').map(Number); return new Date(d[0], d[1] - 1, d[2]).getTime(); };
+    const courues = courses.filter(c => c.etat === 'courue' && c.date && jour(c) >= t0 && jour(c) <= maint.getTime());
+    const liste = courues.concat(window.mrtCoursesRoute(courses)).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    const ke = c => window.mrtKmEffort(c.distance, c.dplus);
+    const places = liste.filter(c => ke(c) != null);
+    if (!places.length) { el.hidden = true; el.innerHTML = ''; return; }
+    el.hidden = false;
+    const forme = c => (c.etat === 'courue' ? 'discret' : c.role === 'objectif' ? 'grand' : c.role === 'objectif_intermediaire' ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
+    const statut = c => (c.etat === 'courue' ? 'Courue' : c.statut === 'option' ? 'Option' : ROLES[c.role]);
+    const quand = c => (c.date_approx ? MOIS_LONG[Number(c.date.slice(5, 7)) - 1] + ' ' + c.date.slice(0, 4) : dateCourte(c));
+    const profil = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ');
+    const points = places.map(c => {
+      const t = jour(c), v = ke(c);
+      const fin = c.date_approx ? new Date(new Date(t).getFullYear(), new Date(t).getMonth() + 1, 0).getTime() : null;
+      return {
+        id: c.id, t, t2: fin, y: v, forme: forme(c),
+        etiquette: c.role === 'objectif' || c.role === 'objectif_intermediaire' ? nom(c) + ' · ' + Math.round(v) : '',
+        aria: nom(c) + ', ' + un(v) + ' km-effort',
+        bulle: { valeur: un(v) + ' km-effort', nom: nom(c), lien: pageCourse(c), details: quand(c) + ' · ' + profil(c) }
+      };
+    });
+    const max = Math.max(20, Math.ceil(Math.max(...points.map(p => p.y)) / 20) * 20);
+    const fin = Math.max(maint.getTime(), ...points.map(p => p.t2 || p.t));
+    // La ligne : les étapes confirmées et l'objectif, dans l'ordre ; ni options, ni courues.
+    const ligne = places.filter(c => c.etat !== 'courue' && c.statut === 'confirmee').map(c => c.id);
+    const chiffres = '<details class="mg-chiffres mrt-deroule"><summary><svg class="mg-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Les chiffres</summary>' +
+      '<div class="table-scroll"><table><tbody>' + liste.map(c => '<tr data-id="' + esc(c.id) + '"><td class="d">' + esc(quand(c)) + '</td><td>' + esc(nom(c)) + '</td><td class="d">' + esc(statut(c)) + '</td>' +
+        '<td class="n">' + (c.distance != null ? esc(un(Number(c.distance))) + ' km' : '—') + '</td><td class="n">' + (c.dplus != null ? esc(nombre(c.dplus)) + ' m' : '—') + '</td>' +
+        '<td class="n">' + (ke(c) != null ? esc(un(ke(c))) : '—') + '</td></tr>').join('') + '</tbody></table></div></details>';
+    window.mrtGraphique(el, {
+      cle: 'mrt-graphe-difficulte', titre: 'Difficulté',
+      axeY: { libelle: 'km-effort', min: 0, max, pas: 20, fmt: v => String(v) },
+      debut: t0, fin, aujourdhui: maint.getTime(), points, ligne, bas: chiffres
+    });
+    // Une ligne du tableau : la bulle de sa course (une course sans distance ouvre sa page).
+    el.querySelectorAll('.mg-chiffres tr[data-id]').forEach(tr => tr.addEventListener('click', () => {
+      if (points.some(p => p.id === tr.dataset.id)) el.__montrer(tr.dataset.id);
+      else { const c = liste.find(x => x.id === tr.dataset.id); const a = document.createElement('a'); a.href = pageCourse(c); document.body.appendChild(a); a.click(); a.remove(); }
+    }));
+  };
+
   // ----- Page d'une course (§ 3.4, option A) -----
   // Texte repliable : le titre, précédé d'un chevron ; un toucher sur le titre l'ouvre ou le ferme.
   const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';

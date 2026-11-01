@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.48 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.49 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -394,7 +394,7 @@ Plan de page (ordinateur) :
 │  60 ┤                    ┆       ◇ (12)  ○        ╱ Trail des │
 │  40 ┤                    ┆      ╱          ╌╌(7)╌╱  Crêtes·95 │
 │  20 ┤        ● (3)       ┆ ●───●──────────────╱  (14)        │
-│     ┤                    ┆(4)            ⬭ (13)              │
+│     ┤                    ┆(4)                                 │
 │   0 ┼────┬────┬────┬────┬┆───┬────┬────┬────┬────┬────┬───   │
 │ (8)   janv.     avr.     ┆oct.     janv. 27  avr.   juil.    │
 │                     (9) aujourd'hui                          │
@@ -406,7 +406,7 @@ Plan de page (ordinateur) :
      Trail des Gorges · 7 mars 2027 · 45 km · 2 100 m D+
 ```
 
-Téléphone : même ordre, le graphique occupe toute la largeur du cadre ; les étiquettes (14) sont masquées, la bulle les remplace.
+Téléphone : même ordre, le graphique occupe toute la largeur du cadre ; les étiquettes (14) sont masquées, la bulle les remplace. N° 13 : retiré (galet des Running Stones abandonné).
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
@@ -417,16 +417,15 @@ Téléphone : même ordre, le graphique occupe toute la largeur du cadre ; les �
 | 5 | Candidat d'un groupe, option | Trail des Cimes | À sa date | Cercle vide, contour Accent, non relié |
 | 6 | Course objectif | Trail des Crêtes | À sa date | Losange plein, Accent, plus grand |
 | 7 | Date au mois seul | Trail de la Forêt (juillet 2027) | Sur le mois | Trait pointillé Accent couvrant le mois, à la hauteur de son km-effort |
-| 8 | Axe du temps | janv. · avr. · juil. · oct. | En bas | Un repère par trimestre ; l'année sur janvier (« janv. 27 ») ; Space Mono 0,7 rem, Texte discret |
+| 8 | Axe du temps | janv. · avr. · juil. · oct. | En bas | Un repère par trimestre (sur téléphone, janvier et juillet seulement) ; l'année sur janvier et sur le premier repère (« janv. 27 ») ; Space Mono 0,7 rem, Texte discret |
 | 9 | Aujourd'hui | — | Trait vertical | Pointillé, Texte discret |
 | 10 | Les chiffres | ▸ Les chiffres | Sous le graphique | Titre repliable commun, fermé ; tableau Date, Course, Statut, Distance, D+, km-effort |
 | 11 | Bulle | Trail des Gorges · 7 mars 2027… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface, km-effort en Space Mono ; une seule à la fois ; toucher ailleurs la ferme |
 | 12 | Objectif intermédiaire | Trail des Gorges | À sa date | Losange plein, Accent, taille d'un point |
-| 13 | Running Stones | Galet sous un point | Sous le point | Petit ovale, contour Texte discret ; plein quand la course est courue ; pour une course qui rapporte des stones (circuit UTMB) |
 | 14 | Étiquette | Trail des Crêtes · 95 | À côté du point | Pour l'objectif et les objectifs intermédiaires : nom de la course et km-effort arrondi ; Texte discret, 0,7 rem ; vers la gauche si le point est au bord droit |
 | 15 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
 
-- **Ligne** : elle relie les étapes confirmées et l'objectif, dans l'ordre des dates ; candidats, options seules, courues et dates au mois seul restent hors de la ligne.
+- **Ligne** : elle relie les étapes confirmées et l'objectif, dans l'ordre des dates (une confirmée au mois seul, par le milieu de son mois) ; candidats, options seules et courues restent hors de la ligne.
 - **Toucher un point**, une ligne du tableau ou le nom dans la bulle : la bulle s'ouvre ; le nom dans la bulle ouvre la page de la course.
 - **Accessibilité** : chaque point est un bouton, nommé (« Trail des Gorges, 66,0 km-effort »), atteignable au clavier.
 - **Fait main en SVG**, sans bibliothèque ; toutes les couleurs par leurs rôles (design § 2), donc juste dans tous les thèmes.
@@ -532,14 +531,14 @@ Résultats attendus, feuille de route :
 - Trail de la Forêt passé en Confirmée : compteur `253 j` `14 h` `00 min` `00 s`, jusqu'au 1er juillet 2027 à minuit.
 - Thème changé : seules les couleurs changent.
 
-Résultats attendus, graphique de difficulté (Trail des Crêtes rattaché en plus au circuit UTMB, 2 Running Stones) :
+Résultats attendus, graphique de difficulté :
 
 - Cadre « Difficulté » ouvert, au-dessus de la feuille de route ; axe de 0 à 100, graduations 0, 20, 40, 60, 80, 100 ; période du 20 oct. 2025 au 28 août 2027.
-- 8 courses : Semi de San Sebastián 21,1 (courue, point discret), Trail du Lac 30,5, Corrida de Noël 10,4, Trail des Gorges 66,0 (losange, étiquette « Trail des Gorges · 66 »), Trail des Cimes 67,0 et Ultra du Plateau · Le 55 83,0 (cercles vides), Trail de la Forêt 42,0 (trait pointillé sur juillet 2027), Trail des Crêtes 95,0 (grand losange, étiquette « Trail des Crêtes · 95 », galet vide dessous). Ni Cross des Collines, ni Trail des Sommets.
+- 11 courses, avec les courues de la même base depuis le 20 oct. 2025 (jeu d'essai du Palmarès) : Biscatrail 21,7, Forez Trail · L'Olmetoise 33,4, 10 km de Montauban 10,2 et Semi de San Sebastián 21,1 (courues, points discrets) ; ni Épicurienne Trail, ni Semi-marathon de Sète (plus de 12 mois) ; Trail du Lac 30,5, Corrida de Noël 10,4, Trail des Gorges 66,0 (losange, étiquette « Trail des Gorges · 66 »), Trail des Cimes 67,0 et Ultra du Plateau · Le 55 83,0 (cercles vides), Trail de la Forêt 42,0 (trait pointillé sur juillet 2027), Trail des Crêtes 95,0 (grand losange, étiquette « Trail des Crêtes · 95 »). Ni Cross des Collines, ni Trail des Sommets.
 - La ligne relie, dans l'ordre, Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Crêtes.
 - Trail des Gorges : 66,0, et non 76,5 (le D− n'est pas compté).
 - Survol de Trail des Gorges : bulle « 66,0 km-effort », « Trail des Gorges · 7 mars 2027 · 45 km · 2 100 m D+ » ; le nom ouvre sa page.
-- « Les chiffres » fermé ; ouvert : 8 lignes, dans l'ordre des dates.
+- « Les chiffres » fermé ; ouvert : 11 lignes, dans l'ordre des dates.
 - Cadre replié, page rechargée : toujours replié. Téléphone : pas d'étiquettes, rien ne dépasse.
 
 Résultats attendus, page d'une course :

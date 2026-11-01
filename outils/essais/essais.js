@@ -571,7 +571,7 @@ const CONTROLES = {
     await figer(p);
     let k = await cartes(p);
     pb.push(egal(['Trail du Lac · Le Tour du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Printemps 2027', 'Trail de la Forêt', 'Trail des Crêtes'], k.map(x => x.nom), 'étapes, dans l\'ordre'));
-    pb.push(egal(false, await p.evaluate(() => /Collines|Sommets|San Sebasti/.test(document.querySelector('main').textContent)), 'ni abandonnée, ni à surveiller, ni courue'));
+    pb.push(egal(false, await p.evaluate(() => /Collines|Sommets|San Sebasti/.test(document.querySelector('#feuille-de-route').textContent)), 'ni abandonnée, ni à surveiller, ni courue'));
     pb.push(egal(['Trail des Crêtes', "5 courses | D'ici là", 'prochaine course · Trail du Lac · J-26'], await p.evaluate(() => [document.querySelector('h1 em').textContent,
       [...document.querySelectorAll('.mrt-stat')].map(s => s.querySelector('.mrt-stat-val').textContent + ' | ' + s.querySelector('.mrt-stat-label').textContent)[3], document.querySelector('.mrt-next').textContent]), 'en-tête'));
     const [lac, corrida, gorges, groupe, foret, cretes] = k;
@@ -2143,6 +2143,101 @@ const CONTROLES = {
     await p.goto(RACINE + 'connexion.html'); await p.waitForSelector('#email');
     pb.push(egal(COMMUN, await champs(p), 'connexion : le champ commun'));
     await anonyme.close();
+    return pb;
+  },
+
+  // Graphiques : difficulté (Objectif, § 5.2) et progression (Palmarès, § 12), mesures normées (spécification générale, § 12 bis).
+  async graphiques(nav, db0) {
+    const pb = [];
+    const t = x => (x ? x.textContent.replace(/[\u00a0\u202f]/g, ' ').trim() : null);
+    const lire = p => p.evaluate(tx => { const t = eval(tx); const g = document.querySelector('.mg');
+      return g && {
+        titre: t(g.querySelector('.mg-titre > span')), droite: t(g.querySelector('.mg-droite')), ouvert: g.querySelector('details.mg-cadre').open,
+        points: [...g.querySelectorAll('.mg-pt')].map(b => b.getAttribute('aria-label') + ' | ' + b.className.replace('mg-pt ', '')),
+        graduations: [...g.querySelectorAll('.mg-gy')].map(t), etiquettes: [...g.querySelectorAll('.mg-etiq')].map(t),
+        marques: g.querySelectorAll('.mg-marque').length, ligne: g.querySelector('.mg-ligne') ? g.querySelector('.mg-ligne').getAttribute('points').split(' ').length : 0,
+        tendance: !!g.querySelector('.mg-tendance'), periode: g.querySelectorAll('.mg-periode').length, jour: !!g.querySelector('.mg-jour'),
+        vide: t(g.querySelector('.mg-vide')), bilan: t(g.querySelector('.mg-bilan')) }; }, t.toString());
+    // Replier le cadre (sans animation) et attendre que l'état soit retenu sur l'appareil.
+    const replier = async (p, cle) => { await p.emulateMedia({ reducedMotion: 'reduce' }); await p.click('.mg-titre');
+      for (let k = 0; k < 20 && await p.evaluate(c => localStorage.getItem(c), cle) !== '0'; k++) await p.clock.runFor(100); };
+    const bulle = p => p.evaluate(tx => { const t = eval(tx); const b = document.querySelector('.mg-bulle'); return b.hidden ? null : [t(b.querySelector('strong')), t(b.querySelector('.mg-nom')), t(b.querySelector('.mg-sub'))]; }, t.toString());
+
+    // ----- Difficulté : jeu d'essai d'Objectif, avec les courses courues de la même base -----
+    const { db } = jeuObjectif(db0);
+    let { p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, db, {}, PARIS);
+    let g = await lire(p);
+    pb.push(egal({ titre: 'Difficulté', ouvert: true, avant: true }, { titre: g.titre, ouvert: g.ouvert,
+      avant: await p.evaluate(() => !!(document.querySelector('#difficulte').compareDocumentPosition(document.querySelector('#feuille-de-route')) & 4)) }, 'difficulté : cadre ouvert, au-dessus de la feuille de route'));
+    pb.push(egal(['Biscatrail, 21,7 km-effort | is-discret', 'Forez Trail · L\'Olmetoise, 33,4 km-effort | is-discret', '10 km de Montauban, 10,2 km-effort | is-discret',
+      'Semi de San Sebastián, 21,1 km-effort | is-discret', 'Trail du Lac · Le Tour du Lac, 30,5 km-effort | is-plein', 'Corrida de Noël, 10,4 km-effort | is-plein',
+      'Trail des Gorges, 66,0 km-effort | is-losange', 'Trail des Cimes, 67,0 km-effort | is-vide', 'Ultra du Plateau · Le 55, 83,0 km-effort | is-vide',
+      'Trail de la Forêt, 42,0 km-effort | is-vide is-periode', 'Trail des Crêtes, 95,0 km-effort | is-grand'], g.points,
+      'difficulté : km-effort sans D− ; courues des 12 derniers mois ; ni abandonnée, ni à surveiller'));
+    pb.push(egal({ graduations: ['0', '20', '40', '60', '80', '100'], etiquettes: ['Trail des Gorges · 66', 'Trail des Crêtes · 95'], ligne: 4, periode: 1, jour: true, tendance: false },
+      { graduations: g.graduations, etiquettes: g.etiquettes, ligne: g.ligne, periode: g.periode, jour: g.jour, tendance: g.tendance }, 'difficulté : axe, étiquettes, ligne des confirmées, mois seul, aujourd\'hui'));
+    await p.hover('.mg-pt[aria-label^="Trail des Gorges"]');
+    pb.push(egal(['66,0 km-effort', 'Trail des Gorges', '7 mars 2027 · 45 km · 2 100 m D+'], await bulle(p), 'difficulté : bulle au survol'));
+    pb.push(egal([false, 11], await p.evaluate(() => [document.querySelector('.mg-chiffres').open, document.querySelectorAll('.mg-chiffres tr').length]), 'difficulté : « Les chiffres » fermé, 11 lignes'));
+    await replier(p, 'mrt-graphe-difficulte');
+    pb.push(egal(['0', false], await p.evaluate(() => [localStorage.getItem('mrt-graphe-difficulte'), document.querySelector('details.mg-cadre').open]), 'difficulté : repliée, retenue sur l\'appareil'));
+    pb.push(egal([], erreurs, 'difficulté : erreurs JavaScript'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, db, { 'mrt-graphe-difficulte': '0' }, PARIS));
+    pb.push(egal(false, (await lire(p)).ouvert, 'difficulté repliée, page rechargée : toujours repliée'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
+    pb.push(egal({ etiquettes: false, deborde: false }, await p.evaluate(() => ({ etiquettes: [...document.querySelectorAll('.mg-etiq')].some(e => getComputedStyle(e).display !== 'none'),
+      deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth })), 'difficulté, téléphone : pas d\'étiquettes, rien ne dépasse'));
+    await ctx.close();
+
+    // ----- Progression : jeu d'essai du Palmarès -----
+    const filtre = async (p, sel) => { if (await p.getAttribute('.pv2-btn', 'aria-expanded') !== 'true') await p.click('.pv2-btn'); await p.click(sel); };
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, db0));
+    g = await lire(p);
+    pb.push(egal({ titre: 'Progression', droite: '', bilan: '7 courses', graduations: ['4:30', '5:00', '5:30', '6:00'], marques: 2, tendance: false,
+      etiquettes: ['00:51:46', '01:04:24', '01:53:12', '02:02:30', '03:00:23', '00:49:18', '01:56:05'],
+      points: ['10 km de Montauban, 5:00 par km-effort | is-plein', 'Épicurienne Trail, 5:04 par km-effort | is-plein', 'Semi-marathon de Sète, 5:18 par km-effort | is-plein',
+        'Biscatrail, 5:39 par km-effort | is-plein', 'Forez Trail · L\'Olmetoise, 5:24 par km-effort | is-plein', '10 km de Montauban, 4:49 par km-effort | is-plein',
+        'Semi de San Sebastián, 5:30 par km-effort | is-plein'] },
+      { titre: g.titre, droite: g.droite, bilan: g.bilan, graduations: g.graduations, marques: g.marques, tendance: g.tendance, etiquettes: g.etiquettes, points: g.points },
+      'progression : allure-effort, records, étiquettes ; pas de tendance (plusieurs formats)'));
+    pb.push(egal(true, await p.evaluate(() => { const a = document.querySelector('.pv2-graphe'), b = document.querySelector('.pv2-card'); return !!(a.compareDocumentPosition(b) & 4); }), 'progression : au-dessus du tableau'));
+    await p.hover('.mg-pt[aria-label^="Semi-marathon de Sète"]');
+    pb.push(egal(['5:18 /km-effort', 'Semi-marathon de Sète', '5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+'], await bulle(p), 'progression : bulle de Sète'));
+    await p.hover('.mg-pt[aria-label^="Semi de San Sebastián"]');
+    pb.push(egal('4 oct. 2026 · 01:56:05 · 21,1 km · D+ non renseigné', (await bulle(p))[2], 'progression : D+ non renseigné'));
+    await filtre(p, '.pv2-panel label.pv2-check:has(input[value="Trail"])');
+    g = await lire(p);
+    pb.push(egal([3, '', false], [g.points.length, g.droite, g.tendance], 'progression, filtre Trail : 3 points, pas de tendance (deux formats)'));
+    await p.click('[data-act="clear"]');
+    await filtre(p, '.pv2-panel label.pv2-check:has(input[value="10 km"])');
+    g = await lire(p);
+    pb.push(egal([['10 km de Montauban, 5:00 par km-effort | is-plein', '10 km de Montauban, 4:49 par km-effort | is-plein'], false], [g.points, g.tendance], 'progression, filtre 10 km : 2 points, pas de tendance'));
+    await p.click('[data-act="clear"]');
+    await p.fill('.pv2-panel input[data-f="course"]', 'sete');
+    g = await lire(p);
+    pb.push(egal(['Pas assez de courses pour un graphique', '1 course'], [g.vide, g.bilan], 'progression, « sete » : pas assez de courses'));
+    pb.push(egal([], erreurs, 'progression : erreurs JavaScript'));
+    await ctx.close();
+    // Une course de plus au 10 km (00:45:00, sans D+) et une non terminée.
+    const db2 = JSON.parse(JSON.stringify(db0));
+    const modele = db2.courses.find(c => c.date === '2026-03-29');
+    db2.courses.push(Object.assign({}, modele, { id: '00000000-0000-0000-0001-0000000000a1', course: 'Test', date: '2026-10-01', distance: 10, dplus: null, temps: 2700, allure: 270 }));
+    db2.courses.push(Object.assign({}, modele, { id: '00000000-0000-0000-0001-0000000000a2', course: 'Test DNF', date: '2026-09-01', temps: null, allure: null, dnf: true }));
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, db2));
+    pb.push(egal('9 courses · 1 sans point (DNF, temps ou distance manquant)', (await lire(p)).bilan, 'progression : une DNF sans point'));
+    await filtre(p, '.pv2-panel label.pv2-check:has(input[value="10 km"])');
+    g = await lire(p);
+    pb.push(egal({ n: 3, droite: '↗ 19 s /km-effort plus rapide par an', mieux: true, tendance: true },
+      { n: g.points.length, droite: g.droite, mieux: await p.evaluate(() => !!document.querySelector('.mg-droite .is-mieux')), tendance: g.tendance }, 'progression, 10 km, 3 points : tendance en Accent'));
+    await replier(p, 'mrt-graphe-progression');
+    pb.push(egal('0', await p.evaluate(() => localStorage.getItem('mrt-graphe-progression')), 'progression : repliée, retenue sur l\'appareil'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'palmares.html', 390, db0));
+    pb.push(egal({ etiquettes: false, deborde: false }, await p.evaluate(() => ({ etiquettes: [...document.querySelectorAll('.mg-etiq')].some(e => getComputedStyle(e).display !== 'none'),
+      deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth })), 'progression, téléphone : pas d\'étiquettes, rien ne dépasse'));
+    await ctx.close();
     return pb;
   },
 
