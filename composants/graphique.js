@@ -141,7 +141,7 @@
     const memo = lire(cfg.cle), ouvert = cfg.fermeParDefaut ? memo === '1' : memo !== '0';
     el.classList.add('mg', 'card');
     if (cfg.classe) el.classList.add(cfg.classe);
-    // Bloc fixe (Progression du Palmarès) : un titre simple, rien à replier ; sinon un cadre repliable (Difficulté).
+    // Bloc fixe (Progression du Palmarès) : un titre simple, rien à replier ; sinon un cadre repliable (Évolution de l’effort).
     if (cfg.fixe) el.innerHTML = '<div class="mg-cadre"><h2 class="mg-titre is-fixe"><span>' + esc(cfg.titre) + '</span><span class="mg-droite"></span></h2>' +
       '<div class="mg-haut"></div><div class="mg-corps"></div></div>';
     else {

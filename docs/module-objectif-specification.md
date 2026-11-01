@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.53 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.55 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -380,17 +380,18 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 Il montre la montée en difficulté jusqu'à l'objectif : chaque course est placée selon sa date et son **km-effort**, la mesure normée de la [spécification générale](specification-generale.md) (§ 12 bis : distance + D+/100, sans le D−). Un graphique fonctionnel : axes gradués, chiffres lisibles, aucune décoration.
 
-- **Place** : en haut de la page Objectif, au-dessus de la feuille de route, dans son cadre ; titre repliable « Difficulté » (déroulé commun), **fermé par défaut**, état retenu sur l'appareil une fois ouvert. Même dessin que le graphique de progression du Palmarès (§ 12 de sa spécification).
+- **Place** : en haut de la page Objectif, au-dessus de la feuille de route, dans son cadre ; titre repliable « Évolution de l’effort » (déroulé commun), **fermé par défaut**, état retenu sur l'appareil une fois ouvert. Même dessin que le graphique de progression du Palmarès (§ 12 de sa spécification).
 - **Courses montrées** : celles de la feuille de route (étapes, candidats d'un groupe, objectif), de la date du jour à la dernière. Ni courues, ni abandonnées, ni à surveiller. Une course sans distance n'a pas de point ; elle reste dans le tableau des chiffres, avec « — ».
 - **Période** : règle commune à tous les comptes : de la date du jour jusqu'à la dernière course du plan (une date au mois seul compte jusqu'à la fin du mois). Pas de trait « aujourd'hui » : il serait sur le bord gauche.
-- **Signes** : deux seulement, de même remplissage (Accent), que la course soit confirmée, inscrite ou en option : un **point** pour une course de préparation, un **losange** pour un objectif (principal ou intermédiaire, sans distinction). Une légende (17) les nomme.
+- **Signes** : trois, en Accent : un **point plein** pour une course de préparation, un **point à contour** (centre Surface) pour une course en option, un **losange** pour un objectif (principal ou intermédiaire, sans distinction). Une légende (17) les nomme. Pas de trait de période : une date au mois seul place le point au milieu du mois.
+- **Pas d'étiquettes** sur le graphique (illisibles) : le nom est dans la bulle.
 - **Affiché dès qu'il y a au moins une course** à placer (règle de l'affichage automatique) ; sinon, rien.
 
 Plan de page (ordinateur) :
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ (1) ▾ Difficulté                                             │
+│ (1) ▾ Évolution de l’effort                                     │
 │                                                              │
 │ (2) KM-EFFORT                                                │
 │ 100 ┤ (15) ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  │
@@ -414,22 +415,22 @@ Téléphone : même ordre, le graphique occupe toute la largeur du cadre ; les �
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
-| 1 | Titre repliable | ▾ Difficulté | En haut du cadre | Titre repliable commun (design § 1) : chevron Texte discret, Space Grotesk 0,85 rem, 600, Texte ; le même que Progression (Palmarès) et les textes d'une course |
+| 1 | Titre repliable | ▾ Évolution de l’effort | En haut du cadre | Titre repliable commun (design § 1) : chevron Texte discret, Space Grotesk 0,85 rem, 600, Texte ; le même que Progression (Palmarès) et les textes d'une course |
 | 2 | Axe vertical | KM-EFFORT · 0 20 40… | À gauche | Libellé ; graduations en Space Mono 0,7 rem, Texte discret ; pas de 20, jusqu'au multiple de 20 au-dessus du plus grand km-effort |
 | 3 | (retiré) | — | — | Les courses courues ne sont plus montrées (la période commence aujourd'hui) |
 | 4 | Course de préparation | Trail du Lac | À sa date | Point plein, Accent, confirmée ou non ; les étapes confirmées sont reliées dans l'ordre par une ligne fine (1 px), Texte discret estompé, comme au Palmarès |
-| 5 | (retiré) | — | — | Plus de cercle vide : une option ou un candidat a le même point que les autres |
+| 5 | Course en option | Trail des Cimes | À sa date | Point à contour Accent, non relié |
 | 6 | Objectif | Trail des Crêtes | À sa date | Losange plein, Accent, objectif principal ou intermédiaire |
-| 7 | Date au mois seul | Trail de la Forêt (juillet 2027) | Sur le mois | Trait pointillé Accent couvrant le mois, à la hauteur de son km-effort |
+| 7 | Date au mois seul | Trail de la Forêt (juillet 2027) | Milieu du mois | Même point que les autres, sans trait |
 | 8 | Axe du temps | janv. 26 · mars · mai | En bas | Une coche par mois ; la date écrite au pas le plus fin qui tient dans la largeur (chaque mois, tous les 2, 3, 6 ou 12 mois, calé sur janvier ; par exemple tous les 2 mois sur ordinateur, tous les 6 sur téléphone) ; l'année sur janvier et sur le premier repère (« janv. 27 ») ; Space Mono 0,7 rem, Texte discret |
 | 9 | (retiré) | — | — | L'axe commence aujourd'hui |
 | 10 | (retiré) | — | — | Le tableau des chiffres est remplacé par la définition (16) |
 | 11 | Bulle | Trail des Gorges · 7 mars 2027… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface, km-effort en Space Mono ; une seule à la fois ; toucher ailleurs la ferme |
 | 12 | (retiré) | — | — | L'objectif intermédiaire a le même losange (6) |
-| 14 | Étiquette | Trail des Crêtes · 95 | À côté du point | Pour les objectifs : nom de la course et km-effort arrondi ; Texte discret, 0,7 rem ; en diagonale : le coin bas droit du texte touche le coin haut gauche du losange (coin bas gauche sur le coin haut droit près du bord gauche) |
+| 14 | (retiré) | — | — | Les étiquettes sont supprimées (illisibles) ; la bulle (11) donne le nom |
 | 15 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
-| 16 | Définition | À propos de la difficulté d'une course : basée sur la mesure normée de l'ITRA (association internationale du trail), le **km-effort = distance (km) + dénivelé positif (m) ÷ 100**. 100 m de montée comptent comme 1 km à plat : 42 km et 2 000 m de D+ font 62 km-effort. La descente n'est pas comptée. | Sous la légende, après un filet et 1,4 rem d'air | Explication : 0,75 rem, italique, Texte discret ; la formule en Texte, 600 |
-| 17 | Légende | ● Course de préparation · ◆ Objectif | Sous le graphique, avant la définition | 0,75 rem, Texte discret ; signes en Accent |
+| 16 | Définition | L'effort d'une course se mesure ici en **km-effort**, la mesure normée de l'ITRA (association internationale du trail). Le principe : on ajoute au kilométrage l'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. Un trail de 40 km avec 2 000 m de D+ pèse donc comme une course de 60 km à plat. La descente n'est pas comptée. | Sous la légende, sans filet | Explication : 0,75 rem, italique, Texte discret ; la formule en Texte, 600 |
+| 17 | Légende | ● Course de préparation · ○ Course en option · ◆ Objectif | Sous le graphique, avant la définition | 0,75 rem, Texte discret ; signes en Accent |
 
 - **Ligne** : elle relie les étapes confirmées et l'objectif, dans l'ordre des dates (une confirmée au mois seul, par le milieu de son mois) ; candidats et options restent hors de la ligne.
 - **Toucher un point** : la bulle s'ouvre ; le nom dans la bulle ouvre la page de la course.
@@ -539,12 +540,12 @@ Résultats attendus, feuille de route :
 
 Résultats attendus, graphique de difficulté :
 
-- Cadre « Difficulté » fermé à l'ouverture de la page, au-dessus de la feuille de route ; ouvert : axe de 0 à 100, graduations 0, 20, 40, 60, 80, 100 ; période du 20 oct. 2026 (jour du jeu d'essai) au 28 août 2027.
-- 7 courses, aucune courue : Trail du Lac 30,5, Corrida de Noël 10,4, Trail des Cimes 67,0, Ultra du Plateau · Le 55 83,0 et Trail de la Forêt 42,0 (trait pointillé sur juillet 2027), tous en point plein ; Trail des Gorges 66,0 (losange, étiquette « Trail des Gorges · 66 ») et Trail des Crêtes 95,0 (losange, étiquette « Trail des Crêtes · 95 »). Pas de trait « aujourd'hui ».
+- Cadre « Évolution de l’effort » fermé à l'ouverture de la page, au-dessus de la feuille de route ; ouvert : axe de 0 à 100, graduations 0, 20, 40, 60, 80, 100 ; période du 20 oct. 2026 (jour du jeu d'essai) au 28 août 2027.
+- 7 courses, aucune courue : Trail du Lac 30,5, Corrida de Noël 10,4, Trail des Cimes 67,0, Ultra du Plateau · Le 55 83,0 et Trail de la Forêt 42,0 (trait pointillé sur juillet 2027), Trail du Lac et Corrida de Noël en point plein ; Trail des Cimes, Ultra du Plateau et Trail de la Forêt en point à contour (options) ; Trail des Gorges 66,0 et Trail des Crêtes 95,0 en losange. Ni étiquettes, ni trait « aujourd'hui », ni trait de période.
 - La ligne relie, dans l'ordre, Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Crêtes.
 - Trail des Gorges : 66,0, et non 76,5 (le D− n'est pas compté).
 - Survol de Trail des Gorges : bulle « 66,0 km-effort », « Trail des Gorges · 7 mars 2027 · 45 km · 2 100 m D+ » ; le nom ouvre sa page.
-- Sous le graphique, la légende (« Course de préparation », « Objectif »), puis la définition (16), en italique, qui commence par « À propos de la difficulté d'une course » et cite l'ITRA. Ligne entre les étapes fine et discrète ; étiquettes en diagonale, coin bas droit sur le coin haut gauche du losange.
+- Sous le graphique, la légende (« Course de préparation », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui cite l'ITRA et donne l'exemple 40 km + 2 000 m de D+ = 60 km-effort. Ligne entre les étapes fine et discrète.
 - Cadre ouvert, page rechargée : toujours ouvert ; replié : toujours replié. Téléphone : pas d'étiquettes, rien ne dépasse.
 
 Résultats attendus, page d'une course :

@@ -2213,8 +2213,8 @@ const CONTROLES = {
     const { db } = jeuObjectif(db0);
     let { p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, db, {}, PARIS);
     let g = await lire(p);
-    pb.push(egal({ titre: 'Difficulté', ouvert: false, avant: true }, { titre: g.titre, ouvert: g.ouvert,
-      avant: await p.evaluate(() => !!(document.querySelector('#difficulte').compareDocumentPosition(document.querySelector('#feuille-de-route')) & 4)) }, 'difficulté : cadre fermé par défaut, au-dessus de la feuille de route'));
+    pb.push(egal({ titre: 'Évolution de l’effort', ouvert: false, avant: true }, { titre: g.titre, ouvert: g.ouvert,
+      avant: await p.evaluate(() => !!(document.querySelector('#difficulte').compareDocumentPosition(document.querySelector('#feuille-de-route')) & 4)) }, 'effort : cadre fermé par défaut, au-dessus de la feuille de route'));
     // Ouvrir le cadre : retenu sur l'appareil.
     await p.emulateMedia({ reducedMotion: 'reduce' }); await p.click('.mg-titre');
     for (let k = 0; k < 20 && await p.evaluate(() => localStorage.getItem('mrt-graphe-difficulte')) !== '1'; k++) await p.clock.runFor(100);
@@ -2223,19 +2223,19 @@ const CONTROLES = {
     pb.push(egal(['600', '13.6px', true], await p.evaluate(() => { const t = getComputedStyle(document.querySelector('.mg-titre'));
       return [t.fontWeight, t.fontSize, t.color === getComputedStyle(document.body).color]; }), 'difficulté : titre repliable commun'));
     pb.push(egal(['Trail du Lac · Le Tour du Lac, 30,5 km-effort | is-plein', 'Corrida de Noël, 10,4 km-effort | is-plein',
-      'Trail des Gorges, 66,0 km-effort | is-losange', 'Trail des Cimes, 67,0 km-effort | is-plein', 'Ultra du Plateau · Le 55, 83,0 km-effort | is-plein',
-      'Trail de la Forêt, 42,0 km-effort | is-plein is-periode', 'Trail des Crêtes, 95,0 km-effort | is-losange'], g.points,
-      'difficulté : km-effort sans D− ; d\'aujourd\'hui à la dernière course, sans courues ; deux signes seulement (point, losange), même remplissage'));
-    pb.push(egal({ graduations: ['0', '20', '40', '60', '80', '100'], etiquettes: ['Trail des Gorges · 66', 'Trail des Crêtes · 95'], ligne: 4, periode: 1, jour: false, tendance: false },
+      'Trail des Gorges, 66,0 km-effort | is-losange', 'Trail des Cimes, 67,0 km-effort | is-vide', 'Ultra du Plateau · Le 55, 83,0 km-effort | is-vide',
+      'Trail de la Forêt, 42,0 km-effort | is-vide', 'Trail des Crêtes, 95,0 km-effort | is-losange'], g.points,
+      'difficulté : km-effort sans D− ; d\'aujourd\'hui à la dernière course, sans courues ; trois signes (point plein, point à contour pour une option, losange)'));
+    pb.push(egal({ graduations: ['0', '20', '40', '60', '80', '100'], etiquettes: [], ligne: 4, periode: 0, jour: false, tendance: false },
       { graduations: g.graduations, etiquettes: g.etiquettes, ligne: g.ligne, periode: g.periode, jour: g.jour, tendance: g.tendance }, 'difficulté : axe, étiquettes, ligne des confirmées, mois seul'));
     await p.hover('.mg-pt[aria-label^="Trail des Gorges"]');
     pb.push(egal(['66,0 km-effort', 'Trail des Gorges', '7 mars 2027 · 45 km · 2 100 m D+'], await bulle(p), 'difficulté : bulle au survol'));
-    pb.push(egal({ chiffres: false, definition: true, italique: 'italic', apres: true, ligne: ['1px', true], diagonale: 2, legende: ['Course de préparation', 'Objectif'] }, await p.evaluate(() => { const d = document.querySelector('.mg-definition'), l = document.querySelector('.mg-ligne'), lg = document.querySelector('.mg-legende');
-      return { chiffres: !!document.querySelector('.mg-chiffres'), definition: !!d && /^À propos de la difficulté d'une course : basée sur la mesure normée de l'ITRA/.test(d.textContent) && /km-effort = distance \(km\) \+ dénivelé positif \(m\) ÷ 100/.test(d.textContent),
+    pb.push(egal({ chiffres: false, definition: true, italique: 'italic', apres: true, ligne: ['1px', true], diagonale: 0, bordure: '0px', legende: ['Course de préparation', 'Course en option', 'Objectif'] }, await p.evaluate(() => { const d = document.querySelector('.mg-definition'), l = document.querySelector('.mg-ligne'), lg = document.querySelector('.mg-legende');
+      return { chiffres: !!document.querySelector('.mg-chiffres'), definition: !!d && /^L'effort d'une course se mesure ici en km-effort, la mesure normée de l'ITRA/.test(d.textContent) && /100 m de dénivelé positif comptant pour 1 km de plus/.test(d.textContent) && /40 km avec 2 000 m de D\+ pèse donc comme une course de 60 km à plat/.test(d.textContent),
         italique: getComputedStyle(d).fontStyle, apres: !!(lg.compareDocumentPosition(d) & 4),
-        ligne: [getComputedStyle(l).strokeWidth, l.classList.contains('is-discrete')], diagonale: document.querySelectorAll('.mg-etiq.is-haut-gauche').length,
+        ligne: [getComputedStyle(l).strokeWidth, l.classList.contains('is-discrete')], diagonale: document.querySelectorAll('.mg-etiq').length, bordure: getComputedStyle(d).borderTopWidth,
         legende: [...lg.querySelectorAll('li')].map(x => x.textContent.trim()) }; }),
-      'difficulté : définition didactique en italique sous la légende (deux signes) ; étiquettes en diagonale du point'));
+      'difficulté : définition en italique sous la légende (trois signes), sans filet ; ni étiquettes ni traits de période'));
     await replier(p, 'mrt-graphe-difficulte');
     pb.push(egal(['0', false], await p.evaluate(() => [localStorage.getItem('mrt-graphe-difficulte'), document.querySelector('details.mg-cadre').open]), 'difficulté : repliée, retenue sur l\'appareil'));
     pb.push(egal([], erreurs, 'difficulté : erreurs JavaScript'));

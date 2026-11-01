@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : graphique Difficulté (Objectif 0.53), période d'aujourd'hui à la dernière course, point/losange avec légende, définition en italique ; avant : rapidité des pages (requêtes en une vague, types et formats gardés pour la visite, polices liées dans chaque page) ; avant : axe du temps des graphiques plus fin, « Résultats » aligné sur téléphone. Historique : `docs/journal.md`.
+- Dernier lot : graphique « Évolution de l’effort » (ex-Difficulté, Objectif 0.55), période d'aujourd'hui à la dernière course, point plein/point à contour (option)/losange avec légende, sans étiquettes, définition pédagogique en italique ; avant : rapidité des pages (requêtes en une vague, types et formats gardés pour la visite, polices liées dans chaque page) ; avant : axe du temps des graphiques plus fin, « Résultats » aligné sur téléphone. Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
