@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : Palmarès, Progression en bloc fixe avec sélecteur de mesure (allure moyenne, temps, allure-effort), titre « Résultats » sur le tableau ; avant : graphiques harmonisés (même dessin, titre repliable commun), Difficulté fermée par défaut avec la définition normée du km-effort, menu « Objectif & Plan » ; avant : tracé GPX, bouton « ↓ GPX » et fichiers à plusieurs tracés (choix à l'import) ; avant : Palmarès, progression sous le tableau et filtre rapide ; avant : page d'une course, titres. Historique : `docs/journal.md`.
+- Dernier lot : rapidité des pages (requêtes en une vague, types et formats gardés pour la visite, polices liées dans chaque page) ; avant : graphiques harmonisés, menu « Objectif & Plan » ; avant : tracé GPX à plusieurs tracés. Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
