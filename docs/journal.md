@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Tracé GPX, base | Évolution 016 passée dans Supabase : colonne `gpx`, espace de stockage `traces` et ses règles. |
 | 1er nov. 2026 | Graphiques | En ligne : difficulté en tête de la feuille de route, progression au-dessus du tableau du Palmarès ; code de dessin commun `composants/graphique.js` (SVG et HTML, couleurs par rôles) ; sur téléphone, repères du temps à janvier et juillet seulement ; une étape confirmée au mois seul est sur la ligne, par le milieu de son mois. Banc d'essai : groupe `graphiques`. |
 | 1er nov. 2026 | Graphiques | Galet des Running Stones retiré du graphique de difficulté (Objectif 0.49) ; étiquettes gardées. Progression : chaque point porte une étiquette avec le temps réalisé, masquées sur téléphone et au-delà de 20 points (Palmarès 1.25). Construction des deux graphiques lancée. |
 | 1er nov. 2026 | Tracé GPX | Construit : import (page, quand Parcours est vide ; formulaire, rangé à « Enregistrer »), fichier dans le stockage Supabase `traces/<utilisateur>/<course>.gpx` (évolution 016, 5 Mo, lecture partagée), carte Leaflet 1.9.4 sur OpenTopoMap dessinée à l'ouverture de Parcours, profil altimétrique en SVG, « Télécharger le GPX » au nom de la course. Leaflet ajouté au banc d'essai (Objectif 0.48, modèle 0.17). |
