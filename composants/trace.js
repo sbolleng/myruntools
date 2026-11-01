@@ -10,6 +10,7 @@
 //   mrtTrace.retirer(course)          → Promise<erreur|null> : efface le fichier et le chemin
 //   mrtTrace.telecharger(course)      télécharge le fichier (nom : celui de la course)
 //   mrtTrace.dessiner(el, course)     carte (Leaflet, fond OpenTopoMap) et profil dans el ; une seule fois par élément
+//   mrtTrace.miniature(course)        → Promise<svg|null> : le tracé seul, sur un fond dessiné (quadrillage), pour la carte d'une étape ; null sans tracé
 //   mrtTrace.lire(texte, km)          → { nom, points: [[lat, lon, alt|null, km, saut]], segments, km } : le tracé (le plus proche de km
 //                                       s'il y en a plusieurs) ou null
 (function () {
@@ -215,5 +216,32 @@
     el.__carte = carte;
   }
 
-  window.mrtTrace = { verifier, choisir, ranger, retirer, telecharger, dessiner, lire, MAX };
+  // Miniature (Objectif, § 3.1, n° 14) : le tracé en SVG, départ plein et arrivée à contour, sur un quadrillage discret ; ni fond de carte
+  // téléchargé, ni Leaflet. Projection plane corrigée de la latitude ; au plus 240 points.
+  const MW = 184, MH = 90, MP = 10;
+  async function miniature(c) {
+    if (!c || !c.gpx) return null;
+    const texte = await texteDe(c);
+    const t = texte == null ? null : lire(texte, Number(c.distance));
+    if (!t) return null;
+    const pas = Math.max(1, Math.ceil(t.points.length / 240));
+    const pts = t.points.filter((p, i) => i % pas === 0 || i === t.points.length - 1 || p[4]);
+    const lat0 = pts.reduce((s, p) => s + p[0], 0) / pts.length, k = Math.cos(rad(lat0));
+    const xs = pts.map(p => p[1] * k), ys = pts.map(p => -p[0]);
+    const x0 = Math.min(...xs), y0 = Math.min(...ys), dx = Math.max(...xs) - x0 || 1e-9, dy = Math.max(...ys) - y0 || 1e-9;
+    const e = Math.min((MW - 2 * MP) / dx, (MH - 2 * MP) / dy);
+    const ox = (MW - dx * e) / 2, oy = (MH - dy * e) / 2;
+    const X = i => (ox + (xs[i] - x0) * e).toFixed(1), Y = i => (oy + (ys[i] - y0) * e).toFixed(1);
+    let d = '';
+    pts.forEach((p, i) => { d += (i === 0 || p[4] ? 'M' : 'L') + X(i) + ' ' + Y(i); });
+    let grille = '';
+    for (let x = MW / 8; x < MW; x += MW / 8) grille += 'M' + x.toFixed(1) + ' 0V' + MH;
+    for (let y = MH / 4; y < MH; y += MH / 4) grille += 'M0 ' + y.toFixed(1) + 'H' + MW;
+    const n = pts.length - 1;
+    return '<svg class="tr-mini" viewBox="0 0 ' + MW + ' ' + MH + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+      '<path class="tr-mini-grille" d="' + grille + '"/><path class="tr-mini-trace" d="' + d + '"/>' +
+      '<circle class="tr-mini-depart" cx="' + X(0) + '" cy="' + Y(0) + '" r="3.4"/><circle class="tr-mini-arrivee" cx="' + X(n) + '" cy="' + Y(n) + '" r="3.4"/></svg>';
+  }
+
+  window.mrtTrace = { verifier, choisir, ranger, retirer, telecharger, dessiner, miniature, lire, MAX };
 })();

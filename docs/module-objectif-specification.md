@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.57 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.58 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -50,7 +50,15 @@ Plan de page d'une carte (ordinateur) :
  │    └──────────────────────────────────────────────────────────────────┘
 ```
 
-(1) trait du chemin, (2) pastille du chemin. Le n° 7 (lien officiel) a été retiré : le site officiel n'est que sur la page de la course.
+(1) trait du chemin, (2) pastille du chemin. Quand la course a un tracé GPX, (14) une mini carte s'ajoute en bas à droite (ordinateur) :
+
+```
+ │    │ (8) Mont-Clair · Trail court                  ┌────────────────┐ │
+ │    │ DISTANCE       24 km · 650 m D+               │ (14) mini carte│ │
+ │    │ (9) OBJECTIF   (10) 02:45:00                  │     du tracé   │ │
+ │    │ (11) DOSSARD   (12)● (13) Inscrit · n° 412    └────────────────┘ │
+```
+ Le n° 7 (lien officiel) a été retiré : le site officiel n'est que sur la page de la course.
 
 | N° | Élément | Exemple | Place sur ordinateur | Style |
 | --- | --- | --- | --- | --- |
@@ -62,6 +70,7 @@ Plan de page d'une carte (ordinateur) :
 | — | Distance | DISTANCE `24 km · 650 m D+` | Ligne 4 | Libellé à gauche, valeur en Texte |
 | 9, 10 | Objectif | OBJECTIF `02:45:00` | Ligne 5 | Libellé à gauche, valeur en Accent ; ligne absente si l'objectif est vide |
 | 11 à 13 | Dossard | DOSSARD ● Inscrit · n° 412 | Ligne 6 | Libellé à gauche, puis le point et l'état (§ 3.5) |
+| 14 | Mini carte | Le tracé du GPX | Colonne de droite, sous la date (3) et le compteur (5), à côté des lignes 3 à 6, alignée en bas | Ordinateur seulement ; absente sans tracé ; carte d'étape seulement (ni groupe d'options, ni Accueil) ; SVG de 11,5 rem × 5,6 rem : tracé en Accent sur un quadrillage discret (pas de fond de carte téléchargé), départ plein, arrivée à contour ; apparaît une fois la liste affichée (un tracé se télécharge par étape) ; ne reçoit pas le toucher : il ouvre la page de la course |
 
 - **Trois styles de texte seulement**, un seul interligne (1,5), le même écart entre toutes les lignes : *Nom* (Space Grotesk 1 rem, 600), *Texte* (Space Grotesk 0,8 rem), *Libellé* (Space Mono 0,7 rem, capitales).
 - **Distance** : la distance, puis le D+ s'il est connu ; ligne absente si les deux sont vides.
