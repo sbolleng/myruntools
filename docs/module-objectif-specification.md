@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.49 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.50 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -113,7 +113,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 │ (7) Groupe · autres candidates : …                               │
 │ (29) S'inscrire ↗                                                │
 │ (8) [Retenir cette course]  [Marquer comme courue]               │
-│ ┌ (22) fiche ──────────────────────────── (30) Site officiel ↗ ┐ │
+│ ┌ (22) fiche ──────────────────────────────────────────────────┐ │
 │ │ (33) LIEU          ⌖ Mont-Clair                               │ │
 │ │ (34) DATE / HEURE  dim. 7 mars 2027 · 7 h 30                  │ │
 │ │ (13) DÉPART DANS   [137 j][22 h][30 min][00 s]                │ │
@@ -121,11 +121,11 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 │ │ (9)  DISTANCE      45 km · 2 100 m D+ · 2 100 m D−            │ │
 │ │ (11) OBJECTIF      06:30:00                                   │ │
 │ │ (12) DOSSARD       ● Inscrit · n° 1287                        │ │
-│ │ (18) › À propos de la course                                  │ │
+│ │ (18) › À PROPOS DE LA COURSE            (30) Site officiel ↗ │ │
 │ └───────────────────────────────────────────────────────────────┘ │
 │ ┌──────────────────────────────────────────────────────────────┐ │
-│ │ (25) › Parcours   (26 carte, 32 profil, 27 GPX, 16 stratégie) │ │
-│ │ (24) › Préparation (15, [Paramétrer le plan], plan)           │ │
+│ │ (25) › Parcours  (26 carte, 32 profil, 27 GPX, STRATÉGIE DE COURSE 16) │
+│ │ (24) › Préparation (RÔLE DANS LE PLAN 15, [Paramétrer le plan], plan) │
 │ │ (17) › Logistique                                             │ │
 │ └──────────────────────────────────────────────────────────────┘ │
 │ (20) ← Course précédente                  Course suivante → (21) │
@@ -140,7 +140,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 5 | Modifier | Crayon rond | Bouton rond, dans la barre du haut, à gauche de la croix ; absent en lecture seule |
 | 6 | Format | « Trail long » | Texte discret, sous le titre ; absent si vide (le lieu, la date et l'heure sont dans la fiche : 33, 34) |
 | 7 | Groupe d'options | Nom du groupe et liens vers les autres candidates | Candidate d'un groupe seulement |
-| 30 | Site officiel | « Site officiel ↗ » | Lien écrit en toutes lettres, nouvel onglet, en haut à droite de la fiche (la première ligne lui laisse la place) ; seulement s'il est connu |
+| 30 | Site officiel | « Site officiel ↗ » | Lien écrit en toutes lettres, nouvel onglet, en bas à droite de la fiche, sur la ligne de 18 ; seulement s'il est connu |
 | 29 | Inscription | « S'inscrire ↗ » | En tête, sous le format ; seulement si le site d'inscription est connu et que le dossard n'est pas à « Inscrit » ; en Alerte quand l'inscription est ouverte |
 | 8 | Actions | « Retenir cette course », « Marquer comme courue » | Boutons à contour (§ 3.7) |
 | 22 | Fiche | 33, 34, 13, 31, 9, 11, 12, puis 18 | Encadrée comme une carte ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
@@ -151,15 +151,15 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 9 | Distance | « 45 km · 2 100 m D+ · 2 100 m D− » | Valeur en Texte ; D− seulement s'il est connu (l'ancienne ligne D− (10) disparaît) |
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit ; sur la page, sans lien (l'inscription passe par 29) |
-| 18 | À propos de la course | La description : quelques infos sur la course | Dans le cadre de la fiche, sous le Dossard, sans filet ; repliée ; absente si vide |
+| 18 | À propos de la course | La description : quelques infos sur la course | En bas de la fiche, sous le Dossard, sans filet ; titre en libellé (Space Mono, capitales, discret), comme DOSSARD ; repliée ; absente si vide |
 | 25 | Parcours | Carte (26), profil (32), téléchargement (27), puis la stratégie (16) | Premier texte du cadre des textes, replié ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX : « Importer un GPX » (28) au-dessus de la stratégie, sauf en lecture seule ; sans GPX ni stratégie en lecture seule : absent |
 | 26 | Carte du tracé | Tracé du GPX sur fond topographique, départ et arrivée marqués | Leaflet (chargé à la première carte), fond OpenTopoMap, crédits en bas à droite ; tracé en Accent ; dessinée à la première ouverture de Parcours ; zoom par les boutons ou aux doigts (pas à la molette, qui fait défiler la page) |
 | 32 | Profil altimétrique | Altitude selon la distance, tirée du GPX | Courbe et aire en Accent ; altitudes mini et maxi à gauche, « 0 km » et la longueur du tracé dessous, en Space Mono discret ; absent si le GPX n'a pas d'altitudes |
 | 27 | GPX | « Télécharger le GPX », précédé d'une flèche vers le bas | Lien d'action ; le fichier prend le nom de la course ; aussi en lecture seule |
 | 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Formulaire, bloc Course, ligne « Tracé GPX » sous le D− : rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; absent en lecture seule et pour une course courue |
-| 16 | Stratégie ou enchaînement | Plan de course, allures, liaison avec la course suivante | Le texte de 25, sous le profil (au lot GPX) ; plus de titre à part |
+| 16 | Stratégie de course | Plan de course, allures, liaison avec la course suivante | Dans 25, sous le GPX ; sous-titre « Stratégie de course » en libellé ; absente si vide |
 | 24 | Préparation | Dans l'ordre : 15, bouton « Paramétrer le plan », puis le plan (durée, frise des phases, semaine en cours, séances ; [Calendrier](module-calendrier-specification.md), § 5) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : plan au 1er du mois, mentionné sous la ligne du plan ; ancre `#preparation` (ouverte quand on arrive par elle) ; bouton absent en lecture seule |
-| 15 | Rôle dans la préparation | Pourquoi cette course figure dans le plan | En tête de 24 ; absent si vide |
+| 15 | Rôle dans le plan | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Rôle dans le plan » en libellé ; absent si vide |
 | 17 | Logistique | Transport, horaires, retrait du dossard | Dernier texte du cadre, juste avant la navigation |
 | 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la feuille de route | Libellé, puis le nom en Texte |
 
@@ -546,7 +546,7 @@ Résultats attendus, graphique de difficulté :
 
 Résultats attendus, page d'une course :
 
-- Trail des Gorges : « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Trail long » ; pas de « S'inscrire » (inscrit) ; « Site officiel ↗ » en haut à droite de la fiche.
+- Trail des Gorges : « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Trail long » ; pas de « S'inscrire » (inscrit) ; « Site officiel ↗ » en bas à droite de la fiche, sur la ligne d'« À PROPOS DE LA COURSE ».
 - Trail des Gorges, fiche encadrée : LIEU Mont-Clair (lien vers OpenStreetMap, nouvel onglet) ; DATE / HEURE dim. 7 mars 2027 · 7 h 30 ; DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; DOSSARD ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
 - Trail des Gorges : « À propos de la course » repliée dans le cadre de la fiche, sans filet ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
 - Trail des Gorges avec un GPX (boucle fictive de 5,4 km, de 500 à 620 m) : Parcours ouvert, la carte (tracé, départ, arrivée), le profil (620 m et 500 m à gauche, 0 km et 5,4 km dessous), « Télécharger le GPX », puis la stratégie ; le lien télécharge « Trail des Gorges.gpx ».
