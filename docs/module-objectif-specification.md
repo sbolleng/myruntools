@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.53 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.54 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -334,12 +334,15 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 | --- | --- | --- | --- | --- |
 | 1 | (F3) Course | ouvert | ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement) ; heure, lieu ; type, format ; distance ; D+, D− ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
 | 2 | (F15) Place dans le plan | ouvert | replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
-| 3 | (F20) Préparation | ouvert | replié | À venir : plan (F39 à F42), objectif, précisions, rôle dans la préparation, stratégie ; courue : les mêmes textes, sans plan |
-| 4 | (F38) Logistique | ouvert | replié | Logistique |
-| 5 | (F19) Dossard | ouvert | replié si vide | Numéro, prix ; à venir seulement : ouverture des inscriptions, « Inscrit » (le numéro ne se saisit qu'inscrit), site d'inscription |
-| 6 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (temps, DNF, allure moyenne), puis les classements (général, catégorie, sexe : places et effectifs). Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé) |
-| 7 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
-| 8 | (F21) Liens | ouvert | replié si vide | Site officiel, résultats en direct |
+| 3 | (F19) Dossard | ouvert | replié si vide | Numéro, prix ; à venir seulement : ouverture des inscriptions, « Inscrit » (le numéro ne se saisit qu'inscrit), site d'inscription |
+| 4 | (F46) Parcours | ouvert | replié | Tracé GPX (importer, remplacer, supprimer ; F28) puis stratégie de course |
+| 5 | (F20) Préparation | ouvert | replié | À venir : plan (F39 à F42), objectif, précisions, rôle dans la préparation ; courue : les mêmes textes, sans plan |
+| 6 | (F38) Logistique | ouvert | replié | Logistique |
+| 7 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (temps, DNF, allure moyenne), puis les classements (général, catégorie, sexe : places et effectifs). Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé) |
+| 8 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
+| 9 | (F21) Liens | ouvert | replié si vide | Site officiel, résultats en direct |
+
+**Harmonisation avec la consultation** (décidée le 1er nov. 2026) : l'ordre des blocs suit l'ordre de lecture de la page d'une course : identité (Course), place dans le plan, dossard, parcours, préparation, logistique, liens. Le GPX et la stratégie quittent Course et Préparation pour le bloc Parcours (F46), comme la rubrique Parcours (C25) de la consultation.
 
 Pour une course courue : son objectif, sa stratégie, sa logistique, son prix et ses liens, gardés en base, redeviennent visibles et modifiables ; le lien des résultats s'ajoute après coup.
 
