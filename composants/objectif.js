@@ -182,6 +182,7 @@
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
+    document.querySelectorAll('.ob-haut').forEach(h => { if (!el.contains(h)) h.remove(); }); // bouton déplacé par le dessin précédent
     el.innerHTML = (edition ? '<div class="ob-haut">' + '<button type="button" class="ob-ajout mrt-btn is-principal" data-ob="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button></div>' : '') + (etapes.length
       ? '<div class="ob-route">' + etapes.map((e, i) => {
         const k = ['ob-et', option(e) ? 'is-opt' : '', option(etapes[i + 1]) ? 'suite-opt' : '', i === etapes.length - 1 ? 'is-fin' : '',
@@ -190,6 +191,9 @@
       }).join('') + '</div>'
       : '<p class="ob-vide">Aucune course à venir.</p>');
     if (edition) brancher(el, { ajouter: edition.ajouter });
+    // Le bouton « Ajouter une course » passe au-dessus du cadre « Évolution de l’effort » (quand la page en a un).
+    const haut = el.querySelector('.ob-haut'), effort = document.getElementById('difficulte');
+    if (haut && effort && effort.parentNode) effort.parentNode.insertBefore(haut, effort);
     couperNoms();
     lancerCompteurs();
     miniatures(el, etapes);
