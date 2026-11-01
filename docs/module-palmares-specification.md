@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.24 · 31 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.25 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -207,7 +207,7 @@ Plan de page (ordinateur) :
 │                                         plus rapide par an   │
 │ (2) ALLURE-EFFORT · plus rapide en haut                      │
 │ 4:30 ┤ (9) ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  │
-│ 5:00 ┤ ●🥇(4)   ● (3)                    ●🥇                 │
+│ 5:00 ┤ ●🥇(4) 00:51:46 (11)   ● 01:04:24     ●🥇 00:49:18     │
 │      ┤                 ●🥇      ╌╌╌╌(5)╌╌╌╌╌╌╌╌╌╌╌╌╌         │
 │ 5:30 ┤ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌    ●            ●            │
 │ 6:00 ┤                       ●                               │
@@ -220,7 +220,7 @@ Plan de page (ordinateur) :
      Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+
 ```
 
-Téléphone : même ordre, toute la largeur du cadre ; la tendance (8) passe sous le titre.
+Téléphone : même ordre, toute la largeur du cadre ; la tendance (8) passe sous le titre ; pas d'étiquettes (11).
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
@@ -229,11 +229,12 @@ Téléphone : même ordre, toute la largeur du cadre ; la tendance (8) passe sou
 | 3 | Course | Point d'une course | À sa date | Point plein, Accent |
 | 4 | Record | 🥇 à côté du point | À côté du point | La course porte 🥇 dans le tableau (§ 5) : même marque sur le graphique |
 | 5 | Tendance | Droite pointillée | À travers les points | Droite de régression (moindres carrés) sur les points affichés, seulement quand ils sont tous du même format (sinon l'écart de distance fausserait la pente) et au moins 3 ; pointillé, Texte discret |
-| 6 | Axe du temps | avr. 25 · juil. · oct. | En bas | De la première à la dernière course placée ; un repère par trimestre, l'année sur le premier et sur janvier ; Space Mono 0,7 rem, Texte discret |
+| 6 | Axe du temps | avr. 25 · juil. · oct. | En bas | De la première à la dernière course placée ; un repère par trimestre (sur téléphone, janvier et juillet seulement), l'année sur le premier et sur janvier ; Space Mono 0,7 rem, Texte discret |
 | 7 | Bilan | 7 courses · 2 sans point | Sous le graphique | Texte discret, 0,8 rem ; « sans point » seulement s'il y en a |
 | 8 | Pente de la tendance | ↗ 19 s /km-effort plus rapide par an | Au bout du titre | Chiffre en Space Mono ; Accent quand on va plus vite, Texte discret sinon ; mêmes conditions que la tendance (5) ; « stable » sous 1 s par an |
 | 9 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
 | 10 | Bulle | 5:18 /km-effort · Semi-marathon de Sète… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface ; une seule à la fois ; « D+ non renseigné » quand c'est le cas |
+| 11 | Étiquette | 00:49:18 | À droite du point | Le temps réalisé, comme dans la colonne Temps ; Space Mono 0,7 rem, Texte discret ; vers la gauche si le point est au bord droit ; masquées sur téléphone et au-delà de 20 points (la bulle prend le relais) |
 
 - **Toucher le nom dans la bulle** : ouvre la consultation de la course (§ 10), comme une ligne du tableau.
 - **Accessibilité** : chaque point est un bouton, nommé (« Semi-marathon de Sète, 5:18 par km-effort »), atteignable au clavier.
@@ -291,7 +292,7 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
 - Téléphone : la fiche tient dans la largeur de l'écran ; « Annuler » et « Enregistrer » restent visibles quand on fait défiler.
-- **Progression**, données ci-dessus, sans filtre : 7 points ; allures-effort 5:00 (Montauban 2025), 5:04 (Épicurienne), 5:18 (Sète), 5:39 (Biscatrail), 5:24 (Forez), 4:49 (Montauban 2026), 5:30 (San Sebastián, « D+ non renseigné » dans la bulle) ; axe de 4:30 à 6:00 ; 🥇 sur Montauban 2026 et Sète ; pas de tendance (plusieurs formats).
+- **Progression**, données ci-dessus, sans filtre : 7 points ; allures-effort 5:00 (Montauban 2025), 5:04 (Épicurienne), 5:18 (Sète), 5:39 (Biscatrail), 5:24 (Forez), 4:49 (Montauban 2026), 5:30 (San Sebastián, « D+ non renseigné » dans la bulle) ; axe de 4:30 à 6:00 ; 🥇 sur Montauban 2026 et Sète ; étiquettes 00:51:46, 01:04:24, 01:53:12, 02:02:30, 03:00:23, 00:49:18, 01:56:05 ; pas de tendance (plusieurs formats).
 - Progression, filtre Trail : 3 points (Épicurienne, Biscatrail, Forez) ; pas de tendance (Trail découverte et Trail court).
 - Progression, la course « Test » ajoutée avec 10,0 km en plus (1er oct. 2026, 10 km, 00:45:00, D+ vide), filtre format 10 km : 3 points (5:00, 4:49, 4:30) ; droite de tendance ; « ↗ 19 s /km-effort plus rapide par an », en Accent.
 - Progression, filtre format 10 km : 2 points (5:00 puis 4:49), pas de tendance.

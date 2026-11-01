@@ -266,6 +266,7 @@
         '</div></div>' +
       '</div>' +
       // Téléphone tenu en hauteur : le tableau déborde ; un site ne peut pas tourner l'écran, il y invite.
+      '<div class="pv2-graphe"></div>' +
       '<p class="pv2-paysage">↻ Tourne ton téléphone pour voir toutes les colonnes.</p>' +
       '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>';
 
@@ -368,6 +369,56 @@
 
       if (focused) { const b = root.querySelector('th [data-sort="' + focused + '"]'); if (b) b.focus(); }
       fitTable();
+      renderGraphe(list);
+    }
+
+    // ----- Graphique de progression (§ 12) : allure-effort de chaque course du tableau, filtres compris -----
+    const grapheEl = $('.pv2-graphe');
+    let graphe = null;
+    const jour = iso => { const d = iso.split('-').map(Number); return new Date(d[0], d[1] - 1, d[2]).getTime(); };
+    const mmss = s => { s = Math.round(s); return Math.floor(s / 60) + ':' + pad(s % 60); };
+    const AN = 365.25 * 864e5;
+    function renderGraphe(list) {
+      if (!window.mrtGraphique) return;
+      const places = list.filter(r => r.v.time != null && r.v.dist != null && r.v.date).sort((a, b) => (a.v.date < b.v.date ? -1 : 1));
+      const sans = list.length - places.length;
+      const bas = '<p class="mg-bilan">' + list.length + (list.length > 1 ? ' courses' : ' course') +
+        (sans ? ' · ' + sans + ' sans point (DNF, temps ou distance manquant)' : '') + '</p>';
+      let cfg = { cle: 'mrt-graphe-progression', titre: 'Progression', bas };
+      if (places.length < 2) cfg.vide = 'Pas assez de courses pour un graphique';
+      else {
+        const points = places.map(r => {
+          const a = r.v.time / window.mrtKmEffort(r.v.dist, r.v.dplus);
+          return {
+            id: r.id || r.v.date + r.v.course, t: jour(r.v.date), y: a, forme: 'plein', marque: r.record ? '🥇' : '',
+            etiquette: places.length > 20 ? '' : fmtTime(r.v.time),
+            aria: r.v.course + ', ' + mmss(a) + ' par km-effort',
+            bulle: { valeur: mmss(a) + ' /km-effort', nom: r.v.course, lien: r.id ? 'course.html?id=' + encodeURIComponent(r.id) : null,
+              details: [fmtDate(r.v.date), fmtTime(r.v.time), nf1.format(r.v.dist) + ' km', r.v.dplus != null ? nf0.format(r.v.dplus) + ' m D+' : 'D+ non renseigné'].join(' · ') }
+          };
+        });
+        const ys = points.map(p => p.y);
+        let min = Math.floor(Math.min(...ys) / 30) * 30, max = Math.ceil(Math.max(...ys) / 30) * 30;
+        if (max === min) max += 30;
+        const debut = points[0].t, fin = points[points.length - 1].t;
+        cfg = Object.assign(cfg, { axeY: { libelle: 'allure-effort · plus rapide en haut', min, max, pas: 30, fmt: mmss, inverse: true }, debut, fin, points });
+        // Tendance : moindres carrés, seulement sur un seul format et à partir de 3 points (l'allure-effort dépend de la distance).
+        if (points.length >= 3 && new Set(places.map(r => r.v.sub)).size === 1) {
+          const xs = points.map(p => (p.t - debut) / AN), n = xs.length;
+          const sx = xs.reduce((a, b) => a + b, 0), sy = ys.reduce((a, b) => a + b, 0);
+          const sxy = xs.reduce((a, x, k) => a + x * ys[k], 0), sxx = xs.reduce((a, x) => a + x * x, 0);
+          const den = n * sxx - sx * sx;
+          if (den) {
+            const pente = (n * sxy - sx * sy) / den, b0 = (sy - pente * sx) / n;
+            cfg.tendance = { y0: b0, y1: b0 + pente * (fin - debut) / AN };
+            const v = Math.round(Math.abs(pente));
+            cfg.droite = v < 1 ? 'Tendance stable' : pente < 0
+              ? '<span class="is-mieux">↗ <b>' + v + ' s</b> /km-effort plus rapide par an</span>'
+              : '↘ <b>' + v + ' s</b> /km-effort plus lent par an';
+          }
+        }
+      }
+      if (graphe) graphe.maj(cfg); else graphe = window.mrtGraphique(grapheEl, cfg);
     }
 
     // Tableau trop large pour l'écran : plutôt que d'écraser les colonnes, on le
