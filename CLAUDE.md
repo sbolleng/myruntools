@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : graphiques de difficulté (Objectif § 5.2) et de progression (Palmarès § 12), mesures normées km-effort et allure-effort (spécification générale § 12 bis), code commun `graphique` ; avant : tracé GPX dans Parcours (import, carte Leaflet sur OpenTopoMap, profil, téléchargement ; évolution 016 passée, import réel réussi) ; avant : page d'une course, mise en page A. Historique : `docs/journal.md`.
+- Dernier lot : page d'une course, fiche (lieu et date / heure dedans, site officiel en haut à droite, « À propos de la course ») ; avant : tracé GPX dans Parcours (évolution 016 passée, import réel réussi). Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

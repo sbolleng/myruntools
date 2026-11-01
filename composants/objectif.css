@@ -89,7 +89,7 @@
 .pc-groupe { margin-top: 0.3rem; font-size: 0.8rem; }
 /* Fiche : les lignes de la carte, dans un cadre comme elle (un bloc de données garde son cadre). */
 .pc-fiche { gap: 0.55rem; margin: 1.4rem 0 1.6rem; padding: 0.95rem 1.1rem; font-size: 0.85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-.pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
+.pc-fiche .ob-ligne { grid-template-columns: 6.6rem minmax(0, 1fr); }
 .pc-fiche .ob-cpt { font-size: 0.72rem; }
 /* Course courue : deux sections titrées (Résultat, Montre), sans cadre ni repli. */
 .pc-section { margin-top: 1.1rem; font-size: 0.85rem; color: var(--muted); }
@@ -111,15 +111,19 @@ details.pc-section > summary .ob-chev { display: block; order: -1; }
 details.pc-section:not([open]) > summary { margin-bottom: 0; }
 details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
 /* Lieu (vers OpenStreetMap) et liens écrits en toutes lettres (Site officiel, S'inscrire, En direct). */
-.pc-lieu { display: inline-flex; align-items: baseline; gap: 0.2rem; color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
+.pc-lieu { display: inline-flex; align-items: baseline; gap: 0.2rem; white-space: nowrap; color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
 .pc-repere { width: 0.8em; height: 0.8em; flex: none; align-self: center; }
 .pc-liens-haut { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.5rem; }
 .pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; }
 .pc-ext.is-ouvert { color: var(--red); } /* inscription ouverte : en Alerte, comme sur la carte */
 .pc-fiche .pc-ext { font-size: inherit; color: var(--text); }
 /* Description : repliée dans le cadre de la fiche, sous un filet. */
-.pc-fiche > .pc-cellule { margin-top: 0.2rem; border-top: 1px solid var(--border); }
-.pc-fiche > .pc-cellule > summary { padding: 0.7rem 0 0; }
+.pc-fiche > .pc-cellule { margin-top: 0.2rem; }
+.pc-fiche > .pc-cellule > summary { padding: 0.4rem 0 0; }
+/* Site officiel : en haut à droite de la fiche ; la première ligne lui laisse la place. */
+.pc-fiche { position: relative; }
+.pc-officiel { position: absolute; top: 0.95rem; right: 1.1rem; }
+.pc-fiche.avec-officiel > .ob-ligne:first-of-type { padding-right: 7.5rem; }
 .pc-fiche > .pc-cellule[open] > summary { padding-bottom: 0.5rem; }
 .pc-fiche > .pc-cellule .pc-corps { padding-bottom: 0; color: var(--text); }
 /* Préparation : le rôle dans la préparation en tête, puis le plan. */

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Page d'une course, fiche | Lieu (33) et Date / heure (34) passent dans la fiche, en tête ; heure vide : « — » ; sous le titre, le format seul (6) ; « Site officiel ↗ » en haut à droite de la fiche ; plus de filet avant la description, renommée « À propos de la course » (Objectif 0.49). |
 | 1er nov. 2026 | Tracé GPX | Essai réel réussi : import depuis la page, carte affichée. |
 | 1er nov. 2026 | Tracé GPX, base | Évolution 016 passée dans Supabase : colonne `gpx`, espace de stockage `traces` et ses règles. |
 | 1er nov. 2026 | Graphiques | En ligne : difficulté en tête de la feuille de route, progression au-dessus du tableau du Palmarès ; code de dessin commun `composants/graphique.js` (SVG et HTML, couleurs par rôles) ; sur téléphone, repères du temps à janvier et juillet seulement ; une étape confirmée au mois seul est sur la ligne, par le milieu de son mois. Banc d'essai : groupe `graphiques`. |
