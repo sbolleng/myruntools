@@ -194,7 +194,7 @@ details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
 .pc-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
 
 /* Mini carte du tracé (§ 3.1, n° 14) : ordinateur seulement, en bas à droite de la carte d'une étape, sous la date et le compteur,
-   à côté des lignes d'infos. Pas de fond de carte téléchargé : un quadrillage dessiné et le tracé. Le toucher passe à la carte. */
+   à côté des lignes d'infos. Pas de fond de carte téléchargé : des courbes de niveau stylisées et le tracé. Le toucher passe à la carte. */
 .ob-mini { display: none; }
 @media (min-width: 601px) {
   .ob-carte.a-mini { grid-template-areas: "role cpt" "nom date" "info carte" "lignes carte"; }

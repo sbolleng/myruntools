@@ -10,7 +10,7 @@
 //   mrtTrace.retirer(course)          → Promise<erreur|null> : efface le fichier et le chemin
 //   mrtTrace.telecharger(course)      télécharge le fichier (nom : celui de la course)
 //   mrtTrace.dessiner(el, course)     carte (Leaflet, fond OpenTopoMap) et profil dans el ; une seule fois par élément
-//   mrtTrace.miniature(course)        → Promise<svg|null> : le tracé seul, sur un fond dessiné (quadrillage), pour la carte d'une étape ; null sans tracé
+//   mrtTrace.miniature(course)        → Promise<svg|null> : le tracé seul, sur un fond dessiné (courbes de niveau stylisées), pour la carte d'une étape ; null sans tracé
 //   mrtTrace.lire(texte, km)          → { nom, points: [[lat, lon, alt|null, km, saut]], segments, km } : le tracé (le plus proche de km
 //                                       s'il y en a plusieurs) ou null
 (function () {
@@ -216,9 +216,30 @@
     el.__carte = carte;
   }
 
-  // Miniature (Objectif, § 3.1, n° 14) : le tracé en SVG, départ plein et arrivée à contour, sur un quadrillage discret ; ni fond de carte
+  // Miniature (Objectif, § 3.1, n° 14) : le tracé en SVG, départ plein et arrivée à contour, sur un fond de courbes de niveau stylisées ; ni fond de carte
   // téléchargé, ni Leaflet. Projection plane corrigée de la latitude ; au plus 240 points.
   const MW = 184, MH = 90, MP = 10;
+  // Fond topographique stylisé : des courbes de niveau imaginées, pas le vrai relief du lieu (décor). Deux « sommets » placés et déformés
+  // d'après l'identifiant de la course (même dessin à chaque visite), cercles concentriques ondulés ; une courbe maîtresse sur quatre.
+  function reliefStylise(graine) {
+    let h = 1779033703 ^ graine.length;
+    for (let i = 0; i < graine.length; i++) { h = Math.imul(h ^ graine.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+    const alea = () => { h = Math.imul(h ^ (h >>> 16), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+    let fin = '', maitre = '';
+    [[0.22 + alea() * 0.2, 0.2 + alea() * 0.6, 0.9], [0.62 + alea() * 0.25, 0.2 + alea() * 0.6, 1]].forEach(([cx, cy, echelle]) => {
+      const a1 = 2 + Math.floor(alea() * 2), a2 = 3 + Math.floor(alea() * 3), p1 = alea() * 6.28, p2 = alea() * 6.28, e1 = 0.16 + alea() * 0.1, e2 = 0.07 + alea() * 0.06;
+      for (let k = 1; k <= 9; k++) {
+        const r = k * 8.5 * echelle;
+        let d = '';
+        for (let j = 0; j <= 40; j++) {
+          const t = j / 40 * 6.2832, f = 1 + e1 * Math.sin(a1 * t + p1 + k * 0.18) + e2 * Math.sin(a2 * t + p2);
+          d += (j ? 'L' : 'M') + (cx * MW + Math.cos(t) * r * f * 1.35).toFixed(1) + ' ' + (cy * MH + Math.sin(t) * r * f).toFixed(1);
+        }
+        if (k % 4 === 0) maitre += d + 'Z'; else fin += d + 'Z';
+      }
+    });
+    return { fin, maitre };
+  }
   async function miniature(c) {
     if (!c || !c.gpx) return null;
     const texte = await texteDe(c);
@@ -234,12 +255,10 @@
     const X = i => (ox + (xs[i] - x0) * e).toFixed(1), Y = i => (oy + (ys[i] - y0) * e).toFixed(1);
     let d = '';
     pts.forEach((p, i) => { d += (i === 0 || p[4] ? 'M' : 'L') + X(i) + ' ' + Y(i); });
-    let grille = '';
-    for (let x = MW / 8; x < MW; x += MW / 8) grille += 'M' + x.toFixed(1) + ' 0V' + MH;
-    for (let y = MH / 4; y < MH; y += MH / 4) grille += 'M0 ' + y.toFixed(1) + 'H' + MW;
+    const relief = reliefStylise(String(c.id || c.gpx));
     const n = pts.length - 1;
     return '<svg class="tr-mini" viewBox="0 0 ' + MW + ' ' + MH + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
-      '<path class="tr-mini-grille" d="' + grille + '"/><path class="tr-mini-trace" d="' + d + '"/>' +
+      '<path class="tr-mini-relief" d="' + relief.fin + '"/><path class="tr-mini-relief is-maitre" d="' + relief.maitre + '"/><path class="tr-mini-trace" d="' + d + '"/>' +
       '<circle class="tr-mini-depart" cx="' + X(0) + '" cy="' + Y(0) + '" r="3.4"/><circle class="tr-mini-arrivee" cx="' + X(n) + '" cy="' + Y(n) + '" r="3.4"/></svg>';
   }
 
