@@ -48,6 +48,9 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 /* Aux bords du graphique, l'étiquette s'aligne sur le point au lieu de déborder sur les graduations. */
 .mg-etiq.is-dessous.is-debut { transform: translate(-6px, 9px); }
 .mg-etiq.is-dessous.is-fin { transform: translate(calc(-100% + 6px), 9px); }
+/* Étiquette en diagonale : son coin bas droit touche le coin haut gauche de la puce (5 px = demi-puce). */
+.mg-etiq.is-haut-gauche { transform: translate(calc(-100% - 5px), calc(-100% - 5px)); }
+.mg-etiq.is-haut-droite { transform: translate(5px, calc(-100% - 5px)); }
 /* Liseré du fond : une étiquette reste lisible quand une ligne la traverse. */
 .mg-etiq { text-shadow: 0 0 3px var(--surface), 0 0 3px var(--surface), 0 0 2px var(--surface); }
 
@@ -63,8 +66,15 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-vide { padding: 1.5rem 0 0.5rem; }
 .mg-bilan { margin-top: 0.4rem; }
 
-/* Définition sous le graphique (Difficulté) : texte discret, la formule en Texte. */
-.mg-definition { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid var(--border); font-size: 0.8rem; line-height: 1.5; color: var(--muted); }
+/* Légende sous le graphique (Difficulté) : un signe, son sens. */
+.mg-legende { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin: 0.9rem 0 0 0; padding: 0; list-style: none; font-size: 0.75rem; color: var(--muted); }
+.mg-legende li { display: flex; align-items: center; gap: 0.45rem; }
+.mg-sym { display: inline-block; width: 10px; height: 10px; flex: none; background: var(--accent); }
+.mg-sym.is-plein { border-radius: 50%; }
+.mg-sym.is-losange { width: 11px; height: 11px; border-radius: 1px; transform: rotate(45deg); }
+
+/* Définition sous le graphique (Difficulté) : une explication, donc plus petite et en italique ; la formule en Texte. */
+.mg-definition { margin-top: 1.4rem; padding-top: 0.9rem; border-top: 1px solid var(--border); font-size: 0.75rem; font-style: italic; line-height: 1.55; color: var(--muted); }
 .mg-definition b { font-weight: 600; color: var(--text); }
 
 /* Téléphone : pas d'étiquettes, la bulle les remplace ; la tendance passe sous le titre. */

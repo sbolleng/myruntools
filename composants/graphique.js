@@ -18,7 +18,7 @@
 //                forme : 'plein' (Accent), 'discret', 'vide', 'losange', 'grand' (grand losange) ; avec t2 : trait pointillé de t à t2,
 //                la marque au milieu (date au mois seul) ; marque : signe au-dessus du point (🥇)
 //   ligne      : identifiants des points reliés, dans l'ordre ; ligneDiscrete : ligne fine, Texte discret ;
-//                etiquettesDessous : étiquettes centrées sous les points
+//                etiquettesDessous : étiquettes centrées sous les points ; etiquettesHautGauche : coin bas droit de l'étiquette sur le coin haut gauche du point (haut droite près du bord gauche)
 //   tendance   : { y0, y1 } droite de debut à fin, facultative
 //   vide       : texte à la place du tracé (pas assez de points)
 //   bas        : html sous le graphique (bilan, tableau des chiffres)
@@ -87,7 +87,7 @@
           '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + svg + '</svg>' +
           pts.map((p, k) => '<button type="button" class="mg-pt is-' + p.forme + (p.t2 != null ? ' is-periode' : '') + '" data-k="' + k + '" style="' + pos(p) + '" aria-label="' + esc(p.aria) + '"></button>' +
             (p.marque ? '<span class="mg-marque" style="' + pos(p) + '" aria-hidden="true">' + esc(p.marque) + '</span>' : '') +
-            (p.etiquette ? '<span class="mg-etiq' + (cfg.etiquettesDessous ? ' is-dessous' + (p.x < 8 ? ' is-debut' : p.x > 92 ? ' is-fin' : '') : p.x > 50 ? ' is-gauche' : '') + '" style="' + pos(p) + '">' + esc(p.etiquette) + '</span>' : '')).join('') +
+            (p.etiquette ? '<span class="mg-etiq' + (cfg.etiquettesHautGauche ? (p.x < 22 ? ' is-haut-droite' : ' is-haut-gauche') : cfg.etiquettesDessous ? ' is-dessous' + (p.x < 8 ? ' is-debut' : p.x > 92 ? ' is-fin' : '') : p.x > 50 ? ' is-gauche' : '') + '" style="' + pos(p) + '">' + esc(p.etiquette) + '</span>' : '')).join('') +
           '<div class="mg-bulle" role="status" hidden></div>' +
         '</div>' +
         '<div class="mg-gx">' + reperes(d0, d1).map(r => '<span' + (r.mineur ? ' class="is-mineur"' : '') + ' style="left:' + xAt(r.t) + '%">' + esc(r.txt) + '</span>').join('') + '</div>' +

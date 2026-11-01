@@ -183,25 +183,27 @@
   };
 
   // ----- Graphique de difficulté (§ 5.2) : km-effort de chaque course, dans le temps -----
-  // Courses de la feuille de route et courses courues des 12 derniers mois ; dessin : graphique.js.
+  // Courses de la feuille de route, d'aujourd'hui à la dernière du plan (règle commune à tous) ; dessin : graphique.js.
   const nf1 = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const un = v => nf1.format(v).replace(/ /g, ' ');
   window.renderDifficulte = function (el, courses) {
     if (!el || !window.mrtGraphique) return;
-    const maint = new Date(), t0 = new Date(maint.getFullYear() - 1, maint.getMonth(), maint.getDate()).getTime();
+    const maint = new Date(), t0 = new Date(maint.getFullYear(), maint.getMonth(), maint.getDate()).getTime();
     const jour = c => { const d = c.date.split('-').map(Number); return new Date(d[0], d[1] - 1, d[2]).getTime(); };
-    const courues = courses.filter(c => c.etat === 'courue' && c.date && jour(c) >= t0 && jour(c) <= maint.getTime());
-    const liste = courues.concat(window.mrtCoursesRoute(courses)).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    // Fin d'une course : sa date, ou le dernier jour du mois quand seul le mois est connu.
+    const finDe = c => (c.date_approx ? new Date(new Date(jour(c)).getFullYear(), new Date(jour(c)).getMonth() + 1, 0).getTime() : jour(c));
+    const liste = window.mrtCoursesRoute(courses).filter(c => c.etat !== 'courue' && c.date && finDe(c) >= t0).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     const ke = c => window.mrtKmEffort(c.distance, c.dplus);
     const places = liste.filter(c => ke(c) != null);
     if (!places.length) { el.hidden = true; el.innerHTML = ''; return; }
     el.hidden = false;
-    const forme = c => (c.etat === 'courue' ? 'discret' : c.role === 'objectif' ? 'grand' : c.role === 'objectif_intermediaire' ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
+    // Deux signes seulement : une course de préparation (point) et un objectif, principal ou intermédiaire (losange) ; même remplissage, confirmée ou non.
+    const forme = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'losange' : 'plein');
         const quand = c => (c.date_approx ? MOIS_LONG[Number(c.date.slice(5, 7)) - 1] + ' ' + c.date.slice(0, 4) : dateCourte(c));
     const profil = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ');
     const points = places.map(c => {
-      const t = jour(c), v = ke(c);
-      const fin = c.date_approx ? new Date(new Date(t).getFullYear(), new Date(t).getMonth() + 1, 0).getTime() : null;
+      const t = Math.max(jour(c), t0), v = ke(c);
+      const fin = c.date_approx ? finDe(c) : null;
       return {
         id: c.id, t, t2: fin, y: v, forme: forme(c),
         etiquette: c.role === 'objectif' || c.role === 'objectif_intermediaire' ? nom(c) + ' · ' + Math.round(v) : '',
@@ -210,16 +212,18 @@
       };
     });
     const max = Math.max(20, Math.ceil(Math.max(...points.map(p => p.y)) / 20) * 20);
-    const fin = Math.max(maint.getTime(), ...points.map(p => p.t2 || p.t));
+    const fin = Math.max(t0, ...points.map(p => p.t2 || p.t));
     // La ligne : les étapes confirmées et l'objectif, dans l'ordre ; ni options, ni courues.
     const ligne = places.filter(c => c.etat !== 'courue' && c.statut === 'confirmee').map(c => c.id);
-    // Sous le graphique : la définition du km-effort, en clair (spécification générale, § 12 bis).
-    const definition = '<p class="mg-definition"><b>km-effort = distance (km) + dénivelé positif (m) ÷ 100.</b> 100 m de montée comptent comme 1 km à plat : ' +
-      '42 km et 2 000 m de D+ font 62 km-effort. C\'est la mesure normée de l\'ITRA (association internationale du trail), reprise par l\'UTMB ; la descente n\'est pas comptée.</p>';
+    // Sous le graphique : la légende, puis la définition du km-effort, en clair (spécification générale, § 12 bis).
+    const legende = '<ul class="mg-legende"><li><span class="mg-sym is-plein" aria-hidden="true"></span>Course de préparation</li>' +
+      '<li><span class="mg-sym is-losange" aria-hidden="true"></span>Objectif</li></ul>';
+    const definition = '<p class="mg-definition">À propos de la difficulté d\'une course : basée sur la mesure normée de l\'ITRA (association internationale du trail), ' +
+      'le <b>km-effort = distance (km) + dénivelé positif (m) ÷ 100</b>. 100 m de montée comptent comme 1 km à plat : 42 km et 2 000 m de D+ font 62 km-effort. La descente n\'est pas comptée.</p>';
     window.mrtGraphique(el, {
       cle: 'mrt-graphe-difficulte', titre: 'Difficulté', fermeParDefaut: true,
       axeY: { libelle: 'km-effort', min: 0, max, pas: 20, fmt: v => String(v) },
-      debut: t0, fin, aujourdhui: maint.getTime(), points, ligne, ligneDiscrete: true, etiquettesDessous: true, bas: definition
+      debut: t0, fin, points, ligne, ligneDiscrete: true, etiquettesHautGauche: true, bas: legende + definition
     });
   };
 
