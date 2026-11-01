@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.28 · 1er novembre 2026 · [Retour au sommaire](README.md)
+Version 0.29 · 1er novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -247,12 +247,12 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | M1 | Titre | « Mentions légales » |
 | M2 | Éditeur | « Site édité par un particulier, à titre non professionnel. » Aucun nom : la loi le permet à un particulier dont l'hébergeur connaît l'identité (LCEN, art. 6-III) |
 | M3 | Directeur de la publication | L'éditeur |
-| M4 | Contact | Adresse e-mail de contact (à fournir), en lien `mailto:` |
+| M4 | Contact | `contact@myruntools.fr` (redirection OVH), en lien `mailto:` ; l'adresse est assemblée par le script, jamais écrite en clair dans la page |
 | M5 | Hébergement du site | GitHub Inc. (GitHub Pages), adresse recopiée de sa page légale |
-| M6 | Hébergement des données | Supabase, région du projet (à fournir), adresse recopiée de sa page légale |
+| M6 | Hébergement des données | Supabase, Inc., adresse recopiée de sa page légale ; données en Suède (région North EU, Stockholm) |
 | M7 | Propriété intellectuelle | Textes et code de l'éditeur ; les données saisies appartiennent à chaque utilisateur |
-| M8 | Crédits | Polices Space Grotesk et Space Mono (Google Fonts, licence SIL OFL) ; bibliothèque Supabase (licence MIT) ; anti-robot Cloudflare Turnstile une fois activé ; icônes dessinées pour le site |
-| M9 | Données personnelles | Lien vers la politique de confidentialité (lot RGPD) |
+| M8 | Crédits | Polices Space Grotesk et Space Mono (Google Fonts, licence SIL OFL) ; bibliothèque Supabase (licence MIT) ; Leaflet (licence BSD), fond OpenTopoMap (CC-BY-SA), données OpenStreetMap (ODbL), pour la carte des tracés ; anti-robot Cloudflare Turnstile une fois activé ; icônes dessinées pour le site |
+| M9 | Données personnelles | En attendant le lot RGPD : « La politique de confidentialité sera publiée ici avant l'ouverture du site à d'autres coureurs. » ; ensuite, le lien vers elle |
 | M10 | Mise à jour | Date de la dernière modification |
 | M11 | Retour | Vers l'accueil si connecté, sinon vers la page de connexion |
 | M12 | Pied de page | « Mentions légales · Confidentialité », petit, en Texte discret, en bas de **toutes** les pages, page de connexion comprise ; « Confidentialité » apparaît avec le lot RGPD |
@@ -324,3 +324,4 @@ Résultats attendus :
 - En un coup d'œil masqué dans le menu (Cette semaine, Objectif, Palmarès) : ouvrir le site mène à Objectif, avec le grand en-tête ; le nom de l'application y mène aussi.
 - Mentions légales : la page s'ouvre sans être connecté ; aucun nom de personne ; contact, hébergeurs, crédits ; « Retour » mène à la connexion sans session, à l'accueil avec.
 - Pied de page « Mentions légales » en bas de chaque page, connexion comprise ; il ouvre la page des mentions.
+- Mentions légales : l'adresse de contact n'apparaît pas en clair dans le code de la page ; pas de défilement en largeur sur téléphone ; chaque page porte `noindex`.

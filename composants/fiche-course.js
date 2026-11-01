@@ -411,6 +411,16 @@
     val('type').addEventListener('change', () => { remplirSous(''); proposerTrail(); });
     val('distance').addEventListener('change', proposerTrail);
 
+    // L'heure de départ n'a de sens qu'avec une date exacte : sans date ou en mois seul, le champ se vide et se grise.
+    const heureDepart = () => {
+      const approx = val('date_approx'), sans = !val('date').value || (approx && approx.checked);
+      val('heure').disabled = sans;
+      if (sans) { val('heure').value = ''; erreur('heure', ''); }
+    };
+    val('date').addEventListener('input', heureDepart);
+    val('date').addEventListener('change', heureDepart);
+    if (venir) val('date_approx').addEventListener('change', heureDepart);
+    heureDepart();
     if (venir) {
       // « Date approximative » : la date devient un mois.
       val('date_approx').addEventListener('change', () => {
