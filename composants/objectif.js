@@ -177,7 +177,7 @@
   };
 
   // Briques de la carte, partagées avec la page Courses à surveiller (courses.js).
-  window.mrtCartes = { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
+  window.mrtCartes = { dossardEtat: c => dossard(c).etat, esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
 
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
