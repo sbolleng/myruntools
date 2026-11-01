@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.61 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.62 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
