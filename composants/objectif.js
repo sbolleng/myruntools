@@ -246,8 +246,10 @@
       : 'https://www.openstreetmap.org/search?query=' + encodeURIComponent(c.lieu);
     return '<a class="pc-lieu" href="' + esc(url) + '" target="_blank" rel="noopener" title="Voir sur la carte">' + REPERE + esc(c.lieu) + '</a>';
   }
+  // Heure de départ, « 7 h 30 » ; vide (ou date au mois seul) : « — », comme partout sur le site.
+  const heureTxt = c => { if (c.date_approx || !c.heure) return '—'; const h = c.heure.split(':').map(Number); return h[0] + ' h' + (h[1] ? ' ' + pad(h[1]) : ''); };
   // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
-  const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ');
+  const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ').replace(/ (m D|km)/g, '\u00a0$1');
 
   // Flèche de téléchargement (GPX).
   const TELECHARGER = '<svg class="tr-ico" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5v6.5M3 5.5L6 8.5l3-3M2 10.5h8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -289,8 +291,9 @@
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
     const marquable = c.statut === 'confirmee' && c.date <= aujourdhui();
-    // Liens en tête (n° 30 et 29) ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
-    const liensHaut = [lienSur(c.lien) ? lienExterne(c.lien, 'Site officiel') : '', lienSur(c.inscription) && !c.inscrit ? lienExterne(c.inscription, 'S\'inscrire', dossard(c).etat === 'ouvert' ? 'is-ouvert' : '') : ''].filter(Boolean);
+    // Site officiel (n° 30) en haut à droite de la fiche ; « S'inscrire » (n° 29) en tête ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
+    const officiel = lienSur(c.lien) ? lienExterne(c.lien, 'Site officiel', 'pc-officiel') : '';
+    const liensHaut = [lienSur(c.inscription) && !c.inscrit ? lienExterne(c.inscription, 'S\'inscrire', dossard(c).etat === 'ouvert' ? 'is-ouvert' : '') : ''].filter(Boolean);
     const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
     const preparation = (c.pourquoi ? '<div class="pc-role">' + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
@@ -306,21 +309,24 @@
     el.innerHTML = barre(true) +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
-      '<p class="pc-info">' + [lieuHtml(c), esc(c.formatLibelle || ''), esc(dateLongue(c))].filter(Boolean).join(' · ') + '</p>' +
+      (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (liensHaut.length ? '<p class="pc-liens-haut">' + liensHaut.join('') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
         (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
-      // La fiche (n° 22) : compteur, résultats en direct, distance, objectif, dossard ; la Description (n° 18) repliée dans le même cadre.
-      '<div class="ob-lignes pc-fiche">' +
+      // La fiche (n° 22) : lieu, date et heure, compteur, résultats en direct, distance, objectif, dossard ; « À propos de la course » (n° 18)
+      // repliée dans le même cadre ; le site officiel en haut à droite.
+      '<div class="ob-lignes pc-fiche' + (officiel ? ' avec-officiel' : '') + '">' + officiel +
+        (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
+        ligne('Date / heure', '<span class="ob-val">' + esc(dateLongue(c, true)) + ' · ' + esc(heureTxt(c)) + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
         ligne('Dossard', dossardHtml(c, true)) +
-        cellule('Description', texte(c.description)) +
+        cellule('À propos de la course', texte(c.description)) +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
