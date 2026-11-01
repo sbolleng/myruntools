@@ -85,21 +85,21 @@
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['dmoins', 'D− (m)', 'entier', 'course'],
-    ['gpx', 'Tracé GPX', 'fichier', 'course'],
+    ['objectif', 'Objectif', 'objectif', 'course'],
+    ['objectif_precisions', 'Précisions', 'long', 'course'],
     ['description', 'Description', 'long', 'course'],
     ['statut', 'Statut', 'choix', 'plan'],
     ['role', 'Rôle', 'choix', 'plan'],
     ['groupe_options', 'Groupe d\'options', 'groupe', 'plan'],
-    ['objectif', 'Objectif', 'objectif', 'preparation'],
-    ['objectif_precisions', 'Précisions', 'long', 'preparation'],
-    ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
-    ['strategie', 'Stratégie ou enchaînement', 'long', 'preparation'],
-    ['logistique', 'Logistique', 'long', 'logistique'],
     ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
     ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['prix', 'Prix (€)', 'nombre', 'dossard'],
+    ['gpx', 'Tracé GPX', 'fichier', 'parcours'],
+    ['strategie', 'Stratégie ou enchaînement', 'long', 'parcours'],
+    ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
+    ['logistique', 'Logistique', 'long', 'logistique'],
     // Résultat, puis classements : un seul bloc. Général et sexe : deux champs sur toute la largeur ; catégorie : trois.
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
@@ -122,8 +122,8 @@
   ];
   // Champs propres à un état : une course courue n'a ni plan ni inscription à venir ; une course à venir, ni résultat ni montre.
   const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'inscrit', 'inscription', 'gpx']);
-  const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['logistique', 'Logistique'],
-    ['dossard', 'Dossard'], ['resultat', 'Résultat'], ['montre', 'Montre'], ['liens', 'Liens']];
+  const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['dossard', 'Dossard'], ['parcours', 'Parcours'],
+    ['preparation', 'Préparation'], ['logistique', 'Logistique'], ['resultat', 'Résultat'], ['montre', 'Montre'], ['liens', 'Liens']];
   const COURUE_SEUL = new Set(TOUS.filter(f => f[3] === 'resultat' || f[3] === 'montre').map(f => f[0]));
   // Vitesse : plus saisie, tirée de l'allure moyenne (3 600 ÷ allure, en km/h) à l'enregistrement.
   const VITESSES = [['allure', 'vitesse'], ['montre_allure', 'montre_vitesse']];

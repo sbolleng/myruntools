@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.54 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.55 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -332,17 +332,17 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 
 | Ordre | Bloc | À venir | Courue | Champs |
 | --- | --- | --- | --- | --- |
-| 1 | (F3) Course | ouvert | ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement) ; heure, lieu ; type, format ; distance ; D+, D− ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
+| 1 | (F3) Course | ouvert | ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement) ; heure, lieu ; type, format ; distance ; D+, D− ; **objectif et précisions** (comme dans la fiche de la consultation) ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
 | 2 | (F15) Place dans le plan | ouvert | replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
 | 3 | (F19) Dossard | ouvert | replié si vide | Numéro, prix ; à venir seulement : ouverture des inscriptions, « Inscrit » (le numéro ne se saisit qu'inscrit), site d'inscription |
-| 4 | (F46) Parcours | ouvert | replié | Tracé GPX (importer, remplacer, supprimer ; F28) puis stratégie de course |
-| 5 | (F20) Préparation | ouvert | replié | À venir : plan (F39 à F42), objectif, précisions, rôle dans la préparation ; courue : les mêmes textes, sans plan |
-| 6 | (F38) Logistique | ouvert | replié | Logistique |
+| 4 | (F46) Parcours | replié (ouvert pour une course existante) | replié | À venir : tracé GPX (importer, remplacer, supprimer ; F28) puis stratégie de course ; courue : stratégie seulement |
+| 5 | (F20) Préparation | replié (ouvert pour une course existante) | replié | À venir : plan (F39 à F42), puis rôle dans la préparation ; courue : le rôle seulement |
+| 6 | (F38) Logistique | replié (ouvert pour une course existante) | replié | Logistique |
 | 7 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (temps, DNF, allure moyenne), puis les classements (général, catégorie, sexe : places et effectifs). Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé) |
 | 8 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
-| 9 | (F21) Liens | ouvert | replié si vide | Site officiel, résultats en direct |
+| 9 | (F21) Liens | replié (ouvert pour une course existante) | replié si vide | Site officiel, résultats en direct |
 
-**Harmonisation avec la consultation** (décidée le 1er nov. 2026) : l'ordre des blocs suit l'ordre de lecture de la page d'une course : identité (Course), place dans le plan, dossard, parcours, préparation, logistique, liens. Le GPX et la stratégie quittent Course et Préparation pour le bloc Parcours (F46), comme la rubrique Parcours (C25) de la consultation.
+**Harmonisation avec la consultation** (décidée le 1er nov. 2026) : l'ordre des blocs suit l'ordre de lecture de la page d'une course : identité (Course), place dans le plan, dossard, parcours, préparation, logistique, liens. Le GPX et la stratégie quittent Course et Préparation pour le bloc Parcours (F46), comme la rubrique Parcours (C25) de la consultation ; l'objectif et ses précisions passent dans Course, comme dans la fiche (C11). Construit le 1er nov. 2026.
 
 Pour une course courue : son objectif, sa stratégie, sa logistique, son prix et ses liens, gardés en base, redeviennent visibles et modifiables ; le lien des résultats s'ajoute après coup.
 
@@ -595,7 +595,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 
 Résultats attendus, formulaire en détail (écritures relues par le banc d'essai) :
 
-- Sur la feuille de route, un bouton « + Ajouter une course » en haut à droite, au-dessus de la première carte ; il ouvre « Ajouter une course » : six blocs, Course et Place dans le plan ouverts, les quatre autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
+- Sur la feuille de route, un bouton « + Ajouter une course » en haut à droite, au-dessus de la première carte ; il ouvre « Ajouter une course » : sept blocs, Course et Place dans le plan ouverts, les cinq autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
 - Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course et Format, « Choisis un type. » sous Type ; rien n'est écrit.
 - Date au 1er janvier 2026 : « La date d'une course à venir ne peut pas être dans le passé. » ; heure `25h` : « Heure illisible (ex. 07:30). » ; objectif `rapide` : « Format attendu : 02:45:00, Finisher ou Sub 3h » ; lien `www.exemple.org` : « Lien attendu : il commence par http:// ou https://. » ; prix −3 : « Le nombre doit être positif. » ; le bloc d'un champ en erreur se déplie.
 - Objectif : `2:45:00`, `2h45` et `24500` sont rangés `02:45:00` ; `finisher` devient `Finisher` ; `sub 3h`, `Sub 1h30`, `sub1h5`, `SUB 45 min` et `sub 45` deviennent `Sub 3h`, `Sub 1h30`, `Sub 1h05`, `Sub 45 min` et `Sub 45 min`. Heure : `07:30`, `7h30`, `730` et `0730` donnent `07:30` ; `7h` donne `07:00`.
