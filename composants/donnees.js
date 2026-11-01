@@ -12,7 +12,7 @@
   const MODULES = [
     { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
     { nom: 'Cette semaine' },
-    { nom: 'Objectif', libelle: 'Objectif et plan', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
+    { nom: 'Objectif', libelle: 'Objectif & plan', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
     { nom: 'Calendrier', page: 'calendrier.html' },
     { nom: 'Courses à surveiller', libelle: 'À surveiller', page: 'courses-a-surveiller.html' },
     { nom: 'Nutrition' },
