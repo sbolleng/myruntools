@@ -218,8 +218,9 @@
     const legende = '<ul class="mg-legende"><li><span class="mg-sym is-plein" aria-hidden="true"></span>Course de préparation</li>' +
       '<li><span class="mg-sym is-vide" aria-hidden="true"></span>Course en option</li>' +
       '<li><span class="mg-sym is-losange" aria-hidden="true"></span>Objectif</li></ul>';
-    const definition = '<p class="mg-definition">À propos de la difficulté d\'une course : basée sur la mesure normée de l\'ITRA (association internationale du trail), ' +
-      'le <b>km-effort = distance (km) + dénivelé positif (m) ÷ 100</b>. 100 m de montée comptent comme 1 km à plat : 42 km et 2 000 m de D+ font 62 km-effort. La descente n\'est pas comptée.</p>';
+    const definition = '<p class="mg-definition">La difficulté d\'une course se mesure ici en <b>km-effort</b>, la mesure normée de l\'ITRA (association internationale du trail). ' +
+      'Le principe : on ajoute au kilométrage l\'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. ' +
+      'Un trail de 40 km avec 2 000 m de D+ pèse donc comme une course de 60 km à plat. La descente n\'est pas comptée.</p>';
     window.mrtGraphique(el, {
       cle: 'mrt-graphe-difficulte', titre: 'Difficulté', fermeParDefaut: true,
       axeY: { libelle: 'km-effort', min: 0, max, pas: 20, fmt: v => String(v) },

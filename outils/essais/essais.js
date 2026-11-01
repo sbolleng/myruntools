@@ -2210,7 +2210,7 @@ const CONTROLES = {
     await p.hover('.mg-pt[aria-label^="Trail des Gorges"]');
     pb.push(egal(['66,0 km-effort', 'Trail des Gorges', '7 mars 2027 · 45 km · 2 100 m D+'], await bulle(p), 'difficulté : bulle au survol'));
     pb.push(egal({ chiffres: false, definition: true, italique: 'italic', apres: true, ligne: ['1px', true], diagonale: 0, bordure: '0px', legende: ['Course de préparation', 'Course en option', 'Objectif'] }, await p.evaluate(() => { const d = document.querySelector('.mg-definition'), l = document.querySelector('.mg-ligne'), lg = document.querySelector('.mg-legende');
-      return { chiffres: !!document.querySelector('.mg-chiffres'), definition: !!d && /^À propos de la difficulté d'une course : basée sur la mesure normée de l'ITRA/.test(d.textContent) && /km-effort = distance \(km\) \+ dénivelé positif \(m\) ÷ 100/.test(d.textContent),
+      return { chiffres: !!document.querySelector('.mg-chiffres'), definition: !!d && /^La difficulté d'une course se mesure ici en km-effort, la mesure normée de l'ITRA/.test(d.textContent) && /100 m de dénivelé positif comptant pour 1 km de plus/.test(d.textContent) && /40 km avec 2 000 m de D\+ pèse donc comme une course de 60 km à plat/.test(d.textContent),
         italique: getComputedStyle(d).fontStyle, apres: !!(lg.compareDocumentPosition(d) & 4),
         ligne: [getComputedStyle(l).strokeWidth, l.classList.contains('is-discrete')], diagonale: document.querySelectorAll('.mg-etiq').length, bordure: getComputedStyle(d).borderTopWidth,
         legende: [...lg.querySelectorAll('li')].map(x => x.textContent.trim()) }; }),

@@ -429,7 +429,7 @@ Téléphone : même ordre, le graphique occupe toute la largeur du cadre ; les �
 | 12 | (retiré) | — | — | L'objectif intermédiaire a le même losange (6) |
 | 14 | (retiré) | — | — | Les étiquettes sont supprimées (illisibles) ; la bulle (11) donne le nom |
 | 15 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
-| 16 | Définition | À propos de la difficulté d'une course : basée sur la mesure normée de l'ITRA (association internationale du trail), le **km-effort = distance (km) + dénivelé positif (m) ÷ 100**. 100 m de montée comptent comme 1 km à plat : 42 km et 2 000 m de D+ font 62 km-effort. La descente n'est pas comptée. | Sous la légende, sans filet | Explication : 0,75 rem, italique, Texte discret ; la formule en Texte, 600 |
+| 16 | Définition | La difficulté d'une course se mesure ici en **km-effort**, la mesure normée de l'ITRA (association internationale du trail). Le principe : on ajoute au kilométrage l'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. Un trail de 40 km avec 2 000 m de D+ pèse donc comme une course de 60 km à plat. La descente n'est pas comptée. | Sous la légende, sans filet | Explication : 0,75 rem, italique, Texte discret ; la formule en Texte, 600 |
 | 17 | Légende | ● Course de préparation · ○ Course en option · ◆ Objectif | Sous le graphique, avant la définition | 0,75 rem, Texte discret ; signes en Accent |
 
 - **Ligne** : elle relie les étapes confirmées et l'objectif, dans l'ordre des dates (une confirmée au mois seul, par le milieu de son mois) ; candidats et options restent hors de la ligne.
@@ -545,7 +545,7 @@ Résultats attendus, graphique de difficulté :
 - La ligne relie, dans l'ordre, Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Crêtes.
 - Trail des Gorges : 66,0, et non 76,5 (le D− n'est pas compté).
 - Survol de Trail des Gorges : bulle « 66,0 km-effort », « Trail des Gorges · 7 mars 2027 · 45 km · 2 100 m D+ » ; le nom ouvre sa page.
-- Sous le graphique, la légende (« Course de préparation », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui commence par « À propos de la difficulté d'une course » et cite l'ITRA. Ligne entre les étapes fine et discrète.
+- Sous le graphique, la légende (« Course de préparation », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui cite l'ITRA et donne l'exemple 40 km + 2 000 m de D+ = 60 km-effort. Ligne entre les étapes fine et discrète.
 - Cadre ouvert, page rechargée : toujours ouvert ; replié : toujours replié. Téléphone : pas d'étiquettes, rien ne dépasse.
 
 Résultats attendus, page d'une course :
