@@ -67,7 +67,7 @@
     '<div class="pc-grille">' +
       cellule('Dossard', dossard) +
       cellule('Rôle dans la préparation', c.pourquoi && '<p>' + esc(c.pourquoi) + '</p>') +
-      cellule('Stratégie ou enchaînement', c.strategie && '<p>' + esc(c.strategie) + '</p>') +
+      cellule('Stratégie de course', c.strategie && '<p>' + esc(c.strategie) + '</p>') +
       cellule('Logistique', c.logistique && '<p>' + esc(c.logistique) + '</p>') +
       cellule('Description', c.description && '<p>' + esc(c.description) + '</p>') +
       cellule('Liens', liens.length && '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + l[0] + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>') +

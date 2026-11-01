@@ -73,7 +73,7 @@
 /* Bloc Préparation (Objectif) : résumé du plan, frise des phases, « Paramétrer le plan » (preparation.css). */
 .fc-prep { padding: 0.3rem 0 0.6rem; }
 .fc-prep:empty { display: none; }
-.fc-prep .cal-frise { margin-bottom: 0.7rem; }
+.fc-prep .cal-frise-defile { margin-bottom: 0.7rem; }
 .fc-prep-bas { display: flex; justify-content: flex-end; }
 .fc-prep-note { margin: 0 0 0.6rem; font-size: 0.8rem; color: var(--muted); }
 .fc-ligne-date { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
