@@ -269,7 +269,7 @@
       '</div>' +
       // Téléphone tenu en hauteur : le tableau déborde ; un site ne peut pas tourner l'écran, il y invite.
       '<p class="pv2-paysage">↻ Tourne ton téléphone pour voir toutes les colonnes.</p>' +
-      '<div class="card pv2-card"><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>' +
+      '<div class="card pv2-card"><h2 class="mg-titre is-fixe pv2-titre">Résultats</h2><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>' +
       '<div class="pv2-graphe"></div>';
 
     const $ = sel => root.querySelector(sel);
@@ -380,28 +380,44 @@
     const jour = iso => { const d = iso.split('-').map(Number); return new Date(d[0], d[1] - 1, d[2]).getTime(); };
     const mmss = s => { s = Math.round(s); return Math.floor(s / 60) + ':' + pad(s % 60); };
     const AN = 365.25 * 864e5;
+    // Mesure du graphique (§ 12, n° 13) : allure moyenne (par défaut), temps ou allure-effort ; retenue sur l'appareil.
+    const MESURE_KEY = 'mrt-progression-mesure';
+    const MESURES = {
+      allure: { nom: 'Allure moyenne', axe: 'min / km', unite: ' /km', val: r => (r.v.pace != null ? r.v.pace : r.v.time != null && r.v.dist ? r.v.time / r.v.dist : null) },
+      temps: { nom: 'Temps', axe: 'temps', unite: '', val: r => r.v.time },
+      effort: { nom: 'Allure-effort', axe: 'min / km-effort', unite: ' /km-effort', val: r => (r.v.time != null && r.v.dist ? r.v.time / window.mrtKmEffort(r.v.dist, r.v.dplus) : null) }
+    };
+    let mesure = (() => { try { const m = localStorage.getItem(MESURE_KEY); return MESURES[m] ? m : 'allure'; } catch (e) { return 'allure'; } })();
+    const hmin = s => { s = Math.round(s / 60); return Math.floor(s / 60) + ':' + pad(s % 60); };
+    const duree = s => { s = Math.round(s); return s >= 60 ? Math.floor(s / 60) + ' min' + (s % 60 ? ' ' + (s % 60) + ' s' : '') : s + ' s'; };
     function renderGraphe(list) {
       if (!window.mrtGraphique) return;
-      const places = list.filter(r => r.v.time != null && r.v.dist != null && r.v.date).sort((a, b) => (a.v.date < b.v.date ? -1 : 1));
-      let cfg = { cle: 'mrt-graphe-progression', titre: 'Progression' };
+      const M = MESURES[mesure];
+      const places = list.filter(r => r.v.date && M.val(r) != null).sort((a, b) => (a.v.date < b.v.date ? -1 : 1));
+      const haut = Object.keys(MESURES).map(k => '<button type="button" class="mrt-pastille' + (k === mesure ? ' is-on' : '') + '" data-mesure="' + k + '" aria-pressed="' + (k === mesure) + '">' + MESURES[k].nom + '</button>').join('');
+      let cfg = { titre: 'Progression', fixe: true, haut };
       if (places.length < 2) cfg.vide = 'Pas assez de courses pour un graphique';
       else {
+        const valeur = v => (mesure === 'temps' ? fmtTime(Math.round(v)) : mmss(v) + M.unite);
         const points = places.map(r => {
-          const a = r.v.time / window.mrtKmEffort(r.v.dist, r.v.dplus);
+          const a = M.val(r);
           return {
             id: r.id || r.v.date + r.v.course, t: jour(r.v.date), y: a, forme: 'plein', marque: r.record ? '🥇' : '',
-            etiquette: places.length > 20 ? '' : fmtTime(r.v.time),
-            aria: r.v.course + ', ' + mmss(a) + ' par km-effort',
-            bulle: { valeur: mmss(a) + ' /km-effort', nom: r.v.course, lien: r.id ? 'course.html?id=' + encodeURIComponent(r.id) : null,
-              details: [fmtDate(r.v.date), fmtTime(r.v.time), nf1.format(r.v.dist) + ' km', r.v.dplus != null ? nf0.format(r.v.dplus) + ' m D+' : 'D+ non renseigné'].join(' · ') }
+            etiquette: places.length > 20 || r.v.time == null ? '' : fmtTime(r.v.time),
+            aria: r.v.course + ', ' + (mesure === 'temps' ? fmtTime(Math.round(a)) : mmss(a) + ' par ' + M.unite.replace(' /', '')),
+            bulle: { valeur: valeur(a), nom: r.v.course, lien: r.id ? 'course.html?id=' + encodeURIComponent(r.id) : null,
+              details: [fmtDate(r.v.date), r.v.time != null ? fmtTime(r.v.time) : '', r.v.dist != null ? nf1.format(r.v.dist) + ' km' : '', r.v.dplus != null ? nf0.format(r.v.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ') }
           };
         });
         const ys = points.map(p => p.y);
-        let min = Math.floor(Math.min(...ys) / 30) * 30, max = Math.ceil(Math.max(...ys) / 30) * 30;
-        if (max === min) max += 30;
+        // Graduations : 30 s pour une allure ; pour un temps, le plus petit pas (5 min à 2 h) qui donne 6 intervalles au plus.
+        let pas = 30;
+        if (mesure === 'temps') pas = [300, 600, 900, 1800, 3600, 7200].find(q => (Math.ceil(Math.max(...ys) / q) - Math.floor(Math.min(...ys) / q)) <= 6) || 7200;
+        let min = Math.floor(Math.min(...ys) / pas) * pas, max = Math.ceil(Math.max(...ys) / pas) * pas;
+        if (max === min) max += pas;
         const debut = points[0].t, fin = points[points.length - 1].t;
-        cfg = Object.assign(cfg, { axeY: { libelle: 'min / km-effort', min, max, pas: 30, fmt: mmss, inverse: true }, debut, fin, points, ligne: points.map(p => p.id), ligneDiscrete: true, etiquettesDessous: true });
-        // Tendance : moindres carrés, seulement sur un seul format et à partir de 3 points (l'allure-effort dépend de la distance).
+        cfg = Object.assign(cfg, { axeY: { libelle: M.axe, min, max, pas, fmt: mesure === 'temps' ? hmin : mmss, inverse: true }, debut, fin, points, ligne: points.map(p => p.id), ligneDiscrete: true, etiquettesDessous: true });
+        // Tendance : moindres carrés, seulement sur un seul format et à partir de 3 points (la mesure dépend de la distance).
         if (points.length >= 3 && new Set(places.map(r => r.v.sub)).size === 1) {
           const xs = points.map(p => (p.t - debut) / AN), n = xs.length;
           const sx = xs.reduce((a, b) => a + b, 0), sy = ys.reduce((a, b) => a + b, 0);
@@ -410,15 +426,22 @@
           if (den) {
             const pente = (n * sxy - sx * sy) / den, b0 = (sy - pente * sx) / n;
             cfg.tendance = { y0: b0, y1: b0 + pente * (fin - debut) / AN };
-            const v = Math.round(Math.abs(pente));
+            const v = Math.round(Math.abs(pente)), txt = '<b>' + duree(v) + '</b>' + M.unite;
             cfg.droite = v < 1 ? 'Tendance stable' : pente < 0
-              ? '<span class="is-mieux">↗ <b>' + v + ' s</b> /km-effort plus rapide par an</span>'
-              : '↘ <b>' + v + ' s</b> /km-effort plus lent par an';
+              ? '<span class="is-mieux">↗ ' + txt + ' plus rapide par an</span>'
+              : '↘ ' + txt + ' plus lent par an';
           }
         }
       }
       if (graphe) graphe.maj(cfg); else graphe = window.mrtGraphique(grapheEl, cfg);
     }
+    grapheEl.addEventListener('click', e => {
+      const b = e.target.closest('[data-mesure]');
+      if (!b || b.dataset.mesure === mesure) return;
+      mesure = b.dataset.mesure;
+      try { localStorage.setItem(MESURE_KEY, mesure); } catch (er) { /* stockage indisponible */ }
+      renderGraphe(visibleRows());
+    });
 
     // Tableau trop large pour l'écran : plutôt que d'écraser les colonnes, on le
     // laisse à sa largeur naturelle, une ligne par cellule, et il défile.
