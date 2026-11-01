@@ -144,7 +144,8 @@
     if (h.classList.contains('mrt-attente-contenu')) h.classList.add('mrt-fondu');
     h.classList.remove('mrt-attente', 'mrt-attente-contenu');
   };
-  const surConnexion = /(connexion|nouveau-mot-de-passe)\.html$/.test(location.pathname);
+  // Pages publiques : connexion, nouveau mot de passe, mentions légales.
+  const surConnexion = /(connexion|nouveau-mot-de-passe|mentions-legales)\.html$/.test(location.pathname);
   window.mrtSession().then(s => {
     if (!s && !surConnexion) {
       location.replace('connexion.html' + location.search);

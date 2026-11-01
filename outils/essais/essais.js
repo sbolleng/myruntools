@@ -2605,6 +2605,76 @@ const CONTROLES = {
   },
 
   // Spécification générale : la page s'affiche d'un seul coup, en-tête compris.
+  // Mentions légales (spécification générale § 11 bis) : page publique, contact, retour, pied de page partout.
+  async mentions(nav, db0) {
+    const pb = [];
+    const contexte = async (connecte, largeur = 1200) => {
+      const ctx = await nav.newContext({ viewport: { width: largeur, height: 900 } });
+      await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+      await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
+      await simulerBase(ctx, JSON.parse(JSON.stringify(db0)));
+      const p = await ctx.newPage();
+      const erreurs = [];
+      p.on('pageerror', e => erreurs.push(e.message));
+      if (connecte) {
+        await p.goto(RACINE + 'robots.txt');
+        const t = Math.floor(Date.now() / 1000);
+        await p.evaluate(s => localStorage.setItem('sb-gifrpodrwesuhtgkxbuc-auth-token', s), JSON.stringify({
+          access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: { id: db0.profils[0].id, email: 'essai@exemple.fr' } }));
+      }
+      return { p, ctx, erreurs };
+    };
+    const lire = p => p.evaluate(() => ({
+      titre: document.querySelector('h1').textContent,
+      rubriques: [...document.querySelectorAll('.mrt-section-titre')].map(h => h.textContent),
+      contact: [document.getElementById('contact').textContent, document.getElementById('contact').getAttribute('href')],
+      enClair: /contact@myruntools/.test(document.documentElement.innerHTML.replace(document.getElementById('contact').outerHTML, '')),
+      robots: document.querySelector('meta[name="robots"]').content,
+      retour: document.getElementById('m11').getAttribute('href'),
+      entete: document.querySelectorAll('.mrt-header, .mrt-nav').length,
+      pied: document.querySelector('.mrt-pied') && document.querySelector('.mrt-pied').textContent,
+      lienPied: document.querySelectorAll('.mrt-pied a').length,
+      large: document.documentElement.scrollWidth > window.innerWidth }));
+    // Visiteur sans connexion : la page s'ouvre (pas de renvoi), retour vers la connexion.
+    let { p, ctx, erreurs } = await contexte(false);
+    await p.goto(RACINE + 'mentions-legales.html');
+    await p.waitForTimeout(800);
+    const v = await lire(p);
+    pb.push(egal(true, /mentions-legales\.html$/.test(p.url()), 'mentions, visiteur : la page reste ouverte'));
+    pb.push(egal({ titre: 'Mentions légales', rubriques: ['Éditeur', 'Directeur de la publication', 'Contact', 'Hébergement du site', 'Hébergement des données', 'Propriété intellectuelle', 'Crédits', 'Données personnelles'],
+      contact: ['contact@myruntools.fr', 'mailto:contact@myruntools.fr'], enClair: false, robots: 'noindex', retour: 'connexion.html', entete: 0, pied: 'Mentions légales', lienPied: 0, large: false },
+      v, 'mentions, visiteur : rubriques M2 à M9, contact assemblé par le script, noindex, retour vers la connexion, sans en-tête'));
+    pb.push(egal([], erreurs, 'mentions : aucune erreur'));
+    await ctx.close();
+    // Téléphone : rien ne déborde.
+    ({ p, ctx } = await contexte(false, 390));
+    await p.goto(RACINE + 'mentions-legales.html');
+    await p.waitForTimeout(500);
+    pb.push(egal(false, (await lire(p)).large, 'mentions, téléphone : pas de défilement en largeur'));
+    await ctx.close();
+    // Connecté : retour vers l'accueil.
+    ({ p, ctx } = await contexte(true));
+    await p.goto(RACINE + 'mentions-legales.html');
+    await p.waitForFunction(() => document.getElementById('m11').getAttribute('href') === 'index.html', null, { timeout: 4000 }).catch(() => {});
+    pb.push(egal('index.html', (await lire(p)).retour, 'mentions, connecté : retour vers l\'accueil'));
+    await ctx.close();
+    // Pied de page : sur toutes les pages, page de connexion comprise, un seul, avec le lien vers les mentions.
+    const pages = fs.readdirSync(path.resolve(__dirname, '../..')).filter(f => f.endsWith('.html') && f !== 'mentions-legales.html');
+    const vus = [];
+    for (const page of pages) {
+      ({ p, ctx } = await contexte(!/connexion|mot-de-passe/.test(page)));
+      await p.goto(RACINE + page);
+      await p.waitForSelector('.mrt-pied', { timeout: 4000 }).catch(() => {});
+      vus.push([page, await p.evaluate(() => [document.querySelectorAll('.mrt-pied').length, (document.querySelector('.mrt-pied a') || {}).href || ''])]);
+      await ctx.close();
+    }
+    pb.push(egal(pages.map(f => [f, [1, RACINE + 'mentions-legales.html']]), vus, 'pied de page « Mentions légales » sur chaque page'));
+    // Chaque page porte noindex.
+    const sans = fs.readdirSync(path.resolve(__dirname, '../..')).filter(f => f.endsWith('.html'))
+      .filter(f => !/<meta name="robots" content="noindex">/.test(fs.readFileSync(path.resolve(__dirname, '../..', f), 'utf8')));
+    pb.push(egal([], sans, 'chaque page porte noindex'));
+    return pb;
+  },
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))

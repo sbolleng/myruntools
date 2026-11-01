@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Mentions légales | Page `mentions-legales.html` construite (Spécification générale 0.29) : contact `contact@myruntools.fr` (redirection OVH vers la boîte de l'éditeur, réponse sous cette adresse par le SMTP de Resend), adresse assemblée par le script ; données Supabase en Suède (North EU, Stockholm) ; crédits complétés (Leaflet, OpenTopoMap, OpenStreetMap) ; pied de page posé par `en-tete.js` sur toutes les pages. |
 | 1er nov. 2026 | Objectif 0.64 | Le bouton « Ajouter une course » passe au-dessus du cadre « Évolution de l’effort ». |
 | 1er nov. 2026 | Courses à surveiller 0.7 | Cartes : plus de choix de tri ni de regroupement (supprimés pour de bon ; toujours par date, groupées par mois). Nouvelle pastille « Inscriptions ouvertes » (à venir, pas inscrit, ouverture atteinte, date et heure) en deuxième place. Le texte « n courses » était déjà retiré en 0.6. |
 | 1er nov. 2026 | Courses à surveiller 0.6 | Texte « n courses » supprimé (les compteurs des pastilles suffisent). Regroupement par mois : proposé en cartes (Par mois · Aucun, gardé sur l'appareil, par défaut Par mois) ; supprimé du tableau. |
