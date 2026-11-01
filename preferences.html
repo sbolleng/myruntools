@@ -192,6 +192,8 @@
 
     // ----- Menu : modules affichés dans l'ordre choisi, puis les autres.
     const blocMenu = blocs[1];
+    // Libellé affiché d'un module (« Objectif & Plan ») ; la clé rangée reste son nom.
+    const libelle = n => ((mrtModules.find(m => m.nom === n) || {}).libelle || n);
     const parDefaut = () => mrtModules.map(m => ({ nom: m.nom, affiche: true }));
     const depuisPrefs = () => {
       if (!prefs.modules || !prefs.modules.length) return parDefaut();
@@ -210,10 +212,10 @@
         '<ul class="pref-liste pref-modules">' + liste.map((m, i) => {
         const construit = pageDe(m.nom);
         const seul = m.affiche && construit && nbAffiches === 1;
-        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) + (construit ? '' : ' · bientôt') +
+        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(libelle(m.nom)) + (construit ? '' : ' · bientôt') +
           (m === premier ? ' <span class="pref-fixe pref-ouverture">à l\'ouverture</span>' : '') + '</label>' +
-          '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-          '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
+          '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(libelle(m.nom)) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+          '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(libelle(m.nom)) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
       }).join('') + '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
     }
     function changerMenu(nouvelle, valeur) {

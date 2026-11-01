@@ -431,7 +431,7 @@ const CONTROLES = {
     pb.push(egal([0, ['En un coup d\'œil']], [await p.locator('.pref-modules input[type="radio"]').count(), await ouverture()], 'menu : pas de choix de démarrage, le premier module marqué « à l\'ouverture »'));
     await p.uncheck('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
-    pb.push(egal(['Objectif'], await ouverture(), 'En un coup d\'œil décoché : Objectif s\'ouvre en arrivant'));
+    pb.push(egal(['Objectif & Plan'], await ouverture(), 'En un coup d\'œil décoché : Objectif & Plan s\'ouvre en arrivant'));
     await p.check('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
     pb.push(egal(['Prochaine course', 'Pense-bête · bientôt', 'Bilan nutrition · bientôt', 'D\'ici là', 'Dernière course'], await p.evaluate(() => [...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim())), 'page d\'accueil : les cinq blocs'));
@@ -491,12 +491,12 @@ const CONTROLES = {
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     const catalogue = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
     // Le menu ne montre que les modules construits ; les autres restent dans la liste, « bientôt ».
-    const construits = ['En un coup d\'œil', 'Objectif', 'Calendrier', 'Palmarès'];
+    const construits = ['En un coup d\'œil', 'Objectif & Plan', 'Calendrier', 'Palmarès'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(8, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'tous les modules cochés, En un coup d\'œil compris'));
     pb.push(egal(['Cette semaine · bientôt', 'Nutrition · bientôt', 'Profil · bientôt', 'Guide · bientôt'], await p.evaluate(() => [...document.querySelectorAll('.pref-modules .bientot')].map(l => l.textContent.trim())), 'modules non construits grisés, « bientôt »'));
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Calendrier', 'Objectif', 'Palmarès'];
+    const monte = ['En un coup d\'œil', 'Calendrier', 'Objectif & Plan', 'Palmarès'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -2036,7 +2036,7 @@ const CONTROLES = {
     // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Objectif', 'Calendrier', 'Palmarès'], visibles: true }, await p.evaluate(() => {
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Objectif & Plan', 'Calendrier', 'Palmarès'], visibles: true }, await p.evaluate(() => {
         const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
           visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
@@ -2192,8 +2192,15 @@ const CONTROLES = {
     const { db } = jeuObjectif(db0);
     let { p, ctx, erreurs } = await ouvrir(nav, 'objectif.html', 1200, db, {}, PARIS);
     let g = await lire(p);
-    pb.push(egal({ titre: 'Difficulté', ouvert: true, avant: true }, { titre: g.titre, ouvert: g.ouvert,
-      avant: await p.evaluate(() => !!(document.querySelector('#difficulte').compareDocumentPosition(document.querySelector('#feuille-de-route')) & 4)) }, 'difficulté : cadre ouvert, au-dessus de la feuille de route'));
+    pb.push(egal({ titre: 'Difficulté', ouvert: false, avant: true }, { titre: g.titre, ouvert: g.ouvert,
+      avant: await p.evaluate(() => !!(document.querySelector('#difficulte').compareDocumentPosition(document.querySelector('#feuille-de-route')) & 4)) }, 'difficulté : cadre fermé par défaut, au-dessus de la feuille de route'));
+    // Ouvrir le cadre : retenu sur l'appareil.
+    await p.emulateMedia({ reducedMotion: 'reduce' }); await p.click('.mg-titre');
+    for (let k = 0; k < 20 && await p.evaluate(() => localStorage.getItem('mrt-graphe-difficulte')) !== '1'; k++) await p.clock.runFor(100);
+    pb.push(egal(['1', true], await p.evaluate(() => [localStorage.getItem('mrt-graphe-difficulte'), document.querySelector('details.mg-cadre').open]), 'difficulté : ouverte, retenue sur l\'appareil'));
+    // Titre repliable commun du site : comme les textes d'une course (Texte, 600, 0,85 rem).
+    pb.push(egal(['600', '13.6px', true], await p.evaluate(() => { const t = getComputedStyle(document.querySelector('.mg-titre'));
+      return [t.fontWeight, t.fontSize, t.color === getComputedStyle(document.body).color]; }), 'difficulté : titre repliable commun'));
     pb.push(egal(['Biscatrail, 21,7 km-effort | is-discret', 'Forez Trail · L\'Olmetoise, 33,4 km-effort | is-discret', '10 km de Montauban, 10,2 km-effort | is-discret',
       'Semi de San Sebastián, 21,1 km-effort | is-discret', 'Trail du Lac · Le Tour du Lac, 30,5 km-effort | is-plein', 'Corrida de Noël, 10,4 km-effort | is-plein',
       'Trail des Gorges, 66,0 km-effort | is-losange', 'Trail des Cimes, 67,0 km-effort | is-vide', 'Ultra du Plateau · Le 55, 83,0 km-effort | is-vide',
@@ -2203,7 +2210,10 @@ const CONTROLES = {
       { graduations: g.graduations, etiquettes: g.etiquettes, ligne: g.ligne, periode: g.periode, jour: g.jour, tendance: g.tendance }, 'difficulté : axe, étiquettes, ligne des confirmées, mois seul, aujourd\'hui'));
     await p.hover('.mg-pt[aria-label^="Trail des Gorges"]');
     pb.push(egal(['66,0 km-effort', 'Trail des Gorges', '7 mars 2027 · 45 km · 2 100 m D+'], await bulle(p), 'difficulté : bulle au survol'));
-    pb.push(egal([false, 11], await p.evaluate(() => [document.querySelector('.mg-chiffres').open, document.querySelectorAll('.mg-chiffres tr').length]), 'difficulté : « Les chiffres » fermé, 11 lignes'));
+    pb.push(egal({ chiffres: false, definition: true, ligne: ['1px', true], dessous: 2 }, await p.evaluate(() => { const d = document.querySelector('.mg-definition'), l = document.querySelector('.mg-ligne');
+      return { chiffres: !!document.querySelector('.mg-chiffres'), definition: !!d && /km-effort = distance \(km\) \+ dénivelé positif \(m\) ÷ 100/.test(d.textContent) && /ITRA/.test(d.textContent) && /normée/.test(d.textContent),
+        ligne: [getComputedStyle(l).strokeWidth, l.classList.contains('is-discrete')], dessous: document.querySelectorAll('.mg-etiq.is-dessous').length }; }),
+      'difficulté : définition normée à la place des chiffres ; ligne et étiquettes comme au Palmarès'));
     await replier(p, 'mrt-graphe-difficulte');
     pb.push(egal(['0', false], await p.evaluate(() => [localStorage.getItem('mrt-graphe-difficulte'), document.querySelector('details.mg-cadre').open]), 'difficulté : repliée, retenue sur l\'appareil'));
     pb.push(egal([], erreurs, 'difficulté : erreurs JavaScript'));
@@ -2211,7 +2221,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, db, { 'mrt-graphe-difficulte': '0' }, PARIS));
     pb.push(egal(false, (await lire(p)).ouvert, 'difficulté repliée, page rechargée : toujours repliée'));
     await ctx.close();
-    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 390, db, { 'mrt-graphe-difficulte': '1' }, PARIS));
     pb.push(egal({ etiquettes: false, deborde: false }, await p.evaluate(() => ({ etiquettes: [...document.querySelectorAll('.mg-etiq')].some(e => getComputedStyle(e).display !== 'none'),
       deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth })), 'difficulté, téléphone : pas d\'étiquettes, rien ne dépasse'));
     await ctx.close();
@@ -2227,9 +2237,8 @@ const CONTROLES = {
         'Semi de San Sebastián, 5:30 par km-effort | is-plein'] },
       { titre: g.titre, droite: g.droite, bilan: g.bilan, ligne: g.ligne, graduations: g.graduations, marques: g.marques, tendance: g.tendance, etiquettes: g.etiquettes, points: g.points },
       'progression : allure-effort, records, étiquettes, ligne ; pas de bilan ; pas de tendance (plusieurs formats)'));
-    pb.push(egal({ axe: 'min / km-effort', titre: [true, '700'] }, await p.evaluate(() => { const t = document.querySelector('.pv2-graphe .mg-titre'), g = document.querySelector('.pv2-group, .pv2-sort');
-      const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-      return { axe: document.querySelector('.mg-axe-y').textContent, titre: [getComputedStyle(t).color === getComputedStyle(document.querySelector('.pv2-add')).backgroundColor, getComputedStyle(t).fontWeight] }; }), 'progression : libellé de l\'axe ; titre en Accent, gras'));
+    pb.push(egal({ axe: 'min / km-effort', titre: [true, '600', '13.6px'] }, await p.evaluate(() => { const t = getComputedStyle(document.querySelector('.pv2-graphe .mg-titre'));
+      return { axe: document.querySelector('.mg-axe-y').textContent, titre: [t.color === getComputedStyle(document.body).color, t.fontWeight, t.fontSize] }; }), 'progression : libellé de l\'axe ; titre repliable commun, comme Difficulté'));
     pb.push(egal(true, await p.evaluate(() => { const a = document.querySelector('.pv2-graphe'), b = document.querySelector('.pv2-card'); return !!(b.compareDocumentPosition(a) & 4); }), 'progression : sous le tableau'));
     await p.hover('.mg-pt[aria-label^="Semi-marathon de Sète"]');
     pb.push(egal(['5:18 /km-effort', 'Semi-marathon de Sète', '5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+'], await bulle(p), 'progression : bulle de Sète'));

@@ -383,7 +383,7 @@
     function renderGraphe(list) {
       if (!window.mrtGraphique) return;
       const places = list.filter(r => r.v.time != null && r.v.dist != null && r.v.date).sort((a, b) => (a.v.date < b.v.date ? -1 : 1));
-      let cfg = { cle: 'mrt-graphe-progression', titre: 'Progression', classe: 'is-intertitre' };
+      let cfg = { cle: 'mrt-graphe-progression', titre: 'Progression' };
       if (places.length < 2) cfg.vide = 'Pas assez de courses pour un graphique';
       else {
         const points = places.map(r => {

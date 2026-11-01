@@ -1,13 +1,10 @@
 /* ===== Graphique : nuage de points dans le temps (graphique.js) =====
    Difficulté (Objectif, § 5.2) et progression (Palmarès, § 12). Couleurs par rôles seulement. */
 .mg.card { padding: 0.9rem 1.1rem 1rem; }
-.mg-titre { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
+.mg-titre { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
 .mg-titre::-webkit-details-marker { display: none; }
 .mg-chev { width: 0.8rem; height: 0.8rem; flex: none; color: var(--muted); transition: transform 0.2s ease-out; }
 details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
-/* Palmarès : titre au style des intertitres des groupes du tableau (Accent, gras, chevron Accent). */
-.mg.is-intertitre .mg-titre { font-weight: 700; color: var(--accent); }
-.mg.is-intertitre .mg-chev { color: var(--accent); }
 .mg-droite { margin-left: auto; font-size: 0.8rem; font-weight: 400; color: var(--muted); text-align: right; }
 .mg-droite b { font-family: 'Space Mono', monospace; font-weight: 700; }
 .mg-droite .is-mieux { color: var(--accent); }
@@ -60,17 +57,9 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-vide { padding: 1.5rem 0 0.5rem; }
 .mg-bilan { margin-top: 0.4rem; }
 
-/* Tableau des chiffres (Objectif) : titre repliable commun, fermé. */
-.mg-chiffres { margin-top: 0.6rem; border-top: 1px solid var(--border); }
-.mg-chiffres > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 0 0; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
-.mg-chiffres > summary::-webkit-details-marker { display: none; }
-.mg-chiffres:not([open]) > summary .mg-chev { transform: rotate(-90deg); }
-.mg-chiffres .table-scroll { overflow-x: auto; margin-top: 0.5rem; }
-.mg-chiffres table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-.mg-chiffres td { padding: 0.4rem 0.75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
-.mg-chiffres td.n { font-family: 'Space Mono', monospace; text-align: right; }
-.mg-chiffres td.d { color: var(--muted); }
-.mg-chiffres tr { cursor: pointer; }
+/* Définition sous le graphique (Difficulté) : texte discret, la formule en Texte. */
+.mg-definition { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid var(--border); font-size: 0.8rem; line-height: 1.5; color: var(--muted); }
+.mg-definition b { font-weight: 600; color: var(--text); }
 
 /* Téléphone : pas d'étiquettes, la bulle les remplace ; la tendance passe sous le titre. */
 @media (max-width: 600px) {

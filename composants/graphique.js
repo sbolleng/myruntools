@@ -10,7 +10,7 @@
 //
 // cfg = {
 //   cle        : clé de stockage de l'état replié (sur l'appareil)
-//   titre      : titre du cadre ; droite : html au bout du titre (tendance) ; classe : classe du cadre (is-intertitre :
+//   titre      : titre du cadre ; fermeParDefaut : replié tant que l'utilisateur ne l'a pas ouvert ; droite : html au bout du titre (tendance) ; classe : classe du cadre (is-intertitre :
 //                titre au style des intertitres du Palmarès)
 //   axeY       : { libelle, min, max, pas, fmt(v), inverse } ; inverse : la plus petite valeur en haut
 //   debut, fin : bornes du temps (ms) ; aujourdhui : trait pointillé (ms), facultatif
@@ -125,7 +125,7 @@
   }
 
   window.mrtGraphique = function (el, cfg) {
-    const ouvert = lire(cfg.cle) !== '0';
+    const memo = lire(cfg.cle), ouvert = cfg.fermeParDefaut ? memo === '1' : memo !== '0';
     el.classList.add('mg', 'card');
     if (cfg.classe) el.classList.add(cfg.classe);
     el.innerHTML = '<details class="mg-cadre mrt-deroule"' + (ouvert ? ' open' : '') + '>' +
@@ -135,7 +135,7 @@
     // Toucher ailleurs ferme la bulle.
     if (!el.__docBranche) {
       el.__docBranche = true;
-      document.addEventListener('click', e => { if (el.__fermerBulle && !e.target.closest('.mg-pt, .mg-bulle, .mg-chiffres tr')) el.__fermerBulle(); });
+      document.addEventListener('click', e => { if (el.__fermerBulle && !e.target.closest('.mg-pt, .mg-bulle')) el.__fermerBulle(); });
     }
     dessiner(el, cfg);
     return { maj: c => dessiner(el, c) };

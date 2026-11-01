@@ -110,7 +110,7 @@
     nav.className = 'mrt-nav';
     // Nom d'un onglet ; « œil » en picto pour En un coup d'œil (le nom complet reste lu par les lecteurs d'écran).
     const OEIL = '<svg class="mrt-picto" viewBox="0 0 24 16" aria-hidden="true"><path d="M1.5 8C4 3.5 7.8 1.5 12 1.5S20 3.5 22.5 8C20 12.5 16.2 14.5 12 14.5S4 12.5 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8" r="3" fill="currentColor"/></svg>';
-    const nomOnglet = m => (m.picto === 'oeil' ? esc(m.nom.replace(/œil$/, '')) + OEIL : esc(m.nom));
+    const nomOnglet = m => (m.picto === 'oeil' ? esc(m.nom.replace(/œil$/, '')) + OEIL : esc(m.libelle || m.nom));
     nav.innerHTML = '<div class="mrt-nav-inner">' + (cfg.modules || []).map(m => {
       const titre = m.picto ? ' aria-label="' + esc(m.nom) + '" title="' + esc(m.nom) + '"' : '';
       if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + nomOnglet(m) + '</span>';
