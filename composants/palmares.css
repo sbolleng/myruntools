@@ -98,11 +98,12 @@
 }
 @media (max-width: 600px) {
   .pv2-count { order: 3; flex-basis: 100%; margin-left: 0; }
+  /* Les mêmes marges que le cadre Progression : « Résultats » aligné sur « Progression ». */
+  .pv2-card { padding: 0.8rem 0.8rem 0.9rem; }
 }
 .pv2-paysage { display: none; margin: -0.3rem 0 0.7rem; font-size: 0.8rem; color: var(--muted); }
 /* Téléphone tenu en largeur : une ligne par course ; le tableau défile sur le côté s'il le faut. */
 @media (orientation: landscape) and (max-height: 500px) {
-  .pv2-card { padding: 0.8rem 0.6rem 0.4rem; }
   .pv2-table td { white-space: nowrap; }
 }
 @media (max-width: 600px) and (orientation: portrait) {

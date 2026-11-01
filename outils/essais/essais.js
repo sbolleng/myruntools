@@ -2250,6 +2250,8 @@ const CONTROLES = {
       const th = [...document.querySelectorAll('.pv2-table thead .pv2-sort')], date = th[0].getBoundingClientRect().top, allure = th.find(b => /Allure/.test(b.textContent)).getBoundingClientRect().top;
       return { titre: t && t.textContent, style: !!t && st(t) === st(g), marge: !!t && haut(t, document.querySelector('.pv2-card')) === haut(g, document.querySelector('.pv2-graphe')), date: Math.abs(date - allure) < 1 }; }),
       'tableau : titre « Résultats » comme « Progression », mêmes marges ; « DATE » à la hauteur de « ALLURE »'));
+    pb.push(egal(true, await p.evaluate(() => document.querySelector('.mg-axe-y').getBoundingClientRect().top - document.querySelector('.mg-haut').getBoundingClientRect().bottom >= 24),
+      'progression : de l\'air entre le sélecteur et l\'axe'));
     await p.hover('.mg-pt[aria-label^="Semi-marathon de Sète"]');
     pb.push(egal(['5:24 /km', 'Semi-marathon de Sète', '5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+'], await bulle(p), 'progression : bulle de Sète'));
     await p.hover('.mg-pt[aria-label^="Semi de San Sebastián"]');
@@ -2304,6 +2306,8 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 390, db0));
     pb.push(egal({ etiquettes: false, deborde: false }, await p.evaluate(() => ({ etiquettes: [...document.querySelectorAll('.mg-etiq')].some(e => getComputedStyle(e).display !== 'none'),
       deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth })), 'progression, téléphone : pas d\'étiquettes, rien ne dépasse'));
+    pb.push(egal(true, await p.evaluate(() => Math.abs(document.querySelector('.pv2-card > .mg-titre').getBoundingClientRect().left - document.querySelector('.pv2-graphe .mg-titre').getBoundingClientRect().left) < 1),
+      'téléphone : « Résultats » aligné sur « Progression »'));
     await ctx.close();
     return pb;
   },

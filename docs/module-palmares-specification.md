@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.29 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.30 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -186,7 +186,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 **Page et téléphone**
 
 - La page n'a pas d'en-tête : elle commence par la barre fine et le menu, puis la barre (Filtres, regroupement, « + Ajouter une course »), le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1), puis le graphique de progression (§ 12).
-- **Titre du tableau** : « Résultats », en haut de son cadre, au style du titre « Progression » (Space Grotesk 0,85 rem, 600, Texte) ; le cadre a les mêmes marges que celui du graphique (0,9 rem en haut). Les en-têtes de colonne sont calés en haut : un titre sur deux lignes (« ALLURE MOYENNE ») ne fait pas descendre les autres.
+- **Titre du tableau** : « Résultats », en haut de son cadre, au style du titre « Progression » (Space Grotesk 0,85 rem, 600, Texte) ; le cadre a les mêmes marges que celui du graphique (0,9 rem en haut ; sur téléphone, 0,8 rem : « Résultats » est aligné sur « Progression »). Les en-têtes de colonne sont calés en haut : un titre sur deux lignes (« ALLURE MOYENNE ») ne fait pas descendre les autres.
 - Téléphone tenu en hauteur : le tableau défile sur le côté ; une ligne, sous la barre, invite à tourner le téléphone : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » (un site ne peut pas tourner l'écran lui-même sur iPhone).
 - Téléphone tenu en largeur : une ligne par course, sans retour à la ligne dans les cellules ; le tableau défile sur le côté s'il le faut. Ni invitation, ni sur ordinateur.
 
@@ -237,7 +237,7 @@ Ligne (12) : elle relie les points dans l'ordre des dates. Téléphone : même o
 | 10 | Bulle | 5:24 /km · Semi-marathon de Sète… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface ; une seule à la fois ; « D+ non renseigné » quand c'est le cas |
 | 11 | Étiquette | 00:49:18 | Sous le point, centrée (alignée sur le point aux deux bords) | Le temps réalisé, comme dans la colonne Temps ; Space Mono 0,7 rem, Texte discret, liseré de la couleur du cadre (lisible sur la ligne) ; masquées sur téléphone et au-delà de 20 points (la bulle prend le relais) |
 | 12 | Ligne | — | D'un point à l'autre | Relie les points dans l'ordre des dates ; fine (1 px), Texte discret estompé, derrière les points |
-| 13 | Sélecteur de mesure | Allure moyenne · Temps · Allure-effort | Sous le titre | Pastilles communes, comme le choix de la vue du Calendrier ; la pastille choisie pleine, en Accent ; « Allure moyenne » par défaut ; le choix est retenu sur l'appareil |
+| 13 | Sélecteur de mesure | Allure moyenne · Temps · Allure-effort | Sous le titre, 1 rem d'air avant l'axe | Pastilles communes, comme le choix de la vue du Calendrier ; la pastille choisie pleine, en Accent ; « Allure moyenne » par défaut ; le choix est retenu sur l'appareil |
 
 - **Toucher le nom dans la bulle** : ouvre la consultation de la course (§ 10), comme une ligne du tableau.
 - **Accessibilité** : chaque point est un bouton, nommé (« Semi-marathon de Sète, 5:24 par km »), atteignable au clavier.

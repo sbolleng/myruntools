@@ -5,7 +5,7 @@
 .mg-titre::-webkit-details-marker { display: none; }
 /* Titre d'un bloc fixe (Progression, Résultats du Palmarès) : le même texte, sans chevron ni toucher. */
 .mg-titre.is-fixe { margin: 0; cursor: default; }
-.mg-haut:not(:empty) { display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; margin-top: 0.7rem; }
+.mg-haut:not(:empty) { display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; margin-top: 0.7rem; margin-bottom: 1rem; } /* de l'air avant l'axe : le sélecteur ne se lit pas comme un libellé du graphique */
 .mg-chev { width: 0.8rem; height: 0.8rem; flex: none; color: var(--muted); transition: transform 0.2s ease-out; }
 details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-droite { margin-left: auto; font-size: 0.8rem; font-weight: 400; color: var(--muted); text-align: right; }
