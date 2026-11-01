@@ -7,6 +7,7 @@ La plus récente en haut.
 | Date | Sujet | Décision |
 | --- | --- | --- |
 | 1er nov. 2026 | Objectif 0.64 | Le bouton « Ajouter une course » passe au-dessus du cadre « Évolution de l’effort ». |
+| 1er nov. 2026 | Objectif 0.65 | La page s’appelle « Objectif et plan » (menu, titre, spécifications). |
 | 1er nov. 2026 | Courses à surveiller 0.7 | Cartes : plus de choix de tri ni de regroupement (supprimés pour de bon ; toujours par date, groupées par mois). Nouvelle pastille « Inscriptions ouvertes » (à venir, pas inscrit, ouverture atteinte, date et heure) en deuxième place. Le texte « n courses » était déjà retiré en 0.6. |
 | 1er nov. 2026 | Courses à surveiller 0.6 | Texte « n courses » supprimé (les compteurs des pastilles suffisent). Regroupement par mois : proposé en cartes (Par mois · Aucun, gardé sur l'appareil, par défaut Par mois) ; supprimé du tableau. |
 | 1er nov. 2026 | Courses à surveiller 0.5 | Barre allégée : seules les quatre pastilles de sélection restent en pastilles ; vue Cartes / Tableau en deux ronds à picto précédés de « VUE » (comme les ronds du Palmarès) ; tri (Date · Ouverture, cartes seulement) et année en choix de texte discret précédés d'un libellé. En tableau, les colonnes se trient comme au Palmarès (croissant, décroissant, ordre d'origine). Choix laissés à l'appréciation de Claude par l'utilisateur. |
