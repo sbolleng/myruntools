@@ -41,6 +41,8 @@ const PAGES = {
   connexion: { url: 'connexion.html', anonyme: true },
   objectif: { url: 'objectif.html' },
   course: { url: 'course.html?id=' + id(3) },
+  // Page d'une course, « À propos de la course » ouvert : le texte prend toute la largeur de la fiche.
+  'course-apropos': { url: 'course.html?id=' + id(3), action: async p => { await p.waitForSelector('.mc-panneau .pc-titre'); await p.click('.pc-fiche-bas summary'); await p.waitForTimeout(400); } },
   candidat: { url: 'course.html?id=' + id(4) },
   fiche: { url: 'course.html?id=' + id(3), largeurs: { tel: [390, 844] }, action: async p => { await p.locator('[data-ob="modifier"]').click(); await p.waitForSelector('.fc-fiche'); } },
   modale: { url: 'objectif.html', largeurs: { tel: [390, 844] }, action: async p => { await p.locator('.ob-et:nth-child(3) .ob-nom a:not(.ob-ext)').click(); await p.waitForSelector('.mc-panneau .pc-titre'); } },
