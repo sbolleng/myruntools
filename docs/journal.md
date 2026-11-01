@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Évolution de l’effort | Toujours fermé à l'ouverture de la page Objectif : l'état ouvert n'est plus retenu sur l'appareil (Objectif 0.56). |
 | 1er nov. 2026 | Graphique Difficulté | Renommé « Évolution de l’effort » (Objectif 0.55) : on suit une trajectoire, une baisse d'effort n'est pas un recul. Définition en pédagogie par l'exemple (40 km + 2 000 m de D+ = 60 km-effort), « L'effort d'une course se mesure ici en km-effort… ». |
 | 1er nov. 2026 | Graphique Difficulté | Retouches (Objectif 0.54) : étiquettes supprimées (illisibles) ; traits de période supprimés (date au mois seul : point au milieu du mois) ; point à contour pour les courses en option, ajouté à la légende ; filet supprimé entre la définition et la légende. Texte de la définition : trois propositions à choisir. |
 | 1er nov. 2026 | Graphique Difficulté | Objectif 0.53 : période de la date du jour à la dernière course du plan, pour tous (plus de courues ni de trait « aujourd'hui »). Deux signes de même remplissage : point (préparation) et losange (objectif, principal ou intermédiaire), avec légende ; plus de cercle vide. Étiquettes en diagonale (coin bas droit sur le coin haut gauche du losange). Définition didactique « À propos de la difficulté d'une course… » en petit italique, plus d'air avant elle. |

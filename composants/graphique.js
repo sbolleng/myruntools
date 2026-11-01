@@ -10,7 +10,7 @@
 //
 // cfg = {
 //   cle        : clé de stockage de l'état replié (sur l'appareil)
-//   titre      : titre du cadre ; fixe : bloc non repliable, avec haut (html sous le titre : sélecteur) ; fermeParDefaut : replié tant que l'utilisateur ne l'a pas ouvert ; droite : html au bout du titre (tendance) ; classe : classe du cadre (is-intertitre :
+//   titre      : titre du cadre ; fixe : bloc non repliable, avec haut (html sous le titre : sélecteur) ; fermeParDefaut : replié tant que l'utilisateur ne l'a pas ouvert ; toujoursFerme : replié à chaque chargement de la page, rien n'est retenu ; droite : html au bout du titre (tendance) ; classe : classe du cadre (is-intertitre :
 //                titre au style des intertitres du Palmarès)
 //   axeY       : { libelle, min, max, pas, fmt(v), inverse } ; inverse : la plus petite valeur en haut
 //   debut, fin : bornes du temps (ms) ; aujourdhui : trait pointillé (ms), facultatif
@@ -138,7 +138,7 @@
   }
 
   window.mrtGraphique = function (el, cfg) {
-    const memo = lire(cfg.cle), ouvert = cfg.fermeParDefaut ? memo === '1' : memo !== '0';
+    const memo = cfg.toujoursFerme ? null : lire(cfg.cle), ouvert = cfg.toujoursFerme ? false : cfg.fermeParDefaut ? memo === '1' : memo !== '0';
     el.classList.add('mg', 'card');
     if (cfg.classe) el.classList.add(cfg.classe);
     // Bloc fixe (Progression du Palmarès) : un titre simple, rien à replier ; sinon un cadre repliable (Évolution de l’effort).
@@ -148,7 +148,7 @@
       el.innerHTML = '<details class="mg-cadre mrt-deroule"' + (ouvert ? ' open' : '') + '>' +
         '<summary class="mg-titre">' + CHEVRON + '<span>' + esc(cfg.titre) + '</span><span class="mg-droite"></span></summary>' +
         '<div class="mg-corps"></div></details>';
-      el.querySelector('details').addEventListener('toggle', e => ecrire(cfg.cle, e.target.open ? '1' : '0'));
+      if (!cfg.toujoursFerme) el.querySelector('details').addEventListener('toggle', e => ecrire(cfg.cle, e.target.open ? '1' : '0'));
     }
     // Toucher ailleurs ferme la bulle.
     if (!el.__docBranche) {

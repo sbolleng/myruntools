@@ -222,7 +222,7 @@
       'Le principe : on ajoute au kilométrage l\'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. ' +
       'Un trail de 40 km avec 2 000 m de D+ pèse donc comme une course de 60 km à plat. La descente n\'est pas comptée.</p>';
     window.mrtGraphique(el, {
-      cle: 'mrt-graphe-difficulte', titre: 'Évolution de l’effort', fermeParDefaut: true,
+      cle: 'mrt-graphe-difficulte', titre: 'Évolution de l’effort', toujoursFerme: true,
       axeY: { libelle: 'km-effort', min: 0, max, pas: 20, fmt: v => String(v) },
       debut: t0, fin, points, ligne, ligneDiscrete: true, bas: legende + definition
     });
