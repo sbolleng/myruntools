@@ -17,7 +17,8 @@
 //   points     : [{ id, t (ms), t2 (ms, trait sur une période), y, forme, etiquette, aria, bulle: { valeur, nom, lien, details } }]
 //                forme : 'plein' (Accent), 'discret', 'vide', 'losange', 'grand' (grand losange) ; avec t2 : trait pointillé de t à t2,
 //                la marque au milieu (date au mois seul) ; marque : signe au-dessus du point (🥇)
-//   ligne      : identifiants des points reliés, dans l'ordre ; etiquettesDessous : étiquettes centrées sous les points
+//   ligne      : identifiants des points reliés, dans l'ordre ; ligneDiscrete : ligne fine, Texte discret ;
+//                etiquettesDessous : étiquettes centrées sous les points
 //   tendance   : { y0, y1 } droite de debut à fin, facultative
 //   vide       : texte à la place du tracé (pas assez de points)
 //   bas        : html sous le graphique (bilan, tableau des chiffres)
@@ -72,7 +73,7 @@
       svg += '<line class="mg-jour" x1="' + xAt(cfg.aujourdhui) + '" x2="' + xAt(cfg.aujourdhui) + '" y1="0" y2="100"/>';
     if (cfg.tendance) svg += '<line class="mg-tendance" x1="' + xAt(d0) + '" x2="' + xAt(d1) + '" y1="' + yAt(cfg.tendance.y0) + '" y2="' + yAt(cfg.tendance.y1) + '"/>';
     const chemin = (cfg.ligne || []).map(i => parId[i]).filter(Boolean);
-    if (chemin.length > 1) svg += '<polyline class="mg-ligne" points="' + chemin.map(p => p.x + ',' + p.yy).join(' ') + '"/>';
+    if (chemin.length > 1) svg += '<polyline class="mg-ligne' + (cfg.ligneDiscrete ? ' is-discrete' : '') + '" points="' + chemin.map(p => p.x + ',' + p.yy).join(' ') + '"/>';
     pts.filter(p => p.t2 != null).forEach(p => { svg += '<line class="mg-periode" x1="' + p.x1 + '" x2="' + p.x2 + '" y1="' + p.yy + '" y2="' + p.yy + '"/>'; });
 
     const pos = p => 'left:' + p.x + '%;top:' + p.yy + '%';
