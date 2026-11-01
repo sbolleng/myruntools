@@ -2418,7 +2418,7 @@ const CONTROLES = {
         grise: !!c.querySelector('.cs-site.is-off'), compteur: !!c.querySelector('.ob-cpt'), pt: c.className.replace('ob-carte cs-carte', '').trim() };
     }));
     const barre = p => p.evaluate(() => ({ vues: [...document.querySelectorAll('[data-vue]')].map(b => b.textContent.replace(/\s+/g, ' ').trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
-      compte: document.querySelector('.cs-compte').textContent, tris: [...document.querySelectorAll('[data-tri]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
+      compte: document.querySelectorAll('.cs-carte, .cs-ligne').length + ' courses', groupes: [...document.querySelectorAll('[data-groupe]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')), tris: [...document.querySelectorAll('[data-tri]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       annees: [...document.querySelectorAll('[data-annee]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       reperes: [...document.querySelectorAll('.cs-mois')].map(x => x.textContent) }));
 
@@ -2426,7 +2426,7 @@ const CONTROLES = {
     let { p, ctx, erreurs } = await neuve(1200);
     let b = await barre(p), k = await cartes(p);
     pb.push(egal(['À surveiller 3 *', 'Déjà couru 7', 'À venir 7', 'Tout 17'], b.vues, 'vues et compteurs, À surveiller par défaut'));
-    pb.push(egal(['3 courses', ['Date *', 'Ouverture'], [], ['avril 2027', 'septembre 2028', 'Date à définir']], [b.compte, b.tris, b.annees, b.reperes], 'À surveiller : compte, tri, titres de mois'));
+    pb.push(egal([0, ['Par mois *', 'Aucun'], ['Date *', 'Ouverture'], [], ['avril 2027', 'septembre 2028', 'Date à définir']], [await p.locator('.cs-compte').count(), b.groupes, b.tris, b.annees, b.reperes], 'À surveiller : pas de texte « n courses », regroupement par mois proposé (actif), tri, titres de mois'));
     pb.push(egal(['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], k.map(x => x.nom), 'À surveiller : ordre chronologique, sans date à la fin'));
     pb.push(egal({ nom: 'Marathon de la Baie', statut: 'À surveiller', date: '11 avr. 2027', info: 'La Baie · Marathon', lignes: ['Distance | 42,195 km', 'Dossard | Ouvre le 03/11/2026 à 12:00'], lien: 'https://example.org/baie', cible: '_blank', grise: false, compteur: false, pt: 'is-opt' },
       k[0], 'carte : statut à la place du rôle, ni compteur ni objectif, dossard avec l\'heure, lien « Site officiel »'));
@@ -2441,14 +2441,14 @@ const CONTROLES = {
     await p.click('[data-tri="ouverture"]');
     k = await cartes(p); b = await barre(p);
     pb.push(egal(['Ultra du Plateau · Le 55', 'Corrida de Noël', 'Trail des Cimes', 'Trail de la Forêt', 'Trail du Lac · Le Tour du Lac', 'Trail des Gorges', 'Trail des Crêtes'], k.map(x => x.nom), 'tri par ouverture : ouvertes d\'abord, inscrits à la fin'));
-    pb.push(egal([['Date', 'Ouverture *'], []], [b.tris, b.reperes], 'tri par ouverture : pas de repères'));
+    pb.push(egal([['Date', 'Ouverture *'], [], []], [b.tris, b.reperes, b.groupes], 'tri par ouverture : ni titres de mois ni choix de regroupement'));
 
     // Déjà couru : du plus récent au plus ancien, sans dossard, avec l'année.
     await p.click('[data-vue="courue"]');
     k = await cartes(p); b = await barre(p);
     pb.push(egal(['Semi de San Sebastián', '10 km de Montauban'], k.slice(0, 2).map(x => x.nom), 'Déjà couru : les plus récentes d\'abord'));
     pb.push(egal([7, 'Courue', 0, 'is-courue'], [k.length, k[0].statut, k.filter(x => x.lignes.some(l => l.startsWith('Dossard'))).length, k[0].pt.split(' ')[0]], 'Déjà couru : statut, sans dossard, pastille atténuée'));
-    pb.push(egal([['Toutes *', '2026', '2025'], '7 courses'], [b.annees, b.compte], 'Déjà couru : pastilles des années'));
+    pb.push(egal([['Toutes *', '2026', '2025'], '7 courses'], [b.annees, b.compte], 'Déjà couru : pastilles des années, 7 cartes'));
     await p.click('[data-annee="2025"]');
     pb.push(egal([4, '4 courses', []], [(await cartes(p)).length, (await barre(p)).compte, (await barre(p)).tris], 'année 2025 : 4 courses, pas de tri'));
 
@@ -2461,27 +2461,26 @@ const CONTROLES = {
     pb.push(egal([17, 'Trail du Lac · Le Tour du Lac', 'Semi de San Sebastián'], [k.length, k[0].nom, k.find(x => x.statut === 'Courue').nom], 'Tout : 17 courses, à venir d\'abord puis les courues'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
 
-    // Tableau : les colonnes de la veille, une ligne par course, titres de mois ; choix gardé sur l'appareil.
+    // Tableau : les colonnes de la veille, une ligne par course, sans regroupement ; choix gardé sur l'appareil.
     await p.click('[data-vue="surveiller"]');
     const lignes = () => p.evaluate(() => ({ en: [...document.querySelectorAll('.cs-tableau thead th')].map(x => x.textContent),
-      mois: [...document.querySelectorAll('.cs-ligne-mois th')].map(x => x.textContent),
       l: [...document.querySelectorAll('.cs-ligne')].map(r => [...r.children].map(x => x.innerText.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim())),
       lien: [...document.querySelectorAll('.cs-ligne .cs-lien-nom')].map(x => x.getAttribute('href')) }));
     pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.getAttribute('aria-label') + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
     await p.click('[data-mode="tableau"]');
     let tb = await lignes();
     pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des dossards'], tb.en, 'tableau : les colonnes de la veille, sans UTMB Index'));
-    pb.push(egal(['avril 2027', 'septembre 2028', 'Date à définir'], tb.mois, 'tableau : titres de mois'));
+    pb.push(egal([0, 0], [await p.locator('.cs-ligne-mois').count(), await p.locator('[data-groupe]').count()], 'tableau : pas de regroupement par mois, pas de choix de regroupement'));
     pb.push(egal([['Marathon de la Baie La Baie', '—', '42,195 km', '11 avr. 2027', 'Ouvre le 03/11/2026 à 12:00'], ['Trail des Sommets Haut-Val', '—', '80 km · 5 000 m D+', '10 sept. 2028', 'Ouverture à venir'],
       ['Ultra des Lacs', '—', '—', 'À définir', 'Ouverture : janvier 2027']], tb.l, 'tableau : une ligne par course'));
     // Colonnes triables : toucher une colonne trie (croissant, décroissant, puis retour à l'ordre d'origine) ; plus de choix « Tri ».
     const ordre = () => p.evaluate(() => ({ noms: [...document.querySelectorAll('.cs-ligne td:first-child strong')].map(x => x.textContent), mois: document.querySelectorAll('.cs-ligne-mois').length,
       sens: [...document.querySelectorAll('.cs-tableau thead th')].map(t => t.getAttribute('aria-sort')[0]).join('') }));
     pb.push(egal(0, await p.locator('[data-tri]').count(), 'tableau : pas de choix Tri'));
-    pb.push(egal(['nnnan', 3], [(await ordre()).sens, (await ordre()).mois], 'tableau : par défaut Date croissante, avec les titres de mois'));
+    pb.push(egal(['nnnan', 0], [(await ordre()).sens, (await ordre()).mois], 'tableau : par défaut Date croissante, sans titres de mois'));
     await p.click('[data-col="distance"]');
     let o2 = await ordre();
-    pb.push(egal([['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], 0, 'nnann'], [o2.noms, o2.mois, o2.sens], 'colonne Distance : croissante, à plat, sans distance en dernier'));
+    pb.push(egal([['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], 'nnann'], [o2.noms, o2.sens], 'colonne Distance : croissante, sans distance en dernier'));
     await p.click('[data-col="distance"]');
     o2 = await ordre();
     pb.push(egal(['Trail des Sommets', 'Marathon de la Baie', 'Ultra des Lacs'], o2.noms, 'colonne Distance : décroissante'));
@@ -2491,7 +2490,7 @@ const CONTROLES = {
     pb.push(egal(['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], (await ordre()).noms, 'colonne Événement : alphabétique'));
     await p.click('[data-col="evenement"]'); await p.click('[data-col="evenement"]');
     o2 = await ordre();
-    pb.push(egal(['nnnan', 3], [o2.sens, o2.mois], 'troisième toucher : retour à l\'ordre d\'origine, titres de mois'));
+    pb.push(egal(['nnnan', 0], [o2.sens, o2.mois], 'troisième toucher : retour à l\'ordre d\'origine'));
     pb.push(egal(['https://example.org/baie'], tb.lien, 'tableau : le nom mène au site officiel quand il est renseigné'));
     await p.click('[data-vue="venir"]');
     pb.push(egal('15 nov. 2026 9 h', (await lignes()).l[0][3], 'tableau : l\'heure de départ sous la date'));
@@ -2508,6 +2507,13 @@ const CONTROLES = {
     await p.click('[data-mode="cartes"]');
     pb.push(egal([0, 3], [await p.locator('.cs-tableau').count(), await p.locator('.cs-carte').count()], 'retour aux cartes'));
 
+    // Regroupement : « Aucun » retire les titres de mois et le choix est gardé après rechargement.
+    await p.click('[data-groupe="aucun"]');
+    pb.push(egal([0, 3], [await p.locator('.cs-mois').count(), await p.locator('.cs-carte').count()], 'regroupement « Aucun » : plus de titres de mois, les mêmes cartes'));
+    await p.reload(); await p.waitForSelector('.cs-barre');
+    pb.push(egal([0, 'Aucun *'], [await p.locator('.cs-mois').count(), (await barre(p)).groupes[1]], 'regroupement : le choix est gardé après rechargement'));
+    await p.click('[data-groupe="mois"]');
+    pb.push(egal(3, await p.locator('.cs-mois').count(), 'regroupement « Par mois » rétabli'));
     // Toucher une carte : la fiche de modification (course à venir, sans date, courue) ; le lien « Site officiel » ne l'ouvre pas.
     await p.click('[data-vue="surveiller"]');
     await p.click('.cs-site[href]');

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Courses à surveiller 0.6 | Texte « n courses » supprimé (les compteurs des pastilles suffisent). Regroupement par mois : proposé en cartes (Par mois · Aucun, gardé sur l'appareil, par défaut Par mois) ; supprimé du tableau. |
 | 1er nov. 2026 | Courses à surveiller 0.5 | Barre allégée : seules les quatre pastilles de sélection restent en pastilles ; vue Cartes / Tableau en deux ronds à picto précédés de « VUE » (comme les ronds du Palmarès) ; tri (Date · Ouverture, cartes seulement) et année en choix de texte discret précédés d'un libellé. En tableau, les colonnes se trient comme au Palmarès (croissant, décroissant, ordre d'origine). Choix laissés à l'appréciation de Claude par l'utilisateur. |
 | 1er nov. 2026 | Évolution de l’effort | Toujours fermé à l'ouverture de la page Objectif : l'état ouvert n'est plus retenu sur l'appareil (Objectif 0.63). |
 | 1er nov. 2026 | Courses à surveiller 0.4 | Vue tableau au choix (pastilles Cartes · Tableau, gardé sur l'appareil) : colonnes de la veille de l'ancien suivi, sans l'index UTMB : Événement (course, site officiel, lieu), Course (parcours), Distance · D+, Date (et heure), Ouverture des dossards ; titres de mois ; dans le cadre et les styles de notre site. |

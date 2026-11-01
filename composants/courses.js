@@ -64,10 +64,14 @@
   const CLES = { evenement: c => c.course.toLowerCase(), course: c => (c.parcours || '').toLowerCase() || null, distance: c => (c.distance != null ? Number(c.distance) : null), date: c => c.date || null, ouverture: cleOuverture };
   const CLE_MODE = 'mrt-courses-affichage';
   const lireMode = () => { try { return localStorage.getItem(CLE_MODE) === 'tableau' ? 'tableau' : 'cartes'; } catch (e) { return 'cartes'; } };
+  const CLE_GROUPE = 'mrt-courses-groupe';
+  const lireGroupe = () => { try { return localStorage.getItem(CLE_GROUPE) !== 'aucun'; } catch (e) { return true; } };
+  const ecrireGroupe = g => { try { localStorage.setItem(CLE_GROUPE, g ? 'mois' : 'aucun'); } catch (e) { /* stockage indisponible */ } };
   const ecrireMode = m => { try { localStorage.setItem(CLE_MODE, m); } catch (e) { /* stockage indisponible */ } };
 
   window.renderCourses = function (el, courses, edition, etat) {
     if (!etat.mode) etat.mode = lireMode();
+    if (etat.groupe === undefined) etat.groupe = lireGroupe();
     const vues = window.mrtVuesCourses(courses);
     if (!vues[etat.vue]) etat.vue = 'surveiller';
     const nonCourue = etat.vue !== 'courue';
@@ -90,7 +94,9 @@
         return (u < v ? -1 : u > v ? 1 : 0) * sens || croissant(x, y);
       });
     } else if (parOuv) { const f = liste.filter(c => c.etat !== 'courue'); liste = f.sort(parOuverture).concat(liste.filter(c => c.etat === 'courue')); }
-    const parMois = tab ? !col || col === 'date' : !parOuv;
+    // Regroupement par mois : cartes seulement, au choix (gardé sur l'appareil) ; jamais dans le tableau.
+    const groupeMois = etat.groupe !== false;
+    const parMois = !tab && groupeMois && !parOuv;
 
     const pastille = (attr, cle, texte, on) => '<button type="button" class="mrt-pastille cs-pastille' + (on ? ' is-on' : '') + '" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
     // Réglages discrets : un libellé, puis les choix en texte (le choix actif souligné).
@@ -99,8 +105,9 @@
     const rond = (cle, texte, picto) => '<button type="button" class="mrt-rond cs-rond" data-mode="' + cle + '" aria-pressed="' + (etat.mode === cle) + '" aria-label="' + texte + '" title="' + texte + '">' + picto + '</button>';
     const haut = '<div class="cs-barre"><div class="cs-vues" role="group" aria-label="Sélection">' +
       VUES.map(([k, lib]) => pastille('vue', k, lib + ' <span class="cs-n">' + vues[k].length + '</span>', k === etat.vue)).join('') + '</div>' +
-      '<div class="cs-outils"><span class="cs-compte">' + liste.length + (liste.length > 1 ? ' courses' : ' course') + '</span>' +
+      '<div class="cs-outils">' +
         reglage('Vue', '<span class="cs-ronds" role="group" aria-label="Affichage">' + rond('cartes', 'Cartes', GRILLE) + rond('tableau', 'Tableau', TABLE) + '</span>') +
+        (!tab && !parOuv ? reglage('Regrouper', choix('groupe', 'mois', 'Par mois', groupeMois) + choix('groupe', 'aucun', 'Aucun', !groupeMois)) : '') +
         (nonCourue && !tab ? reglage('Tri', choix('tri', 'date', 'Date', !parOuv) + choix('tri', 'ouverture', 'Ouverture', parOuv)) : '') +
         (annees.length > 1 ? reglage('Année', choix('annee', '', 'Toutes', !etat.annee) + annees.map(a => choix('annee', a, a, a === etat.annee)).join('')) : '') +
         (edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-cs="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div></div>';
@@ -120,8 +127,7 @@
         const actif = col ? col === k : k === 'date', sens = col ? etat.dir : etat.vue === 'courue' ? 'desc' : 'asc';
         return '<th aria-sort="' + (actif ? (sens === 'desc' ? 'descending' : 'ascending') : 'none') + '"><button type="button" class="cs-tri-col" data-col="' + k + '">' + lib + TRI + '</button></th>';
       }).join('') + '</tr></thead><tbody>' +
-      groupes.map(g => (g.m ? '<tr class="cs-ligne-mois"><th colspan="5">' + (g.m === 'sans' ? 'Date à définir' : MOIS_LONG[Number(g.m.slice(5)) - 1] + ' ' + g.m.slice(0, 4)) + '</th></tr>' : '') +
-        g.cartes.map(ligneTableau).join('')).join('') + '</tbody></table></div></div>';
+      liste.map(ligneTableau).join('') + '</tbody></table></div></div>';
     el.innerHTML = haut + (liste.length ? (etat.mode === 'tableau' ? tableau : '<div class="cs-liste">' + html + '</div>') : '<p class="ob-vide cs-vide">' + VIDE[etat.vue] + '</p>');
     couperNoms();
 
@@ -133,6 +139,7 @@
       if (etat.col !== k) { etat.col = k; etat.dir = 'asc'; } else if (etat.dir === 'asc') etat.dir = 'desc'; else etat.col = null;
       redessiner();
     }));
+    el.querySelectorAll('[data-groupe]').forEach(b => b.addEventListener('click', () => { etat.groupe = b.dataset.groupe === 'mois'; ecrireGroupe(etat.groupe); redessiner(); }));
     el.querySelectorAll('[data-tri]').forEach(b => b.addEventListener('click', () => { etat.tri = b.dataset.tri; redessiner(); }));
     el.querySelectorAll('[data-annee]').forEach(b => b.addEventListener('click', () => { etat.annee = b.dataset.annee || null; redessiner(); }));
     // Toucher une carte (hors lien « Site officiel ») : la fiche de modification ; en lecture seule, la page de la course.
