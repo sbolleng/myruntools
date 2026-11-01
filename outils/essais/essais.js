@@ -2283,6 +2283,9 @@ const CONTROLES = {
     await p.fill('.pv2-panel input[data-f="course"]', 'sete');
     g = await lire(p);
     pb.push(egal('Pas assez de courses pour un graphique', g.vide, 'progression, « sete » : pas assez de courses'));
+    await p.click('[data-act="clear"]');
+    pb.push(egal({ coches: 19, dates: ['mai 25', 'juil.', 'sept.', 'nov.', 'janv. 26', 'mars', 'mai', 'juil.', 'sept.'] }, await p.evaluate(() => ({ coches: document.querySelectorAll('.pv2-graphe .mg-coche').length,
+      dates: [...document.querySelectorAll('.pv2-graphe .mg-gx span')].map(x => x.textContent) })), 'progression, ordinateur : une coche par mois, une date tous les 2 mois'));
     pb.push(egal([], erreurs, 'progression : erreurs JavaScript'));
     await ctx.close();
     // Une course de plus au 10 km (00:45:00, sans D+) et une non terminée.
@@ -2308,6 +2311,7 @@ const CONTROLES = {
       deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth })), 'progression, téléphone : pas d\'étiquettes, rien ne dépasse'));
     pb.push(egal(true, await p.evaluate(() => Math.abs(document.querySelector('.pv2-card > .mg-titre').getBoundingClientRect().left - document.querySelector('.pv2-graphe .mg-titre').getBoundingClientRect().left) < 1),
       'téléphone : « Résultats » aligné sur « Progression »'));
+    pb.push(egal(['juil. 25', 'janv. 26', 'juil.'], await p.evaluate(() => [...document.querySelectorAll('.pv2-graphe .mg-gx span')].map(x => x.textContent)), 'progression, téléphone : une date tous les 6 mois'));
     await ctx.close();
     return pb;
   },

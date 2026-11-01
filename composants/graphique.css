@@ -25,7 +25,8 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-periode { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; }
 .mg-gy { position: absolute; right: calc(100% + 0.5rem); transform: translateY(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
 .mg-gx { position: relative; height: 1.3rem; margin-top: 0.4rem; }
-.mg-gx span { position: absolute; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.mg-coche { position: absolute; top: -0.4rem; width: 1px; height: 5px; background: var(--muted); opacity: 0.5; }
+.mg-gx span { position: absolute; top: 0.1rem; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
 
 /* Points : un bouton (zone de toucher de 24 px), la marque dessinée dedans. */
 .mg-pt { position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; padding: 0; border: 0; background: none; cursor: pointer; z-index: 1; }
@@ -75,5 +76,4 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
   .mg-droite { flex-basis: 100%; margin-left: 1.3rem; text-align: left; }
   .mg-zone { margin-left: 2.3rem; }
   .mg-plot { height: 190px; }
-  .mg-gx span.is-mineur { display: none; }
 }

@@ -33,25 +33,36 @@
   const lire = cle => { try { return localStorage.getItem(cle); } catch (e) { return null; } };
   const ecrire = (cle, v) => { try { localStorage.setItem(cle, v); } catch (e) { /* stockage indisponible */ } };
 
-  // Repères du temps : le 1er de chaque trimestre (janv., avr., juil., oct.) ; l'année sur janvier et sur le premier repère.
-  function reperes(debut, fin) {
-    const d = new Date(debut), out = [];
-    let a = d.getFullYear(), m = Math.ceil(d.getMonth() / 3) * 3, majeur = false;
-    if (m === d.getMonth() && d.getDate() > 1) m += 3;
+  // Repères du temps : le pas le plus fin (1, 2, 3, 6 ou 12 mois) qui laisse à chaque date la place de s'écrire
+  // (largeur du graphique ÷ 64 px) ; repères calés sur janvier (pas de 2 : janv., mars, mai…) ; l'année sur janvier et sur le premier.
+  const LARGEUR_REPERE = 64;
+  function reperes(debut, fin, largeur) {
+    const d = new Date(debut), mois = (new Date(fin).getFullYear() - d.getFullYear()) * 12 + new Date(fin).getMonth() - d.getMonth() + 1;
+    const place = Math.max(2, Math.floor((largeur || 600) / LARGEUR_REPERE));
+    const pas = [1, 2, 3, 6, 12].find(q => mois / q <= place) || 12;
+    const out = [];
+    let a = d.getFullYear(), m = Math.ceil(d.getMonth() / pas) * pas;
+    if (m === d.getMonth() && d.getDate() > 1) m += pas;
     for (;;) {
-      if (m >= 12) { m -= 12; a++; }
+      while (m >= 12) { m -= 12; a++; }
       const t = new Date(a, m, 1).getTime();
       if (t > fin) break;
-      // Téléphone : seulement janvier et juillet (is-mineur masqué), l'année sur janvier.
-      const mineur = m === 3 || m === 9;
-      out.push({ t, mineur, txt: MOIS[m] + (m === 0 || !out.length || (!mineur && !majeur) ? ' ' + String(a).slice(2) : '') });
-      if (!mineur) majeur = true;
-      m += 3;
+      out.push({ t, txt: MOIS[m] + (m === 0 || !out.length ? ' ' + String(a).slice(2) : '') });
+      m += pas;
     }
     return out;
   }
 
+  // Une coche par mois sur l'axe du temps (le 1er de chaque mois), même là où la date n'est pas écrite.
+  function coches(debut, fin) {
+    const d = new Date(debut), out = [];
+    for (let t = new Date(d.getFullYear(), d.getMonth() + (d.getDate() > 1 ? 1 : 0), 1); t.getTime() <= fin; t = new Date(t.getFullYear(), t.getMonth() + 1, 1)) out.push(t.getTime());
+    return out;
+  }
+  // Largeur utile du tracé : celle du cadre (mesurable même replié), moins ses marges et la place des graduations.
+  const largeurTrace = el => Math.max(0, el.getBoundingClientRect().width - 90);
   function dessiner(el, cfg) {
+    el.__cfg = cfg;
     const corps = el.querySelector('.mg-corps');
     el.querySelector('.mg-droite').innerHTML = cfg.droite || '';
     const haut = el.querySelector('.mg-haut');
@@ -90,7 +101,7 @@
             (p.etiquette ? '<span class="mg-etiq' + (cfg.etiquettesDessous ? ' is-dessous' + (p.x < 8 ? ' is-debut' : p.x > 92 ? ' is-fin' : '') : p.x > 50 ? ' is-gauche' : '') + '" style="' + pos(p) + '">' + esc(p.etiquette) + '</span>' : '')).join('') +
           '<div class="mg-bulle" role="status" hidden></div>' +
         '</div>' +
-        '<div class="mg-gx">' + reperes(d0, d1).map(r => '<span' + (r.mineur ? ' class="is-mineur"' : '') + ' style="left:' + xAt(r.t) + '%">' + esc(r.txt) + '</span>').join('') + '</div>' +
+        '<div class="mg-gx">' + coches(d0, d1).map(t => '<i class="mg-coche" style="left:' + xAt(t) + '%"></i>').join('') + reperes(d0, d1, largeurTrace(el)).map(r => '<span style="left:' + xAt(r.t) + '%">' + esc(r.txt) + '</span>').join('') + '</div>' +
       '</div>' + (cfg.bas || '');
 
     // Bulle : survol (souris), toucher ou clavier ; une seule à la fois ; toucher ailleurs la ferme.
@@ -145,6 +156,12 @@
       document.addEventListener('click', e => { if (el.__fermerBulle && !e.target.closest('.mg-pt, .mg-bulle')) el.__fermerBulle(); });
     }
     dessiner(el, cfg);
+    // Largeur changée (téléphone tourné, fenêtre) : les repères du temps sont recalculés.
+    if (window.ResizeObserver && !el.__observe) {
+      let w = Math.round(el.getBoundingClientRect().width);
+      el.__observe = new ResizeObserver(() => { const n = Math.round(el.getBoundingClientRect().width); if (n !== w && n > 0) { w = n; dessiner(el, el.__cfg); } });
+      el.__observe.observe(el);
+    }
     return { maj: c => dessiner(el, c) };
   };
 })();
