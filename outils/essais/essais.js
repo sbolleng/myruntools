@@ -2272,10 +2272,10 @@ const CONTROLES = {
     let g = await lire(p);
     pb.push(egal({ titre: 'Évolution de l’effort', ouvert: false, avant: true }, { titre: g.titre, ouvert: g.ouvert,
       avant: await p.evaluate(() => !!(document.querySelector('#difficulte').compareDocumentPosition(document.querySelector('#feuille-de-route')) & 4)) }, 'effort : cadre fermé par défaut, au-dessus de la feuille de route'));
-    // Ouvrir le cadre : retenu sur l'appareil.
+    // Ouvrir le cadre : rien n'est retenu, il se referme à chaque chargement.
     await p.emulateMedia({ reducedMotion: 'reduce' }); await p.click('.mg-titre');
-    for (let k = 0; k < 20 && await p.evaluate(() => localStorage.getItem('mrt-graphe-difficulte')) !== '1'; k++) await p.clock.runFor(100);
-    pb.push(egal(['1', true], await p.evaluate(() => [localStorage.getItem('mrt-graphe-difficulte'), document.querySelector('details.mg-cadre').open]), 'difficulté : ouverte, retenue sur l\'appareil'));
+    await p.clock.runFor(300);
+    pb.push(egal([null, true], await p.evaluate(() => [localStorage.getItem('mrt-graphe-difficulte'), document.querySelector('details.mg-cadre').open]), 'effort : ouvert d\'un toucher, état non retenu'));
     // Titre repliable commun du site : comme les textes d'une course (Texte, 600, 0,85 rem).
     pb.push(egal(['600', '13.6px', true], await p.evaluate(() => { const t = getComputedStyle(document.querySelector('.mg-titre'));
       return [t.fontWeight, t.fontSize, t.color === getComputedStyle(document.body).color]; }), 'difficulté : titre repliable commun'));
@@ -2293,14 +2293,13 @@ const CONTROLES = {
         ligne: [getComputedStyle(l).strokeWidth, l.classList.contains('is-discrete')], diagonale: document.querySelectorAll('.mg-etiq').length, bordure: getComputedStyle(d).borderTopWidth,
         legende: [...lg.querySelectorAll('li')].map(x => x.textContent.trim()) }; }),
       'difficulté : définition en italique sous la légende (trois signes), sans filet ; ni étiquettes ni traits de période'));
-    await replier(p, 'mrt-graphe-difficulte');
-    pb.push(egal(['0', false], await p.evaluate(() => [localStorage.getItem('mrt-graphe-difficulte'), document.querySelector('details.mg-cadre').open]), 'difficulté : repliée, retenue sur l\'appareil'));
     pb.push(egal([], erreurs, 'difficulté : erreurs JavaScript'));
     await ctx.close();
-    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, db, { 'mrt-graphe-difficulte': '0' }, PARIS));
-    pb.push(egal(false, (await lire(p)).ouvert, 'difficulté repliée, page rechargée : toujours repliée'));
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, db, { 'mrt-graphe-difficulte': '1' }, PARIS));
+    pb.push(egal(false, (await lire(p)).ouvert, 'effort : toujours fermé à l\'ouverture de la page, même si un ancien état « ouvert » est retenu'));
     await ctx.close();
-    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 390, db, { 'mrt-graphe-difficulte': '1' }, PARIS));
+    ({ p, ctx } = await ouvrir(nav, 'objectif.html', 390, db, {}, PARIS));
+    await p.emulateMedia({ reducedMotion: 'reduce' }); await p.click('.mg-titre'); await p.clock.runFor(300);
     pb.push(egal({ etiquettes: false, deborde: false }, await p.evaluate(() => ({ etiquettes: [...document.querySelectorAll('.mg-etiq')].some(e => getComputedStyle(e).display !== 'none'),
       deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth })), 'difficulté, téléphone : pas d\'étiquettes, rien ne dépasse'));
     await ctx.close();

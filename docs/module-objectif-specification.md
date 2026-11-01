@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.62 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.63 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -397,7 +397,7 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 
 Il montre la montée en difficulté jusqu'à l'objectif : chaque course est placée selon sa date et son **km-effort**, la mesure normée de la [spécification générale](specification-generale.md) (§ 12 bis : distance + D+/100, sans le D−). Un graphique fonctionnel : axes gradués, chiffres lisibles, aucune décoration.
 
-- **Place** : en haut de la page Objectif, au-dessus de la feuille de route, dans son cadre ; titre repliable « Évolution de l’effort » (déroulé commun), **fermé par défaut**, état retenu sur l'appareil une fois ouvert. Même dessin que le graphique de progression du Palmarès (§ 12 de sa spécification).
+- **Place** : en haut de la page Objectif, au-dessus de la feuille de route, dans son cadre ; titre repliable « Évolution de l’effort » (déroulé commun), **toujours fermé à l'ouverture de la page** : l'ouvrir ne se retient pas, il est refermé à chaque chargement. Même dessin que le graphique de progression du Palmarès (§ 12 de sa spécification).
 - **Courses montrées** : celles de la feuille de route (étapes, candidats d'un groupe, objectif), de la date du jour à la dernière. Ni courues, ni abandonnées, ni à surveiller. Une course sans distance n'a pas de point ; elle reste dans le tableau des chiffres, avec « — ».
 - **Période** : règle commune à tous les comptes : de la date du jour jusqu'à la dernière course du plan (une date au mois seul compte jusqu'à la fin du mois). Pas de trait « aujourd'hui » : il serait sur le bord gauche.
 - **Signes** : trois, en Accent : un **point plein** pour une course de préparation, un **point à contour** (centre Surface) pour une course en option, un **losange** pour un objectif (principal ou intermédiaire, sans distinction). Une légende (17) les nomme. Pas de trait de période : une date au mois seul place le point au milieu du mois.
@@ -557,13 +557,13 @@ Résultats attendus, feuille de route :
 
 Résultats attendus, graphique de difficulté :
 
-- Cadre « Évolution de l’effort » fermé à l'ouverture de la page, au-dessus de la feuille de route ; ouvert : axe de 0 à 100, graduations 0, 20, 40, 60, 80, 100 ; période du 20 oct. 2026 (jour du jeu d'essai) au 28 août 2027.
+- Cadre « Évolution de l’effort » toujours fermé à l'ouverture de la page (même après l'avoir ouvert puis rechargé), au-dessus de la feuille de route ; ouvert : axe de 0 à 100, graduations 0, 20, 40, 60, 80, 100 ; période du 20 oct. 2026 (jour du jeu d'essai) au 28 août 2027.
 - 7 courses, aucune courue : Trail du Lac 30,5, Corrida de Noël 10,4, Trail des Cimes 67,0, Ultra du Plateau · Le 55 83,0 et Trail de la Forêt 42,0 (trait pointillé sur juillet 2027), Trail du Lac et Corrida de Noël en point plein ; Trail des Cimes, Ultra du Plateau et Trail de la Forêt en point à contour (options) ; Trail des Gorges 66,0 et Trail des Crêtes 95,0 en losange. Ni étiquettes, ni trait « aujourd'hui », ni trait de période.
 - La ligne relie, dans l'ordre, Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Crêtes.
 - Trail des Gorges : 66,0, et non 76,5 (le D− n'est pas compté).
 - Survol de Trail des Gorges : bulle « 66,0 km-effort », « Trail des Gorges · 7 mars 2027 · 45 km · 2 100 m D+ » ; le nom ouvre sa page.
 - Sous le graphique, la légende (« Course de préparation », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui cite l'ITRA et donne l'exemple 40 km + 2 000 m de D+ = 60 km-effort. Ligne entre les étapes fine et discrète.
-- Cadre ouvert, page rechargée : toujours ouvert ; replié : toujours replié. Téléphone : pas d'étiquettes, rien ne dépasse.
+- Cadre ouvert puis page rechargée : refermé. Téléphone : pas d'étiquettes, rien ne dépasse.
 
 Résultats attendus, page d'une course :
 
