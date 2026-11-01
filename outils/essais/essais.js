@@ -2426,7 +2426,7 @@ const CONTROLES = {
     let { p, ctx, erreurs } = await neuve(1200);
     let b = await barre(p), k = await cartes(p);
     pb.push(egal(['À surveiller 3 *', 'Déjà couru 7', 'À venir 7', 'Tout 17'], b.vues, 'vues et compteurs, À surveiller par défaut'));
-    pb.push(egal(['3 courses', ['Par date *', 'Par ouverture'], [], ['avril 2027', 'septembre 2028', 'Date à définir']], [b.compte, b.tris, b.annees, b.reperes], 'À surveiller : compte, tri, titres de mois'));
+    pb.push(egal(['3 courses', ['Date *', 'Ouverture'], [], ['avril 2027', 'septembre 2028', 'Date à définir']], [b.compte, b.tris, b.annees, b.reperes], 'À surveiller : compte, tri, titres de mois'));
     pb.push(egal(['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], k.map(x => x.nom), 'À surveiller : ordre chronologique, sans date à la fin'));
     pb.push(egal({ nom: 'Marathon de la Baie', statut: 'À surveiller', date: '11 avr. 2027', info: 'La Baie · Marathon', lignes: ['Distance | 42,195 km', 'Dossard | Ouvre le 03/11/2026 à 12:00'], lien: 'https://example.org/baie', cible: '_blank', grise: false, compteur: false, pt: 'is-opt' },
       k[0], 'carte : statut à la place du rôle, ni compteur ni objectif, dossard avec l\'heure, lien « Site officiel »'));
@@ -2441,7 +2441,7 @@ const CONTROLES = {
     await p.click('[data-tri="ouverture"]');
     k = await cartes(p); b = await barre(p);
     pb.push(egal(['Ultra du Plateau · Le 55', 'Corrida de Noël', 'Trail des Cimes', 'Trail de la Forêt', 'Trail du Lac · Le Tour du Lac', 'Trail des Gorges', 'Trail des Crêtes'], k.map(x => x.nom), 'tri par ouverture : ouvertes d\'abord, inscrits à la fin'));
-    pb.push(egal([['Par date', 'Par ouverture *'], []], [b.tris, b.reperes], 'tri par ouverture : pas de repères'));
+    pb.push(egal([['Date', 'Ouverture *'], []], [b.tris, b.reperes], 'tri par ouverture : pas de repères'));
 
     // Déjà couru : du plus récent au plus ancien, sans dossard, avec l'année.
     await p.click('[data-vue="courue"]');
@@ -2455,7 +2455,7 @@ const CONTROLES = {
     // Tout : ce qui reste à faire, puis les courues.
     await p.click('[data-vue="tout"]');
     await p.click('[data-annee=""]');
-    pb.push(egal('Par ouverture *', (await barre(p)).tris[1], 'le tri choisi est gardé en changeant de vue'));
+    pb.push(egal('Ouverture *', (await barre(p)).tris[1], 'le tri choisi est gardé en changeant de vue'));
     await p.click('[data-tri="date"]');
     k = await cartes(p);
     pb.push(egal([17, 'Trail du Lac · Le Tour du Lac', 'Semi de San Sebastián'], [k.length, k[0].nom, k.find(x => x.statut === 'Courue').nom], 'Tout : 17 courses, à venir d\'abord puis les courues'));
@@ -2467,13 +2467,31 @@ const CONTROLES = {
       mois: [...document.querySelectorAll('.cs-ligne-mois th')].map(x => x.textContent),
       l: [...document.querySelectorAll('.cs-ligne')].map(r => [...r.children].map(x => x.innerText.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim())),
       lien: [...document.querySelectorAll('.cs-ligne .cs-lien-nom')].map(x => x.getAttribute('href')) }));
-    pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
+    pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.getAttribute('aria-label') + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
     await p.click('[data-mode="tableau"]');
     let tb = await lignes();
     pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des dossards'], tb.en, 'tableau : les colonnes de la veille, sans UTMB Index'));
     pb.push(egal(['avril 2027', 'septembre 2028', 'Date à définir'], tb.mois, 'tableau : titres de mois'));
     pb.push(egal([['Marathon de la Baie La Baie', '—', '42,195 km', '11 avr. 2027', 'Ouvre le 03/11/2026 à 12:00'], ['Trail des Sommets Haut-Val', '—', '80 km · 5 000 m D+', '10 sept. 2028', 'Ouverture à venir'],
       ['Ultra des Lacs', '—', '—', 'À définir', 'Ouverture : janvier 2027']], tb.l, 'tableau : une ligne par course'));
+    // Colonnes triables : toucher une colonne trie (croissant, décroissant, puis retour à l'ordre d'origine) ; plus de choix « Tri ».
+    const ordre = () => p.evaluate(() => ({ noms: [...document.querySelectorAll('.cs-ligne td:first-child strong')].map(x => x.textContent), mois: document.querySelectorAll('.cs-ligne-mois').length,
+      sens: [...document.querySelectorAll('.cs-tableau thead th')].map(t => t.getAttribute('aria-sort')[0]).join('') }));
+    pb.push(egal(0, await p.locator('[data-tri]').count(), 'tableau : pas de choix Tri'));
+    pb.push(egal(['nnnan', 3], [(await ordre()).sens, (await ordre()).mois], 'tableau : par défaut Date croissante, avec les titres de mois'));
+    await p.click('[data-col="distance"]');
+    let o2 = await ordre();
+    pb.push(egal([['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], 0, 'nnann'], [o2.noms, o2.mois, o2.sens], 'colonne Distance : croissante, à plat, sans distance en dernier'));
+    await p.click('[data-col="distance"]');
+    o2 = await ordre();
+    pb.push(egal(['Trail des Sommets', 'Marathon de la Baie', 'Ultra des Lacs'], o2.noms, 'colonne Distance : décroissante'));
+    await p.click('[data-col="ouverture"]');
+    pb.push(egal(['Marathon de la Baie', 'Ultra des Lacs', 'Trail des Sommets'], (await ordre()).noms, 'colonne Ouverture : les plus proches d\'abord, date inconnue en dernier'));
+    await p.click('[data-col="evenement"]');
+    pb.push(egal(['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], (await ordre()).noms, 'colonne Événement : alphabétique'));
+    await p.click('[data-col="evenement"]'); await p.click('[data-col="evenement"]');
+    o2 = await ordre();
+    pb.push(egal(['nnnan', 3], [o2.sens, o2.mois], 'troisième toucher : retour à l\'ordre d\'origine, titres de mois'));
     pb.push(egal(['https://example.org/baie'], tb.lien, 'tableau : le nom mène au site officiel quand il est renseigné'));
     await p.click('[data-vue="venir"]');
     pb.push(egal('15 nov. 2026 9 h', (await lignes()).l[0][3], 'tableau : l\'heure de départ sous la date'));
