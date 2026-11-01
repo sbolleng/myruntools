@@ -34,6 +34,9 @@ const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[d
 const GPX = eval('(' + src.slice(src.indexOf("const GPX = ") + 12, src.indexOf("'</trkseg></trk></gpx>';") + 23) + ')');
 const PAGES = {
   accueil: { url: 'index.html' },
+  // Feuille de route : mini carte du tracé sur la carte d'étape (ordinateur).
+  'objectif-mini': { url: 'objectif.html', donnees: d => { const c = d.courses.find(x => x.id === id(3)); c.gpx = c.utilisateur + '/' + c.id + '.gpx'; d.fichiers = { ['traces/' + c.gpx]: GPX }; return d; },
+    action: async p => { await p.waitForSelector('.ob-mini svg', { timeout: 8000 }).catch(() => {}); } },
   // Page d'une course, Parcours ouvert : carte et profil du GPX.
   parcours: { url: 'course.html?id=' + id(3), donnees: d => { const c = d.courses.find(x => x.id === id(3)); c.gpx = c.utilisateur + '/' + c.id + '.gpx'; d.fichiers = { ['traces/' + c.gpx]: GPX }; return d; },
     action: async p => { await p.waitForSelector('.mc-panneau .pc-titre'); await p.click('#parcours > summary'); await p.waitForSelector('.tr-carte .leaflet-overlay-pane path'); await p.waitForTimeout(1500);
