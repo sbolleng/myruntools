@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <style>
   /* Page d'accueil des visiteurs non connectés : sobre, sans en-tête ni menu. */
-  body { display: grid; place-items: center; padding: 1.5rem; }
+  body { display: grid; place-items: center; grid-template-rows: 1fr auto; padding: 1.5rem 1.5rem 0; } /* le pied de page (en-tete.js) en bas */
   .connexion { width: 100%; max-width: 22rem; text-align: center; }
   .connexion h1 { font-size: 2rem; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
   .connexion .accroche { font-size: 0.85rem; color: var(--muted); margin-bottom: 2.2rem; }

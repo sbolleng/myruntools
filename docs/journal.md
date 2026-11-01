@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Mentions légales | Page `mentions-legales.html` construite (Spécification générale 0.29) : contact `contact@myruntools.fr` (redirection OVH vers la boîte de l'éditeur, réponse sous cette adresse par le SMTP de Resend), adresse assemblée par le script ; données Supabase en Suède (North EU, Stockholm) ; crédits complétés (Leaflet, OpenTopoMap, OpenStreetMap) ; pied de page posé par `en-tete.js` sur toutes les pages. |
 | 1er nov. 2026 | Évolution de l’effort | Toujours fermé à l'ouverture de la page Objectif : l'état ouvert n'est plus retenu sur l'appareil (Objectif 0.63). |
 | 1er nov. 2026 | Courses à surveiller 0.4 | Vue tableau au choix (pastilles Cartes · Tableau, gardé sur l'appareil) : colonnes de la veille de l'ancien suivi, sans l'index UTMB : Événement (course, site officiel, lieu), Course (parcours), Distance · D+, Date (et heure), Ouverture des dossards ; titres de mois ; dans le cadre et les styles de notre site. |
 | 1er nov. 2026 | Courses à surveiller 0.3 | Retour aux titres de mois (cartes du mois côte à côte, « Date à définir » en dernier) ; toutes les cartes de la même hauteur (13 rem, nom sur deux lignes au plus). Vue tableau au choix : demandée, plan de colonnes à valider avant de construire. Duplication d'une course courue pour l'année suivante : à rediscuter plus tard, notée à la todo. |
