@@ -341,7 +341,16 @@
         zone.hidden = true;
         if (!choisi) return;
         gpx.fichier = f; gpx.texte = choisi.texte; gpx.supprimer = false;
-        $('.fc-gpx-etat').textContent = 'Nouveau tracé : ' + f.name + ' (rangé à l\'enregistrement)';
+        // Distance, D+ et D− suivent le tracé (Objectif, § 3.4, n° 51) ; on peut encore les corriger avant « Enregistrer ».
+        const t = window.mrtTrace.lire(choisi.texte), ch = t && window.mrtTrace.chiffres(t);
+        if (ch) {
+          [['distance', ch.distance], ['dplus', ch.dplus], ['dmoins', ch.dmoins]].forEach(([k, v]) => {
+            if (v == null || !val(k)) return;
+            val(k).value = String(v).replace('.', ',');
+            val(k).dispatchEvent(new Event('change', { bubbles: true }));
+          });
+        }
+        $('.fc-gpx-etat').textContent = 'Nouveau tracé : ' + f.name + ' (rangé à l\'enregistrement)' + (ch ? ' · distance, D+ et D− mis à jour d\'après le tracé' : '');
         $('[data-fc="gpx-choisir"]').textContent = 'Remplacer';
       });
     }
@@ -609,7 +618,7 @@
       }
       if ((gpx.fichier || (gpx.supprimer && c.gpx)) && window.mrtTrace) {
         const cc = Object.assign({}, c, { id });
-        const err = gpx.fichier ? await window.mrtTrace.ranger(cc, gpx.texte) : await window.mrtTrace.retirer(cc);
+        const err = gpx.fichier ? await window.mrtTrace.ranger(cc, gpx.texte, { chiffres: false }) : await window.mrtTrace.retirer(cc);
         if (err) window.alert('Course enregistrée, mais pas le tracé : ' + err);
       }
       terminer('enregistre', id);

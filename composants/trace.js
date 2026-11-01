@@ -6,10 +6,12 @@
 //   mrtTrace.verifier(fichier)        → Promise<{ pistes: [{ nom, km, texte }] } | { erreur }> : extension, taille (5 Mo),
 //                                       contenu lisible ; un élément par tracé du fichier (texte : le fichier réduit à ce tracé)
 //   mrtTrace.choisir(zone, pistes, km) → Promise<piste|null> : plusieurs tracés, l'utilisateur garde le sien
-//   mrtTrace.ranger(course, texte)    → Promise<erreur|null> : envoie le fichier et note son chemin dans la course
+//   mrtTrace.ranger(course, texte)    → Promise<erreur|null> : envoie le fichier, note son chemin dans la course et y remet à jour
+//                                       distance, D+ et D− d'après le tracé (sauf ranger(course, texte, { chiffres: false }))
 //   mrtTrace.retirer(course)          → Promise<erreur|null> : efface le fichier et le chemin
 //   mrtTrace.telecharger(course)      télécharge le fichier (nom : celui de la course)
 //   mrtTrace.dessiner(el, course)     carte (Leaflet, fond OpenTopoMap) et profil dans el ; une seule fois par élément
+//   mrtTrace.chiffres(trace)          → { distance, dplus, dmoins } : km (une décimale), D+ et D− en m (variations de plus de 3 m)
 //   mrtTrace.pente(trace, km)         → { alt, pente } : altitude lissée (m) et pente (%) sur 100 m centrés au kilomètre km
 //   mrtTrace.miniature(course)        → Promise<svg|null> : le tracé seul, sur un fond dessiné (courbes de niveau stylisées), pour la carte d'une étape ; null sans tracé
 //   mrtTrace.lire(texte, km)          → { nom, points: [[lat, lon, alt|null, km, saut]], segments, km } : le tracé (le plus proche de km
@@ -112,11 +114,17 @@
 
   const memoire = new Map(); // chemin → texte du fichier, déjà lu
   // texte : le fichier GPX, réduit à un seul tracé (verifier, choisir).
-  async function ranger(c, texte) {
+  // Sauf opts.chiffres === false, la distance, le D+ et le D− de la course sont remis à jour d'après le tracé (n° 51).
+  async function ranger(c, texte, opts) {
     const p = await chemin(c);
     const r = await stockage().upload(p, new Blob([texte], { type: 'application/gpx+xml' }), { upsert: true, contentType: 'application/gpx+xml' });
     if (r.error) { console.warn(r.error); return 'Envoi du GPX impossible pour l\'instant.'; }
-    const m = await window.mrtSupabase.from('courses').update({ gpx: p }).eq('id', c.id);
+    const maj = { gpx: p };
+    if (!opts || opts.chiffres !== false) {
+      const t = lire(texte, Number(c.distance)), ch = t && chiffres(t);
+      if (ch) { maj.distance = ch.distance; if (ch.dplus != null) { maj.dplus = ch.dplus; maj.dmoins = ch.dmoins; } }
+    }
+    const m = await window.mrtSupabase.from('courses').update(maj).eq('id', c.id);
     if (m.error) { console.warn(m.error); return 'GPX envoyé, mais pas noté dans la course.'; }
     memoire.set(p, texte);
     return null;
@@ -169,6 +177,20 @@
       });
     }
     return chargement;
+  }
+
+  // Chiffres du tracé : distance (km, une décimale), D+ et D− (m). Le GPS bouge de quelques mètres sans que le sol change :
+  // une variation ne compte qu'une fois qu'elle dépasse 3 m depuis le dernier sommet ou creux.
+  const SEUIL = 3;
+  function chiffres(t) {
+    const alts = t.points.filter(p => p[2] != null).map(p => p[2]);
+    let dp = 0, dm = 0, haut = null, ref = alts[0];
+    alts.forEach(a => {
+      if (haut === null) { if (a - ref >= SEUIL) { haut = true; dp += a - ref; ref = a; } else if (ref - a >= SEUIL) { haut = false; dm += ref - a; ref = a; } }
+      else if (haut) { if (a > ref) { dp += a - ref; ref = a; } else if (ref - a >= SEUIL) { haut = false; dm += ref - a; ref = a; } }
+      else if (a < ref) { dm += ref - a; ref = a; } else if (a - ref >= SEUIL) { haut = true; dp += a - ref; ref = a; }
+    });
+    return { distance: Math.round(t.km * 10) / 10, dplus: alts.length ? Math.round(dp) : null, dmoins: alts.length ? Math.round(dm) : null };
   }
 
   // Altitude lissée tous les 10 m (moyenne sur 50 m) : le GPS est bruité, une pente lue point par point serait absurde.
@@ -372,5 +394,5 @@
       '<circle class="tr-mini-depart" cx="' + X(0) + '" cy="' + Y(0) + '" r="3.4"/><circle class="tr-mini-arrivee" cx="' + X(n) + '" cy="' + Y(n) + '" r="3.4"/></svg>';
   }
 
-  window.mrtTrace = { verifier, choisir, ranger, retirer, telecharger, dessiner, miniature, lire, pente, MAX };
+  window.mrtTrace = { verifier, choisir, ranger, retirer, telecharger, dessiner, miniature, lire, pente, chiffres, MAX };
 })();
