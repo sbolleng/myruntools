@@ -801,6 +801,11 @@ const CONTROLES = {
       await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
       pb.push(egal([true, moi + '/' + id(2) + '.gpx', true], [!!imp.fichiers[chemin(id(2))], imp.courses.find(c => c.id === id(2)).gpx, await o.p.evaluate(() => document.querySelector('#parcours').open)],
         'import depuis la page : fichier rangé dans le dossier de l\'utilisateur, chemin noté dans la course, Parcours rouvert avec la carte'));
+      // Distance, D+ et D− remis à jour d'après le tracé (§ 3.4, n° 51) : boucle de 5,4 km, 500 → 620 → 500 m.
+      const apres = imp.courses.find(c => c.id === id(2));
+      pb.push(egal([5.4, 120, 120], [apres.distance, apres.dplus, apres.dmoins], 'import depuis la page : distance, D+ et D− mis à jour d\'après le tracé'));
+      const GPX_BRUIT = '<?xml version="1.0"?><gpx version="1.1"><trk><trkseg>' + [100, 102, 100, 101, 110, 108, 111, 105].map((a, i) => '<trkpt lat="' + (45 + i * 0.001) + '" lon="4"><ele>' + a + '</ele></trkpt>').join('') + '</trkseg></trk></gpx>';
+      pb.push(egal([11, 6], await o.p.evaluate(g => { const c = window.mrtTrace.chiffres(window.mrtTrace.lire(g)); return [c.dplus, c.dmoins]; }, GPX_BRUIT), 'D+ et D− : les variations de 3 m ou moins (bruit du GPS) ne comptent pas'));
       // Fichier à deux tracés : le choix, le plus proche des 10 km de la course en premier ; seul le tracé gardé est rangé.
       const deux = JSON.parse(JSON.stringify(db));
       deux.persister = true; deux.ecritures = [];
@@ -829,9 +834,13 @@ const CONTROLES = {
       await o.p.setInputFiles('.fc-gpx-fichier', { name: 'lac.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(GPX) });
       await o.p.waitForFunction(() => /Nouveau tracé/.test(document.querySelector('.fc-gpx-etat').textContent));
       pb.push(egal(0, Object.keys(form.fichiers || {}).length, 'formulaire : rien n\'est rangé avant « Enregistrer »'));
+      pb.push(egal(['5,4', '120', '120'], await o.p.evaluate(() => ['distance', 'dplus', 'dmoins'].map(k => document.querySelector('[data-k="' + k + '"]').value)), 'formulaire : distance, D+ et D− remplis d\'après le tracé'));
+      await o.p.fill('[data-k="dplus"]', '125');
+
       await o.p.click('.fc-plein');
       await o.p.waitForSelector('.mc-panneau .pc-titre');
       pb.push(egal([true, moi + '/' + id(1) + '.gpx'], [!!form.fichiers[chemin(id(1))], form.courses.find(c => c.id === id(1)).gpx], 'formulaire : « Enregistrer » range le GPX avec la course'));
+      pb.push(egal([5.4, 125, 120], (({ distance, dplus, dmoins }) => [distance, dplus, dmoins])(form.courses.find(c => c.id === id(1))), 'formulaire : « Enregistrer » garde les chiffres du tracé, y compris une correction à la main (D+ 125)'));
       await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
       await o.p.click('[data-fc="gpx-supprimer"]');
       await o.p.click('.fc-plein');
