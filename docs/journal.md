@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 1er nov. 2026 | Tracé GPX | Essai réel réussi : import depuis la page, carte affichée. |
 | 1er nov. 2026 | Tracé GPX, base | Évolution 016 passée dans Supabase : colonne `gpx`, espace de stockage `traces` et ses règles. |
 | 1er nov. 2026 | Graphiques | En ligne : difficulté en tête de la feuille de route, progression au-dessus du tableau du Palmarès ; code de dessin commun `composants/graphique.js` (SVG et HTML, couleurs par rôles) ; sur téléphone, repères du temps à janvier et juillet seulement ; une étape confirmée au mois seul est sur la ligne, par le milieu de son mois. Banc d'essai : groupe `graphiques`. |
 | 1er nov. 2026 | Graphiques | Galet des Running Stones retiré du graphique de difficulté (Objectif 0.49) ; étiquettes gardées. Progression : chaque point porte une étiquette avec le temps réalisé, masquées sur téléphone et au-delà de 20 points (Palmarès 1.25). Construction des deux graphiques lancée. |
