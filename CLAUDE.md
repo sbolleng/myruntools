@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : page d'une course, fiche (lieu et date / heure dedans, site officiel en haut à droite, « À propos de la course ») ; avant : banc `calendrierPlan` réparé, tracé GPX dans Parcours. Historique : `docs/journal.md`.
+- Dernier lot : Palmarès, progression sous le tableau (points reliés, axe MIN / KM-EFFORT, titre en Accent) et filtre rapide (types et frise des années) ; avant : page d'une course, fiche (lieu et date / heure dedans, site officiel en haut à droite, « À propos de la course ») ; avant : banc `calendrierPlan` réparé, tracé GPX dans Parcours. Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

@@ -2195,14 +2195,17 @@ const CONTROLES = {
     const filtre = async (p, sel) => { if (await p.getAttribute('.pv2-btn', 'aria-expanded') !== 'true') await p.click('.pv2-btn'); await p.click(sel); };
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, db0));
     g = await lire(p);
-    pb.push(egal({ titre: 'Progression', droite: '', bilan: '7 courses', graduations: ['4:30', '5:00', '5:30', '6:00'], marques: 2, tendance: false,
+    pb.push(egal({ titre: 'Progression', droite: '', bilan: null, ligne: 7, graduations: ['4:30', '5:00', '5:30', '6:00'], marques: 2, tendance: false,
       etiquettes: ['00:51:46', '01:04:24', '01:53:12', '02:02:30', '03:00:23', '00:49:18', '01:56:05'],
       points: ['10 km de Montauban, 5:00 par km-effort | is-plein', 'Épicurienne Trail, 5:04 par km-effort | is-plein', 'Semi-marathon de Sète, 5:18 par km-effort | is-plein',
         'Biscatrail, 5:39 par km-effort | is-plein', 'Forez Trail · L\'Olmetoise, 5:24 par km-effort | is-plein', '10 km de Montauban, 4:49 par km-effort | is-plein',
         'Semi de San Sebastián, 5:30 par km-effort | is-plein'] },
-      { titre: g.titre, droite: g.droite, bilan: g.bilan, graduations: g.graduations, marques: g.marques, tendance: g.tendance, etiquettes: g.etiquettes, points: g.points },
-      'progression : allure-effort, records, étiquettes ; pas de tendance (plusieurs formats)'));
-    pb.push(egal(true, await p.evaluate(() => { const a = document.querySelector('.pv2-graphe'), b = document.querySelector('.pv2-card'); return !!(a.compareDocumentPosition(b) & 4); }), 'progression : au-dessus du tableau'));
+      { titre: g.titre, droite: g.droite, bilan: g.bilan, ligne: g.ligne, graduations: g.graduations, marques: g.marques, tendance: g.tendance, etiquettes: g.etiquettes, points: g.points },
+      'progression : allure-effort, records, étiquettes, ligne ; pas de bilan ; pas de tendance (plusieurs formats)'));
+    pb.push(egal({ axe: 'min / km-effort', titre: [true, '700'] }, await p.evaluate(() => { const t = document.querySelector('.pv2-graphe .mg-titre'), g = document.querySelector('.pv2-group, .pv2-sort');
+      const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+      return { axe: document.querySelector('.mg-axe-y').textContent, titre: [getComputedStyle(t).color === getComputedStyle(document.querySelector('.pv2-add')).backgroundColor, getComputedStyle(t).fontWeight] }; }), 'progression : libellé de l\'axe ; titre en Accent, gras'));
+    pb.push(egal(true, await p.evaluate(() => { const a = document.querySelector('.pv2-graphe'), b = document.querySelector('.pv2-card'); return !!(b.compareDocumentPosition(a) & 4); }), 'progression : sous le tableau'));
     await p.hover('.mg-pt[aria-label^="Semi-marathon de Sète"]');
     pb.push(egal(['5:18 /km-effort', 'Semi-marathon de Sète', '5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+'], await bulle(p), 'progression : bulle de Sète'));
     await p.hover('.mg-pt[aria-label^="Semi de San Sebastián"]');
@@ -2217,8 +2220,42 @@ const CONTROLES = {
     await p.click('[data-act="clear"]');
     await p.fill('.pv2-panel input[data-f="course"]', 'sete');
     g = await lire(p);
-    pb.push(egal(['Pas assez de courses pour un graphique', '1 course'], [g.vide, g.bilan], 'progression, « sete » : pas assez de courses'));
+    pb.push(egal('Pas assez de courses pour un graphique', g.vide, 'progression, « sete » : pas assez de courses'));
     pb.push(egal([], erreurs, 'progression : erreurs JavaScript'));
+    await ctx.close();
+    // ----- Filtre rapide (Palmarès, § 7.1) -----
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, db0));
+    const rapide = () => p.evaluate(tx => { const t = eval(tx); const r = document.querySelector('.pv2-rapide');
+      return { types: [...r.querySelectorAll('[data-rapide-type]')].map(b => t(b) + (b.getAttribute('aria-pressed') === 'true' ? '*' : '')),
+        coches: r.querySelectorAll('.pv2-coche').length, dedans: r.querySelectorAll('.pv2-coche.is-in').length, annees: [...r.querySelectorAll('.pv2-annee')].map(t),
+        periode: t(r.querySelector('.pv2-periode')), compteur: document.querySelector('.pv2-count').hidden ? null : t(document.querySelector('.pv2-count')),
+        lignes: document.querySelectorAll('#palmares tbody tr[data-id]').length, points: document.querySelectorAll('.pv2-graphe .mg-pt').length,
+        avant: !!(r.compareDocumentPosition(document.querySelector('.pv2-card')) & 4) }; }, t.toString());
+    pb.push(egal({ types: ['Course sur route', 'Trail'], coches: 7, dedans: 7, annees: ['2025', '2026'], periode: '', compteur: null, lignes: 7, points: 7, avant: true }, await rapide(p), 'filtre rapide : à l\'ouverture'));
+    await p.click('[data-rapide-type="Trail"]');
+    let r = await rapide(p);
+    pb.push(egal({ types: ['Course sur route', 'Trail*'], compteur: '3 courses sur 7', lignes: 3, points: 3, badge: '1' },
+      { types: r.types, compteur: r.compteur, lignes: r.lignes, points: r.points, badge: await p.textContent('.pv2-badge') }, 'filtre rapide : Trail'));
+    await p.click('[data-rapide-type="Trail"]');
+    await p.click('.pv2-annee[data-annee="2026"]');
+    r = await rapide(p);
+    pb.push(egal({ periode: 'janv. 2026 → oct. 2026', compteur: '3 courses sur 7', dedans: 3, points: 3 }, { periode: r.periode, compteur: r.compteur, dedans: r.dedans, points: r.points }, 'filtre rapide : toucher 2026'));
+    await p.focus('.pv2-poignee[data-bout="a"]');
+    for (let k = 0; k < 3; k++) await p.keyboard.press('ArrowLeft');
+    r = await rapide(p);
+    pb.push(egal({ periode: 'janv. 2026 → juil. 2026', compteur: '2 courses sur 7' }, { periode: r.periode, compteur: r.compteur }, 'filtre rapide : poignée de droite, trois mois plus tôt'));
+    // Glisser la poignée de gauche tout à gauche : période du début de 2025.
+    const rail = await p.locator('.pv2-rail').boundingBox(), pg = await p.locator('.pv2-poignee[data-bout="de"]').boundingBox();
+    await p.mouse.move(pg.x + pg.width / 2, pg.y + pg.height / 2); await p.mouse.down();
+    await p.mouse.move(rail.x - 20, pg.y + pg.height / 2, { steps: 5 }); await p.mouse.up();
+    r = await rapide(p);
+    pb.push(egal({ periode: 'mars 2025 → juil. 2026', compteur: '6 courses sur 7' }, { periode: r.periode, compteur: r.compteur }, 'filtre rapide : poignée de gauche glissée au bout'));
+    await p.emulateMedia({ reducedMotion: 'reduce' }); await p.click('.pv2-btn');
+    pb.push(egal(['2025-03-01', '2026-07-31'], await p.evaluate(() => [...document.querySelectorAll('.pv2-panel input[type="date"]')].map(i => i.value)), 'filtre rapide : dates reportées dans le panneau'));
+    await p.click('[data-act="clear"]');
+    r = await rapide(p);
+    pb.push(egal({ types: ['Course sur route', 'Trail'], periode: '', dedans: 7, compteur: null }, { types: r.types, periode: r.periode, dedans: r.dedans, compteur: r.compteur }, 'filtre rapide : « Effacer les filtres »'));
+    pb.push(egal([], erreurs, 'filtre rapide : erreurs JavaScript'));
     await ctx.close();
     // Une course de plus au 10 km (00:45:00, sans D+) et une non terminée.
     const db2 = JSON.parse(JSON.stringify(db0));
@@ -2226,7 +2263,7 @@ const CONTROLES = {
     db2.courses.push(Object.assign({}, modele, { id: '00000000-0000-0000-0001-0000000000a1', course: 'Test', date: '2026-10-01', distance: 10, dplus: null, temps: 2700, allure: 270 }));
     db2.courses.push(Object.assign({}, modele, { id: '00000000-0000-0000-0001-0000000000a2', course: 'Test DNF', date: '2026-09-01', temps: null, allure: null, dnf: true }));
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, db2));
-    pb.push(egal('9 courses · 1 sans point (DNF, temps ou distance manquant)', (await lire(p)).bilan, 'progression : une DNF sans point'));
+    pb.push(egal(8, (await lire(p)).points.length, 'progression : une DNF sans point'));
     await filtre(p, '.pv2-panel label.pv2-check:has(input[value="10 km"])');
     g = await lire(p);
     pb.push(egal({ n: 3, droite: '↗ 19 s /km-effort plus rapide par an', mieux: true, tendance: true },

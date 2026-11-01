@@ -5,6 +5,9 @@
 .mg-titre::-webkit-details-marker { display: none; }
 .mg-chev { width: 0.8rem; height: 0.8rem; flex: none; color: var(--muted); transition: transform 0.2s ease-out; }
 details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
+/* Palmarès : titre au style des intertitres des groupes du tableau (Accent, gras, chevron Accent). */
+.mg.is-intertitre .mg-titre { font-weight: 700; color: var(--accent); }
+.mg.is-intertitre .mg-chev { color: var(--accent); }
 .mg-droite { margin-left: auto; font-size: 0.8rem; font-weight: 400; color: var(--muted); text-align: right; }
 .mg-droite b { font-family: 'Space Mono', monospace; font-weight: 700; }
 .mg-droite .is-mieux { color: var(--accent); }
@@ -40,6 +43,9 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-etiq { position: absolute; transform: translate(10px, -50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); white-space: nowrap; pointer-events: none; }
 .mg-marque { position: absolute; transform: translate(-50%, -150%); font-size: 0.8rem; line-height: 1.2; pointer-events: none; }
 .mg-etiq.is-gauche { transform: translate(calc(-100% - 10px), -50%); }
+.mg-etiq.is-dessous { transform: translate(-50%, 9px); }
+/* Liseré du fond : une étiquette reste lisible quand une ligne la traverse. */
+.mg-etiq { text-shadow: 0 0 3px var(--surface), 0 0 3px var(--surface), 0 0 2px var(--surface); }
 
 /* Bulle : au-dessus du point (dessous s'il est trop haut). */
 .mg-bulle { position: absolute; z-index: 2; transform: translate(-50%, calc(-100% - 14px)); min-width: 11rem; max-width: 17rem; padding: 0.5rem 0.7rem;
