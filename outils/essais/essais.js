@@ -2462,6 +2462,35 @@ const CONTROLES = {
     pb.push(egal([17, 'Trail du Lac · Le Tour du Lac', 'Semi de San Sebastián'], [k.length, k[0].nom, k.find(x => x.statut === 'Courue').nom], 'Tout : 17 courses, à venir d\'abord puis les courues'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
 
+    // Tableau : les colonnes de la veille, une ligne par course, titres de mois ; choix gardé sur l'appareil.
+    await p.click('[data-vue="surveiller"]');
+    const lignes = () => p.evaluate(() => ({ en: [...document.querySelectorAll('.cs-tableau thead th')].map(x => x.textContent),
+      mois: [...document.querySelectorAll('.cs-ligne-mois th')].map(x => x.textContent),
+      l: [...document.querySelectorAll('.cs-ligne')].map(r => [...r.children].map(x => x.innerText.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim())),
+      lien: [...document.querySelectorAll('.cs-ligne .cs-lien-nom')].map(x => x.getAttribute('href')) }));
+    pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
+    await p.click('[data-mode="tableau"]');
+    let tb = await lignes();
+    pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des dossards'], tb.en, 'tableau : les colonnes de la veille, sans UTMB Index'));
+    pb.push(egal(['avril 2027', 'septembre 2028', 'Date à définir'], tb.mois, 'tableau : titres de mois'));
+    pb.push(egal([['Marathon de la Baie La Baie', '—', '42,195 km', '11 avr. 2027', 'Ouvre le 03/11/2026 à 12:00'], ['Trail des Sommets Haut-Val', '—', '80 km · 5 000 m D+', '10 sept. 2028', 'Ouverture à venir'],
+      ['Ultra des Lacs', '—', '—', 'À définir', 'Ouverture : janvier 2027']], tb.l, 'tableau : une ligne par course'));
+    pb.push(egal(['https://example.org/baie'], tb.lien, 'tableau : le nom mène au site officiel quand il est renseigné'));
+    await p.click('[data-vue="venir"]');
+    pb.push(egal('15 nov. 2026 9 h', (await lignes()).l[0][3], 'tableau : l\'heure de départ sous la date'));
+    await p.click('[data-vue="courue"]');
+    pb.push(egal([7, '—'], [(await lignes()).l.length, (await lignes()).l[0][4]], 'tableau, Déjà couru : une ligne par course, pas de dossard'));
+    await p.click('[data-vue="surveiller"]');
+    await p.click('.cs-lien-nom');
+    pb.push(egal(0, await p.locator('.fc-fiche').count(), 'tableau : le lien du nom n\'ouvre pas la fiche'));
+    await p.locator('.cs-ligne').nth(2).click(); await p.waitForSelector('.fc-fiche');
+    pb.push(egal('Ultra des Lacs', await p.locator('#fc-course').inputValue(), 'tableau : toucher une ligne ouvre sa fiche'));
+    await p.click('[data-fc="annuler"]'); await pause();
+    await p.reload(); await p.waitForSelector('.cs-barre');
+    pb.push(egal(3, await p.locator('.cs-ligne').count(), 'tableau : l\'affichage choisi est gardé après rechargement'));
+    await p.click('[data-mode="cartes"]');
+    pb.push(egal([0, 3], [await p.locator('.cs-tableau').count(), await p.locator('.cs-carte').count()], 'retour aux cartes'));
+
     // Toucher une carte : la fiche de modification (course à venir, sans date, courue) ; le lien « Site officiel » ne l'ouvre pas.
     await p.click('[data-vue="surveiller"]');
     await p.click('.cs-site[href]');
@@ -2538,6 +2567,8 @@ const CONTROLES = {
       return [Math.abs(r('.ob-role').top - r('.ob-date').top) < 2, r('.ob-nom').top >= r('.ob-role').bottom - 1]; }), 'téléphone : statut et date sur la même ligne, le nom dessous'));
     pb.push(egal(1, await o.p.evaluate(() => new Set([...document.querySelectorAll('.cs-carte')].map(c => c.getBoundingClientRect().left)).size), 'téléphone : une seule colonne'));
     pb.push(egal(1, await o.p.evaluate(() => new Set([...document.querySelectorAll('.cs-carte')].map(c => Math.round(c.getBoundingClientRect().height))).size), 'téléphone : toutes les cartes de la même hauteur'));
+    await o.p.click('[data-mode="tableau"]');
+    pb.push(egal(false, await o.p.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), 'téléphone, tableau : rien ne dépasse de la page (le tableau défile dans son cadre)'));
     pb.push(egal([], o.erreurs, 'téléphone : erreurs JavaScript'));
     await o.ctx.close();
 

@@ -38,3 +38,17 @@
 .cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
+
+/* Affichage : Cartes ou Tableau (pastilles, choix gardé sur l'appareil). */
+.cs-modes { display: flex; gap: 0.4rem; }
+/* Tableau : colonnes de la veille dans un cadre ; une ligne par course, toucher une ligne ouvre la fiche. */
+.cs-tableau { padding: 0.3rem 0.6rem 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.cs-tableau table { min-width: 44rem; }
+.cs-tableau tbody tr:last-child td { border-bottom: 0; }
+.cs-ligne { cursor: pointer; }
+.cs-ligne:hover td { background: color-mix(in srgb, var(--border) 35%, transparent); }
+.cs-ligne:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.cs-ligne td strong { font-weight: 600; color: var(--text); }
+.cs-ligne-mois th { padding-top: 1rem; border-bottom: 1px solid var(--border); }
+.cs-sous { font-size: 0.75rem; color: var(--muted); }
+.cs-lien-nom { color: inherit; text-underline-offset: 0.2em; }

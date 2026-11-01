@@ -54,6 +54,7 @@ const PAGES = {
     d.courses.push(Object.assign({}, b, { id: id(10), course: 'Marathon de la Baie', date: '2027-04-11', distance: 42.195, dplus: 120, format: 'route_marathon', lieu: 'La Baie', lien: 'https://example.org/baie', ouverture_inscriptions: '2026-11-03', ouverture_heure: '12:00:00' }),
       Object.assign({}, b, { id: id(11), course: 'Ultra des Lacs', date: null, distance: null, dplus: null, lieu: null, lien: null, ouverture_inscriptions: '2027-01-01', ouverture_approx: true })); return d; } },
   'courses-tout': { url: 'courses-a-surveiller.html?vue=tout' },
+  'courses-tableau': { url: 'courses-a-surveiller.html?vue=tout', action: async p => { await p.click('[data-mode="tableau"]'); } },
   palmares: { url: 'palmares.html' },
   calendrier: { url: 'calendrier.html' },
   'calendrier-semaines': { url: 'calendrier.html#semaines' },
