@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.1 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.2 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Rôle
 
@@ -28,44 +28,41 @@ Une course est dans une seule vue. L'adresse `courses-a-surveiller.html?vue=cour
 (21) 12 COURSES   (23) [Par date] [Par ouverture]          (22) [+ Ajouter une course]
 (24) [Toutes] [2026] [2025]                 (Déjà couru et Tout, s'il y a plusieurs années)
 
-      (17) NOVEMBRE 2026
-(2)●  ┌──────────────────────────────────────────────────────────────┐
- │    │ (4) À SURVEILLER                                             │
- │    │ (6) Trail du Lac · Le Tour du Lac            (3) 15 NOV. 2026│
-(1)   │ (8) Mont-Clair · Trail court                                 │
- │    │ DISTANCE      24 km · 650 m D+                               │
- │    │ (11) DOSSARD  (12)● (13) Ouvre le 10/01/2027 à 12:00         │
- │    │                                         (15) ⓘ    (14) ↗     │
- │    └──────────────────────────────────────────────────────────────┘
+┌────────────────────────────┐ ┌────────────────────────────┐ ┌──────────────────
+│ (4) CONFIRMÉE   (3) 15 NOV.│ │ (4) À SURVEILLER  (3) 11 AV│ │ …
+│ (6) Trail du Lac · Le Tour…│ │ (6) Marathon de la Baie    │ │
+│ (8) Mont-Clair · Trail court│ │ (8) La Baie · Marathon     │ │
+│ DISTANCE  24 km · 650 m D+ │ │ DISTANCE  42,195 km        │ │
+│ (11) DOSSARD (12)● (13) Ins│ │ (11) DOSSARD ○ Ouvre le 03/│ │
+│              (14) Site off.│ │              (14) Site off.│ │
+└────────────────────────────┘ └────────────────────────────┘ └──────────────────
 ```
 
-Téléphone : même ordre ; le nom sur toute la largeur, la date juste dessous à droite ; les pastilles (20) défilent sur le côté ; « + Course » passe sur sa ligne.
+Cartes les moins larges possibles (18 rem au moins) : autant de colonnes que l'écran en permet, **une seule sur téléphone**. Les pastilles (20) défilent sur le côté sur téléphone ; « + Course » passe sur sa ligne. Pas de chemin ni de repères de mois : la date est sur chaque carte, et plusieurs cartes se côtoient.
 
 | N° | Élément | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
-| 1, 2 | Trait et pastille du chemin | | Rail à gauche | Comme Objectif ; pastille pleine : confirmée ; pointillé : option ; pointillé et pastille vide : à surveiller ; atténuée : courue |
-| 3 | Date | 15 NOV. 2026 | Ligne 2, à droite | Libellé, Texte discret ; « À DÉFINIR » sans date |
-| 4 | Statut | À SURVEILLER, OPTION · PRINTEMPS 2027, CONFIRMÉE, COURUE | Ligne 1 | Libellé, Texte discret (remplace le rôle) |
-| 6 | Course · Parcours | Trail du Lac · Le Tour du Lac | Ligne 2, à gauche | Nom |
+| 3 | Date | 15 NOV. 2026 | Ligne 1, à droite | Libellé, Texte discret ; « À DÉFINIR » sans date |
+| 4 | Statut | À SURVEILLER, OPTION · PRINTEMPS 2027, CONFIRMÉE, COURUE | Ligne 1, à gauche, sur la même ligne que la date | Libellé, Texte discret (remplace le rôle) ; passe à la ligne s'il est trop long |
+| 6 | Course · Parcours | Trail du Lac · Le Tour du Lac | Ligne 2, sous le statut | Nom |
 | 8 | Lieu · format | Mont-Clair · Trail court | Ligne 3 | Texte, Texte discret |
 | — | Distance | 24 km · 650 m D+ | Ligne 4 | Comme Objectif |
 | 11–13 | Dossard | ● Ouvre le 10/01/2027 à 12:00 | Ligne 5 | Comme Objectif ([§ 3.5](module-objectif-specification.md)) ; absent pour une course courue ; jamais un lien ici |
-| 14 | Site officiel ↗ | | Bas droite | Flèche d'Objectif ; seulement si `lien` est renseigné |
-| 15 | Détails ⓘ | | Bas droite | Rond discret ; ouvre la page de la course (modale) |
-| 17 | Repère de mois | NOVEMBRE 2026, DATE À DÉFINIR | Entre les cartes | Libellé, Texte discret ; le trait continue à travers |
+| 14 | Site officiel ↗ | | Bas droite | Lien souligné en Texte ; **grisé, sans adresse, quand `lien` n'est pas renseigné** |
 | 20 | Vues | À surveiller 12 | Haut de page | Pastilles communes (`mrt-pastille`), choix unique, compteur de la vue |
 | 21 | Compte | 12 COURSES | Sous les vues | Libellé, Texte discret ; tient compte du filtre d'année |
 | 22 | Ajouter | + Ajouter une course | Sous les vues, à droite | Bouton principal ; absent en lecture seule |
 | 23 | Tri | Par date · Par ouverture | Sous les vues | Pastilles ; pas pour Déjà couru ; gardé en changeant de vue |
 | 24 | Année | Toutes · 2026 · 2025 | Sous les vues | Pastilles ; seulement pour Déjà couru et Tout, avec plus d'une année |
 
-Numéros repris d'Objectif ([§ 3.1](module-objectif-specification.md)) pour les éléments communs ; ni rôle, ni objectif, ni compteur.
+Numéros repris d'Objectif ([§ 3.1](module-objectif-specification.md)) pour les éléments communs ; ni rôle, ni objectif, ni compteur. Retirés par rapport à la version 0.1 : le trait et les pastilles du chemin (1, 2), les repères de mois (17) et le rond Détails (15).
 
 ## 4. La carte
 
-- **La carte entière mène au site officiel** (nouvel onglet) quand `lien` est renseigné, sinon elle n'est pas cliquable et la flèche (14) est absente. À la différence d'Objectif, la ligne Dossard n'est jamais un lien : le seul autre point de contact est le rond Détails (15).
-- **Détails (15)** ouvre la page de la course, en modale : modification, résultat d'une course courue, retenir, marquer comme courue. Une course sans date s'y affiche « À définir » ; hors feuille de route, elle n'a ni numéro d'étape ni voisines.
-- **Tri par ouverture** (23) : les inscriptions déjà ouvertes d'abord, puis les plus proches, puis celles dont la date est inconnue ; les courses où l'on est inscrit à la fin ; les courues, à la fin. Sans repères de mois.
+- **Fond** comme la carte d'Objectif ; cadre en pointillé pour une option ou une course à surveiller, plein pour une confirmée, atténuée pour une courue.
+- **Toucher la carte ouvre la fiche de modification** (la même que depuis Objectif et le Palmarès) : une course à venir ou à surveiller dans sa fiche, une course courue dans sa fiche de résultat. En lecture seule (site partagé), la page de la course s'ouvre à la place, en consultation.
+- **Site officiel (14)** est un lien à part, dans un nouvel onglet ; toucher le lien n'ouvre pas la fiche.
+- **Tri par ouverture** (23) : les inscriptions déjà ouvertes d'abord, puis les plus proches, puis celles dont la date est inconnue ; les courses où l'on est inscrit à la fin ; les courues, à la fin.
 - **Groupe d'options** : pas de regroupement, une carte par course ; le nom du groupe suit le statut.
 
 ## 5. Ouverture des inscriptions
@@ -103,16 +100,17 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | Essai | Résultat attendu |
 | --- | --- |
 | Ouverture de la page | Vue À surveiller ; pastilles : À surveiller 3, Déjà couru 7, À venir 7, Tout 17 |
-| À surveiller | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; repères avril 2027, septembre 2028, date à définir |
-| Carte du Marathon | Statut « À surveiller », ni compteur ni objectif, « Ouvre le 03/11/2026 à 12:00 », lien vers le site officiel dans un nouvel onglet ; Ultra des Lacs : sans lien, date « À définir », « Ouverture : janvier 2027 » |
+| À surveiller | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; pas de repères de mois |
+| Carte du Marathon | Fond ; statut « À surveiller » et date sur la même ligne, nom dessous ; ni compteur ni objectif ; « Ouvre le 03/11/2026 à 12:00 » ; lien « Site officiel » dans un nouvel onglet ; Ultra des Lacs : lien grisé sans adresse, date « À définir », « Ouverture : janvier 2027 » |
 | À venir, tri par ouverture | Ultra du Plateau, Corrida de Noël, Trail des Cimes, Trail de la Forêt, puis les trois inscrits ; pas de repères ; le tri est gardé en changeant de vue |
 | Déjà couru | 7 courses, la plus récente d'abord, sans ligne Dossard, pastille atténuée ; années Toutes, 2026, 2025 ; 2025 : 4 courses, pas de tri |
 | Tout | 17 courses, les courues à la fin |
-| Détails | La page de la course s'ouvre, « Préparatoire · À surveiller », sans voisines ; sans date : « À définir », aucune erreur |
+| Toucher une carte | La fiche de modification s'ouvre (à surveiller, sans date, courue : fiche de résultat) ; le lien « Site officiel » ne l'ouvre pas |
 | + Course | Dans À surveiller : statut préchoisi ; dans À venir : Confirmée |
 | Fiche | Date et heure d'ouverture relues ; « Mois seulement » : la date devient un mois, l'heure se vide ; enregistré au 1er du mois, sans heure ; sans date d'ouverture, ni mois seul ni heure |
 | Ouverture le jour même | Avant l'heure : « Ouvre le 20/10/2026 à 14:00 » ; après : « Inscription ouverte » |
-| Téléphone (390 px) | Rien ne dépasse ; la date sous le nom |
+| Ordinateur (1200 px) | Deux cartes côte à côte, moins de 420 px de large |
+| Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
 | Menu | Onglet « À surveiller » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |
 | `?vue=courue` | La vue Déjà couru |
-| Site partagé | Lecture seule, pas de bouton d'ajout |
+| Site partagé | Lecture seule, pas de bouton d'ajout ; toucher une carte ouvre la page de la course, pas la fiche |

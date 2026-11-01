@@ -488,6 +488,8 @@
     const trouver = id => courses().find(x => x.id === id) || null;
     return {
       ajouter: extra => ouvrir(null, Object.assign({ mode: 'a_venir' }, extra)),
+      // Modifier : la fiche d'édition directement (cartes de Courses à surveiller) ; une course courue s'ouvre dans sa fiche de résultat.
+      modifier: id => { const c = trouver(id); if (c) ouvrir(c, { mode: c.etat === 'courue' ? 'courue' : 'a_venir' }); },
       // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);

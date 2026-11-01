@@ -2412,11 +2412,11 @@ const CONTROLES = {
       return o;
     };
     const t = async (p, sel) => ((await p.textContent(sel)) || '').replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim();
-    const cartes = p => p.evaluate(() => [...document.querySelectorAll('.cs-liste .ob-et')].map(et => {
-      const tx = x => (x ? x.textContent.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim() : null), c = et.querySelector('.ob-carte'), a = c.querySelector('.ob-nom a');
+    const cartes = p => p.evaluate(() => [...document.querySelectorAll('.cs-liste .cs-carte')].map(c => {
+      const tx = x => (x ? x.textContent.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim() : null), a = c.querySelector('.cs-site[href]');
       return { nom: tx(c.querySelector('.ob-nom')), statut: tx(c.querySelector('.ob-role')), date: tx(c.querySelector('.ob-date')), info: tx(c.querySelector('.ob-info')),
         lignes: [...c.querySelectorAll('.ob-ligne')].map(l => tx(l.children[0]) + ' | ' + tx(l.children[1])), lien: a ? a.getAttribute('href') : null, cible: a ? a.target : null,
-        compteur: !!c.querySelector('.ob-cpt'), pt: et.className.replace('ob-et', '').trim() };
+        grise: !!c.querySelector('.cs-site.is-off'), compteur: !!c.querySelector('.ob-cpt'), pt: c.className.replace('ob-carte cs-carte', '').trim() };
     }));
     const barre = p => p.evaluate(() => ({ vues: [...document.querySelectorAll('[data-vue]')].map(b => b.textContent.replace(/\s+/g, ' ').trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       compte: document.querySelector('.cs-compte').textContent, tris: [...document.querySelectorAll('[data-tri]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
@@ -2427,13 +2427,14 @@ const CONTROLES = {
     let { p, ctx, erreurs } = await neuve(1200);
     let b = await barre(p), k = await cartes(p);
     pb.push(egal(['À surveiller 3 *', 'Déjà couru 7', 'À venir 7', 'Tout 17'], b.vues, 'vues et compteurs, À surveiller par défaut'));
-    pb.push(egal(['3 courses', ['Par date *', 'Par ouverture'], [], ['avril 2027', 'septembre 2028', 'Date à définir']], [b.compte, b.tris, b.annees, b.reperes], 'À surveiller : compte, tri, repères de mois'));
+    pb.push(egal(['3 courses', ['Par date *', 'Par ouverture'], [], 0], [b.compte, b.tris, b.annees, b.reperes.length], 'À surveiller : compte, tri, pas de repères de mois'));
     pb.push(egal(['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], k.map(x => x.nom), 'À surveiller : ordre chronologique, sans date à la fin'));
-    pb.push(egal({ nom: 'Marathon de la Baie', statut: 'À surveiller', date: '11 avr. 2027', info: 'La Baie · Marathon', lignes: ['Distance | 42,195 km', 'Dossard | Ouvre le 03/11/2026 à 12:00'], lien: 'https://example.org/baie', cible: '_blank', compteur: false, pt: 'is-opt is-veille suite-opt is-debut' },
-      k[0], 'carte : statut à la place du rôle, ni compteur ni objectif, dossard avec l\'heure, lien vers le site officiel'));
+    pb.push(egal({ nom: 'Marathon de la Baie', statut: 'À surveiller', date: '11 avr. 2027', info: 'La Baie · Marathon', lignes: ['Distance | 42,195 km', 'Dossard | Ouvre le 03/11/2026 à 12:00'], lien: 'https://example.org/baie', cible: '_blank', grise: false, compteur: false, pt: 'is-opt' },
+      k[0], 'carte : statut à la place du rôle, ni compteur ni objectif, dossard avec l\'heure, lien « Site officiel »'));
     pb.push(egal(['Ouverture : janvier 2027', 'Ouverture à venir'], [k[2].lignes[0].split(' | ')[1] || k[2].lignes[0], k[1].lignes[1].split(' | ')[1]].map(x => x.replace(/^Dossard \| /, '')), 'dossard : mois seul, puis ouverture inconnue'));
-    pb.push(egal([null, 'À définir'], [k[2].lien, k[2].date], 'sans site officiel : pas de lien ; sans date : « À définir »'));
-    pb.push(egal([1, 1, 0], await p.evaluate(() => [document.querySelectorAll('.cs-carte .cs-site').length, document.querySelectorAll('.cs-carte .cs-detail').length - 2, document.querySelectorAll('.cs-carte .ob-cpt, .cs-carte .ob-cible').length]), 'flèche ↗ seulement avec un site ; bouton Détails ; aucun compteur'));
+    pb.push(egal([null, true, 'À définir'], [k[2].lien, k[2].grise, k[2].date], 'sans site officiel : lien grisé, sans adresse ; sans date : « À définir »'));
+    pb.push(egal([3, 0, 0, 3], await p.evaluate(() => [document.querySelectorAll('.cs-carte .cs-site').length, document.querySelectorAll('.cs-detail').length, document.querySelectorAll('.cs-carte .ob-cpt, .cs-carte .ob-cible').length,
+      [...document.querySelectorAll('.cs-carte')].filter(c => getComputedStyle(c).backgroundColor !== 'rgba(0, 0, 0, 0)').length]), 'lien « Site officiel » sur chaque carte ; plus de bouton Détails ; aucun compteur ; un fond sur chaque carte'));
 
     // Tri par ouverture : les plus proches d'abord, les inscrits à la fin.
     await p.click('[data-vue="venir"]');
@@ -2441,7 +2442,7 @@ const CONTROLES = {
     await p.click('[data-tri="ouverture"]');
     k = await cartes(p); b = await barre(p);
     pb.push(egal(['Ultra du Plateau · Le 55', 'Corrida de Noël', 'Trail des Cimes', 'Trail de la Forêt', 'Trail du Lac · Le Tour du Lac', 'Trail des Gorges', 'Trail des Crêtes'], k.map(x => x.nom), 'tri par ouverture : ouvertes d\'abord, inscrits à la fin'));
-    pb.push(egal([['Par date', 'Par ouverture *'], []], [b.tris, b.reperes], 'tri par ouverture : pas de repères de mois'));
+    pb.push(egal([['Par date', 'Par ouverture *'], []], [b.tris, b.reperes], 'tri par ouverture : pas de repères'));
 
     // Déjà couru : du plus récent au plus ancien, sans dossard, avec l'année.
     await p.click('[data-vue="courue"]');
@@ -2461,16 +2462,20 @@ const CONTROLES = {
     pb.push(egal([17, 'Trail du Lac · Le Tour du Lac', 'Semi de San Sebastián'], [k.length, k[0].nom, k.find(x => x.statut === 'Courue').nom], 'Tout : 17 courses, à venir d\'abord puis les courues'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
 
-    // Détails : la page d'une course s'ouvre en modale, même sans date.
+    // Toucher une carte : la fiche de modification (course à venir, sans date, courue) ; le lien « Site officiel » ne l'ouvre pas.
     await p.click('[data-vue="surveiller"]');
-    await p.click('.cs-detail >> nth=0');
-    await p.waitForSelector('.mc-panneau .pc-titre');
-    pb.push(egal(['Marathon de la Baie', 'Préparatoire · À surveiller', 0], [await t(p, '.pc-titre'), await t(p, '.pc-sur'), await p.locator('.pc-nav a').count()], 'Détails : la page de la course, « À surveiller », sans voisines'));
-    await p.click('.pc-fermer'); await pause();
-    await p.locator('.cs-detail').nth(2).click();
-    await p.waitForSelector('.mc-panneau .pc-titre');
-    pb.push(egal(['Ultra des Lacs', true], [await t(p, '.pc-titre'), (await p.textContent('.pc-fiche')).includes('À définir')], 'course sans date : « À définir », pas d\'erreur'));
-    pb.push(egal([], erreurs, 'erreurs JavaScript (détails)'));
+    await p.click('.cs-site[href]');
+    pb.push(egal(0, await p.locator('.fc-fiche').count(), 'le lien « Site officiel » n\'ouvre pas la fiche'));
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.fc-fiche');
+    pb.push(egal(['Marathon de la Baie', 'Modifier la course'], [await p.locator('#fc-course').inputValue(), await t(p, '#fc-titre')], 'toucher la carte : la fiche de modification'));
+    await p.click('[data-fc="annuler"]'); await pause();
+    await p.locator('.cs-carte').nth(2).click(); await p.waitForSelector('.fc-fiche');
+    pb.push(egal(['Ultra des Lacs', ''], [await p.locator('#fc-course').inputValue(), await p.locator('#fc-date').inputValue()], 'course sans date : sa fiche, date vide'));
+    await p.click('[data-fc="annuler"]'); await pause();
+    await p.click('[data-vue="courue"]');
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.fc-fiche');
+    pb.push(egal([true, 'Semi de San Sebastián'], [await p.locator('#fc-temps').count() === 1, await p.locator('#fc-course').inputValue()], 'course courue : la fiche de résultat'));
+    pb.push(egal([], erreurs, 'erreurs JavaScript (fiche)'));
     await ctx.close();
 
     // Ajouter : le statut À surveiller est préchoisi dans cette vue ; seulement là.
@@ -2485,8 +2490,7 @@ const CONTROLES = {
 
     // Fiche : heure d'ouverture et mois seul.
     o = await neuve(1200);
-    await o.p.locator('.cs-detail').nth(0).click(); await o.p.waitForSelector('.mc-panneau .pc-barre [data-ob="modifier"]');
-    await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
+    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.fc-fiche');
     await o.p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(x => x.click()));
     pb.push(egal(['2026-11-03', '12:00', false, false], [await o.p.locator('#fc-ouverture_inscriptions').inputValue(), await o.p.locator('#fc-ouverture_heure').inputValue(),
       await o.p.locator('#fc-ouverture_approx').isChecked(), await o.p.locator('#fc-ouverture_heure').isDisabled()], 'fiche : date et heure d\'ouverture relues'));
@@ -2499,8 +2503,7 @@ const CONTROLES = {
     pb.push(egal(['PATCH', '2027-02-01', true, null], [o.copie.ecritures[0].methode, w.ouverture_inscriptions, w.ouverture_approx, w.ouverture_heure], 'enregistrement : mois seul rangé au 1er, sans heure'));
     await o.ctx.close();
     o = await neuve(1200);
-    await o.p.locator('.cs-detail').nth(0).click(); await o.p.waitForSelector('[data-ob="modifier"]');
-    await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
+    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.fc-fiche');
     await o.p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(x => x.click()));
     await o.p.fill('#fc-ouverture_inscriptions', ''); 
     await o.p.fill('#fc-ouverture_heure', '9h');
@@ -2518,11 +2521,19 @@ const CONTROLES = {
     pb.push(egal(['Dossard | Ouvre le 20/10/2026 à 14:00', 'Dossard | Inscription ouverte'], [k.find(x => x.nom === 'Marathon de la Baie').lignes.slice(-1)[0], k.find(x => x.nom === 'Ultra des Lacs').lignes.slice(-1)[0]], 'ouverture le jour même : avant l\'heure « Ouvre le… », après « Inscription ouverte »'));
     await o.ctx.close();
 
-    // Téléphone : rien ne dépasse, les vues défilent, la date passe sous le nom.
+    // Ordinateur : plusieurs cartes côte à côte, étroites.
+    o = await neuve(1200);
+    pb.push(egal([true, true], await o.p.evaluate(() => { const [a, b] = [...document.querySelectorAll('.cs-carte')].map(c => c.getBoundingClientRect());
+      return [Math.abs(a.top - b.top) < 2 && b.left >= a.right, a.width < 420]; }), 'ordinateur : deux cartes côte à côte, moins de 420 px de large'));
+    await o.ctx.close();
+
+    // Téléphone : rien ne dépasse, les vues défilent, statut et date sur une ligne.
     o = await neuve(390, PAGE, db, {});
     pb.push(egal({ deborde: false, surLaPage: true }, await o.p.evaluate(() => ({ deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth,
       surLaPage: document.querySelectorAll('.cs-pastille').length >= 4 })), 'téléphone : rien ne dépasse'));
-    pb.push(egal(true, await o.p.evaluate(() => { const c = document.querySelector('.cs-carte'); return c.querySelector('.ob-nom').getBoundingClientRect().bottom <= c.querySelector('.ob-date').getBoundingClientRect().top + 1; }), 'téléphone : la date sous le nom'));
+    pb.push(egal([true, true], await o.p.evaluate(() => { const c = document.querySelector('.cs-carte'), r = x => c.querySelector(x).getBoundingClientRect();
+      return [Math.abs(r('.ob-role').top - r('.ob-date').top) < 2, r('.ob-nom').top >= r('.ob-role').bottom - 1]; }), 'téléphone : statut et date sur la même ligne, le nom dessous'));
+    pb.push(egal(1, await o.p.evaluate(() => new Set([...document.querySelectorAll('.cs-carte')].map(c => c.getBoundingClientRect().left)).size), 'téléphone : une seule colonne'));
     pb.push(egal([], o.erreurs, 'téléphone : erreurs JavaScript'));
     await o.ctx.close();
 
@@ -2537,6 +2548,8 @@ const CONTROLES = {
     partage.preferences.push({ utilisateur: autre, theme: 'vert-rose', course_cap: null, modules: null, palmares_groupe: false });
     o = await neuve(1200, PAGE, partage, { 'mrt-vue': autre });
     pb.push(egal([0, 3], [await o.p.locator('[data-cs="ajouter"]').count(), (await cartes(o.p)).length], 'site partagé : lecture seule, sans ajout'));
+    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal(['Marathon de la Baie', 0], [await t(o.p, '.pc-titre'), await o.p.locator('.fc-fiche').count()], 'site partagé : toucher une carte ouvre la page de la course, pas la fiche'));
     await o.ctx.close();
     return pb;
   },
