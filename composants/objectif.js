@@ -269,6 +269,8 @@
   // modale (ctx.modale = { fermer } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
+    // Même course redessinée (séance ajoutée, plan paramétré, tracé importé) : les textes ouverts le restent.
+    const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     // Barre du haut de la modale (modale-course.js) : « Modifier » et la croix, à droite.
     const barre = avecModifier => '<div class="pc-barre">' + (avecModifier && edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
@@ -328,6 +330,8 @@
     brancher(el, Object.assign({ fermer: ctx.modale.fermer, gpx: () => T.telecharger(c) }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
       importer: () => el.querySelector('.tr-fichier').click() }));
     replierCellules(el);
+    el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
+    el.dataset.pcId = id;
     // Tracé : dessiné à la première ouverture de Parcours (la carte a besoin de sa taille).
     const parcours = el.querySelector('#parcours');
     if (parcours && c.gpx && T) parcours.addEventListener('toggle', () => { if (parcours.open) T.dessiner(parcours.querySelector('.tr-zone'), c); });
