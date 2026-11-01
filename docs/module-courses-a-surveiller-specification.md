@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.3 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.4 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Rôle
 
@@ -53,10 +53,25 @@ Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteu
 | 20 | Vues | À surveiller 12 | Haut de page | Pastilles communes (`mrt-pastille`), choix unique, compteur de la vue |
 | 21 | Compte | 12 COURSES | Sous les vues | Libellé, Texte discret ; tient compte du filtre d'année |
 | 22 | Ajouter | + Ajouter une course | Sous les vues, à droite | Bouton principal ; absent en lecture seule |
+| 25 | Affichage | Cartes · Tableau | Sous les vues, avant le tri | Pastilles, choix unique, gardé sur l'appareil (`mrt-courses-affichage`) ; cartes par défaut |
 | 23 | Tri | Par date · Par ouverture | Sous les vues | Pastilles ; pas pour Déjà couru ; gardé en changeant de vue |
 | 24 | Année | Toutes · 2026 · 2025 | Sous les vues | Pastilles ; seulement pour Déjà couru et Tout, avec plus d'une année |
 
 Numéros repris d'Objectif ([§ 3.1](module-objectif-specification.md)) pour les éléments communs ; ni rôle, ni objectif, ni compteur. Retirés par rapport à la version 0.1 : le trait et les pastilles du chemin (1, 2) et le rond Détails (15).
+
+### 3.1 Affichage en tableau
+
+Au choix (25), les mêmes courses, les mêmes vues, le même tri et le même filtre d'année : un tableau dans un cadre, une ligne par course, avec les titres de mois en lignes de séparation (« Date à définir » en dernier ; pas de titres avec le tri par ouverture). Il défile sur le côté s'il est plus large que l'écran (téléphone). Colonnes, reprises de la veille de l'ancien suivi, sans l'index UTMB (idée « plus tard ») :
+
+| Colonne | Contenu | Exemple |
+| --- | --- | --- |
+| Événement | La course, en gras ; lien vers le site officiel quand il est renseigné ; le lieu dessous | **Trail du Lac** · Mont-Clair |
+| Course | Le parcours ; « — » sans parcours | Le Tour du Lac |
+| Distance · D+ | Comme sur la carte ; « — » si inconnue | 24 km · 650 m D+ |
+| Date | La date ; l'heure de départ dessous si elle est connue ; « À définir » sans date | 15 nov. 2026 · 9 h |
+| Ouverture des dossards | L'état du dossard comme sur la carte (§ 5), sans lien ; « — » pour une course courue | ● Ouvre le 03/11/2026 à 12:00 |
+
+Toucher une ligne ouvre la fiche de modification (la page de la course en lecture seule) ; le lien du nom n'ouvre pas la fiche.
 
 ## 4. La carte
 
@@ -110,6 +125,7 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | + Course | Dans À surveiller : statut préchoisi ; dans À venir : Confirmée |
 | Fiche | Date et heure d'ouverture relues ; « Mois seulement » : la date devient un mois, l'heure se vide ; enregistré au 1er du mois, sans heure ; sans date d'ouverture, ni mois seul ni heure |
 | Ouverture le jour même | Avant l'heure : « Ouvre le 20/10/2026 à 14:00 » ; après : « Inscription ouverte » |
+| Tableau | Choisi par la pastille : colonnes Événement, Course, Distance · D+, Date, Ouverture des dossards ; titres de mois ; une ligne par course (À surveiller : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour le dossard d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement ; rien ne dépasse de la page sur téléphone |
 | Ordinateur (1200 px) | Deux cartes du même mois côte à côte, moins de 420 px de large ; toutes les cartes de la même hauteur (aussi sur téléphone) |
 | Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
 | Menu | Onglet « À surveiller » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |
