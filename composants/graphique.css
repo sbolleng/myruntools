@@ -71,10 +71,11 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-legende li { display: flex; align-items: center; gap: 0.45rem; }
 .mg-sym { display: inline-block; width: 10px; height: 10px; flex: none; background: var(--accent); }
 .mg-sym.is-plein { border-radius: 50%; }
+.mg-sym.is-vide { border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); box-sizing: border-box; }
 .mg-sym.is-losange { width: 11px; height: 11px; border-radius: 1px; transform: rotate(45deg); }
 
 /* Définition sous le graphique (Difficulté) : une explication, donc plus petite et en italique ; la formule en Texte. */
-.mg-definition { margin-top: 1.4rem; padding-top: 0.9rem; border-top: 1px solid var(--border); font-size: 0.75rem; font-style: italic; line-height: 1.55; color: var(--muted); }
+.mg-definition { margin-top: 1rem; font-size: 0.75rem; font-style: italic; line-height: 1.55; color: var(--muted); }
 .mg-definition b { font-weight: 600; color: var(--text); }
 
 /* Téléphone : pas d'étiquettes, la bulle les remplace ; la tendance passe sous le titre. */
