@@ -10,6 +10,7 @@
 //   mrtTrace.retirer(course)          → Promise<erreur|null> : efface le fichier et le chemin
 //   mrtTrace.telecharger(course)      télécharge le fichier (nom : celui de la course)
 //   mrtTrace.dessiner(el, course)     carte (Leaflet, fond OpenTopoMap) et profil dans el ; une seule fois par élément
+//   mrtTrace.pente(trace, km)         → { alt, pente } : altitude lissée (m) et pente (%) sur 100 m centrés au kilomètre km
 //   mrtTrace.miniature(course)        → Promise<svg|null> : le tracé seul, sur un fond dessiné (quadrillage), pour la carte d'une étape ; null sans tracé
 //   mrtTrace.lire(texte, km)          → { nom, points: [[lat, lon, alt|null, km, saut]], segments, km } : le tracé (le plus proche de km
 //                                       s'il y en a plusieurs) ou null
@@ -170,7 +171,45 @@
     return chargement;
   }
 
-  // Profil altimétrique : courbe et aire en Accent ; altitudes mini et maxi à gauche, distances en bas.
+  // Altitude lissée tous les 10 m (moyenne sur 50 m) : le GPS est bruité, une pente lue point par point serait absurde.
+  const PAS = 0.01;
+  function lisse(t) {
+    if (t.__lisse) return t.__lisse;
+    const pts = t.points.filter(p => p[2] != null), n = Math.max(2, Math.round(t.km / PAS) + 1), brut = [];
+    let j = 0;
+    for (let i = 0; i < n; i++) {
+      const k = Math.min(i * PAS, t.km);
+      while (j < pts.length - 2 && pts[j + 1][3] < k) j++;
+      const a = pts[j], b = pts[j + 1], d = b[3] - a[3];
+      brut.push(d > 0 ? a[2] + (b[2] - a[2]) * Math.min(1, Math.max(0, (k - a[3]) / d)) : a[2]);
+    }
+    t.__lisse = brut.map((v, i) => { let s = 0, c = 0; for (let m = Math.max(0, i - 2); m <= Math.min(n - 1, i + 2); m++) { s += brut[m]; c++; } return s / c; });
+    return t.__lisse;
+  }
+  // Altitude et pente (%) au kilomètre km : pente sur 100 m centrés (moins aux extrémités du tracé).
+  function pente(t, km) {
+    const alt = lisse(t), n = alt.length, i = Math.min(n - 1, Math.max(0, Math.round(km / PAS)));
+    const a = Math.max(0, i - 5), b = Math.min(n - 1, i + 5);
+    return { alt: alt[i], pente: b > a ? (alt[b] - alt[a]) / ((b - a) * PAS * 1000) * 100 : 0 };
+  }
+  // Position (lat, lon) au kilomètre km.
+  function position(t, km) {
+    const P = t.points;
+    let lo = 0, hi = P.length - 1;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (P[m][3] <= km) lo = m; else hi = m; }
+    const d = P[hi][3] - P[lo][3], f = d > 0 ? Math.min(1, Math.max(0, (km - P[lo][3]) / d)) : 0;
+    return [P[lo][0] + (P[hi][0] - P[lo][0]) * f, P[lo][1] + (P[hi][1] - P[lo][1]) * f];
+  }
+  // Lignes horizontales : un pas rond (10, 20, 50, 100, 200, 500, 1 000 m) qui donne trois à six lignes au plus.
+  function lignes(min, max) {
+    const pas = [10, 20, 50, 100, 200, 500, 1000, 2000].find(x => (max - min) / x <= 5) || 5000, r = [];
+    for (let v = (Math.floor(min / pas) + 1) * pas; v < max; v += pas) r.push(v);
+    return { pas, valeurs: r };
+  }
+  const fmtPente = p => { const r = Math.round(p); return (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + ' %'; };
+
+  // Profil altimétrique : courbe et aire en Accent ; altitudes mini et maxi à gauche, distances en bas ;
+  // lignes horizontales à pas rond (n° 48) et lecture de la pente au survol (n° 49).
   function profil(t, bouton) {
     const pts = t.points.filter(p => p[2] != null);
     if (pts.length < 2) return '';
@@ -179,13 +218,43 @@
     const alts = ech.map(p => p[2]), min = Math.min(...alts), max = Math.max(...alts), ecart = Math.max(max - min, 1);
     const x = km => (km / t.km) * L, y = a => H - 6 - ((a - min) / ecart) * (H - 12);
     const ligne = ech.map((p, i) => (i && !p[4] ? 'L' : 'M') + x(p[3]).toFixed(1) + ' ' + y(p[2]).toFixed(1)).join(' ');
+    const li = lignes(min, max), pct = v => (y(v) / H) * 100;
+    const traits = li.valeurs.map(v => '<line class="tr-ligne" x1="0" x2="' + L + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '" vector-effect="non-scaling-stroke"/>').join('');
+    // Étiquette d'une ligne : seulement si elle ne recouvre pas l'altitude mini ou maxi.
+    const etiq = li.valeurs.filter(v => pct(v) > 18 && pct(v) < 82).map(v => '<i style="top:' + pct(v).toFixed(1) + '%">' + v + '</i>').join('');
     return '<div class="tr-profil">' +
-      '<div class="tr-alt"><span>' + Math.round(max) + ' m</span><span>' + Math.round(min) + ' m</span></div>' +
-      '<svg viewBox="0 0 ' + L + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Profil altimétrique : de ' + Math.round(min) + ' à ' + Math.round(max) + ' m">' +
+      '<div class="tr-alt"><span>' + Math.round(max) + ' m</span>' + etiq + '<span>' + Math.round(min) + ' m</span></div>' +
+      '<div class="tr-trace" data-pas="' + li.pas + '"><svg viewBox="0 0 ' + L + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Profil altimétrique : de ' + Math.round(min) + ' à ' + Math.round(max) + ' m">' + traits +
         '<path class="tr-aire" d="' + ligne + ' L' + L + ' ' + H + ' L0 ' + H + ' Z"/><path class="tr-courbe" d="' + ligne + '" vector-effect="non-scaling-stroke"/></svg>' +
-      '<div class="tr-km"><span>0 km</span><span>' + nombre(t.km) + ' km</span></div>' +
+        '<div class="tr-reperes" hidden><span class="tr-trait"></span><span class="tr-bulle"></span></div></div>' +
+      '<div class="tr-km"><span>0 km</span><i class="tr-pas">1 trait = ' + li.pas + ' m</i><span>' + nombre(t.km) + ' km</span></div>' +
       // Téléchargement (n° 27) : bouton à contour, à droite, sous la ligne des distances.
       (bouton || '') + '</div>';
+  }
+
+  // Survol (souris) ou glissement du doigt sur le profil : trait vertical, bulle « km · altitude · pente »,
+  // repère sur la carte (n° 50, via marque(lat, lon) ou marque(null)).
+  function survol(el, t, marque) {
+    const zone = el.querySelector('.tr-trace');
+    if (!zone) return;
+    const rep = zone.querySelector('.tr-reperes'), trait = rep.querySelector('.tr-trait'), bulle = rep.querySelector('.tr-bulle');
+    const cacher = () => { rep.hidden = true; marque(null); };
+    const montrer = e => {
+      const r = zone.getBoundingClientRect();
+      if (!r.width) return;
+      const f = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), km = f * t.km, m = pente(t, km);
+      rep.hidden = false;
+      trait.style.left = (f * 100) + '%';
+      bulle.innerHTML = 'km ' + nombre(km) + ' · ' + Math.round(m.alt) + ' m · <b class="' + (m.pente < -0.5 ? 'tr-descente' : 'tr-montee') + '">' + fmtPente(m.pente) + '</b>';
+      const w = bulle.offsetWidth;
+      bulle.style.left = Math.min(Math.max(f * r.width - w / 2, 0), Math.max(0, r.width - w)) + 'px';
+      marque(position(t, km));
+    };
+    zone.addEventListener('pointermove', montrer);
+    zone.addEventListener('pointerdown', montrer);
+    zone.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') cacher(); });
+    // Au doigt, la lecture reste affichée jusqu'au prochain toucher ailleurs.
+    document.addEventListener('pointerdown', e => { if (!zone.contains(e.target)) cacher(); });
   }
 
   async function dessiner(el, c) {
@@ -198,6 +267,8 @@
     const bouton = '<div class="tr-bas"><button type="button" class="mrt-btn tr-telecharger" title="Télécharger le GPX">' + FLECHE_BAS + 'GPX</button></div>';
     el.innerHTML = '<div class="tr-carte" role="img" aria-label="Carte du tracé"></div>' + (profil(t, bouton) || bouton);
     el.querySelector('.tr-telecharger').addEventListener('click', () => telecharger(c));
+    let reperage = null;
+    survol(el, t, p => { if (reperage) reperage(p); });
     let L;
     try { L = await leaflet(); } catch (e) { el.querySelector('.tr-carte').innerHTML = '<p class="tr-attente">Carte indisponible pour l\'instant.</p>'; return; }
     const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ffb700';
@@ -213,7 +284,46 @@
     carte.fitBounds(trait.getBounds(), { padding: [12, 12] });
     // La carte naît dans un texte qui se déplie : sa taille est relue une fois l'ouverture finie.
     setTimeout(() => { carte.invalidateSize(); carte.fitBounds(trait.getBounds(), { padding: [12, 12] }); }, 300);
+    // Repère de la position survolée sur le profil (n° 50).
+    let rond = null;
+    reperage = p => {
+      if (!p) { if (rond) { rond.remove(); rond = null; } return; }
+      if (!rond) rond = L.circleMarker(p, { radius: 5, color: '#0b1220', weight: 2, fillColor: accent, fillOpacity: 1, interactive: false }).addTo(carte);
+      else rond.setLatLng(p);
+    };
+    pleinEcran(L, el, carte, trait);
     el.__carte = carte;
+  }
+
+  // Bouton plein écran (n° 47), sous les boutons + et − : l'API du navigateur, sinon un plein écran « posé » en CSS (iPhone).
+  const ICO_PLEIN = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICO_SORTIE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function pleinEcran(L, el, carte, trait) {
+    const Controle = L.Control.extend({
+      onAdd() {
+        const d = L.DomUtil.create('div', 'leaflet-bar tr-plein-zone'), b = L.DomUtil.create('button', 'mrt-rond tr-plein', d);
+        b.type = 'button';
+        L.DomEvent.disableClickPropagation(d);
+        b.addEventListener('click', () => bascule(!el.classList.contains('tr-pleine')));
+        return d;
+      }
+    });
+    const bouton = new Controle({ position: 'topleft' }).addTo(carte).getContainer().querySelector('button');
+    const dit = on => { bouton.innerHTML = on ? ICO_SORTIE : ICO_PLEIN; bouton.title = bouton.ariaLabel = on ? 'Quitter le plein écran' : 'Plein écran'; bouton.setAttribute('aria-pressed', on ? 'true' : 'false'); };
+    dit(false);
+    function bascule(on) {
+      if (on === el.classList.contains('tr-pleine')) return;
+      el.classList.toggle('tr-pleine', on);
+      document.documentElement.classList.toggle('tr-plein-ouvert', on);
+      if (on) { carte.scrollWheelZoom.enable(); if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); }
+      else { carte.scrollWheelZoom.disable(); if (document.fullscreenElement === el) document.exitFullscreen().catch(() => {}); }
+      dit(on);
+      setTimeout(() => { carte.invalidateSize(); carte.fitBounds(trait.getBounds(), { padding: [12, 12] }); }, 120);
+    }
+    // Échap quitte le plein écran du navigateur : le plein écran « posé » suit.
+    document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && el.classList.contains('tr-pleine')) bascule(false); });
+    // En phase de capture : Échap ne ferme que le plein écran, pas la page de la course qui le contient.
+    window.addEventListener('keydown', e => { if (e.key === 'Escape' && el.classList.contains('tr-pleine')) { e.stopImmediatePropagation(); bascule(false); } }, true);
   }
 
   // Miniature (Objectif, § 3.1, n° 14) : le tracé en SVG, départ plein et arrivée à contour, sur un quadrillage discret ; ni fond de carte
@@ -243,5 +353,5 @@
       '<circle class="tr-mini-depart" cx="' + X(0) + '" cy="' + Y(0) + '" r="3.4"/><circle class="tr-mini-arrivee" cx="' + X(n) + '" cy="' + Y(n) + '" r="3.4"/></svg>';
   }
 
-  window.mrtTrace = { verifier, choisir, ranger, retirer, telecharger, dessiner, miniature, lire, MAX };
+  window.mrtTrace = { verifier, choisir, ranger, retirer, telecharger, dessiner, miniature, lire, pente, MAX };
 })();
