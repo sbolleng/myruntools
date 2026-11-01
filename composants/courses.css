@@ -1,6 +1,6 @@
 /* ===== Courses à surveiller (courses.js) · docs/module-courses-a-surveiller-specification.md =====
    La carte est celle d'Objectif (objectif.css) : statut et date sur la première ligne, le nom dessous, ni rôle ni compteur.
-   Cartes les moins larges possibles, rangées côte à côte quand l'écran le permet (une colonne sur téléphone).
+   Cartes les moins larges possibles, de même hauteur, regroupées par mois et rangées côte à côte quand l'écran le permet (une colonne sur téléphone).
    Rien d'écrit en dur : les rôles de couleur du thème. */
 .cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 1rem; margin-bottom: 1.1rem; }
 .cs-vues, .cs-tris, .cs-annees { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -17,20 +17,24 @@
 }
 
 /* Liste : cartes de 18 rem au moins, autant de colonnes que la largeur en permet. */
-.cs-liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 0.8rem; align-items: start; }
+.cs-groupe + .cs-groupe { margin-top: 1.4rem; }
+.cs-mois { margin: 0 0 0.6rem; padding-bottom: 0.3rem; font-weight: 400; border-bottom: 1px solid var(--border); }
+.cs-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 0.8rem; }
 
 /* Carte : fond comme celle d'Objectif ; statut et date en tête, le nom dessous ; pointillé : option et à surveiller ; courue atténuée. */
-.cs-carte { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes" "bas bas"; grid-template-columns: minmax(0, 1fr) auto; margin: 0; cursor: pointer; background: var(--surface); }
+.cs-carte { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes" "bas bas"; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto auto 1fr; align-content: start; margin: 0; cursor: pointer; background: var(--surface);
+  height: 13rem; overflow: hidden; } /* toutes les cartes ont la même hauteur ; le nom tient sur deux lignes au plus */
 .cs-carte:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cs-carte.is-opt { border-style: dashed; }
 .cs-carte.is-courue { opacity: 0.8; }
 .cs-carte > .ob-role { grid-area: role; min-width: 0; white-space: normal; } /* « Option · Printemps 2027 » passe à la ligne plutôt que de recouvrir la date */
 .cs-carte > .ob-date { align-self: start; }
 .cs-carte > .ob-date { grid-area: date; justify-self: end; }
-.cs-carte .ob-nom { margin-top: 0.15rem; }
+.cs-carte .ob-nom { margin-top: 0.15rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cs-carte .ob-info { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cs-carte .ob-ligne { grid-template-columns: 4.6rem minmax(0, 1fr); }
 /* Le lien « Site officiel » reste un lien à part ; grisé quand le site n'est pas renseigné. */
-.cs-bas { grid-area: bas; display: flex; justify-content: flex-end; margin-top: 0.2rem; }
+.cs-bas { grid-area: bas; align-self: end; display: flex; justify-content: flex-end; }
 .cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
