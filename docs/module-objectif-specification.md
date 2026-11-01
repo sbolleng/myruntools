@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.52 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.53 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -420,7 +420,7 @@ Téléphone : même ordre, le graphique occupe toute la largeur du cadre ; les �
 | 5 | Candidat d'un groupe, option | Trail des Cimes | À sa date | Cercle vide, contour Accent, non relié |
 | 6 | Course objectif | Trail des Crêtes | À sa date | Losange plein, Accent, plus grand |
 | 7 | Date au mois seul | Trail de la Forêt (juillet 2027) | Sur le mois | Trait pointillé Accent couvrant le mois, à la hauteur de son km-effort |
-| 8 | Axe du temps | janv. · avr. · juil. · oct. | En bas | Un repère par trimestre (sur téléphone, janvier et juillet seulement) ; l'année sur janvier et sur le premier repère (« janv. 27 ») ; Space Mono 0,7 rem, Texte discret |
+| 8 | Axe du temps | janv. 26 · mars · mai | En bas | Une coche par mois ; la date écrite au pas le plus fin qui tient dans la largeur (chaque mois, tous les 2, 3, 6 ou 12 mois, calé sur janvier ; par exemple tous les 2 mois sur ordinateur, tous les 6 sur téléphone) ; l'année sur janvier et sur le premier repère (« janv. 27 ») ; Space Mono 0,7 rem, Texte discret |
 | 9 | Aujourd'hui | — | Trait vertical | Pointillé, Texte discret |
 | 10 | (retiré) | — | — | Le tableau des chiffres est remplacé par la définition (16) |
 | 11 | Bulle | Trail des Gorges · 7 mars 2027… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface, km-effort en Space Mono ; une seule à la fois ; toucher ailleurs la ferme |

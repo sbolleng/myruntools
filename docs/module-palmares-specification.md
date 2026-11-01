@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.30 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.31 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -230,7 +230,7 @@ Ligne (12) : elle relie les points dans l'ordre des dates. Téléphone : même o
 | 3 | Course | Point d'une course | À sa date | Point plein, Accent |
 | 4 | Record | 🥇 à côté du point | À côté du point | La course porte 🥇 dans le tableau (§ 5) : même marque sur le graphique |
 | 5 | Tendance | Droite en pointillé | À travers les points | Droite de régression (moindres carrés) sur les points affichés, seulement quand ils sont tous du même format (sinon l'écart de distance fausserait la pente) et au moins 3 ; pointillé, Texte discret |
-| 6 | Axe du temps | avr. 25 · juil. · oct. | En bas | De la première à la dernière course placée ; un repère par trimestre (sur téléphone, janvier et juillet seulement), l'année sur le premier et sur janvier ; Space Mono 0,7 rem, Texte discret |
+| 6 | Axe du temps | mai 25 · juil. · sept. | En bas | De la première à la dernière course placée ; une coche par mois ; la date écrite au pas le plus fin qui tient dans la largeur (chaque mois, tous les 2, 3, 6 ou 12 mois, calé sur janvier ; par exemple tous les 2 mois sur ordinateur, tous les 6 sur téléphone) ; l'année sur janvier et sur le premier repère ; Space Mono 0,7 rem, Texte discret |
 | 7 | (retiré) | — | — | Le bilan sous le graphique est supprimé |
 | 8 | Pente de la tendance | ↗ 24 s /km plus rapide par an · ↗ 4 min 13 s plus rapide par an | Au bout du titre | Chiffre en Space Mono ; Accent quand on va plus vite, Texte discret sinon ; mêmes conditions que la tendance (5) ; « stable » sous 1 s par an |
 | 9 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
