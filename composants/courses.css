@@ -1,0 +1,45 @@
+/* ===== Courses à surveiller (courses.js) · docs/module-courses-a-surveiller-specification.md =====
+   La carte est celle d'Objectif (objectif.css) : seuls changent la grille (statut à la place du rôle, pas de compteur),
+   la barre du haut (vues en pastilles, tri, année) et les repères de mois. Rien d'écrit en dur : les rôles de couleur du thème. */
+.cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 1rem; margin-bottom: 1.1rem; }
+.cs-vues, .cs-tris, .cs-annees { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+/* Téléphone : les quatre vues défilent sur le côté plutôt que de passer à la ligne. */
+.cs-vues { flex: 1 1 100%; }
+.cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.cs-outils { display: flex; flex: 1 1 100%; align-items: center; flex-wrap: wrap; gap: 0.6rem 1rem; }
+.cs-compte { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.cs-outils .ob-ajout { margin-left: auto; }
+.cs-annees { flex: 1 1 100%; }
+@media (max-width: 600px) {
+  .cs-vues { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -1rem; padding: 0 1rem; }
+  .cs-vues::-webkit-scrollbar { display: none; }
+  .cs-pastille { flex: none; white-space: nowrap; }
+}
+
+/* Carte : statut, puis nom et date ; téléphone, la date juste sous le nom, à droite. */
+.cs-carte { grid-template-areas: "role role" "nom date" "info info" "lignes lignes" "bas bas"; }
+.cs-carte > .ob-role { grid-area: role; }
+.cs-carte .ob-date { align-self: start; }
+.cs-bas { grid-area: bas; display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; margin-top: -0.2rem; }
+/* Le rond « Détails » passe au-dessus du lien qui couvre la carte ; la flèche est un simple repère. */
+.cs-detail { position: relative; z-index: 2; width: 1.6rem; height: 1.6rem; }
+.cs-site { display: inline-flex; color: var(--muted); }
+.cs-site .ob-fleche { width: 0.9rem; height: 0.9rem; }
+@media (max-width: 600px) {
+  .cs-carte { grid-template-areas: "role role" "nom nom" "date date" "info info" "lignes lignes" "bas bas"; }
+  .cs-carte .ob-date { justify-self: end; }
+}
+
+/* Pastilles du chemin : confirmée pleine (Objectif), option et à surveiller en pointillé, à surveiller vide, courue atténuée. */
+.ob-et.is-veille .ob-pt { background: var(--bg); }
+.ob-et.is-courue .ob-pt { opacity: 0.45; }
+.ob-et.is-courue .ob-carte { background: transparent; }
+/* Les repères de mois s'insèrent dans le chemin : le trait continue à travers eux. */
+.cs-mois { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); column-gap: 0.9rem; align-items: center; min-height: 1.8rem; }
+.cs-mois .ob-rail { align-self: stretch; }
+.cs-mois .ob-rail::before { display: none; }
+.cs-mois .ob-rail::after { top: 0; bottom: 0; }
+.cs-mois.is-debut .ob-rail::after { top: 50%; }
+.cs-liste .ob-et:first-child .ob-rail::before { display: block; }
+.cs-liste .ob-et.is-debut .ob-rail::before, .cs-liste .ob-et.is-fin .ob-rail::after { display: none; }
+.cs-vide { margin-top: 0.5rem; }

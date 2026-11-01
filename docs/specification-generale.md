@@ -157,7 +157,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Objectif & Plan | Feuille de route jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Objectif & Plan » (le nom rangé dans les préférences reste « Objectif ») | 1 |
 | Calendrier | Saison en trois vues : année, quatre semaines, plan d'une course ([spécification](module-calendrier-specification.md)) | 1 |
 | Nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
-| Courses à surveiller | Veille des courses envisagées : dates, ouverture des inscriptions, index UTMB | 2 |
+| Courses à surveiller | Toutes les courses en cartes (à surveiller, courues, à venir) : dates, ouverture des inscriptions avec heure ([spécification](module-courses-a-surveiller-specification.md)) ; hors du menu par défaut ; index UTMB plus tard | 2 |
 | Guide | Articles et fiches pratiques, publics ou privés | 2 |
 | Profil | Données du coureur : état civil, poids, taille, pointure, zones d'entraînement, records | 2 |
 | Palmarès | Historique des courses et des performances ([spécification](module-palmares-specification.md)) | 2 |
@@ -317,7 +317,7 @@ Résultats attendus :
 - Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
 - En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac), Pense-bête et Bilan nutrition grisés, D'ici là jusqu'au Trail des Crêtes en Accent.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
-- Menu par défaut : En un coup d'œil, Objectif & Plan, Calendrier, Palmarès (pas d'onglet pour Cette semaine, Nutrition, Profil, Guide) ; à 375 et 390 px de large, les quatre onglets tiennent dans l'écran, sur toutes les pages.
+- Menu par défaut : En un coup d'œil, Objectif & Plan, Calendrier, Palmarès (pas d'onglet pour Cette semaine, Nutrition, Profil, Guide, ni pour Courses à surveiller, à cocher dans les Préférences) ; à 375 et 390 px de large, les quatre onglets tiennent dans l'écran, sur toutes les pages.
 - L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.
 - Retour du navigateur sur une fiche ouverte seule (« Ajouter une course ») : la fiche se ferme, la page reste ; après une saisie, « Abandonner les modifications ? » d'abord.
 - Objectif en tête du menu : ouvrir le site mène à la feuille de route, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.

@@ -14,6 +14,7 @@
     { nom: 'Cette semaine' },
     { nom: 'Objectif', libelle: 'Objectif & Plan', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
     { nom: 'Calendrier', page: 'calendrier.html' },
+    { nom: 'Courses à surveiller', libelle: 'À surveiller', page: 'courses-a-surveiller.html', defaut: false }, // hors du menu par défaut (cinq onglets ne tiennent pas sur téléphone) ; à cocher dans les Préférences
     { nom: 'Nutrition' },
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil' },
@@ -33,7 +34,7 @@
   // Modules du menu, dans l'ordre choisi (rien d'enregistré : tout le catalogue), construits seulement : un module
   // « bientôt » reste dans les Préférences et n'entre dans le menu qu'une fois construit.
   const modulesAffiches = prefs => (prefs && prefs.modules && prefs.modules.length
-    ? prefs.modules.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES).filter(m => m.page);
+    ? prefs.modules.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES.filter(m => m.defaut !== false)).filter(m => m.page);
   window.mrtModulesAffiches = modulesAffiches;
   // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête :
   // le premier module construit du menu (par défaut En un coup d'œil).

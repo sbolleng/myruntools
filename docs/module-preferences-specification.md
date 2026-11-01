@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.11 · 31 octobre 2026 · [Retour au sommaire](README.md)
+Version 1.12 · 1er novembre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -40,7 +40,7 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 - Chaque module a une case « affiché » et deux flèches pour le monter ou le descendre d'un rang.
 - Les modules pas encore construits sont grisés, suivis de « · bientôt » : on peut quand même les cocher et les ranger, mais ils n'ont pas d'onglet dans le menu ; ils y entrent d'eux-mêmes, à leur place, une fois construits. (Avant le 30 octobre 2026, ils s'affichaient grisés dans le menu : sur téléphone, ils repoussaient les vrais onglets hors de l'écran.)
 - **Au moins un module construit** reste affiché : sa case ne peut pas être décochée (un module « bientôt » coché ne compte pas).
-- Par défaut (rien d'enregistré) : tous les modules, dans l'ordre du catalogue.
+- Par défaut (rien d'enregistré) : tous les modules, dans l'ordre du catalogue, sauf Courses à surveiller (case décochée : cinq onglets ne tiennent pas dans l'écran d'un téléphone).
 - **Rétablir l'ordre par défaut** : un lien remet tous les modules, dans l'ordre du catalogue.
 
 ## 5. Cap

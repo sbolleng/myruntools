@@ -16,6 +16,7 @@
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
   const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif intermédiaire', objectif: 'Objectif principal' };
+  const STATUTS_LIB = { a_surveiller: 'À surveiller', option: 'Option', confirmee: 'Confirmée' };
   const UNITES = [['j', 'j'], ['h', 'h'], ['m', 'min'], ['s', 's']];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad = n => String(n).padStart(2, '0');
@@ -35,11 +36,13 @@
     return new Date(d[0], d[1] - 1, d[2], h[0], h[1]);
   }
   function dateCourte(c) {
+    if (!c.date) return 'À définir';
     const d = c.date.split('-').map(Number);
     if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
     return (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS[d[1] - 1] + ' ' + d[0];
   }
   function dateLongue(c, sansHeure) {
+    if (!c.date) return 'À définir';
     const d = c.date.split('-').map(Number);
     if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
     const jour = JOURS[new Date(d[0], d[1] - 1, d[2]).getDay()];
@@ -87,8 +90,14 @@
     if (c.inscrit) return { etat: 'inscrit', texte: 'Inscrit' + (c.dossard ? ' · n° ' + c.dossard : '') };
     const o = c.ouverture_inscriptions;
     if (!o) return { etat: 'inconnu', texte: 'Ouverture à venir' };
-    if (o > aujourdhui()) return { etat: 'bientot', texte: 'Ouvre le ' + o.split('-').reverse().join('/') };
-    return { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
+    const auj = aujourdhui(), ouvert = { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
+    // Mois seul (évolution 017) : « Ouverture : janvier 2027 » tant que le mois n'est pas passé.
+    if (c.ouverture_approx) return o.slice(0, 7) >= auj.slice(0, 7) ? { etat: 'bientot', texte: 'Ouverture : ' + MOIS_LONG[Number(o.slice(5, 7)) - 1] + ' ' + o.slice(0, 4) } : ouvert;
+    // Avec une heure d'ouverture, le jour même, l'inscription n'est ouverte qu'à partir de cette heure (heure locale).
+    const h = c.ouverture_heure ? String(c.ouverture_heure).slice(0, 5) : '';
+    const maintenant = new Date(), hm = pad(maintenant.getHours()) + ':' + pad(maintenant.getMinutes());
+    if (o > auj || (o === auj && h && h > hm)) return { etat: 'bientot', texte: 'Ouvre le ' + o.split('-').reverse().join('/') + (h ? ' à ' + h : '') };
+    return ouvert;
   }
   // sansLien : page d'une course, où l'inscription passe par « S'inscrire » (§ 3.4, n° 29).
   function dossardHtml(c, sansLien) {
@@ -106,7 +115,7 @@
 
   // Compteur (§ 5.1) : quatre cases, mises à jour par un seul minuteur pour toute la page.
   // Mois seul : compteur pour une course confirmée (jusqu'au 1er du mois), aucun pour une option.
-  const sansCompteur = c => c.date_approx && c.statut !== 'confirmee';
+  const sansCompteur = c => !c.date || (c.date_approx && c.statut !== 'confirmee');
   const compteurHtml = c => (sansCompteur(c) ? '' : '<div class="ob-cpt" data-depart="' + depart(c).getTime() + '">' +
     UNITES.map(u => '<span class="ob-cpt-case"><b data-u="' + u[0] + '"></b>' + u[1] + '</span>').join('') + '</div>');
   let minuteur = null;
@@ -166,6 +175,9 @@
     lancerCompteurs();
     couperNoms();
   };
+
+  // Briques de la carte, partagées avec la page Courses à surveiller (courses.js).
+  window.mrtCartes = { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
 
   window.renderFeuilleDeRoute = function (el, courses, edition) {
     const etapes = window.mrtEtapes(courses);
@@ -276,17 +288,20 @@
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
     const suite = etapes.flatMap(e => (e.course ? [e.course] : e.candidats));
-    const i = suite.findIndex(c => c.id === id);
+    let i = suite.findIndex(c => c.id === id);
+    // Hors feuille de route (course à surveiller, sans date ou option passée) : la page s'ouvre sans voisines ni numéro d'étape.
+    const horsRoute = i < 0 ? courses.find(x => x.id === id && x.etat === 'a_venir') : null;
+    if (horsRoute) { suite.push(horsRoute); i = suite.length - 1; }
     if (i < 0) {
       el.innerHTML = retour + '<p class="ob-vide">Course introuvable.</p>';
       brancher(el, { fermer: ctx.modale.fermer });
       return null;
     }
-    const c = suite[i], prec = suite[i - 1], suiv = suite[i + 1];
+    const c = suite[i], prec = horsRoute ? null : suite[i - 1], suiv = horsRoute ? null : suite[i + 1];
     const rang = etapes.findIndex(e => e.course === c || (e.candidats || []).includes(c)) + 1;
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
-    const marquable = c.statut === 'confirmee' && c.date <= aujourdhui();
+    const marquable = c.statut === 'confirmee' && !!c.date && c.date <= aujourdhui();
     // Site officiel (n° 30) en bas à droite de la fiche, sur la ligne d'« À propos de la course » ; « S'inscrire » (n° 29) en tête ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
     const officiel = lienSur(c.lien) ? lienExterne(c.lien, 'Site officiel', 'pc-officiel') : '';
     const liensHaut = [lienSur(c.inscription) && !c.inscrit ? lienExterne(c.inscription, 'S\'inscrire', dossard(c).etat === 'ouvert' ? 'is-ouvert' : '') : ''].filter(Boolean);
@@ -305,7 +320,7 @@
     // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
     const bas = cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie">' + sousTitre('Stratégie de course') + texte(c.strategie) + '</div>' : ''), 'parcours') + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
-      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
+      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
       (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
@@ -452,7 +467,7 @@
     };
     const trouver = id => courses().find(x => x.id === id) || null;
     return {
-      ajouter: () => ouvrir(null, { mode: 'a_venir' }),
+      ajouter: extra => ouvrir(null, Object.assign({ mode: 'a_venir' }, extra)),
       // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);

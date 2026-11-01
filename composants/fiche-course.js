@@ -92,6 +92,8 @@
     ['role', 'Rôle', 'choix', 'plan'],
     ['groupe_options', 'Groupe d\'options', 'groupe', 'plan'],
     ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
+    ['ouverture_heure', 'Heure d\'ouverture', 'heure', 'dossard'],
+    ['ouverture_approx', 'Mois seulement', 'case', 'dossard'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
     ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
@@ -121,7 +123,7 @@
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
   ];
   // Champs propres à un état : une course courue n'a ni plan ni inscription à venir ; une course à venir, ni résultat ni montre.
-  const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'inscrit', 'inscription', 'gpx']);
+  const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'ouverture_approx', 'ouverture_heure', 'inscrit', 'inscription', 'gpx']);
   const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['dossard', 'Dossard'], ['parcours', 'Parcours'],
     ['preparation', 'Préparation'], ['logistique', 'Logistique'], ['resultat', 'Résultat'], ['montre', 'Montre'], ['liens', 'Liens']];
   const COURUE_SEUL = new Set(TOUS.filter(f => f[3] === 'resultat' || f[3] === 'montre').map(f => f[0]));
@@ -138,7 +140,7 @@
   // Exemples affichés dans les champs vides.
   const AIDE = {
     course: 'ex. Forez Trails', parcours: 'ex. L\'Olmetoise (facultatif)', distance: 'ex. 24,4', dplus: 'ex. 933', dmoins: 'ex. 930',
-    heure: 'ex. 07:30', lieu: 'ex. Mont-Clair',
+    heure: 'ex. 07:30', ouverture_heure: 'ex. 12:00', lieu: 'ex. Mont-Clair',
     description: 'Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique', objectif: 'ex. 02:45:00, Finisher ou Sub 3h', objectif_precisions: 'ex. Partir prudemment, sous 4 h dans tous les cas', dossard: 'ex. 412', prix: 'ex. 85',
     inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027',
     temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524',
@@ -153,11 +155,12 @@
   //   mode     'courue' (défaut, Palmarès) ou 'a_venir' (Objectif) ; une course existante à venir s'ouvre en 'a_venir'
   //   groupes  noms des groupes d'options existants (mode à venir)
   //   marquer  vrai : la course existante passe à l'état Courue à l'enregistrement
+  //   defauts  valeurs préremplies d'une nouvelle course (ex. { statut: 'a_surveiller' })
   //   preparation  { semaines } (mode à venir) : phases modifiées à la main ; le plan de la course s'affiche en tête du bloc
   //                Préparation et se règle dans la fenêtre « Paramétrer le plan » (composants/preparation.js), enregistré avec la course
-  window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer, preparation, dans, fin }) {
+  window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer, preparation, dans, fin, defauts }) {
     const existe = !!(course && course.id);
-    const c = Object.assign({}, course || {});
+    const c = Object.assign({}, defauts, course || {}); // defauts : valeurs d'une nouvelle course (ex. statut À surveiller)
     mode = mode || 'courue';
     const venir = mode === 'a_venir';
     const CHAMPS = TOUS.filter(f => !(venir ? COURUE_SEUL : VENIR_SEUL).has(f[0]));
@@ -208,8 +211,9 @@
         const v = genre === 'duree' ? fmtDuree(valeur) : genre === 'allure' ? fmtAllure(valeur)
           : genre === 'heure' ? (valeur ? String(valeur).slice(0, 5) : '')
           : genre === 'date' && venir && c.date_approx && valeur ? String(valeur).slice(0, 7)
+          : genre === 'dateLibre' && c.ouverture_approx && valeur ? String(valeur).slice(0, 7)
           : valeur == null ? '' : genre === 'nombre' ? String(valeur).replace('.', ',') : String(valeur);
-        const type = genre === 'date' ? (venir && c.date_approx ? 'month' : 'date') : genre === 'dateLibre' ? 'date' : 'text';
+        const type = genre === 'date' ? (venir && c.date_approx ? 'month' : 'date') : genre === 'dateLibre' ? (c.ouverture_approx ? 'month' : 'date') : 'text';
         const saisie = genre === 'nombre' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'allure' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
         const borne = genre !== 'date' ? '' : venir ? ' min="' + (c.date_approx ? today().slice(0, 7) : today()) + '"' : ' max="' + today() + '"';
         input = '<input class="mrt-champ" type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + saisie + borne + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
@@ -410,6 +414,16 @@
       const montrerGroupe = () => { $('[data-champ="groupe_options"]').hidden = val('statut').value !== 'option'; };
       val('statut').addEventListener('change', montrerGroupe);
       val('groupe_options').addEventListener('change', () => { val('groupe_nouveau').hidden = val('groupe_options').value !== NOUVEAU; });
+      // « Mois seulement » (ouverture des inscriptions) : la date devient un mois, l'heure se vide et se grise.
+      const ouv = () => {
+        const d = val('ouverture_inscriptions'), mois = val('ouverture_approx').checked, v = d.value;
+        d.type = mois ? 'month' : 'date';
+        d.value = mois ? v.slice(0, 7) : (/^\d{4}-\d{2}$/.test(v) ? v + '-01' : v);
+        val('ouverture_heure').disabled = mois;
+        if (mois) val('ouverture_heure').value = '';
+      };
+      val('ouverture_approx').addEventListener('change', ouv);
+      val('ouverture_heure').disabled = val('ouverture_approx').checked;
       // Le numéro de dossard ne se saisit qu'une fois inscrit.
       const inscrit = () => { val('dossard').disabled = !val('inscrit').checked; };
       val('inscrit').addEventListener('change', inscrit);
@@ -451,9 +465,11 @@
       let ok = true;
       const statut = venir ? val('statut').value : null;
       const approx = venir && val('date_approx').checked;
+      const approxO = venir && val('ouverture_approx').checked;
       for (const [k, lib, genre, , oblig0] of CHAMPS) {
         if (k === 'type') { ok = erreur(k, val(k).value ? '' : 'Choisis un type.') && ok; continue; }
         if (k === 'date_approx') { out[k] = approx; continue; }
+        if (k === 'ouverture_approx') { out[k] = approxO; continue; }
         if (k === 'gpx') continue; // rangé à part, après la course
         const el = val(k);
         const oblig = venir && k === 'date' ? statut !== 'a_surveiller' : oblig0;
@@ -477,11 +493,15 @@
         } else if (genre === 'heure') {
           v = parseHeure(el.value);
           if (Number.isNaN(v)) { msg = 'Heure illisible (' + AIDE[k] + ').'; v = null; }
-          else if (approx) v = null;
+          else if ((k === 'heure' && approx) || (k === 'ouverture_heure' && approxO)) v = null;
         } else if (genre === 'objectif') {
           v = parseObjectif(el.value);
           if (Number.isNaN(v)) { msg = FORMAT_OBJECTIF; v = null; }
-        } else if (genre === 'dateLibre') v = el.value || null;
+        } else if (genre === 'dateLibre') {
+          v = el.value || null;
+          // Mois seul : le mois saisi est rangé au 1er du mois.
+          if (v && approxO) { if (/^\d{4}-\d{2}$/.test(v)) v += '-01'; else msg = 'Mois illisible (ex. 2027-01).'; }
+        }
         else if (genre === 'date') {
           v = el.value || null;
           if (venir && v && approx) {
@@ -504,6 +524,7 @@
         ok = erreur(k, msg) && ok;
         out[k] = v;
       }
+      if (venir && !out.ouverture_inscriptions) { out.ouverture_approx = false; out.ouverture_heure = null; } // sans date d'ouverture, ni mois seul ni heure
       if (venir && !out.inscrit) out.dossard = null; // un numéro de dossard suppose d'être inscrit
       if (!venir) {
         if (out.dnf) { out.temps = null; out.allure = null; }

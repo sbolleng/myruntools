@@ -46,6 +46,11 @@ const PAGES = {
   candidat: { url: 'course.html?id=' + id(4) },
   fiche: { url: 'course.html?id=' + id(3), largeurs: { tel: [390, 844] }, action: async p => { await p.locator('[data-ob="modifier"]').click(); await p.waitForSelector('.fc-fiche'); } },
   modale: { url: 'objectif.html', largeurs: { tel: [390, 844] }, action: async p => { await p.locator('.ob-et:nth-child(3) .ob-nom a:not(.ob-ext)').click(); await p.waitForSelector('.mc-panneau .pc-titre'); } },
+  // Courses à surveiller : deux courses de plus à surveiller (une avec heure d'ouverture, une sans date).
+  courses: { url: 'courses-a-surveiller.html', donnees: d => { const b = d.courses.find(x => x.id === id(9));
+    d.courses.push(Object.assign({}, b, { id: id(10), course: 'Marathon de la Baie', date: '2027-04-11', distance: 42.195, dplus: 120, format: 'route_marathon', lieu: 'La Baie', lien: 'https://example.org/baie', ouverture_inscriptions: '2026-11-03', ouverture_heure: '12:00:00' }),
+      Object.assign({}, b, { id: id(11), course: 'Ultra des Lacs', date: null, distance: null, dplus: null, lieu: null, lien: null, ouverture_inscriptions: '2027-01-01', ouverture_approx: true })); return d; } },
+  'courses-tout': { url: 'courses-a-surveiller.html?vue=tout' },
   palmares: { url: 'palmares.html' },
   calendrier: { url: 'calendrier.html' },
   'calendrier-semaines': { url: 'calendrier.html#semaines' },
