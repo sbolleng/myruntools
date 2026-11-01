@@ -85,20 +85,21 @@
     ['distance', 'Distance (km)', 'nombre', 'course'],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['dmoins', 'D− (m)', 'entier', 'course'],
+    ['objectif', 'Objectif', 'objectif', 'course'],
+    ['objectif_precisions', 'Précisions', 'long', 'course'],
     ['description', 'Description', 'long', 'course'],
     ['statut', 'Statut', 'choix', 'plan'],
     ['role', 'Rôle', 'choix', 'plan'],
     ['groupe_options', 'Groupe d\'options', 'groupe', 'plan'],
-    ['objectif', 'Objectif', 'objectif', 'preparation'],
-    ['objectif_precisions', 'Précisions', 'long', 'preparation'],
-    ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
-    ['strategie', 'Stratégie ou enchaînement', 'long', 'preparation'],
-    ['logistique', 'Logistique', 'long', 'logistique'],
     ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
     ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['prix', 'Prix (€)', 'nombre', 'dossard'],
+    ['gpx', 'Tracé GPX', 'fichier', 'parcours'],
+    ['strategie', 'Stratégie de course', 'long', 'parcours'],
+    ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
+    ['logistique', 'Logistique', 'long', 'logistique'],
     // Résultat, puis classements : un seul bloc. Général et sexe : deux champs sur toute la largeur ; catégorie : trois.
     ['temps', 'Temps', 'duree', 'resultat'],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
@@ -120,9 +121,9 @@
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
   ];
   // Champs propres à un état : une course courue n'a ni plan ni inscription à venir ; une course à venir, ni résultat ni montre.
-  const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'inscrit', 'inscription']);
-  const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['preparation', 'Préparation'], ['logistique', 'Logistique'],
-    ['dossard', 'Dossard'], ['resultat', 'Résultat'], ['montre', 'Montre'], ['liens', 'Liens']];
+  const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'inscrit', 'inscription', 'gpx']);
+  const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['dossard', 'Dossard'], ['parcours', 'Parcours'],
+    ['preparation', 'Préparation'], ['logistique', 'Logistique'], ['resultat', 'Résultat'], ['montre', 'Montre'], ['liens', 'Liens']];
   const COURUE_SEUL = new Set(TOUS.filter(f => f[3] === 'resultat' || f[3] === 'montre').map(f => f[0]));
   // Vitesse : plus saisie, tirée de l'allure moyenne (3 600 ÷ allure, en km/h) à l'enregistrement.
   const VITESSES = [['allure', 'vitesse'], ['montre_allure', 'montre_vitesse']];
@@ -173,6 +174,14 @@
       if (genre === 'case') {
         const caseHtml = '<label class="fc-case"><input type="checkbox" id="' + id + '" data-k="' + k + '"' + (valeur ? ' checked' : '') + '> ' + esc(lib) + '</label>';
         return k === 'dnf' || k === 'date_approx' ? caseHtml : '<div class="fc-champ fc-bas">' + caseHtml + '</div>';
+      }
+      if (genre === 'fichier') {
+        // Tracé GPX (Objectif, § 3.4, n° 28) : rangé à l'enregistrement de la course.
+        return '<div class="fc-champ fc-large"><span class="fc-lib-seul">' + esc(lib) + '</span><div class="fc-gpx">' +
+          '<span class="fc-gpx-etat">' + (valeur ? 'Tracé importé' : 'Aucun tracé') + '</span>' +
+          '<button type="button" class="mrt-btn" data-fc="gpx-choisir">' + (valeur ? 'Remplacer' : 'Importer un GPX') + '</button>' +
+          (valeur ? '<button type="button" class="mrt-lien is-danger" data-fc="gpx-supprimer">Supprimer</button>' : '') +
+          '<input type="file" class="fc-gpx-fichier" accept=".gpx" hidden></div><div class="tr-choix-zone" hidden></div><p class="fc-erreur" id="fc-gpx-err" aria-live="polite"></p></div>';
       }
       if (genre === 'choix') {
         const opts = k === 'type' ? references.types.map(t => [t.id, t.libelle])
@@ -278,7 +287,8 @@
     }
     // « Annuler » : rien n'est rangé ; une saisie en cours demande d'abord confirmation.
     let depart = '';
-    const etat = () => JSON.stringify([...racine.querySelectorAll('[data-k]')].map(e => (e.type === 'checkbox' ? e.checked : e.value))) + (reglage ? JSON.stringify(reglage) : '');
+    const etat = () => JSON.stringify([...racine.querySelectorAll('[data-k]')].map(e => (e.type === 'checkbox' ? e.checked : e.value))) + (reglage ? JSON.stringify(reglage) : '') +
+      (gpx.fichier ? 'gpx:' + gpx.fichier.name : gpx.supprimer ? 'gpx:-' : '');
     function annuler() {
       if (etat() !== depart && !window.confirm('Abandonner les modifications ?')) return;
       terminer('annule');
@@ -307,6 +317,29 @@
       voile.addEventListener('click', e => { if (e.target === voile) annuler(); });
       pousser();
       window.addEventListener('popstate', surRetour);
+    }
+
+    // ----- Tracé GPX (mode à venir) : choisi ici, rangé avec la course -----
+    const gpx = { fichier: null, texte: null, supprimer: false };
+    const gpxZone = $('.fc-gpx');
+    if (gpxZone) {
+      const entree = $('.fc-gpx-fichier'), err = $('#fc-gpx-err');
+      entree.addEventListener('change', async () => {
+        const f = entree.files[0];
+        entree.value = '';
+        if (!f) return;
+        const v = await window.mrtTrace.verifier(f);
+        err.textContent = v.erreur || '';
+        if (v.erreur) return;
+        // Plusieurs tracés dans le fichier : on garde celui de la course.
+        const zone = $('.tr-choix-zone');
+        const choisi = v.pistes.length > 1 ? await window.mrtTrace.choisir(zone, v.pistes, parseNombre(val('distance').value)) : v.pistes[0];
+        zone.hidden = true;
+        if (!choisi) return;
+        gpx.fichier = f; gpx.texte = choisi.texte; gpx.supprimer = false;
+        $('.fc-gpx-etat').textContent = 'Nouveau tracé : ' + f.name + ' (rangé à l\'enregistrement)';
+        $('[data-fc="gpx-choisir"]').textContent = 'Remplacer';
+      });
     }
 
     // ----- Plan de préparation (mode à venir) -----
@@ -421,6 +454,7 @@
       for (const [k, lib, genre, , oblig0] of CHAMPS) {
         if (k === 'type') { ok = erreur(k, val(k).value ? '' : 'Choisis un type.') && ok; continue; }
         if (k === 'date_approx') { out[k] = approx; continue; }
+        if (k === 'gpx') continue; // rangé à part, après la course
         const el = val(k);
         const oblig = venir && k === 'date' ? statut !== 'a_surveiller' : oblig0;
         let v, msg = '';
@@ -490,6 +524,14 @@
       if (!act) return;
       const a = act.dataset.fc;
       if (a === 'annuler') annuler();
+      if (a === 'gpx-choisir') $('.fc-gpx-fichier').click();
+      if (a === 'gpx-supprimer') {
+        gpx.fichier = null; gpx.supprimer = true;
+        $('.fc-gpx-etat').textContent = 'Tracé supprimé à l\'enregistrement';
+        $('[data-fc="gpx-choisir"]').textContent = 'Importer un GPX';
+        act.hidden = true;
+        $('#fc-gpx-err').textContent = '';
+      }
       if (a === 'preparer') {
         const v = virtuelle();
         P.ouvrirPreparer(null, null, { course: v, duree: v.prepaSemaines, modifs: modifs(), valider: (duree, m) => { reglage = { duree }; base = { modifs: m, date: v.date, approx: val('date_approx').checked }; majPrep(); } });
@@ -543,6 +585,11 @@
         let r = existe ? await sb.from('plan_semaines').delete().eq('course', id) : {};
         if (!r.error && lignes.length) r = await sb.from('plan_semaines').insert(lignes);
         if (r.error) { console.warn(r.error); window.alert('Course enregistrée, mais pas les phases du plan : réessaie depuis « Paramétrer le plan ».'); }
+      }
+      if ((gpx.fichier || (gpx.supprimer && c.gpx)) && window.mrtTrace) {
+        const cc = Object.assign({}, c, { id });
+        const err = gpx.fichier ? await window.mrtTrace.ranger(cc, gpx.texte) : await window.mrtTrace.retirer(cc);
+        if (err) window.alert('Course enregistrée, mais pas le tracé : ' + err);
       }
       terminer('enregistre', id);
       if (apres) await apres();

@@ -12,7 +12,7 @@
   const MODULES = [
     { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
     { nom: 'Cette semaine' },
-    { nom: 'Objectif', page: 'objectif.html' },
+    { nom: 'Objectif', libelle: 'Objectif & Plan', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
     { nom: 'Calendrier', page: 'calendrier.html' },
     { nom: 'Nutrition' },
     { nom: 'Palmarès', page: 'palmares.html' },
@@ -45,10 +45,17 @@
   const pad = n => String(n).padStart(2, '0');
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
 
-  // Listes de référence (types, sous-catégories), lues une fois.
+  // Listes de référence (types, formats) : elles ne changent presque jamais ; lues une fois par visite et gardées
+  // dans l'onglet (sessionStorage), sous la version du site : une nouvelle version du site les relit.
+  const version = () => { const m = document.querySelector('meta[name="site-version"]'); return m ? m.content : ''; };
+  const CLE_REFS = 'mrt-refs';
   let refs = null;
   async function lireReferences() {
     if (refs) return refs;
+    try {
+      const g = JSON.parse(sessionStorage.getItem(CLE_REFS));
+      if (g && g.version === version() && g.refs) return (refs = g.refs);
+    } catch (e) { /* stockage indisponible */ }
     const db = window.mrtSupabase;
     const [sous, types] = await Promise.all([
       db.from('formats').select('*').order('ordre'),
@@ -56,6 +63,7 @@
     ]);
     for (const r of [sous, types]) if (r.error) throw r.error;
     refs = { types: types.data, sous: sous.data };
+    try { sessionStorage.setItem(CLE_REFS, JSON.stringify({ version: version(), refs })); } catch (e) { /* stockage indisponible */ }
     return refs;
   }
 
@@ -178,6 +186,14 @@
       window.renderEnTete(complet);
     };
     if (cache && !(opts.courant === 'index.html' && cache.demarrage !== 'index.html')) tracer(cache.cfg, cache.demarrage);
+    // Tout en même temps : dès que l'identifiant est connu (session gardée par le navigateur), les courses (et le plan
+    // du Calendrier) sont demandées en même temps que le profil et les préférences. Site partagé : relues pour son propriétaire.
+    const id0 = await window.mrtIdentifiant();
+    const partage0 = !!(lireVue() && lireVue() !== id0);
+    const avance = id0 && !partage0 ? {
+      courses: lireCourses(id0).catch(err => { console.warn('Courses : lecture impossible', err); return []; }),
+      plan: opts.plan ? window.mrtLirePlan(id0).catch(err => { console.warn('Calendrier : séances illisibles', err); return { seances: [], semaines: [] }; }) : null
+    } : null;
     const session = await window.mrtSession();
     if (!session) return new Promise(() => {}); // renvoi vers la connexion en cours
     const db = window.mrtSupabase;
@@ -207,11 +223,13 @@
       location.replace(demarrage + location.search);
       return new Promise(() => {});
     }
+    const avanceValable = avance && qui === id0;
     let courses = [];
-    try { courses = await lireCourses(qui); } catch (err) { console.warn('Courses : lecture impossible', err); }
+    if (avanceValable) courses = await avance.courses;
+    else { try { courses = await lireCourses(qui); } catch (err) { console.warn('Courses : lecture impossible', err); } }
     // Calendrier : séances et phases modifiées, lues avant que la page ne s'affiche (opts.plan).
     const lirePlan = async () => { try { return await window.mrtLirePlan(qui); } catch (err) { console.warn('Calendrier : séances illisibles', err); return { seances: [], semaines: [] }; } };
-    const plan = opts.plan ? await lirePlan() : null;
+    const plan = opts.plan ? (avanceValable && avance.plan ? await avance.plan : await lirePlan()) : null;
     let prefsCourantes = prefs;
     // Grand en-tête sur la page de démarrage seulement ; ailleurs, la barre fine.
     const dessiner = p => {

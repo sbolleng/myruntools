@@ -10,13 +10,25 @@
   const client = window.supabase && cfg ? window.supabase.createClient(cfg.url, cfg.cle) : null;
   window.mrtSupabase = client;
 
+  // Identifiant de l'utilisateur connecté, lu dans la session gardée par le navigateur (sans attendre la base) :
+  // donnees.js s'en sert pour lancer la lecture des courses en même temps que celle du profil.
+  let ident = null;
+  window.mrtIdentifiant = function () {
+    if (!ident) ident = (async () => {
+      if (!client) return null;
+      const { data } = await client.auth.getSession();
+      return data && data.session ? data.session : null;
+    })().catch(() => null);
+    return ident.then(s => (s ? s.user.id : null));
+  };
+
   let promise = null;
   window.mrtSession = function () {
     if (promise) return promise;
     promise = (async () => {
       if (!client) return null;
-      const { data } = await client.auth.getSession();
-      const session = data && data.session;
+      await window.mrtIdentifiant();
+      const session = await ident;
       if (!session) return null;
       // Ses propres lignes seulement : un site partagé rend lisibles d'autres préférences.
       const id = session.user.id;

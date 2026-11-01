@@ -15,7 +15,7 @@
 .ob-role.is-obj { color: var(--accent); }
 .ob-val { color: var(--text); }
 .ob-cible { color: var(--accent); }
-/* Lien officiel : icône ↗ à côté du nom. */
+/* Lien officiel : icône ↗ à côté du nom, sur la page d'une course seulement. */
 .ob-ext { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; margin-left: 0.15rem; font-size: 0.75rem; line-height: 1; color: var(--muted); text-decoration: none; border-radius: 50%; vertical-align: 0.05em; }
 .ob-fleche { width: 0.75em; height: 0.75em; flex: none; vertical-align: -0.05em; }
 
@@ -67,7 +67,7 @@
 .ob-p { display: inline-block; }
 .is-coupe .ob-c { display: block; }
 .is-coupe .ob-sep { display: none; }
-/* Toute la carte ouvre la page de la course ; l'icône ↗ et le lien d'inscription restent à part. */
+/* Toute la carte ouvre la page de la course ; seul le lien d'inscription reste à part. */
 .ob-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
 .ob-info { grid-area: info; }
 .ob-lignes { grid-area: lignes; display: grid; gap: 0.3rem; }
@@ -83,35 +83,64 @@
 /* ----- Page d'une course : sans en-tête ; la carte en grand, puis les textes repliables ----- */
 /* Même largeur que les autres pages (main) : pas de limite propre. */
 .pc-sur { display: flex; flex-wrap: wrap; gap: 0 0.5rem; }
-.pc-titre { margin: 0.45rem 0 0.3rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }
+.pc-titre { margin: 0.2rem 0 0.25rem; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--accent); }
 .pc-titre .ob-ext { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
 .pc-info, .pc-groupe { color: var(--muted); }
 .pc-groupe { margin-top: 0.3rem; font-size: 0.8rem; }
 /* Fiche : les lignes de la carte, dans un cadre comme elle (un bloc de données garde son cadre). */
 .pc-fiche { gap: 0.55rem; margin: 1.4rem 0 1.6rem; padding: 0.95rem 1.1rem; font-size: 0.85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-.pc-fiche .ob-ligne { grid-template-columns: 6.4rem minmax(0, 1fr); }
+.pc-fiche .ob-ligne { grid-template-columns: 6.6rem minmax(0, 1fr); }
 .pc-fiche .ob-cpt { font-size: 0.72rem; }
 /* Course courue : deux sections titrées (Résultat, Montre), sans cadre ni repli. */
-.pc-section { margin-top: 1.4rem; font-size: 0.85rem; color: var(--muted); }
-.pc-intertitre { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; padding-bottom: 0.35rem;
+.pc-section { margin-top: 1.1rem; font-size: 0.85rem; color: var(--muted); }
+.pc-intertitre { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.45rem; padding-bottom: 0.3rem;
   font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
-.pc-lien-res { display: inline-flex; align-items: center; gap: 0.25rem; letter-spacing: 0.05em; color: var(--muted); text-decoration: none; }
+/* « Classement complet » : un lien (pas un bouton : il mène hors du site), casse normale, à droite de l'intertitre. */
+.pc-lien-res { display: inline-flex; align-items: center; gap: 0.25rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; letter-spacing: 0; text-transform: none; }
 /* Résultat et Montre : libellé à gauche, valeur à droite ; temps et place en grand. */
-.pc-res-ligne { display: grid; grid-template-columns: 6.4rem minmax(0, 1fr); align-items: baseline; padding: 0.15rem 0; }
-.pc-grand { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+.pc-res-ligne { display: grid; grid-template-columns: 6.4rem minmax(0, 1fr); align-items: baseline; padding: 0.1rem 0; }
+.pc-grand { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
 .ob-cible-1 { color: var(--accent); }
 .pc-sur-n { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
 .pc-cat { margin-left: 0.4rem; color: var(--muted); }
-/* Montre : valeurs en Texte discret ; à droite de Résultat dès que la largeur le permet. */
+/* Montre : sous Résultat, repliée ; un toucher sur son titre (chevron) l'ouvre ; valeurs en Texte discret. */
 .pc-section.is-montre .ob-val { color: var(--muted); }
-@media (min-width: 601px) {
-  .pc-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; align-items: start; }
-}
-/* Textes : une liste séparée par des filets ; ouverts sur ordinateur, repliables sur téléphone. */
+details.pc-section > summary { justify-content: flex-start; gap: 0.5rem; list-style: none; cursor: pointer; }
+details.pc-section > summary::-webkit-details-marker { display: none; }
+details.pc-section > summary .ob-chev { display: block; order: -1; }
+details.pc-section:not([open]) > summary { margin-bottom: 0; }
+details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
+/* Lieu (vers OpenStreetMap) et liens écrits en toutes lettres (Site officiel, S'inscrire, En direct). */
+.pc-lieu { display: inline-flex; align-items: baseline; gap: 0.2rem; white-space: nowrap; color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
+.pc-repere { width: 0.8em; height: 0.8em; flex: none; align-self: center; }
+.pc-liens-haut { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.5rem; }
+.pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; }
+.pc-ext.is-ouvert { color: var(--red); } /* inscription ouverte : en Alerte, comme sur la carte */
+.pc-fiche .pc-ext { font-size: inherit; color: var(--text); }
+/* Description : repliée dans le cadre de la fiche, sous un filet. */
+/* Bas de la fiche : « À propos de la course » à gauche, le site officiel à droite, sur la même ligne. */
+.pc-fiche-bas { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; margin-top: 0.2rem; }
+/* Le texte déplié prend toute la largeur ; le lien se pose à droite du titre, sur la même ligne de base. */
+.pc-fiche-bas > .pc-cellule { grid-column: 1 / -1; grid-row: 1; }
+.pc-fiche-bas > .pc-officiel { grid-column: 2; grid-row: 1; justify-self: end; position: relative; z-index: 1; }
+.pc-fiche-bas > .pc-cellule:has(+ .pc-officiel) > summary { padding-right: 8rem; }
+.pc-fiche-bas > .pc-cellule > summary { padding: 0.4rem 0 0; align-items: baseline; }
+/* Ligne de base du titre : celle du texte, pas celle du chevron (centré à part). */
+.pc-fiche-bas > .pc-cellule > summary .ob-chev { align-self: center; }
+.pc-fiche-bas > .pc-cellule[open] > summary { padding-bottom: 0.5rem; }
+.pc-fiche-bas > .pc-cellule .pc-corps { padding-bottom: 0; color: var(--text); }
+/* Titres de la fiche et sous-titres des textes : en libellé, comme DOSSARD ou OBJECTIF. */
+.pc-fiche-bas > .pc-cellule > summary, .pc-sous-titre { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pc-sous-titre { margin-bottom: 0.3rem; }
+.pc-strategie { margin-top: 0.2rem; }
+/* Préparation : le rôle dans la préparation en tête, puis le plan. */
+.pc-role { margin-bottom: 0.9rem; }
+/* Textes : une liste séparée par des filets ; un toucher sur le titre les ouvre ou les ferme. */
 .pc-textes { padding: 0 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pc-cellule + .pc-cellule { border-top: 1px solid var(--border); }
-.pc-cellule > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 0; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: default; pointer-events: none; }
+.pc-cellule > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 0; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
 .pc-cellule > summary::-webkit-details-marker { display: none; }
+.pc-cellule > summary .ob-chev { display: block; }
 .ob-chev { display: none; flex: none; width: 0.8rem; height: 0.8rem; color: var(--muted); transition: transform 0.15s; }
 .pc-cellule:not([open]) .ob-chev { transform: rotate(-90deg); }
 .pc-corps { padding-bottom: 1rem; }
@@ -138,9 +167,6 @@
   .ob-cpt { gap: 0.2rem; }
   .ob-cpt-case { padding: 0 0.3rem; }
   .ob-ligne { grid-template-columns: 5rem minmax(0, 1fr); }
-  /* Textes repliables : le titre, précédé d'un chevron, ouvre ou ferme. */
-  .pc-cellule > summary { cursor: pointer; pointer-events: auto; }
-  .ob-chev { display: block; }
 }
 
 /* Survols : seulement avec une souris (docs/design.md, § 1). */
@@ -150,7 +176,7 @@
   .ob-cand:hover .ob-nom a { text-decoration: underline; }
   .ob-ext:hover { color: var(--accent); background: var(--bg); }
   .pc-nav a:hover b { text-decoration: underline; }
-  .pc-lien-res:hover { color: var(--accent); }
+  .pc-lien-res:hover, .pc-ext:hover, .pc-lieu:hover { color: var(--accent); }
 }
 
 /* ----- Saisie et édition (§ 3.7) : boutons ronds du Palmarès, pastilles du formulaire ----- */

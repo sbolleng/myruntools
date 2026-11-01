@@ -1,6 +1,6 @@
 /* ===== Socle : thèmes, base des pages, en-tête et menu (en-tete.js) =====
    Valeurs : docs/design.md. Un thème ne change que les couleurs. */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+/* Polices (Space Grotesk, Space Mono) : liées dans chaque page, avant cette feuille (chargement en parallèle). */
 
 /* Thèmes : classe posée sur <html> par en-tete.js, et dès le chargement de la page (thème de la dernière visite).
    Trois thèmes sombres en couleurs ; deux pour la lecture, fond blanc et fond noir (« Automatique » choisit
@@ -156,7 +156,7 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
   .mrt-header { padding: 1.25rem 1.25rem 0; }
   .mrt-barre { padding: 0.5rem 1.25rem; }
   /* Onglets resserrés : les modules construits tiennent dans l'écran (375 px et plus). */
-  .mrt-tab { padding: 0.85rem 0.9rem; }
+  .mrt-tab { padding: 0.85rem 0.6rem; }
   .mrt-gauche, .mrt-droite, .mrt-bas { display: contents; }
   .mrt-grid { position: relative; grid-template-columns: minmax(0, 1fr); grid-template-areas: "titre" "compteur" "stats" "prochaine"; }
   .mrt-header .mrt-brand { position: absolute; top: 0; right: 0; }

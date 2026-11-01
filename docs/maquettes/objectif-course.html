@@ -6,6 +6,10 @@
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="dark">
 <title>Maquette Objectif · page d'une course</title>
+<!-- Polices : liées ici (et non importées par la feuille de style), pour être chargées en même temps qu'elle. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
 <link rel="stylesheet" href="../../composants/en-tete.css">
 <link rel="stylesheet" href="objectif.css">
 </head>
@@ -63,7 +67,7 @@
     '<div class="pc-grille">' +
       cellule('Dossard', dossard) +
       cellule('Rôle dans la préparation', c.pourquoi && '<p>' + esc(c.pourquoi) + '</p>') +
-      cellule('Stratégie ou enchaînement', c.strategie && '<p>' + esc(c.strategie) + '</p>') +
+      cellule('Stratégie de course', c.strategie && '<p>' + esc(c.strategie) + '</p>') +
       cellule('Logistique', c.logistique && '<p>' + esc(c.logistique) + '</p>') +
       cellule('Description', c.description && '<p>' + esc(c.description) + '</p>') +
       cellule('Liens', liens.length && '<ul class="pc-liens">' + liens.map(l => '<li><a href="' + l[0] + '" target="_blank" rel="noopener">' + l[1] + ' ↗</a></li>').join('') + '</ul>') +

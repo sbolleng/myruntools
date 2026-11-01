@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.23 · 30 octobre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.31 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -106,7 +106,7 @@ Toutes les colonnes affichées se filtrent, selon leur type de donnée :
 | Choix | Une ou plusieurs pastilles choisies, parmi les valeurs présentes dans le tableau | Trail découverte et Trail court |
 | Nombre et durée | Minimum, maximum, ou les deux ; une durée s'écrit 2h, 1h30, 00:49:18… | Temps sous 2 h |
 
-- **Panneau de filtres** : un bouton rond « Filtres » (trois traits), au-dessus du tableau, ouvre un panneau qui se déplie au-dessus du tableau : d'abord « Trier par » (une pastille par colonne affichée ; toucher celle du tri en cours inverse le sens, ↓ ou ↑), puis un réglage par colonne affichée. Les choix se font par pastilles (choisie : pleine) et s'appliquent aussitôt. Le bouton porte le nombre de filtres actifs en pastille. Le même bouton, ou le rond « × » en haut à droite du panneau, le referme ; les filtres restent actifs.
+- **Panneau de filtres** : un bouton rond « Filtres » (trois traits), au-dessus du tableau, ouvre un panneau qui se déplie au-dessus du tableau : d'abord « Trier par » (une pastille par colonne affichée ; toucher celle du tri en cours inverse le sens, ↓ ou ↑), puis un réglage par colonne affichée. Les choix se font par pastilles (choisie : pleine) et s'appliquent aussitôt. Le bouton porte le nombre de filtres actifs en pastille. Le même bouton, ou le rond « Réduire » (chevron vers le haut) en haut à droite du panneau, le replie ; les filtres restent actifs.
 - À côté des boutons, seulement quand un filtre est actif : le nombre de courses affichées, par exemple « 4 courses sur 7 », et une action unique qui les efface tous. Sans filtre, rien n'est affiché.
 - Les filtres de plusieurs colonnes se cumulent : une course doit les passer tous.
 - Plusieurs valeurs cochées dans une même colonne : une seule suffit.
@@ -130,7 +130,7 @@ Pour ceux qui veulent un tableau par pratique, sans perdre la vue globale.
 
 ## 9. Plus d'infos : choix des colonnes
 
-- Un bouton rond « Colonnes » (icône de colonnes, infobulle « Ajouter ou retirer des colonnes »), dans la barre après le regroupement, ouvre la liste de toutes les colonnes (§ 2), chacune en pastille, pleine quand elle est affichée ; il est en Accent tant que la liste est ouverte, et un rond « × » en haut à droite de la liste la referme.
+- Un bouton rond « Colonnes » (icône de colonnes, infobulle « Ajouter ou retirer des colonnes »), dans la barre après le regroupement, ouvre la liste de toutes les colonnes (§ 2), chacune en pastille, pleine quand elle est affichée ; il est en Accent tant que la liste est ouverte, et un rond « Réduire » (chevron vers le haut) en haut à droite de la liste la replie.
 - Au départ, les colonnes affichées par défaut sont cochées, les facultatives décochées.
 - Date et Course restent toujours affichées.
 - Cocher une colonne l'affiche, la décocher la masque. Masquer une colonne retire son filtre et, si elle était triée, ramène le tri par date.
@@ -185,11 +185,65 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 **Page et téléphone**
 
-- La page n'a pas d'en-tête : elle commence par la barre fine et le menu, puis la barre (Filtres, regroupement, « + Ajouter une course ») et le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1).
+- La page n'a pas d'en-tête : elle commence par la barre fine et le menu, puis la barre (Filtres, regroupement, « + Ajouter une course »), le tableau, qui garde son cadre (un bloc de données garde le sien, design § 1), puis le graphique de progression (§ 12).
+- **Titre du tableau** : « Résultats », en haut de son cadre, au style du titre « Progression » (Space Grotesk 0,85 rem, 600, Texte) ; le cadre a les mêmes marges que celui du graphique (0,9 rem en haut ; sur téléphone, 0,8 rem : « Résultats » est aligné sur « Progression »). Les en-têtes de colonne sont calés en haut : un titre sur deux lignes (« ALLURE MOYENNE ») ne fait pas descendre les autres.
 - Téléphone tenu en hauteur : le tableau défile sur le côté ; une ligne, sous la barre, invite à tourner le téléphone : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » (un site ne peut pas tourner l'écran lui-même sur iPhone).
 - Téléphone tenu en largeur : une ligne par course, sans retour à la ligne dans les cellules ; le tableau défile sur le côté s'il le faut. Ni invitation, ni sur ordinateur.
 
-## 12. Contrôles
+## 12. Graphique de progression
+
+Il montre si l'on court plus vite d'une course à l'autre. Chaque course courue est placée selon sa date et la mesure choisie au sélecteur (13) : **allure moyenne** (par défaut), **temps**, ou **allure-effort** (temps ÷ km-effort, la mesure normée de la [spécification générale](specification-generale.md), § 12 bis, qui met route et trail sur une même échelle). Un graphique fonctionnel : axes gradués, chiffres lisibles, aucune décoration.
+
+- **Place** : sous le tableau, un bloc de la page à part entière, dans son propre cadre : titre fixe « Progression » (le texte du titre repliable commun, design § 1, sans chevron), rien à replier.
+- **Il suit les filtres** (§ 7) : il montre exactement les courses du tableau, et se redessine à chaque changement de filtre, d'ajout, de modification ou de suppression. Le tri et le regroupement n'y changent rien.
+- **Courses placées** : celles qui ont la mesure choisie (temps ; pour une allure, aussi la distance, ou l'allure saisie) ; les DNF et les courses sans ces valeurs n'ont pas de point (le tableau les montre).
+- **Moins de 2 points** : le cadre reste, avec « Pas assez de courses pour un graphique » à la place du tracé.
+- **Pour une vraie progression**, filtrer un format (10 km, semi-marathon…) : le temps et l'allure dépendent de la distance (§ 12 bis). C'est pourquoi la tendance (5, 8) n'apparaît que sur un seul format : le filtre Format la fait apparaître.
+
+Plan de page (ordinateur) :
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ (1) Progression                        (8) ↗ 24 s /km        │
+│                                         plus rapide par an   │
+│ (13) [Allure moyenne] [Temps] [Allure-effort]                │
+│ (2) MIN / KM                                                 │
+│ 4:30 ┤ (9) ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  │
+│ 5:00 ┤ ●🥇(4)─00:51:46 (11)───● 01:04:24 ────●🥇 00:49:18     │
+│      ┤                 ●🥇      ╌╌╌╌(5)╌╌╌╌╌╌╌╌╌╌╌╌╌         │
+│ 5:30 ┤ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌    ●            ●            │
+│ 6:00 ┤                       ●                               │
+│      ┼────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬──   │
+│ (6)   avr. 25  juil.  oct.  janv. 26  avr.  juil.  oct.      │
+└──────────────────────────────────────────────────────────────┘
+(10) bulle au survol ou au toucher :
+     5:24 /km
+     Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+
+```
+
+Ligne (12) : elle relie les points dans l'ordre des dates. Téléphone : même ordre, toute la largeur du cadre ; la tendance (8) passe sous le titre ; pas d'étiquettes (11).
+
+| N° | Élément | Exemple | Place | Style |
+| --- | --- | --- | --- | --- |
+| 1 | Titre | Progression | En haut du cadre, à 0,9 rem | Fixe, sans chevron : Space Grotesk 0,85 rem, 600, Texte, comme les titres repliables (design § 1) et « Résultats » (§ 11) |
+| 2 | Axe vertical | MIN / KM · 4:30 5:00 … 7:30 | À gauche | Libellé selon la mesure : « MIN / KM », « TEMPS » (graduations en h:mm), « MIN / KM-EFFORT » ; allures : graduations toutes les 30 s ; temps : le plus petit pas (5, 10, 15, 30 min, 1 h, 2 h) qui donne 6 intervalles au plus ; bornes arrondies au pas autour des points ; le plus rapide en haut ; Space Mono 0,7 rem, Texte discret |
+| 3 | Course | Point d'une course | À sa date | Point plein, Accent |
+| 4 | Record | 🥇 à côté du point | À côté du point | La course porte 🥇 dans le tableau (§ 5) : même marque sur le graphique |
+| 5 | Tendance | Droite en pointillé | À travers les points | Droite de régression (moindres carrés) sur les points affichés, seulement quand ils sont tous du même format (sinon l'écart de distance fausserait la pente) et au moins 3 ; pointillé, Texte discret |
+| 6 | Axe du temps | mai 25 · juil. · sept. | En bas | De la première à la dernière course placée ; une coche par mois ; la date écrite au pas le plus fin qui tient dans la largeur (chaque mois, tous les 2, 3, 6 ou 12 mois, calé sur janvier ; par exemple tous les 2 mois sur ordinateur, tous les 6 sur téléphone) ; l'année sur janvier et sur le premier repère ; Space Mono 0,7 rem, Texte discret |
+| 7 | (retiré) | — | — | Le bilan sous le graphique est supprimé |
+| 8 | Pente de la tendance | ↗ 24 s /km plus rapide par an · ↗ 4 min 13 s plus rapide par an | Au bout du titre | Chiffre en Space Mono ; Accent quand on va plus vite, Texte discret sinon ; mêmes conditions que la tendance (5) ; « stable » sous 1 s par an |
+| 9 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
+| 10 | Bulle | 5:24 /km · Semi-marathon de Sète… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface ; une seule à la fois ; « D+ non renseigné » quand c'est le cas |
+| 11 | Étiquette | 00:49:18 | Sous le point, centrée (alignée sur le point aux deux bords) | Le temps réalisé, comme dans la colonne Temps ; Space Mono 0,7 rem, Texte discret, liseré de la couleur du cadre (lisible sur la ligne) ; masquées sur téléphone et au-delà de 20 points (la bulle prend le relais) |
+| 12 | Ligne | — | D'un point à l'autre | Relie les points dans l'ordre des dates ; fine (1 px), Texte discret estompé, derrière les points |
+| 13 | Sélecteur de mesure | Allure moyenne · Temps · Allure-effort | Sous le titre, 1 rem d'air avant l'axe | Pastilles communes, comme le choix de la vue du Calendrier ; la pastille choisie pleine, en Accent ; « Allure moyenne » par défaut ; le choix est retenu sur l'appareil |
+
+- **Toucher le nom dans la bulle** : ouvre la consultation de la course (§ 10), comme une ligne du tableau.
+- **Accessibilité** : chaque point est un bouton, nommé (« Semi-marathon de Sète, 5:24 par km »), atteignable au clavier.
+- **Fait main en SVG**, sans bibliothèque, toutes les couleurs par leurs rôles (design § 2) ; même code de dessin que le graphique de difficulté d'Objectif (axes, quadrillage, bulle).
+
+## 13. Contrôles
 
 Jeu d'essai de sept courses :
 
@@ -235,9 +289,19 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Site partagé en lecture seule : ni bouton « Ajouter une course » ni crayon ; toucher une ligne ouvre la consultation, sans crayon.
 - Ordinateur : le crayon n'apparaît qu'au survol de sa ligne ; toucher la ligne ouvre la consultation. Écran tactile : le crayon est toujours visible.
 - Crayon d'une ligne, puis le retour du navigateur : la fiche se ferme, on reste sur le Palmarès.
-- Panneaux des filtres et des colonnes : pastilles et champs communs du site (design, § 1) ; leur « × » a la taille de la croix des feuilles.
-- Sans filtre : aucun compteur. Ouvrir les filtres : « Trier par » montre « Date↓ » ; la pastille Trail donne « 3 courses sur 7 » et un « 1 » sur le bouton Filtres ; la pastille 2025 filtre l'année, « Toutes » rétablit les 7 et le compteur disparaît ; le « × » en haut à droite referme le panneau (« Réduire les filtres » n'existe plus) ; le bouton rond « Colonnes » ouvre la liste, son « × » la referme, et l'en-tête du tableau n'a plus de bouton ; la pastille Temps trie du plus court au plus long (« Temps↑ »).
+- Panneaux des filtres et des colonnes : pastilles et champs communs du site (design, § 1) ; leur rond « Réduire » porte un chevron vers le haut (plus de « × »).
+- Sans filtre : aucun compteur. Ouvrir les filtres : « Trier par » montre « Date↓ » ; la pastille Trail donne « 3 courses sur 7 » et un « 1 » sur le bouton Filtres ; la pastille 2025 filtre l'année, « Toutes » rétablit les 7 et le compteur disparaît ; le rond « Réduire » (chevron) en haut à droite replie le panneau ; le bouton rond « Colonnes » ouvre la liste, son rond « Réduire » la replie, et l'en-tête du tableau n'a plus de bouton ; la pastille Temps trie du plus court au plus long (« Temps↑ »).
 - Téléphone, un filtre actif : « X courses sur Y » passe sous les boutons Filtres, regroupement, colonnes et « + Course ».
 - Téléphone tenu en hauteur : « ↻ Tourne ton téléphone pour voir toutes les colonnes. » sous la barre. Tenu en largeur (844 × 390) : pas d'invitation, une ligne par course. Ordinateur : pas d'invitation.
 - Ajouter une course « Biscatrail » sans parcours : elle s'affiche « Biscatrail » ; avec le parcours « Le 18 km » : « Biscatrail · Le 18 km ».
 - Téléphone : la fiche tient dans la largeur de l'écran ; « Annuler » et « Enregistrer » restent visibles quand on fait défiler.
+- Tableau : titre « Résultats » en haut du cadre ; « DATE » à la même hauteur que « ALLURE », première ligne du titre « ALLURE MOYENNE ».
+- **Progression**, données ci-dessus, sans filtre : bloc fixe « Progression », sans chevron ; pastille « Allure moyenne » pleine ; 7 points, allures 5:08 (Montauban 2025), 6:00 (Épicurienne), 5:24 (Sète), 6:35 (Biscatrail), 7:18 (Forez), 4:55 (Montauban 2026), 5:30 (San Sebastián) ; axe « MIN / KM » de 4:30 à 7:30 ; 🥇 sur Montauban 2026 et Sète ; étiquettes 00:51:46, 01:04:24, 01:53:12, 02:02:30, 03:00:23, 00:49:18, 01:56:05 ; une ligne relie les 7 points ; pas de tendance (plusieurs formats) ; le graphique est sous le tableau.
+- Pastille « Temps » : axe « TEMPS », graduations 0:30 à 3:30 toutes les 30 min ; bulle de Sète « 01:53:12 ». Pastille « Allure-effort » : axe « MIN / KM-EFFORT » de 4:30 à 6:00 ; allures-effort 5:00, 5:04, 5:18, 5:39, 5:24, 4:49, 5:30 (San Sebastián, « D+ non renseigné » dans la bulle). Page rechargée : la dernière pastille choisie l'est toujours.
+- Progression, filtre Trail : 3 points (Épicurienne, Biscatrail, Forez) ; pas de tendance (Trail découverte et Trail court).
+- Progression, la course « Test » ajoutée (1er oct. 2026, 10 km, 10,0 km, 00:45:00, 4:30 /km, D+ vide), filtre format 10 km : 3 points (5:08, 4:55, 4:30) ; droite de tendance ; « ↗ 24 s /km plus rapide par an », en Accent ; pastille Temps : « ↗ 4 min 13 s plus rapide par an » ; pastille Allure-effort : « ↗ 19 s /km-effort plus rapide par an ».
+- Progression, filtre format 10 km : 2 points, pas de tendance.
+- Progression, filtre Course « sete » : « Pas assez de courses pour un graphique ».
+- Progression, une course marquée DNF : pas de point.
+- Progression : la ligne qui relie les points est fine (1 px) et en Texte discret ; la tendance, quand elle apparaît, est en pointillé.
+- Progression, survol du point de Sète : bulle « 5:24 /km », « Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+ » ; le nom ouvre sa consultation.

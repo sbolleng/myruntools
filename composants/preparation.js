@@ -138,10 +138,10 @@
       const g = groupes[groupes.length - 1];
       if (g && g.phase === s.phase) g.fin = i; else groupes.push({ phase: s.phase, debut: i, fin: i });
     });
-    return '<div class="cal-frise' + (interactive ? ' is-edit' : '') + '">' + groupes.map((g, k) =>
+    return '<div class="cal-frise-defile"><div class="cal-frise' + (interactive ? ' is-edit' : '') + '" style="--n:' + plan.semaines.length + '">' + groupes.map((g, k) =>
       (interactive && k > 0 ? '<i class="cal-poignee" data-bord="' + g.debut + '" title="Glisser pour déplacer la limite"></i>' : '') +
       '<span class="cal-seg ph-' + g.phase + '" style="flex:' + (g.fin - g.debut + 1) + '" title="' + NOM_PHASE[g.phase] + ' : ' + (g.fin - g.debut + 1) + ' sem.">' +
-      '<b>' + NOM_PHASE[g.phase] + '</b><small>' + (g.fin - g.debut + 1) + ' sem.</small></span>').join('') + '</div>';
+      '<b>' + NOM_PHASE[g.phase] + '</b><small>' + (g.fin - g.debut + 1) + ' sem.</small></span>').join('') + '</div></div>';
   }
 
   // ----- Rubrique « Préparation » de la page d'une course (spécification § 5.2) -----

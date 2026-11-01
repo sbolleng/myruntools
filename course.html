@@ -16,14 +16,21 @@
     h.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
 </script>
 <title>Course · MyRunTools</title>
+<!-- Polices : liées ici (et non importées par la feuille de style), pour être chargées en même temps qu'elle. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/trace.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/graphique.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/preparation.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
 </head>
 <body>
 <main>
+  <div id="difficulte" hidden></div>
   <div id="feuille-de-route"></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -32,6 +39,8 @@
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
 <script src="composants/preparation.js?v=__VERSION__"></script>
+<script src="composants/trace.js?v=__VERSION__"></script>
+<script src="composants/graphique.js?v=__VERSION__"></script>
 <script src="composants/objectif.js?v=__VERSION__"></script>
 <script src="composants/fiche-course.js?v=__VERSION__"></script>
 <script src="composants/modale-course.js?v=__VERSION__"></script>
@@ -43,7 +52,7 @@
     // Après un enregistrement ou une suppression : relire et redessiner (en-tête compris).
     const apres = async () => { courses = await page.relire(); dessiner(); };
     const edition = mrtEdition(page, () => courses, apres);
-    const dessiner = () => renderFeuilleDeRoute(el, courses, edition);
+    const dessiner = () => { renderDifficulte(document.getElementById('difficulte'), courses); renderFeuilleDeRoute(el, courses, edition); };
     dessiner();
     // Adresse d'une course (favori, partage) : la feuille de route, et la course ouverte par-dessus.
     const modale = mrtModaleCourse(page, { courses: () => courses, surMaj: liste => { courses = liste; dessiner(); } });

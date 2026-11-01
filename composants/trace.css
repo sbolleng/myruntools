@@ -1,0 +1,49 @@
+/* ===== Tracé GPX d'une course (trace.js) · Objectif, § 3.4, n° 25 à 28 et 32 =====
+   Dans le texte Parcours : la carte, le profil, le téléchargement, puis la stratégie. Un seul accent : le tracé et le profil. */
+.tr-carte { position: relative; z-index: 0; isolation: isolate; height: 300px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface2); }
+.tr-carte .leaflet-control-attribution { font-size: 0.6rem; }
+.tr-attente { color: var(--muted); padding: 0.5rem 0; }
+.tr-profil { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 90px auto; column-gap: 0.4rem; margin-top: 0.7rem; }
+.tr-aire { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: none; }
+.tr-courbe { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+.tr-alt { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: right; }
+.tr-alt, .tr-km { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+.tr-km { grid-column: 2; grid-row: 2; display: flex; justify-content: space-between; padding-top: 0.2rem; }
+.tr-actions { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.6rem; }
+/* « ↓ GPX » : bouton à contour, à droite, juste sous la ligne des distances du profil. */
+.tr-profil .tr-bas { grid-column: 2; grid-row: 3; }
+.tr-bas { display: flex; justify-content: flex-end; margin-top: 0.4rem; }
+.tr-telecharger { display: inline-flex; align-items: center; gap: 0.35rem; }
+.tr-zone { margin-bottom: 1rem; }
+/* Plusieurs tracés dans le fichier : un bouton par tracé. */
+.tr-choix-titre { margin: 0.4rem 0; color: var(--muted); }
+.tr-choix { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.8rem; margin-bottom: 0.6rem; }
+.tr-ico { width: 0.8rem; height: 0.8rem; }
+.tr-erreur { color: var(--red); font-size: 0.8rem; }
+.tr-erreur:empty { display: none; }
+@media (max-width: 600px) {
+  .tr-carte { height: 240px; }
+}
+
+/* ===== Plein écran (n° 47), lignes d'altitude (n° 48), lecture de la pente (n° 49), repère (n° 50) ===== */
+.tr-plein-zone { border: none; box-shadow: none; background: none; }
+.tr-plein { width: 2.1rem; height: 2.1rem; color: var(--text); background: var(--surface); }
+.tr-plein svg { width: 1rem; height: 1rem; }
+.tr-trace { position: relative; grid-column: 2; grid-row: 1; min-width: 0; touch-action: pan-y; cursor: crosshair; }
+.tr-trace > svg { width: 100%; height: 100%; display: block; }
+.tr-ligne { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
+.tr-alt { position: relative; }
+.tr-alt i { position: absolute; right: 0; font-style: normal; transform: translateY(-50%); }
+.tr-pas { font-style: normal; opacity: 0.8; }
+.tr-reperes { position: absolute; inset: 0; pointer-events: none; }
+.tr-trait { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--text); opacity: 0.7; }
+.tr-bulle { position: absolute; top: 2px; white-space: nowrap; padding: 0.15rem 0.4rem; border-radius: 4px; background: var(--surface2); color: var(--text); border: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 0.65rem; }
+.tr-bulle b { font-weight: 700; }
+.tr-montee { color: var(--accent); }
+.tr-descente { color: var(--muted); }
+/* Plein écran : la carte prend la place, le profil reste dessous. */
+.tr-pleine { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; padding: 0.6rem; background: var(--bg); overflow: auto; }
+.tr-pleine:fullscreen { position: static; }
+.tr-pleine .tr-carte { flex: 1 1 auto; height: auto; min-height: 40vh; }
+.tr-pleine .tr-profil { flex: none; grid-template-rows: 120px auto; }
+html.tr-plein-ouvert { overflow: hidden; }

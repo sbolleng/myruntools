@@ -29,7 +29,7 @@
 .fc-seul { grid-column: 1 / -1; }
 .fc-champ.fc-seul input { max-width: calc(50% - 0.5rem); }
 
-.fc-champ label {
+.fc-champ label, .fc-lib-seul {
   display: block;
   margin-bottom: 0.3rem;
   font-family: 'Space Mono', monospace;
@@ -73,7 +73,7 @@
 /* Bloc Préparation (Objectif) : résumé du plan, frise des phases, « Paramétrer le plan » (preparation.css). */
 .fc-prep { padding: 0.3rem 0 0.6rem; }
 .fc-prep:empty { display: none; }
-.fc-prep .cal-frise { margin-bottom: 0.7rem; }
+.fc-prep .cal-frise-defile { margin-bottom: 0.7rem; }
 .fc-prep-bas { display: flex; justify-content: flex-end; }
 .fc-prep-note { margin: 0 0 0.6rem; font-size: 0.8rem; color: var(--muted); }
 .fc-ligne-date { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
@@ -100,3 +100,7 @@
 @media (max-width: 600px) {
   .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: auto; }
 }
+
+/* Tracé GPX : l'état, puis « Importer un GPX » ou « Remplacer » et « Supprimer ». */
+.fc-gpx { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.fc-gpx-etat { color: var(--muted); }

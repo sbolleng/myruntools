@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.25 · 31 octobre 2026 · [Retour au sommaire](README.md)
+Version 0.28 · 1er novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -154,7 +154,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 | Module | Rôle | Jalon |
 | --- | --- | --- |
-| Objectif | Feuille de route jusqu'à la course objectif ([spécification](module-objectif-specification.md)) | 1 |
+| Objectif & Plan | Feuille de route jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Objectif & Plan » (le nom rangé dans les préférences reste « Objectif ») | 1 |
 | Calendrier | Saison en trois vues : année, quatre semaines, plan d'une course ([spécification](module-calendrier-specification.md)) | 1 |
 | Nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
 | Courses à surveiller | Veille des courses envisagées : dates, ouverture des inscriptions, index UTMB | 2 |
@@ -216,6 +216,7 @@ Le propriétaire du projet Supabase garde, lui, l'accès à toute la base depuis
 
 - **Trois couches** : les modules (affichage), le contenu et les préférences de chaque utilisateur, et entre les deux une couche d'accès aux données. Les modules ne savent pas d'où viennent les données : passer des fichiers à Supabase ne réécrit aucun module.
 - **Protection du site** : par la connexion Supabase. Sans connexion, toute page renvoie vers la page de connexion, sans rien montrer de son contenu ; des règles par ligne garantissent que chacun n'accède qu'à ses propres données. Tant qu'un contenu est écrit dans le code plutôt que rangé dans Supabase, il reste lisible par qui consulte le dépôt public.
+- **Rapidité d'un changement de page** : les données d'une page sont demandées toutes ensemble (profil, préférences, courses, et le plan pour le Calendrier), dès que l'identifiant de l'utilisateur est connu, en un seul aller-retour ; les listes de référence (types et formats), qui ne changent presque jamais, sont lues une fois par visite et gardées dans l'onglet jusqu'à la version suivante du site ; les polices sont chargées en même temps que la feuille de style.
 - **Clés** : seule la clé publique de Supabase figure dans le code ; la clé de service et le secret Strava restent côté serveur (fonctions Supabase), jamais dans le dépôt.
 - **Tiers** : aucun nom complet de tiers, aucune référence de réservation.
 - **Ouverture à d'autres coureurs** : poids, repas et séances sont des données de santé au sens du RGPD ; l'ouverture suppose une politique de confidentialité, l'export et la suppression des données sur demande, et la validation de l'application par Strava.
@@ -268,6 +269,19 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | Bilan hebdomadaire | Routine Claude |
 | Cache navigateur | Numéro de version posé automatiquement dans les liens CSS et JS à chaque publication |
 
+## 12 bis. Mesures communes
+
+Mesures normées, les mêmes partout dans l'application (graphique de difficulté d'Objectif, progression du Palmarès, et plus tard Calculatrice). On s'en tient à la norme publiée, sans correction maison.
+
+| Mesure | Définition | Unité, affichage | Sert à |
+| --- | --- | --- | --- |
+| km-effort | Distance (km) + D+ (m) ÷ 100 : 100 m de montée comptent comme 1 km à plat. C'est la règle de l'ITRA (association internationale du trail), reprise par l'UTMB ; la descente n'y entre pas. | km-effort, une décimale (66,0 ; 30,5) ; arrondi à l'unité dans une étiquette | Comparer la difficulté de deux courses |
+| Allure-effort | Temps ÷ km-effort : le temps mis pour un km-effort. Sur une course plate, elle est égale à l'allure moyenne. | min:s par km-effort (5:24 /km-effort), à la seconde | Comparer des performances d'une course à l'autre, route et trail sur une même échelle |
+
+- **D+ non renseigné** : compté 0 (course sur route le plus souvent), et signalé dans le détail (« D+ non renseigné »).
+- **Distance non renseignée** : pas de km-effort, donc pas de point sur un graphique.
+- **Limites, à connaître** : ni le terrain (sable, technique), ni l'altitude, ni la chaleur ne sont comptés ; l'allure-effort ralentit naturellement avec la distance : pour suivre une vraie progression, comparer des courses de même format.
+
 ## 13. Contrôles
 
 Jeu d'essai : un objectif de trail, « Trail des Crêtes », 60 km, 3 500 m D+, en août 2029, jour inconnu ; 12 courses avant lui ; objectif « Finisher » ; prochaine course « Trail du Lac » le 15 novembre 2026 ; date du jour : 20 octobre 2026.
@@ -303,7 +317,7 @@ Résultats attendus :
 - Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
 - En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac), Pense-bête et Bilan nutrition grisés, D'ici là jusqu'au Trail des Crêtes en Accent.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
-- Menu par défaut : En un coup d'œil, Objectif, Calendrier, Palmarès (pas d'onglet pour Cette semaine, Nutrition, Profil, Guide) ; à 375 et 390 px de large, les quatre onglets tiennent dans l'écran, sur toutes les pages.
+- Menu par défaut : En un coup d'œil, Objectif & Plan, Calendrier, Palmarès (pas d'onglet pour Cette semaine, Nutrition, Profil, Guide) ; à 375 et 390 px de large, les quatre onglets tiennent dans l'écran, sur toutes les pages.
 - L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.
 - Retour du navigateur sur une fiche ouverte seule (« Ajouter une course ») : la fiche se ferme, la page reste ; après une saisie, « Abandonner les modifications ? » d'abord.
 - Objectif en tête du menu : ouvrir le site mène à la feuille de route, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
