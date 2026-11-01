@@ -291,11 +291,13 @@
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
     const marquable = c.statut === 'confirmee' && c.date <= aujourdhui();
-    // Site officiel (n° 30) en haut à droite de la fiche ; « S'inscrire » (n° 29) en tête ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
+    // Site officiel (n° 30) en bas à droite de la fiche, sur la ligne d'« À propos de la course » ; « S'inscrire » (n° 29) en tête ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
     const officiel = lienSur(c.lien) ? lienExterne(c.lien, 'Site officiel', 'pc-officiel') : '';
     const liensHaut = [lienSur(c.inscription) && !c.inscrit ? lienExterne(c.inscription, 'S\'inscrire', dossard(c).etat === 'ouvert' ? 'is-ouvert' : '') : ''].filter(Boolean);
     const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
-    const preparation = (c.pourquoi ? '<div class="pc-role">' + texte(c.pourquoi) + '</div>' : '') +
+    // Sous-titres des textes : en libellé (Space Mono, capitales), comme ceux de la fiche.
+    const sousTitre = t => '<p class="pc-sous-titre">' + t + '</p>';
+    const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Rôle dans le plan') + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
     // Parcours (n° 25) : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ; sans GPX, « Importer un GPX » (28),
     // sauf en lecture seule.
@@ -305,7 +307,7 @@
       : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
         '<p class="tr-erreur" aria-live="polite"></p>' : '';
     // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
-    const bas = cellule('Parcours', trace + texte(c.strategie), 'parcours') + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
+    const bas = cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie">' + sousTitre('Stratégie de course') + texte(c.strategie) + '</div>' : ''), 'parcours') + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
@@ -317,8 +319,8 @@
         (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
       // La fiche (n° 22) : lieu, date et heure, compteur, résultats en direct, distance, objectif, dossard ; « À propos de la course » (n° 18)
-      // repliée dans le même cadre ; le site officiel en haut à droite.
-      '<div class="ob-lignes pc-fiche' + (officiel ? ' avec-officiel' : '') + '">' + officiel +
+      // repliée dans le même cadre, le site officiel à sa droite.
+      '<div class="ob-lignes pc-fiche">' +
         (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
         ligne('Date / heure', '<span class="ob-val">' + esc(dateLongue(c, true)) + ' · ' + esc(heureTxt(c)) + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
@@ -326,7 +328,7 @@
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
         ligne('Dossard', dossardHtml(c, true)) +
-        cellule('À propos de la course', texte(c.description)) +
+        (c.description || officiel ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +

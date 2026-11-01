@@ -118,14 +118,17 @@ details.pc-section:not([open]) > summary .ob-chev { transform: rotate(-90deg); }
 .pc-ext.is-ouvert { color: var(--red); } /* inscription ouverte : en Alerte, comme sur la carte */
 .pc-fiche .pc-ext { font-size: inherit; color: var(--text); }
 /* Description : repliée dans le cadre de la fiche, sous un filet. */
-.pc-fiche > .pc-cellule { margin-top: 0.2rem; }
-.pc-fiche > .pc-cellule > summary { padding: 0.4rem 0 0; }
-/* Site officiel : en haut à droite de la fiche ; la première ligne lui laisse la place. */
-.pc-fiche { position: relative; }
-.pc-officiel { position: absolute; top: 0.95rem; right: 1.1rem; }
-.pc-fiche.avec-officiel > .ob-ligne:first-of-type { padding-right: 7.5rem; }
-.pc-fiche > .pc-cellule[open] > summary { padding-bottom: 0.5rem; }
-.pc-fiche > .pc-cellule .pc-corps { padding-bottom: 0; color: var(--text); }
+/* Bas de la fiche : « À propos de la course » à gauche, le site officiel à droite, sur la même ligne. */
+.pc-fiche-bas { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1rem; align-items: start; margin-top: 0.2rem; }
+.pc-fiche-bas > .pc-officiel { grid-column: 2; grid-row: 1; padding-top: 0.4rem; line-height: 1.5; }
+.pc-fiche-bas > .pc-cellule { grid-column: 1; grid-row: 1; }
+.pc-fiche-bas > .pc-cellule > summary { padding: 0.4rem 0 0; }
+.pc-fiche-bas > .pc-cellule[open] > summary { padding-bottom: 0.5rem; }
+.pc-fiche-bas > .pc-cellule .pc-corps { padding-bottom: 0; color: var(--text); }
+/* Titres de la fiche et sous-titres des textes : en libellé, comme DOSSARD ou OBJECTIF. */
+.pc-fiche-bas > .pc-cellule > summary, .pc-sous-titre { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pc-sous-titre { margin-bottom: 0.3rem; }
+.pc-strategie { margin-top: 0.2rem; }
 /* Préparation : le rôle dans la préparation en tête, puis le plan. */
 .pc-role { margin-bottom: 0.9rem; }
 /* Textes : une liste séparée par des filets ; un toucher sur le titre les ouvre ou les ferme. */
