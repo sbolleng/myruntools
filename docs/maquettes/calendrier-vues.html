@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Maquette · Calendrier en trois vues</title>
-<!-- Maquette (2 nov. 2026, retouchée deux fois le même jour) : vues Année (la grille), Mois (grille du mois) et Semaine (un jour par ligne,
-     les semaines suivantes au fil du défilement, les passées sur demande) ; sur chaque vue, la case « Afficher les phases de prépa » :
-     barres très larges aux couleurs des phases (Année), fond des cases à la couleur de la phase (Mois, Semaine). ?phases=1 : cochée.
+<!-- Maquette du Calendrier (2 nov. 2026, quatrième version) : vues Année (la grille), Mois (grille du mois, mois par mois) et Semaine
+     (un jour par ligne, les semaines suivantes au fil du défilement, les passées par un lien) ; barre du haut sur deux niveaux (vues ;
+     case « Phases de prépa » et « Aujourd'hui »). Case cochée : barres aux couleurs des phases (Année), fond des cases à la couleur
+     de la phase et légende des phases (Mois, Semaine).
      Styles du site (en-tete.css : thèmes, pastilles, boutons, cadre) ; données fictives du banc d'essai, au mardi 20 octobre 2026.
-     ?vue=annee|mois|semaine ouvre une vue ; ?t=… un autre thème. -->
+     ?vue=annee|mois|semaine ouvre une vue ; ?phases=1 coche la case ; ?t=… un autre thème. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
@@ -17,47 +18,47 @@
 <style>
   :root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; }
   .t-blanc-orange { --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; }
-  /* Case « Afficher les phases de prépa » : la même sur chaque vue, un seul réglage pour les trois. */
-  .cv-phases { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--text); cursor: pointer; }
-  .cv-phases input { margin: 0; width: 1rem; height: 1rem; accent-color: var(--accent); cursor: pointer; }
-  .cv-k.ph-base { background: var(--ph-base); } .cv-k.ph-developpement { background: var(--ph-developpement); }
-  .cv-k.ph-affutage { background: var(--ph-affutage); } .cv-k.ph-deload { background: var(--ph-deload); }
-  .cv-cadre { padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-  /* Barre du haut : vues (pastilles) à gauche, « Aujourd'hui » à droite ; dessous, la période et ses flèches. */
-  .cv-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; }
-  .cv-vues { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
-  .cv-auj { margin-left: auto; }
-  .cv-essai { padding: 0.35rem 0.85rem; font: inherit; font-size: 0.75rem; font-weight: 600; color: #fff; background: #7c3aed; border: 0; border-radius: 999px; cursor: pointer; }
-  .cv-periode { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; margin: 1rem 0 0.9rem; padding: 0.7rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .cv-voisin { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); text-decoration: none; cursor: pointer; background: none; border: 0; font-family: inherit; padding: 0; }
-  .cv-voisin.is-suiv { justify-self: end; }
-  .cv-voisin .mrt-rond { pointer-events: none; }
-  .cv-titre { font-size: 1.05rem; font-weight: 600; color: var(--text); text-align: center; }
-  .cv-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 1rem; font-size: 0.72rem; color: var(--muted); }
-  .cv-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
-  .cv-k { display: inline-block; width: 0.9rem; height: 0.6rem; border-radius: 2px; }
-  .cv-k.route { background: var(--route); } .cv-k.trail { background: var(--trail); }
-  .cv-k.option { box-shadow: inset 0 0 0 1.5px var(--muted); } .cv-k.courue { background: var(--muted); }
-  .cv-k.point { width: 0.35rem; height: 0.35rem; border-radius: 50%; background: var(--text); }
-  .cv-ok { color: var(--text); } .cv-ko { color: var(--red); font-weight: 700; }
+  .cv-cadre { --barre: 16px; --pas: 19px; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  /* Fond d'une case (jour) : toujours le même ton, passé compris ; jamais le fond du cadre ni celui de la page. */
+  .cv-cadre { --case: color-mix(in srgb, var(--border) 70%, var(--surface)); }
   .cv-libelle { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
-  /* ----- Année : la grille (jours en lignes, mois en colonnes), barres de prépa larges ----- */
+  /* ----- Barre du haut, sur deux niveaux : les vues ; puis l'affichage (case des phases) et « Aujourd'hui » ----- */
+  .cv-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.7rem 1.2rem; }
+  .cv-vues { display: inline-flex; gap: 0.4rem; }
+  .cv-vues .mrt-pastille { justify-content: center; }
+  .cv-options { display: inline-flex; align-items: center; gap: 1.2rem; margin-left: auto; }
+  .cv-phases { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--text); cursor: pointer; }
+  .cv-phases input { margin: 0; width: 1rem; height: 1rem; accent-color: var(--accent); cursor: pointer; }
+  /* Période et flèches (Année, Mois) ; le choix de la durée (Année) sous le titre. */
+  .cv-periode { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; margin: 1rem 0 0.9rem; padding: 0.7rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cv-voisin { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0; font: inherit; font-size: 0.8rem; color: var(--muted); background: none; border: 0; cursor: pointer; }
+  .cv-voisin.is-suiv { justify-self: end; }
+  .cv-voisin .mrt-rond { pointer-events: none; }
+  .cv-sep { margin: 1rem 0 0.9rem; border-top: 1px solid var(--border); }
+  .cv-titre-bloc { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+  .cv-titre { font-size: 1.05rem; font-weight: 600; color: var(--text); text-align: center; }
   .cv-reglage { display: inline-flex; align-items: baseline; gap: 0.6rem; }
-  .cv-choix { padding: 0.15rem 0; font: inherit; font-size: 0.8rem; color: var(--muted); background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; }
+  .cv-choix { padding: 0.1rem 0; font: inherit; font-size: 0.78rem; color: var(--muted); background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; }
   .cv-choix[aria-pressed="true"] { color: var(--text); border-bottom-color: var(--accent); }
-  .ag-legende { margin: 0 0 1.1rem; gap: 0.5rem 1.4rem; font-size: 0.8rem; color: var(--text); }
-  .cv-legende .ag-groupe { flex-wrap: wrap; gap: 0.4rem 0.8rem; }
-  .ag-legende .cv-k { width: 1.1rem; height: 0.75rem; }
+  /* Légendes */
+  .cv-legende { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.4rem; margin: 0 0 1rem; font-size: 0.8rem; color: var(--text); }
+  .cv-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .cv-legende .cv-groupe { flex-wrap: wrap; gap: 0.4rem 0.8rem; }
+  .cv-k { display: inline-block; width: 1.1rem; height: 0.75rem; border-radius: 2px; }
+  .cv-k.route { background: var(--route); } .cv-k.trail { background: var(--trail); } .cv-k.courue { background: var(--muted); }
   .cv-k.route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
   .cv-k.trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
   .cv-k.auj { background: var(--border); box-shadow: inset 0 0 0 2px var(--text); }
-  .cv-cadre { --barre: 16px; --pas: 19px; }
+  .cv-k.ph-base { background: var(--ph-base); } .cv-k.ph-developpement { background: var(--ph-developpement); }
+  .cv-k.ph-affutage { background: var(--ph-affutage); } .cv-k.ph-deload { background: var(--ph-deload); }
+
+  /* ----- Année : la grille (jours en lignes, mois en colonnes) ; case cochée : barres de prépa aux couleurs des phases ----- */
   .ag-blocs { display: flex; flex-direction: column; gap: 1.4rem; }
   .ag-bloc { display: grid; grid-template-columns: 1.7rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 4px; }
-  .ag-mois { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding-bottom: 0.4rem; }
+  .ag-mois { padding-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .ag-mois i { font-style: normal; }
-  .ag-n { font-family: 'Space Mono', monospace; font-size: 0.62rem; line-height: 1.25rem; color: var(--muted); text-align: right; padding-right: 0.35rem; }
+  .ag-n { padding-right: 0.35rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; line-height: 1.25rem; text-align: right; color: var(--muted); }
   .ag-j { position: relative; display: block; height: 1.25rem; background: var(--border); border-radius: 2px; cursor: pointer; }
   .ag-j.vide { visibility: hidden; }
   .ag-j.passe { background: none; }
@@ -68,8 +69,6 @@
   .ag-j.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
   .ag-j.c-route-v .ag-nom, .ag-j.c-trail-v .ag-nom { color: var(--encre); font-weight: 600; }
   .ag-j.courue { background: var(--muted); } .ag-j.courue .ag-nom { color: var(--bg); }
-  /* Barre de prépa (case cochée) : 16 px de large, un couloir par prépa qui en chevauche une autre ; chaque semaine
-     à la couleur de sa phase ; départ arrondi ; prépa d'une option atténuée. */
   .ag-traits { position: absolute; top: 0; bottom: -2px; left: 3px; pointer-events: none; }
   .ag-trait { position: absolute; top: 0; bottom: 0; left: calc(var(--k) * var(--pas)); width: var(--barre); }
   .ag-trait.debut { top: 2px; border-radius: 6px 6px 0 0; }
@@ -77,73 +76,69 @@
   .ag-trait.ph-affutage { background: var(--ph-affutage); } .ag-trait.ph-deload { background: var(--ph-deload); }
   .ag-trait.is-option { opacity: 0.45; }
 
-  /* ----- Mois : la grille du mois, cases resserrées ----- */
+  /* ----- Mois : la grille du mois, mois par mois ----- */
   .cv-jours, .cv-mois { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
   .cv-jours span { padding-bottom: 0.35rem; }
-  .cv-case { display: flex; flex-direction: column; gap: 0.18rem; min-width: 0; min-height: 4.4rem; padding: 0.3rem 0.35rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; cursor: pointer; overflow: hidden; }
-  .cv-case.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
-  .cv-case.hors { opacity: 0.4; }
-  /* Phases (case cochée) : le fond de la case à la couleur de la phase de sa semaine (plus pâle pour un jour passé), et un filet
-     de la couleur pleine : en haut de la case (Mois), à gauche de la ligne (Semaine), pour que le Deload, proche du fond, se voie aussi. */
-  .cv-case.ph-base, .cv-ligne.ph-base { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
-  .cv-case.passe.ph-base, .cv-ligne.passe.ph-base { background: color-mix(in srgb, var(--ph-base) 20%, var(--surface)); }
-  .cv-case.ph-base { box-shadow: inset 0 3px 0 var(--ph-base); } .cv-ligne.ph-base, .cv-ligne.passe.ph-base { box-shadow: inset 4px 0 0 var(--ph-base); }
-  .cv-case.ph-developpement, .cv-ligne.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
-  .cv-case.passe.ph-developpement, .cv-ligne.passe.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 20%, var(--surface)); }
-  .cv-case.ph-developpement { box-shadow: inset 0 3px 0 var(--ph-developpement); } .cv-ligne.ph-developpement, .cv-ligne.passe.ph-developpement { box-shadow: inset 4px 0 0 var(--ph-developpement); }
-  .cv-case.ph-affutage, .cv-ligne.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
-  .cv-case.passe.ph-affutage, .cv-ligne.passe.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 20%, var(--surface)); }
-  .cv-case.ph-affutage { box-shadow: inset 0 3px 0 var(--ph-affutage); } .cv-ligne.ph-affutage, .cv-ligne.passe.ph-affutage { box-shadow: inset 4px 0 0 var(--ph-affutage); }
-  .cv-case.ph-deload, .cv-ligne.ph-deload { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
-  .cv-case.passe.ph-deload, .cv-ligne.passe.ph-deload { background: color-mix(in srgb, var(--ph-deload) 20%, var(--surface)); }
-  .cv-case.ph-deload { box-shadow: inset 0 3px 0 var(--ph-deload); } .cv-ligne.ph-deload, .cv-ligne.passe.ph-deload { box-shadow: inset 4px 0 0 var(--ph-deload); }
-  .cv-sem-phase { margin-left: 0.6rem; font-size: 0.8rem; font-weight: 600; }
-  .cv-sem-phase.ph-base { color: var(--ph-base); } .cv-sem-phase.ph-developpement { color: var(--ph-developpement); }
-  .cv-sem-phase.ph-affutage { color: var(--ph-affutage); } .cv-sem-phase.ph-deload { color: var(--ph-deload); }
+  .cv-case { position: relative; display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; min-height: 5.8rem; padding: 0.3rem 0.35rem 1.9rem; background: var(--case); border-radius: 4px; cursor: pointer; overflow: hidden; }
+  .cv-case.hors { background: color-mix(in srgb, var(--border) 35%, var(--surface)); }
+  .cv-case.hors > * { opacity: 0.5; }
   .cv-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: 0.75rem; font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
   .cv-case.passe .cv-num { color: var(--muted); }
   .cv-num.auj, .cv-case.passe .cv-num.auj { color: var(--bg); background: var(--accent); }
-  .cv-num.mois1 { font-size: 0.7rem; }
   .cv-course { display: block; padding: 0.05rem 0.3rem; font-size: 0.68rem; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 3px; color: var(--text); }
   .cv-course.c-route-v { background: var(--route); color: var(--encre); }
   .cv-course.c-trail-v { background: var(--trail); color: var(--encre); }
   .cv-course.c-route-n { box-shadow: inset 0 0 0 1px var(--route); }
   .cv-course.c-trail-n { box-shadow: inset 0 0 0 1px var(--trail); }
   .cv-course.courue { background: var(--muted); color: var(--bg); }
-  .cv-se, .cv-rdv { display: flex; align-items: baseline; gap: 0.25rem; min-width: 0; font-size: 0.68rem; line-height: 1.35; color: var(--text); white-space: nowrap; }
-  .cv-se span, .cv-rdv span { overflow: hidden; text-overflow: ellipsis; }
-  .cv-se b { font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .cv-rdv { display: block; min-width: 0; font-size: 0.68rem; line-height: 1.35; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Séance : une case à cocher, comme dans la vue Semaine ; faite : barrée. */
+  .cv-se { display: flex; align-items: center; gap: 0.3rem; min-width: 0; font-size: 0.68rem; line-height: 1.35; color: var(--text); white-space: nowrap; cursor: pointer; }
+  .cv-se input { flex: none; width: 0.8rem; height: 0.8rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
+  .cv-se b { font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .cv-se span { overflow: hidden; text-overflow: ellipsis; }
   .cv-se.faite span { color: var(--muted); text-decoration: line-through; }
-  .cv-se i, .cv-rdv i { font-style: normal; flex: none; margin-left: auto; }
-  .cv-rdv { color: var(--muted); }
+  .cv-plus { position: absolute; width: 1.5rem; height: 1.5rem; padding: 0; font: inherit; font-size: 0.95rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+  .cv-case .cv-plus { right: 0.3rem; bottom: 0.3rem; width: 1.3rem; height: 1.3rem; font-size: 0.85rem; }
   .cv-points { display: none; }
+  /* Phases (case cochée) : le fond à la couleur de la phase de la semaine (plus pâle pour un jour passé), et un filet de la
+     couleur pleine : en haut de la case (Mois), à gauche de la ligne (Semaine) ; le Deload, proche du fond, se voit aussi. */
+  .cv-case.ph-base, .cv-ligne.ph-base { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
+  .cv-case.ph-developpement, .cv-ligne.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
+  .cv-case.ph-affutage, .cv-ligne.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
+  .cv-case.ph-deload, .cv-ligne.ph-deload { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
+  .cv-case.passe.ph-base, .cv-ligne.passe.ph-base { background: color-mix(in srgb, var(--ph-base) 22%, var(--surface)); }
+  .cv-case.passe.ph-developpement, .cv-ligne.passe.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 22%, var(--surface)); }
+  .cv-case.passe.ph-affutage, .cv-ligne.passe.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 22%, var(--surface)); }
+  .cv-case.passe.ph-deload, .cv-ligne.passe.ph-deload { background: color-mix(in srgb, var(--ph-deload) 22%, var(--surface)); }
+  .cv-case.ph-base { box-shadow: inset 0 3px 0 var(--ph-base); } .cv-ligne.ph-base { box-shadow: inset 4px 0 0 var(--ph-base); }
+  .cv-case.ph-developpement { box-shadow: inset 0 3px 0 var(--ph-developpement); } .cv-ligne.ph-developpement { box-shadow: inset 4px 0 0 var(--ph-developpement); }
+  .cv-case.ph-affutage { box-shadow: inset 0 3px 0 var(--ph-affutage); } .cv-ligne.ph-affutage { box-shadow: inset 4px 0 0 var(--ph-affutage); }
+  .cv-case.ph-deload { box-shadow: inset 0 3px 0 var(--ph-deload); } .cv-ligne.ph-deload { box-shadow: inset 4px 0 0 var(--ph-deload); }
 
   /* ----- Semaine : un jour par ligne ; une semaine après l'autre, au fil du défilement ----- */
-  .cv-passees { display: flex; margin: 1rem auto 1.2rem; }
+  .cv-passees { display: block; margin: 0.2rem auto 1rem; }
   .cv-semaine + .cv-semaine { margin-top: 1.4rem; }
-  .cv-sem-entete { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem; }
-  .cv-semaine.is-courante .cv-sem-entete > .cv-libelle { color: var(--text); }
+  .cv-sem-entete { margin-bottom: 0.5rem; }
+  .cv-semaine.is-courante .cv-sem-entete .cv-libelle { color: var(--text); }
   .cv-fin { height: 1px; }
-  .cv-bilan { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--text); }
-  .cv-bilan span { margin-right: 0.3rem; }
   .cv-sem { display: flex; flex-direction: column; gap: 3px; }
-  .cv-ligne { position: relative; display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); align-items: center; gap: 0.8rem; min-height: 3rem; padding: 0.4rem 2.6rem 0.4rem 0.6rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; }
-  .cv-ligne.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
+  .cv-ligne { position: relative; display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); align-items: center; gap: 0.8rem; min-height: 3.2rem; padding: 0.4rem 2.6rem 0.4rem 0.6rem; background: var(--case); border-radius: 4px; }
   .cv-ligne.auj { outline: 2px solid var(--text); outline-offset: -2px; }
-  .cv-ligne.auj:not([class*="ph-"]) { background: var(--surface2); }
-  .cv-date { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+  /* Numéro et nom du jour, centrés l'un sur l'autre (l'espacement des capitales est compensé). */
+  .cv-date { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; text-align: center; }
   .cv-date b { min-width: 1.8rem; padding: 0 0.3rem; font-size: 1rem; font-weight: 600; line-height: 1.8rem; text-align: center; border-radius: 999px; }
   .cv-ligne.passe .cv-date b { color: var(--muted); }
   .cv-ligne.auj .cv-date b { color: var(--bg); background: var(--accent); }
-  .cv-date small { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cv-date small { margin-right: -0.1em; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .cv-contenu { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem; min-width: 0; }
   .cv-contenu .cv-course { font-size: 0.8rem; }
-  .cv-seance { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text); }
-  .cv-seance input { margin: 0; accent-color: var(--accent); }
+  .cv-contenu .cv-rdv { font-size: 0.8rem; }
+  .cv-seance { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text); cursor: pointer; }
+  .cv-seance input { margin: 0; accent-color: var(--accent); cursor: pointer; }
   .cv-seance b { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .cv-seance.faite span { color: var(--muted); text-decoration: line-through; }
-  .cv-contenu .cv-rdv { font-size: 0.8rem; }
-  .cv-plus { position: absolute; top: 50%; right: 0.5rem; width: 1.5rem; height: 1.5rem; padding: 0; margin-top: -0.75rem; font: inherit; font-size: 0.95rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+  .cv-ligne .cv-plus { top: 50%; right: 0.5rem; margin-top: -0.75rem; }
 
   @media (hover: hover) {
     .cv-voisin:hover { color: var(--accent); }
@@ -151,18 +146,21 @@
   }
   @media (max-width: 600px) {
     .cv-cadre { padding: 0.8rem 0.6rem; --barre: 10px; --pas: 13px; }
+    /* Barre du haut : les trois vues sur toute la largeur, à parts égales ; dessous, la case et « Aujourd'hui ». */
+    .cv-vues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+    .cv-options { width: 100%; justify-content: space-between; margin-left: 0; }
+    .cv-periode { gap: 0.3rem; }
+    .cv-voisin .cv-voisin-txt { display: none; }
+    .cv-titre { font-size: 0.95rem; }
     .ag-bloc { grid-template-columns: 1.4rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 3px; }
     .ag-j { height: 1.1rem; }
     .ag-n, .ag-nom { line-height: 1.1rem; }
     .ag-nom { font-size: 0.62rem; }
-    .cv-periode { gap: 0.3rem; }
-    .cv-voisin .cv-voisin-txt { display: none; }
-    .cv-titre { font-size: 0.95rem; }
+    /* Mois : trop étroit pour du texte ; numéro et repères (course, séances, rendez-vous) ; toucher la case ouvre sa semaine. */
     .cv-mois, .cv-jours { gap: 2px; }
-    .cv-case { min-height: 3rem; padding: 0.2rem 0.15rem; align-items: center; }
+    .cv-case { min-height: 3.4rem; padding: 0.2rem 0.15rem; align-items: center; }
     .cv-num { align-self: center; min-width: 1.4rem; padding: 0 0.2rem; font-size: 0.7rem; line-height: 1.4rem; }
-    .cv-num.mois1 { font-size: 0.55rem; }
-    .cv-txt { display: none; }
+    .cv-txt, .cv-case .cv-plus { display: none; }
     .cv-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; width: 100%; }
     .cv-points .barre { width: 100%; height: 4px; border-radius: 2px; }
     .cv-points .barre.c-route-v { background: var(--route); } .cv-points .barre.c-trail-v { background: var(--trail); }
@@ -170,7 +168,6 @@
     .cv-points .barre.courue { background: var(--muted); }
     .cv-points .pt { width: 5px; height: 5px; border-radius: 50%; background: var(--text); }
     .cv-points .pt.faite { background: var(--muted); }
-    .cv-points .pt.manquee { background: var(--red); }
     .cv-points .rdv { font-size: 0.5rem; line-height: 5px; color: var(--muted); }
     .cv-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
   }
@@ -218,8 +215,8 @@
   const jourMois = d => (d === 1 ? '1er' : d);
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const moisDe = m => [Math.floor(m / 12), m % 12]; // mois absolu (année × 12 + mois) → [année, mois]
-  // Phases d'un plan de n semaines (règles générales, spécification du Calendrier, § 5.1) : affûtage sur les deux dernières,
-  // deload toutes les quatre, le reste réparti par moitié entre base et développement.
+
+  // ----- Phases des plans (règles générales, spécification du Calendrier, § 5.1) -----
   const phasesRegle = n => { const ph = []; for (let i = 1; i <= n; i++) ph.push(i > n - 2 ? 'affutage' : i % 4 === 0 ? 'deload' : null);
     const reste = ph.filter(x => !x).length; let k = 0; return ph.map(x => x || (k++ < Math.floor(reste / 2) ? 'base' : 'developpement')); };
   COURSES.forEach(c => { if (DUREE[c.nom]) { c.prepa = ajout(lundi(c.date), -7 * (DUREE[c.nom] - 1)); c.phases = phasesRegle(DUREE[c.nom]); } }); // premier lundi, phases
@@ -230,51 +227,39 @@
   const NOM_PHASE = { base: 'Base', developpement: 'Développement', affutage: 'Affûtage', deload: 'Deload' };
   const telephone = window.matchMedia('(max-width: 600px)');
 
-  // ----- État : vue, position de chaque vue, navigation du mois (par demi-mois ou mois par mois) -----
+  // ----- État -----
   const MOIS_AUJ = 2026 * 12 + 9;
-  const e = { vue: ['annee', 'mois', 'semaine'].includes(q.get('vue')) ? q.get('vue') : 'semaine', depart: MOIS_AUJ, periode: 6, mois: MOIS_AUJ, cheval: false, demi: true,
+  const e = { vue: ['annee', 'mois', 'semaine'].includes(q.get('vue')) ? q.get('vue') : 'semaine', depart: MOIS_AUJ, periode: 6, mois: MOIS_AUJ,
     semDebut: lundi(AUJ), semNb: 3, phases: q.get('phases') === '1' };
   const racine = document.getElementById('cv');
-
   const duJour = j => ({ courses: COURSES.filter(c => c.date === j), rdv: RDV.filter(r => r[0] === j), seances: SEANCES.filter(s => s.date === j) });
-  const statut = s => (s.faite ? '<i class="cv-ok" title="Faite">✓</i>' : s.date < AUJ ? '<i class="cv-ko" title="Pas faite">!</i>' : '');
+  const legendePhases = () => (!e.phases ? '' : '<span class="cv-groupe"><b class="cv-libelle">Phases</b>' +
+    Object.keys(NOM_PHASE).map(k => '<span><i class="cv-k ph-' + k + '"></i>' + NOM_PHASE[k].toLowerCase() + '</span>').join('') + '</span>');
 
-  // ----- Mois : mois entier, ou à cheval sur deux mois (du 16 au 15 du suivant) -----
-  function titreMois(m, cheval, court) {
-    const [y, mm] = moisDe(m), [y2, mm2] = moisDe(m + 1);
-    if (court) return cheval ? MC[mm] + '–' + MC[mm2] : MC[mm];
-    if (!cheval) return cap(MOIS[mm]) + ' ' + y;
-    return y === y2 ? cap(MOIS[mm]) + ' – ' + MOIS[mm2] + ' ' + y : cap(MOIS[mm]) + ' ' + y + ' – ' + MOIS[mm2] + ' ' + y2;
-  }
-  const suivant = (m, cheval, sens) => (!e.demi ? [m + sens, false] : sens > 0 ? (cheval ? [m + 1, false] : [m, true]) : (cheval ? [m, false] : [m - 1, true]));
-
+  // ----- Mois : la grille du mois, mois par mois -----
   function vueMois() {
     const [y, mm] = moisDe(e.mois);
-    let debut, fin;
-    if (!e.cheval) { debut = lundi(iso(new Date(y, mm, 1))); fin = ajout(lundi(iso(new Date(y, mm + 1, 0))), 6); }
-    else { debut = lundi(iso(new Date(y, mm, 16))); fin = ajout(lundi(iso(new Date(y, mm + 1, 15))), 6); }
+    const debut = lundi(iso(new Date(y, mm, 1))), fin = ajout(lundi(iso(new Date(y, mm + 1, 0))), 6);
     let h = '<div class="cv-jours">' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cv-libelle">' + j + '</span>').join('') + '</div><div class="cv-mois">';
     for (let j = debut; j <= fin; j = ajout(j, 1)) {
-      const d = parse(j), x = duJour(j), hors = !e.cheval && d.getMonth() !== mm;
-      const premier = e.cheval && d.getDate() === 1;
-      const cls = ['cv-case'], ph = e.phases && phaseSuivie(j);
+      const d = parse(j), x = duJour(j), cls = ['cv-case'], ph = e.phases && phaseSuivie(j);
       if (j < AUJ) cls.push('passe');
-      if (hors) cls.push('hors');
+      if (d.getMonth() !== mm) cls.push('hors');
       if (ph) cls.push('ph-' + ph);
       const txt = x.courses.map(c => '<span class="cv-course ' + c.cls + '">' + esc(c.nom) + '</span>').join('') +
-        x.rdv.map(r => '<span class="cv-rdv"><span>◆ ' + esc(r[1]) + '</span></span>').join('') +
-        x.seances.map(s => '<span class="cv-se' + (s.faite ? ' faite' : '') + '"><b>' + s.type + '</b><span>' + esc(s.libelle) + '</span>' + statut(s) + '</span>').join('');
-      const points = x.courses.map(c => '<i class="barre ' + c.cls + '"></i>').join('') +
-        x.seances.map(s => '<i class="pt' + (s.faite ? ' faite' : s.date < AUJ ? ' manquee' : '') + '"></i>').join('') + x.rdv.map(() => '<i class="rdv">◆</i>').join('');
-      h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cv-num' + (j === AUJ ? ' auj' : '') + (premier ? ' mois1' : '') + '">' +
-        (premier ? '1er ' + MC[d.getMonth()] : d.getDate()) + '</span><span class="cv-txt">' + txt + '</span><span class="cv-points">' + points + '</span></div>';
+        x.rdv.map(r => '<span class="cv-rdv">◆ ' + esc(r[1]) + '</span>').join('') +
+        x.seances.map(s => '<label class="cv-se' + (s.faite ? ' faite' : '') + '"><input type="checkbox" data-fait="' + s.id + '"' + (s.faite ? ' checked' : '') + '><b>' + s.type + '</b><span>' + esc(s.libelle) + '</span></label>').join('');
+      const points = x.courses.map(c => '<i class="barre ' + c.cls + '"></i>').join('') + x.seances.map(s => '<i class="pt' + (s.faite ? ' faite' : '') + '"></i>').join('') +
+        x.rdv.map(() => '<i class="rdv">◆</i>').join('');
+      h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cv-num' + (j === AUJ ? ' auj' : '') + '">' + d.getDate() + '</span><span class="cv-txt">' + txt + '</span>' +
+        '<span class="cv-points">' + points + '</span><button type="button" class="cv-plus" aria-label="Ajouter une séance">+</button></div>';
     }
-    const [mp, cp] = suivant(e.mois, e.cheval, -1), [ms, cs] = suivant(e.mois, e.cheval, 1);
-    return { titre: titreMois(e.mois, e.cheval), avant: titreMois(mp, cp, true), apres: titreMois(ms, cs, true), corps: h + '</div>',
-      legende: legende() + '<span><i class="cv-ok">✓</i>faite</span><span><i class="cv-ko">!</i>pas faite</span>' + legendePhases() };
+    const court = m => { const [yy, m2] = moisDe(m); return MC[m2] + (yy !== y ? ' ' + String(yy).slice(2) : ''); };
+    return { titre: cap(MOIS[mm]) + ' ' + y, avant: court(e.mois - 1), apres: court(e.mois + 1),
+      corps: (e.phases ? '<div class="cv-legende">' + legendePhases() + '</div>' : '') + h + '</div>' };
   }
 
-  // ----- Année : la grille (jours en lignes, mois en colonnes) sur 3, 6 ou 12 mois ; barres de prépa larges -----
+  // ----- Année : la grille (jours en lignes, mois en colonnes) sur 3, 6 ou 12 mois -----
   function titrePeriode(m, n, court) {
     const [y1, m1] = moisDe(m), [y2, m2] = moisDe(m + n - 1);
     if (court) return MC[m1] + '–' + MC[m2] + ' ' + String(y2).slice(2); // « avr.–sept. 27 » : l'année, pour distinguer les deux voisines
@@ -285,7 +270,7 @@
     const mois = Array.from({ length: n }, (_, i) => new Date(y, mm + i, 1));
     const debut = iso(mois[0]), fin = iso(new Date(y, mm + n, 0));
     const liste = COURSES.filter(c => c.date >= debut && c.date <= fin);
-    // Prépas qui passent dans la période (y compris celles d'une course d'après) ; deux prépas qui se chevauchent : deux couloirs.
+    // Case cochée : les prépas qui passent dans la période (y compris celles d'une course d'après) ; un couloir par prépa qui en chevauche une autre.
     const prepas = !e.phases ? [] : COURSES.filter(c => c.prepa && c.date >= debut && c.prepa <= fin).map(c => Object.assign({ depart: c.prepa < debut ? debut : c.prepa }, c))
       .sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : a.date < b.date ? -1 : 1));
     const finCouloir = [];
@@ -294,7 +279,7 @@
     let h = '';
     for (let i = 0; i < n; i += taille) {
       const cols = mois.slice(i, i + taille);
-      h += '<div class="ag-bloc" style="--n:' + cols.length + ';--couloirs:' + finCouloir.length + '"><span></span>' +
+      h += '<div class="ag-bloc" style="--n:' + cols.length + '"><span></span>' +
         cols.map(m => '<b class="ag-mois">' + MC[m.getMonth()] + (m.getMonth() === 0 || m.getTime() === mois[0].getTime() ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>').join('');
       for (let d = 1; d <= 31; d++) {
         h += '<span class="ag-n">' + d + '</span>';
@@ -315,25 +300,23 @@
       }
       h += '</div>';
     }
-    const groupe = (nom, f) => '<span class="ag-groupe"><b class="cv-libelle">' + nom + '</b><span><i class="cv-k ' + f + '"></i>confirmée</span><span><i class="cv-k ' + f + '-n"></i>option</span></span>';
-    const legendeHaut = '<div class="cv-legende ag-legende">' + groupe('Route', 'route') + groupe('Trail', 'trail') +
+    const groupe = (nom, f) => '<span class="cv-groupe"><b class="cv-libelle">' + nom + '</b><span><i class="cv-k ' + f + '"></i>confirmée</span><span><i class="cv-k ' + f + '-n"></i>option</span></span>';
+    const legende = '<div class="cv-legende">' + groupe('Route', 'route') + groupe('Trail', 'trail') +
       '<span><i class="cv-k courue"></i>courue</span><span><i class="cv-k auj"></i>aujourd\'hui</span>' + legendePhases() + '</div>';
-    return { titre: titrePeriode(e.depart, n), avant: titrePeriode(e.depart - n, n, true), apres: titrePeriode(e.depart + n, n, true),
-      corps: legendeHaut + '<div class="ag-blocs">' + h + '</div>', legende: '' };
+    const choix = '<span class="cv-reglage">' + [3, 6, 12].map(p => '<button type="button" class="cv-choix" data-periode="' + p + '" aria-pressed="' + (p === n) + '">' + p + ' mois</button>').join('') + '</span>';
+    return { titre: titrePeriode(e.depart, n), sous: choix, avant: titrePeriode(e.depart - n, n, true), apres: titrePeriode(e.depart + n, n, true),
+      corps: legende + '<div class="ag-blocs">' + h + '</div>' };
   }
 
-  // ----- Semaine : un jour par ligne ; les semaines suivantes arrivent au fil du défilement, les passées sur demande -----
+  // ----- Semaine : un jour par ligne ; les semaines suivantes arrivent au fil du défilement, les passées par un lien -----
   function titreSemaine(l) {
     const a = parse(l), b = parse(ajout(l, 6));
     return 'Semaine du ' + jourMois(a.getDate()) + (a.getMonth() === b.getMonth() ? '' : ' ' + MC[a.getMonth()]) + ' au ' + jourMois(b.getDate()) + ' ' + MC[b.getMonth()] +
       (b.getFullYear() !== 2026 ? ' ' + b.getFullYear() : '');
   }
   function semaineHtml(l) {
-    const fin = ajout(l, 6), sem = SEANCES.filter(s => s.date >= l && s.date <= fin);
     const ph = e.phases && phaseSuivie(l);
-    let h = '<section class="cv-semaine' + (l === lundi(AUJ) ? ' is-courante' : '') + '" data-semaine="' + l + '"><div class="cv-sem-entete"><span><span class="cv-libelle">' + titreSemaine(l) + '</span>' +
-      (ph ? '<span class="cv-sem-phase ph-' + ph + '">' + NOM_PHASE[ph] + '</span>' : '') + '</span>' +
-      (sem.length ? '<span class="cv-bilan"><span class="cv-libelle">Faites</span> ' + sem.filter(s => s.faite).length + ' / ' + sem.length + '</span>' : '') + '</div><div class="cv-sem">';
+    let h = '<section class="cv-semaine' + (l === lundi(AUJ) ? ' is-courante' : '') + '" data-semaine="' + l + '"><div class="cv-sem-entete"><span class="cv-libelle">' + titreSemaine(l) + '</span></div><div class="cv-sem">';
     for (let i = 0; i < 7; i++) {
       const j = ajout(l, i), d = parse(j), x = duJour(j), cls = ['cv-ligne'];
       if (j < AUJ) cls.push('passe');
@@ -348,27 +331,24 @@
     return h + '</div></section>';
   }
   function vueSemaine() {
-    let h = '<button type="button" class="mrt-btn cv-passees" data-passees>↑ Afficher les semaines passées</button>';
+    let h = (e.phases ? '<div class="cv-legende">' + legendePhases() + '</div>' : '') +
+      '<button type="button" class="mrt-lien cv-passees" data-passees>↑ Afficher les semaines passées</button>';
     for (let i = 0; i < e.semNb; i++) h += semaineHtml(ajout(e.semDebut, 7 * i));
-    return { bande: false, corps: h + '<div class="cv-fin" aria-hidden="true"></div>', legende: '' };
+    return { bande: false, corps: h + '<div class="cv-fin" aria-hidden="true"></div>' };
   }
 
-  const legendePhases = () => (!e.phases ? '' : '<span class="ag-groupe"><b class="cv-libelle">Phases</b>' +
-    Object.keys(NOM_PHASE).map(k => '<span><i class="cv-k ph-' + k + '"></i>' + NOM_PHASE[k].toLowerCase() + '</span>').join('') + '</span>');
-  const legende = () => '<span><i class="cv-k route"></i>route</span><span><i class="cv-k trail"></i>trail</span><span><i class="cv-k option"></i>option</span><span><i class="cv-k courue"></i>courue</span>';
-
+  // ----- Dessin : barre du haut sur deux niveaux, période (Année, Mois), contenu -----
   function dessiner() {
     const v = e.vue === 'annee' ? vueAnnee() : e.vue === 'mois' ? vueMois() : vueSemaine();
     racine.innerHTML = '<div class="cv-cadre"><div class="cv-haut"><nav class="cv-vues" aria-label="Vue">' +
       [['annee', 'Année'], ['mois', 'Mois'], ['semaine', 'Semaine']].map(([k, n]) => '<button type="button" class="mrt-pastille' + (k === e.vue ? ' is-on' : '') + '" data-vue="' + k + '">' + n + '</button>').join('') +
-      '</nav>' + (e.vue === 'mois' ? '<button type="button" class="cv-essai" data-essai>Essai · voir ' + (e.demi ? 'mois par mois' : 'par demi-mois') + '</button>' : '') +
-      (e.vue === 'annee' ? '<span class="cv-reglage"><span class="cv-libelle">Période</span>' + [3, 6, 12].map(n => '<button type="button" class="cv-choix" data-periode="' + n + '" aria-pressed="' + (n === e.periode) + '">' + n + ' mois</button>').join('') + '</span>' : '') +
-      '<label class="cv-phases cv-auj"><input type="checkbox" data-phases' + (e.phases ? ' checked' : '') + '>Afficher les phases de prépa</label>' +
-      '<button type="button" class="mrt-btn" data-auj>Aujourd\'hui</button></div>' +
-      (v.bande === false ? '' : '<div class="cv-periode"><button type="button" class="cv-voisin" data-pas="-1"><span class="mrt-rond">‹</span><span class="cv-voisin-txt">' + v.avant + '</span></button>' +
-      '<h2 class="cv-titre">' + v.titre + '</h2>' +
-      '<button type="button" class="cv-voisin is-suiv" data-pas="1"><span class="cv-voisin-txt">' + v.apres + '</span><span class="mrt-rond">›</span></button></div>') +
-      v.corps + (v.legende ? '<div class="cv-legende">' + v.legende + '</div>' : '') + '</div>';
+      '</nav><div class="cv-options"><label class="cv-phases"><input type="checkbox" data-phases' + (e.phases ? ' checked' : '') + '>Phases de prépa</label>' +
+      '<button type="button" class="mrt-btn" data-auj>Aujourd\'hui</button></div></div>' +
+      (v.bande === false ? '<div class="cv-sep"></div>' :
+        '<div class="cv-periode"><button type="button" class="cv-voisin" data-pas="-1"><span class="mrt-rond">‹</span><span class="cv-voisin-txt">' + v.avant + '</span></button>' +
+        '<div class="cv-titre-bloc"><h2 class="cv-titre">' + v.titre + '</h2>' + (v.sous || '') + '</div>' +
+        '<button type="button" class="cv-voisin is-suiv" data-pas="1"><span class="cv-voisin-txt">' + v.apres + '</span><span class="mrt-rond">›</span></button></div>') +
+      v.corps + '</div>';
     // Semaine : quand le bas de la liste approche de l'écran, deux semaines de plus.
     if (observateur) { observateur.disconnect(); const f = racine.querySelector('.cv-fin'); if (f) observateur.observe(f); }
   }
@@ -377,7 +357,8 @@
   }, { rootMargin: '300px' }) : null;
 
   racine.addEventListener('click', ev => {
-    const t = ev.target.closest('[data-vue], [data-auj], [data-pas], [data-essai], [data-periode], [data-passees], [data-jour]');
+    if (ev.target.closest('label, input, .cv-plus')) return; // case à cocher, « + » : rien d'autre (dans la maquette, « + » ne fait rien)
+    const t = ev.target.closest('[data-vue], [data-auj], [data-pas], [data-periode], [data-passees], [data-jour]');
     if (!t) return;
     if (t.hasAttribute('data-passees')) {
       // Quatre semaines passées de plus, au-dessus, sans que la semaine qu'on regardait ne bouge à l'écran.
@@ -387,11 +368,8 @@
       return;
     }
     if (t.dataset.vue) e.vue = t.dataset.vue;
-    else if (t.hasAttribute('data-auj')) { e.depart = MOIS_AUJ; e.mois = MOIS_AUJ; e.cheval = false; e.semDebut = lundi(AUJ); e.semNb = 3; }
-    else if (t.dataset.pas) {
-      const s = Number(t.dataset.pas);
-      if (e.vue === 'annee') e.depart += s * e.periode; else [e.mois, e.cheval] = suivant(e.mois, e.cheval, s);
-    } else if (t.hasAttribute('data-essai')) { e.demi = !e.demi; e.cheval = false; }
+    else if (t.hasAttribute('data-auj')) { e.depart = MOIS_AUJ; e.mois = MOIS_AUJ; e.semDebut = lundi(AUJ); e.semNb = 3; }
+    else if (t.dataset.pas) { const s = Number(t.dataset.pas); if (e.vue === 'annee') e.depart += s * e.periode; else e.mois += s; }
     else if (t.dataset.periode) e.periode = Number(t.dataset.periode);
     else if (t.dataset.jour) { e.vue = 'semaine'; e.semDebut = lundi(t.dataset.jour); e.semNb = 3; }
     dessiner();
