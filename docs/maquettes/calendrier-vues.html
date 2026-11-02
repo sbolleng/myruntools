@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Maquette · Calendrier en trois vues</title>
-<!-- Maquette (2 nov. 2026, retouchée le même jour) : vues Année (la grille, barres de prépa larges), Mois (grille du mois)
-     et Semaine (un jour par ligne, les semaines suivantes au fil du défilement, les passées sur demande).
+<!-- Maquette (2 nov. 2026, retouchée deux fois le même jour) : vues Année (la grille), Mois (grille du mois) et Semaine (un jour par ligne,
+     les semaines suivantes au fil du défilement, les passées sur demande) ; sur chaque vue, la case « Afficher les phases de prépa » :
+     barres très larges aux couleurs des phases (Année), fond des cases à la couleur de la phase (Mois, Semaine). ?phases=1 : cochée.
      Styles du site (en-tete.css : thèmes, pastilles, boutons, cadre) ; données fictives du banc d'essai, au mardi 20 octobre 2026.
      ?vue=annee|mois|semaine ouvre une vue ; ?t=… un autre thème. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +15,13 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
 <link rel="stylesheet" href="../../composants/en-tete.css">
 <style>
-  :root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; }
+  :root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; }
+  .t-blanc-orange { --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; }
+  /* Case « Afficher les phases de prépa » : la même sur chaque vue, un seul réglage pour les trois. */
+  .cv-phases { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--text); cursor: pointer; }
+  .cv-phases input { margin: 0; width: 1rem; height: 1rem; accent-color: var(--accent); cursor: pointer; }
+  .cv-k.ph-base { background: var(--ph-base); } .cv-k.ph-developpement { background: var(--ph-developpement); }
+  .cv-k.ph-affutage { background: var(--ph-affutage); } .cv-k.ph-deload { background: var(--ph-deload); }
   .cv-cadre { padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
   /* Barre du haut : vues (pastilles) à gauche, « Aujourd'hui » à droite ; dessous, la période et ses flèches. */
   .cv-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; }
@@ -40,14 +47,12 @@
   .cv-choix { padding: 0.15rem 0; font: inherit; font-size: 0.8rem; color: var(--muted); background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; }
   .cv-choix[aria-pressed="true"] { color: var(--text); border-bottom-color: var(--accent); }
   .ag-legende { margin: 0 0 1.1rem; gap: 0.5rem 1.4rem; font-size: 0.8rem; color: var(--text); }
-  .cv-legende .ag-groupe { gap: 0.8rem; }
+  .cv-legende .ag-groupe { flex-wrap: wrap; gap: 0.4rem 0.8rem; }
   .ag-legende .cv-k { width: 1.1rem; height: 0.75rem; }
   .cv-k.route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
   .cv-k.trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
   .cv-k.auj { background: var(--border); box-shadow: inset 0 0 0 2px var(--text); }
-  .ag-k { display: inline-block; width: var(--barre); height: 1rem; border-radius: 3px 3px 0 0; background: var(--trail); }
-  .ag-k.option { background: color-mix(in srgb, var(--trail) 35%, transparent); box-shadow: inset 1px 0 0 var(--trail), inset -1px 0 0 var(--trail); }
-  .cv-cadre { --barre: 9px; --pas: 13px; }
+  .cv-cadre { --barre: 16px; --pas: 19px; }
   .ag-blocs { display: flex; flex-direction: column; gap: 1.4rem; }
   .ag-bloc { display: grid; grid-template-columns: 1.7rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 4px; }
   .ag-mois { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding-bottom: 0.4rem; }
@@ -57,22 +62,20 @@
   .ag-j.vide { visibility: hidden; }
   .ag-j.passe { background: none; }
   .ag-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
-  .ag-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--couloirs, 0) * var(--pas)); font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  .ag-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--dec, 0) * var(--pas)); font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
   .ag-j.c-route-v { background: var(--route); } .ag-j.c-trail-v { background: var(--trail); }
   .ag-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
   .ag-j.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
   .ag-j.c-route-v .ag-nom, .ag-j.c-trail-v .ag-nom { color: var(--encre); font-weight: 600; }
   .ag-j.courue { background: var(--muted); } .ag-j.courue .ag-nom { color: var(--bg); }
-  /* Barre de prépa : 9 px de large (au lieu de 4), un couloir de 13 px par prépa qui en chevauche une autre ; départ arrondi ;
-     prépa d'une option : la couleur atténuée, bordée de la couleur pleine. */
+  /* Barre de prépa (case cochée) : 16 px de large, un couloir par prépa qui en chevauche une autre ; chaque semaine
+     à la couleur de sa phase ; départ arrondi ; prépa d'une option atténuée. */
   .ag-traits { position: absolute; top: 0; bottom: -2px; left: 3px; pointer-events: none; }
   .ag-trait { position: absolute; top: 0; bottom: 0; left: calc(var(--k) * var(--pas)); width: var(--barre); }
-  .ag-trait.debut { top: 2px; border-radius: 5px 5px 0 0; }
-  .ag-trait.c-route-v { background: var(--route); } .ag-trait.c-trail-v { background: var(--trail); }
-  .ag-trait.c-route-n { background: color-mix(in srgb, var(--route) 35%, transparent); box-shadow: inset 1px 0 0 var(--route), inset -1px 0 0 var(--route); }
-  .ag-trait.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, transparent); box-shadow: inset 1px 0 0 var(--trail), inset -1px 0 0 var(--trail); }
-  .ag-trait.c-route-n.debut, .ag-trait.c-trail-n.debut { box-shadow: inset 1px 1px 0 currentColor, inset -1px 0 0 currentColor; }
-  .ag-trait.c-route-n { color: var(--route); } .ag-trait.c-trail-n { color: var(--trail); }
+  .ag-trait.debut { top: 2px; border-radius: 6px 6px 0 0; }
+  .ag-trait.ph-base { background: var(--ph-base); } .ag-trait.ph-developpement { background: var(--ph-developpement); }
+  .ag-trait.ph-affutage { background: var(--ph-affutage); } .ag-trait.ph-deload { background: var(--ph-deload); }
+  .ag-trait.is-option { opacity: 0.45; }
 
   /* ----- Mois : la grille du mois, cases resserrées ----- */
   .cv-jours, .cv-mois { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
@@ -80,6 +83,23 @@
   .cv-case { display: flex; flex-direction: column; gap: 0.18rem; min-width: 0; min-height: 4.4rem; padding: 0.3rem 0.35rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; cursor: pointer; overflow: hidden; }
   .cv-case.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
   .cv-case.hors { opacity: 0.4; }
+  /* Phases (case cochée) : le fond de la case à la couleur de la phase de sa semaine (plus pâle pour un jour passé), et un filet
+     de la couleur pleine : en haut de la case (Mois), à gauche de la ligne (Semaine), pour que le Deload, proche du fond, se voie aussi. */
+  .cv-case.ph-base, .cv-ligne.ph-base { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
+  .cv-case.passe.ph-base, .cv-ligne.passe.ph-base { background: color-mix(in srgb, var(--ph-base) 20%, var(--surface)); }
+  .cv-case.ph-base { box-shadow: inset 0 3px 0 var(--ph-base); } .cv-ligne.ph-base, .cv-ligne.passe.ph-base { box-shadow: inset 4px 0 0 var(--ph-base); }
+  .cv-case.ph-developpement, .cv-ligne.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
+  .cv-case.passe.ph-developpement, .cv-ligne.passe.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 20%, var(--surface)); }
+  .cv-case.ph-developpement { box-shadow: inset 0 3px 0 var(--ph-developpement); } .cv-ligne.ph-developpement, .cv-ligne.passe.ph-developpement { box-shadow: inset 4px 0 0 var(--ph-developpement); }
+  .cv-case.ph-affutage, .cv-ligne.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
+  .cv-case.passe.ph-affutage, .cv-ligne.passe.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 20%, var(--surface)); }
+  .cv-case.ph-affutage { box-shadow: inset 0 3px 0 var(--ph-affutage); } .cv-ligne.ph-affutage, .cv-ligne.passe.ph-affutage { box-shadow: inset 4px 0 0 var(--ph-affutage); }
+  .cv-case.ph-deload, .cv-ligne.ph-deload { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
+  .cv-case.passe.ph-deload, .cv-ligne.passe.ph-deload { background: color-mix(in srgb, var(--ph-deload) 20%, var(--surface)); }
+  .cv-case.ph-deload { box-shadow: inset 0 3px 0 var(--ph-deload); } .cv-ligne.ph-deload, .cv-ligne.passe.ph-deload { box-shadow: inset 4px 0 0 var(--ph-deload); }
+  .cv-sem-phase { margin-left: 0.6rem; font-size: 0.8rem; font-weight: 600; }
+  .cv-sem-phase.ph-base { color: var(--ph-base); } .cv-sem-phase.ph-developpement { color: var(--ph-developpement); }
+  .cv-sem-phase.ph-affutage { color: var(--ph-affutage); } .cv-sem-phase.ph-deload { color: var(--ph-deload); }
   .cv-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: 0.75rem; font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
   .cv-case.passe .cv-num { color: var(--muted); }
   .cv-num.auj, .cv-case.passe .cv-num.auj { color: var(--bg); background: var(--accent); }
@@ -109,7 +129,8 @@
   .cv-sem { display: flex; flex-direction: column; gap: 3px; }
   .cv-ligne { position: relative; display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); align-items: center; gap: 0.8rem; min-height: 3rem; padding: 0.4rem 2.6rem 0.4rem 0.6rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; }
   .cv-ligne.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
-  .cv-ligne.auj { background: var(--surface2); }
+  .cv-ligne.auj { outline: 2px solid var(--text); outline-offset: -2px; }
+  .cv-ligne.auj:not([class*="ph-"]) { background: var(--surface2); }
   .cv-date { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
   .cv-date b { min-width: 1.8rem; padding: 0 0.3rem; font-size: 1rem; font-weight: 600; line-height: 1.8rem; text-align: center; border-radius: 999px; }
   .cv-ligne.passe .cv-date b { color: var(--muted); }
@@ -129,7 +150,7 @@
     .cv-case:hover, .ag-j:not(.auj):hover { box-shadow: inset 0 0 0 1px var(--text); }
   }
   @media (max-width: 600px) {
-    .cv-cadre { padding: 0.8rem 0.6rem; --barre: 7px; --pas: 10px; }
+    .cv-cadre { padding: 0.8rem 0.6rem; --barre: 10px; --pas: 13px; }
     .ag-bloc { grid-template-columns: 1.4rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 3px; }
     .ag-j { height: 1.1rem; }
     .ag-n, .ag-nom { line-height: 1.1rem; }
@@ -197,13 +218,22 @@
   const jourMois = d => (d === 1 ? '1er' : d);
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const moisDe = m => [Math.floor(m / 12), m % 12]; // mois absolu (année × 12 + mois) → [année, mois]
-  COURSES.forEach(c => { if (DUREE[c.nom]) c.prepa = ajout(lundi(c.date), -7 * (DUREE[c.nom] - 1)); }); // premier lundi de la prépa
+  // Phases d'un plan de n semaines (règles générales, spécification du Calendrier, § 5.1) : affûtage sur les deux dernières,
+  // deload toutes les quatre, le reste réparti par moitié entre base et développement.
+  const phasesRegle = n => { const ph = []; for (let i = 1; i <= n; i++) ph.push(i > n - 2 ? 'affutage' : i % 4 === 0 ? 'deload' : null);
+    const reste = ph.filter(x => !x).length; let k = 0; return ph.map(x => x || (k++ < Math.floor(reste / 2) ? 'base' : 'developpement')); };
+  COURSES.forEach(c => { if (DUREE[c.nom]) { c.prepa = ajout(lundi(c.date), -7 * (DUREE[c.nom] - 1)); c.phases = phasesRegle(DUREE[c.nom]); } }); // premier lundi, phases
+  const semaineDu = (c, j) => Math.round((parse(lundi(j)) - parse(c.prepa)) / (7 * 864e5));           // rang de la semaine de j dans le plan de c
+  const phaseDe = (c, j) => (c.prepa && j >= c.prepa && lundi(j) <= lundi(c.date) ? c.phases[semaineDu(c, j)] : null);
+  // Phase suivie un jour donné : celle du plan de la course confirmée la plus proche qui couvre sa semaine.
+  const phaseSuivie = j => { const c = COURSES.filter(x => /-v$/.test(x.cls) && phaseDe(x, j)).sort((a, b) => (a.date < b.date ? -1 : 1))[0]; return c ? phaseDe(c, j) : null; };
+  const NOM_PHASE = { base: 'Base', developpement: 'Développement', affutage: 'Affûtage', deload: 'Deload' };
   const telephone = window.matchMedia('(max-width: 600px)');
 
   // ----- État : vue, position de chaque vue, navigation du mois (par demi-mois ou mois par mois) -----
   const MOIS_AUJ = 2026 * 12 + 9;
   const e = { vue: ['annee', 'mois', 'semaine'].includes(q.get('vue')) ? q.get('vue') : 'semaine', depart: MOIS_AUJ, periode: 6, mois: MOIS_AUJ, cheval: false, demi: true,
-    semDebut: lundi(AUJ), semNb: 3 };
+    semDebut: lundi(AUJ), semNb: 3, phases: q.get('phases') === '1' };
   const racine = document.getElementById('cv');
 
   const duJour = j => ({ courses: COURSES.filter(c => c.date === j), rdv: RDV.filter(r => r[0] === j), seances: SEANCES.filter(s => s.date === j) });
@@ -227,9 +257,10 @@
     for (let j = debut; j <= fin; j = ajout(j, 1)) {
       const d = parse(j), x = duJour(j), hors = !e.cheval && d.getMonth() !== mm;
       const premier = e.cheval && d.getDate() === 1;
-      const cls = ['cv-case'];
+      const cls = ['cv-case'], ph = e.phases && phaseSuivie(j);
       if (j < AUJ) cls.push('passe');
       if (hors) cls.push('hors');
+      if (ph) cls.push('ph-' + ph);
       const txt = x.courses.map(c => '<span class="cv-course ' + c.cls + '">' + esc(c.nom) + '</span>').join('') +
         x.rdv.map(r => '<span class="cv-rdv"><span>◆ ' + esc(r[1]) + '</span></span>').join('') +
         x.seances.map(s => '<span class="cv-se' + (s.faite ? ' faite' : '') + '"><b>' + s.type + '</b><span>' + esc(s.libelle) + '</span>' + statut(s) + '</span>').join('');
@@ -240,7 +271,7 @@
     }
     const [mp, cp] = suivant(e.mois, e.cheval, -1), [ms, cs] = suivant(e.mois, e.cheval, 1);
     return { titre: titreMois(e.mois, e.cheval), avant: titreMois(mp, cp, true), apres: titreMois(ms, cs, true), corps: h + '</div>',
-      legende: legende() + '<span><i class="cv-ok">✓</i>faite</span><span><i class="cv-ko">!</i>pas faite</span>' };
+      legende: legende() + '<span><i class="cv-ok">✓</i>faite</span><span><i class="cv-ko">!</i>pas faite</span>' + legendePhases() };
   }
 
   // ----- Année : la grille (jours en lignes, mois en colonnes) sur 3, 6 ou 12 mois ; barres de prépa larges -----
@@ -255,7 +286,7 @@
     const debut = iso(mois[0]), fin = iso(new Date(y, mm + n, 0));
     const liste = COURSES.filter(c => c.date >= debut && c.date <= fin);
     // Prépas qui passent dans la période (y compris celles d'une course d'après) ; deux prépas qui se chevauchent : deux couloirs.
-    const prepas = COURSES.filter(c => c.prepa && c.date >= debut && c.prepa <= fin).map(c => Object.assign({ depart: c.prepa < debut ? debut : c.prepa }, c))
+    const prepas = !e.phases ? [] : COURSES.filter(c => c.prepa && c.date >= debut && c.prepa <= fin).map(c => Object.assign({ depart: c.prepa < debut ? debut : c.prepa }, c))
       .sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : a.date < b.date ? -1 : 1));
     const finCouloir = [];
     prepas.forEach(x => { let k = finCouloir.findIndex(f => f < x.depart); if (k < 0) { k = finCouloir.length; finCouloir.push(''); } finCouloir[k] = x.date; x.couloir = k; });
@@ -274,17 +305,19 @@
           if (j === AUJ) cls.push('auj');
           if (c) cls.push(c.cls);
           const en = prepas.filter(x => j >= x.depart && j < x.date);
-          const titre = [JOURS[parse(j).getDay()] + ' ' + jourMois(d) + ' ' + MC[m.getMonth()]].concat(c ? [c.nom] : [], en.map(x => 'prépa : ' + x.nom)).join(' · ');
-          h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '" title="' + esc(titre) + '">' + (c ? '<span class="ag-nom">' + esc(c.nom) + '</span>' : '') +
-            (en.length ? '<span class="ag-traits">' + en.map(x => '<i class="ag-trait ' + x.cls + (j === x.depart ? ' debut' : '') + '" style="--k:' + x.couloir + '"></i>').join('') + '</span>' : '') + '</span>';
+          const titre = [JOURS[parse(j).getDay()] + ' ' + jourMois(d) + ' ' + MC[m.getMonth()]].concat(c ? [c.nom] : [],
+            en.map(x => x.nom + ' : ' + NOM_PHASE[phaseDe(x, j)] + ', semaine ' + (semaineDu(x, j) + 1) + ' sur ' + x.phases.length)).join(' · ');
+          const dec = en.length ? Math.max(...en.map(x => x.couloir)) + 1 : 0;
+          h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '" title="' + esc(titre) + '">' + (c ? '<span class="ag-nom" style="--dec:' + dec + '">' + esc(c.nom) + '</span>' : '') +
+            (en.length ? '<span class="ag-traits">' + en.map(x => '<i class="ag-trait ph-' + phaseDe(x, j) + (/-n$/.test(x.cls) ? ' is-option' : '') + (j === x.depart ? ' debut' : '') +
+              '" style="--k:' + x.couloir + '"></i>').join('') + '</span>' : '') + '</span>';
         });
       }
       h += '</div>';
     }
     const groupe = (nom, f) => '<span class="ag-groupe"><b class="cv-libelle">' + nom + '</b><span><i class="cv-k ' + f + '"></i>confirmée</span><span><i class="cv-k ' + f + '-n"></i>option</span></span>';
     const legendeHaut = '<div class="cv-legende ag-legende">' + groupe('Route', 'route') + groupe('Trail', 'trail') +
-      '<span class="ag-groupe"><b class="cv-libelle">Prépa</b><span><i class="ag-k"></i>confirmée</span><span><i class="ag-k option"></i>option</span></span>' +
-      '<span><i class="cv-k courue"></i>courue</span><span><i class="cv-k auj"></i>aujourd\'hui</span></div>';
+      '<span><i class="cv-k courue"></i>courue</span><span><i class="cv-k auj"></i>aujourd\'hui</span>' + legendePhases() + '</div>';
     return { titre: titrePeriode(e.depart, n), avant: titrePeriode(e.depart - n, n, true), apres: titrePeriode(e.depart + n, n, true),
       corps: legendeHaut + '<div class="ag-blocs">' + h + '</div>', legende: '' };
   }
@@ -297,11 +330,14 @@
   }
   function semaineHtml(l) {
     const fin = ajout(l, 6), sem = SEANCES.filter(s => s.date >= l && s.date <= fin);
-    let h = '<section class="cv-semaine' + (l === lundi(AUJ) ? ' is-courante' : '') + '" data-semaine="' + l + '"><div class="cv-sem-entete"><span class="cv-libelle">' + titreSemaine(l) + '</span>' +
+    const ph = e.phases && phaseSuivie(l);
+    let h = '<section class="cv-semaine' + (l === lundi(AUJ) ? ' is-courante' : '') + '" data-semaine="' + l + '"><div class="cv-sem-entete"><span><span class="cv-libelle">' + titreSemaine(l) + '</span>' +
+      (ph ? '<span class="cv-sem-phase ph-' + ph + '">' + NOM_PHASE[ph] + '</span>' : '') + '</span>' +
       (sem.length ? '<span class="cv-bilan"><span class="cv-libelle">Faites</span> ' + sem.filter(s => s.faite).length + ' / ' + sem.length + '</span>' : '') + '</div><div class="cv-sem">';
     for (let i = 0; i < 7; i++) {
       const j = ajout(l, i), d = parse(j), x = duJour(j), cls = ['cv-ligne'];
       if (j < AUJ) cls.push('passe');
+      if (ph) cls.push('ph-' + ph);
       if (j === AUJ) cls.push('auj');
       h += '<div class="' + cls.join(' ') + '"><span class="cv-date"><b>' + d.getDate() + '</b><small>' + JOURS[d.getDay()] + '</small></span><span class="cv-contenu">' +
         x.courses.map(c => '<span class="cv-course ' + c.cls + '">' + esc(c.nom) + '</span>').join('') +
@@ -317,6 +353,8 @@
     return { bande: false, corps: h + '<div class="cv-fin" aria-hidden="true"></div>', legende: '' };
   }
 
+  const legendePhases = () => (!e.phases ? '' : '<span class="ag-groupe"><b class="cv-libelle">Phases</b>' +
+    Object.keys(NOM_PHASE).map(k => '<span><i class="cv-k ph-' + k + '"></i>' + NOM_PHASE[k].toLowerCase() + '</span>').join('') + '</span>');
   const legende = () => '<span><i class="cv-k route"></i>route</span><span><i class="cv-k trail"></i>trail</span><span><i class="cv-k option"></i>option</span><span><i class="cv-k courue"></i>courue</span>';
 
   function dessiner() {
@@ -325,7 +363,8 @@
       [['annee', 'Année'], ['mois', 'Mois'], ['semaine', 'Semaine']].map(([k, n]) => '<button type="button" class="mrt-pastille' + (k === e.vue ? ' is-on' : '') + '" data-vue="' + k + '">' + n + '</button>').join('') +
       '</nav>' + (e.vue === 'mois' ? '<button type="button" class="cv-essai" data-essai>Essai · voir ' + (e.demi ? 'mois par mois' : 'par demi-mois') + '</button>' : '') +
       (e.vue === 'annee' ? '<span class="cv-reglage"><span class="cv-libelle">Période</span>' + [3, 6, 12].map(n => '<button type="button" class="cv-choix" data-periode="' + n + '" aria-pressed="' + (n === e.periode) + '">' + n + ' mois</button>').join('') + '</span>' : '') +
-      '<button type="button" class="mrt-btn cv-auj" data-auj>Aujourd\'hui</button></div>' +
+      '<label class="cv-phases cv-auj"><input type="checkbox" data-phases' + (e.phases ? ' checked' : '') + '>Afficher les phases de prépa</label>' +
+      '<button type="button" class="mrt-btn" data-auj>Aujourd\'hui</button></div>' +
       (v.bande === false ? '' : '<div class="cv-periode"><button type="button" class="cv-voisin" data-pas="-1"><span class="mrt-rond">‹</span><span class="cv-voisin-txt">' + v.avant + '</span></button>' +
       '<h2 class="cv-titre">' + v.titre + '</h2>' +
       '<button type="button" class="cv-voisin is-suiv" data-pas="1"><span class="cv-voisin-txt">' + v.apres + '</span><span class="mrt-rond">›</span></button></div>') +
@@ -360,6 +399,7 @@
   });
   if (telephone.addEventListener) telephone.addEventListener('change', () => { if (e.vue === 'annee') dessiner(); });
   racine.addEventListener('change', ev => {
+    if (ev.target.hasAttribute('data-phases')) { e.phases = ev.target.checked; dessiner(); return; }
     const s = SEANCES.find(x => String(x.id) === ev.target.dataset.fait);
     if (s) { s.faite = ev.target.checked; dessiner(); }
   });
