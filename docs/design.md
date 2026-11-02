@@ -1,6 +1,6 @@
 # Design
 
-Version 0.37 · 2 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.38 · 2 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -17,7 +17,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 | --- | --- |
 | Peu de couleur | Un seul accent. L'Accent marque le titre de l'écran (le cap dans l'en-tête, le nom de la course sur sa page), l'objectif principal, les repères de données (compte à rebours des courses, objectif, point du dossard, objectif intermédiaire, temps et place au général d'une course courue) et ce qui est actif (onglet ou engrenage de la page ouverte, tri, filtre actif, pastille choisie, bouton principal, champ en cours de saisie). |
 | Le reste en blanc et gris | Valeurs et noms en Texte ; libellés et informations secondaires en Texte discret ; liens dans le texte soulignés, en Texte. |
-| Capitales pour les libellés seulement | Libellés de données (à gauche ou au-dessus d'une valeur, d'un champ, en-tête de colonne), toujours en Space Mono 0,7 rem, en-tête compris ; seuls les mois de la vue Année du Calendrier sont plus fins (§ 10). Onglets, boutons, titres de section en casse normale. |
+| Capitales pour les libellés seulement | Libellés de données (à gauche ou au-dessus d'une valeur, d'un champ, en-tête de colonne), toujours en Space Mono 0,7 rem, en-tête compris ; seuls le nom du jour (Semaine) et les numéros de l'Année du Calendrier sont plus fins (§ 10). Onglets, boutons, titres de section en casse normale. |
 | Tout dans un cadre | Chaque bloc de la page a son cadre (fond Surface, bordure fine, coins de 8 px) : tableau du Palmarès, carte d'une étape, fiche d'une course, liste des textes d'une course, Préférences (un cadre pour toute la page), panneaux. Dans un cadre, les sections sont séparées par un filet (Bordure). Jamais de cadre dans un cadre. |
 | Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien, Ajouter une course) ; au survol, l'Accent s'éclaircit (mêlé de Texte). À contour : bordure fine, texte en Texte (Annuler, Retenir cette course, Paramétrer le plan, Aujourd'hui) ; en Alerte, avec une poubelle, pour Supprimer (la course, la séance), plein Alerte au survol. Rond : une icône (filtres, crayon, regroupement, flèches, fermer) ; « × » pour fermer une feuille, la même croix partout ; un panneau qui se replie (filtres, colonnes) a un rond « Réduire », chevron vers le haut. Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Effacer les filtres, Recalculer selon les règles). Tous en casse normale, Accent au survol. |
 | Pastilles | Un choix parmi d'autres (filtres, tri et colonnes du Palmarès, vue du Calendrier) : arrondies, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond. |
@@ -174,53 +174,42 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 | Trail | `#ff7a45` | Course de trail |
 | Encre | `#0b1220` | Texte écrit sur la couleur pleine d'une course, lisible sur fond blanc comme sur fond sombre |
 
-**Vue Année en frise** (spécification § 3)
+**Phases** : Base `#5fb49c`, Développement `#e6b84d`, Affûtage `#b48ef0`, Deload `#8fa8c9`, dans les thèmes sombres ; sur fond blanc (Blanc et orange), plus foncées pour rester lisibles : Base `#2f7d69`, Développement `#946200`, Affûtage `#7a4fc4`, Deload `#52698a`.
 
-- **Frise** : colonne des noms de 9,5 rem (nom en 0,8 rem, 600, Texte ; date en 0,68 rem, Texte discret ; option : nom en Texte discret, 500) ; une piste de 2,2 rem de haut par course ; sur téléphone, le nom et la date sur une ligne au-dessus de la piste (1,15 rem).
-- **Barre de prépa** : 0,6 rem de haut, coins de 3 px, une case par semaine aux couleurs des phases (ci-dessous) ; option à 45 % ; commencée avant la période : coin gauche droit.
-- **Course** : losange de 0,62 rem, liseré de 1,5 px de Surface ; plein de la couleur de la famille (confirmée), contour de 2 px de cette couleur sur Surface (option), Texte discret (courue).
-- **Ligne Saison** : libellé « SAISON » (Space Mono 0,7 rem, capitales, Texte discret) ; barre de 0,8 rem, mêmes couleurs de phase ; semaine sans prépa : pointillés en Texte discret au-dessus et au-dessous.
-- **Mois** : Space Mono 0,6 rem, capitales, Texte discret, au début du mois, à côté d'un filet de 1 px (Bordure) qui traverse chaque piste ; initiale sur téléphone. **Aujourd'hui** : trait de 1 px en Texte ; semaine en cours : Texte à 7 % sur le fond.
-- **Écarts** : 0,62 rem, Texte discret, sous la ligne Saison ; un filet (Bordure) sépare la ligne Saison des courses. Ordinateur seulement.
-- **Légende** sous la frise, 0,72 rem, Texte discret.
+**Commun aux trois vues** (spécification § 2)
 
-**Période et flèches** (frise et nouvelle grille) : libellé « PÉRIODE » (Space Mono 0,7 rem, capitales, Texte discret), puis « 3 mois · 6 mois · 12 mois » en 0,8 rem, Texte discret, le choisi en Texte souligné d'Accent (les réglages discrets de Courses à surveiller) ; flèches en ronds, « Ce mois-ci » à contour.
-
-**Nouvelle grille (essai)**
-
-- **Légende** sur sa ligne, sous la barre du haut : 0,8 rem en Texte, pastilles de 1,1 × 0,75 rem ; « ROUTE » et « TRAIL » en libellés (Space Mono 0,7 rem, capitales, Texte discret) devant leurs deux nuances.
-- **Grille** : lignes de 1,25 rem (12 mois : 1 rem ; téléphone : 1,1 rem), 2 px entre deux jours, 4 px entre deux mois ; mois en Space Mono 0,7 rem ; numéros des jours en 0,62 rem ; nom de la course en 0,75 rem (12 mois : 0,68 ; téléphone : 0,62) ; trait de prépa de 4 px, couloirs de 7 px ; aujourd'hui cerclé de 2 px de Texte.
-- **Nom au départ du trait** : 0,7 rem (téléphone 0,58), 500, en Texte, précédé d'une flèche « ▸ » à la couleur de la course.
-
-**Ancienne grille (essai)**
-
-- **Course validée** (confirmée) : case pleine de la couleur de la famille, nom en Encre.
-- **Course non validée** (option) : couleur de la famille à 30 % sur Surface, cadre de 1 px de la couleur pleine, nom en Texte.
-- **Course courue** : case en Texte discret, nom en Fond.
-- **Trait de prépa** : vertical, 3 px de large, à gauche des cases, de la couleur pleine de la famille (à 60 % pour une course non validée) ; il franchit l'écart d'un pixel entre deux jours ; un couloir de 5 px par prépa qui en chevauche une autre ; le nom de la course est décalé d'autant.
 - **Cadre** : toute la page dans un cadre (Surface), comme les autres pages ; page sans en-tête (barre fine « Cap sur … »).
-- **Jours** : une ligne de 0,8 rem (0,72 rem sur téléphone), 1 px entre deux jours et 3 px entre deux mois ; un seul ton, Bordure, nettement plus clair que le cadre (Surface) ; jour passé sans fond ; aucune nuance pour le week-end ; aujourd'hui cerclé de 1 px de Texte. Course non validée : sa couleur à 35 % sur Bordure. Dans la vue 4 semaines, mêmes règles : jours d'un seul ton, jour passé sans fond, cerclé d'un filet.
-- **Texte** : nom du mois en Space Mono 0,62 rem, Texte discret ; numéro du jour en Space Mono 0,5 rem, Texte discret ; nom de la course en Space Grotesk 0,58 rem (0,52 rem sur téléphone).
+- **Barre du haut**, sur deux niveaux : les pastilles (§ 1) « Année », « Mois », « Semaine » à gauche (sur téléphone, à parts égales sur toute la largeur) ; la case « Phases de prépa » (case native en Accent, 1 rem, libellé 0,8 rem en Texte) et « Aujourd'hui » (à contour) à droite, sur la même ligne ou dessous.
+- **Période** (Année, Mois) : entre deux filets (Bordure), le titre au centre (1,05 rem, 600, Texte ; 0,95 rem sur téléphone), de chaque côté un rond (‹, ›) et la période voisine (0,8 rem, Texte discret, Accent au survol ; masquée sur téléphone). Durée de l'Année sous le titre : « 3 mois · 6 mois · 12 mois » en 0,78 rem, Texte discret, la choisie en Texte soulignée d'Accent (les réglages discrets de Courses à surveiller).
+- **Légende** : 0,8 rem, Texte, pastilles de 1,1 × 0,75 rem ; groupes précédés d'un libellé (Space Mono 0,7 rem, capitales, Texte discret) : « ROUTE », « TRAIL » (confirmée, option), « PHASES » (case cochée). Sous la période ; Mois et Semaine : seulement la légende des phases, case cochée.
+- **Jours** : un même fond pour tous les jours (Bordure à 70 % sur Surface), passé compris : seul le numéro d'un jour passé passe en Texte discret ; jours des mois voisins (Mois) sur un fond plus pâle (Bordure à 35 %), leur contenu à 50 %. Aujourd'hui : son numéro dans un rond Accent, texte Fond (Mois, Semaine).
+- **Course** : pastille pleine de la couleur de sa famille, nom en Encre, 600 (confirmée) ; couleur à 35 % sur Bordure, cadre de 1 px de la couleur pleine, nom en Texte (option) ; Texte discret, nom en Fond (courue). **Rendez-vous clé** : « ◆ » et texte en Texte discret. **Séance** : case à cocher en Accent, type en Space Mono capitales, Texte discret, libellé en Texte (barré, Texte discret, quand elle est faite). **« + »** : rond de bordure fine, Texte discret.
+- **Phases** (case cochée), Mois et Semaine : fond de la couleur de la phase à 38 % sur Surface (22 % pour un jour passé), filet de la couleur pleine : 3 px en haut de la case (Mois), 4 px à gauche de la ligne (Semaine).
 
-**Vue Semaine** (spécification § 4)
+**Vue Année** (spécification § 3)
 
-- **En-tête** : titre de la semaine en Space Mono 0,7 rem capitales, Texte discret ; bilan « FAITES 1 / 4 » à droite (libellé en Space Mono 0,7 rem capitales, Texte discret ; chiffres en Space Mono 0,85 rem, Texte) ; repère : nom de la course en 0,95 rem, 600, Texte (Accent au survol), le reste en 0,85 rem Texte discret, compte à rebours en Space Mono, Accent.
-- **Phase** : trait de 4 px et nom comme ci-dessous ; consigne à côté, 0,8 rem, Texte discret ; « aussi : » sur sa ligne, 0,72 rem.
-- **Jours** : une ligne par jour (sept colonnes avec le bouton d'essai) ; libellé des séances en 0,85 rem ; aujourd'hui : fond Surface 2, cerclé de 1 px de Texte, « AUJOURD'HUI » au bout de la ligne (Space Mono 0,62 rem, Texte).
-- **À suivre** : libellé « À SUIVRE » (comme « Semaine en cours ») ; une ligne repliable par semaine, filet (Bordure) entre deux, chevron du site ; date en Space Mono 0,7 rem capitales, phase en 600 dans sa couleur, le reste en 0,8 rem Texte discret, rendez-vous en Texte, course en pastille aux quatre couleurs.
+- **Grille** : colonne des numéros de 1,7 rem (Space Mono 0,62 rem, Texte discret) ; lignes de 1,25 rem (téléphone : 1,1 rem), 2 px entre deux jours, 4 px entre deux mois ; mois en Space Mono 0,7 rem, capitales, Texte discret ; jours en Bordure, jour passé sans fond (à revoir, retouches annoncées) ; aujourd'hui cerclé de 2 px de Texte.
+- **Course** : la case remplie comme une pastille (ci-dessus), le nom en 0,75 rem (téléphone 0,62).
+- **Barre de prépa** (case cochée) : 16 px de large (téléphone : 10 px), couloirs de 19 px (13 px) ; chaque semaine de la couleur de sa phase ; départ arrondi (6 px) ; prépa d'une option à 45 %.
 
-**Boutons d'essai** (temporaires, volontairement hors des règles communes) : violet `#7c3aed` (`#6d28d9` au survol), texte blanc, 0,75 rem, 600, arrondis ; dans la barre du haut, après les pastilles.
+**Vue Mois** (spécification § 4.1)
 
-**Ancienne vue 4 semaines (essai) et rubrique Préparation (page d'une course)**
+- Jours de la semaine en Space Mono 0,7 rem, capitales, Texte discret, une seule fois ; cases de 5,8 rem de haut au moins, 3 px entre deux, coins de 4 px ; numéro en 0,75 rem, 600 ; courses, rendez-vous et séances en 0,68 rem, une ligne chacun, coupés s'ils ne tiennent pas ; « + » de 1,3 rem dans le coin bas droit.
+- Téléphone : cases de 3,4 rem ; le numéro (0,7 rem) et des repères : barre de 4 px de la couleur de la course, point de 5 px par séance (Texte ; faite : Texte discret), « ◆ » du rendez-vous.
 
-- **Phases** : Base `#5fb49c`, Développement `#e6b84d`, Affûtage `#b48ef0`, Deload `#8fa8c9`, dans les thèmes sombres ; sur fond blanc (Blanc et orange), plus foncées pour rester lisibles en texte : Base `#2f7d69`, Développement `#946200`, Affûtage `#7a4fc4`, Deload `#52698a`. Une semaine : trait vertical de 4 px à gauche dans la couleur de sa phase (pointillé en Bordure pour « Sans objectif clair »), nom de la phase en 0,85 rem, 600, dans cette couleur.
-- **Semaine** : titre en Space Mono 0,7 rem capitales, Texte discret ; sept jours côte à côte (un par ligne sur téléphone), cases entre Fond et Surface, week-end plus clair, jour passé à 55 %, aujourd'hui cerclé de 1 px de Texte.
-- **Séance** : case à cocher en Accent, type en Space Mono 0,7 rem capitales Texte discret (nom du jour de même), libellé en 0,72 rem ; barrée et en Texte discret quand elle est faite. Bouton « + » rond en bas à droite de la case du jour. Course du jour : pastille aux quatre couleurs du § 10 ; rendez-vous clé : « ◆ » et texte en 0,68 rem.
+**Vue Semaine** (spécification § 4.3)
+
+- Titre de la semaine en Space Mono 0,7 rem capitales, Texte discret (la semaine en cours en Texte) ; lien d'action « ↑ Afficher les semaines passées » en tête.
+- Lignes de 3,2 rem de haut au moins, 3 px entre deux ; colonne du jour de 3,2 rem (téléphone 2,6) : numéro en 1 rem, 600, nom du jour en Space Mono 0,6 rem, capitales, Texte discret, centrés l'un sur l'autre ; aujourd'hui : ligne cerclée de 2 px de Texte. Courses et rendez-vous en 0,8 rem, séances en 0,85 rem (case de 1 rem) ; « + » de 1,5 rem au bout de la ligne.
+
+**Rubrique Préparation (page d'une course)**
+
+- **Semaine** : trait vertical de 4 px à gauche dans la couleur de sa phase (pointillé en Bordure pour « Sans objectif clair »), nom de la phase en 0,85 rem, 600, dans cette couleur ; titre en Space Mono 0,7 rem capitales, Texte discret ; une ligne par jour, à toute largeur ; aujourd'hui cerclé de 1 px de Texte.
+- **Séance** : case à cocher en Accent, type en Space Mono 0,7 rem capitales Texte discret (nom du jour de même), libellé en 0,72 rem ; barrée et en Texte discret quand elle est faite. Bouton « + » rond au bout de la ligne. Course du jour : pastille aux quatre couleurs ; rendez-vous clé : « ◆ » et texte en 0,68 rem.
 - **Frise** des phases : cases de la couleur de la phase, côte à côte, largeur proportionnelle à leur nombre de semaines ; poignées de 8 px en Texte, curseur de redimensionnement.
-- **Rubrique Préparation** : premier texte de la liste des textes d'une course (même cadre, même titre repliable) ; une semaine tient sur une ligne par jour, à toute largeur ; légende « Semaine en cours » en Space Mono 0,7 rem capitales, Texte discret ; « Toutes les semaines » : titre repliable en 0,8 rem, Texte discret, chevron du site à gauche.
+- **Rubrique** : premier texte de la liste des textes d'une course (même cadre, même titre repliable) ; légende « Semaine en cours » en Space Mono 0,7 rem capitales, Texte discret ; « Toutes les semaines » : titre repliable en 0,8 rem, Texte discret, chevron du site à gauche.
 - **Bouton « Paramétrer le plan »** : bouton à contour, icône de curseurs de 0,9 rem (un seul bouton principal par écran).
 - **Fenêtres** (séance, Paramétrer le plan) : comme la fiche (§ 1 et 6) : voile de la feuille d'une course (Fond à 75 %), panneau Surface avec cadre, 30 rem (44 rem pour Paramétrer le plan) ; barre du haut fixe, « Annuler » à gauche, « Enregistrer » ou « Valider » à droite ; titre en libellé (Space Mono 0,75 rem, capitales, Texte discret) ; libellés de champ à 0,7 rem, champs communs (à 16 px sur écran tactile) ; « Supprimer la séance » (à contour Alerte, poubelle) ou « Recalculer selon les règles » (lien) seul en bas.
-- **Choix de la vue** : deux pastilles (§ 1), « Année » et « Semaine » (« 4 semaines » dans l'ancienne vue), en haut à gauche du cadre ; vue Semaine : ‹, « Cette semaine » (à contour), › ; ancienne vue : ‹, « Aujourd'hui », ›.
 
 
 ## 11. Panneau des boutons

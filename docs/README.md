@@ -41,15 +41,15 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.30 |
-| [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.37 |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.31 |
+| [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables), couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.38 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.18 |
 | [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.63 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.11 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.31 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
 | [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.7, construit |
-| [Module Calendrier](module-calendrier-specification.md) | Deux vues : la semaine (par défaut : séances, repère de prépa, trois semaines à suivre) et l'année en frise (prépas qui s'enchaînent et se chevauchent) ; la préparation d'une course est sur sa page | Version 0.15, refonte en essai (boutons violets) |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois) ; case « Phases de prépa » (barres et fonds aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.16, construit |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -96,9 +96,8 @@ Dans l'ordre :
 2. [ ] **Courses à surveiller** (spécification 0.7, en ligne) :
    - **Dupliquer une course pour l'année suivante** (à rediscuter) : une ligne par édition ; bouton sur la fiche d'une course courue qui crée une copie À surveiller, un an plus tard (mois seul), sans résultat, dossard ni ouverture ; question ouverte : recopier le tracé GPX ?
    - Index UTMB (plus tard).
-3. [ ] **Calendrier** : [spécification 0.15](module-calendrier-specification.md) ; vues, modèle de données et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
-   - **Trois vues** (décidé le 2 nov. 2026) : maquette en ligne (`docs/maquettes/calendrier-vues.html`, 4e version : Mois et Semaine retouchés, barre du haut sur deux niveaux, case « Phases de prépa » décochée par défaut), à valider ; Année telle quelle, retouches plus tard ; puis construire, retirer les anciennes vues et les boutons violets ; la prépa viendra ensuite, par une case « Afficher la prépa ».
-   - **Refonte en essai** (en ligne depuis le 1er nov. 2026, boutons violets) : à trancher à l'usage : frise, ancienne grille ou nouvelle grille (2 nov.) ; nouvelle vue Semaine ou 4 semaines ; jours en lignes ou en colonnes (ordinateur) ; consignes de phase à valider (§ 4.3) ; puis retirer les variantes écartées et les boutons.
+3. [ ] **Calendrier** : [spécification 0.16](module-calendrier-specification.md) ; trois vues (Année, Mois, Semaine), case « Phases de prépa », modèle de données et séances en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+   - **Vue Année** : retouches à venir (annoncées le 2 nov. 2026) ; **fonds de phase** (Mois, Semaine) : lisibilité à vérifier à l'usage, notamment sur fond blanc.
    - **Question pour plus tard** : prépa propre aux courses préparatoires et plaisir (§ 9, réponses A, B, C).
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
    - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » et le formulaire ; évolution de la base, frise, jeu d'essai.

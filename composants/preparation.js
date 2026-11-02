@@ -13,13 +13,7 @@
   const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
   const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Deload']];
   const NOM_PHASE = Object.fromEntries(PHASES);
-  // Consigne de chaque phase, en une phrase (vue Semaine ; proposées le 1er novembre 2026, à valider : spécification du Calendrier, § 4.3).
-  const CONSIGNES = {
-    base: 'Construire le socle : un volume qui augmente peu à peu, surtout en endurance fondamentale.',
-    developpement: 'Place au spécifique : séances de qualité (seuil, VMA, côtes ou allure de course) et sortie longue.',
-    affutage: 'Moins de volume, un peu d\'intensité gardée : arriver frais au jour J.',
-    deload: 'Semaine allégée : moins de volume et d\'intensité, pour assimiler le travail des semaines précédentes.'
-  };
+
   const TYPES = { run: 'Run', renfo: 'Renfo' };
 
   // Dates en heure locale, au format 'AAAA-MM-JJ' : comparables comme du texte.
@@ -110,8 +104,7 @@
   const ecriture = ctx => !ctx.lectureSeule;
 
   // ----- Une semaine : jours, séances, courses, rendez-vous clés -----
-  // opts : { phase, numero, modifiee, autres, liens, haut, marqueAuj, classe } ; liens === false : le jour de course n'est pas un lien (déjà sur sa page) ;
-  // haut : en-tête de la semaine à la place du titre, de la phase et de « aussi » ('' : aucun) ; marqueAuj : « aujourd'hui » écrit sur la ligne du jour.
+  // opts : { phase, numero, modifiee, autres, liens } ; liens === false : le jour de course n'est pas un lien (déjà sur sa page).
   function semaineHtml(ctx, lundi, opts) {
     const auj = iso(new Date());
     const courses = visibles(ctx.courses, lundi, addDays(lundi, 6), auj);
@@ -137,17 +130,15 @@
         ' aria-label="Faite">' + (ecriture(ctx)
           ? '<button type="button" class="cal-se-txt" data-edit="' + esc(s.id) + '"><b>' + TYPES[s.type] + '</b> ' + esc(s.libelle) + '</button>'
           : '<span class="cal-se-txt"><b>' + TYPES[s.type] + '</b> ' + esc(s.libelle) + '</span>') + '</div>').join('');
-      const marque = opts.marqueAuj && jour === auj ? '<span class="cal-jr-auj">aujourd\'hui</span>' : '';
-      jours += '<div class="' + cls.join(' ') + '"><span class="cal-jr-nom">' + jourCourt(jour) + '</span>' + marque + courseJour + rdv + seances +
+      jours += '<div class="' + cls.join(' ') + '"><span class="cal-jr-nom">' + jourCourt(jour) + '</span>' + courseJour + rdv + seances +
         (ecriture(ctx) ? '<button type="button" class="cal-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">+</button>' : '') + '</div>';
     }
     const titre = (opts.numero ? 'Semaine ' + opts.numero + ' · ' : '') + 'Sem. du ' + dateCourte(lundi);
     const noms = autres.map(p => p.course.course).join(', ');
-    const haut = opts.haut !== undefined ? opts.haut : '<h3 class="cal-sem-titre">' + titre + '</h3>' +
+    return '<section class="cal-sem ' + (opts.phase ? 'ph-' + opts.phase : 'sans') + '" data-lundi="' + lundi + '"><div class="cal-sem-haut"><h3 class="cal-sem-titre">' + titre + '</h3>' +
       '<span class="cal-sem-phase">' + (opts.phase ? NOM_PHASE[opts.phase] + (opts.modifiee ? ' · modifiée' : '') : 'Sans objectif clair') + '</span>' +
-      (autres.length ? '<span class="cal-aussi" title="Semaine aussi dans le plan de : ' + esc(noms) + '">aussi : ' + esc(noms) + '</span>' : '');
-    return '<section class="cal-sem ' + (opts.phase ? 'ph-' + opts.phase : 'sans') + (opts.classe ? ' ' + opts.classe : '') + '" data-lundi="' + lundi + '">' +
-      (haut ? '<div class="cal-sem-haut">' + haut + '</div>' : '') + '<div class="cal-sem-jours">' + jours + '</div></section>';
+      (autres.length ? '<span class="cal-aussi" title="Semaine aussi dans le plan de : ' + esc(noms) + '">aussi : ' + esc(noms) + '</span>' : '') +
+      '</div><div class="cal-sem-jours">' + jours + '</div></section>';
   }
 
   // Phases consécutives regroupées, une case par groupe, large de ses semaines ; une poignée entre deux cases en édition.
@@ -327,6 +318,6 @@
     });
   }
 
-  window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, CONSIGNES, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES, CHEVRON };
+  window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES };
 })();
