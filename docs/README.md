@@ -97,6 +97,7 @@ Dans l'ordre :
    - **Dupliquer une course pour l'année suivante** (à rediscuter) : une ligne par édition ; bouton sur la fiche d'une course courue qui crée une copie À surveiller, un an plus tard (mois seul), sans résultat, dossard ni ouverture ; question ouverte : recopier le tracé GPX ?
    - Index UTMB (plus tard).
 3. [ ] **Calendrier** : [spécification 0.15](module-calendrier-specification.md) ; vues, modèle de données et séances sont en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+   - **Trois vues sans la prépa** (décidé le 2 nov. 2026) : Année, Mois, Semaine d'un calendrier classique ; maquette en ligne (`docs/maquettes/calendrier-vues.html`), à valider avant de construire ; la prépa viendra ensuite, par une case « Afficher la prépa ».
    - **Refonte en essai** (en ligne depuis le 1er nov. 2026, boutons violets) : à trancher à l'usage : frise, ancienne grille ou nouvelle grille (2 nov.) ; nouvelle vue Semaine ou 4 semaines ; jours en lignes ou en colonnes (ordinateur) ; consignes de phase à valider (§ 4.3) ; puis retirer les variantes écartées et les boutons.
    - **Question pour plus tard** : prépa propre aux courses préparatoires et plaisir (§ 9, réponses A, B, C).
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.
