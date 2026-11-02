@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.14 · 1er novembre 2026 · [Retour au sommaire](README.md) · Refonte en essai : Année en frise, vue Semaine (la semaine en détail, trois à suivre) ouverte par défaut, écarts entre courses, « Confirmée / Option » ; boutons violets pour revoir les anciennes vues
+Version 0.15 · 2 novembre 2026 · [Retour au sommaire](README.md) · Nouvelle grille en essai, derrière un deuxième bouton violet (lignes plus hautes, légende lisible, nom de la course au départ de son trait) ; période de 3, 6 ou 12 mois (6 par défaut, commune à la frise) et flèches ; refonte en essai depuis la 0.14 : Année en frise, vue Semaine ouverte par défaut
 
 ## 1. Rôle
 
@@ -14,21 +14,23 @@ Le Calendrier montre la saison à deux échelles : l'année et la semaine. La tr
 | Vue | Échelle | Comment on l'ouvre |
 | --- | --- | --- |
 | **Semaine** | La semaine en détail, jour par jour, puis les trois suivantes en résumé | Vue par défaut ; pastille « Semaine » ; toucher les mois ou la ligne Saison de la vue Année |
-| **Année** | 12 mois en frise : une ligne par course, sa prépa colorée par phase | Pastille « Année » |
+| **Année** | 3, 6 ou 12 mois (6 par défaut) en frise : une ligne par course, sa prépa colorée par phase | Pastille « Année » |
 
 Le zoom « une course » n'est pas une vue du Calendrier : c'est la rubrique **Préparation** de la page de la course (§ 5). Toucher une course (ligne de la frise, jour de course, rendez-vous clé ou repère de la vue Semaine) ouvre la page de cette course, en modale par-dessus le Calendrier, à la rubrique Préparation ; une course courue s'ouvre avec son résultat (Objectif, § 3.8). La croix de la page ramène au Calendrier, à la même vue.
 
-**Choix de la vue** : deux pastilles côte à côte, « Année » et « Semaine », celle de la vue ouverte pleine (Accent) ; un seul toucher change de vue. Sans adresse (`calendrier.html`), la vue Semaine s'ouvre sur la semaine en cours ; `#annee` ouvre l'Année, `#semaines=AAAA-MM-JJ` la semaine de ce lundi.
+**Choix de la vue** : deux pastilles côte à côte, « Année » et « Semaine », celle de la vue ouverte pleine (Accent) ; un seul toucher change de vue. Sans adresse (`calendrier.html`), la vue Semaine s'ouvre sur la semaine en cours ; `#annee` ouvre l'Année au mois en cours, `#annee=AAAA-MM` à partir de ce mois, `#semaines=AAAA-MM-JJ` la semaine de ce lundi.
+
+**Période de la vue Année** (frise et nouvelle grille) : 3, 6 ou 12 mois, 6 par défaut, retenue sur l'appareil (`mrt-calendrier-mois`).
 
 **Essai en cours** (1er novembre 2026) : des boutons violets, volontairement hors des règles communes pour qu'on les reconnaisse, basculent entre la nouvelle présentation et l'ancienne, le temps de choisir ; le choix est retenu sur l'appareil (`mrt-essai-annee`, `mrt-essai-semaine`, `mrt-essai-jours`).
 
 | Bouton | Vue | Bascule entre |
 | --- | --- | --- |
-| « Essai · voir l'ancienne grille » | Année | La frise (§ 3.1) et l'ancienne grille (§ 3.3) |
+| « Essai · voir l'ancienne grille », « Essai · voir la nouvelle grille », « Essai · voir la frise » | Année | La frise (§ 3.1, par défaut), l'ancienne grille (§ 3.3) et la nouvelle grille (§ 3.4) : deux boutons, un par autre variante, chacun nomme celle où il mène |
 | « Essai · voir l'ancienne vue 4 semaines » | Semaine | La nouvelle vue (§ 4.1) et l'ancienne vue 4 semaines (§ 4.5) ; la pastille devient « 4 semaines » |
 | « Essai · jours en colonnes » | Semaine, ordinateur | Les jours en lignes (par défaut) et en sept colonnes (§ 4.4) |
 
-Une fois le choix fait, la variante écartée et les boutons disparaissent.
+Une fois le choix fait, les variantes écartées et les boutons disparaissent.
 
 Les données viennent de la liste de courses de l'utilisateur, la même que pour Objectif ; les séances et les phases sont propres à la préparation (§ 7).
 
@@ -38,10 +40,11 @@ Une frise, pour voir d'un coup d'œil les prépas qui s'enchaînent et celles qu
 
 ### 3.1 Plan de page
 
-Schéma (jeu d'essai, au 20 octobre 2026) : un caractère par semaine ; B Base, D Développement, A Affûtage, o Deload ; minuscules : course en option ; · : pas de prépa. À l'écran, des cases de couleur.
+Schéma (jeu d'essai, au 20 octobre 2026, période de 12 mois) : un caractère par semaine ; B Base, D Développement, A Affûtage, o Deload ; minuscules : course en option ; · : pas de prépa. À l'écran, des cases de couleur.
 
 ```
-(1) (Année) (Semaine)                                     [Essai · voir l'ancienne grille]
+(1) (Année) (Semaine)                  [Essai · voir l'ancienne grille] [Essai · voir la nouvelle grille]
+(13) PÉRIODE  3 mois · 6 mois · 12 mois     (14) ‹ Ce mois-ci ›
 (3)                   O   N    D   J    F   M   A   M    J   J   A    S
                          ▼ (11) aujourd'hui
 (9) SAISON            ■     ◆   ◆           ◆    (12)   ◇   ◇◇       ◆ (6)
@@ -63,11 +66,12 @@ Schéma (jeu d'essai, au 20 octobre 2026) : un caractère par semaine ; B Base, 
 (2) ◆◆ Confirmée (route, trail) ◇ Option ◆ Courue ■ Base ■ Développement ■ Affûtage ■ Deload ▭ Sans objectif clair
 ```
 
-Téléphone : le nom passe au-dessus de sa barre, les mois en initiales ; toute l'année tient dans la largeur, sans défilement de côté ; pas d'écarts.
+Téléphone : le nom passe au-dessus de sa barre ; les mois en initiales sur 12 mois, en entier sur 3 et 6 mois ; toute la période tient dans la largeur, sans défilement de côté ; pas d'écarts.
 
 ```
 (1)  (Année) (Semaine)
-     [Essai · voir l'ancienne grille]
+     [Essai · voir l'ancienne grille] [Essai · voir la nouvelle grille]
+(13) PÉRIODE  3 · 6 · 12 mois     (14) ‹ Ce mois-ci ›
 (3)  O   N    D   J    F   M   A   M    J   J   A    S
 (9)  SAISON
      ■     ◆   ◆           ◆           ◇   ◇◇       ◆
@@ -82,7 +86,7 @@ Téléphone : le nom passe au-dessus de sa barre, les mois en initiales ; toute 
 
 | N° | Élément | Exemple | Place |
 | --- | --- | --- | --- |
-| 1 | Pastilles de la vue, « Année » et « Semaine » ; bouton violet d'essai | « Année » pleine | En haut |
+| 1 | Pastilles de la vue, « Année » et « Semaine » ; boutons violets d'essai | « Année » pleine | En haut |
 | 2 | Légende : courses (confirmée, option, courue), phases, sans objectif clair | « Confirmée (route, trail) » | Sous la frise |
 | 3 | Nom du mois, filet au début de chaque mois | « oct. 26 » ; téléphone : « O » | Au-dessus de la frise |
 | 6 | Course : losange à son jour, de la couleur de sa famille | Trail du Lac | Au bout de sa barre, et sur la ligne Saison |
@@ -91,13 +95,15 @@ Téléphone : le nom passe au-dessus de sa barre, les mois en initiales ; toute 
 | 10 | Nom et date de la course | « Trail du Lac », « 15 nov. » | Colonne de gauche (téléphone : au-dessus de la barre) |
 | 11 | Aujourd'hui : trait vertical ; semaine en cours éclaircie | | Toute la hauteur de la frise |
 | 12 | Écart entre deux courses qui se suivent | « 12 sem. », « 5 j » | Sous la ligne Saison, au milieu des deux courses ; ordinateur seulement |
+| 13 | Période : libellé, puis les choix en texte, le choisi souligné (comme les réglages de Courses à surveiller) | « PÉRIODE 3 mois · 6 mois · 12 mois » | Sous les pastilles |
+| 14 | Flèches : une période plus tôt, plus tard ; entre elles, « Ce mois-ci » (bouton à contour) | ‹ Ce mois-ci › | À côté de la période |
 
 Les numéros 4, 5 et 8 (numéro du jour, case d'un jour, second bloc) n'existent que dans l'ancienne grille (§ 3.3).
 
 ### 3.2 Règles
 
-- **Période** : douze mois à partir du mois en cours, du 1er du mois au dernier jour du douzième.
-- **Lignes** : une par course à venir, confirmée ou option (une option dont la date est passée disparaît), dans l'ordre des dates. Les courses « À surveiller » et abandonnées ne s'affichent pas. Une course courue de la période n'a pas de ligne : son losange gris est sur la ligne Saison, et le toucher ouvre son résultat.
+- **Période** : 3, 6 ou 12 mois (6 par défaut), du 1er du premier mois au dernier jour du dernier ; à partir du mois en cours, ou du mois de l'adresse (`#annee=AAAA-MM`). Flèches : une période plus tôt ou plus tard ; « Ce mois-ci » ramène au mois en cours. Aujourd'hui hors de la période : ni trait ni semaine éclaircie.
+- **Lignes** : une par course à venir, confirmée ou option (une option dont la date est passée disparaît), dans l'ordre des dates ; aussi les courses d'après la période dont la prépa commence dedans : leur barre est coupée au bord droit (coin droit), sans losange. Les courses « À surveiller » et abandonnées ne s'affichent pas. Une course courue de la période n'a pas de ligne : son losange gris est sur la ligne Saison, et le toucher ouvre son résultat.
 - **Barre de prépa** : la durée de la course, sinon celle de son format (§ 5.4) ; une case par semaine lundi-dimanche, de la couleur de sa phase (§ 5.1, phases modifiées à la main comprises), la dernière s'arrête au jour J. Option : barre atténuée. Prépa commencée avant la période : la barre part du bord, coin droit, et l'infobulle de sa première case donne la vraie date de début. Format sans durée : la course, sans barre.
 - **Ligne Saison** : pour chaque semaine, la phase du plan suivi, celui de la course confirmée la plus proche (§ 4.2) ; une semaine sans plan reste vide, en pointillé : « Sans objectif clair ». Toutes les courses de la période y figurent (losanges).
 - **Écarts** : entre deux courses qui se suivent (celles de la ligne Saison), au milieu : en jours sous deux semaines (« 5 j »), sinon en semaines arrondies (« 12 sem. ») ; deux écarts qui se touchent : seul le plus court reste. Ordinateur seulement.
@@ -108,6 +114,48 @@ Les numéros 4, 5 et 8 (numéro du jour, case d'un jour, second bloc) n'existent
 ### 3.3 Ancienne grille (en essai)
 
 Bouton violet « Essai · voir l'ancienne grille ». Douze mois en deux blocs de six colonnes (trois colonnes et quatre blocs sur téléphone), une ligne fine par jour : numéro du jour à gauche (4), une case par jour (5), le second bloc sous le premier (8). La course est écrite dans sa case, remplie de sa couleur (6) : pleine pour une course confirmée, atténuée et cadrée pour une option, grise pour une course courue. Le trait de prépa (7) est vertical, à gauche des cases, du premier jour de la prépa jusqu'à la veille de la course, d'un mois au suivant ; deux prépas qui se chevauchent tracent deux traits côte à côte ; commencée avant la période, il part du premier jour affiché (l'infobulle donne la vraie date). Jours passés du mois en cours sans fond. Toucher un jour ouvre la vue Semaine à son lundi ; toucher une course, sa page. Légende : « Route confirmée », « Route en option », « Trail confirmée », « Trail en option », Préparation, Courue, Aujourd'hui.
+
+### 3.4 Nouvelle grille (en essai)
+
+Bouton violet « Essai · voir la nouvelle grille » : le style de la grille (jours en lignes, mois en colonnes), plus lisible, sur la période choisie (6 mois par défaut).
+
+```
+(1) (Année) (Semaine)           [Essai · voir la frise] [Essai · voir l'ancienne grille]
+(13) PÉRIODE  3 mois · 6 mois · 12 mois     (14) ‹ Ce mois-ci ›
+(2) ROUTE ■ confirmée ▣ option   TRAIL ■ confirmée ▣ option   ■ courue   ┃ préparation   ▢ aujourd'hui
+(3)       OCT. 26          NOV.             DÉC.             JANV. 27         FÉVR.            MARS
+(4)  1 (5)┃▸ Trail du Lac  ┃┃               ┃┃               ┃                ┃                ┃┃
+     …
+     4    [Semi de San Se] ┃┃               ┃┃               ┃                ┃                ┃┃
+     7    ┃                ┃┃               ┃┃               ┃                ┃                [Trail des Gorg] (6)
+     8    ┃                ┃┃               ┃┃               ┃                ┃┃▸ Trail des Ci ┃┃▸ Ultra du Pla (15)
+     …
+    13    ┃                ┃┃               [Corrida de Noë] ┃                ┃┃               ┃┃
+    15    ┃                [Trail du Lac]   ┃                ┃                ┃┃               ┃┃
+    16    ┃                ┃┃▸ Trail des Go ┃                ┃                ┃┃               ┃┃
+     …
+    19    ┃┃▸ Corrida de N ┃┃               ┃                ┃                ┃┃               ┃┃
+    20    ┃┃ ▢ (11)        ┃┃               ┃                ┃                ┃┃               ┃┃
+     …
+    31 (7)┃┃                                ┃                ┃                                 ┃┃
+```
+
+Téléphone : les boutons violets, puis la période et les flèches, passent sous les pastilles ; légende sur deux lignes ; trois mois par bloc (6 mois : deux blocs, oct.-déc. puis janv.-mars (8)).
+
+| N° | Élément | Ce qui change par rapport à l'ancienne grille |
+| --- | --- | --- |
+| 2 | Légende | Sur sa ligne, sous la barre du haut, plus grande, en Texte ; regroupée par famille : « ROUTE confirmée · option », « TRAIL confirmée · option », puis courue, préparation, aujourd'hui |
+| 3 | Mois | Plus grand |
+| 4 | Numéro du jour | Plus grand |
+| 5 | Ligne d'un jour | Plus haute (12 mois : un peu moins ; téléphone : entre les deux) |
+| 6 | Nom de la course | Plus grand |
+| 7 | Trait de prépa | Plus large, couloirs plus larges ; les prépas des courses d'après la période, commencées dedans, vont jusqu'au bord |
+| 8 | Blocs | 3 et 6 mois : un seul bloc (téléphone : un bloc par trimestre) ; 12 mois : deux blocs de six |
+| 11 | Aujourd'hui | Cerclé plus épais |
+| 13, 14 | Période et flèches | Comme la frise (§ 3.1) ; réglage commun |
+| 15 | Nom de la course au départ de son trait | Nouveau : « ▸ Trail des Gorges » dans la case du premier jour de la prépa (premier jour affiché si elle a commencé avant), en Texte, la flèche à la couleur de la course ; deux prépas qui partent le même jour : le second nom au jour suivant libre de la semaine |
+
+Le reste ne change pas : couleurs, course écrite dans sa case, toucher un jour (vue Semaine) ou une course (sa page), infobulles.
 
 ## 4. Vue Semaine
 
@@ -274,7 +322,7 @@ Les sources donnent des fourchettes, souvent pour un public précis (débutant o
 
 ## 6. Téléphone
 
-Vue Année : la frise tient dans la largeur, nom au-dessus de sa barre, mois en initiales, sans écarts ni infobulle (ancienne grille : trois colonnes de mois, quatre blocs). Vue Semaine et rubrique Préparation : un jour par ligne. Rien ne déborde de l'écran.
+Vue Année : la frise tient dans la largeur, nom au-dessus de sa barre, mois en initiales sur 12 mois, sans écarts ni infobulle ; grilles : trois colonnes de mois par bloc (nouvelle grille : lignes de 1,1 rem). Vue Semaine et rubrique Préparation : un jour par ligne. Rien ne déborde de l'écran.
 
 ## 7. Données
 
@@ -295,13 +343,14 @@ Le [modèle de données](modele-donnees.md) (§ 4.4) décrit ces champs et table
 3. **Vue 4 semaines et plan d'une course**, saisie des séances, rubrique « Paramétrer le plan ». **Construit** (27 octobre 2026) : vue 4 semaines dans `calendrier.js` ; la vue active se lit dans l'adresse (`#annee`, `#semaines=AAAA-MM-JJ`), le bouton retour du navigateur ramène à la vue précédente.
 4. **Préparation sur la page de la course** (27 octobre 2026) : le plan d'une course quitte le Calendrier pour devenir une rubrique de la page de la course (`composants/preparation.js`, partagé) ; toucher une course dans le Calendrier mène à `course.html?id=…#preparation`.
 
+6. **Nouvelle grille en essai** (2 novembre 2026) : deuxième bouton violet ; période de 3, 6 ou 12 mois (6 par défaut) et flèches, aussi pour la frise ; prépas des courses d'après la période, commencées dedans, affichées (frise et grilles).
 5. **Refonte en essai** (1er novembre 2026) : Année en frise, vue Semaine ouverte par défaut (la semaine en détail, trois à suivre, repère, bilan, consigne de phase), écarts entre courses, « Confirmée / Option » ; ancienne grille, ancienne vue 4 semaines et jours en colonnes gardés derrière des boutons violets, le temps de choisir (§ 2).
 
 Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
 
 ## 9. Questions ouvertes
 
-- [ ] **Essai en cours** (§ 2) : frise ou grille ; nouvelle vue Semaine ou 4 semaines ; jours en lignes ou en colonnes sur ordinateur. Une fois tranché : retirer la variante écartée et les boutons violets.
+- [ ] **Essai en cours** (§ 2) : frise, ancienne grille ou nouvelle grille ; nouvelle vue Semaine ou 4 semaines ; jours en lignes ou en colonnes sur ordinateur. Une fois tranché : retirer les variantes écartées et les boutons violets.
 - [ ] **Consignes de phase** (§ 4.3) : textes proposés, à valider ou à remplacer.
 - [ ] **Prépa des courses préparatoires et plaisir** (question à poser au bon moment). Aujourd'hui, toute course confirmée ou option a sa prépa (durée de son format) et la course confirmée la plus proche impose sa phase : d'où, dans le jeu d'essai, cinq prépas empilées de février à août, et une préparatoire qui peut imposer son affûtage en pleine prépa de l'objectif. Trois réponses possibles :
   - A. Garder ainsi (en place).
@@ -310,7 +359,7 @@ Le prototype `composants/planning.js` est remplacé par la nouvelle vue Année.
 - [x] **Durées de prépa par format** : valeurs du § 5.4 validées (28 octobre 2026), à ajuster ensuite.
 - [ ] **Durées à fournir** pour Trail découverte, Course en heure, Marche, Fast hiking et Triathlon (aucune valeur publiée trouvée).
 - [x] **Semaine de récupération après la course** : oui, facultative par course, une semaine Deload hors durée du plan (retenu le 28 octobre 2026 ; à construire, évolution de la base).
-- [x] **Vue Année sur « six mois »** : non, douze mois suffisent (retenu le 28 octobre 2026).
+- [x] **Vue Année sur « six mois »** : non, douze mois suffisent (retenu le 28 octobre 2026) ; revu le 2 novembre 2026 : période au choix, 3, 6 ou 12 mois, 6 par défaut.
 - [x] **Couleurs** des quatre familles de course et des quatre phases : fixées dans le document de design (§ 10, 27 octobre 2026).
 - [x] **Semaine dans deux plans** : le plan de la course confirmée la plus proche l'emporte (retenu le 27 octobre 2026).
 - [x] **Objectif principal** : pas plus marqué que les autres courses sur la vue Année (retenu le 28 octobre 2026).
@@ -324,17 +373,34 @@ Jeu d'essai, données fictives, au mardi 20 octobre 2026 à 10 h, heure de Paris
 
 **Séances d'essai** : lundi 19 octobre, Renfo · Gainage 30 min (faite) ; mardi 20, Run · 8×400 m ; jeudi 22, Run · Footing 45 min ; samedi 24, Run · Sortie 1 h 30.
 
-Résultats attendus, vue Année en frise (`calendrier.html#annee`) :
+Résultats attendus, vue Année en frise (`calendrier.html#annee`), période de 12 mois :
 
-- Pastille « Année » pleine ; bouton violet « Essai · voir l'ancienne grille ».
+- Pastille « Année » pleine ; « 12 mois » choisi ; boutons violets « Essai · voir l'ancienne grille » et « Essai · voir la nouvelle grille ».
 - Mois d'octobre 2026 à septembre 2027 (« oct. 26 » … « janv. 27 » … « sept. ») ; sur téléphone, leurs initiales.
 - Ligne Saison, semaine par semaine (lettres du § 3.1) : DDoDDAA (Trail du Lac, semaines 6 à 12), DDAA (Corrida de Noël, semaines 5 à 8), BBDoDDDoDDAA (Trail des Gorges, semaines 5 à 16), neuf semaines sans objectif clair (du 8 mars au 9 mai), BBBoBBDoDDDoDDAA (Trail des Crêtes), cinq semaines sans prépa. Losanges : Semi de San Sebastián (courue, gris), Trail du Lac, Corrida de Noël (route), Trail des Gorges, Trail des Cimes, Ultra du Plateau et Trail de la Forêt (options, en contour), Trail des Crêtes.
 - Sept lignes, dans l'ordre : Trail du Lac (15 nov., DDoDDAA, depuis le bord ; infobulle : prépa commencée le 24 août 2026), Corrida de Noël (13 déc., BBDoDDAA), Trail des Gorges (7 mars, BBBoBBDoDDDoDDAA), Trail des Cimes et Ultra du Plateau (30 mai · option, 26 juin · option : 16 semaines, atténuées), Trail de la Forêt (1er juil. · option, BBBoBDDoDDAA, atténuée), Trail des Crêtes (28 août, 16 semaines). Ni Cross des Collines (abandonnée), ni Trail des Sommets (à surveiller), ni l'option passée du 10 octobre ; pas de ligne pour la course courue.
 - Écarts (ordinateur) : 6 sem., 4 sem., 12 sem., 12 sem., 4 sem., 5 j, 8 sem. ; masqués sur téléphone.
 - Toucher les mois au 13 janvier : `#semaines=2027-01-11` ; toucher la ligne du Trail des Gorges : sa page en modale, rubrique Préparation ; toucher le losange du Semi de San Sebastián : son résultat.
-- Bouton d'essai : l'ancienne grille, retenue sur l'appareil ; de nouveau : la frise.
+- Bouton « voir l'ancienne grille » : l'ancienne grille, retenue sur l'appareil, avec les boutons « voir la frise » et « voir la nouvelle grille » ; « voir la frise » : de nouveau la frise.
 - Trail des Gorges à 20 semaines : barre de 20 cases ; Corrida de Noël en Triathlon S (format sans durée) : sa ligne, sans barre.
 - Téléphone : rien ne déborde.
+
+Résultats attendus, période de la vue Année (frise) :
+
+- Par défaut, 6 mois : d'octobre à mars ; ligne Saison DDoDDAADDAABBDoDDDoDDAA puis quatre semaines sans prépa ; lignes : Trail du Lac, Corrida de Noël, Trail des Gorges, puis Trail des Cimes (BBBoBBDo) et Ultra du Plateau (BBBo), courses d'après la période, barres coupées au bord droit, sans losange ; écarts : 6 sem., 4 sem., 12 sem.
+- Période suivante : `#annee=2027-04`, d'avril à septembre ; ligne Saison : six semaines sans prépa, BBBoBBDoDDDoDDAA (Trail des Crêtes), cinq semaines sans prépa ; lignes : Trail des Cimes, Ultra du Plateau, Trail de la Forêt, Trail des Crêtes ; pas de trait d'aujourd'hui. « Ce mois-ci » : de nouveau octobre.
+- « 3 mois » : octobre à décembre, retenu sur l'appareil.
+- Téléphone, 6 mois : noms des mois en entier ; rien ne déborde.
+
+Résultats attendus, nouvelle grille (essai, bouton « voir la nouvelle grille ») :
+
+- 6 mois par défaut : un bloc de six colonnes, d'octobre à mars (téléphone : deux blocs de trois) ; lignes de 1,25 rem (téléphone : 1,1 rem) ; boutons « voir la frise » et « voir l'ancienne grille ».
+- Courses écrites dans leur case : Semi de San Sebastián (courue), Trail du Lac, Corrida de Noël (route), Trail des Gorges.
+- Nom au départ du trait : Trail du Lac le 1er octobre (prépa commencée le 24 août, avant la période), Corrida de Noël le 19 octobre, Trail des Gorges le 16 novembre, Trail des Cimes le 8 février, Ultra du Plateau le 8 mars.
+- Légende : « ROUTE confirmée, option », « TRAIL confirmée, option », courue, préparation, aujourd'hui, à 0,8 rem ; aujourd'hui cerclé de 2 px.
+- Période suivante : avril à septembre ; Trail des Cimes, Ultra du Plateau, Trail de la Forêt, Trail des Crêtes ; noms au départ : Trail des Cimes le 1er avril et Ultra du Plateau le 2 avril (prépas commencées avant la période), Trail de la Forêt le 12 avril, Trail des Crêtes le 10 mai.
+- « 12 mois » : deux blocs de six, lignes de 1 rem. Toucher le 22 octobre : la semaine du lundi 19.
+- Rien ne déborde, ni sur ordinateur ni sur téléphone.
 
 Résultats attendus, vue Semaine (`calendrier.html`, vue par défaut, séances d'essai) :
 
