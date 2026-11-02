@@ -10,8 +10,9 @@
 //   THEME=vert-rose node captures.js objectif ../.. captures/vert-rose
 //                                             dans un autre thème que celui des données fictives (bleu-orange)
 // Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares,
-//         calendrier (Année en frise), calendrier-semaine (vue Semaine, par défaut), calendrier-colonnes (jours en colonnes),
-//         calendrier-grille et calendrier-semaines (anciennes vues, en essai), filtres, preferences,
+//         calendrier (Année en frise, 6 mois), calendrier-12 (frise sur 12 mois), calendrier-nouvelle-grille, calendrier-semaine
+//         (vue Semaine, par défaut), calendrier-colonnes (jours en colonnes), calendrier-grille et calendrier-semaines (anciennes vues,
+//         en essai), filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -62,7 +63,9 @@ const PAGES = {
   'courses-tableau': { url: 'courses-a-surveiller.html?vue=tout', action: async p => { await p.click('[data-mode="tableau"]'); } },
   palmares: { url: 'palmares.html' },
   calendrier: { url: 'calendrier.html#annee' },
+  'calendrier-12': { url: 'calendrier.html#annee', stockage: { 'mrt-calendrier-mois': '12' } },
   'calendrier-grille': { url: 'calendrier.html#annee', stockage: { 'mrt-essai-annee': 'grille' } },
+  'calendrier-nouvelle-grille': { url: 'calendrier.html#annee', stockage: { 'mrt-essai-annee': 'nouvelle-grille' } },
   'calendrier-semaine': { url: 'calendrier.html', donnees: SEANCES },
   'calendrier-colonnes': { url: 'calendrier.html', donnees: SEANCES, stockage: { 'mrt-essai-jours': 'colonnes' }, largeurs: { ordi: [1200, 900] } },
   'calendrier-semaines': { url: 'calendrier.html#semaines', donnees: SEANCES, stockage: { 'mrt-essai-semaine': 'ancienne' } },

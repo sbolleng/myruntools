@@ -6,33 +6,35 @@
 // à sa page, à la rubrique Préparation (une course courue : son résultat). Plan, séances et fenêtres : preparation.js.
 //   ctx.courses, ctx.seances, ctx.semaines, ctx.lectureSeule, ctx.relire() : voir preparation.js.
 //
-// Essai en cours (spécification § 2) : des boutons violets basculent, sur l'appareil, entre la nouvelle présentation
-// et l'ancienne : Année en frise ou en grille ; Semaine nouvelle ou 4 semaines ; jours en lignes ou en colonnes
-// (ordinateur). À retirer, avec la variante écartée, une fois le choix fait.
+// Essai en cours (spécification § 2) : des boutons violets mènent, sur l'appareil, d'une présentation à l'autre :
+// Année en frise, en ancienne grille ou en nouvelle grille ; Semaine nouvelle ou 4 semaines ; jours en lignes ou en
+// colonnes (ordinateur). À retirer, avec les variantes écartées, une fois le choix fait.
 (function () {
   const P = window.mrtPreparation;
   const { MOIS, JOURS, PHASES, NOM_PHASE, CONSIGNES, iso, parse, addDays, lundiDe, dateCourte, longue, courte, esc, aPlan, visibles, tousLesPlans,
     phaseSemaine, plansDeLaSemaine, planDe, modifsDe, semaineHtml, lienCourse, CHEVRON } = P;
 
-  // ----- Essai : variantes retenues sur l'appareil (à défaut de stockage, le temps de la visite) -----
-  const ESSAI = { annee: ['frise', 'grille'], semaine: ['nouvelle', 'ancienne'], jours: ['lignes', 'colonnes'] };
-  const ESSAI_TXT = {
-    annee: { frise: 'voir l\'ancienne grille', grille: 'voir la nouvelle frise' },
-    semaine: { nouvelle: 'voir l\'ancienne vue 4 semaines', ancienne: 'voir la nouvelle vue Semaine' },
-    jours: { lignes: 'jours en colonnes', colonnes: 'jours en lignes' }
+  // ----- Réglages retenus sur l'appareil (à défaut de stockage, le temps de la visite) -----
+  const visite = {};
+  const lire = (cle, ok, defaut) => {
+    let v = visite[cle];
+    if (v === undefined) try { v = localStorage.getItem(cle); } catch (e) { /* stockage indisponible */ }
+    return ok(v) ? v : defaut;
   };
-  const essaiVisite = {};
-  function essai(k) {
-    let v = essaiVisite[k];
-    if (!v) try { v = localStorage.getItem('mrt-essai-' + k); } catch (e) { /* stockage indisponible */ }
-    return ESSAI[k].includes(v) ? v : ESSAI[k][0];
-  }
-  function basculer(k) {
-    const v = essai(k) === ESSAI[k][0] ? ESSAI[k][1] : ESSAI[k][0];
-    essaiVisite[k] = v;
-    try { localStorage.setItem('mrt-essai-' + k, v); } catch (e) { /* stockage indisponible */ }
-  }
-  const essais = (...k) => '<span class="cal-essais">' + k.map(x => '<button type="button" class="cal-essai" data-essai="' + x + '">Essai · ' + ESSAI_TXT[x][essai(x)] + '</button>').join('') + '</span>';
+  const ranger = (cle, v) => { visite[cle] = v; try { localStorage.setItem(cle, v); } catch (e) { /* stockage indisponible */ } };
+  // Essai : la variante de chaque vue ; un bouton violet par autre variante, qui y mène.
+  const ESSAI = { annee: ['frise', 'grille', 'nouvelle-grille'], semaine: ['nouvelle', 'ancienne'], jours: ['lignes', 'colonnes'] };
+  const ESSAI_TXT = {
+    annee: { frise: 'voir la frise', grille: 'voir l\'ancienne grille', 'nouvelle-grille': 'voir la nouvelle grille' },
+    semaine: { nouvelle: 'voir la nouvelle vue Semaine', ancienne: 'voir l\'ancienne vue 4 semaines' },
+    jours: { lignes: 'jours en lignes', colonnes: 'jours en colonnes' }
+  };
+  const essai = k => lire('mrt-essai-' + k, v => ESSAI[k].includes(v), ESSAI[k][0]);
+  const essais = (...k) => '<span class="cal-essais">' + k.map(x => ESSAI[x].filter(v => v !== essai(x)).map(v =>
+    '<button type="button" class="cal-essai" data-essai="' + x + '" data-valeur="' + v + '">Essai · ' + ESSAI_TXT[x][v] + '</button>').join('')).join('') + '</span>';
+  // Vue Année : période de 3, 6 ou 12 mois (6 par défaut), commune à la frise et à la nouvelle grille.
+  const PERIODES = ['3', '6', '12'];
+  const periode = () => Number(lire('mrt-calendrier-mois', v => PERIODES.includes(v), '6'));
 
   // ----- Dates -----
   const ecart = (a, b) => Math.round((parse(b) - parse(a)) / 864e5); // jours de a à b (heure d'été comprise)
@@ -42,15 +44,18 @@
   const plage = l => { const a = parse(l), b = parse(addDays(l, 6));                           // « 11-17 janv. », « 28 déc.-3 janv. »
     return a.getMonth() === b.getMonth() ? a.getDate() + '-' + b.getDate() + ' ' + MOIS[b.getMonth()] : dateCourte(l) + '-' + dateCourte(addDays(l, 6)); };
   const pct = v => v.toFixed(3) + '%';
+  const decaler = (m, n) => { const [y, mm] = m.split('-').map(Number); return iso(new Date(y, mm - 1 + n, 1)).slice(0, 7); }; // mois « AAAA-MM » ± n
+  const moisDe = (m, n) => { const [y, mm] = m.split('-').map(Number); return Array.from({ length: n }, (_, i) => new Date(y, mm - 1 + i, 1)); };
   const couleur = c => (c.courue ? 'courue' : 'c-' + c.famille + (c.validee ? '-v' : '-n'));
 
   window.renderCalendrier = function (root, ctx) {
     const mobile = window.matchMedia('(max-width: 600px)');
 
-    // Vue de l'adresse : #annee, #semaines=AAAA-MM-JJ ; sans adresse, la semaine en cours (vue par défaut).
+    // Vue de l'adresse : #annee (le mois en cours), #annee=AAAA-MM (premier mois affiché), #semaines=AAAA-MM-JJ ;
+    // sans adresse, la semaine en cours (vue par défaut).
     function lireHash() {
       const [k, v] = location.hash.replace(/^#/, '').split('=');
-      if (k === 'annee') return { v: 'annee' };
+      if (k === 'annee') return { v: 'annee', mois: /^\d{4}-\d\d$/.test(v || '') ? v : iso(new Date()).slice(0, 7) };
       return { v: 'semaines', lundi: lundiDe(/^\d{4}-\d\d-\d\d$/.test(v || '') ? v : iso(new Date())) };
     }
 
@@ -67,6 +72,12 @@
     const cle = (cls, txt) => '<span><i class="cal-k ' + cls + '"></i>' + txt + '</span>';
     const legendePhases = () => '<div class="cal-legende">' + PHASES.map(p => cle('ph-' + p[0], p[1])).join('') + cle('cal-k-sans', 'Sans objectif clair') +
       '<span>◆ Rendez-vous clé</span></div>';
+    // (13) Période et (14) flèches de la vue Année (frise, nouvelle grille) : reculer ou avancer d'une période ; « Ce mois-ci ».
+    const reglages = (depart, n) => '<span class="cal-droite"><span class="cal-reglage"><span class="cal-reglage-lib">Période</span>' +
+      PERIODES.map(p => '<button type="button" class="cal-choix" data-periode="' + p + '" aria-pressed="' + (Number(p) === n) + '">' + p + ' mois</button>').join('') + '</span>' +
+      '<span class="cal-nav"><a class="mrt-rond" href="#annee=' + decaler(depart, -n) + '" aria-label="Période précédente">‹</a>' +
+      '<a class="mrt-btn cal-auj" href="#annee">Ce mois-ci</a>' +
+      '<a class="mrt-rond" href="#annee=' + decaler(depart, n) + '" aria-label="Période suivante">›</a></span></span>';
     const nav = (lundi, pas, avant, apres, ici) => '<span class="cal-nav"><a class="mrt-rond" href="#semaines=' + addDays(lundi, -pas) + '" aria-label="' + avant + '">‹</a>' +
       '<a class="mrt-btn cal-auj" href="#semaines=' + lundiDe(iso(new Date())) + '">' + ici + '</a>' +
       '<a class="mrt-rond" href="#semaines=' + addDays(lundi, pas) + '" aria-label="' + apres + '">›</a></span>';
@@ -129,20 +140,23 @@
     }
 
     // ----- Vue Année en frise : une ligne par course, la prépa en barre colorée par phase (spécification § 3) -----
-    function vueFrise() {
-      const auj = iso(new Date()), d0 = new Date();
-      const debut = iso(new Date(d0.getFullYear(), d0.getMonth(), 1)), fin = iso(new Date(d0.getFullYear(), d0.getMonth() + 12, 0));
+    function vueFrise(depart, nb) {
+      const auj = iso(new Date()), [ya, ma] = depart.split('-').map(Number);
+      const debut = iso(new Date(ya, ma - 1, 1)), fin = iso(new Date(ya, ma - 1 + nb, 0));
       const N = ecart(debut, fin) + 1;                                       // jours affichés
       const x = s => Math.max(0, Math.min(N, ecart(debut, s))) / N * 100;    // début d'un jour, en % de la piste
       const milieu = s => (ecart(debut, s) + 0.5) / N * 100;                  // milieu d'un jour
-      const mois = Array.from({ length: 12 }, (_, i) => iso(new Date(d0.getFullYear(), d0.getMonth() + i, 1)));
-      const liste = visibles(ctx.courses, debut, fin, auj).sort((a, b) => (a.date < b.date ? -1 : 1));
+      const mois = moisDe(depart, nb).map(iso);
+      // Courses à partir du début de la période : celles de la période (losanges, écarts), et celles d'après dont la prépa
+      // commence dans la période (ligne et barre coupée au bord droit, sans losange).
+      const ensuite = visibles(ctx.courses, debut, '9999-12-31', auj).sort((a, b) => (a.date < b.date ? -1 : 1));
+      const liste = ensuite.filter(c => c.date <= fin);
       const plans = tousLesPlans(ctx);
       // (3) Filet au début de chaque mois ; (11) semaine en cours et trait d'aujourd'hui : dans chaque piste.
       const filets = mois.slice(1).map(m => '<i class="fr-filet" style="left:' + pct(x(m)) + '"></i>').join('');
       const lundiAuj = lundiDe(auj);
-      const fond = filets + '<i class="fr-sem" style="left:' + pct(x(lundiAuj)) + ';width:' + pct(x(addDays(lundiAuj, 7)) - x(lundiAuj)) + '"></i>' +
-        '<i class="fr-auj" style="left:' + pct(milieu(auj)) + '"></i>';
+      const fond = filets + (auj < debut || auj > fin ? '' : '<i class="fr-sem" style="left:' + pct(x(lundiAuj)) + ';width:' + pct(x(addDays(lundiAuj, 7)) - x(lundiAuj)) + '"></i>' +
+        '<i class="fr-auj" style="left:' + pct(milieu(auj)) + '"></i>');
       // Case d'une semaine, rognée aux bords de la période ; jusqua : lendemain de son dernier jour (le jour J pour la dernière d'un plan).
       const caseSem = (lundi, jusqua, cls, titre) => {
         const w = ecart(lundi < debut ? debut : lundi, jusqua > fin ? addDays(fin, 1) : jusqua);
@@ -166,10 +180,10 @@
             if (h) premiere = false;
             return h;
           }).join('');
-          piste += '<span class="fr-barre' + (c.validee ? '' : ' is-option') + (avant ? ' is-avant' : '') + '" style="left:' + pct(x(depart)) + ';width:' + pct(x(lendemain) - x(depart)) + '">' + cases + '</span>';
+          piste += '<span class="fr-barre' + (c.validee ? '' : ' is-option') + (avant ? ' is-avant' : '') + (c.date > fin ? ' is-apres' : '') + '" style="left:' + pct(x(depart)) + ';width:' + pct(x(lendemain) - x(depart)) + '">' + cases + '</span>';
         }
         return '<div class="fr-ligne' + (c.validee ? '' : ' is-option') + '" data-course="' + esc(c.id) + '"><span class="fr-lab"><b>' + esc(c.nom) + '</b><small>' + dateMois(c.date) +
-          (c.validee ? '' : ' · option') + '</small></span><div class="fr-piste">' + piste + losange(c, false) + '</div></div>';
+          (c.validee ? '' : ' · option') + '</small></span><div class="fr-piste">' + piste + (c.date <= fin ? losange(c, false) : '') + '</div></div>';
       }
       // (9) Ligne Saison : la phase suivie chaque semaine (le plan de la course confirmée la plus proche), toutes les courses.
       const semaines = [];
@@ -194,11 +208,11 @@
       const legende = '<div class="cal-legende fr-legende"><span><i class="fr-k c-route-v"></i><i class="fr-k c-trail-v"></i>Confirmée (route, trail)</span>' +
         '<span><i class="fr-k option"></i>Option</span><span><i class="fr-k courue"></i>Courue</span>' +
         PHASES.map(p => cle('ph-' + p[0], p[1])).join('') + cle('cal-k-sans', 'Sans objectif clair') + '</div>';
-      root.innerHTML = '<div class="cal-cadre"><div class="cal-haut">' + bandeau('annee') + essais('annee') + '</div><div class="fr">' +
+      root.innerHTML = '<div class="cal-cadre"><div class="cal-haut">' + bandeau('annee') + essais('annee') + reglages(depart, nb) + '</div><div class="fr' + (nb === 12 ? ' fr-court' : '') + '">' +
         '<div class="fr-ligne fr-entete"><span class="fr-lab"></span><div class="fr-piste' + versSemaine + '>' + filets + entete + '</div></div>' +
         '<div class="fr-ligne fr-saison"><span class="fr-lab">Saison</span><div class="fr-piste' + versSemaine + '>' + saison + '</div></div>' +
         '<div class="fr-ligne fr-ecarts"><span class="fr-lab"></span><div class="fr-piste">' + ecarts + '</div></div>' +
-        liste.filter(c => !c.courue).map(ligne).join('') + '</div>' + legende + '</div>';
+        ensuite.filter(c => !c.courue && (c.date <= fin || (c.debutPrepa && c.debutPrepa <= fin))).map(ligne).join('') + '</div>' + legende + '</div>';
       masquerEcarts();
     }
 
@@ -213,24 +227,31 @@
       });
     }
 
-    // ----- Ancienne vue Année en grille (essai) : une case par jour, une colonne par mois -----
-    function vueGrille() {
+    // ----- Grilles (essai) : une case par jour, une colonne par mois, le trait de prépa vertical à gauche des cases -----
+    // lisible : nouvelle grille (spécification § 3.4), avec le nom de la course au départ de son trait (15).
+    function grilleHtml(mois, lisible) {
       const aujourdhui = iso(new Date());
-      const premier = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-      const mois = Array.from({ length: 12 }, (_, i) => new Date(premier.getFullYear(), premier.getMonth() + i, 1));
+      const dernier = mois[mois.length - 1];
       const debut = iso(mois[0]);
-      const fin = iso(new Date(mois[11].getFullYear(), mois[11].getMonth() + 1, 0));
-      const liste = visibles(ctx.courses, debut, fin, aujourdhui);
+      const fin = iso(new Date(dernier.getFullYear(), dernier.getMonth() + 1, 0));
+      const ensuite = visibles(ctx.courses, debut, '9999-12-31', aujourdhui), liste = ensuite.filter(c => c.date <= fin);
       // Trait de prépa : vertical, du premier jour de la prépa jusqu'à la course ; commencée avant la fenêtre, il part du premier jour affiché.
       // Deux prépas qui se chevauchent prennent deux couloirs, côte à côte.
-      const prepas = liste.filter(c => c.debutPrepa && c.debutPrepa <= fin).map(c => Object.assign({ depart: c.debutPrepa < debut ? debut : c.debutPrepa }, c))
-        .sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : 0));
+      const prepas = ensuite.filter(c => c.debutPrepa && c.debutPrepa <= fin).map(c => Object.assign({ depart: c.debutPrepa < debut ? debut : c.debutPrepa }, c))
+        .sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
       const finCouloir = [];
       prepas.forEach(x => {
         let k = finCouloir.findIndex(f => f < x.depart);
         if (k < 0) { k = finCouloir.length; finCouloir.push(''); }
         finCouloir[k] = x.date;
         x.couloir = k;
+      });
+      // (15) Nom de la course au départ de son trait ; deux prépas qui partent le même jour (souvent le premier jour affiché) :
+      // le second nom passe au jour suivant libre (sans course ni autre nom), dans la même semaine.
+      const etiquettes = new Map();
+      if (lisible) prepas.forEach(x => {
+        for (let j = x.depart, k = 0; k < 7 && j < x.date && j <= fin; j = addDays(j, 1), k++)
+          if (!etiquettes.has(j) && !liste.some(c => c.date === j)) { etiquettes.set(j, x); break; }
       });
 
       function bloc(colonnes) {
@@ -255,6 +276,9 @@
               tip.push(c.nom + ' · ' + (c.courue ? 'courue' : (c.famille === 'trail' ? 'trail' : 'route') + (c.validee ? ', confirmée' : ', en option')));
               contenu += '<span class="cal-nom">' + esc(c.nom) + '</span>';
               cible = ' data-course="' + esc(c.id) + '"';
+            } else if (etiquettes.has(jour)) {
+              const part = etiquettes.get(jour);
+              contenu += '<span class="cal-nom cal-depart"><b class="c-' + part.famille + (part.validee ? '-v' : '-n') + '">▸</b> ' + esc(part.nom) + '</span>';
             }
             const enPrepa = prepas.filter(x => jour >= x.depart && jour < x.date); // jusqu'à la veille : le trait aboutit sur la case de la course
             if (enPrepa.length) {
@@ -270,25 +294,41 @@
         return h + '</div>';
       }
 
-      const taille = mobile.matches ? 3 : 6;
+      // Six mois par bloc sur ordinateur (trois en 3 mois), trois sur téléphone.
+      const taille = mobile.matches ? 3 : Math.min(6, mois.length);
       let blocs = '';
-      for (let i = 0; i < 12; i += taille) blocs += bloc(mois.slice(i, i + taille));
+      for (let i = 0; i < mois.length; i += taille) blocs += bloc(mois.slice(i, i + taille));
+      return '<div class="cal-blocs">' + blocs + '</div>';
+    }
+
+    // Ancienne grille : douze mois à partir du mois en cours, telle qu'avant la refonte.
+    function vueGrille() {
       root.innerHTML = '<div class="cal-cadre"><div class="cal-haut">' + bandeau('annee') + essais('annee') +
         '<div class="cal-legende">' + cle('c-route-v', 'Route confirmée') + cle('c-route-n', 'Route en option') + cle('c-trail-v', 'Trail confirmée') +
         cle('c-trail-n', 'Trail en option') + cle('cal-k-trait', 'Préparation') + cle('courue', 'Courue') + cle('cal-k-auj', "Aujourd'hui") + '</div></div>' +
-        '<div class="cal-blocs">' + blocs + '</div></div>';
+        grilleHtml(moisDe(iso(new Date()).slice(0, 7), 12), false) + '</div>';
+    }
+
+    // Nouvelle grille : période au choix, lignes plus hautes, légende lisible sur sa ligne, regroupée par famille.
+    function vueGrilleLisible(depart, nb) {
+      const famille = (nom, f) => '<span class="cal-leg-groupe"><b>' + nom + '</b>' + cle('c-' + f + '-v', 'confirmée') + cle('c-' + f + '-n', 'option') + '</span>';
+      root.innerHTML = '<div class="cal-cadre cal-grille2' + (nb === 12 ? ' is-12' : '') + '"><div class="cal-haut">' + bandeau('annee') + essais('annee') + reglages(depart, nb) + '</div>' +
+        '<div class="cal-legende cal-legende2">' + famille('Route', 'route') + famille('Trail', 'trail') + cle('courue', 'courue') + cle('cal-k-trait', 'préparation') +
+        cle('cal-k-auj', 'aujourd\'hui') + '</div>' + grilleHtml(moisDe(depart, nb), true) + '</div>';
     }
 
     // ----- Affichage et événements -----
     function dessiner() {
       const vue = lireHash();
       if (vue.v === 'semaines') (essai('semaine') === 'ancienne' ? vueQuatre : vueSemaine)(vue.lundi);
-      else (essai('annee') === 'grille' ? vueGrille : vueFrise)();
+      else if (essai('annee') === 'grille') vueGrille();
+      else (essai('annee') === 'nouvelle-grille' ? vueGrilleLisible : vueFrise)(vue.mois, periode());
     }
 
     root.addEventListener('click', e => {
-      const bouton = e.target.closest('[data-essai]');
-      if (bouton) { basculer(bouton.dataset.essai); dessiner(); return; }
+      const bouton = e.target.closest('[data-essai]'), choix = e.target.closest('[data-periode]');
+      if (bouton) { ranger('mrt-essai-' + bouton.dataset.essai, bouton.dataset.valeur); dessiner(); return; }
+      if (choix) { ranger('mrt-calendrier-mois', choix.dataset.periode); dessiner(); return; }
       const course = e.target.closest('[data-course]'), jour = e.target.closest('[data-jour]'), piste = e.target.closest('.fr-vers-semaine');
       // La page de la course s'ouvre en modale, à la rubrique Préparation ; une course courue, à son résultat.
       if (course) {

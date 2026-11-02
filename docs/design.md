@@ -1,6 +1,6 @@
 # Design
 
-Version 0.36 · 1er novembre 2026 · [Retour au sommaire](README.md)
+Version 0.37 · 2 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -183,6 +183,14 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Mois** : Space Mono 0,6 rem, capitales, Texte discret, au début du mois, à côté d'un filet de 1 px (Bordure) qui traverse chaque piste ; initiale sur téléphone. **Aujourd'hui** : trait de 1 px en Texte ; semaine en cours : Texte à 7 % sur le fond.
 - **Écarts** : 0,62 rem, Texte discret, sous la ligne Saison ; un filet (Bordure) sépare la ligne Saison des courses. Ordinateur seulement.
 - **Légende** sous la frise, 0,72 rem, Texte discret.
+
+**Période et flèches** (frise et nouvelle grille) : libellé « PÉRIODE » (Space Mono 0,7 rem, capitales, Texte discret), puis « 3 mois · 6 mois · 12 mois » en 0,8 rem, Texte discret, le choisi en Texte souligné d'Accent (les réglages discrets de Courses à surveiller) ; flèches en ronds, « Ce mois-ci » à contour.
+
+**Nouvelle grille (essai)**
+
+- **Légende** sur sa ligne, sous la barre du haut : 0,8 rem en Texte, pastilles de 1,1 × 0,75 rem ; « ROUTE » et « TRAIL » en libellés (Space Mono 0,7 rem, capitales, Texte discret) devant leurs deux nuances.
+- **Grille** : lignes de 1,25 rem (12 mois : 1 rem ; téléphone : 1,1 rem), 2 px entre deux jours, 4 px entre deux mois ; mois en Space Mono 0,7 rem ; numéros des jours en 0,62 rem ; nom de la course en 0,75 rem (12 mois : 0,68 ; téléphone : 0,62) ; trait de prépa de 4 px, couloirs de 7 px ; aujourd'hui cerclé de 2 px de Texte.
+- **Nom au départ du trait** : 0,7 rem (téléphone 0,58), 500, en Texte, précédé d'une flèche « ▸ » à la couleur de la course.
 
 **Ancienne grille (essai)**
 

@@ -64,6 +64,39 @@
 .cal-essai { padding: 0.35rem 0.85rem; font: inherit; font-size: 0.75rem; font-weight: 600; line-height: 1.25; color: #fff; background: #7c3aed; border: 0; border-radius: 999px; cursor: pointer; }
 @media (hover: hover) { .cal-essai:hover { background: #6d28d9; } }
 
+/* ----- Vue Année : (13) période, libellé puis choix en texte (comme les réglages de Courses à surveiller), (14) flèches ----- */
+.cal-droite { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.2rem; }
+.cal-reglage { display: inline-flex; align-items: baseline; gap: 0.6rem; }
+.cal-reglage-lib { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-choix { padding: 0.15rem 0; font: inherit; font-size: 0.8rem; color: var(--muted); background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; }
+.cal-choix[aria-pressed="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.cal-choix:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) { .cal-choix:hover { color: var(--text); } }
+
+/* ----- Nouvelle grille (essai, spécification § 3.4) : lignes plus hautes, textes plus grands, légende sur sa ligne ----- */
+.cal-legende2 { gap: 0.5rem 1.4rem; margin-bottom: 1.1rem; font-size: 0.8rem; color: var(--text); }
+.cal-legende2 .cal-k { width: 1.1rem; height: 0.75rem; }
+.cal-legende2 .cal-k-trait { width: 4px; height: 1rem; }
+.cal-legende .cal-leg-groupe { gap: 0.8rem; }
+.cal-leg-groupe b { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-grille2 .cal-bloc { grid-template-columns: 1.7rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 4px; }
+.cal-grille2 .cal-mois { font-size: 0.7rem; padding-bottom: 0.4rem; }
+.cal-grille2 .cal-n { font-size: 0.62rem; line-height: 1.25rem; }
+.cal-grille2 .cal-j { height: 1.25rem; }
+.cal-grille2 .cal-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
+.cal-grille2 .cal-nom { left: calc(0.35rem + var(--couloirs, 0) * 7px); font-size: 0.75rem; line-height: 1.25rem; }
+.cal-grille2 .cal-traits { bottom: -2px; }
+.cal-grille2 .cal-trait { left: calc(var(--k) * 7px); width: 4px; }
+.cal-grille2 .cal-trait.fin { bottom: -2px; }
+/* (15) Nom de la course au départ de son trait : en Texte, la flèche à la couleur de la course. */
+.cal-j .cal-nom.cal-depart { font-size: 0.7rem; font-weight: 500; color: var(--text); }
+.cal-depart b { font-weight: 700; }
+.cal-depart b.c-route-v, .cal-depart b.c-route-n { color: var(--route); }
+.cal-depart b.c-trail-v, .cal-depart b.c-trail-n { color: var(--trail); }
+.cal-grille2.is-12 .cal-j { height: 1rem; }
+.cal-grille2.is-12 .cal-n, .cal-grille2.is-12 .cal-nom { line-height: 1rem; }
+.cal-grille2.is-12 .cal-nom { font-size: 0.68rem; }
+
 /* ----- Vue Année en frise (spécification § 3) : le temps de gauche à droite, une ligne par course -----
    Colonne des noms à gauche (au-dessus de la barre sur téléphone) ; dans chaque piste, filets des mois, semaine en cours, aujourd'hui. */
 .fr { --lab: 9.5rem; }
@@ -76,9 +109,11 @@
 .fr-filet { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--border); }
 .fr-sem { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--text) 7%, transparent); }
 .fr-auj { position: absolute; top: 0; bottom: 0; width: 1px; margin-left: -0.5px; background: var(--text); }
-/* Barre de prépa : une case par semaine, de la couleur de sa phase ; option atténuée ; commencée avant la période : bord gauche droit. */
+/* Barre de prépa : une case par semaine, de la couleur de sa phase ; option atténuée ; commencée avant la période : coin gauche droit ;
+   course après la période (prépa commencée dedans) : coin droit droit, sans losange. */
 .fr-barre { position: absolute; top: 50%; display: flex; height: 0.6rem; transform: translateY(-50%); border-radius: 3px; overflow: hidden; }
 .fr-barre.is-avant { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.fr-barre.is-apres { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .fr-barre.is-option { opacity: 0.45; }
 .fr-barre i { flex: 1 1 0; min-width: 0; }
 .fr-barre i.ph-base { background: var(--ph-base); }
@@ -156,14 +191,19 @@
 
 @media (max-width: 600px) {
   .cal-essai[data-essai="jours"] { display: none; }
+  .cal-grille2 .cal-bloc { grid-template-columns: 1.4rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 3px; }
+  .cal-grille2 .cal-j, .cal-grille2.is-12 .cal-j { height: 1.1rem; }
+  .cal-grille2 .cal-n, .cal-grille2 .cal-nom, .cal-grille2.is-12 .cal-n, .cal-grille2.is-12 .cal-nom { line-height: 1.1rem; }
+  .cal-grille2 .cal-nom, .cal-grille2.is-12 .cal-nom { font-size: 0.62rem; }
+  .cal-j .cal-nom.cal-depart { font-size: 0.58rem; }
   .fr-ligne { grid-template-columns: minmax(0, 1fr); }
   .fr-lab { display: flex; align-items: baseline; gap: 0.35rem; padding: 0.4rem 0 0; }
   .fr-lab:empty { display: none; }
   .fr-lab b::after { content: ' ·'; font-weight: 400; color: var(--muted); }
   .fr-piste { height: 1.15rem; }
   .fr-saison .fr-piste { height: 1.4rem; }
-  .fr-m-long { display: none; }
-  .fr-m-court { display: inline; }
+  .fr-court .fr-m-long { display: none; }
+  .fr-court .fr-m-court { display: inline; }
   .fr-mois { padding-left: 2px; }
   .fr-ecarts { display: none; }
   .fr-ligne.fr-saison + .fr-ecarts + .fr-ligne { margin-top: 0.3rem; border-top: 1px solid var(--border); }
