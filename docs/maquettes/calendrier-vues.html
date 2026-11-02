@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Maquette · Calendrier en trois vues</title>
-<!-- Maquette (2 nov. 2026) : vues Année, Mois et Semaine d'un calendrier classique, sans la préparation.
+<!-- Maquette (2 nov. 2026, retouchée le même jour) : vues Année (la grille, barres de prépa larges), Mois (grille du mois)
+     et Semaine (un jour par ligne, les semaines suivantes au fil du défilement, les passées sur demande).
      Styles du site (en-tete.css : thèmes, pastilles, boutons, cadre) ; données fictives du banc d'essai, au mardi 20 octobre 2026.
      ?vue=annee|mois|semaine ouvre une vue ; ?t=… un autre thème. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,21 +35,44 @@
   .cv-ok { color: var(--text); } .cv-ko { color: var(--red); font-weight: 700; }
   .cv-libelle { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
-  /* ----- Année : douze petits mois ----- */
-  .cv-annee { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.3rem 1.4rem; }
-  .cv-mm-titre { display: block; margin-bottom: 0.35rem; padding: 0; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--text); background: none; border: 0; cursor: pointer; text-align: left; }
-  .cv-mm-titre.is-courant { color: var(--accent); }
-  .cv-mm-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; }
-  .cv-mm-j { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--muted); padding-bottom: 0.15rem; }
-  .cv-mm-d { position: relative; display: flex; align-items: center; justify-content: center; height: 1.55rem; font-size: 0.7rem; color: var(--text); border-radius: 50%; cursor: pointer; }
-  .cv-mm-d.passe { color: var(--muted); }
-  .cv-mm-d.seance::after { content: ''; position: absolute; bottom: 0.1rem; left: 50%; width: 3px; height: 3px; margin-left: -1.5px; border-radius: 50%; background: currentColor; }
-  .cv-mm-d.c-route-v { background: var(--route); color: var(--encre); font-weight: 600; }
-  .cv-mm-d.c-trail-v { background: var(--trail); color: var(--encre); font-weight: 600; }
-  .cv-mm-d.c-route-n { box-shadow: inset 0 0 0 1.5px var(--route); font-weight: 600; }
-  .cv-mm-d.c-trail-n { box-shadow: inset 0 0 0 1.5px var(--trail); font-weight: 600; }
-  .cv-mm-d.courue { background: var(--muted); color: var(--bg); font-weight: 600; }
-  .cv-mm-d.auj { background: var(--accent); color: var(--bg); font-weight: 700; }
+  /* ----- Année : la grille (jours en lignes, mois en colonnes), barres de prépa larges ----- */
+  .cv-reglage { display: inline-flex; align-items: baseline; gap: 0.6rem; }
+  .cv-choix { padding: 0.15rem 0; font: inherit; font-size: 0.8rem; color: var(--muted); background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; }
+  .cv-choix[aria-pressed="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  .ag-legende { margin: 0 0 1.1rem; gap: 0.5rem 1.4rem; font-size: 0.8rem; color: var(--text); }
+  .cv-legende .ag-groupe { gap: 0.8rem; }
+  .ag-legende .cv-k { width: 1.1rem; height: 0.75rem; }
+  .cv-k.route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
+  .cv-k.trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
+  .cv-k.auj { background: var(--border); box-shadow: inset 0 0 0 2px var(--text); }
+  .ag-k { display: inline-block; width: var(--barre); height: 1rem; border-radius: 3px 3px 0 0; background: var(--trail); }
+  .ag-k.option { background: color-mix(in srgb, var(--trail) 35%, transparent); box-shadow: inset 1px 0 0 var(--trail), inset -1px 0 0 var(--trail); }
+  .cv-cadre { --barre: 9px; --pas: 13px; }
+  .ag-blocs { display: flex; flex-direction: column; gap: 1.4rem; }
+  .ag-bloc { display: grid; grid-template-columns: 1.7rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 4px; }
+  .ag-mois { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding-bottom: 0.4rem; }
+  .ag-mois i { font-style: normal; }
+  .ag-n { font-family: 'Space Mono', monospace; font-size: 0.62rem; line-height: 1.25rem; color: var(--muted); text-align: right; padding-right: 0.35rem; }
+  .ag-j { position: relative; display: block; height: 1.25rem; background: var(--border); border-radius: 2px; cursor: pointer; }
+  .ag-j.vide { visibility: hidden; }
+  .ag-j.passe { background: none; }
+  .ag-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
+  .ag-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--couloirs, 0) * var(--pas)); font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  .ag-j.c-route-v { background: var(--route); } .ag-j.c-trail-v { background: var(--trail); }
+  .ag-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
+  .ag-j.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
+  .ag-j.c-route-v .ag-nom, .ag-j.c-trail-v .ag-nom { color: var(--encre); font-weight: 600; }
+  .ag-j.courue { background: var(--muted); } .ag-j.courue .ag-nom { color: var(--bg); }
+  /* Barre de prépa : 9 px de large (au lieu de 4), un couloir de 13 px par prépa qui en chevauche une autre ; départ arrondi ;
+     prépa d'une option : la couleur atténuée, bordée de la couleur pleine. */
+  .ag-traits { position: absolute; top: 0; bottom: -2px; left: 3px; pointer-events: none; }
+  .ag-trait { position: absolute; top: 0; bottom: 0; left: calc(var(--k) * var(--pas)); width: var(--barre); }
+  .ag-trait.debut { top: 2px; border-radius: 5px 5px 0 0; }
+  .ag-trait.c-route-v { background: var(--route); } .ag-trait.c-trail-v { background: var(--trail); }
+  .ag-trait.c-route-n { background: color-mix(in srgb, var(--route) 35%, transparent); box-shadow: inset 1px 0 0 var(--route), inset -1px 0 0 var(--route); }
+  .ag-trait.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, transparent); box-shadow: inset 1px 0 0 var(--trail), inset -1px 0 0 var(--trail); }
+  .ag-trait.c-route-n.debut, .ag-trait.c-trail-n.debut { box-shadow: inset 1px 1px 0 currentColor, inset -1px 0 0 currentColor; }
+  .ag-trait.c-route-n { color: var(--route); } .ag-trait.c-trail-n { color: var(--trail); }
 
   /* ----- Mois : la grille du mois, cases resserrées ----- */
   .cv-jours, .cv-mois { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
@@ -74,8 +98,12 @@
   .cv-rdv { color: var(--muted); }
   .cv-points { display: none; }
 
-  /* ----- Semaine : un jour par ligne ----- */
-  .cv-sem-tete { display: flex; justify-content: flex-end; margin-bottom: 0.5rem; }
+  /* ----- Semaine : un jour par ligne ; une semaine après l'autre, au fil du défilement ----- */
+  .cv-passees { display: flex; margin: 1rem auto 1.2rem; }
+  .cv-semaine + .cv-semaine { margin-top: 1.4rem; }
+  .cv-sem-entete { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem; }
+  .cv-semaine.is-courante .cv-sem-entete > .cv-libelle { color: var(--text); }
+  .cv-fin { height: 1px; }
   .cv-bilan { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--text); }
   .cv-bilan span { margin-right: 0.3rem; }
   .cv-sem { display: flex; flex-direction: column; gap: 3px; }
@@ -97,14 +125,15 @@
   .cv-plus { position: absolute; top: 50%; right: 0.5rem; width: 1.5rem; height: 1.5rem; padding: 0; margin-top: -0.75rem; font: inherit; font-size: 0.95rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
 
   @media (hover: hover) {
-    .cv-voisin:hover, .cv-mm-titre:hover { color: var(--accent); }
-    .cv-case:hover, .cv-mm-d:not(.auj):hover { box-shadow: inset 0 0 0 1px var(--text); }
+    .cv-voisin:hover { color: var(--accent); }
+    .cv-case:hover, .ag-j:not(.auj):hover { box-shadow: inset 0 0 0 1px var(--text); }
   }
-  @media (max-width: 860px) { .cv-annee { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 600px) {
-    .cv-cadre { padding: 0.8rem 0.6rem; }
-    .cv-annee { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem 1rem; }
-    .cv-mm-d { height: 1.4rem; font-size: 0.66rem; }
+    .cv-cadre { padding: 0.8rem 0.6rem; --barre: 7px; --pas: 10px; }
+    .ag-bloc { grid-template-columns: 1.4rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 3px; }
+    .ag-j { height: 1.1rem; }
+    .ag-n, .ag-nom { line-height: 1.1rem; }
+    .ag-nom { font-size: 0.62rem; }
     .cv-periode { gap: 0.3rem; }
     .cv-voisin .cv-voisin-txt { display: none; }
     .cv-titre { font-size: 0.95rem; }
@@ -145,6 +174,8 @@
     ['Trail du Lac', '2026-11-15', 'trail', 'v'], ['Corrida de Noël', '2026-12-13', 'route', 'v'], ['Trail des Gorges', '2027-03-07', 'trail', 'v'],
     ['Trail des Cimes', '2027-05-30', 'trail', 'n'], ['Ultra du Plateau', '2027-06-26', 'trail', 'n'], ['Trail de la Forêt', '2027-07-01', 'trail', 'n'], ['Trail des Crêtes', '2027-08-28', 'trail', 'v']
   ].map(([nom, date, famille, etat]) => ({ nom, date, cls: etat === 'courue' ? 'courue' : 'c-' + famille + '-' + etat }));
+  // Durée de la prépa, en semaines (celle du format de la course, comme dans le banc d'essai).
+  const DUREE = { 'Trail du Lac': 12, 'Corrida de Noël': 8, 'Trail des Gorges': 16, 'Trail des Cimes': 16, 'Ultra du Plateau': 16, 'Trail de la Forêt': 12, 'Trail des Crêtes': 16 };
   const RDV = [['2026-11-01', 'Inscriptions · Corrida de Noël'], ['2027-01-10', 'Inscriptions · Trail des Cimes']];
   const SEANCES = [
     ['2026-10-13', 'run', 'Fractionné 10×1 min', false], ['2026-10-15', 'run', 'Footing 40 min', true], ['2026-10-17', 'run', 'Sortie 1 h 15', true],
@@ -166,9 +197,13 @@
   const jourMois = d => (d === 1 ? '1er' : d);
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const moisDe = m => [Math.floor(m / 12), m % 12]; // mois absolu (année × 12 + mois) → [année, mois]
+  COURSES.forEach(c => { if (DUREE[c.nom]) c.prepa = ajout(lundi(c.date), -7 * (DUREE[c.nom] - 1)); }); // premier lundi de la prépa
+  const telephone = window.matchMedia('(max-width: 600px)');
 
   // ----- État : vue, position de chaque vue, navigation du mois (par demi-mois ou mois par mois) -----
-  const e = { vue: ['annee', 'mois', 'semaine'].includes(q.get('vue')) ? q.get('vue') : 'semaine', annee: 2026, mois: 2026 * 12 + 9, cheval: false, lundi: lundi(AUJ), demi: true };
+  const MOIS_AUJ = 2026 * 12 + 9;
+  const e = { vue: ['annee', 'mois', 'semaine'].includes(q.get('vue')) ? q.get('vue') : 'semaine', depart: MOIS_AUJ, periode: 6, mois: MOIS_AUJ, cheval: false, demi: true,
+    semDebut: lundi(AUJ), semNb: 3 };
   const racine = document.getElementById('cv');
 
   const duJour = j => ({ courses: COURSES.filter(c => c.date === j), rdv: RDV.filter(r => r[0] === j), seances: SEANCES.filter(s => s.date === j) });
@@ -208,38 +243,64 @@
       legende: legende() + '<span><i class="cv-ok">✓</i>faite</span><span><i class="cv-ko">!</i>pas faite</span>' };
   }
 
-  // ----- Année : douze petits mois, de janvier à décembre -----
+  // ----- Année : la grille (jours en lignes, mois en colonnes) sur 3, 6 ou 12 mois ; barres de prépa larges -----
+  function titrePeriode(m, n, court) {
+    const [y1, m1] = moisDe(m), [y2, m2] = moisDe(m + n - 1);
+    if (court) return MC[m1] + '–' + MC[m2] + ' ' + String(y2).slice(2); // « avr.–sept. 27 » : l'année, pour distinguer les deux voisines
+    return y1 === y2 ? cap(MOIS[m1]) + ' – ' + MOIS[m2] + ' ' + y1 : cap(MOIS[m1]) + ' ' + y1 + ' – ' + MOIS[m2] + ' ' + y2;
+  }
   function vueAnnee() {
-    let h = '<div class="cv-annee">';
-    for (let mm = 0; mm < 12; mm++) {
-      const premier = new Date(e.annee, mm, 1), n = new Date(e.annee, mm + 1, 0).getDate(), decal = (premier.getDay() + 6) % 7;
-      const courant = e.annee === 2026 && mm === 9;
-      h += '<section><button type="button" class="cv-mm-titre' + (courant ? ' is-courant' : '') + '" data-mois="' + (e.annee * 12 + mm) + '">' + cap(MOIS[mm]) + '</button><div class="cv-mm-grille">' +
-        ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(j => '<span class="cv-mm-j">' + j + '</span>').join('') + '<span></span>'.repeat(decal);
-      for (let d = 1; d <= n; d++) {
-        const j = iso(new Date(e.annee, mm, d)), x = duJour(j), cls = ['cv-mm-d'];
-        if (j < AUJ) cls.push('passe');
-        if (x.courses.length) cls.push(x.courses[0].cls);
-        if (x.seances.length) cls.push('seance');
-        if (j === AUJ) cls.push('auj');
-        const titre = [JOURS[parse(j).getDay()] + ' ' + jourMois(d) + ' ' + MC[mm]].concat(x.courses.map(c => c.nom), x.seances.map(s => s.libelle)).join(' · ');
-        h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '" title="' + esc(titre) + '">' + d + '</span>';
+    const [y, mm] = moisDe(e.depart), n = e.periode;
+    const mois = Array.from({ length: n }, (_, i) => new Date(y, mm + i, 1));
+    const debut = iso(mois[0]), fin = iso(new Date(y, mm + n, 0));
+    const liste = COURSES.filter(c => c.date >= debut && c.date <= fin);
+    // Prépas qui passent dans la période (y compris celles d'une course d'après) ; deux prépas qui se chevauchent : deux couloirs.
+    const prepas = COURSES.filter(c => c.prepa && c.date >= debut && c.prepa <= fin).map(c => Object.assign({ depart: c.prepa < debut ? debut : c.prepa }, c))
+      .sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : a.date < b.date ? -1 : 1));
+    const finCouloir = [];
+    prepas.forEach(x => { let k = finCouloir.findIndex(f => f < x.depart); if (k < 0) { k = finCouloir.length; finCouloir.push(''); } finCouloir[k] = x.date; x.couloir = k; });
+    const taille = telephone.matches ? 3 : Math.min(6, n);
+    let h = '';
+    for (let i = 0; i < n; i += taille) {
+      const cols = mois.slice(i, i + taille);
+      h += '<div class="ag-bloc" style="--n:' + cols.length + ';--couloirs:' + finCouloir.length + '"><span></span>' +
+        cols.map(m => '<b class="ag-mois">' + MC[m.getMonth()] + (m.getMonth() === 0 || m.getTime() === mois[0].getTime() ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>').join('');
+      for (let d = 1; d <= 31; d++) {
+        h += '<span class="ag-n">' + d + '</span>';
+        cols.forEach(m => {
+          if (d > new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate()) { h += '<span class="ag-j vide"></span>'; return; }
+          const j = iso(new Date(m.getFullYear(), m.getMonth(), d)), c = liste.find(x => x.date === j), cls = ['ag-j'];
+          if (j < AUJ) cls.push('passe');
+          if (j === AUJ) cls.push('auj');
+          if (c) cls.push(c.cls);
+          const en = prepas.filter(x => j >= x.depart && j < x.date);
+          const titre = [JOURS[parse(j).getDay()] + ' ' + jourMois(d) + ' ' + MC[m.getMonth()]].concat(c ? [c.nom] : [], en.map(x => 'prépa : ' + x.nom)).join(' · ');
+          h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '" title="' + esc(titre) + '">' + (c ? '<span class="ag-nom">' + esc(c.nom) + '</span>' : '') +
+            (en.length ? '<span class="ag-traits">' + en.map(x => '<i class="ag-trait ' + x.cls + (j === x.depart ? ' debut' : '') + '" style="--k:' + x.couloir + '"></i>').join('') + '</span>' : '') + '</span>';
+        });
       }
-      h += '</div></section>';
+      h += '</div>';
     }
-    return { titre: String(e.annee), avant: String(e.annee - 1), apres: String(e.annee + 1), corps: h + '</div>',
-      legende: legende() + '<span><i class="cv-k point"></i>séance</span>' };
+    const groupe = (nom, f) => '<span class="ag-groupe"><b class="cv-libelle">' + nom + '</b><span><i class="cv-k ' + f + '"></i>confirmée</span><span><i class="cv-k ' + f + '-n"></i>option</span></span>';
+    const legendeHaut = '<div class="cv-legende ag-legende">' + groupe('Route', 'route') + groupe('Trail', 'trail') +
+      '<span class="ag-groupe"><b class="cv-libelle">Prépa</b><span><i class="ag-k"></i>confirmée</span><span><i class="ag-k option"></i>option</span></span>' +
+      '<span><i class="cv-k courue"></i>courue</span><span><i class="cv-k auj"></i>aujourd\'hui</span></div>';
+    return { titre: titrePeriode(e.depart, n), avant: titrePeriode(e.depart - n, n, true), apres: titrePeriode(e.depart + n, n, true),
+      corps: legendeHaut + '<div class="ag-blocs">' + h + '</div>', legende: '' };
   }
 
-  // ----- Semaine : un jour par ligne -----
-  function vueSemaine() {
-    const fin = ajout(e.lundi, 6), sem = SEANCES.filter(s => s.date >= e.lundi && s.date <= fin);
-    const a = parse(e.lundi), b = parse(fin);
-    const titre = 'Semaine du ' + jourMois(a.getDate()) + (a.getMonth() === b.getMonth() ? '' : ' ' + MC[a.getMonth()]) + ' au ' + jourMois(b.getDate()) + ' ' + MC[b.getMonth()];
-    const court = l => { const x = parse(l), z = parse(ajout(l, 6)); return x.getDate() + (x.getMonth() === z.getMonth() ? '' : ' ' + MC[x.getMonth()]) + '–' + z.getDate() + ' ' + MC[z.getMonth()]; };
-    let h = '<div class="cv-sem-tete">' + (sem.length ? '<p class="cv-bilan"><span class="cv-libelle">Faites</span> ' + sem.filter(s => s.faite).length + ' / ' + sem.length + '</p>' : '') + '</div><div class="cv-sem">';
+  // ----- Semaine : un jour par ligne ; les semaines suivantes arrivent au fil du défilement, les passées sur demande -----
+  function titreSemaine(l) {
+    const a = parse(l), b = parse(ajout(l, 6));
+    return 'Semaine du ' + jourMois(a.getDate()) + (a.getMonth() === b.getMonth() ? '' : ' ' + MC[a.getMonth()]) + ' au ' + jourMois(b.getDate()) + ' ' + MC[b.getMonth()] +
+      (b.getFullYear() !== 2026 ? ' ' + b.getFullYear() : '');
+  }
+  function semaineHtml(l) {
+    const fin = ajout(l, 6), sem = SEANCES.filter(s => s.date >= l && s.date <= fin);
+    let h = '<section class="cv-semaine' + (l === lundi(AUJ) ? ' is-courante' : '') + '" data-semaine="' + l + '"><div class="cv-sem-entete"><span class="cv-libelle">' + titreSemaine(l) + '</span>' +
+      (sem.length ? '<span class="cv-bilan"><span class="cv-libelle">Faites</span> ' + sem.filter(s => s.faite).length + ' / ' + sem.length + '</span>' : '') + '</div><div class="cv-sem">';
     for (let i = 0; i < 7; i++) {
-      const j = ajout(e.lundi, i), d = parse(j), x = duJour(j), cls = ['cv-ligne'];
+      const j = ajout(l, i), d = parse(j), x = duJour(j), cls = ['cv-ligne'];
       if (j < AUJ) cls.push('passe');
       if (j === AUJ) cls.push('auj');
       h += '<div class="' + cls.join(' ') + '"><span class="cv-date"><b>' + d.getDate() + '</b><small>' + JOURS[d.getDay()] + '</small></span><span class="cv-contenu">' +
@@ -248,7 +309,12 @@
         x.seances.map(s => '<label class="cv-seance' + (s.faite ? ' faite' : '') + '"><input type="checkbox" data-fait="' + s.id + '"' + (s.faite ? ' checked' : '') + '><b>' + s.type + '</b><span>' + esc(s.libelle) + '</span></label>').join('') +
         '</span><button type="button" class="cv-plus" aria-label="Ajouter une séance">+</button></div>';
     }
-    return { titre, avant: court(ajout(e.lundi, -7)), apres: court(ajout(e.lundi, 7)), corps: h + '</div>', legende: '' };
+    return h + '</div></section>';
+  }
+  function vueSemaine() {
+    let h = '<button type="button" class="mrt-btn cv-passees" data-passees>↑ Afficher les semaines passées</button>';
+    for (let i = 0; i < e.semNb; i++) h += semaineHtml(ajout(e.semDebut, 7 * i));
+    return { bande: false, corps: h + '<div class="cv-fin" aria-hidden="true"></div>', legende: '' };
   }
 
   const legende = () => '<span><i class="cv-k route"></i>route</span><span><i class="cv-k trail"></i>trail</span><span><i class="cv-k option"></i>option</span><span><i class="cv-k courue"></i>courue</span>';
@@ -258,26 +324,41 @@
     racine.innerHTML = '<div class="cv-cadre"><div class="cv-haut"><nav class="cv-vues" aria-label="Vue">' +
       [['annee', 'Année'], ['mois', 'Mois'], ['semaine', 'Semaine']].map(([k, n]) => '<button type="button" class="mrt-pastille' + (k === e.vue ? ' is-on' : '') + '" data-vue="' + k + '">' + n + '</button>').join('') +
       '</nav>' + (e.vue === 'mois' ? '<button type="button" class="cv-essai" data-essai>Essai · voir ' + (e.demi ? 'mois par mois' : 'par demi-mois') + '</button>' : '') +
+      (e.vue === 'annee' ? '<span class="cv-reglage"><span class="cv-libelle">Période</span>' + [3, 6, 12].map(n => '<button type="button" class="cv-choix" data-periode="' + n + '" aria-pressed="' + (n === e.periode) + '">' + n + ' mois</button>').join('') + '</span>' : '') +
       '<button type="button" class="mrt-btn cv-auj" data-auj>Aujourd\'hui</button></div>' +
-      '<div class="cv-periode"><button type="button" class="cv-voisin" data-pas="-1"><span class="mrt-rond">‹</span><span class="cv-voisin-txt">' + v.avant + '</span></button>' +
+      (v.bande === false ? '' : '<div class="cv-periode"><button type="button" class="cv-voisin" data-pas="-1"><span class="mrt-rond">‹</span><span class="cv-voisin-txt">' + v.avant + '</span></button>' +
       '<h2 class="cv-titre">' + v.titre + '</h2>' +
-      '<button type="button" class="cv-voisin is-suiv" data-pas="1"><span class="cv-voisin-txt">' + v.apres + '</span><span class="mrt-rond">›</span></button></div>' +
+      '<button type="button" class="cv-voisin is-suiv" data-pas="1"><span class="cv-voisin-txt">' + v.apres + '</span><span class="mrt-rond">›</span></button></div>') +
       v.corps + (v.legende ? '<div class="cv-legende">' + v.legende + '</div>' : '') + '</div>';
+    // Semaine : quand le bas de la liste approche de l'écran, deux semaines de plus.
+    if (observateur) { observateur.disconnect(); const f = racine.querySelector('.cv-fin'); if (f) observateur.observe(f); }
   }
+  const observateur = 'IntersectionObserver' in window ? new IntersectionObserver(es => {
+    if (e.vue === 'semaine' && es.some(x => x.isIntersecting) && e.semNb < 60) { e.semNb += 2; dessiner(); }
+  }, { rootMargin: '300px' }) : null;
 
   racine.addEventListener('click', ev => {
-    const t = ev.target.closest('[data-vue], [data-auj], [data-pas], [data-essai], [data-mois], [data-jour]');
+    const t = ev.target.closest('[data-vue], [data-auj], [data-pas], [data-essai], [data-periode], [data-passees], [data-jour]');
     if (!t) return;
+    if (t.hasAttribute('data-passees')) {
+      // Quatre semaines passées de plus, au-dessus, sans que la semaine qu'on regardait ne bouge à l'écran.
+      const ref = racine.querySelector('.cv-semaine'), haut = ref.getBoundingClientRect().top, l = ref.dataset.semaine;
+      e.semDebut = ajout(e.semDebut, -28); e.semNb += 4; dessiner();
+      window.scrollBy(0, racine.querySelector('[data-semaine="' + l + '"]').getBoundingClientRect().top - haut);
+      return;
+    }
     if (t.dataset.vue) e.vue = t.dataset.vue;
-    else if (t.hasAttribute('data-auj')) { e.annee = 2026; e.mois = 2026 * 12 + 9; e.cheval = false; e.lundi = lundi(AUJ); }
+    else if (t.hasAttribute('data-auj')) { e.depart = MOIS_AUJ; e.mois = MOIS_AUJ; e.cheval = false; e.semDebut = lundi(AUJ); e.semNb = 3; }
     else if (t.dataset.pas) {
       const s = Number(t.dataset.pas);
-      if (e.vue === 'annee') e.annee += s; else if (e.vue === 'semaine') e.lundi = ajout(e.lundi, 7 * s); else [e.mois, e.cheval] = suivant(e.mois, e.cheval, s);
+      if (e.vue === 'annee') e.depart += s * e.periode; else [e.mois, e.cheval] = suivant(e.mois, e.cheval, s);
     } else if (t.hasAttribute('data-essai')) { e.demi = !e.demi; e.cheval = false; }
-    else if (t.dataset.mois) { e.vue = 'mois'; e.mois = Number(t.dataset.mois); e.cheval = false; }
-    else if (t.dataset.jour) { e.vue = 'semaine'; e.lundi = lundi(t.dataset.jour); }
+    else if (t.dataset.periode) e.periode = Number(t.dataset.periode);
+    else if (t.dataset.jour) { e.vue = 'semaine'; e.semDebut = lundi(t.dataset.jour); e.semNb = 3; }
     dessiner();
+    if (t.hasAttribute('data-auj') || t.dataset.vue || t.dataset.jour) window.scrollTo(0, 0);
   });
+  if (telephone.addEventListener) telephone.addEventListener('change', () => { if (e.vue === 'annee') dessiner(); });
   racine.addEventListener('change', ev => {
     const s = SEANCES.find(x => String(x.id) === ev.target.dataset.fait);
     if (s) { s.faite = ev.target.checked; dessiner(); }
