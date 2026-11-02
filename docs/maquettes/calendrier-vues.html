@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr" class="mrt-attente">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Maquette · Calendrier en trois vues</title>
+<!-- Maquette (2 nov. 2026) : vues Année, Mois et Semaine d'un calendrier classique, sans la préparation.
+     Styles du site (en-tete.css : thèmes, pastilles, boutons, cadre) ; données fictives du banc d'essai, au mardi 20 octobre 2026.
+     ?vue=annee|mois|semaine ouvre une vue ; ?t=… un autre thème. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="../../composants/en-tete.css">
+<style>
+  :root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; }
+  .cv-cadre { padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  /* Barre du haut : vues (pastilles) à gauche, « Aujourd'hui » à droite ; dessous, la période et ses flèches. */
+  .cv-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; }
+  .cv-vues { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
+  .cv-auj { margin-left: auto; }
+  .cv-essai { padding: 0.35rem 0.85rem; font: inherit; font-size: 0.75rem; font-weight: 600; color: #fff; background: #7c3aed; border: 0; border-radius: 999px; cursor: pointer; }
+  .cv-periode { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; margin: 1rem 0 0.9rem; padding: 0.7rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cv-voisin { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); text-decoration: none; cursor: pointer; background: none; border: 0; font-family: inherit; padding: 0; }
+  .cv-voisin.is-suiv { justify-self: end; }
+  .cv-voisin .mrt-rond { pointer-events: none; }
+  .cv-titre { font-size: 1.05rem; font-weight: 600; color: var(--text); text-align: center; }
+  .cv-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 1rem; font-size: 0.72rem; color: var(--muted); }
+  .cv-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .cv-k { display: inline-block; width: 0.9rem; height: 0.6rem; border-radius: 2px; }
+  .cv-k.route { background: var(--route); } .cv-k.trail { background: var(--trail); }
+  .cv-k.option { box-shadow: inset 0 0 0 1.5px var(--muted); } .cv-k.courue { background: var(--muted); }
+  .cv-k.point { width: 0.35rem; height: 0.35rem; border-radius: 50%; background: var(--text); }
+  .cv-ok { color: var(--text); } .cv-ko { color: var(--red); font-weight: 700; }
+  .cv-libelle { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  /* ----- Année : douze petits mois ----- */
+  .cv-annee { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.3rem 1.4rem; }
+  .cv-mm-titre { display: block; margin-bottom: 0.35rem; padding: 0; font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--text); background: none; border: 0; cursor: pointer; text-align: left; }
+  .cv-mm-titre.is-courant { color: var(--accent); }
+  .cv-mm-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; }
+  .cv-mm-j { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--muted); padding-bottom: 0.15rem; }
+  .cv-mm-d { position: relative; display: flex; align-items: center; justify-content: center; height: 1.55rem; font-size: 0.7rem; color: var(--text); border-radius: 50%; cursor: pointer; }
+  .cv-mm-d.passe { color: var(--muted); }
+  .cv-mm-d.seance::after { content: ''; position: absolute; bottom: 0.1rem; left: 50%; width: 3px; height: 3px; margin-left: -1.5px; border-radius: 50%; background: currentColor; }
+  .cv-mm-d.c-route-v { background: var(--route); color: var(--encre); font-weight: 600; }
+  .cv-mm-d.c-trail-v { background: var(--trail); color: var(--encre); font-weight: 600; }
+  .cv-mm-d.c-route-n { box-shadow: inset 0 0 0 1.5px var(--route); font-weight: 600; }
+  .cv-mm-d.c-trail-n { box-shadow: inset 0 0 0 1.5px var(--trail); font-weight: 600; }
+  .cv-mm-d.courue { background: var(--muted); color: var(--bg); font-weight: 600; }
+  .cv-mm-d.auj { background: var(--accent); color: var(--bg); font-weight: 700; }
+
+  /* ----- Mois : la grille du mois, cases resserrées ----- */
+  .cv-jours, .cv-mois { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+  .cv-jours span { padding-bottom: 0.35rem; }
+  .cv-case { display: flex; flex-direction: column; gap: 0.18rem; min-width: 0; min-height: 4.4rem; padding: 0.3rem 0.35rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; cursor: pointer; overflow: hidden; }
+  .cv-case.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
+  .cv-case.hors { opacity: 0.4; }
+  .cv-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: 0.75rem; font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
+  .cv-case.passe .cv-num { color: var(--muted); }
+  .cv-num.auj, .cv-case.passe .cv-num.auj { color: var(--bg); background: var(--accent); }
+  .cv-num.mois1 { font-size: 0.7rem; }
+  .cv-course { display: block; padding: 0.05rem 0.3rem; font-size: 0.68rem; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 3px; color: var(--text); }
+  .cv-course.c-route-v { background: var(--route); color: var(--encre); }
+  .cv-course.c-trail-v { background: var(--trail); color: var(--encre); }
+  .cv-course.c-route-n { box-shadow: inset 0 0 0 1px var(--route); }
+  .cv-course.c-trail-n { box-shadow: inset 0 0 0 1px var(--trail); }
+  .cv-course.courue { background: var(--muted); color: var(--bg); }
+  .cv-se, .cv-rdv { display: flex; align-items: baseline; gap: 0.25rem; min-width: 0; font-size: 0.68rem; line-height: 1.35; color: var(--text); white-space: nowrap; }
+  .cv-se span, .cv-rdv span { overflow: hidden; text-overflow: ellipsis; }
+  .cv-se b { font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .cv-se.faite span { color: var(--muted); text-decoration: line-through; }
+  .cv-se i, .cv-rdv i { font-style: normal; flex: none; margin-left: auto; }
+  .cv-rdv { color: var(--muted); }
+  .cv-points { display: none; }
+
+  /* ----- Semaine : un jour par ligne ----- */
+  .cv-sem-tete { display: flex; justify-content: flex-end; margin-bottom: 0.5rem; }
+  .cv-bilan { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--text); }
+  .cv-bilan span { margin-right: 0.3rem; }
+  .cv-sem { display: flex; flex-direction: column; gap: 3px; }
+  .cv-ligne { position: relative; display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); align-items: center; gap: 0.8rem; min-height: 3rem; padding: 0.4rem 2.6rem 0.4rem 0.6rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; }
+  .cv-ligne.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
+  .cv-ligne.auj { background: var(--surface2); }
+  .cv-date { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+  .cv-date b { min-width: 1.8rem; padding: 0 0.3rem; font-size: 1rem; font-weight: 600; line-height: 1.8rem; text-align: center; border-radius: 999px; }
+  .cv-ligne.passe .cv-date b { color: var(--muted); }
+  .cv-ligne.auj .cv-date b { color: var(--bg); background: var(--accent); }
+  .cv-date small { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cv-contenu { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem; min-width: 0; }
+  .cv-contenu .cv-course { font-size: 0.8rem; }
+  .cv-seance { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text); }
+  .cv-seance input { margin: 0; accent-color: var(--accent); }
+  .cv-seance b { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cv-seance.faite span { color: var(--muted); text-decoration: line-through; }
+  .cv-contenu .cv-rdv { font-size: 0.8rem; }
+  .cv-plus { position: absolute; top: 50%; right: 0.5rem; width: 1.5rem; height: 1.5rem; padding: 0; margin-top: -0.75rem; font: inherit; font-size: 0.95rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+
+  @media (hover: hover) {
+    .cv-voisin:hover, .cv-mm-titre:hover { color: var(--accent); }
+    .cv-case:hover, .cv-mm-d:not(.auj):hover { box-shadow: inset 0 0 0 1px var(--text); }
+  }
+  @media (max-width: 860px) { .cv-annee { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 600px) {
+    .cv-cadre { padding: 0.8rem 0.6rem; }
+    .cv-annee { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem 1rem; }
+    .cv-mm-d { height: 1.4rem; font-size: 0.66rem; }
+    .cv-periode { gap: 0.3rem; }
+    .cv-voisin .cv-voisin-txt { display: none; }
+    .cv-titre { font-size: 0.95rem; }
+    .cv-mois, .cv-jours { gap: 2px; }
+    .cv-case { min-height: 3rem; padding: 0.2rem 0.15rem; align-items: center; }
+    .cv-num { align-self: center; min-width: 1.4rem; padding: 0 0.2rem; font-size: 0.7rem; line-height: 1.4rem; }
+    .cv-num.mois1 { font-size: 0.55rem; }
+    .cv-txt { display: none; }
+    .cv-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; width: 100%; }
+    .cv-points .barre { width: 100%; height: 4px; border-radius: 2px; }
+    .cv-points .barre.c-route-v { background: var(--route); } .cv-points .barre.c-trail-v { background: var(--trail); }
+    .cv-points .barre.c-route-n { box-shadow: inset 0 0 0 1px var(--route); } .cv-points .barre.c-trail-n { box-shadow: inset 0 0 0 1px var(--trail); }
+    .cv-points .barre.courue { background: var(--muted); }
+    .cv-points .pt { width: 5px; height: 5px; border-radius: 50%; background: var(--text); }
+    .cv-points .pt.faite { background: var(--muted); }
+    .cv-points .pt.manquee { background: var(--red); }
+    .cv-points .rdv { font-size: 0.5rem; line-height: 5px; color: var(--muted); }
+    .cv-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
+  }
+</style>
+</head>
+<body>
+<main><div id="cv"></div></main>
+<script src="../../composants/en-tete.js"></script>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search);
+  renderEnTete({ racine: '../../', courant: 'calendrier.html', sansEnTete: true, maintenant: '2026-10-20', theme: q.get('t') || 'bleu-orange',
+    objectif: { nom: 'Trail des Crêtes', date: '2027-08-28' },
+    modules: [{ nom: 'En un coup d\'œil', picto: 'oeil', page: 'index.html' }, { nom: 'Objectif & plan', page: 'objectif.html' }, { nom: 'Calendrier', page: 'calendrier.html' },
+      { nom: 'À surveiller', page: 'courses-a-surveiller.html' }, { nom: 'Palmarès', page: 'palmares.html' }] });
+  document.documentElement.classList.remove('mrt-attente');
+
+  // ----- Données fictives (banc d'essai), aujourd'hui : mardi 20 octobre 2026 -----
+  const AUJ = '2026-10-20';
+  const COURSES = [
+    ['Forez Trail', '2026-03-08', 'trail', 'courue'], ['10 km de Montauban', '2026-03-29', 'route', 'courue'], ['Semi de San Sebastián', '2026-10-04', 'route', 'courue'],
+    ['Trail du Lac', '2026-11-15', 'trail', 'v'], ['Corrida de Noël', '2026-12-13', 'route', 'v'], ['Trail des Gorges', '2027-03-07', 'trail', 'v'],
+    ['Trail des Cimes', '2027-05-30', 'trail', 'n'], ['Ultra du Plateau', '2027-06-26', 'trail', 'n'], ['Trail de la Forêt', '2027-07-01', 'trail', 'n'], ['Trail des Crêtes', '2027-08-28', 'trail', 'v']
+  ].map(([nom, date, famille, etat]) => ({ nom, date, cls: etat === 'courue' ? 'courue' : 'c-' + famille + '-' + etat }));
+  const RDV = [['2026-11-01', 'Inscriptions · Corrida de Noël'], ['2027-01-10', 'Inscriptions · Trail des Cimes']];
+  const SEANCES = [
+    ['2026-10-13', 'run', 'Fractionné 10×1 min', false], ['2026-10-15', 'run', 'Footing 40 min', true], ['2026-10-17', 'run', 'Sortie 1 h 15', true],
+    ['2026-10-19', 'renfo', 'Gainage 30 min', true], ['2026-10-20', 'run', '8×400 m', false], ['2026-10-22', 'run', 'Footing 45 min', false], ['2026-10-24', 'run', 'Sortie 1 h 30', false],
+    ['2026-10-27', 'run', 'Footing 40 min', false], ['2026-10-29', 'run', 'Seuil 3×10 min', false], ['2026-10-31', 'run', 'Sortie 1 h 45', false],
+    ['2026-11-03', 'renfo', 'Gainage 30 min', false], ['2026-11-05', 'run', 'Footing 45 min', false], ['2026-11-07', 'run', 'Sortie 1 h 15', false]
+  ].map(([date, type, libelle, faite], i) => ({ id: i, date, type, libelle, faite }));
+
+  // ----- Dates -----
+  const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const MC = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  const pad = n => String(n).padStart(2, '0');
+  const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const parse = s => { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
+  const ajout = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+  const lundi = s => ajout(s, -((parse(s).getDay() + 6) % 7));
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const jourMois = d => (d === 1 ? '1er' : d);
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const moisDe = m => [Math.floor(m / 12), m % 12]; // mois absolu (année × 12 + mois) → [année, mois]
+
+  // ----- État : vue, position de chaque vue, navigation du mois (par demi-mois ou mois par mois) -----
+  const e = { vue: ['annee', 'mois', 'semaine'].includes(q.get('vue')) ? q.get('vue') : 'semaine', annee: 2026, mois: 2026 * 12 + 9, cheval: false, lundi: lundi(AUJ), demi: true };
+  const racine = document.getElementById('cv');
+
+  const duJour = j => ({ courses: COURSES.filter(c => c.date === j), rdv: RDV.filter(r => r[0] === j), seances: SEANCES.filter(s => s.date === j) });
+  const statut = s => (s.faite ? '<i class="cv-ok" title="Faite">✓</i>' : s.date < AUJ ? '<i class="cv-ko" title="Pas faite">!</i>' : '');
+
+  // ----- Mois : mois entier, ou à cheval sur deux mois (du 16 au 15 du suivant) -----
+  function titreMois(m, cheval, court) {
+    const [y, mm] = moisDe(m), [y2, mm2] = moisDe(m + 1);
+    if (court) return cheval ? MC[mm] + '–' + MC[mm2] : MC[mm];
+    if (!cheval) return cap(MOIS[mm]) + ' ' + y;
+    return y === y2 ? cap(MOIS[mm]) + ' – ' + MOIS[mm2] + ' ' + y : cap(MOIS[mm]) + ' ' + y + ' – ' + MOIS[mm2] + ' ' + y2;
+  }
+  const suivant = (m, cheval, sens) => (!e.demi ? [m + sens, false] : sens > 0 ? (cheval ? [m + 1, false] : [m, true]) : (cheval ? [m, false] : [m - 1, true]));
+
+  function vueMois() {
+    const [y, mm] = moisDe(e.mois);
+    let debut, fin;
+    if (!e.cheval) { debut = lundi(iso(new Date(y, mm, 1))); fin = ajout(lundi(iso(new Date(y, mm + 1, 0))), 6); }
+    else { debut = lundi(iso(new Date(y, mm, 16))); fin = ajout(lundi(iso(new Date(y, mm + 1, 15))), 6); }
+    let h = '<div class="cv-jours">' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cv-libelle">' + j + '</span>').join('') + '</div><div class="cv-mois">';
+    for (let j = debut; j <= fin; j = ajout(j, 1)) {
+      const d = parse(j), x = duJour(j), hors = !e.cheval && d.getMonth() !== mm;
+      const premier = e.cheval && d.getDate() === 1;
+      const cls = ['cv-case'];
+      if (j < AUJ) cls.push('passe');
+      if (hors) cls.push('hors');
+      const txt = x.courses.map(c => '<span class="cv-course ' + c.cls + '">' + esc(c.nom) + '</span>').join('') +
+        x.rdv.map(r => '<span class="cv-rdv"><span>◆ ' + esc(r[1]) + '</span></span>').join('') +
+        x.seances.map(s => '<span class="cv-se' + (s.faite ? ' faite' : '') + '"><b>' + s.type + '</b><span>' + esc(s.libelle) + '</span>' + statut(s) + '</span>').join('');
+      const points = x.courses.map(c => '<i class="barre ' + c.cls + '"></i>').join('') +
+        x.seances.map(s => '<i class="pt' + (s.faite ? ' faite' : s.date < AUJ ? ' manquee' : '') + '"></i>').join('') + x.rdv.map(() => '<i class="rdv">◆</i>').join('');
+      h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cv-num' + (j === AUJ ? ' auj' : '') + (premier ? ' mois1' : '') + '">' +
+        (premier ? '1er ' + MC[d.getMonth()] : d.getDate()) + '</span><span class="cv-txt">' + txt + '</span><span class="cv-points">' + points + '</span></div>';
+    }
+    const [mp, cp] = suivant(e.mois, e.cheval, -1), [ms, cs] = suivant(e.mois, e.cheval, 1);
+    return { titre: titreMois(e.mois, e.cheval), avant: titreMois(mp, cp, true), apres: titreMois(ms, cs, true), corps: h + '</div>',
+      legende: legende() + '<span><i class="cv-ok">✓</i>faite</span><span><i class="cv-ko">!</i>pas faite</span>' };
+  }
+
+  // ----- Année : douze petits mois, de janvier à décembre -----
+  function vueAnnee() {
+    let h = '<div class="cv-annee">';
+    for (let mm = 0; mm < 12; mm++) {
+      const premier = new Date(e.annee, mm, 1), n = new Date(e.annee, mm + 1, 0).getDate(), decal = (premier.getDay() + 6) % 7;
+      const courant = e.annee === 2026 && mm === 9;
+      h += '<section><button type="button" class="cv-mm-titre' + (courant ? ' is-courant' : '') + '" data-mois="' + (e.annee * 12 + mm) + '">' + cap(MOIS[mm]) + '</button><div class="cv-mm-grille">' +
+        ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(j => '<span class="cv-mm-j">' + j + '</span>').join('') + '<span></span>'.repeat(decal);
+      for (let d = 1; d <= n; d++) {
+        const j = iso(new Date(e.annee, mm, d)), x = duJour(j), cls = ['cv-mm-d'];
+        if (j < AUJ) cls.push('passe');
+        if (x.courses.length) cls.push(x.courses[0].cls);
+        if (x.seances.length) cls.push('seance');
+        if (j === AUJ) cls.push('auj');
+        const titre = [JOURS[parse(j).getDay()] + ' ' + jourMois(d) + ' ' + MC[mm]].concat(x.courses.map(c => c.nom), x.seances.map(s => s.libelle)).join(' · ');
+        h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '" title="' + esc(titre) + '">' + d + '</span>';
+      }
+      h += '</div></section>';
+    }
+    return { titre: String(e.annee), avant: String(e.annee - 1), apres: String(e.annee + 1), corps: h + '</div>',
+      legende: legende() + '<span><i class="cv-k point"></i>séance</span>' };
+  }
+
+  // ----- Semaine : un jour par ligne -----
+  function vueSemaine() {
+    const fin = ajout(e.lundi, 6), sem = SEANCES.filter(s => s.date >= e.lundi && s.date <= fin);
+    const a = parse(e.lundi), b = parse(fin);
+    const titre = 'Semaine du ' + jourMois(a.getDate()) + (a.getMonth() === b.getMonth() ? '' : ' ' + MC[a.getMonth()]) + ' au ' + jourMois(b.getDate()) + ' ' + MC[b.getMonth()];
+    const court = l => { const x = parse(l), z = parse(ajout(l, 6)); return x.getDate() + (x.getMonth() === z.getMonth() ? '' : ' ' + MC[x.getMonth()]) + '–' + z.getDate() + ' ' + MC[z.getMonth()]; };
+    let h = '<div class="cv-sem-tete">' + (sem.length ? '<p class="cv-bilan"><span class="cv-libelle">Faites</span> ' + sem.filter(s => s.faite).length + ' / ' + sem.length + '</p>' : '') + '</div><div class="cv-sem">';
+    for (let i = 0; i < 7; i++) {
+      const j = ajout(e.lundi, i), d = parse(j), x = duJour(j), cls = ['cv-ligne'];
+      if (j < AUJ) cls.push('passe');
+      if (j === AUJ) cls.push('auj');
+      h += '<div class="' + cls.join(' ') + '"><span class="cv-date"><b>' + d.getDate() + '</b><small>' + JOURS[d.getDay()] + '</small></span><span class="cv-contenu">' +
+        x.courses.map(c => '<span class="cv-course ' + c.cls + '">' + esc(c.nom) + '</span>').join('') +
+        x.rdv.map(r => '<span class="cv-rdv">◆ ' + esc(r[1]) + '</span>').join('') +
+        x.seances.map(s => '<label class="cv-seance' + (s.faite ? ' faite' : '') + '"><input type="checkbox" data-fait="' + s.id + '"' + (s.faite ? ' checked' : '') + '><b>' + s.type + '</b><span>' + esc(s.libelle) + '</span></label>').join('') +
+        '</span><button type="button" class="cv-plus" aria-label="Ajouter une séance">+</button></div>';
+    }
+    return { titre, avant: court(ajout(e.lundi, -7)), apres: court(ajout(e.lundi, 7)), corps: h + '</div>', legende: '' };
+  }
+
+  const legende = () => '<span><i class="cv-k route"></i>route</span><span><i class="cv-k trail"></i>trail</span><span><i class="cv-k option"></i>option</span><span><i class="cv-k courue"></i>courue</span>';
+
+  function dessiner() {
+    const v = e.vue === 'annee' ? vueAnnee() : e.vue === 'mois' ? vueMois() : vueSemaine();
+    racine.innerHTML = '<div class="cv-cadre"><div class="cv-haut"><nav class="cv-vues" aria-label="Vue">' +
+      [['annee', 'Année'], ['mois', 'Mois'], ['semaine', 'Semaine']].map(([k, n]) => '<button type="button" class="mrt-pastille' + (k === e.vue ? ' is-on' : '') + '" data-vue="' + k + '">' + n + '</button>').join('') +
+      '</nav>' + (e.vue === 'mois' ? '<button type="button" class="cv-essai" data-essai>Essai · voir ' + (e.demi ? 'mois par mois' : 'par demi-mois') + '</button>' : '') +
+      '<button type="button" class="mrt-btn cv-auj" data-auj>Aujourd\'hui</button></div>' +
+      '<div class="cv-periode"><button type="button" class="cv-voisin" data-pas="-1"><span class="mrt-rond">‹</span><span class="cv-voisin-txt">' + v.avant + '</span></button>' +
+      '<h2 class="cv-titre">' + v.titre + '</h2>' +
+      '<button type="button" class="cv-voisin is-suiv" data-pas="1"><span class="cv-voisin-txt">' + v.apres + '</span><span class="mrt-rond">›</span></button></div>' +
+      v.corps + (v.legende ? '<div class="cv-legende">' + v.legende + '</div>' : '') + '</div>';
+  }
+
+  racine.addEventListener('click', ev => {
+    const t = ev.target.closest('[data-vue], [data-auj], [data-pas], [data-essai], [data-mois], [data-jour]');
+    if (!t) return;
+    if (t.dataset.vue) e.vue = t.dataset.vue;
+    else if (t.hasAttribute('data-auj')) { e.annee = 2026; e.mois = 2026 * 12 + 9; e.cheval = false; e.lundi = lundi(AUJ); }
+    else if (t.dataset.pas) {
+      const s = Number(t.dataset.pas);
+      if (e.vue === 'annee') e.annee += s; else if (e.vue === 'semaine') e.lundi = ajout(e.lundi, 7 * s); else [e.mois, e.cheval] = suivant(e.mois, e.cheval, s);
+    } else if (t.hasAttribute('data-essai')) { e.demi = !e.demi; e.cheval = false; }
+    else if (t.dataset.mois) { e.vue = 'mois'; e.mois = Number(t.dataset.mois); e.cheval = false; }
+    else if (t.dataset.jour) { e.vue = 'semaine'; e.lundi = lundi(t.dataset.jour); }
+    dessiner();
+  });
+  racine.addEventListener('change', ev => {
+    const s = SEANCES.find(x => String(x.id) === ev.target.dataset.fait);
+    if (s) { s.faite = ev.target.checked; dessiner(); }
+  });
+  dessiner();
+})();
+</script>
+</body>
+</html>
