@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 0.3 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 0.4 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -113,6 +113,46 @@ Une jauge est **verte-neutre sous le minimum, pleine dans la zone cible, et pass
 
 **Choix du repas** (petit-déj, midi, encas, soir) : proposé d'après l'heure, modifiable en un toucher.
 
+### 4.5 Profil minimal : encart et fenêtre (option A retenue le 5 nov. 2026)
+
+Pas de page Profil dans cette version : un seul formulaire, utilisé à deux endroits ; le module Profil complet viendra plus tard (todo du [sommaire](README.md)).
+
+```
+Profil incomplet : l'encart remplace le besoin du jour
+
+(2) ┌─ POUR CALCULER TON BESOIN ───────────────┐
+    │ (3) Complète ton profil (une seule fois). │
+    │ (4) Sexe            ( ) Femme  ( ) Homme  │
+    │ (5) Date de naissance        [ jj/mm/aaaa ]│
+    │ (6) Poids                       [ 70 ] kg │
+    │ (7) Taille                     [ 175 ] cm │
+    │ (8) Activité hors sport  [ Peu actif   ▾ ]│
+    │ (9) [ Enregistrer ]                       │
+    └───────────────────────────────────────────┘
+
+Profil complet : sous le besoin du jour
+
+(10) Modifier mon profil   → fenêtre avec les champs (4) à (8)
+```
+
+| N° | Nom | Exemple | Place | Style |
+| --- | --- | --- | --- | --- |
+| 2 | Cadre de l'encart | « POUR CALCULER TON BESOIN » | À la place du besoin du jour | `mrt-section`, libellé en capitales (Space Mono) |
+| 3 | Consigne | « Complète ton profil (une seule fois). » | Haut du cadre | Texte courant |
+| 4 | Sexe | Femme / Homme | Cadre 2 | Deux pastilles `mrt-pastille` |
+| 5 | Naissance | 15/03/1986 | Cadre 2 | `mrt-champ` (date) |
+| 6 | Poids | 70 kg | Cadre 2 | `mrt-champ`, unité à droite |
+| 7 | Taille | 175 cm | Cadre 2 | `mrt-champ`, unité à droite |
+| 8 | Activité hors sport | Peu actif | Cadre 2 | Liste de choix à quatre niveaux |
+| 9 | Enregistrer | « Enregistrer » | Bas du cadre | `mrt-btn is-principal` |
+| 10 | Lien profil | « Modifier mon profil » | Sous le besoin du jour | `mrt-lien` |
+
+- **L'encart ne montre que les champs qui manquent.** La fenêtre (10) montre toujours les cinq champs, avec « Annuler » à gauche et « Enregistrer » à droite, en haut, comme les autres fenêtres du site.
+- **Contrôles** : poids de 20 à 300 kg (virgule acceptée, un chiffre après la virgule), taille de 100 à 250 cm, date de naissance donnant un âge de 10 à 110 ans, sexe femme ou homme, niveau d'activité choisi. Un champ refusé : message sous le titre, rien n'est écrit.
+- **Écriture** : seuls les champs affichés sont rangés dans `profils`. En cas d'échec : « Enregistrement impossible pour l'instant. », la fenêtre reste ouverte.
+- **Site partagé en lecture seule** : la page n'affiche aucune donnée de nutrition.
+- **Page** : `nutrition.html`, pour l'instant sans entrée dans le menu (elle y entrera avec la page complète, lot 5) ; elle montre le besoin du jour (jour sans sport saisi) et le profil.
+
 ## 5. Aliments : favoris, récents, saisie libre
 
 - Un aliment : nom, portion habituelle (« 1 pièce », « 100 g »), calories, protéines, glucides, lipides **pour cette portion**.
@@ -176,4 +216,10 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Modifier l'aliment « Banane » après coup | Les jours passés gardent leurs valeurs d'origine |
 | Site partagé en lecture seule | Aucune donnée de nutrition visible |
 | Jour passé (flèche ‹) | Le journal du jour choisi ; le besoin recalculé avec le profil et les séances de ce jour |
+| Profil A sans naissance, poids, taille ni activité (sexe seul) | L'encart ne montre que ces quatre champs |
+| Encart : poids « 0 », puis taille « 17 » | Messages « Le poids doit être compris entre 20 et 300 kg. » puis « La taille doit être comprise entre 100 et 250 cm. » ; rien d'écrit |
+| Encart rempli (15 mars 1986, 70 kg, 175 cm, peu actif) | Une écriture avec ces quatre champs ; l'encart disparaît ; « 2 117 kcal », phase Entraînement, protéines 98–140 g, glucides 265–318 g, lipides 59–82 g |
+| Profil complet, « Modifier mon profil » | Fenêtre avec les cinq champs remplis ; « Annuler » ne range rien ; poids « 72,5 » et activité « actif » : une écriture à cinq champs, besoin 2 401 kcal |
+| Écriture en panne | « Enregistrement impossible pour l'instant. », fenêtre ouverte |
+| Course cap à J-12, J-2, J-1, lointaine | « Avant-course · J-12 », « Carbo-loading · J-2 », « Veille de course · J-1 », « Entraînement » |
 | Téléphone (375 et 390 px) | Pas de défilement horizontal ; le bouton « Ajouter » reste visible |

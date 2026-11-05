@@ -109,6 +109,11 @@ function simulerBase(ctx, db) {
         else if (req.method() === 'DELETE') db[tab] = db[tab].filter(x => !correspond(x));
         return route.fulfill({ contentType: 'application/json', body: '[]' });
       }
+      // Profil (Nutrition) : les champs modifiés s'écrivent dans la base simulée.
+      if (tab === 'profils' && req.method() === 'PATCH') {
+        db.profils.filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
+        return route.fulfill({ contentType: 'application/json', body: '[]' });
+      }
       // Fiche v2 : les courses ajoutées ou modifiées s'écrivent dans la base simulée (db.persister).
       if (tab === 'courses' && db.persister && req.method() !== 'DELETE') {
         if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach(l => db.courses.push(Object.assign({ utilisateur: db.profils[0].id }, l)));
@@ -2859,10 +2864,98 @@ const CONTROLES = {
       egal(r0(B.calculer(A, jour([], 'train')).kcal), r0(B.calculer(A, jour([{ type: 'inconnu', heures: 2 }, { type: 'm', heures: 0 }], 'train')).kcal), 'sport inconnu ou de durée nulle : ignoré'));
     return pb;
   },
+  // Nutrition : profil minimal et besoin du jour (module-nutrition-specification.md, § 4.5 et 10).
+  async profilNutrition(nav, db) {
+    const pb = [];
+    const copie = (profil, ecritures = true) => { const d = JSON.parse(JSON.stringify(db)); Object.assign(d.profils[0], profil); if (ecritures) d.ecritures = []; return d; };
+    const txt = async (p, sel) => (await p.locator(sel).first().textContent()).replace(/\s+/g, ' ').trim();
+    const COMPLET = { sexe: 'homme', naissance: '1986-03-15', poids: 70, taille: 175, activite: 'peu' };
+
+    // Profil incomplet (sexe seul) : l'encart ne demande que les champs qui manquent.
+    let d = copie({});
+    let { p, ctx, erreurs } = await ouvrir(nav, 'nutrition.html', 390, d);
+    pb.push(egal(['naissance', 'poids', 'taille', 'activite'], await p.evaluate(() => [...document.querySelectorAll('.pf-encart .pf-champ')].map(c => (c.querySelector('[name]') || {}).name)), 'encart : seuls les champs manquants'),
+      egal(0, await p.locator('.nu-besoin').count(), 'encart : pas de besoin calculé'));
+    // Valeurs refusées : rien n'est écrit.
+    const remplir = async (v) => {
+      for (const [k, x] of Object.entries(v)) {
+        if (k === 'activite') await p.selectOption('[name="activite"]', x); else await p.fill('[name="' + k + '"]', x);
+      }
+      await p.click('.pf-encart [type="submit"]');
+    };
+    await remplir({ naissance: '1986-03-15', poids: '0', taille: '175', activite: 'peu' });
+    pb.push(egal('Le poids doit être compris entre 20 et 300 kg.', await txt(p, '.pf-msg'), 'poids à 0 refusé'), egal(0, d.ecritures.length, 'poids refusé : rien d\'écrit'));
+    await remplir({ poids: '70', taille: '17' });
+    pb.push(egal('La taille doit être comprise entre 100 et 250 cm.', await txt(p, '.pf-msg'), 'taille trop petite refusée'), egal(0, d.ecritures.length, 'taille refusée : rien d\'écrit'));
+    await remplir({ taille: '175' });
+    await p.waitForSelector('.nu-besoin');
+    pb.push(egal([['PATCH', 'profils', { naissance: '1986-03-15', poids: 70, taille: 175, activite: 'peu' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'enregistrement : seuls les champs de l\'encart'),
+      egal(0, await p.locator('.pf-encart').count(), 'encart disparu une fois le profil complet'),
+      egal('2 117 kcal', await txt(p, '.nu-kcal'), 'profil A : besoin du jour'),
+      egal('Entraînement', await txt(p, '.nu-phase'), 'cap sans date précise : phase Entraînement'),
+      egal(['Protéines 98–140 g', 'Glucides 265–318 g', 'Lipides 59–82 g'], await p.locator('.nu-macros li').allTextContents().then(l => l.map(x => x.replace(/\s+/g, ' ').trim())), 'macros du jour'),
+      egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement horizontal'),
+      egal([], erreurs, 'erreurs JavaScript'));
+    await ctx.close();
+
+    // Sexe non précisé : l'encart demande le sexe.
+    d = copie({ ...COMPLET, sexe: 'non_precise' });
+    ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d));
+    pb.push(egal(['sexe'], await p.evaluate(() => [...document.querySelectorAll('.pf-encart .pf-champ')].map(c => (c.querySelector('[name]') || {}).name)), 'sexe non précisé : l\'encart demande le sexe'));
+    await p.click('.pf-encart [type="submit"]');
+    pb.push(egal('Choisis ton sexe (femme ou homme) : il sert à la formule du calcul.', await txt(p, '.pf-msg'), 'sexe non choisi : message'), egal(0, d.ecritures.length, 'sexe non choisi : rien d\'écrit'));
+    await p.click('.mrt-pastille:has(input[value="femme"])');
+    await p.click('.pf-encart [type="submit"]');
+    await p.waitForSelector('.nu-besoin');
+    pb.push(egal([['PATCH', 'profils', { sexe: 'femme' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'sexe enregistré'));
+    await ctx.close();
+
+    // Profil complet : pas d'encart ; « Modifier mon profil » ouvre les cinq champs.
+    d = copie(COMPLET);
+    ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d));
+    pb.push(egal(0, await p.locator('.pf-encart').count(), 'profil complet : pas d\'encart'), egal('2 117 kcal', await txt(p, '.nu-kcal'), 'profil complet : besoin du jour'));
+    await p.click('.nu-profil');
+    pb.push(egal(['sexe', 'naissance', 'poids', 'taille', 'activite'], await p.evaluate(() => [...document.querySelectorAll('.pf-panneau .pf-champ')].map(c => (c.querySelector('[name]') || {}).name)), 'fenêtre : les cinq champs'),
+      egal(['homme', '1986-03-15', '70', '175', 'peu'], await p.evaluate(() => { const f = document.querySelector('.pf-panneau'); return [f.querySelector('input[name="sexe"]:checked').value, f.naissance.value, f.poids.value, f.taille.value, f.activite.value]; }), 'fenêtre : valeurs du profil'));
+    await p.click('.pf-panneau [data-act="annuler"]');
+    pb.push(egal([0, 0], [await p.locator('.pf-panneau').count(), d.ecritures.length], 'Annuler : fenêtre fermée, rien d\'écrit'));
+    await p.click('.nu-profil');
+    await p.fill('.pf-panneau [name="poids"]', '72,5');
+    await p.selectOption('.pf-panneau [name="activite"]', 'actif');
+    await p.click('.pf-panneau [type="submit"]');
+    await p.waitForSelector('.pf-panneau', { state: 'detached' });
+    pb.push(egal([['PATCH', 'profils', { ...COMPLET, poids: 72.5, activite: 'actif' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'fenêtre : les cinq champs rangés, virgule acceptée'),
+      egal('2 401 kcal', await txt(p, '.nu-kcal'), 'besoin recalculé avec 72,5 kg et activité « actif »'));
+    // Échec d'écriture : message, fenêtre ouverte.
+    d.panne = true;
+    await p.click('.nu-profil');
+    await p.click('.pf-panneau [type="submit"]');
+    await p.locator('.pf-msg:not(:empty)').waitFor();
+    pb.push(egal('Enregistrement impossible pour l\'instant.', await txt(p, '.pf-msg'), 'panne : message d\'erreur'), egal(1, await p.locator('.pf-panneau').count(), 'panne : la fenêtre reste ouverte'));
+    await ctx.close();
+
+    // Phase d'après la course cap (choisie dans les préférences) : J-12, J-2, J-1, puis une course lointaine.
+    for (const [date, attendu] of [['2026-11-01', 'Avant-course · J-12'], ['2026-10-22', 'Carbo-loading · J-2'], ['2026-10-21', 'Veille de course · J-1'], ['2026-12-20', 'Entraînement']]) {
+      d = copie(COMPLET);
+      const lac = d.courses.find(c => c.course === 'Trail du Lac');
+      lac.date = date; d.preferences[0].course_cap = lac.id;
+      ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d));
+      pb.push(egal(attendu, await txt(p, '.nu-phase'), 'cap au ' + date + ' : phase'));
+      await ctx.close();
+    }
+
+    // Site partagé en lecture seule : aucune donnée de nutrition.
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    d = copie(COMPLET); d.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d, { 'mrt-vue': autre }));
+    pb.push(egal([0, 0, 'Les données de nutrition ne sont pas partagées.'], [await p.locator('.nu-besoin').count(), await p.locator('.pf-encart').count(), await txt(p, '#nutrition')], 'site partagé : rien de nutrition'));
+    await ctx.close();
+    return pb;
+  },
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))
-      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'calendrier.html', 'course.html?id=00000000-0000-0000-0001-000000000020', 'courses-a-surveiller.html'])
+      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'calendrier.html', 'course.html?id=00000000-0000-0000-0001-000000000020', 'courses-a-surveiller.html', 'nutrition.html'])
         pb.push(...await sansSaut(nav, db, page, w, page.replace(/\.html.*/, '') + ' ' + nom));
     return pb;
   }

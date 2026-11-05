@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<script>
+  // Masquée jusqu'à ce qu'elle soit prête (voir objectif.html).
+  (function () { var c = null, t = null, h = document.documentElement; try { c = sessionStorage.getItem('mrt-entete'); t = localStorage.getItem('mrt-theme'); } catch (e) {}
+    if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noir-orange' : 'blanc-orange';
+    if (t) h.classList.add('t-' + t);
+    h.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
+</script>
+<title>Nutrition · MyRunTools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/profil-champs.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/nutrition.css?v=__VERSION__">
+</head>
+<body>
+<main>
+  <div id="nutrition"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script src="composants/donnees.js?v=__VERSION__"></script>
+<script src="composants/besoin.js?v=__VERSION__"></script>
+<script src="composants/profil-champs.js?v=__VERSION__"></script>
+<script src="composants/nutrition.js?v=__VERSION__"></script>
+<script>
+  // Besoin du jour et profil de l'utilisateur connecté. Site partagé en lecture seule : aucune donnée de nutrition.
+  mrtPage({ courant: 'nutrition.html' }).then(page => {
+    const el = document.getElementById('nutrition');
+    if (page.lectureSeule) {
+      el.innerHTML = '<p class="nu-sport">Les données de nutrition ne sont pas partagées.</p>';
+      return;
+    }
+    renderNutrition(el, { profil: page.session.profil || {}, id: page.session.id, cap: mrtCap(page.courses, page.preferences()) });
+  });
+</script>
+</body>
+</html>
