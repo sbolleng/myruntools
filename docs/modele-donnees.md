@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.18 · 1er novembre 2026 · [Retour au sommaire](README.md)
+Version 0.19 · 5 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -23,6 +23,8 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `courses_circuits` | L'appartenance d'une course à un circuit (UTMB, Challenge Levy…) | `courses`, `circuits` |
 | `plan_semaines` | Une semaine dont la phase de préparation a été modifiée à la main | `courses` |
 | `seances` | Une séance du Calendrier (run ou renfo) | `profils`, `courses` (facultatif) |
+| `aliments` | Un aliment de l'utilisateur (favori, récent) | `profils` |
+| `repas_lignes` | Un aliment mangé, un jour, à un repas | `profils`, `aliments` (facultatif) |
 | `equipements` | Un équipement : chaussures, montre, bâtons… | `profils`, `types_equipement` |
 | `types_course`, `formats`, `types_equipement`, `circuits` | Une valeur d'une liste de référence | — |
 
@@ -40,6 +42,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `fc_repos`, `fc_max` | Fréquences cardiaques de repos et maximale, en bpm | Non |
 | `vma` | Vitesse maximale aérobie, en km/h | Non |
 | `vo2max` | VO2 max, en ml/kg/min | Non |
+| `activite` | Niveau d'activité hors sport : sédentaire, peu actif, actif, très actif (Nutrition ; évolution 019) | Non |
 
 - **E-mail** : l'adresse de connexion, rangée par Supabase avec le compte ; le profil l'affiche, sans la recopier.
 - Chaque valeur est la dernière connue : une nouvelle mesure remplace l'ancienne, sans historique.
@@ -159,6 +162,33 @@ Le plan d'une course est calculé à l'affichage ([spécification du Calendrier]
 
 Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'usure des chaussures.
 
+## 5 bis. Nutrition
+
+Évolution 019. Données de santé : jamais lisibles par le site partagé.
+
+### `aliments`
+
+| Champ | Contenu | Obligatoire |
+| --- | --- | --- |
+| `nom` | Nom (100 caractères au plus) | Oui |
+| `portion` | La portion de référence : « 1 pièce », « 100 g » | Oui |
+| `kcal` | Calories pour une portion | Oui |
+| `proteines`, `glucides`, `lipides` | Grammes pour une portion | Non (0) |
+| `favori` | Épinglé par l'utilisateur | Non (non) |
+| `dernier_usage` | Date du dernier ajout à un repas (sert aux « Récents ») | Non |
+
+### `repas_lignes`
+
+| Champ | Contenu | Obligatoire |
+| --- | --- | --- |
+| `date`, `repas` | Jour et repas : petit-déjeuner, midi, encas, soir | Oui |
+| `aliment` | Lien vers l'aliment ; vidé si l'aliment est supprimé | Non |
+| `nom` | Nom de l'aliment, figé à la saisie | Oui |
+| `quantite` | Nombre de portions | Oui |
+| `kcal`, `proteines`, `glucides`, `lipides` | Totaux de la ligne (quantité × portion), figés à la saisie | `kcal` oui |
+
+Le besoin du jour et les cibles se calculent (§ 7), ils ne sont pas rangés.
+
 ## 6. Listes
 
 ### Listes de référence (tables)
@@ -187,12 +217,14 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 | Prochaine course | Première course confirmée à venir |
 | Début d'un plan | Lundi de la semaine du jour J, moins (durée − 1) semaines |
 | Phase d'une semaine | Règles du Calendrier (§ 5.1) : affûtage les 2 dernières semaines, deload toutes les 4 semaines, le reste réparti entre base et développement ; sauf semaine modifiée dans `plan_semaines` |
+| Besoin du jour, cibles, jauges | Calculatrice de Nutrition ([spécification](module-nutrition-specification.md), § 3) : profil + sport du jour + phase ; total du jour = somme des `repas_lignes` |
 | Semaine sans objectif clair | Semaine hors du plan de toute course confirmée |
 
 ## 8. Accès et confidentialité
 
 - Connexion par adresse e-mail et mot de passe (gérés par Supabase Auth, rien dans nos tables) ; un compte = un profil.
 - Règle par ligne sur toutes les tables d'utilisateur : lecture et écriture seulement si la ligne appartient à l'utilisateur connecté.
+- `aliments` et `repas_lignes` : règle par ligne, **sans** exception de partage.
 - Exception, en lecture seulement : courses, circuits, phases modifiées, séances et préférences d'un propriétaire qui a partagé son site avec l'utilisateur connecté (`partages`).
 - Fichiers GPX (stockage `traces`, privé) : mêmes règles que les courses, par dossier d'utilisateur ; lecture aussi pour ceux avec qui le site est partagé.
 - Listes de référence : lecture pour tout utilisateur connecté, écriture pour l'administrateur seulement.

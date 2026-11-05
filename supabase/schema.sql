@@ -14,6 +14,8 @@ create type theme         as enum ('bleu-orange', 'vert-rose', 'violet-turquoise
 create type sexe          as enum ('femme', 'homme', 'non_precise');
 create type phase_plan    as enum ('base', 'developpement', 'affutage', 'deload');
 create type seance_type   as enum ('run', 'renfo');
+create type activite      as enum ('sedentaire', 'peu', 'actif', 'tres');
+create type repas         as enum ('petit_dej', 'midi', 'encas', 'soir');
 
 -- ----- Listes de référence : des données, modifiées par l'administrateur seul
 create table types_course (
@@ -52,6 +54,7 @@ create table profils (
   fc_max    int          check (fc_max > 0),    -- bpm
   vma       numeric(4,1) check (vma > 0),       -- km/h
   vo2max    numeric(4,1) check (vo2max > 0),    -- ml/kg/min
+  activite  activite,                           -- niveau d'activité hors sport (Nutrition)
   cree_le   timestamptz not null default now()
 );
 
@@ -191,6 +194,36 @@ create table seances (
 );
 create index seances_utilisateur_date on seances (utilisateur, date);
 
+-- ----- Nutrition : aliments de l'utilisateur et lignes de repas
+create table aliments (
+  id            uuid primary key default gen_random_uuid(),
+  utilisateur   uuid not null default auth.uid() references profils (id) on delete cascade,
+  nom           text not null check (char_length(nom) between 1 and 100),
+  portion       text not null check (char_length(portion) between 1 and 50),  -- « 1 pièce », « 100 g »
+  kcal          numeric(6,1) not null check (kcal >= 0),                      -- pour une portion
+  proteines     numeric(5,1) not null default 0 check (proteines >= 0),       -- g, pour une portion
+  glucides      numeric(5,1) not null default 0 check (glucides >= 0),
+  lipides       numeric(5,1) not null default 0 check (lipides >= 0),
+  favori        boolean not null default false,
+  dernier_usage timestamptz
+);
+create index aliments_utilisateur on aliments (utilisateur);
+
+create table repas_lignes (
+  id          uuid primary key default gen_random_uuid(),
+  utilisateur uuid not null default auth.uid() references profils (id) on delete cascade,
+  date        date not null,
+  repas       repas not null,
+  aliment     uuid references aliments (id) on delete set null,
+  nom         text not null check (char_length(nom) between 1 and 100),       -- figé à la saisie
+  quantite    numeric(6,2) not null check (quantite > 0),                     -- en portions
+  kcal        numeric(7,1) not null check (kcal >= 0),                        -- totaux de la ligne, figés
+  proteines   numeric(6,1) not null default 0 check (proteines >= 0),
+  glucides    numeric(6,1) not null default 0 check (glucides >= 0),
+  lipides     numeric(6,1) not null default 0 check (lipides >= 0)
+);
+create index repas_lignes_utilisateur_date on repas_lignes (utilisateur, date);
+
 -- ----- Circuits : une course peut appartenir à plusieurs circuits
 create table circuits (
   id      text primary key,
@@ -246,6 +279,8 @@ alter table circuits         enable row level security;
 alter table courses_circuits enable row level security;
 alter table plan_semaines    enable row level security;
 alter table seances          enable row level security;
+alter table aliments         enable row level security;
+alter table repas_lignes     enable row level security;
 
 create policy "son profil" on profils for all to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()));
@@ -258,6 +293,10 @@ create policy "ses circuits" on courses_circuits for all to authenticated
 create policy "son plan" on plan_semaines for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses séances" on seances for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "ses aliments" on aliments for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "ses repas" on repas_lignes for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "son équipement" on equipements for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
