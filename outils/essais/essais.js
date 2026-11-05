@@ -497,12 +497,12 @@ const CONTROLES = {
 
     // Menu
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
-    const catalogue = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'À surveiller', 'Nutrition', 'Palmarès', 'Profil', 'Guide'];
+    const catalogue = ['En un coup d\'œil', 'Cette semaine', 'Objectif', 'Calendrier', 'À surveiller', 'Palmarès', 'Profil', 'Guide'];
     // Le menu ne montre que les modules construits ; les autres restent dans la liste, « bientôt ».
     const construits = ['En un coup d\'œil', 'Objectif & plan', 'Calendrier', 'À surveiller', 'Palmarès'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
-    pb.push(egal(9, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'tous les modules cochés, En un coup d\'œil compris'));
-    pb.push(egal(['Cette semaine · bientôt', 'Nutrition · bientôt', 'Profil · bientôt', 'Guide · bientôt'], await p.evaluate(() => [...document.querySelectorAll('.pref-modules .bientot')].map(l => l.textContent.trim())), 'modules non construits grisés, « bientôt »'));
+    pb.push(egal(8, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'tous les modules cochés, En un coup d\'œil compris, sauf Nutrition (à cocher)'));
+    pb.push(egal(['Cette semaine · bientôt', 'Profil · bientôt', 'Guide · bientôt'], await p.evaluate(() => [...document.querySelectorAll('.pref-modules .bientot')].map(l => l.textContent.trim())), 'modules non construits grisés, « bientôt »'));
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
     const monte = ['En un coup d\'œil', 'Calendrier', 'Objectif & plan', 'À surveiller', 'Palmarès'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
@@ -2943,6 +2943,15 @@ const CONTROLES = {
       pb.push(egal(attendu, await txt(p, '.nu-phase'), 'cap au ' + date + ' : phase'));
       await ctx.close();
     }
+
+    // Nutrition n'est pas dans le menu par défaut ; une fois cochée dans les Préférences, elle a son onglet.
+    d = copie(COMPLET); d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
+    ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, d));
+    pb.push(egal(['En un coup d\'œil', 'Objectif & plan', 'Nutrition'], await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent)), 'Nutrition cochée : onglet dans le menu'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, copie(COMPLET)));
+    pb.push(egal(false, (await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent))).includes('Nutrition'), 'menu par défaut : pas d\'onglet Nutrition'));
+    await ctx.close();
 
     // Site partagé en lecture seule : aucune donnée de nutrition.
     const autre = '00000000-0000-0000-0000-00000000000b';
