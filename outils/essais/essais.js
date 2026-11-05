@@ -2831,6 +2831,34 @@ const CONTROLES = {
     pb.push(egal([], sans, 'chaque page porte noindex'));
     return pb;
   },
+  // Nutrition : calculatrice du besoin du jour (module-nutrition-specification.md, § 3 et 10). Fonctions pures, sans navigateur.
+  async besoin() {
+    const B = require('../../composants/besoin.js');
+    const pb = [];
+    const A = { sexe: 'homme', naissance: '1986-03-15', poids: 70, taille: 175, activite: 'peu' };
+    const F = { sexe: 'femme', naissance: '1990-08-02', poids: 58, taille: 165, activite: 'peu' };
+    const r0 = x => Math.round(x);
+    const resume = r => r && { mb: r0(r.mb), kcal: r0(r.kcal), p: r.proteines.map(r0), g: r.glucides.map(r0), l: r.lipides.map(r0), phase: r.phase };
+    const jour = (sports, phase) => ({ date: '2026-10-20', sports, phase });
+    pb.push(
+      egal({ mb: 1628, kcal: 2117, p: [98, 140], g: [265, 318], l: [59, 82], phase: 'train' }, resume(B.calculer(A, jour([], 'train'))), 'A, repos, entraînement'),
+      egal({ mb: 1628, kcal: 2817, p: [98, 140], g: [352, 423], l: [78, 110], phase: 'train' }, resume(B.calculer(A, jour([{ type: 'j95', heures: 1 }], 'train'))), 'A, 1 h de jogging à 9,5 km/h'),
+      egal({ mb: 1628, kcal: 2117, p: [98, 140], g: [344, 397], l: [35, 59], phase: 'carbo' }, resume(B.calculer(A, jour([], 'carbo'))), 'A, repos, carbo-loading'),
+      egal({ mb: 1302, kcal: 2563, p: [81, 116], g: [320, 384], l: [71, 100], phase: 'train' }, resume(B.calculer(F, jour([{ type: 'j95', heures: 1.5 }], 'train'))), 'B, 1 h 30 de jogging'),
+      egal(40, B.calculer(A, jour([], 'train')).age, 'âge de A au 20 octobre 2026'),
+      egal(36, B.calculer(F, jour([], 'train')).age, 'âge de B au 20 octobre 2026'),
+      egal(['poids'], B.manquants({ ...A, poids: null }, '2026-10-20'), 'profil sans poids : seul le poids manque'),
+      egal(null, B.calculer({ ...A, poids: null }, jour([], 'train')), 'profil sans poids : pas de calcul'),
+      egal(['sexe', 'naissance', 'poids', 'taille', 'activite'], B.manquants({}, '2026-10-20'), 'profil vide : tout manque'),
+      egal(['sexe'], B.manquants({ ...A, sexe: 'non_precise' }, '2026-10-20'), 'sexe non précisé : à compléter'),
+      egal([], B.manquants(A, '2026-10-20'), 'profil complet'),
+      egal(['train', 'prep', 'prep', 'prep', 'carbo', 'carbo', 'veille', 'train', 'train'], [null, 14, 12, 4, 3, 2, 1, 0, 15].map(B.phaseDuJour), 'phase d\'après le nombre de jours avant la course'),
+      egal('Avant-course', B.PHASES[B.phaseDuJour(12)].libelle, 'J-12 : Avant-course'),
+      egal('Carbo-loading', B.PHASES[B.phaseDuJour(2)].libelle, 'J-2 : Carbo-loading'),
+      egal('Veille de course', B.PHASES[B.phaseDuJour(1)].libelle, 'J-1 : Veille de course'),
+      egal(r0(B.calculer(A, jour([], 'train')).kcal), r0(B.calculer(A, jour([{ type: 'inconnu', heures: 2 }, { type: 'm', heures: 0 }], 'train')).kcal), 'sport inconnu ou de durée nulle : ignoré'));
+    return pb;
+  },
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))

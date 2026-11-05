@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 0.2 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 0.3 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -13,7 +13,7 @@ Le module Nutrition dit au coureur **combien il doit manger aujourd'hui** (calor
 ## 2. Principe : un profil, une calculatrice, une saisie
 
 1. **Le profil** (module Profil) donne sexe, date de naissance, poids, taille et niveau d'activité hors sport. Une donnée ne se saisit qu'à un seul endroit.
-2. **La calculatrice** transforme le profil, le sport du jour et la phase de préparation en besoin du jour.
+2. **La calculatrice** transforme le profil, le sport du jour (saisi à la main) et la phase de préparation en besoin du jour.
 3. **La saisie rapide** note les aliments et compare au besoin.
 
 **Premier usage** : si une donnée du profil manque, la page affiche un encart « Pour calculer ton besoin, complète ton profil » avec seulement les champs manquants ; la validation les range dans le profil. Ensuite, un lien « Modifier mon profil » est affiché sous le résultat. À l'inscription, on ne demande rien de plus que le prénom et le nom.
@@ -39,9 +39,9 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 | Veille de course | J-1 | 55 à 65 % | 15 à 25 % |
 
 - **La phase se déduit seule** de la date de la course cap (ou de la course confirmée la plus proche) ; elle peut être changée à la main pour la journée.
-- **Le sport du jour vient des séances du Calendrier** (durée, type de séance) ; sans séance, c'est un jour de repos. Il peut être corrigé à la main pour la journée. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
+- **Le sport du jour est saisi à la main** (type de sport et durée) ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, todo du [sommaire](README.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
 - **Chevauchement** : la veille de course (J-1) l'emporte sur le carbo-loading (J-3 à J-1) ; la phase affichée est « Veille de course ».
-- **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche.
+- **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche. Le coefficient du métabolisme de base n'existe que pour « femme » et « homme » : un sexe « non précisé » compte comme manquant, et l'encart demande de choisir l'un des deux pour le calcul.
 - Les valeurs sont des **repères**, pas un avis médical (mention affichée sous le résultat).
 
 ## 4. Plan de page
@@ -164,11 +164,12 @@ Date figée au 20 octobre 2026. Profils fictifs.
 
 | Cas | Résultat attendu |
 | --- | --- |
-| A, repos, entraînement | Métabolisme de base 1 629 kcal ; besoin **2 117 kcal** ; protéines 98 à 140 g ; glucides 265 à 318 g ; lipides 59 à 82 g |
+| A, repos, entraînement | Métabolisme de base 1 628 kcal ; besoin **2 117 kcal** ; protéines 98 à 140 g ; glucides 265 à 318 g ; lipides 59 à 82 g |
 | A, 1 h de jogging à 9,5 km/h (MET 10), entraînement | Besoin **2 817 kcal** (sport 700 kcal) ; glucides 352 à 423 g ; lipides 78 à 110 g |
 | A, repos, carbo-loading | Besoin 2 117 kcal ; glucides 344 à 397 g ; lipides 35 à 59 g |
 | B, 1 h 30 de jogging à 9,5 km/h, entraînement | Métabolisme de base 1 302 kcal ; besoin **2 563 kcal** ; protéines 81 à 116 g ; glucides 320 à 384 g ; lipides 71 à 100 g |
 | Profil sans poids | Pas de calcul ; l'encart ne demande que le poids |
+| Sexe « non précisé » | Pas de calcul ; l'encart demande le sexe (femme ou homme) |
 | Course cap dans 12 jours | Phase « Avant-course » ; dans 2 jours : « Carbo-loading » ; la veille : « Veille de course » |
 | Ajouter « Banane » (1 pièce) au midi | Une ligne au midi ; les jauges montent des valeurs de la banane |
 | Supprimer la ligne (✕) | La ligne disparaît ; les jauges reviennent à l'état d'avant |
