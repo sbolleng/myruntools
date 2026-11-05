@@ -198,7 +198,7 @@
     const blocMenu = blocs[1];
     // Libellé affiché d'un module (« Objectif & plan ») ; la clé rangée reste son nom.
     const libelle = n => ((mrtModules.find(m => m.nom === n) || {}).libelle || n);
-    const parDefaut = () => mrtModules.map(m => ({ nom: m.nom, affiche: true }));
+    const parDefaut = () => mrtModules.map(m => ({ nom: m.nom, affiche: m.defaut !== false }));
     const depuisPrefs = () => {
       if (!prefs.modules || !prefs.modules.length) return parDefaut();
       const choisis = prefs.modules.filter(n => mrtModules.some(m => m.nom === n));
