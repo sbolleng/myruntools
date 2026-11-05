@@ -117,7 +117,7 @@ Dans l'ordre :
 14. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
 15. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
 16. [ ] **Calculatrice** (module) : allure, vitesse, temps de passage, VMA, km-effort, pente ; liste des calculs à valider ; peut sortir tôt, car elle ne dépend d'aucune donnée.
-17. [ ] **Nutrition** : [spécification 0.3](module-nutrition-specification.md) validée (5 nov. 2026) ; modèle de données 0.19 et évolution 019 écrits, **à passer dans l'éditeur SQL de Supabase** ; `besoin.js` construit et testé ; reste : profil minimal, page, recherche d'aliments (Ciqual, Open Food Facts), Strava ; repères glucides et eau par heure partagés avec la stratégie de course d'Objectif.
+17. [ ] **Nutrition** : [spécification 0.3](module-nutrition-specification.md) validée (5 nov. 2026) ; modèle de données 0.19 et évolution 019 écrits, évolution 019 passée dans Supabase (5 nov. 2026) ; `besoin.js` construit et testé ; reste : profil minimal, page, recherche d'aliments (Ciqual, Open Food Facts), Strava ; repères glucides et eau par heure partagés avec la stratégie de course d'Objectif.
 18. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
 19. [ ] **En un coup d'œil** :
    - Pense-bête : rappels tirés des courses et notes perso (table des notes, évolution à prévoir).
