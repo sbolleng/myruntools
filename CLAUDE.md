@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : Calendrier 0.16, trois vues construites d'après la maquette validée (Semaine par défaut, Mois, Année en grille de 3, 6 ou 12 mois ; case « Phases de prépa » décochée par défaut ; frise, anciennes grilles et boutons violets retirés ; retouches de l'Année annoncées) ; avant : maquettes successives du Calendrier (`docs/maquettes/calendrier-vues.html`) ; avant : heure de départ grisée sans date exacte (Objectif 0.65) ; avant : mentions légales (Spécification générale 0.29). Historique : `docs/journal.md`.
+- Dernier lot : Nutrition 0.1 (spécification seule, à valider : calories et macros, calculatrice du besoin, saisie rapide sur téléphone) ; avant : Calendrier 0.16, trois vues construites d'après la maquette validée (Semaine par défaut, Mois, Année en grille de 3, 6 ou 12 mois ; case « Phases de prépa » décochée par défaut ; frise, anciennes grilles et boutons violets retirés ; retouches de l'Année annoncées) ; avant : maquettes successives du Calendrier (`docs/maquettes/calendrier-vues.html`) ; avant : heure de départ grisée sans date exacte (Objectif 0.65) ; avant : mentions légales (Spécification générale 0.29). Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
