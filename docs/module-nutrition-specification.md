@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 0.1 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 0.2 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -107,7 +107,7 @@ Une jauge est **verte-neutre sous le minimum, pleine dans la zone cible, et pass
 
 | Proposition | Rendu | Ce qu'on y gagne |
 | --- | --- | --- |
-| **A. Ajout en deux touches** (recommandée) | Choisir un favori ou un récent, régler la quantité avec − et +, « Ajouter » | Aucune frappe au clavier pour les aliments habituels |
+| **A. Ajout en deux touches** (retenue le 5 nov. 2026) | Choisir un favori ou un récent, régler la quantité avec − et +, « Ajouter » | Aucune frappe au clavier pour les aliments habituels |
 | B. Ajout en une touche | Un favori ajoute directement sa portion habituelle | Plus rapide, mais on corrige plus souvent après coup |
 | C. Saisie libre d'abord | Un champ « quoi ? / combien de kcal ? » | Utile au premier jour, lourd à l'usage |
 
@@ -126,23 +126,23 @@ Page pensée téléphone d'abord : cibles tactiles d'au moins 44 px, un seul dé
 
 ## 7. Données
 
-À détailler dans le [modèle de données](modele-donnees.md) quand cette spécification sera validée. Pistes :
+Tables créées par l'évolution 019 ([modèle de données](modele-donnees.md), § 5 bis) :
 
 | Table | Contenu |
 | --- | --- |
-| `aliments` | Aliments de l'utilisateur : nom, portion, calories, protéines, glucides, lipides, favori (oui/non), dernier usage |
-| `repas_lignes` | Une ligne par aliment mangé : jour, repas, aliment, quantité, valeurs figées à la saisie (pour que modifier un aliment ne réécrive pas le passé) |
+| `aliments` | Aliments de l'utilisateur : nom, portion, calories, protéines, glucides, lipides (pour une portion), favori (oui/non), dernier usage |
+| `repas_lignes` | Une ligne par aliment mangé : jour, repas, aliment, nom et valeurs **figés à la saisie** (modifier un aliment ne réécrit pas le passé) |
+| `profils.activite` | Niveau d'activité hors sport : sédentaire, peu actif, actif, très actif (ajouté le 5 nov. 2026) |
 
 - Les besoins et cibles **ne sont pas stockés** : ils se calculent à la demande.
-- Données de santé : règles par ligne comme le reste, jamais partagées par le site partagé en lecture seule ; concernées par le lot RGPD du [sommaire](README.md).
-- **À vérifier** : `profils` a déjà `sexe`, `naissance`, `poids`, `taille` ; il manque le **niveau d'activité hors sport**.
+- Données de santé : règles par ligne comme le reste, **jamais** visibles par le site partagé en lecture seule ; concernées par le lot RGPD du [sommaire](README.md).
 
 ## 8. Lots de construction
 
 | Lot | Contenu |
 | --- | --- |
-| 1 | Cette spécification, validée |
-| 2 | Modèle de données (évolution SQL numérotée) |
+| 1 | Cette spécification, validée (5 nov. 2026) |
+| 2 | Modèle de données : évolution 019 écrite, à coller dans l'éditeur SQL de Supabase |
 | 3 | Composant `besoin.js` et ses essais |
 | 4 | Profil minimal : champs utiles et encart de premier usage |
 | 5 | Page Nutrition : besoin, jauges, ajout rapide, journal du jour |
@@ -153,8 +153,7 @@ Page pensée téléphone d'abord : cibles tactiles d'au moins 44 px, un seul dé
 ## 9. Questions ouvertes
 
 1. **Conseils et repas proposés** : reportés à une version ultérieure (choix de conception, 5 nov. 2026) ; à reprendre quand la saisie est utilisée.
-2. **Validation des repères** : les parts de glucides et lipides et les g/kg de protéines sont des repères personnels ; avant l'ouverture à d'autres coureurs, les faire relire par un professionnel (todo « Partenariat nutrition »).
-3. **Option de saisie** (§ 4.4) : A recommandée.
+2. **Repères** : la formule (Black et al.), les niveaux d'activité et les MET sont des références générales, valables pour tout coureur ; les parts de glucides et de lipides et les g/kg de protéines sont des repères courants de la nutrition du sportif. Les résultats sont donnés comme des repères, pas comme un avis médical (mention sous le résultat) ; une relecture par un professionnel reste facultative (todo « Partenariat nutrition »).
 
 ## 10. Jeu d'essai et résultats attendus
 
