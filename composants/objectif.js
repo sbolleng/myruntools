@@ -126,6 +126,8 @@
     minuteur = setInterval(tic, 1000);
   }
 
+  // Précisions de l'objectif : sous sa valeur, en Texte discret.
+  const precisions = c => (c.objectif_precisions ? '<span class="pc-precisions">' + esc(c.objectif_precisions) + '</span>' : '');
   const ligne = (lib, html) => '<div class="ob-ligne"><span class="ob-lib">' + lib + '</span><span>' + html + '</span></div>';
   function lignes(c, avecObjectif) {
     const dist = distance(c);
@@ -385,7 +387,7 @@
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
-        (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
+        (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>' + precisions(c)) : '') +
         ligne('Dossard', dossardHtml(c, true)) +
         (c.description || officiel ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
       '</div>' +
@@ -448,7 +450,7 @@
     const resultat = [
       ['Temps', temps ? '<b class="pc-grand ob-cible">' + esc(temps) + '</b>' : ''],
       // Objectif visé, juste sous le temps réalisé : on compare d'un coup d'œil.
-      ['Objectif', c.objectif ? '<span class="ob-val">' + esc(c.objectif) + '</span>' : ''],
+      ['Objectif', c.objectif ? '<span class="ob-val">' + esc(c.objectif) + '</span>' + precisions(c) : ''],
       ['Place', c.place != null ? '<b class="pc-grand ob-cible-1">' + rang(c.place, c.effectif) + '</b>' : ''],
       ['Catégorie', c.place_categorie != null ? '<span class="ob-val">' + rang(c.place_categorie, c.effectif_categorie) + '</span>' + (cat ? ' <span class="pc-cat">' + esc(cat) + '</span>' : '') : ''],
       ['Sexe', c.place_sexe != null ? '<span class="ob-val">' + rang(c.place_sexe, c.effectif_sexe) + '</span>' : ''],

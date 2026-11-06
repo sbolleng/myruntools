@@ -105,6 +105,7 @@
 .ob-cible-1 { color: var(--accent); }
 .pc-sur-n { font-size: var(--t-texte); font-weight: 400; color: var(--muted); }
 .pc-cat { margin-left: 0.4rem; color: var(--muted); }
+.pc-precisions { display: block; margin-top: 0.1rem; font-size: var(--t-petit); color: var(--muted); }
 /* Montre : sous Résultat, repliée ; un toucher sur son titre (chevron) l'ouvre ; valeurs en Texte discret. */
 .pc-section.is-montre .ob-val { color: var(--muted); }
 details.pc-section > summary { justify-content: flex-start; gap: 0.5rem; list-style: none; cursor: pointer; }

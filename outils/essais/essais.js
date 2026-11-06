@@ -711,7 +711,7 @@ const CONTROLES = {
     };
     let [r, err] = await pageCourse(id(3));
     pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Trail long',
-      compteur: '137j 22h 30min 00s', fiche: ['Lieu | Mont-Clair', 'Date / heure | dim. 7 mars 2027 · 7 h 30', 'Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00', 'Dossard | Inscrit · n° 1287'], dossards: 1 },
+      compteur: '137j 22h 30min 00s', fiche: ['Lieu | Mont-Clair', 'Date / heure | dim. 7 mars 2027 · 7 h 30', 'Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00Sous 6 h 45 dans tous les cas.', 'Dossard | Inscrit · n° 1287'], dossards: 1 },
       { modale: r.modale, barre: r.barre, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
     pb.push(egal(['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : À propos de la course, Parcours, Préparation, Logistique en dernier'));
     pb.push(egal(true, r.descFiche, 'page Trail des Gorges, « À propos de la course » dans le cadre de la fiche'));
@@ -1180,14 +1180,14 @@ const CONTROLES = {
     // Course renseignée (classements, dossard, prix, montre, textes) et course non terminée.
     d = copie();
     Object.assign(d.courses.find(c => c.id === SEB), { place: 112, effectif: 640, place_categorie: 18, effectif_categorie: 96, place_sexe: 95, effectif_sexe: 510,
-      dossard: '1287', prix: 58, objectif: '01:50:00', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, categorie: 'M2', strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' });
+      dossard: '1287', prix: 58, objectif: '01:50:00', objectif_precisions: 'Sous 1 h 55 dans tous les cas.', dplus: 40, dmoins: 38, montre_temps: 6950, montre_distance: 21.3, montre_dplus: 40, fc_moyenne: 151, categorie: 'M2', strategie: 'Partir prudemment.', pourquoi: 'Répétition.', logistique: 'Train.', description: 'Semi.', lien: 'https://example.org/semi', lien_resultats: 'https://example.org/resultats' });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
     pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon · Dossard 1287', '21,1 km · 40 m D+'],
-      Résultat: ['Temps | 01:56:05', 'Objectif | 01:50:00', 'Place | 112e / 640', 'Catégorie | 18e / 96 Master 2 Homme', 'Sexe | 95e / 510', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'],
+      Résultat: ['Temps | 01:56:05', 'Objectif | 01:50:00 Sous 1 h 55 dans tous les cas.', 'Place | 112e / 640', 'Catégorie | 18e / 96 Master 2 Homme', 'Sexe | 95e / 510', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'],
       Montre: ['Temps | 01:55:50', 'Distance | 21,3 km', 'Dénivelé | 40 m D+', 'FC moyenne | 151 bpm'] },
-      await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps, objectif visé, puis place ; catégorie en clair ; Montre sous le Résultat ; ni précisions, ni prix'));
+      await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps, objectif visé et ses précisions, puis place ; catégorie en clair ; Montre sous le Résultat ; ni prix'));
     pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
     // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; Parcours renseigné, ouvert.

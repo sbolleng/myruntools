@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.68 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.69 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -158,7 +158,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 13 | Départ dans | Compte à rebours (§ 5.1) | Quatre cases, j, h, min, s ; pas pour une option au mois seul |
 | 31 | Résultats en direct | Libellé RÉSULTATS, valeur « En direct ↗ » | Le jour de la course seulement, si le lien est connu ; ensuite, rien : le résultat est dans le Palmarès et dans la consultation de la course courue (§ 3.8) |
 | 9 | Distance | « 45 km · 2 100 m D+ · 2 100 m D− » | Valeur en Texte ; D− seulement s'il est connu (l'ancienne ligne D− (10) disparaît) |
-| 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
+| 11 | Objectif | « 06:30:00 », dessous « Sous 6 h 45 dans tous les cas. » | Valeur en Accent, comme sur la carte ; dessous, les précisions de l'objectif, en Petit, Texte discret (depuis le 6 nov. 2026) |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit ; sur la page, sans lien (l'inscription passe par 29) |
 | 18 | À propos de la course | La description : quelques infos sur la course | En bas de la fiche, sous le Dossard, sans filet ; titre en libellé (Space Mono, capitales, discret), comme DOSSARD, sur la même ligne de base que 30 ; dépliée, elle prend toute la largeur de la fiche ; repliée à l'ouverture ; absente si vide |
 | 25 | Parcours | Carte (26), profil (32), téléchargement (27), puis la stratégie (16) | Premier texte du cadre des textes, ouvert d'emblée quand il est renseigné (tracé GPX ou stratégie), replié sinon ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX : « Importer un GPX » (28) au-dessus de la stratégie, sauf en lecture seule ; sans GPX ni stratégie en lecture seule : absent |
@@ -336,7 +336,7 @@ Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course c
 | C27 | Catégorie, Sexe | Une ligne chacun, rang puis effectif ; la catégorie d'âge en clair après le rang, avec le sexe du profil (« Master 2 Homme », « Senior Femme ») |
 | C35 | Vitesse | En km/h, celle de la base, sinon tirée de l'allure ; absente si DNF |
 | C26 | Allure moyenne | En Texte ; absente si DNF ou vide |
-| C36 | Objectif | Ligne sous le Temps, en Texte (comme Catégorie) : l'objectif visé, tel que saisi (« 01:50:00 », « Finisher », « Sub 3h ») ; absente sans objectif |
+| C36 | Objectif | Ligne sous le Temps, en Texte (comme Catégorie) : l'objectif visé, tel que saisi (« 01:50:00 », « Finisher », « Sub 3h »), et dessous ses précisions, en Petit, Texte discret ; absente sans objectif |
 | C37 | Textes | Le cadre de textes repliés de la page d'une course à venir (C24, C25), même style, même ordre de lecture ; sous la Montre |
 | C31 | Montre | Temps, Distance, Dénivelé (« 200 m D+ · 200 m D− », la valeur connue seule s'il en manque une), Allure, FC moyenne ; valeurs en Texte discret (Résultat reste en avant) ; la section disparaît sans aucune valeur de montre |
 | C20, C21 | Navigation | Parcourt le Palmarès dans l'ordre du tableau (tri et filtres du moment) |
@@ -644,7 +644,7 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Dossard (numéro, prix), Parcours (tracé GPX, stratégie, comme une course à venir), Préparation (rôle, sans plan), Logistique, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
 - Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, sans libellé « Courue » ; sous le titre « dim. 4 oct. 2026 », « Semi-marathon », « 21,1 km » ; Résultat : Temps 01:56:05, Place 1 951e, Vitesse 10,9 km/h, Allure 5:30 /km ; pas de section Montre ; un seul texte replié, Parcours, avec « Importer un GPX » ; ni fiche encadrée, ni lien Résultats, ni compte à rebours, ni plan, ni boutons « Retenir » et « Marquer comme courue ».
-- Même course renseignée (classements 112e / 640, 18e / 96 en M2, 95e / 510 ; dossard 1287 ; D+ 40 ; montre 1:55:50, 21,3 km, D+ 40, FC 151 ; objectif, prix, liens) : « Semi-marathon · Dossard 1287 » puis « 21,1 km · 40 m D+ » ; Résultat : Temps, Objectif 01:50:00, Place 112e / 640, Catégorie 18e / 96 Master 2 Homme, Sexe 95e / 510, Vitesse, Allure ; Montre : Temps 01:55:50, Distance 21,3 km, D+ · D− 40 · — m, FC moy. 151 bpm ; lien « Résultats » dans l'intertitre ; ni précisions, ni prix, ni bloc Liens ; sous la Montre, À propos (« Semi. »), Parcours (ouvert : stratégie « Partir prudemment. »), Préparation (rôle « Répétition. », sans plan), Logistique (« Train. ») ; Résultat et Montre tiennent sans défilement sur un écran de 1200 × 700 ; site officiel par une flèche dessinée. Sur ordinateur, Montre à droite de Résultat, valeurs en Texte discret ; sur téléphone, Montre dessous, rien ne dépasse.
+- Même course renseignée (classements 112e / 640, 18e / 96 en M2, 95e / 510 ; dossard 1287 ; D+ 40 ; montre 1:55:50, 21,3 km, D+ 40, FC 151 ; objectif, prix, liens) : « Semi-marathon · Dossard 1287 » puis « 21,1 km · 40 m D+ » ; Résultat : Temps, Objectif 01:50:00 et dessous « Sous 1 h 55 dans tous les cas. », Place 112e / 640, Catégorie 18e / 96 Master 2 Homme, Sexe 95e / 510, Vitesse, Allure ; Montre : Temps 01:55:50, Distance 21,3 km, D+ · D− 40 · — m, FC moy. 151 bpm ; lien « Résultats » dans l'intertitre ; ni prix, ni bloc Liens ; sous la Montre, À propos (« Semi. »), Parcours (ouvert : stratégie « Partir prudemment. »), Préparation (rôle « Répétition. », sans plan), Logistique (« Train. ») ; Résultat et Montre tiennent sans défilement sur un écran de 1200 × 700 ; site officiel par une flèche dessinée. Sur ordinateur, Montre à droite de Résultat, valeurs en Texte discret ; sur téléphone, Montre dessous, rien ne dépasse.
 - Première place : « 1er » pour un coureur, « 1re » pour une coureuse ; chaque valeur sur une ligne.
 - Course non terminée (DNF) : « DNF » à la place du temps, ni vitesse ni allure.
 - Crayon de la feuille : bascule en édition ; Annuler sans saisie revient à la consultation. Crayon de la ligne du tableau : ouvre directement l'édition ; le retour du navigateur la ferme, le Palmarès reste. « Course suivante » et « précédente » suivent l'ordre du tableau, tri et filtres compris.
