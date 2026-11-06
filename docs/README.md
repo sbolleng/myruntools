@@ -49,7 +49,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.32 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
 | [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.8, construit |
-| [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 0.6, construit (reste Ciqual et le sélecteur de jour) |
+| [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 0.7, construit (reste Ciqual) |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Périodicité » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.19, construit |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
@@ -117,11 +117,10 @@ Dans l'ordre :
 14. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
 15. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
 16. [ ] **Calculatrice** (module) : allure, vitesse, temps de passage, VMA, km-effort, pente ; liste des calculs à valider ; peut sortir tôt, car elle ne dépend d'aucune donnée.
-17. [ ] **Nutrition** : [spécification 0.6](module-nutrition-specification.md) validée (5 nov. 2026) ; modèle de données 0.19 et évolution 019 écrits, évolution 019 passée dans Supabase (5 nov. 2026) ; `besoin.js`, profil minimal, sport du jour, jauges, ajout rapide et journal construits et testés (page `nutrition.html`, à cocher dans les Préférences ; évolution 020 pour l'ajouter aux menus rangés) ; mise en page en quatre cartes et recherche Open Food Facts (6 nov. 2026) ; reste : **Ciqual** (aliments génériques ; site de l'ANSES en maintenance le 6 nov., à réessayer), sélecteur de jour, Strava ; repères glucides et eau par heure partagés avec la stratégie de course d'Objectif.
+17. [ ] **Nutrition** : [spécification 0.7](module-nutrition-specification.md) validée (5 nov. 2026) ; modèle de données 0.19 et évolution 019 écrits, évolution 019 passée dans Supabase (5 nov. 2026) ; `besoin.js`, profil minimal, sport du jour, jauges, ajout rapide et journal construits et testés (page `nutrition.html`, à cocher dans les Préférences ; évolution 020 pour l'ajouter aux menus rangés) ; mise en page en quatre cartes et recherche Open Food Facts (6 nov. 2026) ; sélecteur de jour, sport en base, bloc d'En un coup d'œil (0.7) ; **évolutions 021 et 022 à passer dans Supabase** ; reste : **Ciqual** (aliments génériques, dont les plats simples comme l'œuf au plat ; site de l'ANSES en maintenance le 6 nov., à réessayer), Strava ; repères glucides et eau par heure partagés avec la stratégie de course d'Objectif.
 18. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
 19. [ ] **En un coup d'œil** :
    - Pense-bête : rappels tirés des courses et notes perso (table des notes, évolution à prévoir).
-   - Bilan nutrition : avec le module Nutrition.
    - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
 20. [ ] **Prévoir un profil piste ?**
 21. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales, n° 5) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).

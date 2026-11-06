@@ -24,7 +24,8 @@
         c ? '<div class="ac-carte" data-course="' + esc(c.id) + '"></div>' : vide('Aucune course confirmée à venir.'));
     },
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),
-    nutrition: () => bloc('nutrition', 'Bilan nutrition', null, vide('Le plan de ravitaillement de la prochaine course, avec le module Nutrition.'), true),
+    // Le bilan du jour et l'ajout en une touche (nutrition.js, renderNutritionAccueil).
+    nutrition: () => bloc('nutrition', 'Nutrition', ['nutrition.html', 'Détail'], '<div class="nu-accueil"></div>'),
     // Les étapes de la feuille de route jusqu'au cap compris.
     dicila: (courses, prefs) => {
       const cap = window.mrtCap(courses, prefs), etapes = [];
@@ -48,9 +49,12 @@
     }
   };
 
-  window.renderAccueil = function (el, courses, prefs) {
+  // nutrition : { profil, id, semaines, lectureSeule } pour le bloc Nutrition (page index.html).
+  window.renderAccueil = function (el, courses, prefs, nutrition) {
     el.innerHTML = '<div class="ac-grille">' + window.mrtBlocsAffiches(prefs).map(b => BLOCS[b.id](courses, prefs)).join('') + '</div>';
     const carte = el.querySelector('.ac-carte');
     if (carte) window.renderCarteCourse(carte, courses.find(c => c.id === carte.dataset.course));
+    const nu = el.querySelector('.nu-accueil');
+    if (nu && nutrition && window.renderNutritionAccueil) window.renderNutritionAccueil(nu, Object.assign({ courses }, nutrition));
   };
 })();

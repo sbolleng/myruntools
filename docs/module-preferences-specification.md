@@ -27,7 +27,7 @@ Une section par réglage, de la plus utilisée à la moins utilisée : **Thème*
 ## 4 bis. En un coup d'œil
 
 - Texte d'aide : « Coche les blocs à afficher et range-les avec les flèches. »
-- Les blocs construits, chacun avec une case « affiché » et deux flèches dessinées, comme le Menu ; les blocs pas encore construits sur une ligne, « Bientôt : Pense-bête, Bilan nutrition. », sans case ni flèches (gardés à la fin de la liste enregistrée : ils apparaîtront une fois construits ; jamais de bloc vide sur la page).
+- Les blocs construits, chacun avec une case « affiché » et deux flèches dessinées, comme le Menu ; les blocs pas encore construits sur une ligne, « Bientôt : Pense-bête. », sans case ni flèches (gardés à la fin de la liste enregistrée : ils apparaîtront une fois construits ; jamais de bloc vide sur la page).
 - Par défaut : Prochaine course, D'ici là, Dernière course affichés. « Rétablir l'ordre par défaut » y revient.
 
 ## 4. Menu
@@ -102,4 +102,4 @@ Résultats attendus :
 - Site partagé en lecture seule : Thème, Menu et Cap affichent « Reviens à ton site pour modifier tes réglages. » ; Partage et Compte restent utilisables.
 - Téléphone : la page tient dans la largeur de l'écran, sans défilement horizontal.
 - Menu : pas de choix de page de démarrage ; « à l'ouverture » sur la ligne En un coup d'œil ; le décocher : la mention passe sur Objectif.
-- En un coup d'œil, sous le Menu : texte d'aide « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. » ; cinq blocs, Pense-bête et Bilan nutrition « · bientôt » ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.
+- En un coup d'œil, sous le Menu : texte d'aide « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. » ; cinq blocs, Pense-bête « · bientôt », Nutrition construit (affiché quand le module est au menu) ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.

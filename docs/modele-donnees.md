@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.19 · 5 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.20 · 6 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -25,6 +25,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `seances` | Une séance du Calendrier (run ou renfo) | `profils`, `courses` (facultatif) |
 | `aliments` | Un aliment de l'utilisateur (favori, récent) | `profils` |
 | `repas_lignes` | Un aliment mangé, un jour, à un repas | `profils`, `aliments` (facultatif) |
+| `sport_jour` | Un sport pratiqué un jour (Nutrition) | `profils` |
 | `equipements` | Un équipement : chaussures, montre, bâtons… | `profils`, `types_equipement` |
 | `types_course`, `formats`, `types_equipement`, `circuits` | Une valeur d'une liste de référence | — |
 
@@ -187,6 +188,16 @@ Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'
 | `quantite` | Nombre de portions | Oui |
 | `kcal`, `proteines`, `glucides`, `lipides` | Totaux de la ligne (quantité × portion), figés à la saisie | `kcal` oui |
 
+### `sport_jour`
+
+Évolution 022. Le sport du jour de la page Nutrition, rangé pour être retrouvé sur tous les appareils et pour les jours passés.
+
+| Champ | Contenu | Obligatoire |
+| --- | --- | --- |
+| `date` | Jour | Oui |
+| `type` | Clé du sport dans la calculatrice (`j95`, `muscu`, `v2`…) | Oui |
+| `heures` | Durée, de plus de 0 à 24 h | Oui |
+
 Le besoin du jour et les cibles se calculent (§ 7), ils ne sont pas rangés.
 
 ## 6. Listes
@@ -224,7 +235,7 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 
 - Connexion par adresse e-mail et mot de passe (gérés par Supabase Auth, rien dans nos tables) ; un compte = un profil.
 - Règle par ligne sur toutes les tables d'utilisateur : lecture et écriture seulement si la ligne appartient à l'utilisateur connecté.
-- `aliments` et `repas_lignes` : règle par ligne, **sans** exception de partage.
+- `aliments`, `repas_lignes` et `sport_jour` : règle par ligne, **sans** exception de partage.
 - Exception, en lecture seulement : courses, circuits, phases modifiées, séances et préférences d'un propriétaire qui a partagé son site avec l'utilisateur connecté (`partages`).
 - Fichiers GPX (stockage `traces`, privé) : mêmes règles que les courses, par dossier d'utilisateur ; lecture aussi pour ceux avec qui le site est partagé.
 - Listes de référence : lecture pour tout utilisateur connecté, écriture pour l'administrateur seulement.
