@@ -89,6 +89,8 @@
 .cal-a-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 /* Nom de la course dans sa case, décalé des seules barres de ce jour-là. */
 .cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: 0.45rem; font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.cal-a-se { font-size: var(--t-micro); color: var(--text); }
+.cal-a-se.faite { color: var(--muted); text-decoration: line-through; }
 .cal-a-j.c-route-v { background: var(--route); }
 .cal-a-j.c-trail-v { background: var(--trail); }
 .cal-a-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
@@ -115,6 +117,10 @@
 .cal-m-num.auj, .cal-m-case.passe .cal-m-num.auj { color: var(--bg); background: var(--accent); }
 .cal-m-txt { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
 .cal-m-case .cal-v-plus { right: 0.35rem; bottom: 0.35rem; }
+/* Mois : case étroite, le type en toutes lettres sur sa ligne, le libellé dessous (chacun coupé s'il ne tient pas). */
+.cal-m-case .cal-v-se { align-items: flex-start; }
+.cal-m-case .cal-v-se input { margin-top: 0.1rem; }
+.cal-m-case .cal-v-se-txt b, .cal-m-case .cal-v-se-txt span { display: block; overflow: hidden; text-overflow: ellipsis; }
 .cal-m-points { display: none; }
 
 /* ----- Semaine : un jour par ligne, une semaine après l'autre (spécification § 4.3 et 4.4) ----- */

@@ -1653,6 +1653,11 @@ const CONTROLES = {
     const pb = [];
     const { db, id } = jeuObjectif(db0);
     const GORGES = id(3);
+    const moi = db.profils[0].id;
+    db.seances = [
+      { id: 'se-1', utilisateur: moi, date: '2026-10-19', type: 'renfo', libelle: 'Gainage 30 min', faite: true, course: null },
+      { id: 'se-2', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: '8×400 m', faite: false, course: null },
+      { id: 'se-3', utilisateur: moi, date: '2026-10-20', type: 'renfo', libelle: 'Gainage 20 min', faite: false, course: null }];
     db.courses.push({ id: '00000000-0000-0000-0002-000000000098', utilisateur: db.profils[0].id, course: 'Option passée', date: '2026-10-10', format: 'trail_court',
       statut: 'option', etat: 'a_venir', role: 'preparatoire', date_approx: false });
     const lire = p => p.evaluate(() => {
@@ -1666,6 +1671,7 @@ const CONTROLES = {
         blocs: [...document.querySelectorAll('.cal-a-bloc')].map(b => b.querySelectorAll('.cal-a-mois').length),
         mois: [...document.querySelectorAll('.cal-a-mois')].map(m => m.textContent.replace(/\s+/g, ' ').trim()),
         courses: [...document.querySelectorAll('.cal-a-j[data-course]')].map(j => [j.querySelector('.cal-a-nom').textContent, [...j.classList].find(c => /^c-|^courue$/.test(c))]).sort((a, b) => (a[0] < b[0] ? -1 : 1)),
+        seances: ['2026-10-19', '2026-10-20', '2026-10-21'].map(j => { const e = document.querySelector('.cal-a-j[data-jour="' + j + '"] .cal-a-se'); return e ? [e.textContent, e.classList.contains('faite')] : null; }),
         nbPhases: document.querySelectorAll('.cal-a-j[class*="ph-"]').length, barres: document.querySelectorAll('.cal-a-barre').length,
         p1: phase('2026-10-01'), p12: phase('2026-10-12'), p20: phase('2026-10-20'), p0116: phase('2026-11-16'), p0208: phase('2027-02-08'), l12: lisere('2026-10-12'), l20: lisere('2026-10-20'), lGorges: lisere('2027-03-07'),
         titre20: (document.querySelector('.cal-a-j[data-jour="2026-10-20"]') || {}).title || '',
@@ -1692,6 +1698,7 @@ const CONTROLES = {
         egal([tel ? [3, 3] : [6], ['oct. 26', 'nov.', 'déc.', 'janv. 27', 'févr.', 'mars']], [r.blocs, r.mois], nom + ', ' + (tel ? 'deux blocs de trois mois' : 'un bloc de six mois')),
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, 0, false, LEGENDE], [r.nbPhases, r.barres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni fond de phase ni légende des phases'),
+        egal([['Renforcement', true], ['Course à pied · Renforcement', false], null], r.seances, nom + ', séances du jour en toutes lettres (barrées quand elles sont faites), rien un jour sans séance'),
         egal([['2026-10-20'], 'M20'], [r.auj, r.aujN], nom + ', aujourd\'hui repéré : case cerclée, numéro dans un rond'),
         egal([[['J1', false, false], ['S3', true, false], ['D4', true, true], ['L5', false, false]], ['oct. 26'], [true, true]], [r.jours10, r.moisCourant, r.fonds],
           nom + ', chaque mois a ses jours (initiale, numéro), samedi et dimanche plus foncés, filet sous le dimanche, mois en cours repéré ; jour passé : même fond'),
@@ -1708,7 +1715,7 @@ const CONTROLES = {
         egal([true, 158, 0, ['ph-developpement', 'ph-deload', 'ph-developpement', 'ph-developpement', 'ph-developpement']], [r.plan, r.nbPhases, r.barres, [r.p1, r.p12, r.p20, r.p0116, r.p0208]],
           nom + ', bouton « Plan » enfoncé (retenu sur l\'appareil) : le fond de phase de chaque jour, pas de barres'),
         egal([['3px', 'rgb(143, 168, 201)'], ['3px', 'rgb(230, 184, 77)'], ['3px', 'rgb(180, 142, 240)'], 'rgb(255, 122, 69)', true],
-          [r.l12, r.l20, r.lGorges, r.gorges, r.titre20.endsWith('Développement')], nom + ', liseré de 3 px de la couleur pleine de la phase (deload, développement, affûtage), une course garde sa couleur, infobulle : la phase'),
+          [r.l12, r.l20, r.lGorges, r.gorges, r.titre20.includes('Développement · Course à pied 8×400 m · Renforcement Gainage 20 min')], nom + ', liseré de 3 px de la couleur pleine de la phase (deload, développement, affûtage), une course garde sa couleur, infobulle : la phase puis les séances'),
         egal(LEGENDE.concat([['Phases', 'Base', 'Développement', 'Affûtage', 'Deload']]), r.legende, nom + ', légende des phases'),
         egal(false, r.debordement, nom + ', Plan, débordement horizontal'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-annee-' + nom.replace('é', 'e') + '.png'), fullPage: true });
@@ -1789,7 +1796,7 @@ const CONTROLES = {
         debordement: document.documentElement.scrollWidth > innerWidth
       };
     });
-    const SEANCES = [['2026-10-19', 'Renfo Gainage 30 min', true], ['2026-10-20', 'Run 8×400 m', false], ['2026-10-22', 'Run Footing 45 min', false], ['2026-10-24', 'Run Sortie 1 h 30', false]];
+    const SEANCES = [['2026-10-19', 'Renforcement Gainage 30 min', true], ['2026-10-20', 'Course à pied 8×400 m', false], ['2026-10-22', 'Course à pied Footing 45 min', false], ['2026-10-24', 'Course à pied Sortie 1 h 30', false]];
     for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
       const r = await lire(p), tel = w < 600;
@@ -1834,7 +1841,7 @@ const CONTROLES = {
     await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal([{ date: '2026-10-21', type: 'run', libelle: 'Footing 30 min' }, true], [(({ date, type, libelle }) => ({ date, type, libelle }))(d.seances[d.seances.length - 1]),
-      (await lire(p)).seances.some(x => x[0] === '2026-10-21' && x[1] === 'Run Footing 30 min')], '« + » d\'une case : séance ajoutée à ce jour'));
+      (await lire(p)).seances.some(x => x[0] === '2026-10-21' && x[1] === 'Course à pied Footing 30 min')], '« + » d\'une case : séance ajoutée à ce jour'));
     await p.click('[data-edit="se-3"]');
     pb.push(egal('Footing 45 min', await p.inputValue('.cal-seance [name="libelle"]'), 'séance touchée : sa fenêtre'));
     await p.click('.cal-seance [data-act="annuler"]');
@@ -1902,7 +1909,7 @@ const CONTROLES = {
         egal([['Semaine', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], true, '↑ Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Périodicité »), barre du haut sur une ligne, lien vers les semaines passées'),
         egal([SEMAINES, 'Semaine du 19 au 25 oct.'], [r.semaines.slice(0, 3), r.courante], nom + ', la semaine en cours d\'abord, puis les suivantes'),
         egal([['19lun.', '20mar.', '21mer.', '22jeu.', '23ven.', '24sam.', '25dim.'], ['2026-10-20']], [r.dates, r.auj], nom + ', numéro et nom de chaque jour, aujourd\'hui mis en avant'),
-        egal([[['2026-10-19', 'Renfo Gainage 30 min', true], ['2026-10-20', 'Run 8×400 m', false], ['2026-10-22', 'Run Footing 45 min', false], ['2026-10-24', 'Run Sortie 1 h 30', false]],
+        egal([[['2026-10-19', 'Renforcement Gainage 30 min', true], ['2026-10-20', 'Course à pied 8×400 m', false], ['2026-10-22', 'Course à pied Footing 45 min', false], ['2026-10-24', 'Course à pied Sortie 1 h 30', false]],
           [['2026-11-01', '◆ Ouverture des inscriptions · Corrida de Noël']]], [r.seances, r.rdv], nom + ', séances à cocher, rendez-vous clé'),
         egal([r.semaines.length * 7, false, false], [r.plus, /Faites/.test(r.texte), /Développement/.test(r.texte)], nom + ', un « + » par jour ; ni « Faites », ni nom de phase'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
@@ -1935,12 +1942,12 @@ const CONTROLES = {
     await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal([{ date: '2026-10-21', type: 'run', libelle: 'Footing 30 min' }, true], [(({ date, type, libelle }) => ({ date, type, libelle }))(d.seances[d.seances.length - 1]),
-      (await lire(p)).seances.some(x => x[0] === '2026-10-21' && x[1] === 'Run Footing 30 min')], 'séance ajoutée : écriture, affichée au bon jour'));
+      (await lire(p)).seances.some(x => x[0] === '2026-10-21' && x[1] === 'Course à pied Footing 30 min')], 'séance ajoutée : écriture, affichée au bon jour'));
     await p.click('[data-edit="se-3"]');
     await p.selectOption('.cal-seance [name="type"]', 'renfo'); await p.fill('.cal-seance [name="libelle"]', 'Gainage 20 min');
     await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
-    pb.push(egal(['Renfo Gainage 20 min'], (await lire(p)).seances.filter(x => x[0] === '2026-10-22').map(x => x[1]), 'séance modifiée'));
+    pb.push(egal(['Renforcement Gainage 20 min'], (await lire(p)).seances.filter(x => x[0] === '2026-10-22').map(x => x[1]), 'séance modifiée'));
     await p.click('[data-edit="se-3"]');
     await p.click('[data-act="supprimer"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
@@ -2024,7 +2031,7 @@ const CONTROLES = {
     await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal({ date: '2026-11-17', course: GORGES }, (({ date, course }) => ({ date, course }))(d.seances[d.seances.length - 1]), 'séance ajoutée depuis la rubrique : liée à la course'),
-      egal(['Run Footing 40 min'], await p.evaluate(() => [...document.querySelectorAll('.cal-prep-lib + .cal-sem .cal-se')].map(e => e.textContent.trim().replace(/\s+/g, ' '))), 'séance affichée dans la semaine mise en avant'));
+      egal(['Course à pied Footing 40 min'], await p.evaluate(() => [...document.querySelectorAll('.cal-prep-lib + .cal-sem .cal-se')].map(e => e.textContent.trim().replace(/\s+/g, ' '))), 'séance affichée dans la semaine mise en avant'));
     // Préparer : durée de 20 semaines, une semaine en Base, puis recalcul
     await p.click('#preparation [data-preparer]');
     await p.fill('.cal-prep [name="duree"]', '20'); await p.dispatchEvent('.cal-prep [name="duree"]', 'change');
