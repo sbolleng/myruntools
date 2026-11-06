@@ -27,7 +27,7 @@
   window.mrtBlocsAccueil = [
     { id: 'prochaine', nom: 'Prochaine course' },
     { id: 'pensebete', nom: 'Pense-bête', bientot: true },
-    { id: 'nutrition', nom: 'Bilan nutrition', bientot: true },
+    { id: 'nutrition', nom: 'Nutrition', module: 'Nutrition' }, // affiché seulement si le module Nutrition est dans le menu
     { id: 'dicila', nom: 'D\'ici là' },
     { id: 'derniere', nom: 'Dernière course' }
   ];
@@ -37,7 +37,7 @@
     const tous = window.mrtBlocsAccueil;
     const choix = prefs && prefs.accueil_blocs;
     const liste = !choix ? tous.filter(b => !b.masque) : choix.map(id => tous.find(b => b.id === id)).filter(Boolean);
-    return liste.filter(b => !b.bientot);
+    return liste.filter(b => !b.bientot && (!b.module || modulesAffiches(prefs).some(m => m.nom === b.module)));
   };
   // Modules du menu, dans l'ordre choisi (rien d'enregistré : tout le catalogue), construits seulement : un module
   // « bientôt » reste dans les Préférences et n'entre dans le menu qu'une fois construit.

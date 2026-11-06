@@ -224,6 +224,16 @@ create table repas_lignes (
 );
 create index repas_lignes_utilisateur_date on repas_lignes (utilisateur, date);
 
+-- Sport du jour (évolution 022) : une ligne par sport et par jour
+create table sport_jour (
+  id          uuid primary key default gen_random_uuid(),
+  utilisateur uuid not null default auth.uid() references profils (id) on delete cascade,
+  date        date not null,
+  type        text not null check (char_length(type) between 1 and 20),
+  heures      numeric(4,2) not null check (heures > 0 and heures <= 24)
+);
+create index sport_jour_utilisateur_date on sport_jour (utilisateur, date);
+
 -- ----- Circuits : une course peut appartenir à plusieurs circuits
 create table circuits (
   id      text primary key,
@@ -281,6 +291,7 @@ alter table plan_semaines    enable row level security;
 alter table seances          enable row level security;
 alter table aliments         enable row level security;
 alter table repas_lignes     enable row level security;
+alter table sport_jour       enable row level security;
 
 create policy "son profil" on profils for all to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()));
@@ -297,6 +308,8 @@ create policy "ses séances" on seances for all to authenticated
 create policy "ses aliments" on aliments for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses repas" on repas_lignes for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "son sport" on sport_jour for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "son équipement" on equipements for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));

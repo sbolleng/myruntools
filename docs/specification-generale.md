@@ -141,7 +141,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | --- | --- | --- |
 | Prochaine course | La carte de la prochaine course confirmée, comme sur la feuille de route ; lien vers la feuille de route | Affiché |
 | Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt : jamais affiché avant d'être construit | — |
-| Bilan nutrition | Plan de ravitaillement de la prochaine course, avec le module Nutrition · bientôt : jamais affiché avant d'être construit | — |
+| Nutrition | Bilan du jour (mangé / besoin) et ajout en une touche des favoris et récents ([Nutrition](module-nutrition-specification.md), § 4.7) ; seulement quand le module Nutrition est au menu | Affiché |
 | D'ici là | Les étapes de la feuille de route jusqu'au cap compris, le cap en Accent | Affiché |
 | Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Affiché |
 

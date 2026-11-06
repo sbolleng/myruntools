@@ -42,7 +42,7 @@
       el.innerHTML = '<p class="nu-vide">Les données de nutrition ne sont pas partagées.</p>';
       return;
     }
-    renderNutrition(el, { profil: page.session.profil || {}, id: page.session.id, courses: page.courses, semaines: (page.plan || {}).semaines || [] });
+    renderNutrition(el, { profil: page.session.profil || {}, id: page.session.id, courses: page.courses, semaines: (page.plan || {}).semaines || [], seances: (page.plan || {}).seances || [] });
   });
 </script>
 </body>
