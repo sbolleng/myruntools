@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.19 · 6 novembre 2026 · [Retour au sommaire](README.md) · Menu « Périodicité » (Semaine, Mois, 3 mois, 6 mois, Année) et bouton « Plan » ; Année : fond de phase et liseré, sans barres, Plan enfoncé ; Année : chaque mois a ses jours, samedi et dimanche marqués, filet de fin de semaine ; Mois : cases jointives d'un seul fond, « + » en Accent ; un seul fond par phase
+Version 0.20 · 6 novembre 2026 · [Retour au sommaire](README.md) · Menu « Périodicité » (Semaine, Mois, 3 mois, 6 mois, Année) et bouton « Plan » ; Année : fond de phase et liseré, sans barres, Plan enfoncé ; Année : chaque mois a ses jours, samedi et dimanche marqués, filet de fin de semaine ; Mois : cases jointives d'un seul fond, « + » en Accent ; un seul fond par phase
 
 ## 1. Rôle
 
@@ -83,6 +83,7 @@ Retirés en 0.18 : les pastilles des vues (1), la case « Phases de prépa » (2
 
 - **Période** : 3, 6 ou 12 mois, choisie dans le menu « Périodicité » (6 par défaut, retenue sur l'appareil : `mrt-calendrier-mois`), du 1er du premier mois au dernier jour du dernier ; à partir du mois en cours, ou du mois de l'adresse. Flèches : une période plus tôt ou plus tard ; « Aujourd'hui » ramène au mois en cours. Blocs : six mois par bloc sur ordinateur (un bloc en 3 et 6 mois, deux en 12), trois sur téléphone.
 - **Courses** : confirmées et options à venir (une option dont la date est passée disparaît), courues de la période ; ni « À surveiller », ni abandonnées. La case de la course est remplie de la couleur de sa famille : pleine pour une course confirmée (statut Confirmée), atténuée et cadrée pour une option (statut Option), Texte discret pour une course courue ; son nom y est écrit, coupé s'il ne tient pas. Route ou trail : le type de la course, déduit de son format ; tout ce qui n'est pas trail est dans la famille route.
+- **Séances** (Année) : dans la case du jour, le type de chaque séance en toutes lettres (« Course à pied · Renforcement », un type une seule fois), atténué et barré quand toutes sont faites ; la case d'une course garde son nom ; infobulle : le type et le libellé de chaque séance. Ni case à cocher ni « + » ici : un toucher ouvre la vue Semaine du jour.
 - **Phase d'un jour** (Plan) : celle de sa semaine dans le plan suivi (§ 2 : la course confirmée la plus proche), phases modifiées à la main comprises ; fond de la couleur de la phase et liseré (7) ; une semaine sans plan garde le fond ordinaire ; une case de course garde sa couleur, le liseré en plus. Pas de barres : les prépas qui se chevauchent ne sont pas montrées séparément (retiré le 6 novembre 2026, sur demande). Format sans durée de prépa : pas de plan.
 - **Jours** : chaque mois a sa colonne de jours, l'initiale et le numéro (« L 19 ») ; ses cases sont jointives et d'un même fond, jour passé compris ; samedi et dimanche ont un fond plus marqué ; un filet sous chaque dimanche ferme la semaine ; aujourd'hui : case cerclée, numéro dans un rond Accent ; l'onglet du mois en cours est en Accent.
 - **Toucher** une course ouvre sa page (rubrique Préparation ; une course courue, son résultat) ; un jour, la vue Semaine à partir du lundi de ce jour. Sur ordinateur, une infobulle donne la date, la course et la phase du jour (« Développement »).
@@ -127,7 +128,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
 | 15 | Aujourd'hui | le numéro dans un rond plein (Accent) | Case du jour |
 | 17 | Course du jour, à sa couleur | « Trail du Lac » | Case du jour |
 | 8 | Rendez-vous clé : ouverture des inscriptions | « ◆ Inscriptions · Corrida de Noël » | Case du jour |
-| 6, 7 | Séance : case « faite », type, libellé (touché : sa fenêtre) | « ☐ Run 8×400 m » | Case du jour, une ligne par séance |
+| 6, 7 | Séance : case « faite », type, libellé (touché : sa fenêtre) | « ☐ Course à pied 8×400 m » | Case du jour, une ligne par séance |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Coin bas droit de la case |
 | 21 | Jours des mois voisins | 28, 29, 30 sept. ; 1er nov. | Le fond des autres jours, numéro et contenu atténués |
 | 5 | Fond de phase (Plan) | développement | Toute la case |
@@ -173,7 +174,7 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 | 15 | Aujourd'hui | numéro dans un rond Accent, ligne cerclée | Ligne du jour |
 | 17 | Course du jour | « Trail du Lac » | Ligne du jour |
 | 8 | Rendez-vous clé | « ◆ Ouverture des inscriptions · Corrida de Noël » | Ligne du jour |
-| 6, 7 | Séance : case « faite », type, libellé | « ☐ Run 8×400 m » | Ligne du jour |
+| 6, 7 | Séance : case « faite », type, libellé | « ☐ Course à pied 8×400 m » | Ligne du jour |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Bout de la ligne |
 | 5 | Fond de phase (Plan) | | Toute la ligne |
 
@@ -184,7 +185,7 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 - **Jours** : une ligne par jour, un même fond pour tous (passé compris ; seul le numéro d'un jour passé est atténué) ; pas de total de séances, pas de nom de phase.
 - **Rendez-vous clés** : l'ouverture des inscriptions (`ouverture_inscriptions`) d'une course Confirmée ou Option.
 - **Toucher une course** (jour de course, rendez-vous clé) ouvre sa page, à la rubrique Préparation ; une course courue, son résultat.
-- **Séance** : un type (run ou renfo), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.
+- **Séance** : un type (Course à pied ou Renforcement, écrits en toutes lettres partout ; d'autres types, vélo, tapis…, s'ajouteront à la liste des types et à la base), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.
 - **Saisie d'une séance** : le « + » d'un jour ouvre une fenêtre (date, type, libellé de 100 caractères au plus), présentée comme la fiche d'une course : « Annuler » et « Enregistrer » en haut, le titre en libellé (« AJOUTER UNE SÉANCE »), les champs communs du site ; toucher une séance la modifie, ou la supprime par « Supprimer la séance » (à contour rouge, seul en bas, avec confirmation) ; sa case « faite » s'enregistre aussitôt. Une séance ajoutée depuis un plan est liée à sa course.
 
 ## 5. Préparation d'une course
@@ -328,7 +329,7 @@ Jeu d'essai, données fictives, au mardi 20 octobre 2026 à 10 h, heure de Paris
 
 **Durées de prépa** : celles du § 5.4 (10 km 8 semaines, Trail court 12, Trail long 16, Ultra-trail 16).
 
-**Séances d'essai** : lundi 19 octobre, Renfo · Gainage 30 min (faite) ; mardi 20, Run · 8×400 m ; jeudi 22, Run · Footing 45 min ; samedi 24, Run · Sortie 1 h 30.
+**Séances d'essai** : lundi 19 octobre, Renforcement · Gainage 30 min (faite) ; mardi 20, Course à pied · 8×400 m ; jeudi 22, Course à pied · Footing 45 min ; samedi 24, Course à pied · Sortie 1 h 30.
 
 Résultats attendus, vue Année (`calendrier.html#annee`) :
 
@@ -336,6 +337,7 @@ Résultats attendus, vue Année (`calendrier.html#annee`) :
 - Courses dans leur case : Semi de San Sebastián (courue), Trail du Lac, Corrida de Noël (route), Trail des Gorges ; ni Cross des Collines (abandonnée), ni Trail des Sommets (à surveiller), ni l'option passée du 10 octobre ; aujourd'hui (20 octobre) cerclé, « M 20 » dans un rond.
 - Jours d'octobre : « J 1 », « S 3 » et « D 4 » (samedi et dimanche marqués, filet sous le dimanche), « L 5 » ; onglet « oct. 26 » en Accent ; un jour passé (jeudi 15) a le fond d'un jour à venir (jeudi 22), un samedi un fond plus marqué.
 - Bouton « Plan » éteint : ni fond de phase ni légende des phases ; légende « Route confirmée, option », « Trail confirmée, option », courue, aujourd'hui.
+- Séances d'essai (Renforcement le 19, cochée ; Course à pied et Renforcement le 20) : « Renforcement » barré le 19, « Course à pied · Renforcement » le 20, rien le 21 ; infobulle du 20 : les deux séances avec leur libellé.
 - Plan enfoncé (retenu sur l'appareil) : légende des phases, fond de phase de chaque jour, sans barres : 1er octobre, développement ; 12 octobre, deload ; 20 octobre, développement ; 16 novembre, développement ; 8 février, développement. Liseré de 3 px à gauche de la case : deload (12 octobre), développement (20 octobre), affûtage (7 mars) ; le Trail des Gorges (7 mars) garde sa couleur ; infobulle du 20 octobre : « … · Développement ».
 - Période suivante : `#annee=2027-04`, « Avril – septembre 2027 » : Trail des Cimes, Ultra du Plateau, Trail de la Forêt (options), Trail des Crêtes ; pas d'aujourd'hui. « Aujourd'hui » : de nouveau octobre. Menu, « Année » : deux blocs de six, « Octobre 2026 – septembre 2027 », retenu ; « 3 mois » : « Octobre – décembre 2026 ».
 - Toucher le 22 octobre : `#semaines=2026-10-19` ; toucher le Trail des Gorges : sa page en modale, rubrique Préparation ; toucher le Semi de San Sebastián : son résultat.
@@ -345,7 +347,7 @@ Résultats attendus, vue Année (`calendrier.html#annee`) :
 Résultats attendus, vue Mois (`calendrier.html#mois`, séances d'essai) :
 
 - Menu « Périodicité » sur « Mois » ; « Octobre 2026 », voisins « sept. » et « nov. » ; jours « lun. » à « dim. » ; 35 cases, du 28 septembre au 1er novembre ; 28, 29, 30 septembre et 1er novembre atténués ; aujourd'hui, le 20 ; un seul fond pour toutes les cases (28 septembre et 7 octobre, 19 et 21 octobre).
-- Semi de San Sebastián le 4 (courue) ; « ◆ Inscriptions · Corrida de Noël » le 1er novembre ; séances : Renfo Gainage 30 min le 19 (cochée), Run 8×400 m le 20, Run Footing 45 min le 22, Run Sortie 1 h 30 le 24 ; un « + » par case, à contour Accent ; ni phases ni légende.
+- Semi de San Sebastián le 4 (courue) ; « ◆ Inscriptions · Corrida de Noël » le 1er novembre ; séances : Renforcement Gainage 30 min le 19 (cochée), Course à pied 8×400 m le 20, Course à pied Footing 45 min le 22, Course à pied Sortie 1 h 30 le 24 ; un « + » par case, à contour Accent ; ni phases ni légende.
 - Plan enfoncé : les 35 cases à la couleur de leur phase (développement ; deload la semaine du 12 octobre), le même fond pour un jour passé, à venir ou voisin d'une même phase, et la légende des phases.
 - Mois suivant : `#mois=2026-11`, « Novembre 2026 », voisins « oct. » et « déc. », le Trail du Lac le 15 ; janvier : voisins « déc. 26 » et « févr. » ; « Aujourd'hui » : octobre.
 - Cocher 8×400 m : écriture de `faite` ; « + » du 21 : « Footing 30 min » ajouté ce jour-là ; toucher Footing 45 min : sa fenêtre ; toucher le 23 : `#semaines=2026-10-19` ; en novembre, le rendez-vous clé mène à la page de la Corrida de Noël et le Trail du Lac ouvre sa page.
@@ -354,9 +356,9 @@ Résultats attendus, vue Mois (`calendrier.html#mois`, séances d'essai) :
 Résultats attendus, vue Semaine (`calendrier.html`, vue par défaut, séances d'essai) :
 
 - Menu « Périodicité » sur « Semaine », barre du haut sur une ligne (téléphone compris) ; lien « ↑ Afficher les semaines passées » ; semaines « Semaine du 19 au 25 oct. » (en cours), « Semaine du 26 oct. au 1er nov. », « Semaine du 2 au 8 nov. » ; jours « 19 lun. » à « 25 dim. » ; le mardi 20 mis en avant.
-- Séances : Renfo Gainage 30 min le 19 (cochée), Run 8×400 m le 20, Run Footing 45 min le 22, Run Sortie 1 h 30 le 24 ; « ◆ Ouverture des inscriptions · Corrida de Noël » le 1er novembre ; un « + » par jour ; ni « Faites », ni nom de phase.
+- Séances : Renforcement Gainage 30 min le 19 (cochée), Course à pied 8×400 m le 20, Course à pied Footing 45 min le 22, Course à pied Sortie 1 h 30 le 24 ; « ◆ Ouverture des inscriptions · Corrida de Noël » le 1er novembre ; un « + » par jour ; ni « Faites », ni nom de phase.
 - Défilement : les semaines suivantes arrivent. Semaines passées : la première devient « Semaine du 21 au 27 sept. », la semaine du 19 octobre ne bouge pas à l'écran. « Aujourd'hui » : de nouveau trois semaines à partir du 19 octobre.
-- Cocher 8×400 m : écriture ; « + » du 21 sans libellé : « Écris le libellé de la séance. » ; puis « Footing 30 min » ajouté le 21 ; Footing 45 min modifié en Renfo « Gainage 20 min », puis supprimé (confirmation).
+- Cocher 8×400 m : écriture ; « + » du 21 sans libellé : « Écris le libellé de la séance. » ; puis « Footing 30 min » ajouté le 21 ; Footing 45 min modifié en Renforcement « Gainage 20 min », puis supprimé (confirmation).
 - Plan enfoncé : les sept jours de la semaine du 19 octobre en développement, le lundi 19 (passé) sur le même fond que le mercredi 21, la légende des phases, pas de nom de phase. Au 14 décembre, sans le Trail des Gorges : la semaine du 14 décembre sans fond de phase.
 - `#semaines=2026-11-09` : « Semaine du 9 au 15 nov. » en tête, le Trail du Lac le 15, qui ouvre sa page.
 - Téléphone : un jour par ligne, rien ne déborde. Lecture seule : ni « + » ni modification, cases « faite » grisées.

@@ -250,7 +250,7 @@ Résultats attendus :
 - A partage avec B : B lit les courses, circuits et préférences de A, et son prénom, nom et sexe, mais ni son poids ni sa VMA ; B ne peut rien modifier chez A ; A retire le partage, B ne lit plus rien.
 - Calendrier : A a une course de format Trail long (16 semaines par défaut). Sa durée propre à 20 semaines remplace celle du format ; vidée, le format reprend. Un format sans durée : pas de plan.
 - A modifie la phase d'une semaine : une ligne dans `plan_semaines` ; B ne la voit pas. Un jour qui n'est pas un lundi est refusé, une phase inconnue aussi. Supprimer la course supprime ces lignes.
-- A saisit une séance « Run · 8×400 m » et une séance « Renfo · Gainage » sans course : B ne les voit pas ; un type inconnu est refusé, un libellé vide ou de plus de 100 caractères aussi.
+- A saisit une séance « Course à pied · 8×400 m » et une séance « Renforcement · Gainage » sans course : B ne les voit pas ; un type inconnu est refusé, un libellé vide ou de plus de 100 caractères aussi.
 - Supprimer la course liée à une séance garde la séance, sans course.
 - Une durée de préparation de 0 ou de plus de 52 semaines est refusée.
 - A partage avec B : B lit les phases modifiées et les séances de A, sans rien modifier.

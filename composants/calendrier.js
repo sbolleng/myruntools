@@ -110,8 +110,11 @@
             if (c) { cls.push(couleur(c)); tip.push(c.nom + ' · ' + (c.courue ? 'courue' : c.validee ? 'confirmée' : 'en option')); }
             const ph = phaseDuJour(plans, j);
             if (ph) { cls.push('ph-' + ph); tip.push(NOM_PHASE[ph]); }
+            // Séances du jour : leur type en toutes lettres (« Course à pied · Renforcement »), atténué et barré quand elles sont faites ; une course l'emporte sur la case.
+            const se = ctx.seances.filter(x => x.date === j);
+            se.forEach(x => tip.push(TYPES[x.type] + ' ' + x.libelle + (x.faite ? ' (faite)' : '')));
             h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '"' + (c ? ' data-course="' + esc(c.id) + '"' : '') + ' title="' + esc(tip.join(' · ')) + '">' +
-              (c ? '<span class="cal-a-nom">' + esc(c.nom) + '</span>' : '') + '</span>';
+              (c ? '<span class="cal-a-nom">' + esc(c.nom) + '</span>' : se.length ? '<span class="cal-a-nom cal-a-se' + (se.every(x => x.faite) ? ' faite' : '') + '">' + se.map(x => TYPES[x.type]).filter((t, i, a) => a.indexOf(t) === i).join(' · ') + '</span>' : '') + '</span>';
           });
         }
         h += '</div>';

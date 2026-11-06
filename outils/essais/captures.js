@@ -63,10 +63,10 @@ const PAGES = {
   palmares: { url: 'palmares.html' },
   calendrier: { url: 'calendrier.html', donnees: SEANCES },
   'calendrier-mois': { url: 'calendrier.html#mois', donnees: SEANCES },
-  'calendrier-annee': { url: 'calendrier.html#annee' },
+  'calendrier-annee': { url: 'calendrier.html#annee', donnees: SEANCES },
   'calendrier-phases': { url: 'calendrier.html', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   'calendrier-mois-phases': { url: 'calendrier.html#mois', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
-  'calendrier-annee-phases': { url: 'calendrier.html#annee', stockage: { 'mrt-calendrier-phases': '1' } },
+  'calendrier-annee-phases': { url: 'calendrier.html#annee', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   'calendrier-menu': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.click('[data-menu]'); await p.waitForTimeout(200); } },
   // Consultation d'une course courue : le semi de San Sebastián, avec des valeurs fictives ajoutées.
   'consultation-courue': { url: 'palmares.html', hauteur: { ordi: 700 }, donnees: d => { Object.assign(d.courses.find(c => c.id === '00000000-0000-0000-0001-000000000007'),
