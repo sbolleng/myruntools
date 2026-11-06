@@ -25,10 +25,9 @@
 <style>
   /* Réglages : spécification docs/module-preferences-specification.md ; tailles : docs/design.md § 3. */
   /* Un cadre pour la page ; dedans, une section par réglage, séparées par un filet (mrt-section, en-tete.css). */
-  .pref-cadre { padding-top: 1.2rem; padding-bottom: 0.4rem; }
   .mrt-section b { font-weight: 600; }
-  .pref-intro { margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--muted); }
-  .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .pref-intro { margin-bottom: 0.4rem; font-size: var(--t-second); color: var(--muted); }
+  .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .pref-ligne { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
   /* Champs : l'élément commun (mrt-champ, en-tete.css) ; ici, leur largeur seulement. */
   .pref-ligne input { flex: 1 1 14rem; }
@@ -36,9 +35,9 @@
   .pref-liste { list-style: none; }
   .pref-liste li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
   .pref-liste li:last-child { border-bottom: none; }
-  .pref-msg { min-height: 1.4em; margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); }
+  .pref-msg { min-height: 1.4em; margin-top: 0.4rem; font-size: var(--t-petit); color: var(--muted); }
   .pref-msg.erreur { color: var(--red); }
-  .pref-vide { font-size: 0.8rem; color: var(--muted); }
+  .pref-vide { font-size: var(--t-second); color: var(--muted); }
   /* Thème : un choix par ligne, avec ses deux couleurs, comme les lignes du menu. */
   .pref-theme { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); cursor: pointer; }
   .pref-theme:last-child { border-bottom: none; }
@@ -52,13 +51,12 @@
   .pref-modules input, .pref-blocs input { accent-color: var(--accent); margin: 0; }
   .pref-bientot { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
   .pref-fleches { display: flex; gap: 0.3rem; }
-  .pref-rond { font-size: 0.75rem; }
   .pref-defaut { margin-top: 0.6rem; }
-  .pref-fixe { font-size: 0.72rem; color: var(--muted); }
+  .pref-fixe { font-size: var(--t-libelle); color: var(--muted); }
   /* Changer le mot de passe : trois champs l'un sous l'autre. */
   #mdp-ouvrir { margin-top: 0.7rem; }
   .pref-mdp { max-width: 22rem; margin-top: 0.8rem; }
-  .pref-mdp label { display: block; margin: 0.8rem 0 0.35rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .pref-mdp label { display: block; margin: 0.8rem 0 0.35rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .pref-mdp label:first-child { margin-top: 0; }
   .pref-mdp input { width: 100%; } /* le champ commun (mrt-champ), sur toute la largeur */
   .pref-actions { margin-top: 1rem; }
