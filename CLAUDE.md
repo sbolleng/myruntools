@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : Calendrier 0.17 (menu « Périodicité », bouton « Plan », Année en colonnes avec jours de chaque mois et fins de semaine marquées, Mois d'un seul fond et « + » en Accent, un seul fond par phase) ; avant : Nutrition 0.4 (modèle de données 0.19, évolution 019 passée, `besoin.js` et profil minimal construits et testés ; `nutrition.html` hors menu avec besoin du jour et profil ; ensuite jauges, ajout rapide, journal) ; avant : Calendrier 0.16 (trois vues). Historique : `docs/journal.md`.
+- Dernier lot : Calendrier 0.17 et 0.18 (menu « Périodicité » avec 3 mois, 6 mois, Année ; fond de phase aussi dans l'Année, bouton « Plan », Année en colonnes avec jours de chaque mois et fins de semaine marquées, Mois d'un seul fond et « + » en Accent, un seul fond par phase) ; avant : Nutrition 0.4 (modèle de données 0.19, évolution 019 passée, `besoin.js` et profil minimal construits et testés ; `nutrition.html` hors menu avec besoin du jour et profil ; ensuite jauges, ajout rapide, journal) ; avant : Calendrier 0.16 (trois vues). Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.

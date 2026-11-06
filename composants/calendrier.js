@@ -12,7 +12,8 @@
   const P = window.mrtPreparation;
   const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, tousLesPlans, plansDeLaSemaine, planDe, modifsDe, lienCourse } = P;
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', 'Année']];
+  // Choix du menu « Périodicité » : [vue, nom, durée de l'Année en mois].
+  const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
   const INITIALE = ['D', 'L', 'M', 'M', 'J', 'V', 'S']; // initiale du jour, de dimanche à samedi (Année)
   const CHEVRON = '<svg class="cal-menu-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -55,12 +56,15 @@
 
     // ----- Éléments communs -----
     // Barre du haut : le menu « Périodicité » (son bouton porte la vue ouverte) à gauche ; le bouton « Plan » et « Aujourd'hui » à droite.
-    const haut = vue => {
-      const nom = VUES.find(x => x[0] === vue)[1], plan = phasesVisibles();
+    // Année : la durée choisie (3, 6 ou 12 mois) est un choix du menu ; depart garde le premier mois affiché.
+    const haut = (vue, depart) => {
+      const est = x => x[0] === vue && (vue !== 'annee' || Number(x[2]) === periode());
+      const nom = VUES.find(est)[1], plan = phasesVisibles();
       return '<div class="cal-haut"><div class="cal-periodicite">' +
         '<button type="button" class="mrt-btn cal-menu-btn" data-menu aria-expanded="false" aria-controls="cal-menu" aria-label="Périodicité : ' + nom + '">' + nom + CHEVRON + '</button>' +
-        '<nav class="cal-menu" id="cal-menu" aria-label="Périodicité" hidden><span class="cal-libelle">Périodicité</span>' + VUES.map(([v, n]) =>
-          '<a href="#' + v + '" data-vue="' + v + '"' + (v === vue ? ' class="is-on" aria-current="true"' : '') + '>' + n + '</a>').join('') + '</nav></div>' +
+        '<nav class="cal-menu" id="cal-menu" aria-label="Périodicité" hidden><span class="cal-libelle">Périodicité</span>' + VUES.map(x =>
+          '<a href="#' + x[0] + (x[2] && depart ? '=' + depart : '') + '" data-vue="' + x[0] + '"' + (x[2] ? ' data-periode="' + x[2] + '"' : '') +
+          (est(x) ? ' class="is-on" aria-current="true"' : '') + '>' + x[1] + '</a>').join('') + '</nav></div>' +
         '<div class="cal-options"><button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Phases de prépa">Plan</button>' +
         '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     };
@@ -95,6 +99,7 @@
       }).filter(Boolean).sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
       const finCouloir = [];
       prepas.forEach(x => { let k = finCouloir.findIndex(f => f < x.depart); if (k < 0) { k = finCouloir.length; finCouloir.push(''); } finCouloir[k] = x.date; x.couloir = k; });
+      const plans = phases ? tousLesPlans(ctx) : null; // fond de chaque jour : la phase de sa semaine dans le plan suivi (§ 2)
       const taille = mobile.matches ? 3 : Math.min(6, nb);
       let h = '';
       for (let i = 0; i < nb; i += taille) {
@@ -109,6 +114,8 @@
             h += '<span class="cal-a-n' + (j === auj ? ' auj' : '') + '"><i>' + INITIALE[sj] + '</i><b>' + d + '</b></span>';
             if (sj === 0 || sj === 6) cls.push('we');
             if (sj === 0) cls.push('dim');
+            const ph = phaseDuJour(plans, j);
+            if (ph) cls.push('ph-' + ph);
             if (j === auj) { cls.push('auj'); tip.push('aujourd\'hui'); }
             if (c) { cls.push(couleur(c)); tip.push(c.nom + ' · ' + (c.courue ? 'courue' : c.validee ? 'confirmée' : 'en option')); }
             // Barres du jour : la prépa de chaque course, jusqu'à la veille de la course, à la couleur de la phase de sa semaine.
@@ -128,9 +135,8 @@
         if (court) return MOIS[rang(m)] + '–' + MOIS[rang(f)] + ' ' + String(an(f)).slice(2); // « avr.–sept. 27 » : l'année distingue les deux voisines
         return an(m) === an(f) ? cap(MOIS_LONG[rang(m)]) + ' – ' + MOIS_LONG[rang(f)] + ' ' + an(m) : cap(MOIS_LONG[rang(m)]) + ' ' + an(m) + ' – ' + MOIS_LONG[rang(f)] + ' ' + an(f);
       };
-      const choix = '<span class="cal-reglage">' + PERIODES.map(p => '<button type="button" class="cal-choix" data-periode="' + p + '" aria-pressed="' + (Number(p) === nb) + '">' + p + ' mois</button>').join('') + '</span>';
       const famille = (nom, f) => '<span class="cal-groupe"><b class="cal-libelle">' + nom + '</b><span><i class="cal-k c-' + f + '-v"></i>confirmée</span><span><i class="cal-k c-' + f + '-n"></i>option</span></span>';
-      return haut('annee') + bande(titre(depart, nb), choix, [titre(decaler(depart, -nb), nb, true), '#annee=' + decaler(depart, -nb), 'Période précédente'],
+      return haut('annee', depart) + bande(titre(depart, nb), '', [titre(decaler(depart, -nb), nb, true), '#annee=' + decaler(depart, -nb), 'Période précédente'],
         [titre(decaler(depart, nb), nb, true), '#annee=' + decaler(depart, nb), 'Période suivante']) +
         '<div class="cal-legende">' + famille('Route', 'route') + famille('Trail', 'trail') + '<span><i class="cal-k courue"></i>courue</span><span><i class="cal-k cal-k-auj"></i>aujourd\'hui</span>' +
         (phases ? legendePhases() : '') + '</div><div class="cal-a-blocs">' + h + '</div>';
@@ -229,7 +235,17 @@
         if (!menu().hidden && e.detail === 0) menu().querySelector('a.is-on').focus(); // ouvert au clavier : le choix en cours
         return;
       }
-      if (t.closest('.cal-menu a')) { ouvrirMenu(false); return; } // le lien change l'adresse, la vue suit
+      const lien = t.closest('.cal-menu a');
+      if (lien) {
+        // Le lien change l'adresse, la vue suit ; un choix de durée (Année) est retenu sur l'appareil, et redessine même à adresse égale.
+        ouvrirMenu(false);
+        if (lien.dataset.periode) {
+          e.preventDefault(); ranger('mrt-calendrier-mois', lien.dataset.periode);
+          const cible = lien.getAttribute('href');
+          if (location.hash !== cible) location.hash = cible; else dessiner();
+        }
+        return;
+      }
       if (t.closest('[data-plan]')) { ranger('mrt-calendrier-phases', phasesVisibles() ? '0' : '1'); dessiner(); return; }
       if (t.closest('[data-passees]')) {
         // Quatre semaines passées de plus, au-dessus, sans que la semaine regardée ne bouge à l'écran.
@@ -239,8 +255,6 @@
         if (apres) window.scrollBy(0, apres.getBoundingClientRect().top - haut0);
         return;
       }
-      const choix = t.closest('[data-periode]');
-      if (choix) { ranger('mrt-calendrier-mois', choix.dataset.periode); dessiner(); return; }
       if (t.closest('[data-auj]')) {
         const cible = '#' + lireHash().v;
         liste.cle = null;

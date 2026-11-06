@@ -1618,7 +1618,8 @@ const CONTROLES = {
         .map(b => [...b.classList].filter(c => c !== 'cal-a-barre').join(' '));
       return {
         vue: [document.querySelector('[data-menu]').textContent.trim(), [...document.querySelectorAll('.cal-menu a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))],
-        titre: t('.cal-titre'), voisins: [...document.querySelectorAll('.cal-voisin-txt')].map(e => e.textContent), periode: t('.cal-choix[aria-pressed="true"]'),
+        titre: t('.cal-titre'), voisins: [...document.querySelectorAll('.cal-voisin-txt')].map(e => e.textContent), gorges: (e => e && getComputedStyle(e).backgroundColor)(document.querySelector('.cal-a-j[data-jour="2027-03-07"]')),
+        phase20: ((document.querySelector('.cal-a-j[data-jour="2026-10-20"]') || {}).className || '').split(' ').find(c => c.startsWith('ph-')) || null,
         blocs: [...document.querySelectorAll('.cal-a-bloc')].map(b => b.querySelectorAll('.cal-a-mois').length),
         mois: [...document.querySelectorAll('.cal-a-mois')].map(m => m.textContent.replace(/\s+/g, ' ').trim()),
         courses: [...document.querySelectorAll('.cal-a-j[data-course]')].map(j => [j.querySelector('.cal-a-nom').textContent, [...j.classList].find(c => /^c-|^courue$/.test(c))]).sort((a, b) => (a[0] < b[0] ? -1 : 1)),
@@ -1644,7 +1645,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#annee', w, db, {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['Année', ['Semaine', 'Mois', 'Année *']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], '6 mois'], [r.vue, r.titre, r.voisins, r.periode], nom + ', menu « Périodicité » sur Année, période de 6 mois par défaut et ses voisines'),
+        egal([['6 mois', ['Semaine', 'Mois', '3 mois', '6 mois *', 'Année']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], null], [r.vue, r.titre, r.voisins, r.phase20], nom + ', menu « Périodicité » sur 6 mois (par défaut), voisines ; Plan éteint : pas de fond de phase'),
         egal([tel ? [3, 3] : [6], ['oct. 26', 'nov.', 'déc.', 'janv. 27', 'févr.', 'mars']], [r.blocs, r.mois], nom + ', ' + (tel ? 'deux blocs de trois mois' : 'un bloc de six mois')),
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, false, LEGENDE], [r.nbBarres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni barres ni légende des phases'),
@@ -1661,7 +1662,7 @@ const CONTROLES = {
       const { p, ctx } = await ouvrir(nav, 'calendrier.html#annee', w, db, { 'mrt-calendrier-phases': '1' }, PARIS);
       const r = await lire(p);
       pb.push(
-        egal([true, true], [r.plan, r.nbBarres > 0], nom + ', bouton « Plan » enfoncé (retenu sur l\'appareil) : les barres de prépa'),
+        egal([true, true, 'ph-developpement', 'rgb(255, 122, 69)'], [r.plan, r.nbBarres > 0, r.phase20, r.gorges], nom + ', bouton « Plan » enfoncé (retenu sur l\'appareil) : les barres de prépa, le fond de phase des jours, une course (un dimanche) garde sa couleur'),
         egal([['ph-developpement'], ['ph-deload'], ['ph-developpement', 'ph-base debut'], ['ph-base debut', 'ph-developpement'], ['ph-developpement', 'ph-base is-option debut']],
           [r.b1, r.b12, r.b19, r.b1116, r.b0208], nom + ', phases des barres : Trail du Lac (développement, deload), Corrida de Noël et Trail des Gorges (départ en base), Trail des Cimes (option)'),
         egal(LEGENDE.concat([['Phases', 'base', 'développement', 'affûtage', 'deload']]), r.legende, nom + ', légende des phases'),
@@ -1677,13 +1678,13 @@ const CONTROLES = {
       [await p.evaluate(() => location.hash), r.titre, r.courses, r.auj], 'période suivante : avril à septembre 2027, sans aujourd\'hui'));
     await p.click('.cal-auj'); await pause();
     pb.push(egal(['#annee', 'Octobre 2026 – mars 2027'], [await p.evaluate(() => location.hash), (await lire(p)).titre], '« Aujourd\'hui » : la période du mois en cours'));
-    await p.click('[data-periode="12"]'); await pause();
+    await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="12"]'); await pause();
     r = await lire(p);
     pb.push(egal([[6, 6], 'Octobre 2026 – septembre 2027', '12'], [r.blocs, r.titre, await p.evaluate(() => localStorage.getItem('mrt-calendrier-mois'))], '12 mois : deux blocs de six, retenu sur l\'appareil'));
-    await p.click('[data-periode="3"]'); await pause();
+    await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="3"]'); await pause();
     r = await lire(p);
     pb.push(egal([[3], 'Octobre – décembre 2026'], [r.blocs, r.titre], '3 mois : un bloc de trois'));
-    await p.click('[data-periode="6"]'); await pause();
+    await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="6"]'); await pause();
     await p.click('[data-plan]'); await pause();
     pb.push(egal([true, true, '1'], [(await lire(p)).plan, (await lire(p)).nbBarres > 0, await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases'))], 'bouton « Plan » d\'un toucher : enfoncé, les barres, retenu sur l\'appareil'));
     await p.click('[data-plan]'); await pause();
@@ -1749,7 +1750,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['Mois', ['Semaine', 'Mois *', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Périodicité » sur Mois, mois en cours et ses voisins, jours de la semaine'),
+        egal([['Mois', ['Semaine', 'Mois *', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Périodicité » sur Mois, mois en cours et ses voisins, jours de la semaine'),
         egal([35, ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['2026-10-20']], [r.nb, r.hors, r.auj], nom + ', cinq semaines, jours des mois voisins atténués, aujourd\'hui'),
         egal([[['2026-10-04', 'Semi de San Sebastián', 'courue']], [['2026-11-01', '◆ Inscriptions · Corrida de Noël']]], [r.courses, r.rdv], nom + ', course courue et rendez-vous clé'),
         egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances à cocher, un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
@@ -1854,7 +1855,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', w, copie(), {}, PARIS);
       const r = await lire(p);
       pb.push(
-        egal([['Semaine', ['Semaine *', 'Mois', 'Année']], true, '↑ Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Périodicité »), barre du haut sur une ligne, lien vers les semaines passées'),
+        egal([['Semaine', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], true, '↑ Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Périodicité »), barre du haut sur une ligne, lien vers les semaines passées'),
         egal([SEMAINES, 'Semaine du 19 au 25 oct.'], [r.semaines.slice(0, 3), r.courante], nom + ', la semaine en cours d\'abord, puis les suivantes'),
         egal([['19lun.', '20mar.', '21mer.', '22jeu.', '23ven.', '24sam.', '25dim.'], ['2026-10-20']], [r.dates, r.auj], nom + ', numéro et nom de chaque jour, aujourd\'hui mis en avant'),
         egal([[['2026-10-19', 'Renfo Gainage 30 min', true], ['2026-10-20', 'Run 8×400 m', false], ['2026-10-22', 'Run Footing 45 min', false], ['2026-10-24', 'Run Sortie 1 h 30', false]],
@@ -2328,17 +2329,17 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), {}, PARIS));
     const vues = () => p.evaluate(() => { const b = document.querySelector('[data-menu]'), m = document.querySelector('.cal-menu');
       return [b.textContent.trim(), m.hidden, b.getAttribute('aria-expanded'), [...m.querySelectorAll('a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))]; });
-    pb.push(egal(['Semaine', true, 'false', ['Semaine *', 'Mois', 'Année']], await vues(), 'Calendrier : menu « Périodicité » fermé, sur Semaine (vue par défaut)'));
+    pb.push(egal(['Semaine', true, 'false', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'Calendrier : menu « Périodicité » fermé, sur Semaine (vue par défaut)'));
     await p.click('[data-menu]');
-    pb.push(egal(['Semaine', false, 'true', ['Semaine *', 'Mois', 'Année']], await vues(), 'un toucher sur son bouton : le menu s\'ouvre'));
+    pb.push(egal(['Semaine', false, 'true', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'un toucher sur son bouton : le menu s\'ouvre'));
     await p.keyboard.press('Escape');
     pb.push(egal([true, true], [(await vues())[1], await p.evaluate(() => document.activeElement === document.querySelector('[data-menu]'))], 'Échap : le menu se ferme, le bouton garde la main'));
     await p.keyboard.press('Enter');
     pb.push(egal([false, true], [(await vues())[1], await p.evaluate(() => document.activeElement === document.querySelector('.cal-menu a.is-on'))], 'ouvert au clavier : la main sur le choix en cours'));
     await p.locator('.cal-s-titre').nth(2).click();
     pb.push(egal(true, (await vues())[1], 'toucher ailleurs : le menu se ferme'));
-    await p.click('[data-menu]'); await p.click('.cal-menu [data-vue="annee"]'); await pause();
-    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-a-blocs').count(), await p.evaluate(() => location.hash)],
+    await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="12"]'); await pause();
+    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-a-blocs').count(), await p.evaluate(() => location.hash)],
       'choisir « Année » : la vue Année, le menu refermé'));
     await p.click('[data-plan]'); await pause();
     pb.push(egal(['true', '1', true], [await p.getAttribute('[data-plan]', 'aria-pressed'), await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases')), await p.locator('.cal-a-barre').count() > 0],

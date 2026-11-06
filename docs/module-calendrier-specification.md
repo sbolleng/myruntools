@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.17 · 5 novembre 2026 · [Retour au sommaire](README.md) · Menu « Périodicité » et bouton « Plan » ; Année : chaque mois a ses jours, samedi et dimanche marqués, filet de fin de semaine ; Mois : cases jointives d'un seul fond, « + » en Accent ; un seul fond par phase
+Version 0.18 · 6 novembre 2026 · [Retour au sommaire](README.md) · Menu « Périodicité » (Semaine, Mois, 3 mois, 6 mois, Année) et bouton « Plan » ; Année : fond de phase des jours, Plan enfoncé ; Année : chaque mois a ses jours, samedi et dimanche marqués, filet de fin de semaine ; Mois : cases jointives d'un seul fond, « + » en Accent ; un seul fond par phase
 
 ## 1. Rôle
 
@@ -21,12 +21,12 @@ Le zoom « une course » n'est pas une vue du Calendrier : c'est la rubrique **P
 
 **Barre du haut**, la même sur les trois vues, sur une ligne (téléphone compris) :
 
-- **Menu « Périodicité »** (25), à gauche : un bouton qui porte le nom de la vue ouverte (« Semaine ⌄ ») ; touché, il déroule la liste « Semaine », « Mois », « Année » sous le libellé « PÉRIODICITÉ », le choix en cours repéré. La liste se ferme au choix, en touchant ailleurs ou par Échap (la main revient au bouton) ; ouverte au clavier, la main va au choix en cours. Chaque choix change l'adresse : le retour du navigateur ramène à la vue d'avant. La durée de l'Année (3, 6 ou 12 mois) reste sous le titre de l'Année.
+- **Menu « Périodicité »** (25), à gauche : un bouton qui porte le nom de la vue ouverte (« Semaine ⌄ ») ; touché, il déroule la liste « Semaine », « Mois », « 3 mois », « 6 mois », « Année » (12 mois) sous le libellé « PÉRIODICITÉ », le choix en cours repéré. La liste se ferme au choix, en touchant ailleurs ou par Échap (la main revient au bouton) ; ouverte au clavier, la main va au choix en cours. Chaque choix change l'adresse : le retour du navigateur ramène à la vue d'avant. « 3 mois », « 6 mois » et « Année » ouvrent la grille de l'Année sur cette durée, retenue sur l'appareil, à partir du mois en cours (ou du premier mois déjà affiché).
 - **Bouton « Plan »** (26) et bouton **« Aujourd'hui »** (22, à contour), à droite ; « Aujourd'hui » ramène au mois en cours (Année, Mois) ou à la semaine en cours (Semaine).
 
 **Adresse** : `#semaines=AAAA-MM-JJ` (cette semaine en tête de liste ; sans adresse, la semaine en cours), `#mois=AAAA-MM`, `#annee=AAAA-MM` (premier mois affiché ; sans date, le mois en cours). Le bouton retour du navigateur ramène à la vue d'avant.
 
-**Bouton « Plan »** : éteint par défaut ; un toucher l'enfonce ou l'éteint ; un seul réglage pour les trois vues, retenu sur l'appareil (`mrt-calendrier-phases`). Éteint : un calendrier sans préparation. Enfoncé : les barres de prépa aux couleurs des phases (Année), le fond des jours à la couleur de la phase de leur semaine, le même pour tous ses jours (Mois, Semaine), et la légende des phases. Quand deux prépas se chevauchent, le fond d'un jour prend la phase du plan de la course confirmée la plus proche (une option n'entre pas dans cette règle : elle a son plan, mais seule) ; l'Année, elle, montre chaque prépa sur sa barre.
+**Bouton « Plan »** : éteint par défaut ; un toucher l'enfonce ou l'éteint ; un seul réglage pour les trois vues, retenu sur l'appareil (`mrt-calendrier-phases`). Éteint : un calendrier sans préparation. Enfoncé : le fond des jours à la couleur de la phase de leur semaine, le même pour tous ses jours (les trois vues), les barres de prépa aux couleurs des phases (Année), et la légende des phases. Quand deux prépas se chevauchent, le fond d'un jour prend la phase du plan de la course confirmée la plus proche (une option n'entre pas dans cette règle : elle a son plan, mais seule) ; l'Année, elle, montre chaque prépa sur sa barre.
 
 Les données viennent de la liste de courses de l'utilisateur, la même que pour Objectif ; les séances et les phases sont propres à la préparation (§ 7).
 
@@ -39,9 +39,8 @@ La grille d'un calendrier mural : une colonne par mois, une ligne par jour ; cha
 Jeu d'essai, au 20 octobre 2026, Plan enfoncé ; ┃ : une barre de prépa, à la couleur de la phase de chaque semaine (à l'écran, 16 px de large).
 
 ```
-(25) [Année ⌄]                                        (26) [Plan]   (22) [Aujourd'hui]
+(25) [6 mois ⌄]                                       (26) [Plan]   (22) [Aujourd'hui]
 (14) ‹ avr.–sept. 26        (18) Octobre 2026 – mars 2027        avr.–sept. 27 ›
-(13)                          3 mois · 6 mois · 12 mois
 (2) ROUTE ■ confirmée ▣ option  TRAIL ■ confirmée ▣ option  ■ courue  ▢ aujourd'hui  PHASES ■ base ■ développement ■ affûtage ■ deload
 (3)  [ OCT. 26 ]   [ NOV. ]   [ DÉC. ]   [ JANV. 27 ]   [ FÉVR. ]   [ MARS ]      six colonnes de mois, détail d'une colonne :
 
@@ -61,12 +60,11 @@ Téléphone : trois mois par bloc (6 mois : deux blocs, octobre-décembre puis j
 
 | N° | Élément | Exemple | Place |
 | --- | --- | --- | --- |
-| 25 | Menu « Périodicité » (§ 2) | « Année ⌄ » | Barre du haut, à gauche |
+| 25 | Menu « Périodicité » (§ 2) : la durée de l'Année est un de ses choix | « 6 mois ⌄ » | Barre du haut, à gauche |
 | 26 | Bouton « Plan » (§ 2) | éteint | Barre du haut, à droite |
 | 22 | « Aujourd'hui » : la période du mois en cours | | Barre du haut, à droite |
 | 18 | Titre de la période | « Octobre 2026 – mars 2027 » | Au centre, entre deux filets |
 | 14 | Flèches, avec la période voisine | « ‹ avr.–sept. 26 » | De chaque côté du titre |
-| 13 | Durée : « 3 mois · 6 mois · 12 mois », la choisie soulignée | « 6 mois » | Sous le titre |
 | 2 | Légende : familles (route, trail : confirmée, option), courue, aujourd'hui ; Plan enfoncé, les phases | | Sous la période |
 | 3 | Onglet du mois (l'année au premier mois et en janvier) ; le mois en cours en Accent | « oct. 26 » | Haut de chaque colonne |
 | 4 | Initiale et numéro du jour (téléphone : le numéro seul) | « L 19 » | À gauche des cases de chaque mois |
@@ -74,15 +72,16 @@ Téléphone : trois mois par bloc (6 mois : deux blocs, octobre-décembre puis j
 | 28 | Samedi et dimanche : fond plus marqué | | Colonne du mois |
 | 29 | Filet de fin de semaine | | Sous chaque dimanche |
 | 6 | Course : la case remplie de sa couleur, son nom écrit | « Trail du Lac » | Case du jour |
+| 30 | Fond de phase (Plan) : la phase de la semaine dans le plan suivi (§ 2) ; une course garde sa couleur | développement | Case du jour |
 | 7 | Barre de prépa (Plan) | | À gauche des cases, du premier jour de la prépa à la veille de la course |
 | 8 | Bloc suivant | janv. à mars | Sous le premier (12 mois ; téléphone) |
 | 11 | Aujourd'hui : case cerclée, numéro dans un rond Accent | « 20 » | Grille |
 
-Retirés en 0.17 : les pastilles des vues (1) et la case « Phases de prépa » (23), remplacées par le menu (25) et le bouton (26). Pas de numéro de semaine (« s45 ») : il se confondrait avec la semaine du plan (« semaine 9 sur 16 »).
+Retirés en 0.17 : les pastilles des vues (1) et la case « Phases de prépa » (23), remplacées par le menu (25) et le bouton (26) ; en 0.18, la durée sous le titre (13), passée dans le menu. Plan enfoncé, le fond des jours prend la phase de leur semaine (30), samedi et dimanche un cran plus marqués. Pas de numéro de semaine (« s45 ») : il se confondrait avec la semaine du plan (« semaine 9 sur 16 »).
 
 ### 3.2 Règles
 
-- **Période** : 3, 6 ou 12 mois (6 par défaut, retenue sur l'appareil : `mrt-calendrier-mois`), du 1er du premier mois au dernier jour du dernier ; à partir du mois en cours, ou du mois de l'adresse. Flèches : une période plus tôt ou plus tard ; « Aujourd'hui » ramène au mois en cours. Blocs : six mois par bloc sur ordinateur (un bloc en 3 et 6 mois, deux en 12), trois sur téléphone.
+- **Période** : 3, 6 ou 12 mois, choisie dans le menu « Périodicité » (6 par défaut, retenue sur l'appareil : `mrt-calendrier-mois`), du 1er du premier mois au dernier jour du dernier ; à partir du mois en cours, ou du mois de l'adresse. Flèches : une période plus tôt ou plus tard ; « Aujourd'hui » ramène au mois en cours. Blocs : six mois par bloc sur ordinateur (un bloc en 3 et 6 mois, deux en 12), trois sur téléphone.
 - **Courses** : confirmées et options à venir (une option dont la date est passée disparaît), courues de la période ; ni « À surveiller », ni abandonnées. La case de la course est remplie de la couleur de sa famille : pleine pour une course confirmée (statut Confirmée), atténuée et cadrée pour une option (statut Option), Texte discret pour une course courue ; son nom y est écrit, coupé s'il ne tient pas. Route ou trail : le type de la course, déduit de son format ; tout ce qui n'est pas trail est dans la famille route.
 - **Barre de prépa** (Plan) : une par course à venir qui a un plan (§ 5), confirmée ou option, y compris une course d'après la période dont la prépa commence dedans ; du premier jour du plan (ou du premier jour affiché) jusqu'à la veille de la course ; chaque semaine à la couleur de sa phase (phases modifiées à la main comprises) ; départ arrondi au vrai premier jour ; prépa d'une option atténuée. Deux prépas qui se chevauchent prennent deux couloirs côte à côte ; le nom d'une course est décalé des seules barres de son jour. Format sans durée de prépa : pas de barre.
 - **Jours** : chaque mois a sa colonne de jours, l'initiale et le numéro (« L 19 ») ; ses cases sont jointives et d'un même fond, jour passé compris ; samedi et dimanche ont un fond plus marqué ; un filet sous chaque dimanche ferme la semaine ; aujourd'hui : case cerclée, numéro dans un rond Accent ; l'onglet du mois en cours est en Accent.
@@ -298,6 +297,7 @@ Le [modèle de données](modele-donnees.md) (§ 4.4) décrit ces champs et table
 5. **Refonte en essai** (1er novembre 2026) : Année en frise, vue Semaine ouverte par défaut (la semaine en détail, trois à suivre, repère, bilan, consigne de phase), écarts entre courses, « Confirmée / Option » ; ancienne grille, ancienne vue 4 semaines et jours en colonnes gardés derrière des boutons violets, le temps de choisir (§ 2).
 6. **Nouvelle grille en essai** (2 novembre 2026) : deuxième bouton violet ; période de 3, 6 ou 12 mois (6 par défaut) et flèches, aussi pour la frise ; prépas des courses d'après la période, commencées dedans, affichées (frise et grilles).
 7. **Trois vues** (2 novembre 2026) : Année (la grille, 3, 6 ou 12 mois), Mois (la grille du mois) et Semaine (un jour par ligne, liste continue), d'après la maquette validée (`docs/maquettes/calendrier-vues.html`) ; case « Phases de prépa » commune aux trois ; la frise, les anciennes grilles, la vue 4 semaines, la semaine détaillée (repère, bilan, consigne, À suivre) et les boutons violets sont retirés.
+9. **Durée dans le menu, fond de phase dans l'Année** (6 novembre 2026) : « 3 mois », « 6 mois », « Année » rejoignent le menu ; Plan enfoncé, les jours de l'Année prennent le fond de leur phase.
 8. **Menu « Périodicité » et bouton « Plan »** (5 novembre 2026), d'après un plan de page en texte (sans maquette) : les pastilles et la case laissent place au menu et au bouton ; Année : chaque mois a ses jours (initiale et numéro), samedi et dimanche marqués, filet de fin de semaine, onglet du mois en cours en Accent, jour passé avec son fond ; Mois : cases jointives d'un seul fond, « + » à contour Accent (aussi dans la Semaine) ; Mois et Semaine : un seul fond par phase.
 
 Le prototype `composants/planning.js` a été remplacé par la première vue Année (lot 1).
@@ -306,7 +306,8 @@ Le prototype `composants/planning.js` a été remplacé par la première vue Ann
 
 - [x] **Vue Année** : retouchée le 5 novembre 2026 (§ 3), dans l'esprit d'un calendrier en colonnes : jours de chaque mois, fins de semaine marquées ; numéros de semaine non repris.
 - [x] **Barre du haut** : menu « Périodicité » (Semaine, Mois, Année ; la durée de l'Année reste sous son titre) et bouton « Plan » à la place des pastilles et de la case (retenu le 5 novembre 2026).
-- [ ] **Fonds de phase** (Mois, Semaine) : un seul fond par phase depuis le 5 novembre 2026 ; lisibilité à vérifier à l'usage, notamment sur le thème Blanc et orange.
+- [x] **Durée de l'Année** et **fond de phase dans l'Année** : 3 mois, 6 mois et Année passent dans le menu ; Plan enfoncé, les jours de l'Année prennent le fond de leur phase, les barres restent pour les chevauchements (retenu le 6 novembre 2026).
+- [ ] **Fonds de phase** (Mois, Semaine, Année) : un seul fond par phase depuis le 5 novembre 2026 ; lisibilité à vérifier à l'usage, notamment sur le thème Blanc et orange.
 - [x] **Essai** (frise, grilles, vue 4 semaines, jours en colonnes) : tranché le 2 novembre 2026 : trois vues (§ 2 à 4), case « Phases de prépa ».
 - [ ] **Prépa des courses préparatoires et plaisir** (question à poser au bon moment). Aujourd'hui, toute course confirmée ou option a sa prépa (durée de son format) et la course confirmée la plus proche impose sa phase : d'où, dans le jeu d'essai, cinq prépas empilées de février à août, et une préparatoire qui peut imposer son affûtage en pleine prépa de l'objectif. Trois réponses possibles :
   - A. Garder ainsi (en place).
@@ -331,12 +332,12 @@ Jeu d'essai, données fictives, au mardi 20 octobre 2026 à 10 h, heure de Paris
 
 Résultats attendus, vue Année (`calendrier.html#annee`) :
 
-- Menu « Périodicité » sur « Année » ; « Octobre 2026 – mars 2027 », voisines « avr.–sept. 26 » et « avr.–sept. 27 » ; « 6 mois » choisi ; un bloc de six mois (téléphone : deux de trois) ; mois « oct. 26 » … « janv. 27 » … « mars ».
+- Menu « Périodicité » sur « 6 mois » (choix : Semaine, Mois, 3 mois, 6 mois, Année) ; « Octobre 2026 – mars 2027 », voisines « avr.–sept. 26 » et « avr.–sept. 27 » ; un bloc de six mois (téléphone : deux de trois) ; mois « oct. 26 » … « janv. 27 » … « mars ».
 - Courses dans leur case : Semi de San Sebastián (courue), Trail du Lac, Corrida de Noël (route), Trail des Gorges ; ni Cross des Collines (abandonnée), ni Trail des Sommets (à surveiller), ni l'option passée du 10 octobre ; aujourd'hui (20 octobre) cerclé, « M 20 » dans un rond.
 - Jours d'octobre : « J 1 », « S 3 » et « D 4 » (samedi et dimanche marqués, filet sous le dimanche), « L 5 » ; onglet « oct. 26 » en Accent ; un jour passé (jeudi 15) a le fond d'un jour à venir (jeudi 22), un samedi un fond plus marqué.
 - Bouton « Plan » éteint : ni barre ni légende des phases ; légende « Route confirmée, option », « Trail confirmée, option », courue, aujourd'hui.
-- Plan enfoncé (retenu sur l'appareil) : barres et légende des phases. Phases des barres, couloir après couloir : 1er octobre, Trail du Lac en développement (prépa commencée le 24 août : pas de départ arrondi) ; 12 octobre, deload ; 19 octobre, Trail du Lac en développement, Corrida de Noël en base (départ) ; 16 novembre, Trail des Gorges en base (départ, couloir du Trail du Lac, libéré), Corrida de Noël en développement ; 8 février, Trail des Gorges en développement, Trail des Cimes en base (option, atténuée, départ).
-- Période suivante : `#annee=2027-04`, « Avril – septembre 2027 » : Trail des Cimes, Ultra du Plateau, Trail de la Forêt (options), Trail des Crêtes ; pas d'aujourd'hui. « Aujourd'hui » : de nouveau octobre. « 12 mois » : deux blocs de six, « Octobre 2026 – septembre 2027 », retenu ; « 3 mois » : « Octobre – décembre 2026 ».
+- Plan enfoncé (retenu sur l'appareil) : barres, légende des phases, fond de phase des jours (20 octobre : développement) ; le Trail des Gorges, un dimanche, garde sa couleur. Phases des barres, couloir après couloir : 1er octobre, Trail du Lac en développement (prépa commencée le 24 août : pas de départ arrondi) ; 12 octobre, deload ; 19 octobre, Trail du Lac en développement, Corrida de Noël en base (départ) ; 16 novembre, Trail des Gorges en base (départ, couloir du Trail du Lac, libéré), Corrida de Noël en développement ; 8 février, Trail des Gorges en développement, Trail des Cimes en base (option, atténuée, départ).
+- Période suivante : `#annee=2027-04`, « Avril – septembre 2027 » : Trail des Cimes, Ultra du Plateau, Trail de la Forêt (options), Trail des Crêtes ; pas d'aujourd'hui. « Aujourd'hui » : de nouveau octobre. Menu, « Année » : deux blocs de six, « Octobre 2026 – septembre 2027 », retenu ; « 3 mois » : « Octobre – décembre 2026 ».
 - Toucher le 22 octobre : `#semaines=2026-10-19` ; toucher le Trail des Gorges : sa page en modale, rubrique Préparation ; toucher le Semi de San Sebastián : son résultat.
 - Trail des Gorges à 20 semaines : sa barre part le 19 octobre (« Trail des Gorges : Base, semaine 1 sur 20 ») ; Corrida de Noël en Triathlon S (format sans durée) : pas de barre.
 - Téléphone : rien ne déborde.
@@ -363,7 +364,7 @@ Résultats attendus, vue Semaine (`calendrier.html`, vue par défaut, séances d
 Résultats attendus, barre du haut (repasse) :
 
 - Au départ : menu fermé, son bouton « Semaine » ; un toucher l'ouvre (« Semaine », « Mois », « Année », Semaine repérée) ; Échap le ferme et rend la main au bouton ; ouvert au clavier, la main va à « Semaine » ; toucher ailleurs le ferme.
-- Choisir « Année » : la vue Année, `#annee`, le menu refermé, son bouton « Année ». « Plan » : enfoncé, les barres, `mrt-calendrier-phases` à 1 ; retouché : éteint.
+- Choisir « Année » : la vue Année sur 12 mois, `#annee`, le menu refermé, son bouton « Année ». « Plan » : enfoncé, les barres, `mrt-calendrier-phases` à 1 ; retouché : éteint.
 - Menu, « Mois », deux mois plus loin (décembre 2026), « Aujourd'hui » : de nouveau octobre 2026.
 
 Résultats attendus, plan d'une course :
