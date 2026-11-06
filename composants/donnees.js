@@ -22,15 +22,23 @@
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif
   window.mrtModules = MODULES;
-  // Blocs de la page En un coup d'œil, dans l'ordre par défaut ; bientot : pas encore construit (grisé) ;
-  // masque : décoché par défaut.
+  // Blocs de la page En un coup d'œil, dans l'ordre par défaut ; bientot : pas encore construit (jamais affiché sur la page,
+  // annoncé dans les Préférences) ; masque : décoché par défaut.
   window.mrtBlocsAccueil = [
     { id: 'prochaine', nom: 'Prochaine course' },
     { id: 'pensebete', nom: 'Pense-bête', bientot: true },
     { id: 'nutrition', nom: 'Bilan nutrition', bientot: true },
     { id: 'dicila', nom: 'D\'ici là' },
-    { id: 'derniere', nom: 'Dernière course', masque: true }
+    { id: 'derniere', nom: 'Dernière course' }
   ];
+  // Blocs affichés, dans l'ordre choisi ; sans choix enregistré : ceux qui ne sont pas masqués par défaut.
+  // Un bloc « bientôt » n'apparaît qu'une fois construit, comme un module du menu : jamais de bloc vide sur la page.
+  window.mrtBlocsAffiches = prefs => {
+    const tous = window.mrtBlocsAccueil;
+    const choix = prefs && prefs.accueil_blocs;
+    const liste = !choix ? tous.filter(b => !b.masque) : choix.map(id => tous.find(b => b.id === id)).filter(Boolean);
+    return liste.filter(b => !b.bientot);
+  };
   // Modules du menu, dans l'ordre choisi (rien d'enregistré : tout le catalogue), construits seulement : un module
   // « bientôt » reste dans les Préférences et n'entre dans le menu qu'une fois construit.
   const modulesAffiches = prefs => (prefs && prefs.modules && prefs.modules.length
@@ -140,7 +148,11 @@
         cible: cap.objectif
       };
     }
-    const prochaine = aVenir.find(c => c.statut === 'confirmee' && c !== cap) || null;
+    // Prochaine course (sous le compte à rebours) : absente quand la page de démarrage la montre déjà (la feuille de route,
+    // ou l'Accueil avec son bloc Prochaine course) : un seul compte à rebours pour une même course.
+    const demarrage = window.mrtDemarrage(prefs);
+    const dejaMontree = demarrage === 'objectif.html' || (demarrage === 'index.html' && window.mrtBlocsAffiches(prefs).some(b => b.id === 'prochaine'));
+    const prochaine = dejaMontree ? null : aVenir.find(c => c.statut === 'confirmee' && c !== cap) || null;
     return {
       theme: prefs.theme,
       objectif,

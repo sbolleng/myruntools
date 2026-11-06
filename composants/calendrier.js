@@ -11,7 +11,7 @@
 (function () {
   const P = window.mrtPreparation;
   const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, tousLesPlans, plansDeLaSemaine, planDe, modifsDe, lienCourse } = P;
-  const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const { MOIS_LONG } = window.mrtFormat;
   const VUES = [['annee', 'Année'], ['mois', 'Mois'], ['semaines', 'Semaine']];
 
   // ----- Réglages retenus sur l'appareil (à défaut de stockage, le temps de la visite) -----
@@ -28,7 +28,6 @@
 
   // ----- Dates -----
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  const jourDuMois = d => (d === 1 ? '1er' : String(d));
   const moisCourant = () => iso(new Date()).slice(0, 7);
   const decaler = (m, n) => { const [y, mm] = m.split('-').map(Number); return iso(new Date(y, mm - 1 + n, 1)).slice(0, 7); }; // « AAAA-MM » ± n mois
   const an = m => Number(m.slice(0, 4)), rang = m => Number(m.slice(5, 7)) - 1;
@@ -59,10 +58,10 @@
       '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
     const bande = (titre, sous, avant, apres) => '<div class="cal-periode">' +
-      '<a class="cal-voisin" href="' + avant[1] + '" aria-label="' + avant[2] + '"><span class="mrt-rond">‹</span><span class="cal-voisin-txt">' + avant[0] + '</span></a>' +
+      '<a class="cal-voisin" href="' + avant[1] + '" aria-label="' + avant[2] + '"><span class="mrt-rond">' + window.mrtIcone.gauche + '</span><span class="cal-voisin-txt">' + avant[0] + '</span></a>' +
       '<div class="cal-titre-bloc"><h2 class="cal-titre">' + titre + '</h2>' + (sous || '') + '</div>' +
-      '<a class="cal-voisin is-suiv" href="' + apres[1] + '" aria-label="' + apres[2] + '"><span class="cal-voisin-txt">' + apres[0] + '</span><span class="mrt-rond">›</span></a></div>';
-    const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom.toLowerCase() + '</span>').join('') + '</span>';
+      '<a class="cal-voisin is-suiv" href="' + apres[1] + '" aria-label="' + apres[2] + '"><span class="cal-voisin-txt">' + apres[0] + '</span><span class="mrt-rond">' + window.mrtIcone.droite + '</span></a></div>';
+    const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
     // Phase d'un jour : celle de sa semaine dans le plan suivi (la course confirmée la plus proche qui couvre la semaine).
     const phaseDuJour = (plans, jour) => { const s = plans && plansDeLaSemaine(lundiDe(jour), plans)[0]; return s ? s.phase : null; };
     const rdvDuJour = jour => ctx.courses.filter(c => aPlan(c) && c.ouverture_inscriptions === jour);
@@ -72,7 +71,7 @@
     const seanceHtml = s => '<span class="cal-v-se' + (s.faite ? ' faite' : '') + '"><input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecrit() ? '' : ' disabled') +
       ' aria-label="Faite">' + (ecrit() ? '<button type="button" class="cal-v-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-v-se-txt">') +
       '<b>' + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' + (ecrit() ? '</button>' : '</span>') + '</span>';
-    const plusHtml = jour => (ecrit() ? '<button type="button" class="cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">+</button>' : '');
+    const plusHtml = jour => (ecrit() ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
 
     // ----- Année : la grille, jours en lignes et mois en colonnes, sur 3, 6 ou 12 mois (spécification § 3) -----
     function vueAnnee(depart, nb) {
@@ -118,11 +117,11 @@
         if (court) return MOIS[rang(m)] + '–' + MOIS[rang(f)] + ' ' + String(an(f)).slice(2); // « avr.–sept. 27 » : l'année distingue les deux voisines
         return an(m) === an(f) ? cap(MOIS_LONG[rang(m)]) + ' – ' + MOIS_LONG[rang(f)] + ' ' + an(m) : cap(MOIS_LONG[rang(m)]) + ' ' + an(m) + ' – ' + MOIS_LONG[rang(f)] + ' ' + an(f);
       };
-      const choix = '<span class="cal-reglage">' + PERIODES.map(p => '<button type="button" class="cal-choix" data-periode="' + p + '" aria-pressed="' + (Number(p) === nb) + '">' + p + ' mois</button>').join('') + '</span>';
-      const famille = (nom, f) => '<span class="cal-groupe"><b class="cal-libelle">' + nom + '</b><span><i class="cal-k c-' + f + '-v"></i>confirmée</span><span><i class="cal-k c-' + f + '-n"></i>option</span></span>';
+      const choix = '<span class="cal-reglage">' + PERIODES.map(p => '<button type="button" class="mrt-choix" data-periode="' + p + '" aria-pressed="' + (Number(p) === nb) + '">' + p + ' mois</button>').join('') + '</span>';
+      const famille = (nom, f) => '<span class="cal-groupe"><b class="cal-libelle">' + nom + '</b><span><i class="cal-k c-' + f + '-v"></i>Confirmée</span><span><i class="cal-k c-' + f + '-n"></i>Option</span></span>';
       return haut('annee') + bande(titre(depart, nb), choix, [titre(decaler(depart, -nb), nb, true), '#annee=' + decaler(depart, -nb), 'Période précédente'],
         [titre(decaler(depart, nb), nb, true), '#annee=' + decaler(depart, nb), 'Période suivante']) +
-        '<div class="cal-legende">' + famille('Route', 'route') + famille('Trail', 'trail') + '<span><i class="cal-k courue"></i>courue</span><span><i class="cal-k cal-k-auj"></i>aujourd\'hui</span>' +
+        '<div class="cal-legende">' + famille('Route', 'route') + famille('Trail', 'trail') + '<span><i class="cal-k courue"></i>Courue</span><span><i class="cal-k cal-k-auj"></i>Aujourd\'hui</span>' +
         (phases ? legendePhases() : '') + '</div><div class="cal-a-blocs">' + h + '</div>';
     }
 
@@ -151,11 +150,8 @@
 
     // ----- Semaine : un jour par ligne ; les semaines suivantes au fil du défilement, les passées par un lien (spécification § 4.3 et 4.4) -----
     const liste = { cle: null, debut: null, nb: 3 }; // semaines affichées : la première, leur nombre
-    function titreSemaine(l) {
-      const a = parse(l), b = parse(addDays(l, 6));
-      return 'Semaine du ' + jourDuMois(a.getDate()) + (a.getMonth() === b.getMonth() ? '' : ' ' + MOIS[a.getMonth()]) + ' au ' + jourDuMois(b.getDate()) + ' ' + MOIS[b.getMonth()] +
-        (b.getFullYear() !== new Date().getFullYear() ? ' ' + b.getFullYear() : '');
-    }
+    // « Semaine du 26 oct. au 1er nov. », l'année de fin quand ce n'est pas l'année en cours (formats communs, comme la préparation).
+    const titreSemaine = l => 'Semaine ' + window.mrtFormat.semaine(l, { annee: true });
     function semaineHtml(l, plans) {
       const auj = iso(new Date()), ph = phaseDuJour(plans, l), courses = visibles(ctx.courses, l, addDays(l, 6), auj);
       let h = '<section class="cal-s-semaine' + (l === lundiDe(auj) ? ' is-courante' : '') + '" data-semaine="' + l + '"><h3 class="cal-s-titre cal-libelle">' + titreSemaine(l) + '</h3><div class="cal-s-jours">';

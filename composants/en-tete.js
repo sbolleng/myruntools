@@ -34,16 +34,60 @@
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
 
+  // ===== Formats communs (design, § 3) : une date, une heure, une durée s'écrivent pareil sur tout le site =====
+  //   mrtFormat.date('2027-03-07')                « 7 mars 2027 » ; { semaine: true } « dim. 7 mars 2027 » ; { annee: false } « 7 mars » ;
+  //                                               { long: true } mois en toutes lettres ; 'AAAA-MM' (mois seul) : « mars 2027 »
+  //   mrtFormat.jour(1)                           « 1er » (le premier du mois, partout)
+  //   mrtFormat.heure('07:30:00')                 « 7 h 30 » ; « 9 h »
+  //   mrtFormat.semaine('2026-10-26', { annee })  « du 26 oct. au 1er nov. » ; annee : l'année de fin, si ce n'est pas l'année en cours
+  //   mrtFormat.duree(6965), allure(330)          « 01:56:05 », « 5:30 /km »
+  //   mrtFormat.nombre(2100)                      « 2 100 » (espace insécable ordinaire : l'espace fine d'Intl se voit à peine en Space Grotesk)
+  const MOIS_COURT = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  const JOURS_COURT = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  const jourDuMois = n => (Number(n) === 1 ? '1er' : String(Number(n)));
+  window.mrtFormat = {
+    MOIS: MOIS_COURT, MOIS_LONG: MONTHS, JOURS: JOURS_COURT,
+    jour: jourDuMois,
+    date(iso, o) {
+      o = o || {};
+      const p = String(iso).split('-').map(Number);
+      if (!p[2]) return MONTHS[p[1] - 1] + ' ' + p[0];
+      return (o.semaine ? JOURS_COURT[new Date(p[0], p[1] - 1, p[2]).getDay()] + ' ' : '') + jourDuMois(p[2]) + ' ' + (o.long ? MONTHS : MOIS_COURT)[p[1] - 1] +
+        (o.annee === false ? '' : ' ' + p[0]);
+    },
+    heure(h) { const p = String(h).split(':').map(Number); return p[0] + ' h' + (p[1] ? ' ' + pad(p[1]) : ''); },
+    semaine(lundi, o) {
+      const p = String(lundi).split('-').map(Number), a = new Date(p[0], p[1] - 1, p[2]), b = new Date(p[0], p[1] - 1, p[2] + 6);
+      return 'du ' + jourDuMois(a.getDate()) + (a.getMonth() === b.getMonth() ? '' : ' ' + MOIS_COURT[a.getMonth()]) + ' au ' + jourDuMois(b.getDate()) + ' ' + MOIS_COURT[b.getMonth()] +
+        (o && o.annee && b.getFullYear() !== new Date().getFullYear() ? ' ' + b.getFullYear() : '');
+    },
+    duree: s => pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60),
+    allure: s => Math.floor(s / 60) + ':' + pad(s % 60) + ' /km',
+    nombre: n => nf.format(Number(n)).replace(/ /g, ' ')
+  };
+
+  // ===== Icônes communes (design, § 11) : dessinées en trait fin, de la couleur du texte ; plus aucun caractère tapé (×, +, ‹ ›, ↑ ↓) =====
+  const icone = d => '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  window.mrtIcone = {
+    fermer: icone('M4 4l8 8M12 4l-8 8'),
+    plus: icone('M8 3.5v9M3.5 8h9'),
+    gauche: icone('M10 3.5L5.5 8l4.5 4.5'),
+    droite: icone('M6 3.5L10.5 8 6 12.5'),
+    haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
+    bas: icone('M8 3.5v9M4.5 9L8 12.5 11.5 9'),
+    // En-tête de colonne triable (mrt-tri) : deux triangles ; celui du sens choisi s'allume.
+    tri: '<svg class="mrt-tri-ico" viewBox="0 0 10 14" aria-hidden="true"><path class="mrt-tri-haut" d="M5 1l4 5H1z"/><path class="mrt-tri-bas" d="M5 13L1 8h8z"/></svg>',
+    // Chevron des titres repliables : tourné vers la droite quand c'est replié (mrt-chev, en-tete.css).
+    chevron: '<svg class="mrt-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+
   // 'AAAA-MM-JJ' ou 'AAAA-MM' : minuit, heure locale ; jour inconnu = le 1er du mois.
   // heure 'HH:MM' : l'heure de départ, heure locale.
   function parseDate(str, heure) {
     const p = String(str).split('-').map(Number), h = heure ? String(heure).split(':').map(Number) : [0, 0];
     return new Date(p[0], p[1] - 1, p[2] || 1, h[0], h[1] || 0);
   }
-  function fmtDate(str) {
-    const p = String(str).split('-').map(Number);
-    return (p[2] ? (p[2] === 1 ? '1er' : p[2]) + ' ' : '') + MONTHS[p[1] - 1] + ' ' + p[0];
-  }
+  const fmtDate = str => window.mrtFormat.date(str, { long: true });
   // Jours calendaires entre deux dates, sans tenir compte de l'heure.
   function daysBetween(from, to) {
     const a = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate());
@@ -160,7 +204,7 @@
         const d = Math.floor(ms / DAY), h = Math.floor(ms % DAY / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
         $('.mrt-days').textContent = d;
         $('.mrt-days-label').textContent = d > 1 ? 'jours' : 'jour';
-        $('.mrt-hms').textContent = pad(h) + 'h ' + pad(m) + 'm ' + pad(s) + 's';
+        $('.mrt-hms').textContent = pad(h) + ' h ' + pad(m) + ' min ' + pad(s) + ' s'; // comme les cartes : « h », « min », « s »
       }
       const left = next && next.date ? daysBetween(t, parseDate(next.date)) : -1;
       $('.mrt-next').innerHTML = left >= 0 ? 'prochaine course · <b>' + esc(next.nom) + '</b> · J-' + left : '';
@@ -217,6 +261,60 @@
     el.__deroule = a;
     a.onfinish = () => { el.style.overflow = ''; el.__deroule = null; termine(); };
   };
+  // ----- Confirmation (design, § 11) : la question dans un encadré du site, jamais la fenêtre du navigateur -----
+  //   mrtConfirmer({ texte, action, danger, seul }) → promesse : vrai si l'action est choisie.
+  //   « Annuler » à gauche (choisi d'office), l'action à droite (en Alerte si danger) ; seul : un bouton (un avertissement).
+  //   Échap ou un toucher à côté : « Annuler », sans rien fermer de ce qui est dessous (fiche, page d'une course).
+  window.mrtConfirmer = function (o) {
+    return new Promise(fin => {
+      const voile = document.createElement('div');
+      voile.className = 'mrt-dialogue';
+      voile.innerHTML = '<div class="mrt-dialogue-cadre' + (o.danger ? ' is-danger' : '') + '" role="alertdialog" aria-modal="true" aria-labelledby="mrt-dialogue-q">' +
+        '<p id="mrt-dialogue-q"></p><div class="mrt-dialogue-boutons">' + (o.seul ? '' : '<button type="button" class="mrt-btn" data-r="non">Annuler</button>') +
+        '<button type="button" class="mrt-btn ' + (o.danger ? 'is-danger' : 'is-principal') + '" data-r="oui"></button></div></div>';
+      voile.querySelector('p').textContent = o.texte;
+      voile.querySelector('[data-r="oui"]').textContent = o.action || 'Confirmer';
+      const avant = document.activeElement;
+      function clavier(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); fermer(false); } }
+      function fermer(r) {
+        window.removeEventListener('keydown', clavier, true);
+        voile.remove();
+        if (avant && avant.isConnected && avant.focus) avant.focus({ preventScroll: true });
+        fin(!!r);
+      }
+      window.addEventListener('keydown', clavier, true);
+      voile.addEventListener('click', e => {
+        e.stopPropagation();
+        const b = e.target.closest('[data-r]');
+        if (b) fermer(b.dataset.r === 'oui'); else if (e.target === voile) fermer(false);
+      });
+      document.body.appendChild(voile);
+      voile.querySelector('[data-r]').focus();
+    });
+  };
+
+  // ----- Typographie française (design, § 3) : espace insécable devant « ? ! : ; » et à l'intérieur des guillemets « », posée à
+  // l'affichage dans tout le texte de la page : un « ? » ne passe jamais seul à la ligne. Jamais dans un champ de saisie
+  // (la saisie et la valeur enregistrée restent telles quelles), ni dans une liste de choix.
+  const HORS_TYPO = /^(TEXTAREA|INPUT|SELECT|OPTION|SCRIPT|STYLE|CODE|PRE)$/;
+  function typo(racine) {
+    const marcher = n => {
+      if (n.nodeType === 3) {
+        const p = n.parentNode;
+        if (!p || HORS_TYPO.test(p.nodeName) || p.isContentEditable) return;
+        const t = n.nodeValue, u = t.replace(/ ([?!:;»])/g, ' $1').replace(/« /g, '« ');
+        if (u !== t) n.nodeValue = u;
+      } else if (n.nodeType === 1 && !HORS_TYPO.test(n.nodeName)) n.childNodes.forEach(marcher);
+    };
+    marcher(racine);
+  }
+  function poserTypo() {
+    typo(document.body);
+    new MutationObserver(ms => ms.forEach(m => (m.type === 'characterData' ? typo(m.target) : m.addedNodes.forEach(typo))))
+      .observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', poserTypo); else poserTypo();
+
   // ----- Pied de page (spécification générale § 11 bis, M12) : en bas de toutes les pages, page de connexion comprise -----
   // Lien rangé d'après l'adresse de ce script (composants/en-tete.js) : juste aussi pour une page d'un sous-dossier.
   // Pas sur les maquettes (docs/), ni sur la page des mentions elle-même.
