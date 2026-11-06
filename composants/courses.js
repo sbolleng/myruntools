@@ -5,7 +5,7 @@
 //   renderCourses(el, courses, edition, etat)   la barre (sélection, vue, année) et la liste ; etat : { vue, mode, annee, col, dir }, modifié sur place
 //   mrtVuesCourses(courses)                     les courses de chaque vue : { surveiller, venir, courue, tout }
 (function () {
-  const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const { MOIS_LONG } = window.mrtFormat;
   const { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, FLECHE, PLUS, STATUTS_LIB } = window.mrtCartes;
     const VUES = [['surveiller', 'À surveiller'], ['ouvertes', 'Inscriptions ouvertes'], ['courue', 'Déjà couru'], ['venir', 'À venir'], ['tout', 'Tout']];
   const VIDE = { surveiller: 'Aucune course à surveiller.', ouvertes: 'Aucune inscription ouverte pour l\'instant.', courue: 'Aucune course courue.', venir: 'Aucune course à venir.', tout: 'Aucune course.' };
@@ -45,7 +45,7 @@
   }
 
   // Tableau : les colonnes de la veille (Événement, Course, Distance · D+, Date, Ouverture des dossards), une ligne par course.
-  const heureTxt = h => { const p = String(h).split(':').map(Number); return p[0] + ' h' + (p[1] ? ' ' + String(p[1]).padStart(2, '0') : ''); };
+  const heureTxt = h => window.mrtFormat.heure(h);
   function ligneTableau(c) {
     const site = lienSur(c.lien), dist = distance(c);
     return '<tr class="cs-ligne" data-id="' + esc(c.id) + '" tabindex="0" role="button" aria-label="Modifier ' + esc(window.mrtNomCourse(c)) + '">' +
@@ -59,8 +59,8 @@
   // Pictos des deux affichages : une grille de cartes, un tableau ; et le double triangle des colonnes triables (comme le Palmarès).
   const GRILLE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5v4.5h-4.5z M9 2.5h4.5v4.5h-4.5z M2.5 9h4.5v4.5h-4.5z M9 9h4.5v4.5h-4.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const TABLE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v9h-11z M2.5 7h11 M2.5 10h11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
-  const TRI = '<svg class="cs-tri-ico" viewBox="0 0 10 14" aria-hidden="true"><path class="cs-haut" d="M5 1l4 5H1z"/><path class="cs-bas-tri" d="M5 13L1 8h8z"/></svg>';
-  const COLONNES = [['evenement', 'Événement'], ['course', 'Course'], ['distance', 'Distance · D+'], ['date', 'Date'], ['ouverture', 'Ouverture des dossards']];
+  const TRI = window.mrtIcone.tri; // en-tête triable commun (mrt-tri), comme le Palmarès
+  const COLONNES = [['evenement', 'Événement'], ['course', 'Course'], ['distance', 'Distance · D+'], ['date', 'Date'], ['ouverture', 'Ouverture des inscriptions']];
   // Valeur de tri de chaque colonne (une valeur vide passe toujours en dernier).
   const CLES = { evenement: c => c.course.toLowerCase(), course: c => (c.parcours || '').toLowerCase() || null, distance: c => (c.distance != null ? Number(c.distance) : null), date: c => c.date || null, ouverture: cleOuverture };
   const CLE_MODE = 'mrt-courses-affichage';
@@ -93,7 +93,7 @@
 
     const pastille = (attr, cle, texte, on) => '<button type="button" class="mrt-pastille cs-pastille' + (on ? ' is-on' : '') + '" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
     // Réglages discrets : un libellé, puis les choix en texte (le choix actif souligné).
-    const choix = (attr, cle, texte, on) => '<button type="button" class="cs-choix" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
+    const choix = (attr, cle, texte, on) => '<button type="button" class="mrt-choix" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
     const reglage = (libelle, html) => '<div class="cs-reglage"><span class="cs-lib">' + libelle + '</span>' + html + '</div>';
     const rond = (cle, texte, picto) => '<button type="button" class="mrt-rond cs-rond" data-mode="' + cle + '" aria-pressed="' + (etat.mode === cle) + '" aria-label="' + texte + '" title="' + texte + '">' + picto + '</button>';
     const haut = '<div class="cs-barre"><div class="cs-vues" role="group" aria-label="Sélection">' +
@@ -116,7 +116,7 @@
     // Tableau : les mêmes groupes (titres de mois en lignes), dans un cadre ; il défile sur le côté s'il est plus large que l'écran.
     const tableau = '<div class="cs-tableau"><div class="table-scroll"><table><thead><tr>' + COLONNES.map(([k, lib]) => {
         const actif = col ? col === k : k === 'date', sens = col ? etat.dir : etat.vue === 'courue' ? 'desc' : 'asc';
-        return '<th aria-sort="' + (actif ? (sens === 'desc' ? 'descending' : 'ascending') : 'none') + '"><button type="button" class="cs-tri-col" data-col="' + k + '">' + lib + TRI + '</button></th>';
+        return '<th aria-sort="' + (actif ? (sens === 'desc' ? 'descending' : 'ascending') : 'none') + '"><button type="button" class="mrt-tri" data-col="' + k + '">' + lib + TRI + '</button></th>';
       }).join('') + '</tr></thead><tbody>' +
       liste.map(ligneTableau).join('') + '</tbody></table></div></div>';
     el.innerHTML = haut + (liste.length ? (etat.mode === 'tableau' ? tableau : '<div class="cs-liste">' + html + '</div>') : '<p class="ob-vide cs-vide">' + VIDE[etat.vue] + '</p>');

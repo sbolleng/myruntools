@@ -46,7 +46,7 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 
 ## 4. Plan de page
 
-Quatre cartes, dans le cadre des blocs d'« En un coup d'œil » ([design](design.md), § 1). Page épurée : pas de texte d'explication. Retenu le 6 nov. 2026, d'après la carte « Mon besoin du jour » et les anneaux d'une première version de l'outil.
+Quatre cartes, dans le cadre commun (`.card`) ; titres de cadre communs (0,85 rem, 600, Texte, casse normale ; [design](design.md), § 1), sous-titres en libellé ; tailles de l'échelle commune (§ 3), sauf le besoin (5), grand chiffre d'un résultat (1,5 rem). Page épurée : pas de texte d'explication. Retenu le 6 nov. 2026, d'après la carte « Mon besoin du jour » et les anneaux d'une première version de l'outil.
 
 ### 4.1 Téléphone
 
@@ -97,8 +97,8 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 22 | Phase | « Phase · Développement » | Sous le 21 | Texte discret |
 | 23 | Titre « Sport du jour » | « SPORT DU JOUR » | Sous le 22 | Libellé en capitales (Space Mono) |
 | 24 | Ligne de sport | Sport (liste) et durée en heures | Sous le 23 | `mrt-champ` ; remplir la dernière ligne en fait apparaître une autre (cinq au plus) |
-| 5 | Besoin du jour | « 2 817 kcal aujourd'hui » | Bas de la carte 1, sous un filet | Chiffre en Space Mono, Accent, 1,9 rem |
-| 25 | Titre des jauges | « MARDI 20 OCTOBRE » | Haut de la carte 2 | Libellé en capitales |
+| 5 | Besoin du jour | « 2 817 kcal aujourd'hui » | Bas de la carte 1, sous un filet | Chiffre en Space Mono, Accent, 1,5 rem |
+| 25 | Titre des jauges | « Mardi 20 octobre » | Haut de la carte 2 | Titre de cadre commun |
 | 26 | Nom de la jauge | « PROTÉINES » | Au-dessus de l'anneau | Libellé en capitales |
 | 27 | Anneau | Valeur mangée au centre ; zone cible marquée | Centre de la jauge | Anneau Accent (rouge au-delà du maximum), zone en Accent à 30 % |
 | 28 | Reste | « Reste 92 g », « Dans la cible », « Dépassé de 8 g » | Sous l'anneau | Texte (rouge si dépassé) |
@@ -108,8 +108,8 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 14 | Sources | Favoris, Récents, + Aliment libre | Sous les résultats | Pastilles |
 | 15 | Quantité | « (−) 190 g (+) », « (−) 2 portions (+) » | Sous l'aliment choisi | `mrt-rond`, `mrt-champ` |
 | 16 | Ajouter | « Ajouter » | Bas de la carte 3 | `mrt-btn is-principal`, toute la largeur |
-| 17 | Journal du jour | « JOURNAL DU JOUR » | Carte 4 | Libellé en capitales |
-| 18 | Ligne du journal | « Riz cuit · 200 g · 260 kcal (×) » | Carte 4, par repas | × : `mrt-rond is-fermer` |
+| 17 | Journal du jour | « Journal du jour » | Carte 4 | Titre de cadre commun |
+| 18 | Ligne du journal | « Riz cuit · 200 g · 260 kcal (×) » | Carte 4, par repas | × : `mrt-rond is-fermer`, croix dessinée ; − et + de la quantité dessinés aussi |
 
 ### 4.4 Options
 

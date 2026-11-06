@@ -6,11 +6,10 @@
    avec le nombre de filtres actifs en pastille. */
 .pv2-btn { position: relative; }
 .pv2-btn.is-on, .pv2-btn[aria-expanded="true"], .pv2-cols-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
-.pv2-badge { position: absolute; top: -0.3rem; right: -0.35rem; min-width: 1rem; height: 1rem; padding: 0 0.2rem; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; line-height: 1rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
+.pv2-badge { position: absolute; top: -0.3rem; right: -0.35rem; min-width: 1rem; height: 1rem; padding: 0 0.2rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-weight: 700; line-height: 1rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
 .pv2-badge[hidden] { display: none; }
 .pv2-ico { width: 0.95rem; height: 0.95rem; flex: none; }
-.pv2-chev { width: 0.85rem; height: 0.85rem; flex: none; transition: transform 0.15s; }
-.pv2-count { font-size: 0.8rem; color: var(--muted); }
+.pv2-count { font-size: var(--t-second); color: var(--muted); }
 .pv2-clear[hidden], .pv2-count[hidden] { display: none; }
 .pv2-panel {
   display: grid;
@@ -31,19 +30,19 @@
   padding: 0;
   margin-bottom: 0.45rem;
   font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
+  font-size: var(--t-libelle);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .pv2-row + .pv2-row { margin-top: 0.45rem; }
-.pv2-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem; font-size: 0.8rem; color: var(--muted); }
+.pv2-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem; font-size: var(--t-second); color: var(--muted); }
 /* Champs (mrt-champ) et pastilles (mrt-pastille) : éléments communs (en-tete.css) ; ici, leur largeur seulement. */
 .pv2-panel input[type="search"] { width: 100%; }
 .pv2-panel input.pv2-num { width: 6.5rem; }
 .pv2-sens:not(:empty) { margin-left: 0.3rem; }
 /* Cadre du tableau : les mêmes marges que le cadre Progression (titre à 0,9 rem du haut), titre « Résultats » au-dessus des colonnes. */
-.pv2-card { padding: 0.9rem 1.1rem 1rem; }
+.pv2-card { padding: var(--pad-cadre); }
 .pv2-titre { margin-bottom: 0.2rem; }
 .pv2-table th { padding: 0; vertical-align: top; } /* en haut : un titre sur deux lignes ne fait pas descendre les autres */
 .pv2-table td { padding: 0.6rem 0.45rem; }
@@ -61,12 +60,8 @@
   border: none;
   cursor: pointer;
 }
-.pv2-table th[aria-sort="ascending"] .pv2-sort, .pv2-table th[aria-sort="descending"] .pv2-sort { color: var(--accent); }
 .pv2-nw { white-space: nowrap; }
-.pv2-sort-ico { display: inline-block; width: 0.6rem; height: 0.85rem; margin-left: 0.4rem; vertical-align: -0.15em; }
-.pv2-sort-ico path { fill: currentColor; opacity: 0.45; }
-.pv2-table th[aria-sort="ascending"] .pv2-up, .pv2-table th[aria-sort="descending"] .pv2-down { opacity: 1; }
-.pv2-table th[aria-sort="ascending"] .pv2-down, .pv2-table th[aria-sort="descending"] .pv2-up { opacity: 0.2; }
+/* Flèches de tri et couleur de la colonne triée : l'en-tête triable commun (mrt-tri, en-tete.css). */
 .pv2-table th.pv2-pad-cell { width: 1%; padding: 0 0.3rem 0.4rem; text-align: center; vertical-align: top; }
 /* Fermer le panneau : rond « × » en haut à droite, comme la croix des feuilles de course. */
 .pv2-close { grid-column: 1 / -1; justify-self: end; margin: -0.3rem -0.3rem -0.6rem 0; }
@@ -99,9 +94,8 @@
 @media (max-width: 600px) {
   .pv2-count { order: 3; flex-basis: 100%; margin-left: 0; }
   /* Les mêmes marges que le cadre Progression : « Résultats » aligné sur « Progression ». */
-  .pv2-card { padding: 0.8rem 0.8rem 0.9rem; }
 }
-.pv2-paysage { display: none; margin: -0.3rem 0 0.7rem; font-size: 0.8rem; color: var(--muted); }
+.pv2-paysage { display: none; margin: -0.3rem 0 0.7rem; font-size: var(--t-second); color: var(--muted); }
 /* Téléphone tenu en largeur : une ligne par course ; le tableau défile sur le côté s'il le faut. */
 @media (orientation: landscape) and (max-height: 500px) {
   .pv2-table td { white-space: nowrap; }
@@ -109,30 +103,31 @@
 @media (max-width: 600px) and (orientation: portrait) {
   .pv2-paysage { display: block; }
 }
-/* Groupe : titre repliable (chevron, casse normale), en Accent (orange du thème par défaut) pour bien repérer les types. */
+/* Groupe : le titre repliable commun (0,85 rem, 600, Texte, chevron discret) ; le nombre de courses en Texte discret. */
 .pv2-table tr.pv2-group-row th { text-align: left; padding: 1rem 0 0.35rem; border-bottom: 1px solid var(--border); }
 .pv2-group {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 2rem; /* zone de toucher */
   padding: 0.2rem 0;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--t-texte);
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--accent);
+  color: var(--text);
   background: none;
   border: none;
   cursor: pointer;
 }
-.pv2-group .pv2-chev { color: var(--accent); }
-.pv2-group .pv2-chev { transition: transform 0.15s; }
-.pv2-group[aria-expanded="false"] .pv2-chev { transform: rotate(-90deg); }
+.pv2-group-n { font-weight: 400; color: var(--muted); }
 .pv2-table tbody tr.pv2-group-row:first-child th { padding-top: 0.4rem; }
 
 /* Crayon de ligne : nuance des flèches de tri, visible au survol de la ligne */
-.pv2-edit { display: inline-flex; padding: 0.15rem; color: var(--muted); background: none; border: none; border-radius: 3px; cursor: pointer; opacity: 0; }
+/* Crayon : zone de toucher de 2 rem (marge invisible). */
+.pv2-edit::after { content: ''; position: absolute; inset: -0.4rem; }
+.pv2-edit { position: relative; display: inline-flex; padding: 0.15rem; color: var(--muted); background: none; border: none; border-radius: 3px; cursor: pointer; opacity: 0; }
 .pv2-edit:focus-visible { opacity: 1; }
 .pv2-table td.pv2-pad { white-space: nowrap; vertical-align: middle; }
 .pv2-table tbody tr[data-id] { cursor: pointer; }

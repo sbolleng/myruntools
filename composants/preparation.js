@@ -9,8 +9,8 @@
 //   ctx.relire()      relit les données, rend { courses, seances, semaines }
 //   ctx.actualiser()  relit puis redessine la page (fourni par la page)
 (function () {
-  const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-  const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  // Noms des mois et des jours, dates : les formats communs (en-tete.js, mrtFormat) ; le 1er du mois s'écrit « 1er ».
+  const F = window.mrtFormat, { MOIS, JOURS } = F;
   const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Deload']];
   const NOM_PHASE = Object.fromEntries(PHASES);
 
@@ -22,10 +22,10 @@
   const parse = s => { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
   const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
   const lundiDe = s => addDays(s, -((parse(s).getDay() + 6) % 7));
-  const jourCourt = s => JOURS[parse(s).getDay()] + ' ' + parse(s).getDate();
-  const dateCourte = s => parse(s).getDate() + ' ' + MOIS[parse(s).getMonth()];
-  const longue = s => JOURS[parse(s).getDay()] + ' ' + parse(s).getDate() + ' ' + MOIS[parse(s).getMonth()] + ' ' + parse(s).getFullYear();
-  const courte = s => parse(s).getDate() + ' ' + MOIS[parse(s).getMonth()] + ' ' + parse(s).getFullYear();
+  const jourCourt = s => JOURS[parse(s).getDay()] + ' ' + F.jour(parse(s).getDate());
+  const dateCourte = s => F.date(s, { annee: false });
+  const longue = s => F.date(s, { semaine: true });
+  const courte = s => F.date(s);
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const famille = c => (c.type === 'trail' ? 'trail' : 'route');
   // Curseurs : le bouton qui règle le plan.
@@ -33,7 +33,7 @@
   // Page d'une course (modale), à la rubrique Préparation.
   const lienCourse = id => 'course.html?id=' + encodeURIComponent(id) + '#preparation';
   // Chevron des titres repliables (le même que sur la page d'une course) ; poubelle de « Supprimer ».
-  const CHEVRON = '<svg class="cal-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHEVRON = window.mrtIcone.chevron; // chevron commun des titres repliables (mrt-chev)
   const POUBELLE = '<svg class="cal-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   // ----- Plan d'une course : règles générales (spécification du Calendrier, § 5.1) -----
@@ -131,9 +131,10 @@
           ? '<button type="button" class="cal-se-txt" data-edit="' + esc(s.id) + '"><b>' + TYPES[s.type] + '</b> ' + esc(s.libelle) + '</button>'
           : '<span class="cal-se-txt"><b>' + TYPES[s.type] + '</b> ' + esc(s.libelle) + '</span>') + '</div>').join('');
       jours += '<div class="' + cls.join(' ') + '"><span class="cal-jr-nom">' + jourCourt(jour) + '</span>' + courseJour + rdv + seances +
-        (ecriture(ctx) ? '<button type="button" class="cal-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">+</button>' : '') + '</div>';
+        (ecriture(ctx) ? '<button type="button" class="mrt-rond is-petit cal-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '') + '</div>';
     }
-    const titre = (opts.numero ? 'Semaine ' + opts.numero + ' · ' : '') + 'Sem. du ' + dateCourte(lundi);
+    // « Semaine 1 · du 16 au 22 nov. » ; sans numéro : « Semaine du 16 au 22 nov. », comme au Calendrier.
+    const titre = (opts.numero ? 'Semaine ' + opts.numero + ' · ' : 'Semaine ') + F.semaine(lundi);
     const noms = autres.map(p => p.course.course).join(', ');
     return '<section class="cal-sem ' + (opts.phase ? 'ph-' + opts.phase : 'sans') + '" data-lundi="' + lundi + '"><div class="cal-sem-haut"><h3 class="cal-sem-titre">' + titre + '</h3>' +
       '<span class="cal-sem-phase">' + (opts.phase ? NOM_PHASE[opts.phase] + (opts.modifiee ? ' · modifiée' : '') : 'Sans objectif clair') + '</span>' +
@@ -207,7 +208,7 @@
     const echec = err => { msg.textContent = 'Enregistrement impossible pour l\'instant.'; console.warn(err); };
     v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
     if (s) v.querySelector('[data-act="supprimer"]').addEventListener('click', async () => {
-      if (!confirm('Supprimer cette séance ?')) return;
+      if (!(await window.mrtConfirmer({ texte: 'Supprimer cette séance ?', action: 'Supprimer', danger: true }))) return;
       const { error } = await sb.from('seances').delete().eq('id', s.id);
       if (error) return echec(error);
       v.fermer(); ctx.actualiser();
@@ -244,7 +245,7 @@
       corps.innerHTML = '<label class="cal-champ cal-duree"><span>Durée en semaines</span><input class="mrt-champ" type="number" min="1" max="52" name="duree" value="' + draft.duree + '"></label>' +
         '<p class="cal-plan-dates">Début : ' + longue(plan.premier) + ' → jour J : ' + longue(c.date) + (c.prepaFormat ? ' · durée du format : ' + c.prepaFormat + ' sem.' : '') + '</p>' +
         frise(plan, true) +
-        '<div class="cal-tab">' + plan.semaines.map(w => '<div class="cal-tab-l"><span>Semaine ' + w.n + '</span><span>' + dateCourte(w.lundi) + '</span>' +
+        '<div class="cal-tab">' + plan.semaines.map(w => '<div class="cal-tab-l"><span class="cal-tab-sem">Semaine ' + w.n + '<small>' + F.semaine(w.lundi) + '</small></span>' +
           '<select class="mrt-champ is-compact" data-sem="' + w.lundi + '" aria-label="Phase de la semaine ' + w.n + '">' + PHASES.map(p => '<option value="' + p[0] + '"' + (p[0] === w.phase ? ' selected' : '') + '>' + p[1] + '</option>').join('') + '</select></div>').join('') + '</div>';
     }
     dessinerPrep();
@@ -281,8 +282,8 @@
     });
 
     v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
-    v.querySelector('[data-act="recalculer"]').addEventListener('click', () => {
-      if (!confirm('Revenir aux règles générales pour toutes les semaines ?')) return;
+    v.querySelector('[data-act="recalculer"]').addEventListener('click', async () => {
+      if (!(await window.mrtConfirmer({ texte: 'Revenir aux règles générales pour toutes les semaines ?', action: 'Recalculer', danger: true }))) return;
       draft.modifs = new Map();
       dessinerPrep();
     });

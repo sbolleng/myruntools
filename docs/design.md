@@ -1,6 +1,6 @@
 # Design
 
-Version 0.38 · 2 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.40 · 6 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -19,11 +19,14 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 | Le reste en blanc et gris | Valeurs et noms en Texte ; libellés et informations secondaires en Texte discret ; liens dans le texte soulignés, en Texte. |
 | Capitales pour les libellés seulement | Libellés de données (à gauche ou au-dessus d'une valeur, d'un champ, en-tête de colonne), toujours en Space Mono 0,7 rem, en-tête compris ; seuls le nom du jour (Semaine) et les numéros de l'Année du Calendrier sont plus fins (§ 10). Onglets, boutons, titres de section en casse normale. |
 | Tout dans un cadre | Chaque bloc de la page a son cadre (fond Surface, bordure fine, coins de 8 px) : tableau du Palmarès, carte d'une étape, fiche d'une course, liste des textes d'une course, Préférences (un cadre pour toute la page), panneaux. Dans un cadre, les sections sont séparées par un filet (Bordure). Jamais de cadre dans un cadre. |
-| Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien, Ajouter une course) ; au survol, l'Accent s'éclaircit (mêlé de Texte). À contour : bordure fine, texte en Texte (Annuler, Retenir cette course, Paramétrer le plan, Aujourd'hui) ; en Alerte, avec une poubelle, pour Supprimer (la course, la séance), plein Alerte au survol. Rond : une icône (filtres, crayon, regroupement, flèches, fermer) ; « × » pour fermer une feuille, la même croix partout ; un panneau qui se replie (filtres, colonnes) a un rond « Réduire », chevron vers le haut. Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Effacer les filtres, Recalculer selon les règles). Tous en casse normale, Accent au survol. |
+| Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien, Ajouter une course) ; au survol, l'Accent s'éclaircit (mêlé de Texte). À contour : bordure fine, texte en Texte (Annuler, Retenir cette course, Paramétrer le plan, Aujourd'hui) ; en Alerte, avec une poubelle, pour Supprimer (la course, la séance), plein Alerte au survol. Rond : une icône dessinée, jamais un caractère tapé (filtres, crayon, regroupement, flèches, fermer, « + ») ; petit rond (1,5 rem) pour le « + » d'une séance ; « × » pour fermer une feuille, la même croix partout ; un panneau qui se replie (filtres, colonnes) a un rond « Réduire », chevron vers le haut. Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Effacer les filtres, Recalculer selon les règles). Tous en casse normale, Accent au survol. |
 | Pastilles | Un choix parmi d'autres (filtres, tri et colonnes du Palmarès, vue du Calendrier) : arrondies, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond. |
 | Un seul champ | Fiche, fenêtres, filtres, Préférences (changement du mot de passe compris), connexion et nouveau mot de passe : fond Champ (§ 2), bordure fine (Bordure), coins de 6 px, 0,85 rem, exemple en Texte discret dans le champ vide, bordure en Accent pendant la saisie, en Alerte sur une erreur ; listes avec un chevron dessiné. Seul le tableau des phases de « Paramétrer le plan » le prend en plus petit. |
 | Fenêtres comme la fiche | Une fenêtre de saisie (séance, Paramétrer le plan) se présente comme la fiche d'une course (§ 6) : le voile de la feuille, « Annuler » à gauche et le bouton principal à droite en haut, le titre en libellé, une action à part (Supprimer, Recalculer) seule en bas. |
-| Un seul titre repliable | Chevron à gauche, titre en Texte, 600, casse normale : textes d'une course, blocs du formulaire, groupes du Palmarès, graphiques (Évolution de l’effort, Progression : 0,85 rem, chevron en Texte discret). |
+| Un seul titre de cadre ou repliable | 0,85 rem, 600, Texte, casse normale, chevron commun (`mrt-chev`) en Texte discret à gauche : textes d'une course, blocs du formulaire, groupes du Palmarès (le nombre de courses en Texte discret), « Toutes les semaines », graphiques (Évolution de l'effort, Progression), blocs d'En un coup d'œil. Seuls les sous-titres dans un cadre restent en libellé (À propos de la course, Résultat, Montre). |
+| Confirmations | Une question se pose dans l'encadré du site (`mrtConfirmer`), jamais dans la fenêtre du navigateur : la question, « Annuler » à gauche (choisi d'office), l'action à droite (en Alerte pour Supprimer, Abandonner, Recalculer) ; Échap ou un toucher à côté : « Annuler ». Un avertissement : un seul bouton, « Fermer ». |
+| Zones de toucher | 2 rem au moins (32 px) pour tout ce qui se touche seul : liens d'action, crayon, pastilles, réglages discrets, petit rond, par une marge invisible ; le dessin ne change pas. |
+| Formats | Une seule écriture, partout (`mrtFormat`, `en-tete.js`) : « 15 nov. 2026 », « dim. 7 mars 2027 », le 1er du mois toujours « 1er » ; heure « 7 h 30 », « 12 h » ; semaine « du 26 oct. au 1er nov. » ; temps « 01:56:05 » ; allure « 5:30 /km » ; dénivelé « 200 m D+ · 200 m D− » ; compte à rebours « 18 h 59 min 58 s ». Espace insécable posée à l'affichage devant « ? ! : ; » et dans les guillemets. |
 | Déroulé | Ouvrir ou fermer une zone (panneaux Filtres et Colonnes du Palmarès, section Montre, textes repliables d'une course) : elle se déplie en hauteur avec un fondu, 0,25 s à l'ouverture, 0,2 s à la fermeture, ease-out, de la même famille que le passage de l'en-tête ; le contenu dessous glisse au lieu de sauter ; le chevron tourne en même temps ; aucun mouvement si l'appareil demande moins d'animations. Code commun : `mrtDeroule` et `details.mrt-deroule` (`en-tete.js`). |
 
 Les boutons, liens d'action, pastilles, champs et sections sont des éléments communs de la feuille de style partagée (`mrt-btn`, avec `is-principal` et `is-danger` ; `mrt-rond`, avec `is-fermer` ; `mrt-lien`, `mrt-pastille`, `mrt-champ`, `mrt-section`) : un module les reprend, il ne les redessine pas.
@@ -38,13 +41,17 @@ Les boutons, liens d'action, pastilles, champs et sections sont des éléments c
 | Bordure | `#1f4c80` | `#2F5A4E` | `#40335F` | `#d2dae4` | `#333333` |
 | Accent | `#ffb700` | `#D07B87` | `#2EC4B6` | `#c2410c` | `#ffb700` |
 | Texte | `#eef3fa` | `#EDF2E9` | `#F1EEF7` | `#132030` | `#f2f2f2` |
-| Texte discret | `#8fa8c9` | `#8FA391` | `#A49BB8` | `#5a6a7e` | `#9b9b9b` |
-| Alerte | `#e05c5c` | `#A56269` | `#E0607E` | `#c62828` | `#f0605d` |
+| Texte discret | `#8fa8c9` | `#A2B4A4` | `#A49BB8` | `#5a6a7e` | `#9b9b9b` |
+| Alerte | `#ef6b6b` | `#f2766b` | `#E0607E` | `#c62828` | `#f0605d` |
 | Champ (fond des champs) | Fond à 60 %, Surface à 40 % | idem | idem | idem | idem |
+| Contour des champs | Texte discret à 50 % sur Bordure | idem | idem | Texte discret à 75 % | idem |
+| Case (jours du Calendrier et de la préparation) | Bordure à 55 % sur Surface | idem | idem | Bordure à 45 % | idem |
 
 Identifiants : `bleu-orange`, `vert-rose`, `violet-turquoise`, `blanc-orange`, `noir-orange`, et `auto` (« Automatique ») : Blanc et orange quand l'appareil est en mode clair, Noir et orange en mode sombre, et il suit ce réglage s'il change pendant la visite. Dans les maquettes seulement, `?t=bleu-orange`, `?t=vert-rose` ou `?t=violet-turquoise` choisit le thème.
 
 **Lecture claire et sombre** : Blanc et orange et Noir et orange sont faits pour lire, sur fond blanc ou noir. Sur fond blanc, l'orange du site (`#ffb700`) serait illisible (contraste 1,8) : l'Accent y est un orange foncé, `#c2410c` (5,2 sur blanc, texte blanc sur le bouton principal compris). Les contrôles du navigateur (dates, listes, barres de défilement) prennent la version claire ou sombre du thème. Le thème choisi est retenu sur l'appareil et posé dès le chargement de chaque page : jamais d'éclair d'un autre fond.
+
+Contrastes vérifiés au calcul dans chaque thème (banc d'essai) : Alerte et Texte discret à 4,5 au moins sur la Surface et sur une Case ; Alerte de Vert et rose tirée vers le corail pour rester distincte du rose de l'Accent.
 
 Le Champ n'a pas de valeur propre : il mêle le Fond et la Surface du thème, pour qu'un champ soit plus sombre que le cadre qui l'entoure et plus clair que la page, dans tous les thèmes.
 
@@ -58,6 +65,8 @@ Pas de second accent : l'Accent 2, presque identique à l'Accent, a été retir�
 | Libellés, comptes à rebours, indicateurs de l'en-tête | Space Mono |
 
 Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
+
+**Échelle** : sept tailles, en variables de la feuille commune, aucune autre dans les pages (contrôle « uniformite » du banc d'essai) : `--t-micro` 0,65 rem (axes, numéros de l'Année, noms des jours de la Semaine, frise), `--t-libelle` 0,7 rem, `--t-petit` 0,75 rem, `--t-second` 0,8 rem, `--t-texte` 0,85 rem, `--t-nom` 1 rem, `--t-titre` 1,4 à 2 rem. Hors échelle : l'en-tête (§ 4), les grands chiffres d'un résultat (1,5 rem) et le nom de l'application sur la page de connexion (2 rem). Marges intérieures : `--pad-cadre` 1 × 1,1 rem (0,8 rem sur téléphone) pour un cadre de page, `--pad-carte` 0,85 × 1 rem pour une carte ou un encadré.
 
 **Tailles dans les pages** (sous l'en-tête et le menu) : fixées une fois pour toutes, à reprendre telles quelles dans chaque nouvelle page ou module.
 
@@ -90,8 +99,8 @@ Sur la page de démarrage seulement (spécification générale, § 5 bis) ; les 
 | Libellé d'indicateur | Space Mono, capitales, espacement 0,1 em | 0,7 rem | Normale | Texte discret |
 | Nombre de jours | Space Mono, interligne 1 | 3,1 rem ; 1,6 rem sur téléphone | 700 | Accent |
 | « jours » | Space Mono, capitales, espacement 0,1 em | 0,7 rem | Normale | Texte discret |
-| Heures, minutes, secondes | Space Mono, chiffres à largeur fixe | 0,72 rem | Normale | Texte discret |
-| Prochaine course | Space Grotesk | 0,65 rem | Normale | Texte discret |
+| Heures, minutes, secondes (« 18 h 59 min 58 s ») | Space Mono, chiffres à largeur fixe | 0,7 rem | Normale | Texte discret |
+| Prochaine course (absente quand la page de démarrage la montre déjà : Accueil avec son bloc Prochaine course, Objectif) | Space Grotesk | 0,75 rem | Normale | Texte discret |
 
 ### Disposition
 
@@ -142,14 +151,14 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - **Compteur** « X courses sur Y » à droite des boutons, 0,8 rem, Texte discret, **seulement quand un filtre est actif** ; sur téléphone, il passe sous les boutons.
 - **Replier un panneau** (filtres, colonnes) : rond « Réduire » en haut à droite du panneau, un chevron vers le haut : le panneau se replie, il ne se ferme pas comme une feuille.
 - **Pastilles** (panneau des filtres, tri, colonnes) : les pastilles communes (§ 1). Champs des filtres : le champ commun. Libellés de rubrique comme les légendes (Space Mono, capitales, Texte discret).
-- **Intertitres du regroupement par type** : Space Grotesk 700, 0,95 rem, en Accent (orange dans le thème par défaut), chevron compris, pour repérer d'un coup d'œil Trail, Course sur route…
+- **Intertitres du regroupement par type** : le titre repliable commun (0,85 rem, 600, Texte, chevron discret), le nombre de courses en Texte discret ; zone de toucher de 2 rem.
 - **Largeur** : toutes les pages ont la même largeur de contenu sur ordinateur (960 px, marges de 2 rem), page d'une course (modale) comprise ; seule la connexion garde sa colonne étroite.
 - **Crayon** : trait fin, Texte discret comme les flèches de tri, visible seulement au survol de la ligne (Accent sous le pointeur) ; la ligne survolée s'éclaire légèrement (Surface 2). Sur écran tactile, sans survol : le crayon reste visible au bout de la ligne ; toucher la ligne ouvre la consultation.
 
 ## 8. Menu
 
 - Seuls les modules construits ont un onglet ; un module « bientôt » reste dans les Préférences.
-- Onglets en Space Grotesk, casse normale, 0,8 rem, graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés (0,6 rem sur téléphone, pour que « Objectif & plan » tienne avec les autres : les quatre modules construits tiennent dans un écran de 375 px).
+- Onglets en Space Grotesk, casse normale, 0,8 rem (0,7 rem sur téléphone), graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés (0,6 rem sur téléphone, pour que « Objectif & plan » tienne avec les autres : les quatre modules construits tiennent dans un écran de 375 px).
 - Onglet En un coup d'œil : « En un coup d' » suivi d'un picto d'œil (contour et pupille, couleur de l'onglet, 1,15 em de large) ; le nom complet en infobulle et pour les lecteurs d'écran.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.
 - **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Accent, 600, comme le grand titre dont il prend le relais (0,8 rem, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite (§ 4 : dessiné, en Accent sur les Préférences). Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.
@@ -158,9 +167,9 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 ## 9. En un coup d'œil
 
 - Blocs dans un cadre (Surface, Bordure, coins de 8 px, marges 1 rem × 1,15 rem), deux colonnes sur ordinateur (écart 1 rem), une sur téléphone.
-- Titre de bloc en capitales Space Mono 0,7 rem, Texte discret ; à droite, un lien « … → » en Space Grotesk 0,75 rem.
-- Bloc « bientôt » : contour pointillé, sans fond, à demi transparent.
-- Prochaine course : la carte de la feuille de route, sans son propre cadre. D'ici là : une pastille par étape (contour Bordure), le cap en Accent.
+- Titre de bloc : le titre de cadre commun (0,85 rem, 600, Texte) ; à droite, un lien « … → » en 0,75 rem, Texte discret.
+- Un bloc « bientôt » n'est jamais affiché sur la page (annoncé sur une ligne dans les Préférences) ; Dernière course : les libellés des cartes (Space Mono, capitales).
+- Prochaine course : la carte de la feuille de route, sans son propre cadre (compte à rebours en jours). D'ici là : la pastille commune par étape, le cap en Accent (texte et contour, sans fond).
 - **Passage** grand en-tête ↔ barre fine : 0,45 s, ease-out ; la barre part de la hauteur de l'en-tête (5 rem de marge haute et basse), le nom du cap grossi 1,8 fois et en Accent, et se réduit ; l'en-tête part de la hauteur de la barre et se déplie. Aucun passage si l'utilisateur a demandé à réduire les animations.
 - **Sans page blanche** : pendant la visite, l'en-tête et le menu de la page précédente sont gardés ; la page suivante les dessine aussitôt (le passage commence tout de suite), seul le contenu attend la base, puis arrive en fondu (0,2 s).
 
@@ -179,22 +188,23 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 **Commun aux trois vues** (spécification § 2)
 
 - **Cadre** : toute la page dans un cadre (Surface), comme les autres pages ; page sans en-tête (barre fine « Cap sur … »).
-- **Barre du haut**, sur deux niveaux : les pastilles (§ 1) « Année », « Mois », « Semaine » à gauche (sur téléphone, à parts égales sur toute la largeur) ; la case « Phases de prépa » (case native en Accent, 1 rem, libellé 0,8 rem en Texte) et « Aujourd'hui » (à contour) à droite, sur la même ligne ou dessous.
-- **Période** (Année, Mois) : entre deux filets (Bordure), le titre au centre (1,05 rem, 600, Texte ; 0,95 rem sur téléphone), de chaque côté un rond (‹, ›) et la période voisine (0,8 rem, Texte discret, Accent au survol ; masquée sur téléphone). Durée de l'Année sous le titre : « 3 mois · 6 mois · 12 mois » en 0,78 rem, Texte discret, la choisie en Texte soulignée d'Accent (les réglages discrets de Courses à surveiller).
-- **Légende** : 0,8 rem, Texte, pastilles de 1,1 × 0,75 rem ; groupes précédés d'un libellé (Space Mono 0,7 rem, capitales, Texte discret) : « ROUTE », « TRAIL » (confirmée, option), « PHASES » (case cochée). Sous la période ; Mois et Semaine : seulement la légende des phases, case cochée.
-- **Jours** : un même fond pour tous les jours (Bordure à 70 % sur Surface), passé compris : seul le numéro d'un jour passé passe en Texte discret ; jours des mois voisins (Mois) sur un fond plus pâle (Bordure à 35 %), leur contenu à 50 %. Aujourd'hui : son numéro dans un rond Accent, texte Fond (Mois, Semaine).
-- **Course** : pastille pleine de la couleur de sa famille, nom en Encre, 600 (confirmée) ; couleur à 35 % sur Bordure, cadre de 1 px de la couleur pleine, nom en Texte (option) ; Texte discret, nom en Fond (courue). **Rendez-vous clé** : « ◆ » et texte en Texte discret. **Séance** : case à cocher en Accent, type en Space Mono capitales, Texte discret, libellé en Texte (barré, Texte discret, quand elle est faite). **« + »** : rond de bordure fine, Texte discret.
-- **Phases** (case cochée), Mois et Semaine : fond de la couleur de la phase à 38 % sur Surface (22 % pour un jour passé), filet de la couleur pleine : 3 px en haut de la case (Mois), 4 px à gauche de la ligne (Semaine).
+- **Barre du haut**, sur une ligne : à gauche, le menu « Périodicité » : un bouton à contour (§ 1) qui porte la vue ouverte et un chevron (0,75 rem, retourné quand la liste est ouverte) ; la liste comme l'infobulle des graphiques (Surface 2, Bordure, coins de 8 px, ombre légère, 12 rem de large au moins), le libellé « PÉRIODICITÉ » (Space Mono 0,7 rem, capitales, Texte discret) en tête, les choix en 0,85 rem, Texte (fond des jours au survol), le choix en cours en Accent, 600, avec un trait de 3 px à gauche. À droite, « Plan » (bouton à contour ; enfoncé : contour et texte Accent, fond Accent à 16 %, qui le distingue du survol) et « Aujourd'hui » (à contour), 0,6 rem entre deux. Téléphone : la même ligne, boutons resserrés (0,45 × 0,75 rem).
+- **Période** (Année, Mois) : entre deux filets (Bordure), le titre au centre (1,05 rem, 600, Texte ; 0,95 rem sur téléphone), de chaque côté un rond (‹, ›) et la période voisine (0,8 rem, Texte discret, Accent au survol ; masquée sur téléphone). 
+- **Légende** : 0,8 rem, Texte, pastilles de 1,1 × 0,75 rem ; groupes précédés d'un libellé (Space Mono 0,7 rem, capitales, Texte discret) : « ROUTE », « TRAIL » (confirmée, option), « PHASES » (Plan enfoncé). Sous la période ; Mois et Semaine : seulement la légende des phases, Plan enfoncé.
+- **Jours** : un même fond pour tous les jours (Bordure à 70 % sur Surface), passé et mois voisins compris : seul le numéro d'un jour passé passe en Texte discret, et le contenu d'un jour voisin (Mois) à 50 %. Aujourd'hui : son numéro dans un rond Accent, texte Fond (les trois vues).
+- **Course** : pastille pleine de la couleur de sa famille, nom en Encre, 600 (confirmée) ; couleur à 35 % sur Bordure, cadre de 1 px de la couleur pleine, nom en Texte (option) ; Texte discret, nom en Fond (courue). **Rendez-vous clé** : « ◆ » et texte en Texte discret. **Séance** : case à cocher en Accent, type en Space Mono capitales, Texte discret, libellé en Texte (barré, Texte discret, quand elle est faite). **« + »** : rond de 1,5 rem, contour de 1 px et « + » (1 rem, 600) en Accent ; plein au survol (fond Accent, « + » en Fond).
+- **Phases** (Plan enfoncé), Mois et Semaine : fond de la couleur de la phase à 38 % sur Surface, le même pour tous les jours de la semaine (passés et voisins compris), filet de la couleur pleine : 3 px en haut de la case (Mois), 4 px à gauche de la ligne (Semaine).
 
 **Vue Année** (spécification § 3)
 
-- **Grille** : colonne des numéros de 1,7 rem (Space Mono 0,62 rem, Texte discret) ; lignes de 1,25 rem (téléphone : 1,1 rem), 2 px entre deux jours, 4 px entre deux mois ; mois en Space Mono 0,7 rem, capitales, Texte discret ; jours en Bordure, jour passé sans fond (à revoir, retouches annoncées) ; aujourd'hui cerclé de 2 px de Texte.
+- **Grille** : à gauche des cases de chaque mois, sa colonne de jours de 2,6 rem (téléphone : 1,5 rem) : initiale (atténuée) et numéro en Space Mono 0,65 rem, Texte discret, alignés à droite (téléphone : le numéro seul) ; lignes de 1,5 rem (téléphone : 1,25 rem), cases jointives ; onglet du mois au-dessus de ses cases : Space Mono 0,7 rem, capitales, Texte, sur Bordure, coins hauts de 6 px ; le mois en cours en Accent, texte Fond ; jours en Bordure à 70 %, passés compris ; samedi et dimanche en Bordure (plus foncés sur fond blanc, plus clairs sur fond sombre : un cran plus marqués) ; filet de 1 px en Texte discret (70 %) sous chaque dimanche ; aujourd'hui : case cerclée de 2 px de Texte, numéro dans un rond Accent, texte Fond.
 - **Course** : la case remplie comme une pastille (ci-dessus), le nom en 0,75 rem (téléphone 0,62).
-- **Barre de prépa** (case cochée) : 16 px de large (téléphone : 10 px), couloirs de 19 px (13 px) ; chaque semaine de la couleur de sa phase ; départ arrondi (6 px) ; prépa d'une option à 45 %.
+- **Fond de phase** (Plan enfoncé) : la couleur de la phase à 38 % sur Surface, 52 % pour samedi et dimanche ; une case de course garde sa couleur.
+- **Barre de prépa** (Plan enfoncé) : 16 px de large (téléphone : 10 px), couloirs de 19 px (13 px) ; chaque semaine de la couleur de sa phase ; départ arrondi (6 px) ; prépa d'une option à 45 %.
 
 **Vue Mois** (spécification § 4.1)
 
-- Jours de la semaine en Space Mono 0,7 rem, capitales, Texte discret, une seule fois ; cases de 5,8 rem de haut au moins, 3 px entre deux, coins de 4 px ; numéro en 0,75 rem, 600 ; courses, rendez-vous et séances en 0,68 rem, une ligne chacun, coupés s'ils ne tiennent pas ; « + » de 1,3 rem dans le coin bas droit.
+- Jours de la semaine en Space Mono 0,7 rem, capitales, Texte discret, une seule fois ; cases de 6 rem de haut au moins, jointives, séparées d'un filet de 1 px (le fond du cadre), la grille aux coins de 6 px ; numéro en 0,75 rem, 600 ; courses, rendez-vous et séances en 0,68 rem, une ligne chacun, coupés s'ils ne tiennent pas ; « + » de 1,5 rem dans le coin bas droit.
 - Téléphone : cases de 3,4 rem ; le numéro (0,7 rem) et des repères : barre de 4 px de la couleur de la course, point de 5 px par séance (Texte ; faite : Texte discret), « ◆ » du rendez-vous.
 
 **Vue Semaine** (spécification § 4.3)
@@ -222,8 +232,12 @@ Les boutons du site, à reprendre tels quels (feuille de style partagée, `compo
 | À contour | `mrt-btn` | Bordure fine (Bordure), texte en Texte, même taille que le principal ; icône facultative à gauche | Annuler, Retenir cette course, Marquer comme courue, Paramétrer le plan, Aujourd'hui, Changer le mot de passe |
 | Actif | `mrt-btn is-actif` | À contour, texte et bordure en Accent | Bouton à contour dont l'état est en cours |
 | Danger | `mrt-btn is-danger` | À contour en Alerte, avec une poubelle ; plein Alerte au survol | Supprimer la course, Supprimer la séance, Supprimer (confirmation) |
-| Rond | `mrt-rond` | Cercle de 2 rem, bordure fine, icône en Texte discret ; en Accent quand il est actif ou enfoncé | Filtres, Grouper par type, Colonnes, crayon, ‹ et ›, ↑ et ↓ |
+| Rond | `mrt-rond` | Cercle de 2 rem, bordure fine, icône dessinée (`mrtIcone`) en Texte discret ; en Accent quand il est actif ou enfoncé | Filtres, Grouper par type, Colonnes, crayon, ‹ et ›, ↑ et ↓, Cartes et Tableau, plein écran de la carte |
+| Petit rond | `mrt-rond is-petit` | Cercle de 1,5 rem, « + » dessiné, zone de toucher de 2 rem | Ajouter une séance (Calendrier, préparation) |
 | Fermer | `mrt-rond is-fermer` | Rond avec « × » de 1,2 rem, la même croix partout | Fermer une feuille |
 | Réduire | `mrt-rond` | Rond avec un chevron vers le haut | Replier un panneau (filtres, colonnes du Palmarès) |
 | Lien d'action | `mrt-lien` | Souligné, Texte discret, 0,8 rem, sans cadre ; `is-danger` en Alerte | Se déconnecter, Mot de passe oublié ?, Retour à la connexion, Rétablir l'ordre par défaut, Effacer les filtres, Recalculer selon les règles, Retirer |
-| Pastille | `mrt-pastille` | Arrondie, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond | Vue Année / 4 semaines, filtres, tri et colonnes du Palmarès |
+| Pastille | `mrt-pastille` | Arrondie, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond | Vues du Calendrier et d'À surveiller, filtres, tri et colonnes du Palmarès, étapes « D'ici là » |
+| Réglage discret | `mrt-choix` | Choix en texte, 0,8 rem, Texte discret ; le choisi en Texte, souligné d'Accent | Année d'À surveiller, durée de l'Année (3, 6, 12 mois) |
+| En-tête triable | `mrt-tri` | Libellé de colonne et deux triangles ; la colonne triée en Accent | Palmarès, tableau d'À surveiller |
+| Confirmation | `mrtConfirmer` | Encadré (Surface, contour Alerte pour une action dangereuse) sur le voile : question, « Annuler », action | Supprimer la course ou la séance, Abandonner les modifications, Retenir cette course, Revenir aux règles générales |

@@ -21,10 +21,10 @@
 <style>
   /* Mentions légales : spécification générale § 11 bis. Page publique, sans en-tête ni menu. */
   .ml { max-width: 44rem; }
-  .ml h1 { margin-bottom: 1.2rem; font-size: 1.6rem; line-height: 1.2; letter-spacing: -0.02em; }
+  .ml h1 { margin-bottom: 1.2rem; font-size: var(--t-titre); line-height: 1.2; letter-spacing: -0.02em; }
   .ml p + p { margin-top: 0.4rem; }
-  .ml-maj { margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); }
-  .ml-retour { display: inline-block; margin-top: 1.2rem; font-size: 0.8rem; color: var(--muted); }
+  .ml-maj { margin-top: 0.4rem; font-size: var(--t-petit); color: var(--muted); }
+  .ml-retour { display: inline-block; margin-top: 1.2rem; }
   @media (max-width: 600px) { main.ml { padding: 1.2rem 1rem; } }
 </style>
 </head>
@@ -71,7 +71,7 @@
     </section>
   </div>
   <p class="ml-maj" id="m10">Mise à jour : 1er novembre 2026</p>
-  <a class="ml-retour" id="m11" href="connexion.html">← Retour</a>
+  <a class="mrt-lien ml-retour" id="m11" href="connexion.html">← Retour</a>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>

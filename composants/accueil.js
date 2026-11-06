@@ -5,21 +5,12 @@
 // (preferences.accueil_blocs, dans l'ordre ; vide : les blocs par défaut, mrtBlocsAccueil).
 // La carte de la prochaine course est celle de la feuille de route (renderCarteCourse, objectif.js).
 (function () {
-  const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const pad = n => String(n).padStart(2, '0');
-  const dateCourte = d => { const p = d.split('-').map(Number); return (p[2] === 1 ? '1er' : p[2]) + ' ' + MOIS[p[1] - 1] + ' ' + p[0]; };
-  const duree = s => pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60);
-  const allure = s => Math.floor(s / 60) + ':' + pad(s % 60) + ' /km';
+  // Dates, durées, allures : les formats communs (en-tete.js).
+  const { date: dateCourte, duree, allure } = window.mrtFormat;
   const pageCourse = c => 'course.html?id=' + encodeURIComponent(c.id);
 
-  // Blocs affichés, dans l'ordre choisi ; sans choix enregistré : ceux qui ne sont pas masqués par défaut.
-  window.mrtBlocsAffiches = prefs => {
-    const tous = window.mrtBlocsAccueil;
-    const choix = prefs && prefs.accueil_blocs;
-    if (!choix) return tous.filter(b => !b.masque);
-    return choix.map(id => tous.find(b => b.id === id)).filter(Boolean);
-  };
+  // Blocs affichés : mrtBlocsAffiches (donnees.js), aussi lu par l'en-tête.
 
   const bloc = (id, titre, lien, corps, bientot) => '<section class="ac-bloc' + (bientot ? ' is-bientot' : '') + '" data-bloc="' + id + '">' +
     '<h2 class="ac-titre"><span>' + esc(titre) + (bientot ? ' · bientôt' : '') + '</span>' + (lien ? '<a href="' + lien[0] + '">' + esc(lien[1]) + ' →</a>' : '') + '</h2>' + corps + '</section>';
@@ -40,8 +31,8 @@
       for (const e of window.mrtEtapes(courses)) {
         const avecCap = e.course ? e.course === cap : e.candidats.includes(cap);
         etapes.push(e.course
-          ? '<a class="ac-etape' + (avecCap ? ' is-cap' : '') + '" href="' + pageCourse(e.course) + '">' + esc(e.course.course) + '</a>'
-          : '<span class="ac-etape' + (avecCap ? ' is-cap' : '') + '">' + esc(e.groupe) + '</span>');
+          ? '<a class="mrt-pastille ac-etape' + (avecCap ? ' is-cap' : '') + '" href="' + pageCourse(e.course) + '">' + esc(e.course.course) + '</a>'
+          : '<span class="mrt-pastille ac-etape is-groupe' + (avecCap ? ' is-cap' : '') + '">' + esc(e.groupe) + '</span>');
         if (avecCap) break;
       }
       return bloc('dicila', 'D\'ici là', null, etapes.length ? '<div class="ac-etapes">' + etapes.join('<i aria-hidden="true">›</i>') + '</div>' : vide('Aucune course à venir.'));
@@ -51,9 +42,9 @@
       const c = courses.filter(x => x.etat === 'courue' && x.date).sort((a, b) => (a.date < b.date ? 1 : -1))[0];
       if (!c) return bloc('derniere', 'Dernière course', ['palmares.html', 'Palmarès'], vide('Aucune course courue pour l\'instant.'));
       const temps = c.dnf ? 'DNF' : c.temps != null ? duree(c.temps) + (c.allure ? ' · ' + allure(c.allure) : '') : '—';
-      const ligne = (lib, html) => '<div class="ac-ligne"><span>' + lib + '</span><span>' + html + '</span></div>';
+      const ligne = (lib, html) => '<div class="ob-ligne"><span class="ob-lib">' + lib + '</span><span class="ob-val">' + html + '</span></div>';
       return bloc('derniere', 'Dernière course', ['palmares.html', 'Palmarès'],
-        '<div class="ac-lignes">' + ligne('Course', '<a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a>') + ligne('Date', esc(dateCourte(c.date))) + ligne('Temps', esc(temps)) + '</div>');
+        '<div class="ob-lignes ac-lignes">' + ligne('Course', '<a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a>') + ligne('Date', esc(dateCourte(c.date))) + ligne('Temps', esc(temps)) + '</div>');
     }
   };
 

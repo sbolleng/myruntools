@@ -131,7 +131,7 @@
       Object.entries(B.SPORTS).map(x => '<option value="' + x[0] + '"' + (s && s.type === x[0] ? ' selected' : '') + '>' + esc(x[1].libelle) + '</option>').join('') + '</select>' +
       '<span class="nu-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s ? virgule(s.heures) : '') + '">h</span></div>';
     function htmlBesoin() {
-      return '<section class="nu-carte nu-besoin"><div class="nu-carte-t"><p class="nu-titre">Mon besoin du jour</p><button type="button" class="mrt-btn nu-editer" data-act="profil">Modifier</button></div>' +
+      return '<section class="card nu-carte nu-besoin"><div class="nu-carte-t"><p class="nu-titre">Mon besoin du jour</p><button type="button" class="mrt-btn nu-editer" data-act="profil">Modifier</button></div>' +
         '<p class="nu-profil-l">' + esc(htmlProfil()) + '</p><p class="nu-phase">Phase · ' + esc(phase.libelle) + '</p>' +
         '<p class="nu-sous-t">Sport du jour</p><div class="nu-sports">' + S.sports.concat([null]).map(ligneSport).join('') + '</div>' +
         '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal aujourd\'hui</p></section>';
@@ -164,9 +164,9 @@
       if (!a) return '';
       const g = enGrammes(a);
       return '<div class="nu-choix"><p class="nu-choix-nom">' + detail(a) + '</p>' +
-        '<div class="nu-quantite"><button type="button" class="mrt-rond" data-act="moins" aria-label="Moins">−</button>' +
+        '<div class="nu-quantite"><button type="button" class="mrt-rond" data-act="moins" aria-label="Moins">' + mrtIcone.moins + '</button>' +
         '<span class="nu-unite"><input class="mrt-champ nu-qte" name="quantite" type="text" inputmode="decimal" aria-label="Quantité" value="' + virgule(S.choix.quantite) + '">' + (g ? 'g' : 'portion' + (S.choix.quantite > 1 ? 's' : '')) + '</span>' +
-        '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">+</button>' +
+        '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">' + mrtIcone.plus + '</button>' +
         '<button type="button" class="mrt-pastille nu-fav" data-act="favori" aria-pressed="' + !!a.favori + '">' + (a.favori ? '★' : '☆') + ' Favori</button></div>' +
         '<div class="nu-repas-choix">' + REPAS.map(r => '<button type="button" class="mrt-pastille" data-act="repas" data-repas="' + r[0] + '" aria-pressed="' + (S.repas === r[0]) + '">' + r[1] + '</button>').join('') + '</div>' +
         '<button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">Ajouter</button></div>';
@@ -199,12 +199,12 @@
       return '<p class="nu-titre">Journal du jour</p>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') +
         (groupes.length ? groupes.map(g => '<div class="nu-repas"><p class="nu-repas-t"><span>' + g[0][1] + '</span><span>' + n0(g[1].reduce((t, l) => t + Number(l.kcal), 0)) + ' kcal</span></p><ul class="nu-lignes">' +
           g[1].map(l => '<li data-id="' + l.id + '"><span class="nu-ligne-nom">' + esc(l.nom) + qte(l) + '</span>' +
-            '<span class="nu-ligne-k">' + n0(l.kcal) + ' kcal</span><button type="button" class="mrt-rond is-fermer" data-act="supprimer" data-id="' + l.id + '" aria-label="Supprimer ' + esc(l.nom) + '">×</button></li>').join('') + '</ul></div>').join('')
+            '<span class="nu-ligne-k">' + n0(l.kcal) + ' kcal</span><button type="button" class="mrt-rond is-fermer" data-act="supprimer" data-id="' + l.id + '" aria-label="Supprimer ' + esc(l.nom) + '">' + mrtIcone.fermer + '</button></li>').join('') + '</ul></div>').join('')
           : '<p class="nu-vide">Rien de noté.</p>');
     }
 
     // Les cartes se redessinent chacune à leur tour : une saisie en cours (sport, recherche) garde sa place.
-    el.innerHTML = htmlBesoin() + '<section class="nu-carte nu-jauges"></section><section class="nu-carte nu-ajout"></section><section class="nu-carte nu-journal"></section>';
+    el.innerHTML = htmlBesoin() + '<section class="card nu-carte nu-jauges"></section><section class="card nu-carte nu-ajout"></section><section class="card nu-carte nu-journal"></section>';
     const carte = c => el.querySelector('.nu-' + c);
     function chiffres() {
       const r = besoin();

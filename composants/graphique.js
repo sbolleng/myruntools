@@ -26,7 +26,7 @@
 (function () {
   const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const CHEVRON = '<svg class="mg-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHEVRON = window.mrtIcone.chevron; // chevron commun des titres repliables (mrt-chev)
 
   window.mrtKmEffort = (distance, dplus) => (distance == null || distance === '' ? null : Number(distance) + (Number(dplus) || 0) / 100);
 

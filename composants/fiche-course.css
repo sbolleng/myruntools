@@ -10,15 +10,13 @@
   gap: 0.5rem;
   padding: 0.45rem 0;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.85rem;
+  font-size: var(--t-texte);
   font-weight: 600;
   color: var(--text);
   background: none;
   border: none;
   cursor: pointer;
 }
-.fc-chev { width: 0.8rem; height: 0.8rem; color: var(--muted); transition: transform 0.15s; }
-.fc-bloc-titre[aria-expanded="false"] .fc-chev { transform: rotate(-90deg); }
 .fc-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; padding-top: 0.3rem; }
 .fc-grille[hidden] { display: none; }
 /* Classements : général et sexe en deux champs sur toute la largeur ; catégorie, place, effectif en trois. */
@@ -33,7 +31,7 @@
   display: block;
   margin-bottom: 0.3rem;
   font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
+  font-size: var(--t-libelle);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
@@ -43,16 +41,14 @@
 /* Champs (mrt-champ) : toute la largeur de leur colonne. */
 .fc-champ .mrt-champ { display: block; width: 100%; }
 .fc-champ .mrt-champ[hidden] { display: none; } /* « Nouveau groupe » : seulement quand on le choisit */
-.fc-erreur { min-height: 1.1em; margin: 0.15rem 0 0.2rem; font-size: 0.72rem; color: var(--red); }
-.fc-champ .fc-case { display: flex; align-items: center; gap: 0.5rem; margin: 0.45rem 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; letter-spacing: 0; text-transform: none; color: var(--muted); cursor: pointer; }
+.fc-erreur { min-height: 1.1em; margin: 0.15rem 0 0.2rem; font-size: var(--t-libelle); color: var(--red); }
+.fc-champ .fc-case { display: flex; align-items: center; gap: 0.5rem; margin: 0.45rem 0 0; font-family: 'Space Grotesk', sans-serif; font-size: var(--t-second); letter-spacing: 0; text-transform: none; color: var(--muted); cursor: pointer; }
 .fc-champ .fc-case input { flex: none; width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
 
-.fc-msg { min-height: 1.2em; margin: 0.4rem 0; font-size: 0.75rem; color: var(--muted); }
+.fc-msg { min-height: 1.2em; margin: 0.4rem 0; font-size: var(--t-petit); color: var(--muted); }
 .fc-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.6rem; }
 .fc-actions[hidden] { display: none; }
 .fc-supprimer { margin-right: auto; }
-.fc-confirmer { margin-top: 0.4rem; padding: 0.8rem 1rem; border: 1px solid var(--red); border-radius: 8px; }
-.fc-confirmer p { margin-bottom: 0.6rem; font-size: 0.85rem; }
 
 @media (max-width: 600px) {
   .fc-grille-3 { grid-template-columns: minmax(0, 1fr); }
@@ -75,20 +71,20 @@
 .fc-prep:empty { display: none; }
 .fc-prep .cal-frise-defile { margin-bottom: 0.7rem; }
 .fc-prep-bas { display: flex; justify-content: flex-end; }
-.fc-prep-note { margin: 0 0 0.6rem; font-size: 0.8rem; color: var(--muted); }
+.fc-prep-note { margin: 0 0 0.6rem; font-size: var(--t-second); color: var(--muted); }
 .fc-ligne-date { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
 .fc-bas { align-self: end; padding-bottom: 1.5rem; }
 .fc-bas .fc-case { margin: 0; }
 .fc-champ textarea.mrt-champ { min-height: 4.5rem; }
 .fc-champ .fc-nouveau { margin-top: 0.4rem; }
-.fc-compte { margin: 0.15rem 0 0; font-size: 0.7rem; color: var(--muted); text-align: right; }
+.fc-compte { margin: 0.15rem 0 0; font-size: var(--t-libelle); color: var(--muted); text-align: right; }
 /* Libellé lu par les lecteurs d'écran seulement : le titre du bloc le dit déjà. */
 .fc-sanslib > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ----- Barre du haut de la fiche (Objectif, § 3.8) : « Annuler », titre, « Enregistrer » ----- */
 .pc-barre.fc-barre { justify-content: space-between; margin-bottom: 0; }
 /* Le mode (« Modifier la course »…) : un libellé, comme « Préparatoire · Étape 2 sur 14 » en consultation. */
-.fc-libelle { margin: 0.2rem 0 0.6rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.fc-libelle { margin: 0.2rem 0 0.6rem; font-family: 'Space Mono', monospace; font-size: var(--t-petit); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .fc-fiche .fc-msg { margin: 0.4rem 0 0; }
 .fc-fiche .fc-msg:empty { display: none; }
 .fc-fiche form > .fc-bloc:first-of-type { border-top: 0; }

@@ -2,32 +2,38 @@
    docs/module-calendrier-specification.md, § 2 à 4 ; couleurs : docs/design.md, § 10.
    Couleurs des phases, fenêtres d'une séance et rubrique Préparation d'une course : preparation.css. */
 
-.cal-cadre { --case: color-mix(in srgb, var(--border) 70%, var(--surface)); --barre: 16px; --pas: 19px;
-  padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-.cal-libelle { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-cadre { --barre: 16px; --pas: 19px; --ligne: 1.5rem; /* --case : fond des jours, commun (en-tete.css) */
+  padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.cal-libelle { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
-/* ----- Barre du haut, sur deux niveaux : les vues ; puis la case « Phases de prépa » et « Aujourd'hui » ----- */
+/* ----- Barre du haut : le menu « Périodicité » à gauche ; le bouton « Plan » et « Aujourd'hui » à droite ----- */
 .cal-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.7rem 1.2rem; }
-.cal-vues { display: inline-flex; gap: 0.4rem; }
-.cal-vues .mrt-pastille { justify-content: center; }
-.cal-options { display: inline-flex; align-items: center; gap: 1.2rem; margin-left: auto; }
-.cal-phases { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--text); cursor: pointer; }
-.cal-phases input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.cal-options { display: inline-flex; align-items: center; gap: 0.6rem; margin-left: auto; }
+.cal-periodicite { position: relative; }
+.cal-menu-chev { width: 0.75rem; height: 0.75rem; transition: transform 0.15s; }
+.cal-menu-btn[aria-expanded="true"] .cal-menu-chev { transform: rotate(180deg); }
+/* La liste, comme l'infobulle des graphiques : Surface 2, Bordure, coins de 8 px, ombre légère ; le choix en cours en Accent, un trait à gauche. */
+.cal-menu { position: absolute; top: calc(100% + 0.4rem); left: 0; z-index: 30; display: flex; flex-direction: column; min-width: 12rem; padding: 0.45rem 0;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.cal-menu[hidden] { display: none; }
+.cal-menu .cal-libelle { padding: 0.35rem 1.1rem 0.45rem; }
+.cal-menu a { position: relative; padding: 0.55rem 1.1rem; font-size: var(--t-texte); color: var(--text); text-decoration: none; }
+.cal-menu a.is-on { font-weight: 600; color: var(--accent); }
+.cal-menu a.is-on::before { content: ''; position: absolute; top: 0.4rem; bottom: 0.4rem; left: 0.45rem; width: 3px; border-radius: 2px; background: var(--accent); }
+.cal-menu a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+/* Bouton « Plan » enfoncé : contour et texte Accent (comme tout bouton actif), sur un fond teinté d'Accent qui le distingue du survol. */
+.cal-plan[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 
-/* ----- Période (Année, Mois) : la période voisine et sa flèche de chaque côté du titre ; la durée (Année) sous le titre ----- */
+/* ----- Période (Année, Mois) : la période voisine et sa flèche de chaque côté du titre ----- */
 .cal-periode { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; margin: 1rem 0 0.9rem; padding: 0.7rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .cal-sep { margin: 1rem 0 0.9rem; border-top: 1px solid var(--border); }
-.cal-voisin { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+.cal-voisin { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--t-second); color: var(--muted); text-decoration: none; }
 .cal-voisin.is-suiv { justify-self: end; }
 .cal-titre-bloc { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
-.cal-titre { font-size: 1.05rem; font-weight: 600; color: var(--text); text-align: center; }
-.cal-reglage { display: inline-flex; align-items: baseline; gap: 0.6rem; }
-.cal-choix { padding: 0.1rem 0; font: inherit; font-size: 0.78rem; color: var(--muted); background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; }
-.cal-choix[aria-pressed="true"] { color: var(--text); border-bottom-color: var(--accent); }
-.cal-choix:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cal-titre { font-size: var(--t-nom); font-weight: 600; color: var(--text); text-align: center; }
 
 /* ----- Légendes ----- */
-.cal-legende { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.4rem; margin: 0 0 1rem; font-size: 0.8rem; color: var(--text); }
+.cal-legende { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.4rem; margin: 0 0 1rem; font-size: var(--t-second); color: var(--text); }
 .cal-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
 .cal-legende .cal-groupe { flex-wrap: wrap; gap: 0.4rem 0.8rem; }
 .cal-k { display: inline-block; width: 1.1rem; height: 0.75rem; border-radius: 2px; background: var(--border); }
@@ -39,32 +45,50 @@
 .cal-k-auj { box-shadow: inset 0 0 0 2px var(--text); }
 
 /* ----- Course, rendez-vous clé, séance, « + » : communs au Mois et à la Semaine ----- */
-.cal-v-course { display: block; padding: 0.05rem 0.3rem; font-size: 0.68rem; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; border-radius: 3px; }
+.cal-v-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; border-radius: 3px; }
 .cal-v-course.c-route-v { background: var(--route); color: var(--encre); }
 .cal-v-course.c-trail-v { background: var(--trail); color: var(--encre); }
 .cal-v-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
 .cal-v-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-v-course.courue { background: var(--muted); color: var(--bg); }
-.cal-v-rdv { display: block; min-width: 0; font-size: 0.68rem; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); text-decoration: none; }
-.cal-v-se { display: flex; align-items: center; gap: 0.3rem; min-width: 0; font-size: 0.68rem; line-height: 1.35; color: var(--text); }
+.cal-v-rdv { display: block; min-width: 0; font-size: var(--t-libelle); line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); text-decoration: none; }
+.cal-v-se { display: flex; align-items: center; gap: 0.3rem; min-width: 0; font-size: var(--t-libelle); line-height: 1.35; color: var(--text); }
 .cal-v-se input { flex: none; width: 0.8rem; height: 0.8rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
 .cal-v-se-txt { min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-.cal-v-se-txt b { font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.cal-v-se-txt b { font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .cal-v-se.faite .cal-v-se-txt span { color: var(--muted); text-decoration: line-through; }
-.cal-v-plus { position: absolute; width: 1.3rem; height: 1.3rem; padding: 0; font: inherit; font-size: 0.85rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+/* « + » : le petit rond commun (mrt-rond is-petit), posé au coin de la case ou au bout de la ligne ; contour et icône en Accent, plein au survol. */
+.mrt-rond.cal-v-plus { position: absolute; color: var(--accent); border-color: var(--accent); }
 
-/* ----- Année : la grille (spécification § 3) ; case cochée : barres de prépa aux couleurs des phases ----- */
-.cal-a-blocs { display: flex; flex-direction: column; gap: 1.4rem; }
-.cal-a-bloc { display: grid; grid-template-columns: 1.7rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 4px; }
-.cal-a-mois { padding-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+/* ----- Année : la grille (spécification § 3) ; chaque mois, sa colonne de jours (initiale et numéro) à gauche de ses cases ;
+   cases jointives, samedi et dimanche plus foncés, filet sous chaque dimanche ; Plan : barres de prépa aux couleurs des phases ----- */
+.cal-a-blocs { display: flex; flex-direction: column; gap: 1.6rem; }
+.cal-a-bloc { display: grid; grid-template-columns: repeat(var(--n), 2.6rem minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: var(--ligne); }
+/* Onglet du mois, au-dessus de ses cases : Bordure, le mois en cours en Accent. */
+.cal-a-mois { padding: 0.3rem 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); background: var(--border); border-radius: 6px 6px 0 0; }
+.cal-a-mois.is-courant { color: var(--bg); background: var(--accent); }
 .cal-a-mois i { font-style: normal; }
-.cal-a-n { padding-right: 0.35rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; line-height: 1.25rem; text-align: right; color: var(--muted); }
-.cal-a-j { position: relative; display: block; height: 1.25rem; background: var(--border); border-radius: 2px; cursor: pointer; }
+.cal-a-n { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; padding-right: 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); color: var(--muted); }
+.cal-a-n i { font-style: normal; opacity: 0.75; } /* initiale : la taille du numéro, plus discrète */
+.cal-a-n b { min-width: 1.35rem; font-weight: 400; line-height: 1.2rem; text-align: right; }
+.cal-a-n.auj b { padding: 0 0.2rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
+.cal-a-j { position: relative; display: block; background: var(--case); cursor: pointer; }
+.cal-a-j.we { background: var(--border); }
+.cal-a-j.ph-base:not([data-course]) { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
+.cal-a-j.ph-developpement:not([data-course]) { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
+.cal-a-j.ph-affutage:not([data-course]) { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
+.cal-a-j.ph-deload:not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
+/* Plan : samedi et dimanche restent un cran plus marqués, dans la couleur de leur phase. */
+.cal-a-j.we.ph-base:not([data-course]) { background: color-mix(in srgb, var(--ph-base) 52%, var(--surface)); }
+.cal-a-j.we.ph-developpement:not([data-course]) { background: color-mix(in srgb, var(--ph-developpement) 52%, var(--surface)); }
+.cal-a-j.we.ph-affutage:not([data-course]) { background: color-mix(in srgb, var(--ph-affutage) 52%, var(--surface)); }
+.cal-a-j.we.ph-deload:not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 52%, var(--surface)); }
+.cal-a-j.dim::after { content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--muted); opacity: 0.7; pointer-events: none; }
 .cal-a-j.vide { visibility: hidden; }
-.cal-a-j.passe { background: none; }
 .cal-a-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 /* Nom de la course dans sa case, décalé des seules barres de ce jour-là. */
-.cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--dec, 0) * var(--pas)); font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--dec, 0) * var(--pas)); font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
 .cal-a-j.c-route-v { background: var(--route); }
 .cal-a-j.c-trail-v { background: var(--trail); }
 .cal-a-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
@@ -74,7 +98,7 @@
 .cal-a-j.courue .cal-a-nom { color: var(--bg); }
 /* Barre de prépa : 16 px (10 px sur téléphone), un couloir par prépa qui en chevauche une autre, jusqu'à la veille de la course ;
    chaque semaine à la couleur de sa phase ; départ arrondi ; prépa d'une option atténuée. */
-.cal-a-barres { position: absolute; top: 0; bottom: -2px; left: 3px; pointer-events: none; }
+.cal-a-barres { position: absolute; top: 0; bottom: 0; left: 3px; pointer-events: none; }
 .cal-a-barre { position: absolute; top: 0; bottom: 0; left: calc(var(--k) * var(--pas)); width: var(--barre); }
 .cal-a-barre.debut { top: 2px; border-radius: 6px 6px 0 0; }
 .cal-a-barre.ph-base { background: var(--ph-base); }
@@ -83,18 +107,18 @@
 .cal-a-barre.ph-deload { background: var(--ph-deload); }
 .cal-a-barre.is-option { opacity: 0.45; }
 
-/* ----- Mois : la grille du mois (spécification § 4.1 et 4.2) ----- */
-.cal-m-jours, .cal-m-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+/* ----- Mois : la grille du mois (spécification § 4.1 et 4.2) : cases jointives, un filet de 1 px, un seul fond ----- */
+.cal-m-jours, .cal-m-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; }
+.cal-m-grille { border-radius: 6px; overflow: hidden; }
 .cal-m-jours span { padding-bottom: 0.35rem; }
-.cal-m-case { position: relative; display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; min-height: 5.8rem; padding: 0.3rem 0.35rem 1.9rem; background: var(--case); border-radius: 4px; cursor: pointer; overflow: hidden; }
-/* Jours des mois voisins : atténués, mais sur un fond plein (jamais celui du cadre). */
-.cal-m-case.hors { background: color-mix(in srgb, var(--border) 35%, var(--surface)); }
+.cal-m-case { position: relative; display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; min-height: 6rem; padding: 0.3rem 0.35rem 2.2rem; background: var(--case); cursor: pointer; overflow: hidden; }
+/* Jours des mois voisins : le même fond, le contenu atténué. */
 .cal-m-case.hors > * { opacity: 0.5; }
-.cal-m-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: 0.75rem; font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
+.cal-m-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: var(--t-petit); font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
 .cal-m-case.passe .cal-m-num { color: var(--muted); }
 .cal-m-num.auj, .cal-m-case.passe .cal-m-num.auj { color: var(--bg); background: var(--accent); }
 .cal-m-txt { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
-.cal-m-case .cal-v-plus { right: 0.3rem; bottom: 0.3rem; }
+.cal-m-case .cal-v-plus { right: 0.35rem; bottom: 0.35rem; }
 .cal-m-points { display: none; }
 
 /* ----- Semaine : un jour par ligne, une semaine après l'autre (spécification § 4.3 et 4.4) ----- */
@@ -107,28 +131,24 @@
 .cal-s-ligne.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 /* Numéro et nom du jour, centrés l'un sur l'autre (l'espacement des capitales est compensé). */
 .cal-s-date { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; text-align: center; }
-.cal-s-date b { min-width: 1.8rem; padding: 0 0.3rem; font-size: 1rem; font-weight: 600; line-height: 1.8rem; text-align: center; border-radius: 999px; }
+.cal-s-date b { min-width: 1.8rem; padding: 0 0.3rem; font-size: var(--t-nom); font-weight: 600; line-height: 1.8rem; text-align: center; border-radius: 999px; }
 .cal-s-ligne.passe .cal-s-date b { color: var(--muted); }
 .cal-s-ligne.auj .cal-s-date b { color: var(--bg); background: var(--accent); }
-.cal-s-date small { margin-right: -0.1em; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-s-date small { margin-right: -0.1em; font-family: 'Space Mono', monospace; font-size: var(--t-micro); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-s-contenu { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem; min-width: 0; }
-.cal-s-contenu .cal-v-course, .cal-s-contenu .cal-v-rdv { font-size: 0.8rem; }
-.cal-s-contenu .cal-v-se { gap: 0.4rem; font-size: 0.85rem; }
+.cal-s-contenu .cal-v-course, .cal-s-contenu .cal-v-rdv { font-size: var(--t-second); }
+.cal-s-contenu .cal-v-se { gap: 0.4rem; font-size: var(--t-texte); }
 .cal-s-contenu .cal-v-se input { width: 1rem; height: 1rem; }
-.cal-s-contenu .cal-v-se-txt b { font-size: 0.7rem; letter-spacing: 0.1em; }
-.cal-s-ligne .cal-v-plus { top: 50%; right: 0.5rem; width: 1.5rem; height: 1.5rem; margin-top: -0.75rem; font-size: 0.95rem; }
+.cal-s-contenu .cal-v-se-txt b { font-size: var(--t-libelle); letter-spacing: 0.1em; }
+.cal-s-ligne .cal-v-plus { top: 50%; right: 0.5rem; margin-top: -0.75rem; }
 .cal-fin { height: 1px; }
 
-/* ----- Phases (case cochée) : le fond à la couleur de la phase de la semaine (plus pâle pour un jour passé), et un filet de la
-   couleur pleine, en haut de la case (Mois) ou à gauche de la ligne (Semaine) : le Deload, proche du fond, se voit aussi. ----- */
+/* ----- Phases (Plan) : le fond à la couleur de la phase de la semaine, le même pour tous ses jours (passés et voisins compris), et un
+   filet de la couleur pleine, en haut de la case (Mois) ou à gauche de la ligne (Semaine) : le Deload, proche du fond, se voit aussi. ----- */
 .cal-m-case.ph-base, .cal-s-ligne.ph-base { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
 .cal-m-case.ph-developpement, .cal-s-ligne.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
 .cal-m-case.ph-affutage, .cal-s-ligne.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
 .cal-m-case.ph-deload, .cal-s-ligne.ph-deload { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
-.cal-m-case.passe.ph-base, .cal-s-ligne.passe.ph-base { background: color-mix(in srgb, var(--ph-base) 22%, var(--surface)); }
-.cal-m-case.passe.ph-developpement, .cal-s-ligne.passe.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 22%, var(--surface)); }
-.cal-m-case.passe.ph-affutage, .cal-s-ligne.passe.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 22%, var(--surface)); }
-.cal-m-case.passe.ph-deload, .cal-s-ligne.passe.ph-deload { background: color-mix(in srgb, var(--ph-deload) 22%, var(--surface)); }
 .cal-m-case.ph-base { box-shadow: inset 0 3px 0 var(--ph-base); }
 .cal-m-case.ph-developpement { box-shadow: inset 0 3px 0 var(--ph-developpement); }
 .cal-m-case.ph-affutage { box-shadow: inset 0 3px 0 var(--ph-affutage); }
@@ -142,24 +162,29 @@
   .cal-voisin:hover { color: var(--accent); }
   .cal-m-case:hover, .cal-a-j:not(.auj):hover { box-shadow: inset 0 0 0 1px var(--text); }
   .cal-v-se-txt:hover, .cal-v-rdv:hover { color: var(--accent); }
+  .cal-v-plus:hover { color: var(--bg); background: var(--accent); }
+  .cal-menu a:hover { background: var(--case); }
 }
 
 @media (max-width: 600px) {
-  .cal-cadre { --barre: 10px; --pas: 13px; padding: 0.8rem 0.6rem; }
-  /* Barre du haut : les trois vues sur toute la largeur, à parts égales ; dessous, la case et « Aujourd'hui ». */
-  .cal-vues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
-  .cal-options { width: 100%; justify-content: space-between; margin-left: 0; }
+  .cal-cadre { --barre: 10px; --pas: 13px; --ligne: 1.25rem; padding: 0.8rem 0.6rem; } /* grille serrée : marges plus étroites que le cadre commun */
+  /* Barre du haut sur une ligne : le menu, puis « Plan » et « Aujourd'hui », boutons un peu resserrés. */
+  .cal-haut { flex-wrap: nowrap; gap: 0.5rem; }
+  .cal-options { gap: 0.4rem; }
+  .cal-haut .mrt-btn { padding: 0.45rem 0.75rem; }
   .cal-periode { gap: 0.3rem; }
   .cal-voisin .cal-voisin-txt { display: none; }
-  .cal-titre { font-size: 0.95rem; }
-  .cal-a-bloc { grid-template-columns: 1.4rem repeat(var(--n), minmax(0, 1fr)); gap: 2px 3px; }
-  .cal-a-j { height: 1.1rem; }
-  .cal-a-n, .cal-a-nom { line-height: 1.1rem; }
-  .cal-a-nom { font-size: 0.62rem; }
+  .cal-titre { font-size: var(--t-nom); }
+  /* Année : trois mois par bloc ; le numéro seul (le fond de samedi et dimanche suffit à repérer la semaine). */
+  .cal-a-bloc { grid-template-columns: repeat(var(--n), 1.5rem minmax(0, 1fr)); }
+  .cal-a-mois { padding: 0.25rem 0.2rem; font-size: var(--t-micro); letter-spacing: 0.05em; }
+  .cal-a-n { padding-right: 0.2rem; }
+  .cal-a-n i { display: none; }
+  .cal-a-n b { min-width: 1.1rem; line-height: 1.05rem; }
+  .cal-a-nom { font-size: var(--t-micro); }
   /* Mois : trop étroit pour du texte : le numéro et des repères ; toucher la case ouvre sa semaine, où l'on coche et ajoute. */
-  .cal-m-jours, .cal-m-grille { gap: 2px; }
   .cal-m-case { align-items: center; min-height: 3.4rem; padding: 0.2rem 0.15rem; }
-  .cal-m-num { align-self: center; min-width: 1.4rem; padding: 0 0.2rem; font-size: 0.7rem; line-height: 1.4rem; }
+  .cal-m-num { align-self: center; min-width: 1.4rem; padding: 0 0.2rem; font-size: var(--t-libelle); line-height: 1.4rem; }
   .cal-m-txt, .cal-m-case .cal-v-plus { display: none; }
   .cal-m-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; width: 100%; }
   .cal-m-points .barre { width: 100%; height: 4px; border-radius: 2px; }
@@ -170,6 +195,6 @@
   .cal-m-points .barre.courue { background: var(--muted); }
   .cal-m-points .pt { width: 5px; height: 5px; border-radius: 50%; background: var(--text); }
   .cal-m-points .pt.faite { background: var(--muted); }
-  .cal-m-points .rdv { font-size: 0.5rem; line-height: 5px; color: var(--muted); }
+  .cal-m-points .rdv { font-size: var(--t-micro); line-height: 5px; color: var(--muted); }
   .cal-s-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
 }

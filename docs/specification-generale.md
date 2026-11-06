@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.31 · 2 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.32 · 6 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -104,6 +104,8 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 ### Formats
 
 - **Distance** : kilomètres, virgule décimale, espace avant l'unité, autant de décimales que la distance officielle (« 60 km », « 42,195 km »). Dénivelé, s'il est connu : « / », puis les mètres avec une espace pour les milliers, puis « D+ » (« 60 km / 3 500 m D+ »).
+- **Compte à rebours** : les jours en grand, puis « 18 h 59 min 58 s » (les unités des cartes).
+- **Prochaine course** : absente quand la page de démarrage la montre déjà (Accueil avec son bloc Prochaine course, feuille de route) : un seul compte à rebours pour une même course.
 - **Date** : jour, mois en toutes lettres, année (« 30 août 2029 »). Date approximative (seul le mois est connu) : mois et année seulement (« août 2029 »).
 - **D'ici là** : nombre suivi de « course » ou « courses » (« 1 course », « 12 courses »).
 - **J-n** : nombre de jours calendaires jusqu'à la prochaine course.
@@ -138,10 +140,10 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Bloc | Contenu | Par défaut |
 | --- | --- | --- |
 | Prochaine course | La carte de la prochaine course confirmée, comme sur la feuille de route ; lien vers la feuille de route | Affiché |
-| Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt, grisé | Affiché |
-| Bilan nutrition | Plan de ravitaillement de la prochaine course, avec le module Nutrition · bientôt, grisé | Affiché |
+| Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt : jamais affiché avant d'être construit | — |
+| Bilan nutrition | Plan de ravitaillement de la prochaine course, avec le module Nutrition · bientôt : jamais affiché avant d'être construit | — |
 | D'ici là | Les étapes de la feuille de route jusqu'au cap compris, le cap en Accent | Affiché |
-| Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Masqué |
+| Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Affiché |
 
 ## 6. Thèmes
 
@@ -155,7 +157,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Module | Rôle | Jalon |
 | --- | --- | --- |
 | Objectif & plan | Feuille de route jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Objectif & plan » (le nom rangé dans les préférences reste « Objectif ») | 1 |
-| Calendrier | Saison en trois vues : semaine (par défaut), mois et année ; case « Phases de prépa » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
+| Calendrier | Saison en trois vues : semaine (par défaut), mois et année, au menu « Périodicité » ; bouton « Plan » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
 | Nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
 | Courses à surveiller | Toutes les courses en cartes (à surveiller, courues, à venir) : dates, ouverture des inscriptions avec heure ([spécification](module-courses-a-surveiller-specification.md)) ; dans le menu par défaut, après Calendrier ; index UTMB plus tard | 2 |
 | Guide | Articles et fiches pratiques, publics ou privés | 2 |
@@ -292,7 +294,7 @@ Résultats attendus :
 - Indicateurs, dans l'ordre : « 60 km / 3 500 m D+ » Distance, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
-- Ligne sous le compteur : « prochaine course · Trail du Lac · J-26 ».
+- Ligne sous le compteur, l'Accueil sans son bloc Prochaine course : « prochaine course · Trail du Lac · J-26 » ; avec le bloc : pas de ligne.
 - Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; sur ordinateur, compte à rebours et prochaine course alignés à droite, leur bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, alignés à gauche, le nombre de jours et les heures sur une ligne.
 - Même objectif sans D+ (42,195 km) : Distance affiche « 42,195 km » seul ; l'en-tête garde 4 indicateurs.
 - Date connue au jour près (30 août 2029) : Date affiche « 30 août 2029 », le compteur vise le 30 août.
@@ -315,7 +317,7 @@ Résultats attendus :
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
 - Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
-- En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac), Pense-bête et Bilan nutrition grisés, D'ici là jusqu'au Trail des Crêtes en Accent.
+- En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac, compte à rebours en jours), D'ici là jusqu'au Trail des Crêtes en Accent, Dernière course ; aucun bloc « bientôt » ; pas de ligne « prochaine course » dans l'en-tête.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
 - Menu par défaut : En un coup d'œil, Objectif & plan, Calendrier, À surveiller (Courses à surveiller), Palmarès (pas d'onglet pour Cette semaine, Profil, Guide ; Nutrition est construit mais se coche dans les Préférences : six onglets ne tiennent pas à 375 px) ; à 375 et 390 px de large, les cinq onglets tiennent dans l'écran, sur toutes les pages.
 - L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.

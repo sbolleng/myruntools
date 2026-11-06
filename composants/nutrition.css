@@ -1,11 +1,10 @@
-/* Page Nutrition : quatre cartes (besoin, jauges, ajout, journal). Couleurs : variables des thèmes ; cadre des blocs
-   d'« En un coup d'œil » (Surface, Bordure, coins de 8 px). */
-#nutrition { display: flex; flex-direction: column; gap: 1rem; }
-.nu-carte { min-width: 0; padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+/* Page Nutrition : quatre cartes (besoin, jauges, ajout, journal), dans le cadre commun (.card, design § 1).
+   Couleurs : variables des thèmes ; tailles : l'échelle commune (design § 3). */
+.nu-carte { min-width: 0; }
 .nu-carte-t { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
 .nu-carte-t .nu-titre { margin: 0; }
-.nu-titre { margin: 0 0 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.nu-sous-t { margin: 0.9rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.nu-titre { margin: 0 0 0.7rem; font-size: var(--t-texte); font-weight: 600; color: var(--text); } /* titre de cadre commun */
+.nu-sous-t { margin: 0.9rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
 /* Carte 1 : besoin du jour */
 .nu-profil-l { margin: 0; color: var(--text); }
@@ -13,14 +12,14 @@
 .nu-sport-l { display: grid; grid-template-columns: 1fr 5.5rem; gap: 0.5rem; margin-bottom: 0.45rem; }
 .nu-unite { display: flex; align-items: center; gap: 0.35rem; color: var(--muted); }
 .nu-unite .mrt-champ { flex: 1; min-width: 0; }
-.nu-kcal { display: flex; align-items: baseline; gap: 0.5rem; margin: 0.9rem 0 0; padding-top: 0.9rem; border-top: 1px solid var(--border); color: var(--muted); }
-.nu-kcal-val { font-family: 'Space Mono', monospace; font-size: 1.9rem; font-weight: 700; line-height: 1; color: var(--accent); }
+.nu-kcal { display: flex; align-items: baseline; gap: 0.5rem; font-size: var(--t-texte); margin: 0.9rem 0 0; padding-top: 0.9rem; border-top: 1px solid var(--border); color: var(--muted); }
+.nu-kcal-val { font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; line-height: 1; color: var(--accent); }
 
 /* Carte 2 : jauges en anneau */
 .nu-anneaux { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem 0.6rem; }
 @media (max-width: 600px) { .nu-anneaux { grid-template-columns: repeat(2, 1fr); } }
 .nu-jauge { display: flex; flex-direction: column; align-items: center; min-width: 0; text-align: center; }
-.nu-jauge-nom { margin: 0 0 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.nu-jauge-nom { margin: 0 0 0.5rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .nu-anneau { position: relative; width: 92px; height: 92px; }
 .nu-anneau svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .nu-anneau circle { fill: none; stroke-width: 8; }
@@ -28,10 +27,10 @@
 .nu-anneau-zone { stroke: color-mix(in srgb, var(--accent) 30%, transparent); }
 .nu-anneau-rempli { stroke: var(--accent); stroke-linecap: round; }
 .nu-jauge[data-etat="alerte"] .nu-anneau-rempli { stroke: var(--red); }
-.nu-anneau-v { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--text); }
-.nu-jauge-reste { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--text); }
+.nu-anneau-v { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: var(--t-nom); font-weight: 700; color: var(--text); }
+.nu-jauge-reste { margin: 0.5rem 0 0; font-size: var(--t-petit); color: var(--text); }
 .nu-jauge[data-etat="alerte"] .nu-jauge-reste { color: var(--red); }
-.nu-jauge-besoin { margin: 0.15rem 0 0; font-size: 0.7rem; color: var(--muted); }
+.nu-jauge-besoin { margin: 0.15rem 0 0; font-size: var(--t-libelle); color: var(--muted); }
 
 /* Carte 3 : ajouter un aliment */
 .nu-recherche { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
@@ -51,18 +50,18 @@
 .nu-choix { padding-top: 0.8rem; border-top: 1px solid var(--border); }
 .nu-choix-nom { margin: 0 0 0.6rem; font-weight: 500; }
 .nu-quantite { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem; }
-.nu-quantite .mrt-rond { width: 2.75rem; height: 2.75rem; font-size: 1.2rem; }
+.nu-quantite .mrt-rond { width: 2.75rem; height: 2.75rem; } /* grand rond : un pouce, pendant le repas */
 .nu-quantite .nu-unite { width: 7rem; }
 .nu-qte { text-align: center; }
 .nu-fav { margin-left: auto; }
 .nu-ajouter { width: 100%; min-height: 2.75rem; }
-.nu-msg { margin: 0.6rem 0 0; font-size: 0.75rem; color: var(--red); }
+.nu-msg { margin: 0.6rem 0 0; font-size: var(--t-petit); color: var(--red); }
 .nu-msg:empty { display: none; }
 
 /* Carte 4 : journal du jour */
 .nu-repas { margin-bottom: 0.9rem; }
 .nu-repas:last-child { margin-bottom: 0; }
-.nu-repas-t { display: flex; justify-content: space-between; margin: 0 0 0.3rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.nu-repas-t { display: flex; justify-content: space-between; margin: 0 0 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .nu-lignes { margin: 0; padding: 0; list-style: none; }
 .nu-lignes li { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-top: 1px solid var(--border); }
 .nu-ligne-nom { flex: 1; min-width: 0; overflow-wrap: anywhere; }
@@ -70,4 +69,5 @@
 .nu-journal .nu-vide { margin: 0; }
 
 /* Encart du premier usage : une carte comme les autres. */
-#nutrition > .pf-encart { padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+#nutrition > .pf-encart { padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+#nutrition > .pf-encart .pf-titre { margin-bottom: 0.7rem; font-family: inherit; font-size: var(--t-texte); font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text); } /* titre de cadre commun */
