@@ -1118,6 +1118,12 @@ const CONTROLES = {
       { barre: await barre(p), blocs: await titres(p), ouverts: await p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre[aria-expanded="true"]')].map(b => b.dataset.bloc).filter(b => !['dossard', 'montre', 'liens'].includes(b))),
         approx: await p.locator('#fc-date_approx').count(), statut: await p.locator('#fc-statut').count(),
         classements: await p.evaluate(() => document.querySelector('#fc-place').closest('.fc-grille').previousElementSibling.dataset.bloc === 'resultat') }, 'Palmarès : fiche unique, course courue'));
+    // Mêmes blocs qu'une course à venir ; seuls les champs sans objet pour une course passée sont retirés.
+    const champsDe = b => p.evaluate(b => [...document.querySelector('.fc-bloc-titre[data-bloc="' + b + '"]').nextElementSibling.querySelectorAll('[data-k], .fc-gpx, .fc-prep')]
+      .map(e => e.dataset.k || e.className), b);
+    pb.push(egal({ plan: ['role'], dossard: ['dossard', 'prix'], parcours: ['fc-gpx', 'strategie'], preparation: ['pourquoi'] },
+      { plan: await champsDe('plan'), dossard: await champsDe('dossard'), parcours: await champsDe('parcours'), preparation: await champsDe('preparation') },
+      'Palmarès : Parcours comme une course à venir (tracé GPX, stratégie) ; Préparation sans plan ; ni statut ni inscription'));
     await p.keyboard.press('Escape');
     await p.waitForSelector('.mc-voile', { state: 'detached' });
     pb.push(egal([], erreurs, 'fiche, Palmarès, erreurs JavaScript'));
@@ -1146,7 +1152,8 @@ const CONTROLES = {
         actions: await p.locator('.pc-actions').count(), compteur: await p.locator('.ob-cpt').count(), plan: await p.locator('#preparation').count(), edition: await p.locator('.fc-fiche').count() }, 'Palmarès : toucher une ligne ouvre la consultation d\'une course courue'));
     pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon', '21,1 km'], Résultat: ['Temps | 01:56:05', 'Place | 1 951e', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'] }, await fiche(p),
       'consultation : date sans heure, format, distance ; Résultat (temps, place, vitesse tirée de l\'allure, allure) ; pas de section Montre sans montre'));
-    pb.push(egal([0, 0, 0], [await p.locator('.pc-cellule').count(), await p.locator('.pc-fiche').count(), await p.locator('.pc-lien-res').count()], 'consultation : ni bloc repliable, ni fiche encadrée, ni lien Résultats sans adresse'));
+    pb.push(egal([['Parcours'], 1, 0, 0], [await p.locator('.pc-cellule > summary').allTextContents(), await p.locator('[data-ob="importer"]').count(), await p.locator('.pc-fiche').count(), await p.locator('.pc-lien-res').count()],
+      'consultation : sans texte saisi, seul Parcours (« Importer un GPX ») ; ni fiche encadrée, ni lien Résultats sans adresse'));
     // Crayon : édition dans la même feuille ; Annuler sans saisie revient à la consultation, sans question.
     await p.click('[data-ob="modifier"]');
     await p.waitForSelector('.mc-panneau .fc-fiche');
@@ -1178,11 +1185,19 @@ const CONTROLES = {
     await ligneSeb(p);
     await consultation(p);
     pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon · Dossard 1287', '21,1 km · 40 m D+'],
-      Résultat: ['Temps | 01:56:05', 'Place | 112e / 640', 'Catégorie | 18e / 96 Master 2 Homme', 'Sexe | 95e / 510', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'],
+      Résultat: ['Temps | 01:56:05', 'Objectif | 01:50:00', 'Place | 112e / 640', 'Catégorie | 18e / 96 Master 2 Homme', 'Sexe | 95e / 510', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'],
       Montre: ['Temps | 01:55:50', 'Distance | 21,3 km', 'Dénivelé | 40 m D+', 'FC moyenne | 151 bpm'] },
-      await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps puis place ; catégorie en clair ; Montre seule en bas ; ni objectif, ni précisions, ni prix'));
-    pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0, 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
-      (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count(), await p.locator('.pc-cellule').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
+      await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps, objectif visé, puis place ; catégorie en clair ; Montre sous le Résultat ; ni précisions, ni prix'));
+    pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
+      (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
+    // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; Parcours renseigné, ouvert.
+    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: ['Parcours'], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'RÔLE DANS LA PRÉPARATION Répétition.', 'Train.'], sous: true, plan: 0 },
+      await p.evaluate(() => { const cel = [...document.querySelectorAll('.pc-cellule')], t = e => e.innerText.trim().replace(/\s+/g, ' ');
+        const ouv = cel.filter(d => d.open).map(d => d.querySelector('summary').textContent.trim());
+        cel.forEach(d => { d.open = true; });
+        return { cellules: cel.map(d => d.querySelector('summary').textContent.trim()), ouvertes: ouv, textes: cel.map(d => t(d.querySelector('.pc-corps')).replace(/^Importer un GPX ?/, '')),
+          sous: document.querySelector('.pc-textes').getBoundingClientRect().top >= document.querySelector('.pc-resultats').getBoundingClientRect().bottom, plan: document.querySelectorAll('.pc-textes .cal-lignes').length }; }),
+      'consultation : À propos, Parcours, Préparation (rôle, sans plan), Logistique, repliés sous la Montre ; Parcours renseigné ouvert'));
     pb.push(egal([true, 'rgb', true], await p.evaluate(() => { const [r, m] = [...document.querySelectorAll('.pc-section')], coul = e => getComputedStyle(e).color;
       return [m.getBoundingClientRect().top >= r.getBoundingClientRect().bottom, coul(m.querySelector('.ob-val')).slice(0, 3), coul(m.querySelector('.ob-val')) !== coul(r.querySelector('.pc-res-ligne .ob-val'))]; }),
       'ordinateur : Montre sous Résultat, valeurs en Texte discret'));
@@ -1192,9 +1207,9 @@ const CONTROLES = {
     await ligneSeb(p);
     await consultation(p);
     const replie = await p.evaluate(() => { const m = document.querySelector('details.pc-section.is-montre'), pan = document.querySelector('.mc-panneau');
-      return [!!m && !m.open, pan.scrollHeight <= pan.clientHeight + 1]; });
+      return [!!m && !m.open, document.querySelector('.pc-resultats').getBoundingClientRect().bottom <= pan.getBoundingClientRect().bottom]; });
     await p.click('details.is-montre > summary');
-    pb.push(egal([[true, true], true], [replie, await p.evaluate(() => document.querySelector('details.is-montre').open)], 'Montre repliée à l\'ouverture, tout tient sans défilement ; un clic sur « Montre » l\'ouvre'));
+    pb.push(egal([[true, true], true], [replie, await p.evaluate(() => document.querySelector('details.is-montre').open)], 'Montre repliée à l\'ouverture, Résultat et Montre tiennent sans défilement ; un clic sur « Montre » l\'ouvre'));
     pb.push(egal([1, ''], [await p.locator('.pc-titre .ob-ext svg').count(), (await p.locator('.pc-titre .ob-ext').textContent()).trim()], 'site officiel : flèche dessinée, pas de caractère ↗ (emoji sur iPhone)'));
     await ctx.close();
     // Téléphone : rien ne dépasse.
@@ -1233,7 +1248,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal([0, 1], [await p.locator('[data-ob="modifier"]').count(), await p.locator('.pc-fermer').count()], 'lecture seule : la consultation s\'ouvre, sans crayon'));
+    pb.push(egal([0, 1, 0], [await p.locator('[data-ob="modifier"]').count(), await p.locator('.pc-fermer').count(), await p.locator('[data-ob="importer"]').count()], 'lecture seule : la consultation s\'ouvre, sans crayon ni « Importer un GPX »'));
     await ctx.close();
 
     // Téléphone : plein écran, rien ne dépasse, crayon visible au bout des lignes.
@@ -1242,7 +1257,7 @@ const CONTROLES = {
     await ligneSeb(p);
     await consultation(p);
     await p.waitForFunction(() => !document.getAnimations().length);
-    pb.push(egal({ haut: 0, debordement: false, cellules: 0 }, await p.evaluate(() => ({ haut: Math.round(document.querySelector('.mc-panneau').getBoundingClientRect().top),
+    pb.push(egal({ haut: 0, debordement: false, cellules: 1 }, await p.evaluate(() => ({ haut: Math.round(document.querySelector('.mc-panneau').getBoundingClientRect().top),
       debordement: document.documentElement.scrollWidth > innerWidth || document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth, cellules: document.querySelectorAll('.pc-cellule').length })), 'téléphone : consultation en plein écran, rien ne dépasse'));
     await ctx.close();
 

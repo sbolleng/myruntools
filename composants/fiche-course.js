@@ -122,8 +122,10 @@
     ['lien', 'Site officiel', 'url', 'liens'],
     ['lien_resultats', 'Résultats en direct', 'url', 'liens']
   ];
-  // Champs propres à un état : une course courue n'a ni plan ni inscription à venir ; une course à venir, ni résultat ni montre.
-  const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'ouverture_approx', 'ouverture_heure', 'inscrit', 'inscription', 'gpx']);
+  // Mêmes blocs partout ; un champ n'est retiré que s'il n'a plus de sens pour l'état de la course : une course courue n'a
+  // ni statut, ni groupe d'options, ni inscription à venir, ni date approximative (ni plan : il n'est pas rangé, il se
+  // recalculerait) ; une course à venir, ni résultat ni montre. Le tracé GPX et la stratégie (Parcours) sont partout.
+  const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'ouverture_approx', 'ouverture_heure', 'inscrit', 'inscription']);
   const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['dossard', 'Dossard'], ['parcours', 'Parcours'],
     ['preparation', 'Préparation'], ['logistique', 'Logistique'], ['resultat', 'Résultat'], ['montre', 'Montre'], ['liens', 'Liens']];
   const COURUE_SEUL = new Set(TOUS.filter(f => f[3] === 'resultat' || f[3] === 'montre').map(f => f[0]));
@@ -321,7 +323,7 @@
       window.addEventListener('popstate', surRetour);
     }
 
-    // ----- Tracé GPX (mode à venir) : choisi ici, rangé avec la course -----
+    // ----- Tracé GPX (à venir comme courue) : choisi ici, rangé avec la course -----
     const gpx = { fichier: null, texte: null, supprimer: false };
     const gpxZone = $('.fc-gpx');
     if (gpxZone) {
