@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.66 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.67 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -161,7 +161,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
 | 12 | Dossard | Point et état (§ 3.5) | Le seul endroit de la page où l'état est écrit ; sur la page, sans lien (l'inscription passe par 29) |
 | 18 | À propos de la course | La description : quelques infos sur la course | En bas de la fiche, sous le Dossard, sans filet ; titre en libellé (Space Mono, capitales, discret), comme DOSSARD, sur la même ligne de base que 30 ; dépliée, elle prend toute la largeur de la fiche ; repliée à l'ouverture ; absente si vide |
-| 25 | Parcours | Carte (26), profil (32), téléchargement (27), puis la stratégie (16) | Premier texte du cadre des textes, replié ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX : « Importer un GPX » (28) au-dessus de la stratégie, sauf en lecture seule ; sans GPX ni stratégie en lecture seule : absent |
+| 25 | Parcours | Carte (26), profil (32), téléchargement (27), puis la stratégie (16) | Premier texte du cadre des textes, ouvert d'emblée quand il est renseigné (tracé GPX ou stratégie), replié sinon ; le titre « Parcours » remplace « Stratégie ou enchaînement » ; sans GPX : « Importer un GPX » (28) au-dessus de la stratégie, sauf en lecture seule ; sans GPX ni stratégie en lecture seule : absent |
 | 26 | Carte du tracé | Tracé du GPX sur fond topographique, départ et arrivée marqués | Leaflet (chargé à la première carte), fond OpenTopoMap, crédits en bas à droite ; tracé en Accent ; dessinée à la première ouverture de Parcours ; zoom par les boutons ou aux doigts (pas à la molette, qui fait défiler la page, sauf en plein écran) ; un repère (50) suit la position survolée sur le profil |
 | 32 | Profil altimétrique | Altitude selon la distance, tirée du GPX | Courbe et aire en Accent ; altitudes mini et maxi à gauche, « 0 km » et la longueur du tracé dessous, en Space Mono discret ; un tracé coupé en segments ne compte pas le saut entre deux segments ; absent si le GPX n'a pas d'altitudes |
 | 47 | Plein écran | Bouton rond ⛶ (✕ en plein écran) | Sur la carte, sous les boutons + et −. Plein écran du navigateur, sinon plein écran « posé » (iPhone) ; la carte prend la place et le profil reste dessous ; la molette zoome en plein écran ; Échap ou ✕ en sort (Échap ne ferme pas la page de la course) |

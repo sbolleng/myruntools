@@ -44,7 +44,7 @@ const PAGES = {
     action: async p => { await p.waitForSelector('.ob-mini svg', { timeout: 8000 }).catch(() => {}); } },
   // Page d'une course, Parcours ouvert : carte et profil du GPX.
   parcours: { url: 'course.html?id=' + id(3), donnees: d => { const c = d.courses.find(x => x.id === id(3)); c.gpx = c.utilisateur + '/' + c.id + '.gpx'; d.fichiers = { ['traces/' + c.gpx]: GPX }; return d; },
-    action: async p => { await p.waitForSelector('.mc-panneau .pc-titre'); await p.click('#parcours > summary'); await p.waitForSelector('.tr-carte .leaflet-overlay-pane path'); await p.waitForTimeout(1500);
+    action: async p => { await p.waitForSelector('.mc-panneau .pc-titre'); await p.evaluate(() => { const d = document.querySelector('#parcours'); if (!d.open) d.querySelector('summary').click(); }); await p.waitForSelector('.tr-carte .leaflet-overlay-pane path'); await p.waitForTimeout(1500);
       await p.evaluate(() => document.querySelector('#parcours').scrollIntoView()); } },
   connexion: { url: 'connexion.html', anonyme: true },
   objectif: { url: 'objectif.html' },
