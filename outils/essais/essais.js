@@ -744,13 +744,13 @@ const CONTROLES = {
     pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
     // Ordinateur : la modale (marges de 2 rem et cadre de 1 px : 896 px de texte, comme les pages), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
     ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
-    pb.push(egal({ largeur: 896, cadre: '1px', textes: 4, ouverts: [], repliable: 'auto', cadres: 2 },
+    pb.push(egal({ largeur: 896, cadre: '1px', textes: 4, ouverts: ['Parcours'], repliable: 'auto', cadres: 2 },
       await p.evaluate(() => {
         return { largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
           cadre: getComputedStyle(document.querySelector('.pc-fiche')).borderTopWidth, textes: document.querySelectorAll('.pc-cellule').length,
           ouverts: [...document.querySelectorAll('.pc-cellule[open] > summary')].map(x => x.textContent.trim()), repliable: getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents,
           cadres: document.querySelectorAll('.pc > .pc-fiche, .pc > .pc-textes').length
-        }; }), 'ordinateur : une colonne, deux cadres (fiche et Description, puis Parcours, Préparation, Logistique), tout replié'));
+        }; }), 'ordinateur : une colonne, deux cadres (fiche et Description, puis Parcours, Préparation, Logistique), tout replié sauf Parcours, renseigné'));
     await p.locator('#preparation > summary').click();
     await p.waitForTimeout(400);
     pb.push(egal(true, await p.evaluate(() => document.querySelector('#preparation').open), 'ordinateur : toucher Préparation l\'ouvre'));
@@ -763,10 +763,13 @@ const CONTROLES = {
       return { debordement: document.documentElement.scrollWidth > innerWidth, compteurUneLigne: cases.every(c => Math.abs(c.top - cases[0].top) < 3),
         ouvertes: [...document.querySelectorAll('.pc-cellule')].map(d => d.open), haut: Math.round(document.querySelector('.pc-fiche').getBoundingClientRect().top) };
     });
-    pb.push(egal({ debordement: false, compteurUneLigne: true, ouvertes: [false, false, false, false] },
+    pb.push(egal({ debordement: false, compteurUneLigne: true, ouvertes: [false, true, false, false] },
       { debordement: tc.debordement, compteurUneLigne: tc.compteurUneLigne, ouvertes: tc.ouvertes }, 'téléphone : page d\'une course'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-course-telephone.png'), fullPage: false });
     pb.push(egal(true, tc.haut < 330, 'téléphone : la fiche commence dans le premier écran (' + tc.haut + ' px)'));
+    await p.locator('.pc-cellule > summary').nth(1).click();
+    await p.waitForTimeout(400);
+    pb.push(egal([false, false], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(0, 2).map(d => d.open)), 'téléphone : toucher le titre ferme la cellule ouverte'));
     await p.locator('.pc-cellule > summary').nth(1).click();
     await p.waitForTimeout(400);
     pb.push(egal([false, true], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(0, 2).map(d => d.open)), 'téléphone : toucher le titre ouvre la cellule'));
@@ -779,7 +782,8 @@ const CONTROLES = {
       avecTrace.courses.find(c => c.id === id(3)).gpx = moi + '/' + id(3) + '.gpx';
       avecTrace.fichiers = { [chemin(id(3))]: GPX };
       let o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, avecTrace, {}, PARIS);
-      await o.p.click('#parcours > summary');
+      pb.push(egal(true, await o.p.evaluate(() => document.querySelector('#parcours').open), 'Parcours renseigné (tracé GPX) : ouvert d\'emblée'));
+      await o.p.evaluate(() => { const d = document.querySelector('#parcours'); if (!d.open) d.querySelector('summary').click(); });
       await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
       pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'pc-strategie'], strategie: 'Stratégie de course', bouton: 'GPX', boutonClasse: true }, await o.p.evaluate(() => ({
         alt: [...document.querySelectorAll('.tr-alt span')].map(x => x.textContent), km: [...document.querySelectorAll('.tr-km span')].map(x => x.textContent.replace(/[  ]/g, ' ')),
@@ -833,7 +837,7 @@ const CONTROLES = {
       const imp = JSON.parse(JSON.stringify(db));
       imp.persister = true; imp.ecritures = [];
       o = await ouvrir(nav, 'course.html?id=' + id(2), 1200, imp, {}, PARIS);
-      await o.p.click('#parcours > summary');
+      await o.p.evaluate(() => { const d = document.querySelector('#parcours'); if (!d.open) d.querySelector('summary').click(); });
       await o.p.setInputFiles('.tr-fichier', { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('rien') });
       await o.p.waitForFunction(() => document.querySelector('.tr-erreur').textContent);
       pb.push(egal('Fichier .gpx attendu.', (await o.p.textContent('.tr-erreur')).trim(), 'import : un fichier qui n\'est pas un GPX est refusé'));
@@ -850,7 +854,7 @@ const CONTROLES = {
       const deux = JSON.parse(JSON.stringify(db));
       deux.persister = true; deux.ecritures = [];
       const o2 = await ouvrir(nav, 'course.html?id=' + id(2), 1200, deux, {}, PARIS);
-      await o2.p.click('#parcours > summary');
+      await o2.p.evaluate(() => { const d = document.querySelector('#parcours'); if (!d.open) d.querySelector('summary').click(); });
       await o2.p.setInputFiles('.tr-fichier', { name: 'epreuve.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(GPX_DEUX) });
       await o2.p.waitForSelector('.tr-choix [data-piste]');
       pb.push(egal(['Le grand · 10,7 km', 'Le petit · 5,4 km', 'Annuler'], (await o2.p.$$eval('.tr-choix [data-piste]', bs => bs.map(b => b.textContent.replace(/[  ]/g, ' ')))),

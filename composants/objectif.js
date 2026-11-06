@@ -276,7 +276,7 @@
 
   let parcoursOuvert = null;
 
-  // Tous les textes repliés à l'ouverture, sur ordinateur comme sur téléphone.
+  // Tous les textes repliés à l'ouverture, sur ordinateur comme sur téléphone, sauf Parcours quand il est renseigné.
   const telephone = window.matchMedia('(max-width: 600px)');
   let replier = null;
   function replierCellules(el) {
@@ -390,6 +390,9 @@
       if (ctx.actualiser) await ctx.actualiser();
     });
     if (parcoursOuvert === c.id && parcours) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
+    // Parcours renseigné (tracé GPX ou stratégie) : ouvert d'emblée, à l'ouverture de la course (les autres textes restent repliés).
+    else if (parcours && (c.gpx || c.strategie) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
+    el.dataset.pcOuvert = c.id;
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
     if (ctx.ancre === '#preparation' && !ctx.ancreFaite) {
