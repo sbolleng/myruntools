@@ -123,7 +123,7 @@ fs.mkdirSync(sortie, { recursive: true });
           access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t + 3600, refresh_token: 'essai', user: { id: db.profils[0].id, email: 'essai@exemple.fr' } }));
         await p.goto('file://' + racine + cfg.url);
         await p.waitForSelector('.mrt-nav');
-      }
+      } else await p.goto('file://' + racine + cfg.url); // page publique (connexion) : ouverte sans session
       await p.clock.runFor(1500);
       if (cfg.action) await cfg.action(p);
       await p.evaluate(() => document.fonts.ready);

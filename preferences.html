@@ -25,10 +25,9 @@
 <style>
   /* Réglages : spécification docs/module-preferences-specification.md ; tailles : docs/design.md § 3. */
   /* Un cadre pour la page ; dedans, une section par réglage, séparées par un filet (mrt-section, en-tete.css). */
-  .pref-cadre { padding-top: 1.2rem; padding-bottom: 0.4rem; }
   .mrt-section b { font-weight: 600; }
-  .pref-intro { margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--muted); }
-  .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .pref-intro { margin-bottom: 0.4rem; font-size: var(--t-second); color: var(--muted); }
+  .pref-legende { margin: 1.1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .pref-ligne { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
   /* Champs : l'élément commun (mrt-champ, en-tete.css) ; ici, leur largeur seulement. */
   .pref-ligne input { flex: 1 1 14rem; }
@@ -36,9 +35,9 @@
   .pref-liste { list-style: none; }
   .pref-liste li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
   .pref-liste li:last-child { border-bottom: none; }
-  .pref-msg { min-height: 1.4em; margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); }
+  .pref-msg { min-height: 1.4em; margin-top: 0.4rem; font-size: var(--t-petit); color: var(--muted); }
   .pref-msg.erreur { color: var(--red); }
-  .pref-vide { font-size: 0.8rem; color: var(--muted); }
+  .pref-vide { font-size: var(--t-second); color: var(--muted); }
   /* Thème : un choix par ligne, avec ses deux couleurs, comme les lignes du menu. */
   .pref-theme { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); cursor: pointer; }
   .pref-theme:last-child { border-bottom: none; }
@@ -50,15 +49,14 @@
   .pref-modules li, .pref-blocs li { gap: 0.6rem; }
   .pref-modules label, .pref-blocs label { flex: 1; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
   .pref-modules input, .pref-blocs input { accent-color: var(--accent); margin: 0; }
-  .pref-modules .bientot, .pref-blocs .bientot { opacity: 0.45; }
+  .pref-bientot { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
   .pref-fleches { display: flex; gap: 0.3rem; }
-  .pref-rond { font-size: 0.75rem; }
   .pref-defaut { margin-top: 0.6rem; }
-  .pref-fixe { font-size: 0.72rem; color: var(--muted); }
+  .pref-fixe { font-size: var(--t-libelle); color: var(--muted); }
   /* Changer le mot de passe : trois champs l'un sous l'autre. */
   #mdp-ouvrir { margin-top: 0.7rem; }
   .pref-mdp { max-width: 22rem; margin-top: 0.8rem; }
-  .pref-mdp label { display: block; margin: 0.8rem 0 0.35rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .pref-mdp label { display: block; margin: 0.8rem 0 0.35rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .pref-mdp label:first-child { margin-top: 0; }
   .pref-mdp input { width: 100%; } /* le champ commun (mrt-champ), sur toute la largeur */
   .pref-actions { margin-top: 1rem; }
@@ -70,34 +68,13 @@
 <body>
 <main>
   <div class="card pref-cadre">
-  <section class="mrt-section" id="bloc-compte">
-    <h2 class="mrt-section-titre">Compte</h2>
-    <p id="compte" class="muted">Lecture…</p>
-    <div id="mdp-zone" hidden>
-      <button type="button" class="mrt-btn" id="mdp-ouvrir" aria-expanded="false" aria-controls="form-mdp">Changer le mot de passe</button>
-      <form id="form-mdp" class="pref-mdp" hidden>
-        <label for="mdp-actuel">Mot de passe actuel</label>
-        <input class="mrt-champ" type="password" id="mdp-actuel" required autocomplete="current-password">
-        <label for="mdp-nouveau">Nouveau mot de passe</label>
-        <input class="mrt-champ" type="password" id="mdp-nouveau" required autocomplete="new-password" placeholder="14 caractères au moins">
-        <label for="mdp-confirmation">Confirmation</label>
-        <input class="mrt-champ" type="password" id="mdp-confirmation" required autocomplete="new-password">
-        <div id="mdp-captcha"></div>
-        <div class="pref-ligne pref-actions">
-          <button type="submit" class="mrt-btn is-principal">Enregistrer</button>
-          <button type="button" class="mrt-btn" id="mdp-annuler">Annuler</button>
-        </div>
-      </form>
-      <p class="pref-msg" id="mdp-msg" aria-live="polite"></p>
-    </div>
-  </section>
-  <section class="mrt-section" id="bloc-cap">
-    <h2 class="mrt-section-titre">Cap</h2>
+  <section class="mrt-section" id="bloc-theme">
+    <h2 class="mrt-section-titre">Thème</h2>
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
-  <section class="mrt-section" id="bloc-theme">
-    <h2 class="mrt-section-titre">Thème</h2>
+  <section class="mrt-section" id="bloc-cap">
+    <h2 class="mrt-section-titre">Cap</h2>
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
@@ -113,7 +90,7 @@
   </section>
   <section class="mrt-section" id="partage">
     <h2 class="mrt-section-titre">Partage</h2>
-    <p class="pref-intro">Le partage donne à un autre compte un accès en lecture seule à ton site : courses et réglages. Les données de santé ne sont jamais partagées. L'accès peut être retiré à tout moment.</p>
+    <p class="pref-intro">Donne à un autre compte l'accès en lecture seule à ton site (courses et réglages, jamais les données de santé), retirable à tout moment.</p>
     <div class="pref-legende">Partager mon site avec</div>
     <form class="pref-ligne" id="form-partage">
       <input class="mrt-champ" type="email" id="partage-email" required autocomplete="off" placeholder="adresse e-mail de son compte" aria-label="Adresse e-mail">
@@ -124,6 +101,27 @@
     <ul class="pref-liste" id="mes-partages"></ul>
     <div class="pref-legende">Sites partagés avec moi</div>
     <ul class="pref-liste" id="partages-avec-moi"></ul>
+  </section>
+  <section class="mrt-section" id="bloc-compte">
+    <h2 class="mrt-section-titre">Compte</h2>
+    <p id="compte" class="muted">Chargement…</p>
+    <div id="mdp-zone" hidden>
+      <button type="button" class="mrt-btn" id="mdp-ouvrir" aria-expanded="false" aria-controls="form-mdp">Changer le mot de passe</button>
+      <form id="form-mdp" class="pref-mdp" hidden>
+        <label for="mdp-actuel">Mot de passe actuel</label>
+        <input class="mrt-champ" type="password" id="mdp-actuel" required autocomplete="current-password">
+        <label for="mdp-nouveau">Nouveau mot de passe</label>
+        <input class="mrt-champ" type="password" id="mdp-nouveau" required autocomplete="new-password" placeholder="14 caractères au moins">
+        <label for="mdp-confirmation">Confirmation</label>
+        <input class="mrt-champ" type="password" id="mdp-confirmation" required autocomplete="new-password">
+        <div id="mdp-captcha"></div>
+        <div class="pref-ligne pref-actions">
+          <button type="button" class="mrt-btn" id="mdp-annuler">Annuler</button>
+          <button type="submit" class="mrt-btn is-principal">Enregistrer</button>
+        </div>
+      </form>
+      <p class="pref-msg" id="mdp-msg" aria-live="polite"></p>
+    </div>
   </section>
   </div>
 </main>
@@ -145,12 +143,8 @@
     { id: 'noir-orange', nom: 'Noir et orange' },
     { id: 'auto', nom: 'Automatique', note: 'blanc ou noir selon le réglage de l\'appareil' }
   ];
-  const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-  // « 15 nov. 2026 », ou « août 2029 » si le jour n'est pas connu.
-  const dateCourte = c => {
-    const p = c.date.split('-').map(Number);
-    return (c.date_approx ? '' : (p[2] === 1 ? '1er' : p[2]) + ' ') + MOIS[p[1] - 1] + ' ' + p[0];
-  };
+  // « 15 nov. 2026 », ou « août 2029 » si le jour n'est pas connu (formats communs, en-tete.js).
+  const dateCourte = c => mrtFormat.date(c.date_approx ? c.date.slice(0, 7) : c.date);
 
   mrtPage({ courant: 'preferences.html' }).then(page => {
     afficherPartages(page);
@@ -194,38 +188,31 @@
       enregistrer(blocTheme, { theme: e.target.value }, () => { blocTheme.querySelector('input[value="' + avant + '"]').checked = true; });
     });
 
-    // ----- Menu : modules affichés dans l'ordre choisi, puis les autres.
+    // ----- Menu : les modules construits, dans l'ordre choisi, puis les autres ; les modules « bientôt » sur une ligne,
+    // sans case ni flèches : ils entreront à la fin du menu une fois construits (ils restent dans la liste enregistrée).
     const blocMenu = blocs[1];
     // Libellé affiché d'un module (« Objectif & plan ») ; la clé rangée reste son nom.
     const libelle = n => ((mrtModules.find(m => m.nom === n) || {}).libelle || n);
-    const parDefaut = () => mrtModules.map(m => ({ nom: m.nom, affiche: m.defaut !== false }));
+    const construits = mrtModules.filter(m => m.page), aVenir = mrtModules.filter(m => !m.page).map(m => m.nom);
+    const parDefaut = () => construits.map(m => ({ nom: m.nom, affiche: m.defaut !== false })); // un module « à cocher » (Nutrition) reste décoché
     const depuisPrefs = () => {
       if (!prefs.modules || !prefs.modules.length) return parDefaut();
-      const choisis = prefs.modules.filter(n => mrtModules.some(m => m.nom === n));
+      const choisis = prefs.modules.filter(n => construits.some(m => m.nom === n));
       return choisis.map(nom => ({ nom, affiche: true }))
-        .concat(mrtModules.filter(m => !choisis.includes(m.nom)).map(m => ({ nom: m.nom, affiche: false })));
+        .concat(construits.filter(m => !choisis.includes(m.nom)).map(m => ({ nom: m.nom, affiche: false })));
     };
     let liste = depuisPrefs();
-    const pageDe = nom => mrtModules.find(x => x.nom === nom).page;
     function dessinerMenu() {
-      // Au moins un module construit reste affiché : un module « bientôt » n'entre pas dans le menu.
-      const nbAffiches = liste.filter(m => m.affiche && pageDe(m.nom)).length;
-      // Page de démarrage : le premier module construit et affiché (rien à choisir, seulement à rappeler).
-      const premier = liste.find(m => m.affiche && pageDe(m.nom));
-      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et ordonne-les avec les flèches. Le premier s\'ouvre en arrivant sur le site, avec le grand en-tête. Un module « bientôt » entre dans le menu une fois construit.</p>' +
-        '<ul class="pref-liste pref-modules">' + liste.map((m, i) => {
-        const construit = pageDe(m.nom);
-        const seul = m.affiche && construit && nbAffiches === 1;
-        return '<li><label' + (construit ? '' : ' class="bientot" title="Bientôt"') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(libelle(m.nom)) + (construit ? '' : ' · bientôt') +
-          (m === premier ? ' <span class="pref-fixe pref-ouverture">à l\'ouverture</span>' : '') + '</label>' +
-          '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(libelle(m.nom)) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-          '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(libelle(m.nom)) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
-      }).join('') + '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
+      // Au moins un module reste affiché ; le premier coché s'ouvre en arrivant sur le site (rien à choisir, seulement à rappeler).
+      const nbAffiches = liste.filter(m => m.affiche).length, premier = liste.find(m => m.affiche);
+      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et range-les avec les flèches ; le premier s\'ouvre en arrivant sur le site.</p>' +
+        listeOrdonnee(liste.map(m => ({ nom: libelle(m.nom), affiche: m.affiche, ouverture: m === premier, seul: m.affiche && nbAffiches === 1 })), 'pref-modules',
+          aVenir.length ? 'Bientôt dans le menu : ' + aVenir.map(libelle).join(', ') + '.' : '');
     }
     function changerMenu(nouvelle, valeur) {
       const avant = liste;
       liste = nouvelle;
-      const champs = { modules: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.nom) };
+      const champs = { modules: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.nom).concat(aVenir) };
       dessinerMenu();
       enregistrer(blocMenu, champs, () => { liste = avant; dessinerMenu(); });
     }
@@ -265,36 +252,39 @@
     }
   });
 
-  // Liste ordonnée avec une case « affiché » et deux flèches par ligne (En un coup d'œil) ; même rendu que le Menu.
-  function listeOrdonnee(liste, bientot) {
-    return '<ul class="pref-liste pref-blocs">' + liste.map((m, i) =>
-      '<li><label' + (bientot(m) ? ' class="bientot" title="Bientôt"' : '') + '><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + '>' + esc(m.nom) + (bientot(m) ? ' · bientôt' : '') + '</label>' +
-      '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-      '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>↓</button></span></li>').join('') +
-      '</ul><button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
+  // Liste ordonnée : une case « affiché » et deux flèches dessinées par ligne (Menu, En un coup d'œil), puis la ligne « bientôt ».
+  function listeOrdonnee(liste, classe, bientot) {
+    return '<ul class="pref-liste ' + classe + '">' + liste.map((m, i) =>
+      '<li><label><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (m.seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) +
+      (m.ouverture ? ' <span class="pref-fixe pref-ouverture">à l\'ouverture</span>' : '') + '</label>' +
+      '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>' + mrtIcone.haut + '</button>' +
+      '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>' + mrtIcone.bas + '</button></span></li>').join('') +
+      '</ul>' + (bientot ? '<p class="pref-bientot">' + esc(bientot) + '</p>' : '') + '<button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
   }
 
-  // Blocs de la page En un coup d'œil (spécification des Préférences, § 4 ter) ; la page de démarrage se choisit dans le Menu.
+  // Blocs de la page En un coup d'œil (spécification des Préférences, § 4 bis) ; la page de démarrage se choisit dans le Menu.
+  // Comme le Menu : les blocs construits se cochent et se rangent, les blocs « bientôt » sont sur une ligne.
   function reglagesAccueil(page, prefs, enregistrer) {
     const blocAcc = document.getElementById('bloc-accueil');
+    const construits = mrtBlocsAccueil.filter(b => !b.bientot), aVenir = mrtBlocsAccueil.filter(b => b.bientot);
     // Blocs affichés dans l'ordre choisi, puis les autres.
-    const parDefaut = () => mrtBlocsAccueil.map(b => ({ id: b.id, nom: b.nom, affiche: !b.masque }));
+    const parDefaut = () => construits.map(b => ({ id: b.id, nom: b.nom, affiche: !b.masque }));
     const depuisPrefs = () => {
       if (!prefs.accueil_blocs) return parDefaut();
-      const choisis = prefs.accueil_blocs.filter(id => mrtBlocsAccueil.some(b => b.id === id));
-      return choisis.map(id => ({ id, nom: mrtBlocsAccueil.find(b => b.id === id).nom, affiche: true }))
-        .concat(mrtBlocsAccueil.filter(b => !choisis.includes(b.id)).map(b => ({ id: b.id, nom: b.nom, affiche: false })));
+      const choisis = prefs.accueil_blocs.filter(id => construits.some(b => b.id === id));
+      return choisis.map(id => ({ id, nom: construits.find(b => b.id === id).nom, affiche: true }))
+        .concat(construits.filter(b => !choisis.includes(b.id)).map(b => ({ id: b.id, nom: b.nom, affiche: false })));
     };
     let liste = depuisPrefs();
-    const bientot = m => mrtBlocsAccueil.find(b => b.id === m.id).bientot;
     const dessiner = () => {
-      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les blocs à afficher sur la page En un coup d\'œil et ordonne-les avec les flèches.</p>' + listeOrdonnee(liste, bientot);
+      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les blocs à afficher et range-les avec les flèches.</p>' +
+        listeOrdonnee(liste, 'pref-blocs', aVenir.length ? 'Bientôt : ' + aVenir.map(b => b.nom).join(', ') + '.' : '');
     };
     const changer = (nouvelle, valeur) => {
       const avant = liste;
       liste = nouvelle;
       dessiner();
-      enregistrer(blocAcc, { accueil_blocs: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.id) }, () => { liste = avant; dessiner(); });
+      enregistrer(blocAcc, { accueil_blocs: valeur !== undefined ? valeur : liste.filter(m => m.affiche).map(m => m.id).concat(aVenir.map(b => b.id)) }, () => { liste = avant; dessiner(); });
     };
     dessiner();
     blocAcc.addEventListener('change', e => {

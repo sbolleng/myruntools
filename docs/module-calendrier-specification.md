@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.16 · 2 novembre 2026 · [Retour au sommaire](README.md) · Trois vues d'un calendrier classique, Année, Mois et Semaine, et la case « Phases de prépa » ; fin de l'essai (frise, anciennes grilles, vue 4 semaines et boutons violets retirés)
+Version 0.17 · 6 novembre 2026 · [Retour au sommaire](README.md) · Trois vues d'un calendrier classique, Année, Mois et Semaine, et la case « Phases de prépa » ; fin de l'essai (frise, anciennes grilles, vue 4 semaines et boutons violets retirés)
 
 ## 1. Rôle
 

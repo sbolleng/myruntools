@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.7 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.8 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Rôle
 
@@ -33,7 +33,7 @@ Une course est dans une seule vue, sauf dans Inscriptions ouvertes, qui reprend 
 │ (6) Trail du Lac · Le Tour…│ │ (6) Marathon de la Baie    │ │
 │ (8) Mont-Clair · Trail court│ │ (8) La Baie · Marathon     │ │
 │ DISTANCE  24 km · 650 m D+ │ │ DISTANCE  42,195 km        │ │
-│ (11) DOSSARD (12)● (13) Ins│ │ (11) DOSSARD ○ Ouvre le 03/│ │
+│ (11) DOSSARD (12)● (13) Ins│ │ (11) DOSSARD ○ Ouvre le 3 nov. │ │
 │              (14) Site off.│ │              (14) Site off.│ │
 └────────────────────────────┘ └────────────────────────────┘ └──────────────────
 ```
@@ -47,7 +47,7 @@ Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteu
 | 6 | Course · Parcours | Trail du Lac · Le Tour du Lac | Ligne 2, sous le statut | Nom |
 | 8 | Lieu · format | Mont-Clair · Trail court | Ligne 3 | Texte, Texte discret |
 | — | Distance | 24 km · 650 m D+ | Ligne 4 | Comme Objectif |
-| 11–13 | Dossard | ● Ouvre le 10/01/2027 à 12:00 | Ligne 5 | Comme Objectif ([§ 3.5](module-objectif-specification.md)) ; absent pour une course courue ; jamais un lien ici |
+| 11–13 | Dossard | ● Ouvre le 10 janv. 2027 à 12 h | Ligne 5 | Comme Objectif ([§ 3.5](module-objectif-specification.md)) ; absent pour une course courue ; jamais un lien ici |
 | 14 | Site officiel ↗ | | Bas droite | Lien souligné en Texte ; **grisé, sans adresse, quand `lien` n'est pas renseigné** |
 | 17 | Titre de mois | NOVEMBRE 2026, DATE À DÉFINIR | Au-dessus de chaque groupe, en cartes | Libellé, Texte discret, filet dessous |
 | 20 | Sélection | À surveiller 12 | Haut de page | Pastilles communes (`mrt-pastille`), choix unique, compteur de la vue ; seule rangée de pastilles de la page |
@@ -67,7 +67,7 @@ Au choix (25), les mêmes courses, les mêmes vues, le même tri et le même fil
 | Course | Le parcours ; « — » sans parcours | Le Tour du Lac |
 | Distance · D+ | Comme sur la carte ; « — » si inconnue | 24 km · 650 m D+ |
 | Date | La date ; l'heure de départ dessous si elle est connue ; « À définir » sans date | 15 nov. 2026 · 9 h |
-| Ouverture des dossards | L'état du dossard comme sur la carte (§ 5), sans lien ; « — » pour une course courue | ● Ouvre le 03/11/2026 à 12:00 |
+| Ouverture des inscriptions | L'état du dossard comme sur la carte (§ 5), sans lien ; « — » pour une course courue | ● Ouvre le 3 nov. 2026 à 12 h |
 
 Toucher une ligne ouvre la fiche de modification (la page de la course en lecture seule) ; le lien du nom n'ouvre pas la fiche.
 
@@ -97,7 +97,7 @@ Sans date d'ouverture, ni l'heure ni le mois seul ne sont rangés. États du dos
 | --- | --- | --- |
 | Inscrit | `inscrit` | Inscrit · n° 412 |
 | Inscription ouverte | Date passée ; ou date du jour et heure atteinte (ou sans heure) ; ou mois seul passé | Inscription ouverte |
-| Ouvre bientôt | Date future ; ou date du jour et heure à venir | Ouvre le 10/01/2027 à 12:00 (sans heure : « Ouvre le 10/01/2027 ») |
+| Ouvre bientôt | Date future ; ou date du jour et heure à venir | Ouvre le 10 janv. 2027 à 12 h (sans heure : « Ouvre le 10 janv. 2027 ») |
 | Mois seul | Mois en cours ou à venir | Ouverture : janvier 2027 |
 | Ouverture à venir | Pas de date | Ouverture à venir |
 
@@ -119,15 +119,15 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | Ouverture de la page | Vue À surveiller ; pastilles : À surveiller 3, Inscriptions ouvertes 1, Déjà couru 7, À venir 7, Tout 17 ; aucun texte « n courses » ; ni choix de tri ni choix de regroupement en cartes ; titres de mois |
 | Inscriptions ouvertes | Seulement Ultra du Plateau (ouverture le 1er sept. 2026) ; le jour même, une ouverture à 08 h est comptée à 10 h, une ouverture à 14 h pas encore |
 | À surveiller | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; titres avril 2027, septembre 2028, date à définir |
-| Carte du Marathon | Fond ; statut « À surveiller » et date sur la même ligne, nom dessous ; ni compteur ni objectif ; « Ouvre le 03/11/2026 à 12:00 » ; lien « Site officiel » dans un nouvel onglet ; Ultra des Lacs : lien grisé sans adresse, date « À définir », « Ouverture : janvier 2027 » |
+| Carte du Marathon | Fond ; statut « À surveiller » et date sur la même ligne, nom dessous ; ni compteur ni objectif ; « Ouvre le 3 nov. 2026 à 12 h » ; lien « Site officiel » dans un nouvel onglet ; Ultra des Lacs : lien grisé sans adresse, date « À définir », « Ouverture : janvier 2027 » |
 | À venir | Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Cimes, Ultra du Plateau, Trail de la Forêt, Trail des Crêtes |
 | Déjà couru | 7 courses, la plus récente d'abord, sans ligne Dossard, pastille atténuée ; années Toutes, 2026, 2025 ; 2025 : 4 courses, pas de tri |
 | Tout | 17 courses, les courues à la fin |
 | Toucher une carte | La fiche de modification s'ouvre (à surveiller, sans date, courue : fiche de résultat) ; le lien « Site officiel » ne l'ouvre pas |
 | + Course | Dans À surveiller : statut préchoisi ; dans À venir : Confirmée |
 | Fiche | Date et heure d'ouverture relues ; « Mois seulement » : la date devient un mois, l'heure se vide ; enregistré au 1er du mois, sans heure ; sans date d'ouverture, ni mois seul ni heure |
-| Ouverture le jour même | Avant l'heure : « Ouvre le 20/10/2026 à 14:00 » ; après : « Inscription ouverte » |
-| Tableau | Choisi par le rond : colonnes Événement, Course, Distance · D+, Date, Ouverture des dossards ; sans titres de mois ; une ligne par course (À surveiller : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour le dossard d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement ; Date croissante par défaut ; Distance : croissante puis décroissante, à plat (sans distance en dernier) ; Ouverture : les plus proches d'abord ; Événement : alphabétique ; troisième toucher : retour à l'ordre d'origine ; rien ne dépasse de la page sur téléphone |
+| Ouverture le jour même | Avant l'heure : « Ouvre le 20 oct. 2026 à 14 h » ; après : « Inscription ouverte » |
+| Tableau | Choisi par le rond : colonnes Événement, Course, Distance · D+, Date, Ouverture des inscriptions ; sans titres de mois ; une ligne par course (À surveiller : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour le dossard d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement ; Date croissante par défaut ; Distance : croissante puis décroissante, à plat (sans distance en dernier) ; Ouverture : les plus proches d'abord ; Événement : alphabétique ; troisième toucher : retour à l'ordre d'origine ; rien ne dépasse de la page sur téléphone |
 | Ordinateur (1200 px) | Deux cartes du même mois côte à côte, moins de 420 px de large ; toutes les cartes de la même hauteur (aussi sur téléphone) |
 | Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
 | Menu | Onglet « À surveiller » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |

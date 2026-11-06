@@ -69,11 +69,9 @@
   // Filtres : trois traits de plus en plus courts, l'usage courant.
   const COLONNES = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v9h-11z M6.2 3.5v9 M9.8 3.5v9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const FILTRE = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M4.75 8h6.5M7 11.5h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-  const CHEVRON = '<svg class="pv2-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  // Deux flèches sur chaque en-tête : la colonne se trie ; celle du sens choisi s'allume.
-  const SORT_ICON = '<svg class="pv2-sort-ico" viewBox="0 0 10 14" aria-hidden="true"><path class="pv2-up" d="M5 1l4 5H1z"/><path class="pv2-down" d="M5 13L1 8h8z"/></svg>';
-
-  const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  // Chevron des titres repliables et flèches de tri : les éléments communs (en-tete.js et en-tete.css).
+  const CHEVRON = window.mrtIcone.chevron;
+  const SORT_ICON = window.mrtIcone.tri;
   const pad = n => String(n).padStart(2, '0');
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const fold = t => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -100,14 +98,9 @@
     return s === '' || isNaN(s) ? null : Number(s);
   };
 
-  function fmtTime(sec) {
-    const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
-    return pad(h) + ':' + pad(m) + ':' + pad(s);
-  }
-  function fmtDate(iso) {
-    const p = iso.split('-').map(Number);
-    return (p[2] === 1 ? '1er' : p[2]) + ' ' + MONTHS[p[1] - 1] + ' ' + p[0];
-  }
+  // Temps et dates : les formats communs (en-tete.js).
+  const fmtTime = sec => window.mrtFormat.duree(sec);
+  const fmtDate = iso => window.mrtFormat.date(iso);
   function fmtCell(col, val, r) {
     if (val == null) return col.key === 'time' && r && r.dnf ? 'DNF' : '<span class="muted">—</span>';
     const out = fmtValue(col, val, r);
@@ -127,7 +120,7 @@
         return (val === 1 ? firstPlace : nf0.format(val) + 'e') + (of != null ? ' / ' + nf0.format(of) : '');
       }
       case 'time': return fmtTime(val);
-      case 'pace': return Math.floor(val / 60) + ':' + pad(val % 60) + ' /km';
+      case 'pace': return window.mrtFormat.allure(val);
       default: return esc(val);
     }
   }
@@ -323,7 +316,7 @@
         // (coupure possible après une espace ou un trait d'union).
         const cut = Math.max(c.label.lastIndexOf(' '), c.label.lastIndexOf('-')) + 1;
         const label = esc(c.label.slice(0, cut)) + '<span class="pv2-nw">' + esc(c.label.slice(cut)) + SORT_ICON + '</span>';
-        return '<th aria-sort="' + aria + '"><button type="button" class="pv2-sort" data-sort="' + c.key + '">' + label + '</button></th>';
+        return '<th aria-sort="' + aria + '"><button type="button" class="mrt-tri pv2-sort" data-sort="' + c.key + '">' + label + '</button></th>';
       }).join('') +
         '<th class="pv2-pad-cell"></th></tr>';
 
@@ -344,7 +337,7 @@
         body = types.map(t => {
           const items = list.filter(r => r.v.type === t), open = !state.folded.has(String(t));
           return '<tr class="pv2-group-row"><th colspan="' + (cols.length + 1) + '"><button type="button" class="pv2-group" data-group="' + esc(t) + '" aria-expanded="' + open + '">' +
-            CHEVRON + esc(t == null ? 'Sans type' : t) + ' · ' + items.length + (items.length > 1 ? ' courses' : ' course') + '</button></th></tr>' +
+            CHEVRON + esc(t == null ? 'Sans type' : t) + '<span class="pv2-group-n">· ' + items.length + (items.length > 1 ? ' courses' : ' course') + '</span></button></th></tr>' +
             (open ? items.map(line).join('') : '');
         }).join('');
       }
@@ -365,7 +358,7 @@
         const on = b.dataset.sort === state.sort.key;
         b.setAttribute('aria-pressed', String(on));
         b.hidden = state.group && b.dataset.sort === 'type'; // groupé : pas de colonne Type, pas de tri par type
-        b.querySelector('.pv2-sens').textContent = on ? (state.sort.dir === 'asc' ? '↑' : '↓') : '';
+        b.querySelector('.pv2-sens').innerHTML = on ? window.mrtIcone[state.sort.dir === 'asc' ? 'haut' : 'bas'] : '';
       });
       $('[data-act="clear"]').hidden = n === 0;
 

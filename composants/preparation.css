@@ -24,59 +24,62 @@
 .cal-sem.ph-deload { border-left-color: var(--ph-deload); --ph: var(--ph-deload); }
 .cal-sem.sans { border-left: 4px dotted var(--border); }
 .cal-sem-haut { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.9rem; margin-bottom: 0.5rem; }
-.cal-sem-titre { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.cal-sem-phase { font-size: 0.85rem; font-weight: 600; color: var(--ph); }
+.cal-sem-titre { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-sem-phase { font-size: var(--t-texte); font-weight: 600; color: var(--ph); }
 .cal-sem.sans .cal-sem-phase { color: var(--muted); font-weight: 400; }
-.cal-aussi { font-size: 0.72rem; color: var(--muted); }
+.cal-aussi { font-size: var(--t-libelle); color: var(--muted); }
 .cal-sem-jours { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
 /* Jours : un seul ton, plus clair que le cadre ; un jour passé n'a plus de fond, seulement un filet. */
-.cal-jr { position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; min-height: 5.2rem; padding: 0.35rem 0.4rem 1.5rem; background: color-mix(in srgb, var(--border) 70%, var(--surface)); border-radius: 4px; }
+.cal-jr { position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; min-height: 5.2rem; padding: 0.35rem 0.4rem 1.5rem; background: var(--case); border-radius: 4px; }
 .cal-jr.passe { background: none; box-shadow: inset 0 0 0 1px var(--border); }
 .cal-jr.auj { outline: 1px solid var(--text); outline-offset: -1px; }
-.cal-jr-nom { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.cal-jr-course { display: block; padding: 0.05rem 0.3rem; font-size: 0.7rem; font-weight: 600; line-height: 1.35; color: var(--bg); text-decoration: none; border-radius: 3px; overflow-wrap: anywhere; }
+.cal-jr-nom { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-jr-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; color: var(--bg); text-decoration: none; border-radius: 3px; overflow-wrap: anywhere; }
 .cal-jr-course.c-route-v { background: var(--route); color: var(--encre); }
 .cal-jr-course.c-trail-v { background: var(--trail); color: var(--encre); }
 .cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
 .cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
 .cal-jr-course.courue { background: var(--muted); }
-.cal-rdv { font-size: 0.68rem; line-height: 1.35; color: var(--text); text-decoration: none; }
-.cal-se { display: flex; align-items: flex-start; gap: 0.3rem; font-size: 0.72rem; line-height: 1.35; }
+.cal-rdv { font-size: var(--t-libelle); line-height: 1.35; color: var(--text); text-decoration: none; }
+.cal-se { display: flex; align-items: flex-start; gap: 0.3rem; font-size: var(--t-libelle); line-height: 1.35; }
 .cal-se input { flex: none; margin-top: 0.15rem; accent-color: var(--accent); }
 .cal-se-txt { min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; overflow-wrap: anywhere; }
-.cal-se-txt b { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-se-txt b { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-se.faite .cal-se-txt { color: var(--muted); text-decoration: line-through; }
-.cal-plus { position: absolute; right: 0.3rem; bottom: 0.25rem; width: 1.3rem; height: 1.3rem; padding: 0; font: inherit; font-size: 0.9rem; line-height: 1; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; }
+/* « + » : le petit rond commun (mrt-rond is-petit), en bas à droite du jour ou au bout de la ligne. */
+.cal-plus { position: absolute; right: 0.3rem; bottom: 0.25rem; }
 .cal-vide { color: var(--muted); }
 
 /* ----- Plan d'une course ----- */
-.cal-plan-dates { margin-bottom: 0.8rem; font-size: 0.8rem; color: var(--muted); }
+.cal-plan-dates { margin-bottom: 0.8rem; font-size: var(--t-second); color: var(--muted); }
 /* Téléphone : la frise garde 2 rem par semaine au moins et défile de gauche à droite quand elle ne tient pas. */
 .cal-frise-defile { margin-bottom: 1rem; }
 .cal-frise { display: flex; align-items: stretch; gap: 0; border-radius: 4px; overflow: hidden; }
 .cal-frise.is-edit { overflow: visible; }
 .cal-seg { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 0.3rem 0.4rem; color: var(--bg); overflow: hidden; }
-.cal-seg b { font-size: 0.7rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cal-seg small { font-size: 0.62rem; white-space: nowrap; }
+.cal-seg b { font-size: var(--t-libelle); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-seg small { font-size: var(--t-micro); white-space: nowrap; }
 .cal-poignee { flex: none; position: relative; z-index: 1; width: 8px; margin: 0 -4px; background: var(--text); border-radius: 4px; cursor: ew-resize; touch-action: none; }
 
 /* ----- Fenêtres : séance, « Paramétrer le plan » : comme la fiche d'une course (design, § 6) -----
    Le voile de la feuille d'une course ; « Annuler » et le bouton principal dans une barre en haut, fixe quand la fenêtre défile ;
    le titre en libellé ; une action à part (« Supprimer la séance », « Recalculer ») seule, en bas. */
 .cal-voile { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; padding: 1rem; background: color-mix(in srgb, var(--bg) 75%, transparent); }
-.cal-panneau { width: 100%; max-width: 30rem; max-height: calc(100vh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 0 1.2rem 1.2rem; font-size: 0.85rem; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.cal-panneau { width: 100%; max-width: 30rem; max-height: calc(100vh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 0 1.2rem 1.2rem; font-size: var(--t-texte); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .cal-panneau.cal-preparer { max-width: 44rem; }
 .cal-barre { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin: 0 -1.2rem; padding: 1.2rem 1.2rem 0.4rem; background: var(--surface); }
-.cal-panneau-titre { margin: 0.2rem 0 0.6rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-panneau-titre { margin: 0.2rem 0 0.6rem; font-family: 'Space Mono', monospace; font-size: var(--t-petit); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-champ { display: block; margin-bottom: 0.7rem; }
-.cal-champ span { display: block; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-champ span { display: block; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-champ .mrt-champ { display: block; width: 100%; }
 .cal-duree .mrt-champ { width: 6rem; }
-.cal-msg { margin: 0 0 0.6rem; font-size: 0.75rem; color: var(--red); }
+.cal-msg { margin: 0 0 0.6rem; font-size: var(--t-petit); color: var(--red); }
 .cal-msg:empty { display: none; }
 .cal-bas { margin-top: 1.2rem; }
 .cal-tab { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1rem; }
-.cal-tab-l { display: grid; grid-template-columns: 5.5rem 3.5rem minmax(0, 1fr); align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+.cal-tab-sem { display: flex; flex-direction: column; line-height: 1.3; color: var(--text); }
+.cal-tab-sem small { font-size: var(--t-libelle); color: var(--muted); }
+.cal-tab-l { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); align-items: center; gap: 0.4rem; font-size: var(--t-second); color: var(--muted); }
 .cal-tab .mrt-champ { width: 100%; }
 
 /* Icônes des boutons (« Paramétrer le plan », à contour ; poubelle de « Supprimer la séance »). */
@@ -85,13 +88,11 @@
 /* Rubrique d'une page de course : un jour par ligne, à toute largeur. */
 .cal-prep-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; margin-bottom: 0.8rem; }
 .cal-prep-haut .cal-plan-dates { margin: 0; }
-.cal-prep-lib { margin: 1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-prep-lib { margin: 1rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-toutes { margin-top: 1rem; }
-/* « Toutes les semaines » : titre repliable du site, chevron à gauche (Texte discret, 0,8 rem). */
-.cal-toutes > summary { display: flex; align-items: center; gap: 0.5rem; list-style: none; cursor: pointer; font-size: 0.8rem; color: var(--muted); }
+/* « Toutes les semaines » : le titre repliable commun (0,85 rem, 600, Texte), chevron à gauche. */
+.cal-toutes > summary { display: flex; align-items: center; gap: 0.5rem; list-style: none; cursor: pointer; font-size: var(--t-texte); font-weight: 600; color: var(--text); }
 .cal-toutes > summary::-webkit-details-marker { display: none; }
-.cal-chev { flex: none; width: 0.8rem; height: 0.8rem; transition: transform 0.15s; }
-.cal-toutes:not([open]) .cal-chev { transform: rotate(-90deg); }
 .cal-toutes .cal-sem-liste { margin-top: 0.8rem; }
 .cal-lignes .cal-sem-jours { grid-template-columns: 1fr; }
 .cal-lignes .cal-jr { flex-direction: row; flex-wrap: wrap; align-items: baseline; min-height: 0; padding: 0.35rem 2.2rem 0.35rem 0.5rem; gap: 0.3rem 0.6rem; }

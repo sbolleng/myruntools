@@ -1,15 +1,15 @@
 /* Profil minimal (Nutrition) : encart du premier usage et fenêtre « Mon profil ». Couleurs : variables des thèmes. */
-.pf-titre { margin: 0 0 0.6rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pf-titre { margin: 0 0 0.6rem; font-family: 'Space Mono', monospace; font-size: var(--t-petit); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .pf-consigne { margin: 0 0 0.9rem; color: var(--text); }
-.pf-msg { margin: 0 0 0.6rem; font-size: 0.75rem; color: var(--red); }
+.pf-msg { margin: 0 0 0.6rem; font-size: var(--t-petit); color: var(--red); }
 .pf-msg:empty { display: none; }
 .pf-champ { margin-bottom: 0.8rem; }
-.pf-libelle { display: block; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.pf-libelle { display: block; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .pf-champ .mrt-champ { display: block; width: 100%; }
 .pf-pastilles { display: flex; gap: 0.5rem; }
 .pf-unite { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); }
 .pf-unite .mrt-champ { flex: 1; }
 .pf-encart .mrt-btn { margin-top: 0.4rem; }
 .pf-voile { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; padding: 1rem; background: color-mix(in srgb, var(--bg) 75%, transparent); }
-.pf-panneau { width: 100%; max-width: 26rem; max-height: calc(100vh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 0 1.2rem 1.2rem; font-size: 0.85rem; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.pf-panneau { width: 100%; max-width: 26rem; max-height: calc(100vh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 0 1.2rem 1.2rem; font-size: var(--t-texte); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pf-barre { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin: 0 -1.2rem; padding: 1.2rem 1.2rem 0.4rem; background: var(--surface); }

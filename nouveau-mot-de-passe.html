@@ -12,24 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
 <link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
-<style>
-  /* Page d'accueil des visiteurs non connectés : sobre, sans en-tête ni menu. */
-  body { display: grid; place-items: center; grid-template-rows: 1fr auto; padding: 1.5rem 1.5rem 0; } /* le pied de page (en-tete.js) en bas */
-  .connexion { width: 100%; max-width: 22rem; text-align: center; }
-  .connexion h1 { font-size: 2rem; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
-  .connexion .accroche { font-size: 0.85rem; color: var(--muted); margin-bottom: 2.2rem; }
-  .connexion form { text-align: left; }
-  .connexion label { display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  .connexion input { width: 100%; } /* le champ commun (mrt-champ, en-tete.css), sur toute la largeur */
-  .connexion label.champ-suivant { margin-top: 0.9rem; }
-  .connexion .oubli { display: block; width: auto; margin: 0.6rem 0 0; padding: 0; font-size: 0.78rem; }
-  .connexion #captcha { margin-top: 0.8rem; display: flex; justify-content: center; }
-  .connexion button[type="submit"] { margin-top: 0.8rem; width: 100%; padding: 0.6rem; }
-  .connexion .message { min-height: 2.6em; margin-top: 1rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
-  .connexion .erreur { color: var(--red); }
-</style>
 </head>
-<body>
+<body class="mrt-public">
 <main class="connexion">
   <h1>MyRunTools</h1>
   <p class="accroche">Choisis un nouveau mot de passe</p>

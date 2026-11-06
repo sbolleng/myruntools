@@ -22,7 +22,7 @@ html.mc-ouvert { overflow: hidden; }
   border-radius: 8px;
   outline: none;
 }
-.mc-corps { padding: 0 2rem 2rem; font-size: 0.85rem; }
+.mc-corps { padding: 0 2rem 2rem; font-size: var(--t-texte); }
 .mc-attente { padding-top: 2rem; }
 /* Rubrique ouverte par une ancre : son titre se place sous la barre du haut. */
 .mc-panneau .pc-cellule { scroll-margin-top: 3.5rem; }
