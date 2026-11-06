@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.12 · 1er novembre 2026 · [Retour au sommaire](README.md)
+Version 1.13 · 6 novembre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -11,7 +11,7 @@ La page Préférences rassemble les réglages du site de l'utilisateur connecté
 
 ## 2. Organisation
 
-Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Menu**, **Page d'accueil**, **Partage** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
+Une section par réglage, de la plus utilisée à la moins utilisée : **Thème**, **Cap**, **Menu**, **En un coup d'œil**, **Partage**, **Compte** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
 - **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de la page de démarrage et dans la barre fine.
@@ -26,20 +26,20 @@ Une section par réglage, dans cet ordre : **Compte**, **Cap**, **Thème**, **Me
 
 ## 4 bis. En un coup d'œil
 
-- Texte d'aide : « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. »
-- Les blocs de la page En un coup d'œil, chacun avec une case « affiché » et deux flèches, comme le Menu ; un bloc pas encore construit est grisé, « · bientôt ».
-- Par défaut : Prochaine course, Pense-bête, Bilan nutrition, D'ici là affichés ; Dernière course masquée. « Rétablir l'ordre par défaut » y revient.
+- Texte d'aide : « Coche les blocs à afficher et range-les avec les flèches. »
+- Les blocs construits, chacun avec une case « affiché » et deux flèches dessinées, comme le Menu ; les blocs pas encore construits sur une ligne, « Bientôt : Pense-bête, Bilan nutrition. », sans case ni flèches (gardés à la fin de la liste enregistrée : ils apparaîtront une fois construits ; jamais de bloc vide sur la page).
+- Par défaut : Prochaine course, D'ici là, Dernière course affichés. « Rétablir l'ordre par défaut » y revient.
 
 ## 4. Menu
 
-- Texte d'aide : « Coche les modules à afficher et ordonne-les avec les flèches. Le premier s'ouvre en arrivant sur le site, avec le grand en-tête. Un module « bientôt » entre dans le menu une fois construit. »
+- Texte d'aide : « Coche les modules à afficher et range-les avec les flèches ; le premier s'ouvre en arrivant sur le site. »
 - **Page de démarrage** : le premier module construit et affiché s'ouvre en arrivant sur le site, avec le grand en-tête (spécification générale, § 5 bis). Rien à choisir : la ligne de ce module porte la mention « à l'ouverture », et le texte d'aide le rappelle.
 - **En un coup d'œil** est un module comme les autres : premier par défaut, il se décoche et se déplace.
 
 - La liste reprend tous les modules du menu (catalogue, spécification générale § 7), dans l'ordre actuel du menu de l'utilisateur, puis ceux qu'il n'affiche pas.
-- Chaque module a une case « affiché » et deux flèches pour le monter ou le descendre d'un rang.
-- Les modules pas encore construits sont grisés, suivis de « · bientôt » : on peut quand même les cocher et les ranger, mais ils n'ont pas d'onglet dans le menu ; ils y entrent d'eux-mêmes, à leur place, une fois construits. (Avant le 30 octobre 2026, ils s'affichaient grisés dans le menu : sur téléphone, ils repoussaient les vrais onglets hors de l'écran.)
-- **Au moins un module construit** reste affiché : sa case ne peut pas être décochée (un module « bientôt » coché ne compte pas).
+- Chaque module construit a une case « affiché » et deux flèches dessinées pour le monter ou le descendre d'un rang.
+- Les modules pas encore construits sont sur une ligne, « Bientôt dans le menu : Cette semaine, Nutrition, Profil, Guide. », sans case ni flèches : ils restent à la fin de la liste enregistrée et entrent dans le menu, à la fin, une fois construits (depuis le 6 nov. 2026 ; avant, ils se cochaient et se rangaient, grisés). (Avant le 30 octobre 2026, ils s'affichaient grisés dans le menu : sur téléphone, ils repoussaient les vrais onglets hors de l'écran.)
+- **Au moins un module construit** reste affiché : sa case ne peut pas être décochée .
 - Par défaut (rien d'enregistré) : tous les modules, dans l'ordre du catalogue.
 - **Rétablir l'ordre par défaut** : un lien remet tous les modules, dans l'ordre du catalogue.
 

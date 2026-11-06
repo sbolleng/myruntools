@@ -109,6 +109,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 2rem; /* zone de toucher */
   padding: 0.2rem 0;
   font-family: 'Space Grotesk', sans-serif;
   font-size: var(--t-texte);

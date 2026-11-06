@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.65 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.66 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -63,7 +63,7 @@ Plan de page d'une carte (ordinateur) :
 | N° | Élément | Exemple | Place sur ordinateur | Style |
 | --- | --- | --- | --- | --- |
 | 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Accent pour Objectif intermédiaire et Objectif principal |
-| 5 | Compteur | `25 j` `23 h` `00 min` `00 s` | Ligne 1, à droite | Libellé, dans quatre cases fines ; chiffres en Accent, unités en Texte discret (§ 5.1) |
+| 5 | Compteur | `137 j` (le dernier jour : `05 h` `12 min`) | Ligne 1, à droite | Libellé, dans une case fine : les jours seuls sur une carte (depuis le 6 nov. 2026, pour une feuille de route calme) ; chiffres en Accent, unités en Texte discret ; les quatre cases (j, h, min, s) sur la page de la course (n° 13) |
 | 6 | Course · Parcours | Trail du Lac · Le Tour du Lac | Ligne 2, à gauche | Nom ; Texte (le jaune est réservé au titre de l'écran) |
 | 3 | Date | 15 NOV. 2026 | Ligne 2, à droite | Libellé ; Texte discret. Le mois seul si la date est approximative (« JUILLET 2027 ») |
 | 8 | Lieu · format | Mont-Clair · Trail court | Ligne 3 | Texte ; Texte discret |
@@ -154,8 +154,8 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 8 | Actions | « Retenir cette course », « Marquer comme courue » | Boutons à contour (§ 3.7) |
 | 22 | Fiche | 33, 34, 13, 31, 9, 11, 12, puis 18 | Encadrée comme une carte ; libellé à gauche, valeur à droite ; une ligne sans valeur n'est pas affichée |
 | 33 | Lieu | « ⌖ Mont-Clair » | Première ligne de la fiche ; lien vers OpenStreetMap, nouvel onglet, sur les coordonnées si elles sont connues, sinon sur une recherche du nom ; absente si le lieu est vide |
-| 34 | Date / heure | « dim. 7 mars 2027 · 7 h 30 » | Heure vide (ou date au mois seul) : « — », comme partout sur le site |
-| 13 | Départ dans | Compte à rebours (§ 5.1) | Les quatre cases de la carte ; pas pour une option au mois seul |
+| 34 | Date / heure | « dim. 7 mars 2027 · 7 h 30 » | Heure vide (ou date au mois seul) : la date seule, sans tiret |
+| 13 | Départ dans | Compte à rebours (§ 5.1) | Quatre cases, j, h, min, s ; pas pour une option au mois seul |
 | 31 | Résultats en direct | Libellé RÉSULTATS, valeur « En direct ↗ » | Le jour de la course seulement, si le lien est connu ; ensuite, rien : le résultat est dans le Palmarès et dans la consultation de la course courue (§ 3.8) |
 | 9 | Distance | « 45 km · 2 100 m D+ · 2 100 m D− » | Valeur en Texte ; D− seulement s'il est connu (l'ancienne ligne D− (10) disparaît) |
 | 11 | Objectif | « 06:30:00 » | Valeur en Accent, comme sur la carte |
@@ -173,7 +173,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Formulaire, bloc Course, ligne « Tracé GPX » sous le D− : rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; fichier à plusieurs tracés (toutes les distances d'une épreuve) : « Ce fichier contient N tracés : lequel garder ? », un bouton par tracé (nom · longueur), le plus proche de la distance de la course en premier, et « Annuler » ; seul le tracé choisi est rangé ; un fichier déjà rangé avec plusieurs tracés montre le plus proche de la distance ; pour corriger, « Remplacer » ; absent en lecture seule et pour une course courue |
 | 16 | Stratégie de course | Plan de course, allures, liaison avec la course suivante | Dans 25, sous le GPX ; sous-titre « Stratégie de course » en libellé ; absente si vide |
 | 24 | Préparation | Dans l'ordre : 15, bouton « Paramétrer le plan », puis le plan (durée, frise des phases, semaine en cours, séances ; [Calendrier](module-calendrier-specification.md), § 5) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : plan au 1er du mois, mentionné sous la ligne du plan ; ancre `#preparation` (ouverte quand on arrive par elle) ; bouton absent en lecture seule |
-| 15 | Rôle dans le plan | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Rôle dans le plan » en libellé ; absent si vide |
+| 15 | Rôle dans la préparation | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Rôle dans la préparation » (le nom du champ de la fiche) en libellé ; absent si vide |
 | 17 | Logistique | Transport, horaires, retrait du dossard | Dernier texte du cadre, juste avant la navigation |
 | 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la feuille de route | Libellé, puis le nom en Texte |
 
@@ -197,7 +197,7 @@ Sur la feuille de route et sur la page de la course : un point, puis l'état. L'
 | --- | --- | --- |
 | Inscrit | `inscrit` vrai | ● plein en Accent, « Inscrit · n° 412 » (« Inscrit » seul sans numéro) |
 | Inscription ouverte | Pas inscrit, ouverture passée ou du jour (le jour même, avec une heure d'ouverture : une fois l'heure atteinte) | ● plein et texte en Alerte, souligné : « Inscription ouverte ↗ », lien vers le site d'inscription s'il est connu |
-| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Accent : « Ouvre le 10/01/2027 », « à 12:00 » si l'heure est connue ; mois seul : « Ouverture : janvier 2027 » ([Courses à surveiller](module-courses-a-surveiller-specification.md), § 5) |
+| Ouvre bientôt | Pas inscrit, date d'ouverture connue et pas encore atteinte | ○ vide en Accent : « Ouvre le 10 janv. 2027 », « à 12 h » si l'heure est connue (formats du site) ; mois seul : « Ouverture : janvier 2027 » ([Courses à surveiller](module-courses-a-surveiller-specification.md), § 5) |
 | Ouverture à venir | Pas inscrit, date d'ouverture inconnue | ○ vide en Texte discret : « Ouverture à venir » |
 
 ### 3.6 Groupe d'options (course à choisir)
@@ -229,7 +229,7 @@ Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre
 
 Site partagé en lecture seule : aucun de ces boutons.
 
-**Champs d'une course à venir**, par bloc, dans l'ordre de la fiche (§ 3.8) ; pour une nouvelle course, Course et Place dans le plan sont ouverts, les autres repliés (tous ouverts pour une course existante). Numéros du formulaire : ceux du § 3.8 (F).
+**Champs d'une course à venir**, par bloc, dans l'ordre de la fiche (§ 3.8) ; pour une nouvelle course, Course et Place dans le plan sont ouverts, les autres repliés (de même pour une course existante, depuis le 6 nov. 2026 : les titres des autres blocs restent visibles d'un coup d'œil ; une course courue : Course et Résultat). Numéros du formulaire : ceux du § 3.8 (F).
 
 | Bloc | Champs |
 | --- | --- |
@@ -250,7 +250,7 @@ Site partagé en lecture seule : aucun de ces boutons.
   - nombres positifs ; liens commençant par `http://` ou `https://`.
 - Un champ en erreur est signalé sous le champ ; « Enregistrer » reste sans effet tant qu'une erreur demeure.
 - **Enregistrer** range la course et met à jour la page, en-tête compris ; **Annuler** revient sans rien changer (§ 3.8).
-- **Supprimer** : seulement dans le formulaire d'une course existante, après confirmation (« Supprimer cette course ? Cette action est définitive. »). Depuis la page de la course supprimée, retour à la feuille de route.
+- **Supprimer** : seulement dans le formulaire d'une course existante, après confirmation dans l'encadré du site (design, § 1 : « Supprimer cette course ? Cette action est définitive. »). Depuis la page de la course supprimée, retour à la feuille de route.
 
 ### 3.8 Fiche d'une course : consultation et édition
 
@@ -312,7 +312,7 @@ Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course c
 │ (C26) ALLURE       4:58 /km                                      │
 │                                                                  │
 │ (C28) › MONTRE ──────────────────────────────── (repliée)        │
-│ (C31)   une fois ouverte : TEMPS, DISTANCE, D+ · D−, ALLURE, FC MOY.│
+│ (C31)   une fois ouverte : TEMPS, DISTANCE, DÉNIVELÉ, ALLURE, FC MOYENNE│
 │                                                                  │
 │ (C20) ← Course précédente                 Course suivante → (C21)│
 └──────────────────────────────────────────────────────────────────┘
@@ -331,7 +331,7 @@ Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course c
 | C27 | Catégorie, Sexe | Une ligne chacun, rang puis effectif ; la catégorie d'âge en clair après le rang, avec le sexe du profil (« Master 2 Homme », « Senior Femme ») |
 | C35 | Vitesse | En km/h, celle de la base, sinon tirée de l'allure ; absente si DNF |
 | C26 | Allure moyenne | En Texte ; absente si DNF ou vide |
-| C31 | Montre | Temps, Distance, D+ · D− (« — » pour une valeur manquante des deux), Allure, FC moy. ; valeurs en Texte discret (Résultat reste en avant) ; la section disparaît sans aucune valeur de montre |
+| C31 | Montre | Temps, Distance, Dénivelé (« 200 m D+ · 200 m D− », la valeur connue seule s'il en manque une), Allure, FC moyenne ; valeurs en Texte discret (Résultat reste en avant) ; la section disparaît sans aucune valeur de montre |
 | C20, C21 | Navigation | Parcourt le Palmarès dans l'ordre du tableau (tri et filtres du moment) |
 
 - Rang ordinal partout : « 1er », ou « 1re » pour une coureuse (comme le Palmarès), « 2e », « 14e ». Une ligne sans valeur n'est pas affichée.
@@ -538,13 +538,13 @@ Résultats attendus, feuille de route :
 
 - Six étapes, dans cet ordre : Trail du Lac, Corrida de Noël, Trail des Gorges, Printemps 2027, Trail de la Forêt, Trail des Crêtes. Ni Cross des Collines (abandonnée), ni Trail des Sommets (à surveiller), ni Semi de San Sebastián (courue).
 - En-tête : « Cap sur Trail des Crêtes » (et non Trail des Sommets, à surveiller) ; « 5 courses » D'ici là ; « prochaine course · Trail du Lac · J-26 ».
-- Trail du Lac : rôle PRÉPARATOIRE ; compteur `26 j` `00 h` `00 min` `00 s` (une heure de plus avec le passage à l'heure d'hiver, le 25 octobre) ; « Trail du Lac · Le Tour du Lac », sans lien vers le site officiel ; date 15 NOV. 2026 ; « Mont-Clair · Trail court » ; DISTANCE 24 km · 650 m D+ ; OBJECTIF 02:45:00 ; DOSSARD ● Inscrit · n° 412.
-- Corrida de Noël : rôle PLAISIR ; compteur `54 j` `09 h` `30 min` `00 s` ; DISTANCE 10 km · 40 m D+ ; OBJECTIF Sub 45 min ; DOSSARD ○ Ouvre le 01/11/2026.
-- Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Accent, pastille pleine en Accent ; compteur `137 j` `22 h` `30 min` `00 s` ; OBJECTIF 06:30:00.
-- Printemps 2027 : une seule carte, en pointillé ; « Printemps 2027 », puis « PRÉPARATOIRE • 2 CANDIDATS » ; Trail des Cimes (30 MAI 2027, DOSSARD ○ Ouvre le 10/01/2027), puis Ultra du Plateau · Le 55 (26 JUIN 2027, DOSSARD ● Inscription ouverte ↗, en Alerte) ; ni rôle, ni objectif, ni compteur pour les candidates.
+- Trail du Lac : rôle PRÉPARATOIRE ; compteur `26 j` (une heure de plus avec le passage à l'heure d'hiver, le 25 octobre) ; « Trail du Lac · Le Tour du Lac », sans lien vers le site officiel ; date 15 NOV. 2026 ; « Mont-Clair · Trail court » ; DISTANCE 24 km · 650 m D+ ; OBJECTIF 02:45:00 ; DOSSARD ● Inscrit · n° 412.
+- Corrida de Noël : rôle PLAISIR ; compteur `54 j` ; DISTANCE 10 km · 40 m D+ ; OBJECTIF Sub 45 min ; DOSSARD ○ Ouvre le 1er nov. 2026.
+- Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Accent, pastille pleine en Accent ; compteur `137 j` ; OBJECTIF 06:30:00.
+- Printemps 2027 : une seule carte, en pointillé ; « Printemps 2027 », puis « PRÉPARATOIRE • 2 CANDIDATS » ; Trail des Cimes (30 MAI 2027, DOSSARD ○ Ouvre le 10 janv. 2027), puis Ultra du Plateau · Le 55 (26 JUIN 2027, DOSSARD ● Inscription ouverte ↗, en Alerte) ; ni rôle, ni objectif, ni compteur pour les candidates.
 - Trail des Cimes sorti du groupe (groupe vidé dans ses données) : la carte Printemps 2027 affiche « • 1 candidat », Trail des Cimes devient une option isolée, et l'en-tête affiche « 6 courses ».
 - Trail de la Forêt : cadre en pointillé, pastille vide ; rôle PRÉPARATOIRE, sans le mot « Option » ; date JUILLET 2027 ; pas de compteur ; pas de ligne Objectif ; DOSSARD ○ Ouverture à venir.
-- Trail des Crêtes : rôle OBJECTIF PRINCIPAL en Accent, cadre en Accent, pastille cerclée ; compteur `311 j` `19 h` `00 min` `00 s` ; OBJECTIF Finisher ; DOSSARD ● Inscrit · n° 88.
+- Trail des Crêtes : rôle OBJECTIF PRINCIPAL en Accent, cadre en Accent, pastille cerclée ; compteur `311 j` ; OBJECTIF Finisher ; DOSSARD ● Inscrit · n° 88.
 - Une seconde plus tard, les secondes de chaque compteur sont passées à 59 (`25 j 23 h 59 min 59 s` pour Trail du Lac).
 - Au 15 novembre 2026 à 9 h, le compteur du Trail du Lac affiche « Course courue ».
 - Toucher la carte du Trail du Lac ouvre sa page ; aucune carte ne porte de lien vers le site officiel ; toucher « Inscription ouverte ↗ » ouvre le site d'inscription de l'Ultra du Plateau.
@@ -552,7 +552,7 @@ Résultats attendus, feuille de route :
 - Téléphone : sur chaque carte, le rôle à gauche aligné sur le compteur à droite (OBJECTIF INTERMÉDIAIRE sur deux lignes), la date dessous à droite, un interligne, puis le nom ; rien ne dépasse de l'écran.
 - Trail de la Forêt (sans compteur) : la date JUILLET 2027 en haut à droite, face au rôle.
 - Trail du Lac avec le parcours « Le Grand Tour du Lac de Mont-Clair », sur téléphone : « Trail du Lac » puis, à la ligne, le parcours, sans le point.
-- Trail de la Forêt passé en Confirmée : compteur `253 j` `14 h` `00 min` `00 s`, jusqu'au 1er juillet 2027 à minuit.
+- Trail de la Forêt passé en Confirmée : compteur `253 j`, jusqu'au 1er juillet 2027 à minuit.
 - Thème changé : seules les couleurs changent.
 
 Résultats attendus, graphique de difficulté :
@@ -579,7 +579,7 @@ Résultats attendus, page d'une course :
 - Ultra du Plateau · Le 55 (pas inscrit, site d'inscription connu, pas d'heure) : « S'inscrire ↗ » en tête ; DATE / HEURE sam. 26 juin 2027 · — ; la ligne Dossard sans lien.
 - Course du jour (Trail du Lac placé au 20 oct. 2026, lien des résultats connu) : ligne RÉSULTATS « En direct ↗ » en tête de la fiche ; placée au 21 octobre, pas de ligne.
 - Trail des Gorges, navigation : « ← course précédente · Corrida de Noël », « course suivante · Trail des Cimes → ».
-- Corrida de Noël : « Site officiel ↗ » ; fiche LIEU Ville-Haute, DATE / HEURE dim. 13 déc. 2026 · 18 h 30, DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 01/11/2026 ; seul texte : Préparation (plan de 8 semaines du format 10 km) ; pas de Parcours tant que le GPX n'est pas construit (ensuite, le seul « Importer un GPX »).
+- Corrida de Noël : « Site officiel ↗ » ; fiche LIEU Ville-Haute, DATE / HEURE dim. 13 déc. 2026 · 18 h 30, DISTANCE 10 km · 40 m D+, OBJECTIF Sub 45 min, DOSSARD ○ Ouvre le 1er nov. 2026 ; seul texte : Préparation (plan de 8 semaines du format 10 km) ; pas de Parcours tant que le GPX n'est pas construit (ensuite, le seul « Importer un GPX »).
 - Ordinateur : modale dont le contenu a la largeur des autres pages (896 px), une colonne, deux cadres ; tous les textes repliés, un toucher sur le titre les ouvre. Téléphone (390 px) : rien ne dépasse ; le compte à rebours tient sur une ligne ; la fiche commence dans le premier écran ; tous les textes repliés ; toucher un titre ouvre le texte.
 - Trail des Cimes : « Préparatoire · Étape 4 sur 6 » ; « Printemps 2027 » et un lien vers l'autre candidate, Ultra du Plateau · Le 55.
 - Trail du Lac : pas de course précédente. Trail des Crêtes : pas de course suivante.

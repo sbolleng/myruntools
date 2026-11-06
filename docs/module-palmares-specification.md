@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.31 · 1er novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.32 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 

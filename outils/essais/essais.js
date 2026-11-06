@@ -2873,6 +2873,82 @@ const CONTROLES = {
     pb.push(egal([], sans, 'chaque page porte noindex'));
     return pb;
   },
+  // Repasse d'uniformité (design, § 1 et 3) : tailles de l'échelle, libellés en graisse normale, « 1er », confirmations du site,
+  // zones de toucher, contrastes de l'Alerte et du Texte discret, espaces insécables.
+  async uniformite(nav, db0) {
+    const { db, id } = jeuObjectif(db0);
+    const pb = [];
+    const ECHELLE = ['10.4px', '11.2px', '12px', '12.8px', '13.6px', '16px'];
+    // Hors échelle permis : l'en-tête, le titre d'une page (1,4 à 2 rem) et les grands chiffres d'un résultat.
+    const tailles = p => p.evaluate(() => {
+      const vu = new Set();
+      document.querySelectorAll('main *, .mc-panneau *, .mrt-barre *, .mrt-nav *').forEach(e => {
+        if (!e.getClientRects().length || ![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
+        if (e.closest('.mrt-header, .pc-titre, .pc-grand, .connexion h1, .ml h1, .leaflet-container')) return;
+        vu.add(getComputedStyle(e).fontSize);
+      });
+      return [...vu].sort();
+    });
+    for (const [page, quoi] of [['index.html', 'Accueil'], ['objectif.html', 'Objectif'], ['course.html?id=' + id(3), 'page d\'une course'], ['palmares.html', 'Palmarès'],
+      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'À surveiller'], ['preferences.html', 'Préférences']]) {
+      for (const w of [1200, 390]) {
+        const o = await ouvrir(nav, page, w, db, {}, PARIS);
+        if (page.startsWith('course.html')) await o.p.waitForSelector('.mc-panneau .pc-titre');
+        const hors = (await tailles(o.p)).filter(t => !ECHELLE.includes(t));
+        pb.push(egal([], hors, quoi + ' (' + w + ' px) : tailles de texte hors de l\'échelle'));
+        pb.push(egal([], o.erreurs, quoi + ' (' + w + ' px) : erreurs JavaScript'));
+        await o.ctx.close();
+      }
+    }
+    // Libellés et en-têtes de colonnes : Space Mono, graisse normale.
+    let o = await ouvrir(nav, 'palmares.html', 1200, db, {}, PARIS);
+    pb.push(egal(['400'], await o.p.evaluate(() => [...new Set([...document.querySelectorAll('th, .ob-lib')].map(e => getComputedStyle(e).fontWeight))]), 'en-têtes de colonnes en graisse normale'));
+    // Lien d'action et crayon : zone de toucher de 2 rem au moins (marge invisible).
+    await o.ctx.close();
+    o = await ouvrir(nav, 'preferences.html', 390, db, {}, PARIS, { mobile: true });
+    pb.push(egal(true, await o.p.evaluate(() => { const l = document.querySelector('.pref-defaut'); l.scrollIntoView({ block: 'center' }); const r = l.getBoundingClientRect();
+      return document.elementFromPoint(r.left + r.width / 2, r.top - 5) === l && document.elementFromPoint(r.left + r.width / 2, r.bottom + 5) === l; }), 'lien d\'action : zone de toucher débordant de son texte'));
+    await o.ctx.close();
+    // « 1er » dans la préparation ; « + » d'une séance : le petit rond commun, dessiné ; aucune fenêtre du navigateur.
+    o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS);
+    await o.p.waitForSelector('.mc-panneau .pc-titre');
+    const natif = []; o.p.on('dialog', d => { natif.push(d.message()); d.dismiss(); });
+    pb.push(egal([true, false, true], await o.p.evaluate(() => { const t = document.querySelector('#preparation').textContent;
+      return [/\b1er\b/.test(t), /\b1 (janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déc)/.test(t), [...document.querySelectorAll('.cal-plus')].every(b => b.classList.contains('mrt-rond') && b.classList.contains('is-petit') && !!b.querySelector('svg'))]; }),
+      'préparation : « 1er », jamais « 1 » ; « + » en petit rond commun dessiné'));
+    pb.push(egal([true, true], await o.p.evaluate(() => [!!document.querySelector('.pc-fermer svg.mrt-ico'), document.querySelector('.pc-fermer').textContent.trim() === '']), 'croix dessinée, sans caractère tapé'));
+    await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
+    await o.p.fill('#fc-lieu', 'Ailleurs');
+    await o.p.click('.fc-barre [data-fc="annuler"]');
+    pb.push(egal(['Abandonner les modifications ?', []], [await repondre(o.p, false), natif], 'Annuler après une saisie : confirmation du site, aucune fenêtre du navigateur'));
+    await o.ctx.close();
+    // Espace insécable devant « ? » et « : » (posée à l'affichage), jamais dans un champ.
+    o = await ouvrir(nav, 'course.html?id=' + id(3), 390, db, {}, PARIS);
+    await o.p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal([true, true], await o.p.evaluate(() => [document.querySelector('.cal-plan-dates').textContent.includes('début\u00a0: '), !/\u00a0/.test(document.querySelector('.cal-plan-dates').textContent.replace(/début\u00a0: |jour J\u00a0: /g, ''))]),
+      'préparation : « début : » insécable devant les deux-points, rien d\'autre de changé'));
+    await o.ctx.close();
+    // Contrastes (WCAG, petit texte 4,5) : Alerte et Texte discret sur le fond des cadres, Texte discret sur une case du Calendrier, dans chaque thème.
+    o = await ouvrir(nav, 'calendrier.html', 1200, db, {}, PARIS);
+    const contrastes = await o.p.evaluate(() => {
+      const lum = c => { const k = /^color\(/.test(c) ? 1 : 255; const m = c.replace(/^color\(srgb/, '').match(/[\d.]+/g).map(Number).slice(0, 3).map(x => { x /= k; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; };
+      const cr = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+      const i = document.createElement('i'); document.body.appendChild(i);
+      const c = v => { i.style.color = v; return getComputedStyle(i).color; };
+      const out = {};
+      for (const t of ['bleu-orange', 'vert-rose', 'violet-turquoise', 'blanc-orange', 'noir-orange']) {
+        window.appliquerTheme(t);
+        const v = n => c('var(--' + n + ')');
+        out[t] = [cr(v('red'), v('surface')) >= 4.5, cr(v('muted'), v('surface')) >= 4.5, cr(v('muted'), v('case')) >= 4.5, cr(v('bord-champ'), v('surface')) >= 2.3];
+      }
+      return out;
+    });
+    const tous = [true, true, true, true];
+    pb.push(egal({ 'bleu-orange': tous, 'vert-rose': tous, 'violet-turquoise': tous, 'blanc-orange': tous, 'noir-orange': tous }, contrastes,
+      'contrastes : Alerte, Texte discret (cadre et case du Calendrier), contour des champs, dans les cinq thèmes'));
+    await o.ctx.close();
+    return pb;
+  },
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))

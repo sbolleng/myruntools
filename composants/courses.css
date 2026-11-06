@@ -24,7 +24,7 @@
   height: 13rem; overflow: hidden; } /* toutes les cartes ont la même hauteur ; le nom tient sur deux lignes au plus */
 .cs-carte:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cs-carte.is-opt { border-style: dashed; }
-.cs-carte.is-courue { opacity: 0.8; }
+.cs-carte.is-courue { opacity: 0.85; } /* atténuée, le Texte discret restant lisible (4,5) */
 .cs-carte > .ob-role { grid-area: role; min-width: 0; white-space: normal; } /* « Option · Printemps 2027 » passe à la ligne plutôt que de recouvrir la date */
 .cs-carte > .ob-date { align-self: start; }
 .cs-carte > .ob-date { grid-area: date; justify-self: end; }
