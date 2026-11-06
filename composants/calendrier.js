@@ -1,18 +1,20 @@
 // ===== Calendrier : vues Année, Mois et Semaine =====
 //
 // docs/module-calendrier-specification.md, § 2 à 4. renderCalendrier(élément, ctx) dessine l'une des trois vues, choisie
-// par trois pastilles et par l'adresse : #semaines=AAAA-MM-JJ (par défaut : la semaine en cours), #mois=AAAA-MM et
-// #annee=AAAA-MM (sans date : le mois en cours) ; le bouton retour du navigateur ramène à la vue d'avant.
-// La case « Phases de prépa », commune aux trois vues et retenue sur l'appareil (décochée par défaut), ajoute la
-// préparation : barres aux couleurs des phases (Année), fond des jours à la couleur de la phase de la semaine (Mois,
-// Semaine). Une course touchée ouvre sa page (rubrique Préparation ; une course courue : son résultat).
+// dans le menu « Périodicité » et lue dans l'adresse : #semaines=AAAA-MM-JJ (par défaut : la semaine en cours), #mois=AAAA-MM
+// et #annee=AAAA-MM (sans date : le mois en cours) ; le bouton retour du navigateur ramène à la vue d'avant.
+// Le bouton « Plan », commun aux trois vues et retenu sur l'appareil (éteint par défaut), ajoute la préparation : barres
+// aux couleurs des phases (Année), fond des jours à la couleur de la phase de la semaine (Mois, Semaine).
+// Une course touchée ouvre sa page (rubrique Préparation ; une course courue : son résultat).
 // Séances (case « faite », « + », fenêtre) : preparation.js.
 //   ctx.courses, ctx.seances, ctx.semaines, ctx.lectureSeule, ctx.relire() : voir preparation.js.
 (function () {
   const P = window.mrtPreparation;
   const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, tousLesPlans, plansDeLaSemaine, planDe, modifsDe, lienCourse } = P;
   const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const VUES = [['annee', 'Année'], ['mois', 'Mois'], ['semaines', 'Semaine']];
+  const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', 'Année']];
+  const INITIALE = ['D', 'L', 'M', 'M', 'J', 'V', 'S']; // initiale du jour, de dimanche à samedi (Année)
+  const CHEVRON = '<svg class="cal-menu-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   // ----- Réglages retenus sur l'appareil (à défaut de stockage, le temps de la visite) -----
   const visite = {};
@@ -52,11 +54,16 @@
     };
 
     // ----- Éléments communs -----
-    // Barre du haut, sur deux niveaux : les trois vues ; puis la case « Phases de prépa » et « Aujourd'hui ».
-    const haut = vue => '<div class="cal-haut"><nav class="cal-vues" aria-label="Vue">' + VUES.map(([v, nom]) =>
-      '<a class="mrt-pastille' + (v === vue ? ' is-on" aria-current="true' : '') + '" href="#' + v + '" data-vue="' + v + '">' + nom + '</a>').join('') + '</nav>' +
-      '<div class="cal-options"><label class="cal-phases"><input type="checkbox" data-phases' + (phasesVisibles() ? ' checked' : '') + '>Phases de prépa</label>' +
-      '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
+    // Barre du haut : le menu « Périodicité » (son bouton porte la vue ouverte) à gauche ; le bouton « Plan » et « Aujourd'hui » à droite.
+    const haut = vue => {
+      const nom = VUES.find(x => x[0] === vue)[1], plan = phasesVisibles();
+      return '<div class="cal-haut"><div class="cal-periodicite">' +
+        '<button type="button" class="mrt-btn cal-menu-btn" data-menu aria-expanded="false" aria-controls="cal-menu" aria-label="Périodicité : ' + nom + '">' + nom + CHEVRON + '</button>' +
+        '<nav class="cal-menu" id="cal-menu" aria-label="Périodicité" hidden><span class="cal-libelle">Périodicité</span>' + VUES.map(([v, n]) =>
+          '<a href="#' + v + '" data-vue="' + v + '"' + (v === vue ? ' class="is-on" aria-current="true"' : '') + '>' + n + '</a>').join('') + '</nav></div>' +
+        '<div class="cal-options"><button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Phases de prépa">Plan</button>' +
+        '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
+    };
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
     const bande = (titre, sous, avant, apres) => '<div class="cal-periode">' +
       '<a class="cal-voisin" href="' + avant[1] + '" aria-label="' + avant[2] + '"><span class="mrt-rond">‹</span><span class="cal-voisin-txt">' + avant[0] + '</span></a>' +
@@ -74,13 +81,14 @@
       '<b>' + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' + (ecrit() ? '</button>' : '</span>') + '</span>';
     const plusHtml = jour => (ecrit() ? '<button type="button" class="cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">+</button>' : '');
 
-    // ----- Année : la grille, jours en lignes et mois en colonnes, sur 3, 6 ou 12 mois (spécification § 3) -----
+    // ----- Année : la grille, jours en lignes et mois en colonnes, sur 3, 6 ou 12 mois (spécification § 3) ;
+    // chaque mois a ses jours (initiale et numéro), samedi et dimanche plus foncés, un filet sous chaque dimanche. -----
     function vueAnnee(depart, nb) {
       const auj = iso(new Date()), phases = phasesVisibles();
       const mois = Array.from({ length: nb }, (_, i) => new Date(an(depart), rang(depart) + i, 1));
       const debut = iso(mois[0]), fin = iso(new Date(an(depart), rang(depart) + nb, 0));
       const ensuite = visibles(ctx.courses, debut, '9999-12-31', auj), liste = ensuite.filter(c => c.date <= fin);
-      // Case cochée : les prépas qui passent dans la période (aussi celles d'une course d'après) ; un couloir par prépa qui en chevauche une autre.
+      // Plan : les prépas qui passent dans la période (aussi celles d'une course d'après) ; un couloir par prépa qui en chevauche une autre.
       const prepas = !phases ? [] : ensuite.filter(c => !c.courue && c.debutPrepa && c.debutPrepa <= fin).map(c => {
         const course = ctx.courses.find(k => k.id === c.id), plan = course && planDe(course, modifsDe(ctx.semaines, c.id));
         return plan && Object.assign({ plan, depart: plan.premier < debut ? debut : plan.premier }, c);
@@ -91,14 +99,16 @@
       let h = '';
       for (let i = 0; i < nb; i += taille) {
         const cols = mois.slice(i, i + taille);
-        h += '<div class="cal-a-bloc" style="--n:' + cols.length + '"><span></span>' + cols.map(m => '<b class="cal-a-mois">' + MOIS[m.getMonth()] +
+        // En tête de chaque mois, son onglet (le mois en cours en Accent), au-dessus de ses cases ; la colonne des jours à sa gauche.
+        h += '<div class="cal-a-bloc" style="--n:' + cols.length + '">' + cols.map(m => '<span></span><b class="cal-a-mois' + (iso(m).slice(0, 7) === auj.slice(0, 7) ? ' is-courant' : '') + '">' + MOIS[m.getMonth()] +
           (m.getMonth() === 0 || m.getTime() === mois[0].getTime() ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>').join('');
         for (let d = 1; d <= 31; d++) {
-          h += '<span class="cal-a-n">' + d + '</span>';
           cols.forEach(m => {
-            if (d > new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate()) { h += '<span class="cal-a-j vide"></span>'; return; }
-            const j = iso(new Date(m.getFullYear(), m.getMonth(), d)), c = liste.find(x => x.date === j), cls = ['cal-a-j'], tip = [longue(j)];
-            if (j < auj) cls.push('passe');
+            if (d > new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate()) { h += '<span class="cal-a-n"></span><span class="cal-a-j vide"></span>'; return; }
+            const date = new Date(m.getFullYear(), m.getMonth(), d), sj = date.getDay(), j = iso(date), c = liste.find(x => x.date === j), cls = ['cal-a-j'], tip = [longue(j)];
+            h += '<span class="cal-a-n' + (j === auj ? ' auj' : '') + '"><i>' + INITIALE[sj] + '</i><b>' + d + '</b></span>';
+            if (sj === 0 || sj === 6) cls.push('we');
+            if (sj === 0) cls.push('dim');
             if (j === auj) { cls.push('auj'); tip.push('aujourd\'hui'); }
             if (c) { cls.push(couleur(c)); tip.push(c.nom + ' · ' + (c.courue ? 'courue' : c.validee ? 'confirmée' : 'en option')); }
             // Barres du jour : la prépa de chaque course, jusqu'à la veille de la course, à la couleur de la phase de sa semaine.
@@ -200,8 +210,27 @@
       if (lireHash().v === 'semaines' && es.some(x => x.isIntersecting) && liste.nb < 104) { liste.nb += 2; dessiner(); }
     }, { rootMargin: '300px' }) : null;
 
+    // Menu « Périodicité » : un toucher sur son bouton l'ouvre ou le ferme ; il se ferme aussi au choix, en touchant ailleurs, par Échap.
+    const menu = () => root.querySelector('.cal-menu');
+    function ouvrirMenu(ouvert) {
+      const m = menu(), b = root.querySelector('[data-menu]');
+      if (!m || m.hidden === !ouvert) return;
+      m.hidden = !ouvert; b.setAttribute('aria-expanded', String(ouvert));
+    }
+    document.addEventListener('click', e => { if (!e.target.closest('.cal-periodicite')) ouvrirMenu(false); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && menu() && !menu().hidden) { ouvrirMenu(false); root.querySelector('[data-menu]').focus(); }
+    });
+
     root.addEventListener('click', e => {
       const t = e.target;
+      if (t.closest('[data-menu]')) {
+        ouvrirMenu(menu().hidden);
+        if (!menu().hidden && e.detail === 0) menu().querySelector('a.is-on').focus(); // ouvert au clavier : le choix en cours
+        return;
+      }
+      if (t.closest('.cal-menu a')) { ouvrirMenu(false); return; } // le lien change l'adresse, la vue suit
+      if (t.closest('[data-plan]')) { ranger('mrt-calendrier-phases', phasesVisibles() ? '0' : '1'); dessiner(); return; }
       if (t.closest('[data-passees]')) {
         // Quatre semaines passées de plus, au-dessus, sans que la semaine regardée ne bouge à l'écran.
         const ref = root.querySelector('.cal-s-semaine'), haut0 = ref.getBoundingClientRect().top, l = ref.dataset.semaine;
@@ -219,7 +248,7 @@
         window.scrollTo(0, 0);
         return;
       }
-      // Liens (course : sa page en modale ; pastilles, flèches : l'adresse), case « faite », séance et « + » (preparation.js) : rien de plus ici.
+      // Liens (course : sa page en modale ; flèches : l'adresse), case « faite », séance et « + » (preparation.js) : rien de plus ici.
       if (t.closest('a, input, label, button')) return;
       // Année : une course touchée ouvre sa page (une course courue : son résultat) ; un jour touché (Année, Mois), la vue Semaine de ce jour.
       const course = t.closest('[data-course]');
@@ -230,9 +259,6 @@
       }
       const jour = t.closest('[data-jour]');
       if (jour) location.hash = '#semaines=' + lundiDe(jour.dataset.jour);
-    });
-    root.addEventListener('change', e => {
-      if (e.target.matches('[data-phases]')) { ranger('mrt-calendrier-phases', e.target.checked ? '1' : '0'); dessiner(); }
     });
     P.brancher(root, ctx, null);
     window.addEventListener('hashchange', () => { if (dessiner()) window.scrollTo(0, 0); });

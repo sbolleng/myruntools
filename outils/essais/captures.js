@@ -10,8 +10,8 @@
 //   THEME=vert-rose node captures.js objectif ../.. captures/vert-rose
 //                                             dans un autre thème que celui des données fictives (bleu-orange)
 // Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares,
-//         calendrier (vue Semaine, par défaut), calendrier-mois, calendrier-annee, et les mêmes case « Phases de prépa » cochée
-//         (calendrier-phases, calendrier-mois-phases, calendrier-annee-phases), filtres, preferences,
+//         calendrier (vue Semaine, par défaut), calendrier-mois, calendrier-annee, et les mêmes bouton « Plan » enfoncé
+//         (calendrier-phases, calendrier-mois-phases, calendrier-annee-phases), calendrier-menu (menu « Périodicité » ouvert), filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -67,6 +67,7 @@ const PAGES = {
   'calendrier-phases': { url: 'calendrier.html', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   'calendrier-mois-phases': { url: 'calendrier.html#mois', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   'calendrier-annee-phases': { url: 'calendrier.html#annee', stockage: { 'mrt-calendrier-phases': '1' } },
+  'calendrier-menu': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.click('[data-menu]'); await p.waitForTimeout(200); } },
   // Consultation d'une course courue : le semi de San Sebastián, avec des valeurs fictives ajoutées.
   'consultation-courue': { url: 'palmares.html', hauteur: { ordi: 700 }, donnees: d => { Object.assign(d.courses.find(c => c.id === '00000000-0000-0000-0001-000000000007'),
     { place: 14, effectif: 174, place_categorie: 2, effectif_categorie: 8, place_sexe: 6, categorie: 'M2', dossard: '271', objectif: '01:50:00', objectif_precisions: 'Temps prévu par le plan, visée : environ 1 h 50.', dplus: 128, dmoins: 128,
