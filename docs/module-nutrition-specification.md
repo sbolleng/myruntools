@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 0.5 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 0.6 · 6 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -38,137 +38,111 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 | Carbo-loading | J-3 à J-1 | 65 à 75 % | 15 à 25 % |
 | Veille de course | J-1 | 55 à 65 % | 15 à 25 % |
 
-- **La phase se déduit seule** de la date de la course cap (ou de la course confirmée la plus proche) ; elle peut être changée à la main pour la journée.
+- **La phase se déduit seule** : c'est celle du plan global, la semaine en cours dans le plan de la course confirmée la plus proche qui la couvre (Base, Développement, Affûtage, Deload : règles du [Calendrier](module-calendrier-specification.md), § 5) ; sans plan, « Entraînement ». De J-3 à J-2 avant la course confirmée la plus proche : « Carbo-loading » ; à J-1 : « Veille de course » ; ces deux phases changent les parts du tableau ci-dessus. Les phases du plan gardent les parts d'Entraînement.
 - **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, todo du [sommaire](README.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
 - **Chevauchement** : la veille de course (J-1) l'emporte sur le carbo-loading (J-3 à J-1) ; la phase affichée est « Veille de course ».
 - **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche. Le coefficient du métabolisme de base n'existe que pour « femme » et « homme » : un sexe « non précisé » compte comme manquant, et l'encart demande de choisir l'un des deux pour le calcul.
-- Les valeurs sont des **repères**, pas un avis médical (mention affichée sous le résultat).
+- Les valeurs sont des **repères** : la page reste épurée, sans mention ni explication du calcul (choix du 6 nov. 2026).
 
 ## 4. Plan de page
 
-### 4.1 Téléphone (page principale, usage de tous les jours)
+Quatre cartes, dans le cadre commun (`.card`) ; titres de cadre communs (0,85 rem, 600, Texte, casse normale ; [design](design.md), § 1), sous-titres en libellé ; tailles de l'échelle commune (§ 3), sauf le besoin (5), grand chiffre d'un résultat (1,5 rem). Page épurée : pas de texte d'explication. Retenu le 6 nov. 2026, d'après la carte « Mon besoin du jour » et les anneaux d'une première version de l'outil.
+
+### 4.1 Téléphone
 
 ```
-(1) Nutrition                                   (2) ⚙ profil
-(3) ‹  Aujourd'hui · jeu. 5 nov.  ›
-
-(4) BESOIN DU JOUR
-    (5) 2 450 kcal      (6) Entraînement · J-12
-    (7) Sport : 1 h de jogging      [modifier]
-
-(8) JAUGES                       mangé / besoin
-    Calories   (9) ████████░░░░  1 630 / 2 450
-    Protéines  (10) ██████░░░░░░    62 / 98–140 g
-    Glucides   (11) ███████░░░░░   190 / 306–367 g
-    Lipides    (12) █████░░░░░░░    48 / 68–95 g
-
-(13) AJOUT RAPIDE
-    (14) [Favoris ▾]  [Récents ▾]  [+ Aliment libre]
-    (15) Banane · 1 pièce            [ − ] 1 [ + ]   (16) [Ajouter]
-
-(17) AUJOURD'HUI
-    (18) Petit-déj   Flocons d'avoine · 60 g          212 kcal   ✕
-    (18) Midi        Riz · 200 g                       260 kcal   ✕
-    ...
-(19) Menu de la page
+┌ MON BESOIN DU JOUR ─────────────────── (20) [Modifier] ┐
+│ (21) Homme · 40 ans · 70 kg · 175 cm · Peu actif        │
+│ (22) Phase · Développement                              │
+│ (23) SPORT DU JOUR                                      │
+│ (24) [ Jogging à 9,5 km/h     ▾ ] [ 1   ] h            │
+│ (24) [ Sport…                 ▾ ] [     ] h            │
+│ ─────────────────────────────────────────────────────── │
+│ (5)  2 817  kcal aujourd'hui                            │
+└─────────────────────────────────────────────────────────┘
+┌ (25) MARDI 20 OCTOBRE ──────────────────────────────────┐
+│      (26) CALORIES               PROTÉINES              │
+│      (27)   ◯ 350                  ◯ 6 g                │
+│      (28) Reste 1 767 kcal       Reste 92 g             │
+│      (29) Besoin 2 817 kcal      Besoin 98–140 g        │
+│           GLUCIDES               LIPIDES  (idem)        │
+└─────────────────────────────────────────────────────────┘
+┌ AJOUTER UN ALIMENT ─────────────────────────────────────┐
+│ (30) [ Rechercher un aliment…        ] [Chercher]       │
+│ (31) Riz basmati · Marque A          350 kcal / 100 g   │
+│ (14) [Favoris] [Récents] [+ Aliment libre]              │
+│      Banane · 1 pièce                          90 kcal  │
+│ (15) Riz cuit   (−) [ 190 ] g (+)          ☆ Favori     │
+│      [Petit-déj] [Midi] [Encas] [Soir]                  │
+│ (16) [               Ajouter                ]           │
+└─────────────────────────────────────────────────────────┘
+┌ (17) JOURNAL DU JOUR ───────────────────────────────────┐
+│ (18) MIDI                                     260 KCAL  │
+│      Riz cuit · 200 g                     260 kcal  (×) │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### 4.2 Ordinateur
 
-Même contenu sur deux colonnes : à gauche (4) à (12), à droite (13) à (18) ; le calendrier des jours passés (3) reste en haut.
+Les mêmes cartes, l'une sous l'autre ; les quatre anneaux sur une ligne (deux par ligne sur téléphone).
 
 ### 4.3 Tableau des éléments
 
-| N° | Nom | Exemple | Place | Style |
-| --- | --- | --- | --- | --- |
-| 1 | Titre de la page | « Nutrition » | En haut à gauche | Titre commun du site ([design](design.md)) |
-| 2 | Lien profil | « ⚙ profil » | En haut à droite | `mrt-lien` |
-| 3 | Sélecteur de jour | « ‹ Aujourd'hui · jeu. 5 nov. › » | Sous le titre | Pastille commune ; les flèches changent de jour |
-| 4 | Bloc besoin du jour | « BESOIN DU JOUR » | Premier cadre | `mrt-section`, libellé en capitales |
-| 5 | Besoin en kcal | « 2 450 kcal » | Cadre 4, grand | Chiffre en Accent |
-| 6 | Phase du jour | « Entraînement · J-12 » | À droite du 5 | Petit texte ; touchable pour changer |
-| 7 | Sport du jour | « 1 h de jogging » | Sous le 5 | Texte courant + lien « modifier » |
-| 8 | Bloc jauges | « JAUGES » | Deuxième cadre | `mrt-section` |
-| 9 | Jauge calories | « 1 630 / 2 450 » | Cadre 8, première ligne | Barre en Accent |
-| 10 | Jauge protéines | « 62 / 98–140 g » | Cadre 8 | Barre ; zone cible marquée |
-| 11 | Jauge glucides | « 190 / 306–367 g » | Cadre 8 | Idem |
-| 12 | Jauge lipides | « 48 / 68–95 g » | Cadre 8 | Idem |
-| 13 | Bloc ajout rapide | « AJOUT RAPIDE » | Troisième cadre | `mrt-section` |
-| 14 | Sources | Favoris, Récents, Aliment libre | Haut du cadre 13 | Trois pastilles |
-| 15 | Quantité | « Banane · 1 pièce  − 1 + » | Cadre 13 | Boutons ronds `mrt-rond` |
-| 16 | Ajouter | « Ajouter » | À droite du 15 | `mrt-btn is-principal` |
-| 17 | Bloc journal du jour | « AUJOURD'HUI » | Dernier cadre | `mrt-section` |
-| 18 | Ligne de repas | « Midi · Riz · 200 g · 260 kcal ✕ » | Cadre 17 | Une ligne par aliment, groupées par repas ; ✕ supprime |
-| 19 | Menu de la page | — | Bas ou haut, comme les autres pages | Commun |
-
-Une jauge est **verte-neutre sous le minimum, pleine dans la zone cible, et passe en alerte au-delà du maximum** (couleurs du thème, pas de couleur nouvelle).
-
-### 4.4 Options à trancher
-
-| Proposition | Rendu | Ce qu'on y gagne |
-| --- | --- | --- |
-| **A. Ajout en deux touches** (retenue le 5 nov. 2026) | Choisir un favori ou un récent, régler la quantité avec − et +, « Ajouter » | Aucune frappe au clavier pour les aliments habituels |
-| B. Ajout en une touche | Un favori ajoute directement sa portion habituelle | Plus rapide, mais on corrige plus souvent après coup |
-| C. Saisie libre d'abord | Un champ « quoi ? / combien de kcal ? » | Utile au premier jour, lourd à l'usage |
-
-**Choix du repas** (petit-déj, midi, encas, soir) : proposé d'après l'heure, modifiable en un toucher.
-
-### 4.5 Profil minimal : encart et fenêtre (option A retenue le 5 nov. 2026)
-
-Pas de page Profil dans cette version : un seul formulaire, utilisé à deux endroits ; le module Profil complet viendra plus tard (todo du [sommaire](README.md)).
-
-```
-Profil incomplet : l'encart remplace le besoin du jour
-
-(2) ┌─ POUR CALCULER TON BESOIN ───────────────┐
-    │ (3) Complète ton profil (une seule fois). │
-    │ (4) Sexe            ( ) Femme  ( ) Homme  │
-    │ (5) Date de naissance        [ jj/mm/aaaa ]│
-    │ (6) Poids                       [ 70 ] kg │
-    │ (7) Taille                     [ 175 ] cm │
-    │ (8) Activité hors sport  [ Peu actif   ▾ ]│
-    │ (9) [ Enregistrer ]                       │
-    └───────────────────────────────────────────┘
-
-Profil complet : sous le besoin du jour
-
-(10) Modifier mon profil   → fenêtre avec les champs (4) à (8)
-```
+Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés), 20 et suivants ceux du 6 nov. 2026.
 
 | N° | Nom | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
-| 2 | Cadre de l'encart | « POUR CALCULER TON BESOIN » | À la place du besoin du jour | `mrt-section`, libellé en capitales (Space Mono) |
-| 3 | Consigne | « Complète ton profil (une seule fois). » | Haut du cadre | Texte courant |
-| 4 | Sexe | Femme / Homme | Cadre 2 | Deux pastilles `mrt-pastille` |
-| 5 | Naissance | 15/03/1986 | Cadre 2 | `mrt-champ` (date) |
-| 6 | Poids | 70 kg | Cadre 2 | `mrt-champ`, unité à droite |
-| 7 | Taille | 175 cm | Cadre 2 | `mrt-champ`, unité à droite |
-| 8 | Activité hors sport | Peu actif | Cadre 2 | Liste de choix à quatre niveaux |
-| 9 | Enregistrer | « Enregistrer » | Bas du cadre | `mrt-btn is-principal` |
-| 10 | Lien profil | « Modifier mon profil » | Sous le besoin du jour | `mrt-lien` |
+| 20 | Modifier le profil | « Modifier » | En haut à droite de la carte 1 | `mrt-btn` ; ouvre la fenêtre du profil (§ 4.5) |
+| 21 | Profil, en lecture | « Homme · 40 ans · 70 kg · 175 cm · Peu actif » | Sous le titre | Texte courant |
+| 22 | Phase | « Phase · Développement » | Sous le 21 | Texte discret |
+| 23 | Titre « Sport du jour » | « SPORT DU JOUR » | Sous le 22 | Libellé en capitales (Space Mono) |
+| 24 | Ligne de sport | Sport (liste) et durée en heures | Sous le 23 | `mrt-champ` ; remplir la dernière ligne en fait apparaître une autre (cinq au plus) |
+| 5 | Besoin du jour | « 2 817 kcal aujourd'hui » | Bas de la carte 1, sous un filet | Chiffre en Space Mono, Accent, 1,5 rem |
+| 25 | Titre des jauges | « Mardi 20 octobre » | Haut de la carte 2 | Titre de cadre commun |
+| 26 | Nom de la jauge | « PROTÉINES » | Au-dessus de l'anneau | Libellé en capitales |
+| 27 | Anneau | Valeur mangée au centre ; zone cible marquée | Centre de la jauge | Anneau Accent (rouge au-delà du maximum), zone en Accent à 30 % |
+| 28 | Reste | « Reste 92 g », « Dans la cible », « Dépassé de 8 g » | Sous l'anneau | Texte (rouge si dépassé) |
+| 29 | Besoin journalier | « Besoin 98–140 g » | Sous le 28 | Texte discret |
+| 30 | Recherche | « Rechercher un aliment… » + « Chercher » | Haut de la carte 3 | `mrt-champ`, `mrt-btn` |
+| 31 | Résultat | « Riz basmati · Marque A · 350 kcal / 100 g » | Sous le 30 | Comme une ligne d'aliment |
+| 14 | Sources | Favoris, Récents, + Aliment libre | Sous les résultats | Pastilles |
+| 15 | Quantité | « (−) 190 g (+) », « (−) 2 portions (+) » | Sous l'aliment choisi | `mrt-rond`, `mrt-champ` |
+| 16 | Ajouter | « Ajouter » | Bas de la carte 3 | `mrt-btn is-principal`, toute la largeur |
+| 17 | Journal du jour | « Journal du jour » | Carte 4 | Titre de cadre commun |
+| 18 | Ligne du journal | « Riz cuit · 200 g · 260 kcal (×) » | Carte 4, par repas | × : `mrt-rond is-fermer`, croix dessinée ; − et + de la quantité dessinés aussi |
 
-- **L'encart ne montre que les champs qui manquent.** La fenêtre (10) montre toujours les cinq champs, avec « Annuler » à gauche et « Enregistrer » à droite, en haut, comme les autres fenêtres du site.
-- **Contrôles** : poids de 20 à 300 kg (virgule acceptée, un chiffre après la virgule), taille de 100 à 250 cm, date de naissance donnant un âge de 10 à 110 ans, sexe femme ou homme, niveau d'activité choisi. Un champ refusé : message sous le titre, rien n'est écrit.
-- **Écriture** : seuls les champs affichés sont rangés dans `profils`. En cas d'échec : « Enregistrement impossible pour l'instant. », la fenêtre reste ouverte.
+### 4.4 Options
+
+Ajout en deux touches (option A, retenue le 5 nov. 2026) : choisir un aliment, régler la quantité, « Ajouter ».
+
+### 4.5 Profil : encart et fenêtre
+
+Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tard (todo du [sommaire](README.md)).
+
+- **Encart du premier usage** : tant que le profil est incomplet, une carte « POUR CALCULER TON BESOIN » remplace la page, avec **seulement les champs qui manquent** (sexe en deux pastilles, naissance, poids et taille avec leur unité, activité hors sport en liste) et « Enregistrer ».
+- **Fenêtre « Mon profil »** (bouton 20) : les cinq champs, « Annuler » à gauche et « Enregistrer » à droite, en haut, comme les autres fenêtres du site.
+- **Contrôles** : poids de 20 à 300 kg (virgule acceptée, un chiffre après la virgule), taille de 100 à 250 cm, âge de 10 à 110 ans, sexe femme ou homme, niveau d'activité choisi. Un champ refusé : message sous le titre, rien n'est écrit. Seuls les champs affichés sont rangés ; en cas d'échec, « Enregistrement impossible pour l'instant. », la fenêtre reste ouverte.
 - **Site partagé en lecture seule** : la page n'affiche aucune donnée de nutrition.
-- **Page** : `nutrition.html`, pour l'instant sans entrée dans le menu (elle y entrera avec la page complète, lot 5) ; elle montre le besoin du jour (jour sans sport saisi) et le profil.
+- **Menu** : Nutrition se coche dans les Préférences (six onglets ne tiennent pas sur un téléphone de 375 px) ; l'évolution 020 l'ajoute aux menus déjà rangés.
 
-### 4.6 Sport, jauges, ajout rapide et journal : règles (construits le 5 nov. 2026)
+### 4.6 Règles
 
-- **Sport du jour** (élément 7) : « modifier » ouvre une fenêtre (sport et durée en heures, plusieurs lignes possibles, « + Ajouter un sport », × pour retirer ; durée de 0,25 à 24 h). Il est **retenu sur l'appareil**, un jour à la fois, sans rien écrire dans la base ; il change le besoin et les jauges aussitôt.
-- **Jauges** (9 à 12) : calories, protéines, glucides, lipides, « mangé / besoin ». Sous le minimum : barre neutre ; dans la cible : barre en Accent ; au-delà du maximum : barre et chiffre en rouge. La cible des macros est la fourchette du besoin du jour ; celle des calories va du besoin à 110 % du besoin (tolérance de conception, ajustable). La zone cible est marquée sur la barre.
-- **Ajout rapide** (13 à 16), option A : pastilles Favoris, Récents (les 8 derniers aliments utilisés) et « + Aliment libre » ; choisir un aliment affiche sa ligne : quantité en portions par pas de 0,5 (au moins 0,5), « ☆ Favori » (bascule), repas, « Ajouter ». Le repas est proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir) et se change en un toucher.
-- **Aliment libre** : nom, portion, calories (obligatoires), protéines, glucides, lipides (0 si vides), case Favori ; « Créer l'aliment » le range dans `aliments` et l'affiche prêt à ajouter. Un champ refusé : message sous le bloc, la saisie reste en place. Plafonds : calories 5 000, macros 999 g.
-- **Journal** (17 et 18) : un bloc par repas (petit-déj, midi, encas, soir), total de calories du repas, une ligne par aliment (« Riz cuit · 2 portions », calories, ×) ; × supprime la ligne sans confirmation (saisie rapide). Sans ligne : « Rien de noté aujourd'hui. »
-- **Écritures** : « Ajouter » range la ligne (valeurs figées) puis met à jour le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
-- **Pas encore construit** : le sélecteur de jour (3, flèches pour les jours passés) ; le changement de phase à la main ; la recherche d'aliments dans une base (lot 6).
+- **Sport du jour** (24) : liste des sports (MET du § 3) et durée en heures (virgule acceptée, de plus de 0 à 24 h ; une durée hors de ces bornes est ignorée). Il est **retenu sur l'appareil**, un jour à la fois, sans rien écrire dans la base ; le besoin (5) et les jauges se recalculent à chaque saisie.
+- **Jauges** (26 à 29) : sous le minimum, « Reste … » (jusqu'au minimum) ; entre le minimum et le maximum, « Dans la cible » ; au-delà, « Dépassé de … » et anneau rouge. La cible des macros est la fourchette du besoin du jour ; celle des calories va du besoin à 110 % du besoin (tolérance de conception, ajustable). L'anneau est plein à 115 % du maximum.
+- **Recherche** (30, 31) : dans Open Food Facts, à la validation (touche Entrée ou « Chercher »), pas à chaque lettre (le service limite les recherches à une dizaine par minute) ; les produits les plus courants d'abord ; huit résultats au plus, sans les produits sans calories ni les doublons ; valeurs pour 100 g. « Recherche… », « Aucun résultat. », ou en cas de refus « Recherche indisponible pour l'instant, réessaie dans une minute. ». Source citée dans les crédits des mentions légales.
+- **Produit choisi** : quantité en grammes, sa portion habituelle d'office (sinon 100 g) ; à « Ajouter », il devient un aliment de l'utilisateur (une seule fois, portion « 100 g ») et revient dans Récents ; « ☆ Favori » est rangé avec lui.
+- **Quantité** (15) : en grammes pour un aliment donné pour 100 g (pas de 10 g, de 1 à 5 000 g), en portions pour les autres (pas de 0,5, de 0,1 à 50) ; le champ se saisit aussi au clavier. Hors bornes : message, rien n'est écrit.
+- **Ajout rapide** (14 à 16) : Favoris, Récents (les 8 derniers aliments utilisés), « + Aliment libre » (nom, portion, calories obligatoires ; protéines, glucides, lipides à 0 si vides ; case Favori ; « Créer l'aliment »). Repas proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir), changé en un toucher.
+- **Journal** (17, 18) : un bloc par repas avec son total ; une ligne par aliment (« Riz cuit · 190 g », « Banane · 2 portions ») ; × supprime sans confirmation. Sans ligne : « Rien de noté. »
+- **Écritures** : « Ajouter » range la ligne (valeurs figées) puis le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
+- **Pas encore construit** : le sélecteur de jour (jours passés) ; Ciqual (aliments génériques, § 8).
 
 ## 5. Aliments : favoris, récents, saisie libre
 
 - Un aliment : nom, portion habituelle (« 1 pièce », « 100 g »), calories, protéines, glucides, lipides **pour cette portion**.
 - **Favoris** : épinglés par l'utilisateur ; **Récents** : les derniers utilisés, sans doublon.
 - **Aliment libre** : nom + calories et macros saisis à la main ; peut être épinglé en favori.
-- Rien n'est préchargé dans cette version : pas de donnée inventée, l'utilisateur crée ses aliments (la recherche dans une base viendra au lot 6).
+- **Recherche** : un produit d'Open Food Facts (§ 4.6) devient un aliment de l'utilisateur à son premier ajout. Rien n'est préchargé : pas de donnée inventée.
 
 ## 6. Téléphone
 
@@ -196,7 +170,7 @@ Tables créées par l'évolution 019 ([modèle de données](modele-donnees.md), 
 | 3 | Composant `besoin.js` et ses essais |
 | 4 | Profil minimal : champs utiles et encart de premier usage |
 | 5 | Page Nutrition : besoin, sport du jour, jauges, ajout rapide, journal du jour (construit le 5 nov. 2026 ; reste le sélecteur de jour) |
-| 6 | Recherche d'aliments : Ciqual (ANSES, import unique), puis Open Food Facts (à la demande, attribution dans les crédits), puis code-barres |
+| 6 | Recherche d'aliments : Open Food Facts (construit le 6 nov. 2026, crédits dans les mentions légales) ; Ciqual (ANSES, aliments génériques, import unique, licence ouverte) dès que le site de l'ANSES sort de maintenance ; code-barres plus tard |
 | 7 | Historique par mois, bloc « Bilan nutrition » d'En un coup d'œil, repères glucides et eau par heure partagés avec la stratégie de course d'[Objectif](module-objectif-specification.md) |
 | 8 | Import Strava (après validation de l'application par Strava pour d'autres coureurs) |
 
@@ -220,7 +194,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | B, 1 h 30 de jogging à 9,5 km/h, entraînement | Métabolisme de base 1 302 kcal ; besoin **2 563 kcal** ; protéines 81 à 116 g ; glucides 320 à 384 g ; lipides 71 à 100 g |
 | Profil sans poids | Pas de calcul ; l'encart ne demande que le poids |
 | Sexe « non précisé » | Pas de calcul ; l'encart demande le sexe (femme ou homme) |
-| Course cap dans 12 jours | Phase « Avant-course » ; dans 2 jours : « Carbo-loading » ; la veille : « Veille de course » |
+| Plan de 12 semaines de la course confirmée la plus proche (jour J au 1er nov.), puis J-2, J-1, puis jour J au 20 déc. ; sans plan | « Phase · Affûtage » ; « Phase · Carbo-loading » ; « Phase · Veille de course » ; « Phase · Deload » ; sans plan : « Phase · Entraînement » |
 | Ajouter « Banane » (1 pièce) au midi | Une ligne au midi ; les jauges montent des valeurs de la banane |
 | Supprimer la ligne (✕) | La ligne disparaît ; les jauges reviennent à l'état d'avant |
 | Modifier l'aliment « Banane » après coup | Les jours passés gardent leurs valeurs d'origine |
@@ -228,21 +202,23 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Jour passé (flèche ‹) | Le journal du jour choisi ; le besoin recalculé avec le profil et les séances de ce jour |
 | Profil A sans naissance, poids, taille ni activité (sexe seul) | L'encart ne montre que ces quatre champs |
 | Encart : poids « 0 », puis taille « 17 » | Messages « Le poids doit être compris entre 20 et 300 kg. » puis « La taille doit être comprise entre 100 et 250 cm. » ; rien d'écrit |
-| Encart rempli (15 mars 1986, 70 kg, 175 cm, peu actif) | Une écriture avec ces quatre champs ; l'encart disparaît ; « 2 117 kcal », phase Entraînement, protéines 98–140 g, glucides 265–318 g, lipides 59–82 g |
-| Profil complet, « Modifier mon profil » | Fenêtre avec les cinq champs remplis ; « Annuler » ne range rien ; poids « 72,5 » et activité « actif » : une écriture à cinq champs, besoin 2 401 kcal |
+| Encart rempli (15 mars 1986, 70 kg, 175 cm, peu actif) | Une écriture avec ces quatre champs ; l'encart disparaît ; « 2 117 kcal aujourd'hui », « Phase · Entraînement » (aucun plan), besoins 2 117 kcal, 98–140 g, 265–318 g, 59–82 g |
+| Profil complet, « Modifier » (20) | Fenêtre avec les cinq champs remplis ; « Annuler » ne range rien ; poids « 72,5 » et activité « actif » : une écriture à cinq champs, besoin 2 401 kcal |
 | Écriture en panne | « Enregistrement impossible pour l'instant. », fenêtre ouverte |
-| Course cap à J-12, J-2, J-1, lointaine | « Avant-course · J-12 », « Carbo-loading · J-2 », « Veille de course · J-1 », « Entraînement » |
-| Journal du jour : riz cuit 2 portions au midi (260 kcal), banane au petit-déj (90 kcal) | Blocs « Petit-déj 90 kcal » et « Midi 260 kcal » ; jauges 350 / 2 117 kcal, 6 / 98–140 g, 76 / 265–318 g, 1 / 59–82 g, toutes sous le minimum |
-| Récents, Favoris | Récents : banane puis riz cuit (le plus récent d'abord, sans l'œuf jamais utilisé) ; Favoris : banane |
-| Banane, quantité portée à 2 (+, +, −, +), ajoutée à 10 h | Repas proposé : midi ; une ligne figée (180 kcal, 2 g, 40 g, 0,6 g) puis la mise à jour du dernier usage ; calories 530 / 2 117 ; midi 440 kcal |
-| × sur cette ligne | La ligne est supprimée ; calories 350 / 2 117 |
-| Quantité à 0,5 | Le bouton « − » est inactif |
+| Profil A, plan de 12 semaines du Trail du Lac | Carte 1 : « Homme · 40 ans · 70 kg · 175 cm · Peu actif », « Phase · Développement », « 2 117 kcal aujourd'hui » ; titre des jauges « Mardi 20 octobre » ; ni mention ni fourchettes en texte |
+| Journal du jour : riz cuit 200 g au midi (260 kcal), banane au petit-déj (90 kcal) | Blocs « Petit-déj 90 kcal » et « Midi 260 kcal » ; « Riz cuit · 200 g » ; anneaux : 350, Reste 1 767 kcal, Besoin 2 117 kcal ; 6 g, Reste 92 g, Besoin 98–140 g ; 76 g, Reste 189 g, Besoin 265–318 g ; 1 g, Reste 58 g, Besoin 59–82 g |
+| Récents, Favoris | Récents : « Banane · 1 pièce · 90 kcal », « Riz cuit · 130 kcal / 100 g » (sans l'œuf jamais utilisé) ; Favoris : banane |
+| Banane, quantité portée à 2 (+, +, −, +), ajoutée à 10 h | Repas proposé : midi ; une ligne figée (180 kcal, 2 g, 40 g, 0,6 g) puis la mise à jour du dernier usage ; calories 530, Reste 1 587 kcal ; midi 440 kcal ; × la supprime |
+| Riz cuit : 100 g d'office ; 0 g ; 200 g puis « − » | « La quantité doit être comprise entre 1 et 5 000 g. », rien d'écrit ; 190 g : ligne de 1,9 fois les valeurs (247 kcal, 5,1 g, 53,2 g, 0,6 g), « Riz cuit · 190 g » |
+| Recherche « riz » (réponse : riz basmati Marque A à 350 kcal, un produit sans calories, une compote à 300 kJ) | Deux résultats : « Riz basmati · Marque A · 350 kcal / 100 g », « Compote · 72 kcal / 100 g » ; demande triée par popularité |
+| Riz basmati choisi (portion habituelle 60 g), Favori, Ajouter | 60 g d'office ; rien d'écrit au Favori ; puis l'aliment créé (portion 100 g, favori), la ligne (0,6 portion : 210 kcal) et le dernier usage ; il revient en tête des Récents |
+| Recherche sans résultat ; recherche refusée | « Aucun résultat. » ; « Recherche indisponible pour l'instant, réessaie dans une minute. » |
 | Aliment libre sans nom, puis sans calories | « Écris le nom de l'aliment. », puis « Indique les calories pour une portion. » ; la saisie reste ; rien d'écrit |
 | Aliment libre « Pain », 1 tranche, 80 kcal, 3,5 g, 15 g, favori | Aliment créé (lipides 0) et prêt à ajouter ; « Favori » retiré : mise à jour du favori |
 | Écriture en panne, « Ajouter » | « Enregistrement impossible pour l'instant. », journal inchangé |
 | Heure de la page : 7 h, 20 h | Repas proposé : petit-déj, soir |
-| Journal à 2 200 kcal, 100 g, 300 g, 90 g de lipides ; puis 3 000 kcal, 150 g, 400 g, 60 g | Calories, protéines, glucides dans la cible, lipides en alerte ; puis calories, protéines, glucides en alerte, lipides dans la cible |
-| Aucun aliment ni ligne | Formulaire libre d'office ; « Rien de noté aujourd'hui. » ; « Aucun favori pour l'instant. » ; « Aucun aliment récent pour l'instant : crée-en un avec « + Aliment libre ». » |
-| Sport : 1 h de jogging à 9,5 km/h | « Sport : 1 h · Jogging à 9,5 km/h (6 min/km) » ; besoin 2 817 kcal ; jauge 350 / 2 817 kcal ; rien d'écrit dans la base |
-| Sport : en plus 30 h de marche, puis 0,5 h | « La durée doit être comprise entre 0,25 et 24 heures. » ; puis deux sports, besoin 2 922 kcal ; retenu après rechargement ; retiré : de nouveau 2 117 kcal |
+| Journal à 2 200 kcal, 100 g, 300 g, 90 g de lipides ; puis 3 000 kcal, 150 g, 400 g, 60 g | « Dans la cible » ×3, lipides « Dépassé de 8 g » ; puis « Dépassé de 671 kcal », « de 10 g », « de 82 g », lipides « Dans la cible » |
+| Aucun aliment ni ligne | « + Aliment libre » d'office ; « Rien de noté. » ; « Aucun favori. » ; « Aucun aliment récent. » |
+| Sport : une ligne vide ; jogging à 9,5 km/h, 1 h | Une 2e ligne apparaît ; « 2 817 kcal aujourd'hui » ; anneau 350, Reste 2 467 kcal ; rien d'écrit dans la base |
+| Sport : marche 30 h, puis 0,5 h ; rechargement ; jogging retiré | 30 h ignorées ; 2 922 kcal, trois lignes ; retenu après rechargement ; 2 222 kcal |
 | Téléphone (375 et 390 px) | Pas de défilement horizontal ; le bouton « Ajouter » reste visible |

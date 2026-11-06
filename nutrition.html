@@ -30,18 +30,19 @@
 <script src="composants/en-tete.js?v=__VERSION__"></script>
 <script src="composants/session.js?v=__VERSION__"></script>
 <script src="composants/donnees.js?v=__VERSION__"></script>
+<script src="composants/preparation.js?v=__VERSION__"></script>
 <script src="composants/besoin.js?v=__VERSION__"></script>
 <script src="composants/profil-champs.js?v=__VERSION__"></script>
 <script src="composants/nutrition.js?v=__VERSION__"></script>
 <script>
   // Besoin du jour et profil de l'utilisateur connecté. Site partagé en lecture seule : aucune donnée de nutrition.
-  mrtPage({ courant: 'nutrition.html' }).then(page => {
+  mrtPage({ courant: 'nutrition.html', plan: true }).then(page => {
     const el = document.getElementById('nutrition');
     if (page.lectureSeule) {
-      el.innerHTML = '<p class="nu-sport">Les données de nutrition ne sont pas partagées.</p>';
+      el.innerHTML = '<p class="nu-vide">Les données de nutrition ne sont pas partagées.</p>';
       return;
     }
-    renderNutrition(el, { profil: page.session.profil || {}, id: page.session.id, cap: mrtCap(page.courses, page.preferences()) });
+    renderNutrition(el, { profil: page.session.profil || {}, id: page.session.id, courses: page.courses, semaines: (page.plan || {}).semaines || [] });
   });
 </script>
 </body>
