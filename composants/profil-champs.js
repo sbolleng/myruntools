@@ -84,7 +84,7 @@
   window.mrtProfilEncart = function (el, opts) {
     const champs = window.mrtBesoin.manquants(opts.profil, aujourdhui());
     el.innerHTML = '<form class="pf-encart mrt-section" novalidate><p class="pf-titre">Pour calculer ton besoin</p>' +
-      '<p class="pf-consigne">Complète ton profil (une seule fois).</p><p class="pf-msg" role="alert"></p>' +
+      '<p class="pf-msg" role="alert"></p>' +
       champs.map(n => champ(n, opts.profil)).join('') +
       '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>';
     brancher(el.querySelector('form'), champs, opts, opts.surEnregistre);
