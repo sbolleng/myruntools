@@ -12,7 +12,7 @@
 (function () {
   // Bouton « Supprimer la course » : à contour rouge, avec une poubelle.
   const POUBELLE = '<svg class="fc-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const CHEVRON = '<svg class="fc-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHEVRON = window.mrtIcone.chevron; // chevron commun des titres repliables (mrt-chev)
   const ROLES = [['preparatoire', 'Préparatoire'], ['plaisir', 'Plaisir'], ['objectif_intermediaire', 'Objectif intermédiaire'], ['objectif', 'Objectif']];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad = n => String(n).padStart(2, '0');
@@ -110,7 +110,7 @@
     ['effectif', 'Effectif du général', 'entier', 'resultat'],
     ['categorie', 'Catégorie', 'choix', 'resultat'],
     ['place_categorie', 'Place en catégorie', 'entier', 'resultat'],
-    ['effectif_categorie', 'Effectif catégorie', 'entier', 'resultat'],
+    ['effectif_categorie', 'Effectif de la catégorie', 'entier', 'resultat'],
     ['place_sexe', 'Place par sexe', 'entier', 'resultat'],
     ['effectif_sexe', 'Effectif par sexe', 'entier', 'resultat'],
     ['montre_temps', 'Temps', 'duree', 'montre'],
@@ -227,11 +227,9 @@
       const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
       return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
     };
-    // Blocs ouverts : à venir, tous pour une course existante, Course et Place dans le plan pour une nouvelle ;
-    // courue, Course et Résultat, plus Dossard, Montre et Liens quand ils ont une valeur.
-    const rempli = b => CHAMPS.some(f => f[3] === b && c[f[0]] != null && c[f[0]] !== '' && c[f[0]] !== false);
-    const ouvert = b => (venir ? existe || b === 'course' || b === 'plan'
-      : b === 'course' || b === 'resultat' || (existe && ['dossard', 'montre', 'liens'].includes(b) && rempli(b)));
+    // Blocs ouverts : les mêmes pour une course nouvelle ou existante, les titres des autres restent visibles d'un coup d'œil :
+    // à venir, Course et Place dans le plan ; courue, Course et Résultat. Un champ en erreur ouvre son bloc.
+    const ouvert = b => b === 'course' || b === (venir ? 'plan' : 'resultat');
     const titreForm = marquer ? 'Marquer comme courue' : existe ? 'Modifier la course' : 'Ajouter une course';
     // Feuille à elle seule (Palmarès, « + Ajouter une course ») : la même que celle d'une course (modale-course.css).
     const seule = !dans;
@@ -257,12 +255,7 @@
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
               (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
           '</section>').join('') +
-        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' +
-          '<div class="fc-confirmer" hidden>' +
-            '<p>Supprimer cette course ? Cette action est définitive.</p>' +
-            '<div class="fc-actions"><button type="button" class="fc-btn mrt-btn" data-fc="garder">Annuler</button>' +
-            '<button type="button" class="fc-btn mrt-btn is-danger fc-danger" data-fc="confirmer">Supprimer</button></div>' +
-          '</div>' : '') +
+        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' : '') +
       '</form>';
     hote.replaceChildren(racine);
     if (seule) {
@@ -293,8 +286,10 @@
     let depart = '';
     const etat = () => JSON.stringify([...racine.querySelectorAll('[data-k]')].map(e => (e.type === 'checkbox' ? e.checked : e.value))) + (reglage ? JSON.stringify(reglage) : '') +
       (gpx.fichier ? 'gpx:' + gpx.fichier.name : gpx.supprimer ? 'gpx:-' : '');
-    function annuler() {
-      if (etat() !== depart && !window.confirm('Abandonner les modifications ?')) return;
+    // Confirmation du site (en-tete.js, mrtConfirmer), comme toutes les questions.
+    const ABANDON = { texte: 'Abandonner les modifications ?', action: 'Abandonner', danger: true };
+    async function annuler() {
+      if (etat() !== depart && !(await window.mrtConfirmer(ABANDON))) return;
       terminer('annule');
     }
     function clavier(e) { if (e.key === 'Escape' && !document.querySelector('.cal-voile')) annuler(); }
@@ -309,11 +304,14 @@
       sortie = new Promise(ok => { const fait = () => { window.removeEventListener('popstate', fait); ok(); }; window.addEventListener('popstate', fait); setTimeout(fait, 600); });
       history.back();
     }
-    function surRetour() {
+    async function surRetour() {
       if (!entree) return;
       entree = false;
-      // Saisie en cours, abandon refusé : la feuille reste, son entrée d'historique est remise.
-      if (etat() !== depart && !window.confirm('Abandonner les modifications ?')) { pousser(); return; }
+      // Saisie en cours : la feuille reste le temps de la question, son entrée d'historique est remise ; abandon accepté : « Annuler ».
+      if (etat() !== depart) {
+        pousser();
+        if (!(await window.mrtConfirmer(ABANDON))) return;
+      }
       terminer('annule');
     }
     if (seule) {
@@ -576,9 +574,8 @@
         const v = virtuelle();
         P.ouvrirPreparer(null, null, { course: v, duree: v.prepaSemaines, modifs: modifs(), valider: (duree, m) => { reglage = { duree }; base = { modifs: m, date: v.date, approx: val('date_approx').checked }; majPrep(); } });
       }
-      if (a === 'supprimer') { $('.fc-confirmer').hidden = false; $('.fc-actions').hidden = true; $('[data-fc="garder"]').focus(); $('.fc-confirmer').scrollIntoView({ block: 'nearest' }); }
-      if (a === 'garder') { $('.fc-confirmer').hidden = true; $('.fc-actions').hidden = false; }
-      if (a === 'confirmer') {
+      if (a === 'supprimer') {
+        if (!(await window.mrtConfirmer({ texte: 'Supprimer cette course ? Cette action est définitive.', action: 'Supprimer', danger: true }))) return;
         act.disabled = true;
         const { error } = await window.mrtSupabase.from('courses').delete().eq('id', c.id);
         if (error) { $('.fc-msg').textContent = 'Suppression impossible pour l\'instant.'; act.disabled = false; return; }
@@ -624,12 +621,12 @@
         const sb = window.mrtSupabase;
         let r = existe ? await sb.from('plan_semaines').delete().eq('course', id) : {};
         if (!r.error && lignes.length) r = await sb.from('plan_semaines').insert(lignes);
-        if (r.error) { console.warn(r.error); window.alert('Course enregistrée, mais pas les phases du plan : réessaie depuis « Paramétrer le plan ».'); }
+        if (r.error) { console.warn(r.error); await window.mrtConfirmer({ texte: 'Course enregistrée, mais pas les phases du plan : réessaie depuis « Paramétrer le plan ».', action: 'Fermer', seul: true }); }
       }
       if ((gpx.fichier || (gpx.supprimer && c.gpx)) && window.mrtTrace) {
         const cc = Object.assign({}, c, { id });
         const err = gpx.fichier ? await window.mrtTrace.ranger(cc, gpx.texte, { chiffres: false }) : await window.mrtTrace.retirer(cc);
-        if (err) window.alert('Course enregistrée, mais pas le tracé : ' + err);
+        if (err) await window.mrtConfirmer({ texte: 'Course enregistrée, mais pas le tracé : ' + err, action: 'Fermer', seul: true });
       }
       terminer('enregistre', id);
       if (apres) await apres();

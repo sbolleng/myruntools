@@ -1,18 +1,16 @@
 /* ===== Graphique : nuage de points dans le temps (graphique.js) =====
    Difficulté (Objectif, § 5.2) et progression (Palmarès, § 12). Couleurs par rôles seulement. */
-.mg.card { padding: 0.9rem 1.1rem 1rem; }
-.mg-titre { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
+.mg.card { padding: var(--pad-cadre); }
+.mg-titre { display: flex; align-items: center; gap: 0.5rem; font-size: var(--t-texte); font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
 .mg-titre::-webkit-details-marker { display: none; }
 /* Titre d'un bloc fixe (Progression, Résultats du Palmarès) : le même texte, sans chevron ni toucher. */
 .mg-titre.is-fixe { margin: 0; cursor: default; }
 .mg-haut:not(:empty) { display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; margin-top: 0.7rem; margin-bottom: 1rem; } /* de l'air avant l'axe : le sélecteur ne se lit pas comme un libellé du graphique */
-.mg-chev { width: 0.8rem; height: 0.8rem; flex: none; color: var(--muted); transition: transform 0.2s ease-out; }
-details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
-.mg-droite { margin-left: auto; font-size: 0.8rem; font-weight: 400; color: var(--muted); text-align: right; }
+.mg-droite { margin-left: auto; font-size: var(--t-second); font-weight: 400; color: var(--muted); text-align: right; }
 .mg-droite b { font-family: 'Space Mono', monospace; font-weight: 700; }
 .mg-droite .is-mieux { color: var(--accent); }
 .mg-corps { padding-top: 0.6rem; }
-.mg-axe-y { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+.mg-axe-y { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
 .mg-zone { position: relative; margin-left: 2.6rem; }
 .mg-plot { position: relative; height: 220px; }
 .mg-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -23,10 +21,10 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-ligne { stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .mg-ligne.is-discrete { stroke: var(--muted); stroke-width: 1; opacity: 0.6; }
 .mg-periode { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; }
-.mg-gy { position: absolute; right: calc(100% + 0.5rem); transform: translateY(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.mg-gy { position: absolute; right: calc(100% + 0.5rem); transform: translateY(-50%); font-family: 'Space Mono', monospace; font-size: var(--t-libelle); color: var(--muted); white-space: nowrap; }
 .mg-gx { position: relative; height: 1.3rem; margin-top: 0.4rem; }
 .mg-coche { position: absolute; top: -0.4rem; width: 1px; height: 5px; background: var(--muted); opacity: 0.5; }
-.mg-gx span { position: absolute; top: 0.1rem; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.mg-gx span { position: absolute; top: 0.1rem; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: var(--t-libelle); color: var(--muted); white-space: nowrap; }
 
 /* Points : un bouton (zone de toucher de 24 px), la marque dessinée dedans. */
 .mg-pt { position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; padding: 0; border: 0; background: none; cursor: pointer; z-index: 1; }
@@ -42,8 +40,8 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 @media (hover: hover) and (pointer: fine) {
   .mg-pt:hover::after { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
 }
-.mg-etiq { position: absolute; transform: translate(10px, -50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); white-space: nowrap; pointer-events: none; }
-.mg-marque { position: absolute; transform: translate(-50%, -150%); font-size: 0.8rem; line-height: 1.2; pointer-events: none; }
+.mg-etiq { position: absolute; transform: translate(10px, -50%); font-family: 'Space Mono', monospace; font-size: var(--t-libelle); color: var(--muted); white-space: nowrap; pointer-events: none; }
+.mg-marque { position: absolute; transform: translate(-50%, -150%); font-size: var(--t-second); line-height: 1.2; pointer-events: none; }
 .mg-etiq.is-gauche { transform: translate(calc(-100% - 10px), -50%); }
 .mg-etiq.is-dessous { transform: translate(-50%, 9px); }
 /* Aux bords du graphique, l'étiquette s'aligne sur le point au lieu de déborder sur les graduations. */
@@ -57,18 +55,18 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 
 /* Bulle : au-dessus du point (dessous s'il est trop haut). */
 .mg-bulle { position: absolute; z-index: 2; transform: translate(-50%, calc(-100% - 14px)); min-width: 11rem; max-width: 17rem; padding: 0.5rem 0.7rem;
-  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; color: var(--text); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: var(--t-second); color: var(--text); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 .mg-bulle[hidden] { display: none; }
 .mg-bulle.is-dessous { transform: translate(-50%, 14px); }
-.mg-bulle strong { display: block; font-family: 'Space Mono', monospace; font-size: 0.85rem; }
+.mg-bulle strong { display: block; font-family: 'Space Mono', monospace; font-size: var(--t-texte); }
 .mg-bulle .mg-nom { color: var(--text); text-decoration: underline; }
-.mg-bulle .mg-sub { color: var(--muted); font-size: 0.75rem; margin-top: 0.15rem; }
-.mg-vide, .mg-bilan { font-size: 0.8rem; color: var(--muted); }
+.mg-bulle .mg-sub { color: var(--muted); font-size: var(--t-petit); margin-top: 0.15rem; }
+.mg-vide, .mg-bilan { font-size: var(--t-second); color: var(--muted); }
 .mg-vide { padding: 1.5rem 0 0.5rem; }
 .mg-bilan { margin-top: 0.4rem; }
 
 /* Légende sous le graphique (Difficulté) : un signe, son sens. */
-.mg-legende { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin: 0.9rem 0 0 0; padding: 0; list-style: none; font-size: 0.75rem; color: var(--muted); }
+.mg-legende { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin: 0.9rem 0 0 0; padding: 0; list-style: none; font-size: var(--t-petit); color: var(--muted); }
 .mg-legende li { display: flex; align-items: center; gap: 0.45rem; }
 .mg-sym { display: inline-block; width: 10px; height: 10px; flex: none; background: var(--accent); }
 .mg-sym.is-plein { border-radius: 50%; }
@@ -76,12 +74,11 @@ details.mg-cadre:not([open]) .mg-chev { transform: rotate(-90deg); }
 .mg-sym.is-losange { width: 11px; height: 11px; border-radius: 1px; transform: rotate(45deg); }
 
 /* Définition sous le graphique (Difficulté) : une explication, donc plus petite et en italique ; la formule en Texte. */
-.mg-definition { margin-top: 1rem; font-size: 0.75rem; font-style: italic; line-height: 1.55; color: var(--muted); }
+.mg-definition { margin-top: 1rem; font-size: var(--t-petit); font-style: italic; line-height: 1.55; color: var(--muted); }
 .mg-definition b { font-weight: 600; color: var(--text); }
 
 /* Téléphone : pas d'étiquettes, la bulle les remplace ; la tendance passe sous le titre. */
 @media (max-width: 600px) {
-  .mg.card { padding: 0.8rem 0.8rem 0.9rem; }
   .mg-etiq { display: none; }
   .mg-titre { flex-wrap: wrap; }
   .mg-droite { flex-basis: 100%; margin-left: 1.3rem; text-align: left; }

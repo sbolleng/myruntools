@@ -128,9 +128,9 @@
       const a = S.choix && trouver(S.choix.id);
       if (a) {
         choix = '<div class="nu-choix"><p class="nu-choix-nom">' + detail(a) + '</p>' +
-          '<div class="nu-quantite"><button type="button" class="mrt-rond" data-act="moins" aria-label="Moins"' + (S.choix.quantite <= 0.5 ? ' disabled' : '') + '>−</button>' +
+          '<div class="nu-quantite"><button type="button" class="mrt-rond" data-act="moins" aria-label="Moins"' + (S.choix.quantite <= 0.5 ? ' disabled' : '') + '>' + mrtIcone.moins + '</button>' +
           '<output class="nu-quantite-v" aria-label="Quantité en portions">' + virgule(S.choix.quantite) + '</output>' +
-          '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">+</button>' +
+          '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">' + mrtIcone.plus + '</button>' +
           '<button type="button" class="mrt-pastille nu-fav" data-act="favori" aria-pressed="' + !!a.favori + '">' + (a.favori ? '★' : '☆') + ' Favori</button></div>' +
           '<div class="nu-repas-choix">' + REPAS.map(r => '<button type="button" class="mrt-pastille" data-act="repas" data-repas="' + r[0] + '" aria-pressed="' + (S.repas === r[0]) + '">' + r[1] + '</button>').join('') + '</div>' +
           '<button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">Ajouter</button></div>';
@@ -144,7 +144,7 @@
       return '<section class="mrt-section nu-journal"><p class="pf-titre">Aujourd\'hui</p>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') +
         (groupes.length ? groupes.map(g => '<div class="nu-repas"><p class="nu-repas-t"><span>' + g[0][1] + '</span><span>' + n0(g[1].reduce((t, l) => t + Number(l.kcal), 0)) + ' kcal</span></p><ul class="nu-lignes">' +
           g[1].map(l => '<li data-id="' + l.id + '"><span class="nu-ligne-nom">' + esc(l.nom) + (Number(l.quantite) !== 1 ? ' · ' + virgule(Number(l.quantite)) + ' portions' : '') + '</span>' +
-            '<span class="nu-ligne-k">' + n0(l.kcal) + ' kcal</span><button type="button" class="mrt-rond is-fermer" data-act="supprimer" data-id="' + l.id + '" aria-label="Supprimer ' + esc(l.nom) + '">×</button></li>').join('') + '</ul></div>').join('')
+            '<span class="nu-ligne-k">' + n0(l.kcal) + ' kcal</span><button type="button" class="mrt-rond is-fermer" data-act="supprimer" data-id="' + l.id + '" aria-label="Supprimer ' + esc(l.nom) + '">' + mrtIcone.fermer + '</button></li>').join('') + '</ul></div>').join('')
           : '<p class="nu-vide">Rien de noté aujourd\'hui.</p>') + '</section>';
     }
     function dessiner() {
@@ -213,7 +213,7 @@
       const sports = Object.entries(B.SPORTS);
       const ligne = s => '<div class="nu-sport-l"><select class="mrt-champ" name="type" aria-label="Sport"><option value="">Choisis un sport…</option>' + sports.map(x => '<option value="' + x[0] + '"' + (s && s.type === x[0] ? ' selected' : '') + '>' + esc(x[1].libelle) + '</option>').join('') + '</select>' +
         '<span class="pf-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s ? virgule(s.heures) : '') + '">h</span>' +
-        '<button type="button" class="mrt-rond is-fermer" data-act="retirer" aria-label="Retirer ce sport">×</button></div>';
+        '<button type="button" class="mrt-rond is-fermer" data-act="retirer" aria-label="Retirer ce sport">' + mrtIcone.fermer + '</button></div>';
       const voile = document.createElement('div');
       voile.className = 'pf-voile';
       voile.innerHTML = '<form class="pf-panneau" role="dialog" aria-modal="true" aria-labelledby="nu-sport-titre" novalidate>' +

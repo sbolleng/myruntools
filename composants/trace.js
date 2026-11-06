@@ -149,7 +149,7 @@
   const nomFichier = c => (window.mrtNomCourse ? window.mrtNomCourse(c) : c.course).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() + '.gpx';
   async function telecharger(c) {
     const t = await texteDe(c);
-    if (t == null) { window.alert('Téléchargement impossible pour l\'instant.'); return; }
+    if (t == null) { window.mrtConfirmer({ texte: 'Téléchargement impossible pour l\'instant.', action: 'Fermer', seul: true }); return; }
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([t], { type: 'application/gpx+xml' }));
     a.download = nomFichier(c);

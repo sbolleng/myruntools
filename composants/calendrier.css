@@ -2,9 +2,9 @@
    docs/module-calendrier-specification.md, § 2 à 4 ; couleurs : docs/design.md, § 10.
    Couleurs des phases, fenêtres d'une séance et rubrique Préparation d'une course : preparation.css. */
 
-.cal-cadre { --case: color-mix(in srgb, var(--border) 70%, var(--surface)); --barre: 16px; --pas: 19px; --ligne: 1.5rem;
-  padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-.cal-libelle { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-cadre { --barre: 16px; --pas: 19px; --ligne: 1.5rem; /* --case : fond des jours, commun (en-tete.css) */
+  padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.cal-libelle { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
 /* ----- Barre du haut : le menu « Périodicité » à gauche ; le bouton « Plan » et « Aujourd'hui » à droite ----- */
 .cal-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.7rem 1.2rem; }
@@ -17,7 +17,7 @@
   background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 .cal-menu[hidden] { display: none; }
 .cal-menu .cal-libelle { padding: 0.35rem 1.1rem 0.45rem; }
-.cal-menu a { position: relative; padding: 0.55rem 1.1rem; font-size: 0.85rem; color: var(--text); text-decoration: none; }
+.cal-menu a { position: relative; padding: 0.55rem 1.1rem; font-size: var(--t-texte); color: var(--text); text-decoration: none; }
 .cal-menu a.is-on { font-weight: 600; color: var(--accent); }
 .cal-menu a.is-on::before { content: ''; position: absolute; top: 0.4rem; bottom: 0.4rem; left: 0.45rem; width: 3px; border-radius: 2px; background: var(--accent); }
 .cal-menu a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -27,13 +27,13 @@
 /* ----- Période (Année, Mois) : la période voisine et sa flèche de chaque côté du titre ----- */
 .cal-periode { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; margin: 1rem 0 0.9rem; padding: 0.7rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .cal-sep { margin: 1rem 0 0.9rem; border-top: 1px solid var(--border); }
-.cal-voisin { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+.cal-voisin { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--t-second); color: var(--muted); text-decoration: none; }
 .cal-voisin.is-suiv { justify-self: end; }
 .cal-titre-bloc { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
-.cal-titre { font-size: 1.05rem; font-weight: 600; color: var(--text); text-align: center; }
+.cal-titre { font-size: var(--t-nom); font-weight: 600; color: var(--text); text-align: center; }
 
 /* ----- Légendes ----- */
-.cal-legende { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.4rem; margin: 0 0 1rem; font-size: 0.8rem; color: var(--text); }
+.cal-legende { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.4rem; margin: 0 0 1rem; font-size: var(--t-second); color: var(--text); }
 .cal-legende span { display: inline-flex; align-items: center; gap: 0.4rem; }
 .cal-legende .cal-groupe { flex-wrap: wrap; gap: 0.4rem 0.8rem; }
 .cal-k { display: inline-block; width: 1.1rem; height: 0.75rem; border-radius: 2px; background: var(--border); }
@@ -45,33 +45,32 @@
 .cal-k-auj { box-shadow: inset 0 0 0 2px var(--text); }
 
 /* ----- Course, rendez-vous clé, séance, « + » : communs au Mois et à la Semaine ----- */
-.cal-v-course { display: block; padding: 0.05rem 0.3rem; font-size: 0.68rem; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; border-radius: 3px; }
+.cal-v-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; border-radius: 3px; }
 .cal-v-course.c-route-v { background: var(--route); color: var(--encre); }
 .cal-v-course.c-trail-v { background: var(--trail); color: var(--encre); }
 .cal-v-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
 .cal-v-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-v-course.courue { background: var(--muted); color: var(--bg); }
-.cal-v-rdv { display: block; min-width: 0; font-size: 0.68rem; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); text-decoration: none; }
-.cal-v-se { display: flex; align-items: center; gap: 0.3rem; min-width: 0; font-size: 0.68rem; line-height: 1.35; color: var(--text); }
+.cal-v-rdv { display: block; min-width: 0; font-size: var(--t-libelle); line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); text-decoration: none; }
+.cal-v-se { display: flex; align-items: center; gap: 0.3rem; min-width: 0; font-size: var(--t-libelle); line-height: 1.35; color: var(--text); }
 .cal-v-se input { flex: none; width: 0.8rem; height: 0.8rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
 .cal-v-se-txt { min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-.cal-v-se-txt b { font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.cal-v-se-txt b { font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .cal-v-se.faite .cal-v-se-txt span { color: var(--muted); text-decoration: line-through; }
-.cal-v-plus { position: absolute; display: grid; place-items: center; width: 1.5rem; height: 1.5rem; padding: 0; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1;
-  color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 50%; cursor: pointer; }
-.cal-v-plus:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* « + » : le petit rond commun (mrt-rond is-petit), posé au coin de la case ou au bout de la ligne ; contour et icône en Accent, plein au survol. */
+.mrt-rond.cal-v-plus { position: absolute; color: var(--accent); border-color: var(--accent); }
 
 /* ----- Année : la grille (spécification § 3) ; chaque mois, sa colonne de jours (initiale et numéro) à gauche de ses cases ;
    cases jointives, samedi et dimanche plus foncés, filet sous chaque dimanche ; Plan : barres de prépa aux couleurs des phases ----- */
 .cal-a-blocs { display: flex; flex-direction: column; gap: 1.6rem; }
 .cal-a-bloc { display: grid; grid-template-columns: repeat(var(--n), 2.6rem minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: var(--ligne); }
 /* Onglet du mois, au-dessus de ses cases : Bordure, le mois en cours en Accent. */
-.cal-a-mois { padding: 0.3rem 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
+.cal-a-mois { padding: 0.3rem 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); background: var(--border); border-radius: 6px 6px 0 0; }
 .cal-a-mois.is-courant { color: var(--bg); background: var(--accent); }
 .cal-a-mois i { font-style: normal; }
-.cal-a-n { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; padding-right: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); }
-.cal-a-n i { font-size: 0.55rem; font-style: normal; }
+.cal-a-n { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; padding-right: 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); color: var(--muted); }
+.cal-a-n i { font-style: normal; opacity: 0.75; } /* initiale : la taille du numéro, plus discrète */
 .cal-a-n b { min-width: 1.35rem; font-weight: 400; line-height: 1.2rem; text-align: right; }
 .cal-a-n.auj b { padding: 0 0.2rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
 .cal-a-j { position: relative; display: block; background: var(--case); cursor: pointer; }
@@ -89,7 +88,7 @@
 .cal-a-j.vide { visibility: hidden; }
 .cal-a-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 /* Nom de la course dans sa case, décalé des seules barres de ce jour-là. */
-.cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--dec, 0) * var(--pas)); font-size: 0.75rem; line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--dec, 0) * var(--pas)); font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
 .cal-a-j.c-route-v { background: var(--route); }
 .cal-a-j.c-trail-v { background: var(--trail); }
 .cal-a-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
@@ -115,7 +114,7 @@
 .cal-m-case { position: relative; display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; min-height: 6rem; padding: 0.3rem 0.35rem 2.2rem; background: var(--case); cursor: pointer; overflow: hidden; }
 /* Jours des mois voisins : le même fond, le contenu atténué. */
 .cal-m-case.hors > * { opacity: 0.5; }
-.cal-m-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: 0.75rem; font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
+.cal-m-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: var(--t-petit); font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
 .cal-m-case.passe .cal-m-num { color: var(--muted); }
 .cal-m-num.auj, .cal-m-case.passe .cal-m-num.auj { color: var(--bg); background: var(--accent); }
 .cal-m-txt { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
@@ -132,15 +131,15 @@
 .cal-s-ligne.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 /* Numéro et nom du jour, centrés l'un sur l'autre (l'espacement des capitales est compensé). */
 .cal-s-date { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; text-align: center; }
-.cal-s-date b { min-width: 1.8rem; padding: 0 0.3rem; font-size: 1rem; font-weight: 600; line-height: 1.8rem; text-align: center; border-radius: 999px; }
+.cal-s-date b { min-width: 1.8rem; padding: 0 0.3rem; font-size: var(--t-nom); font-weight: 600; line-height: 1.8rem; text-align: center; border-radius: 999px; }
 .cal-s-ligne.passe .cal-s-date b { color: var(--muted); }
 .cal-s-ligne.auj .cal-s-date b { color: var(--bg); background: var(--accent); }
-.cal-s-date small { margin-right: -0.1em; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-s-date small { margin-right: -0.1em; font-family: 'Space Mono', monospace; font-size: var(--t-micro); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-s-contenu { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem; min-width: 0; }
-.cal-s-contenu .cal-v-course, .cal-s-contenu .cal-v-rdv { font-size: 0.8rem; }
-.cal-s-contenu .cal-v-se { gap: 0.4rem; font-size: 0.85rem; }
+.cal-s-contenu .cal-v-course, .cal-s-contenu .cal-v-rdv { font-size: var(--t-second); }
+.cal-s-contenu .cal-v-se { gap: 0.4rem; font-size: var(--t-texte); }
 .cal-s-contenu .cal-v-se input { width: 1rem; height: 1rem; }
-.cal-s-contenu .cal-v-se-txt b { font-size: 0.7rem; letter-spacing: 0.1em; }
+.cal-s-contenu .cal-v-se-txt b { font-size: var(--t-libelle); letter-spacing: 0.1em; }
 .cal-s-ligne .cal-v-plus { top: 50%; right: 0.5rem; margin-top: -0.75rem; }
 .cal-fin { height: 1px; }
 
@@ -168,24 +167,24 @@
 }
 
 @media (max-width: 600px) {
-  .cal-cadre { --barre: 10px; --pas: 13px; --ligne: 1.25rem; padding: 0.8rem 0.6rem; }
+  .cal-cadre { --barre: 10px; --pas: 13px; --ligne: 1.25rem; padding: 0.8rem 0.6rem; } /* grille serrée : marges plus étroites que le cadre commun */
   /* Barre du haut sur une ligne : le menu, puis « Plan » et « Aujourd'hui », boutons un peu resserrés. */
   .cal-haut { flex-wrap: nowrap; gap: 0.5rem; }
   .cal-options { gap: 0.4rem; }
   .cal-haut .mrt-btn { padding: 0.45rem 0.75rem; }
   .cal-periode { gap: 0.3rem; }
   .cal-voisin .cal-voisin-txt { display: none; }
-  .cal-titre { font-size: 0.95rem; }
+  .cal-titre { font-size: var(--t-nom); }
   /* Année : trois mois par bloc ; le numéro seul (le fond de samedi et dimanche suffit à repérer la semaine). */
   .cal-a-bloc { grid-template-columns: repeat(var(--n), 1.5rem minmax(0, 1fr)); }
-  .cal-a-mois { padding: 0.25rem 0.2rem; font-size: 0.62rem; letter-spacing: 0.05em; }
+  .cal-a-mois { padding: 0.25rem 0.2rem; font-size: var(--t-micro); letter-spacing: 0.05em; }
   .cal-a-n { padding-right: 0.2rem; }
   .cal-a-n i { display: none; }
   .cal-a-n b { min-width: 1.1rem; line-height: 1.05rem; }
-  .cal-a-nom { font-size: 0.62rem; }
+  .cal-a-nom { font-size: var(--t-micro); }
   /* Mois : trop étroit pour du texte : le numéro et des repères ; toucher la case ouvre sa semaine, où l'on coche et ajoute. */
   .cal-m-case { align-items: center; min-height: 3.4rem; padding: 0.2rem 0.15rem; }
-  .cal-m-num { align-self: center; min-width: 1.4rem; padding: 0 0.2rem; font-size: 0.7rem; line-height: 1.4rem; }
+  .cal-m-num { align-self: center; min-width: 1.4rem; padding: 0 0.2rem; font-size: var(--t-libelle); line-height: 1.4rem; }
   .cal-m-txt, .cal-m-case .cal-v-plus { display: none; }
   .cal-m-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; width: 100%; }
   .cal-m-points .barre { width: 100%; height: 4px; border-radius: 2px; }
@@ -196,6 +195,6 @@
   .cal-m-points .barre.courue { background: var(--muted); }
   .cal-m-points .pt { width: 5px; height: 5px; border-radius: 50%; background: var(--text); }
   .cal-m-points .pt.faite { background: var(--muted); }
-  .cal-m-points .rdv { font-size: 0.5rem; line-height: 5px; color: var(--muted); }
+  .cal-m-points .rdv { font-size: var(--t-micro); line-height: 5px; color: var(--muted); }
   .cal-s-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
 }

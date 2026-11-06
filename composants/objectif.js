@@ -12,17 +12,14 @@
 // Page d'une course : edition = { modifier(id), marquer(id), retenir(id) }, fourni par modale-course.js (modifier et
 // marquer basculent la feuille en édition) ; les boutons n'existent que s'il est donné.
 (function () {
-  const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-  const MOIS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  // Dates, heures, nombres : les formats communs (en-tete.js, mrtFormat).
+  const F = window.mrtFormat;
   const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif intermédiaire', objectif: 'Objectif principal' };
   const STATUTS_LIB = { a_surveiller: 'À surveiller', option: 'Option', confirmee: 'Confirmée' };
-  const UNITES = [['j', 'j'], ['h', 'h'], ['m', 'min'], ['s', 's']];
+  const UNITE = { j: 'j', h: 'h', m: 'min', s: 's' };
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad = n => String(n).padStart(2, '0');
-  // Espace insécable ordinaire : l'espace fine d'Intl est presque invisible en Space Grotesk.
-  const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
-  const nombre = n => nf.format(Number(n)).replace(/ /g, ' ');
+  const nombre = F.nombre; // espace insécable ordinaire entre les milliers (formats communs)
   const aujourdhui = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
   // Liens saisis par l'utilisateur : seulement des adresses web.
   const lienSur = u => (u && /^https?:\/\//i.test(u) ? u : null);
@@ -35,24 +32,11 @@
     const d = c.date.split('-').map(Number), h = (!c.date_approx && c.heure ? c.heure : '00:00').split(':').map(Number);
     return new Date(d[0], d[1] - 1, d[2], h[0], h[1]);
   }
-  function dateCourte(c) {
-    if (!c.date) return 'À définir';
-    const d = c.date.split('-').map(Number);
-    if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
-    return (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS[d[1] - 1] + ' ' + d[0];
-  }
-  function dateLongue(c, sansHeure) {
-    if (!c.date) return 'À définir';
-    const d = c.date.split('-').map(Number);
-    if (c.date_approx) return MOIS_LONG[d[1] - 1] + ' ' + d[0];
-    const jour = JOURS[new Date(d[0], d[1] - 1, d[2]).getDay()];
-    let txt = jour + ' ' + (d[2] === 1 ? '1er' : d[2]) + ' ' + MOIS[d[1] - 1] + ' ' + d[0];
-    if (c.heure && !sansHeure) {
-      const h = c.heure.split(':').map(Number);
-      txt += ', ' + h[0] + ' h' + (h[1] ? ' ' + pad(h[1]) : '');
-    }
-    return txt;
-  }
+  // « 15 nov. 2026 » ; mois seul : « juillet 2027 » ; sans date : « À définir ».
+  const dateCourte = c => (!c.date ? 'À définir' : F.date(c.date_approx ? c.date.slice(0, 7) : c.date));
+  // « dim. 7 mars 2027 » (et « , 7 h 30 » si l'heure est connue et demandée).
+  const dateLongue = (c, sansHeure) => (!c.date ? 'À définir' : c.date_approx ? F.date(c.date.slice(0, 7))
+    : F.date(c.date, { semaine: true }) + (c.heure && !sansHeure ? ', ' + F.heure(c.heure) : ''));
   const nom = c => window.mrtNomCourse(c);
   // Course · Parcours, en deux morceaux : si les deux ne tiennent pas sur une ligne,
   // le parcours passe à la ligne, sans le point (couperNoms).
@@ -92,11 +76,11 @@
     if (!o) return { etat: 'inconnu', texte: 'Ouverture à venir' };
     const auj = aujourdhui(), ouvert = { etat: 'ouvert', texte: 'Inscription ouverte', lien: lienSur(c.inscription) };
     // Mois seul (évolution 017) : « Ouverture : janvier 2027 » tant que le mois n'est pas passé.
-    if (c.ouverture_approx) return o.slice(0, 7) >= auj.slice(0, 7) ? { etat: 'bientot', texte: 'Ouverture : ' + MOIS_LONG[Number(o.slice(5, 7)) - 1] + ' ' + o.slice(0, 4) } : ouvert;
+    if (c.ouverture_approx) return o.slice(0, 7) >= auj.slice(0, 7) ? { etat: 'bientot', texte: 'Ouverture : ' + F.date(o.slice(0, 7)) } : ouvert;
     // Avec une heure d'ouverture, le jour même, l'inscription n'est ouverte qu'à partir de cette heure (heure locale).
     const h = c.ouverture_heure ? String(c.ouverture_heure).slice(0, 5) : '';
     const maintenant = new Date(), hm = pad(maintenant.getHours()) + ':' + pad(maintenant.getMinutes());
-    if (o > auj || (o === auj && h && h > hm)) return { etat: 'bientot', texte: 'Ouvre le ' + o.split('-').reverse().join('/') + (h ? ' à ' + h : '') };
+    if (o > auj || (o === auj && h && h > hm)) return { etat: 'bientot', texte: 'Ouvre le ' + F.date(o) + (h ? ' à ' + F.heure(h) : '') };
     return ouvert;
   }
   // sansLien : page d'une course, où l'inscription passe par « S'inscrire » (§ 3.4, n° 29).
@@ -113,11 +97,11 @@
   const lienOfficiel = c => (lienSur(c.lien)
     ? '<a class="ob-ext" href="' + esc(c.lien) + '" target="_blank" rel="noopener" title="Site officiel" aria-label="Site officiel">' + FLECHE + '</a>' : '');
 
-  // Compteur (§ 5.1) : quatre cases, mises à jour par un seul minuteur pour toute la page.
+  // Compteur (§ 5.1), mis à jour par un seul minuteur pour toute la page : sur la page d'une course, quatre cases (j, h, min, s) ;
+  // sur une carte (court), les jours seuls (« 137 j »), puis les heures et les minutes le dernier jour.
   // Mois seul : compteur pour une course confirmée (jusqu'au 1er du mois), aucun pour une option.
   const sansCompteur = c => !c.date || (c.date_approx && c.statut !== 'confirmee');
-  const compteurHtml = c => (sansCompteur(c) ? '' : '<div class="ob-cpt" data-depart="' + depart(c).getTime() + '">' +
-    UNITES.map(u => '<span class="ob-cpt-case"><b data-u="' + u[0] + '"></b>' + u[1] + '</span>').join('') + '</div>');
+  const compteurHtml = (c, court) => (sansCompteur(c) ? '' : '<div class="ob-cpt' + (court ? ' is-court' : '') + '" data-depart="' + depart(c).getTime() + '"></div>');
   let minuteur = null;
   function tic() {
     const maintenant = Date.now();
@@ -128,6 +112,11 @@
         return;
       }
       const t = { j: Math.floor(ms / 864e5), h: Math.floor(ms % 864e5 / 36e5), m: Math.floor(ms % 36e5 / 6e4), s: Math.floor(ms % 6e4 / 1e3) };
+      const unites = el.classList.contains('is-court') ? (t.j >= 1 ? ['j'] : ['h', 'm']) : ['j', 'h', 'm', 's'];
+      if (el.dataset.unites !== unites.join()) {
+        el.dataset.unites = unites.join();
+        el.innerHTML = unites.map(u => '<span class="ob-cpt-case"><b data-u="' + u + '"></b>' + UNITE[u] + '</span>').join('');
+      }
       el.querySelectorAll('b').forEach(b => { const v = t[b.dataset.u]; b.textContent = b.dataset.u === 'j' ? v : pad(v); });
     });
   }
@@ -150,7 +139,7 @@
 
   function carteCourse(c, avecMini) {
     return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '"' + (avecMini && c.gpx ? ' data-mini="' + esc(c.id) + '"' : '') + '>' +
-      '<span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span>' + compteurHtml(c) +
+      '<span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span>' + compteurHtml(c, true) +
       titre(c, 'h3') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, true) + '</article>';
   }
   function carteGroupe(e) {
@@ -235,7 +224,7 @@
     el.hidden = false;
     // Trois signes : une course de préparation (point plein), une course en option (point à contour) et un objectif, principal ou intermédiaire (losange).
     const forme = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
-        const quand = c => (c.date_approx ? MOIS_LONG[Number(c.date.slice(5, 7)) - 1] + ' ' + c.date.slice(0, 4) : dateCourte(c));
+        const quand = c => dateCourte(c);
     const profil = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ');
     const points = places.map(c => {
       // Date au mois seul : le point au milieu du mois, sans trait.
@@ -258,7 +247,7 @@
       'Le principe : on ajoute au kilométrage l\'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. ' +
       'Un trail de 40 km avec 2 000 m de D+ pèse donc comme une course de 60 km à plat. La descente n\'est pas comptée.</p>';
     window.mrtGraphique(el, {
-      cle: 'mrt-graphe-difficulte', titre: 'Évolution de l’effort', toujoursFerme: true,
+      cle: 'mrt-graphe-difficulte', titre: 'Évolution de l\'effort', toujoursFerme: true,
       axeY: { libelle: 'km-effort', min: 0, max, pas: 20, fmt: v => String(v) },
       debut: t0, fin, points, ligne, ligneDiscrete: true, bas: legende + definition
     });
@@ -266,7 +255,7 @@
 
   // ----- Page d'une course (§ 3.4, option A) -----
   // Texte repliable : le titre, précédé d'un chevron ; un toucher sur le titre l'ouvre ou le ferme.
-  const CHEVRON = '<svg class="ob-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHEVRON = window.mrtIcone.chevron; // chevron commun des titres repliables (mrt-chev)
   const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule mrt-deroule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   // Lien externe écrit en toutes lettres, suivi de la flèche dessinée.
@@ -280,8 +269,8 @@
       : 'https://www.openstreetmap.org/search?query=' + encodeURIComponent(c.lieu);
     return '<a class="pc-lieu" href="' + esc(url) + '" target="_blank" rel="noopener" title="Voir sur la carte">' + REPERE + esc(c.lieu) + '</a>';
   }
-  // Heure de départ, « 7 h 30 » ; vide (ou date au mois seul) : « — », comme partout sur le site.
-  const heureTxt = c => { if (c.date_approx || !c.heure) return '—'; const h = c.heure.split(':').map(Number); return h[0] + ' h' + (h[1] ? ' ' + pad(h[1]) : ''); };
+  // Heure de départ, « 7 h 30 » ; vide (ou date au mois seul) : rien, la date reste seule.
+  const heureTxt = c => (c.date_approx || !c.heure ? '' : F.heure(c.heure));
   // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
   const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ').replace(/ (m D|km)/g, '\u00a0$1');
 
@@ -307,7 +296,7 @@
     const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     // Barre du haut de la modale (modale-course.js) : « Modifier » et la croix, à droite.
     const barre = avecModifier => '<div class="pc-barre">' + (avecModifier && edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
-      '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
+      '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>';
     const retour = barre(false);
     const etapes = window.mrtEtapes(courses);
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
@@ -332,7 +321,7 @@
     const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
     // Sous-titres des textes : en libellé (Space Mono, capitales), comme ceux de la fiche.
     const sousTitre = t => '<p class="pc-sous-titre">' + t + '</p>';
-    const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Rôle dans le plan') + texte(c.pourquoi) + '</div>' : '') +
+    const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Rôle dans la préparation') + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
     // Parcours (n° 25) : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ; sans GPX, « Importer un GPX » (28),
     // sauf en lecture seule.
@@ -357,7 +346,7 @@
       // repliée dans le même cadre, le site officiel à sa droite.
       '<div class="ob-lignes pc-fiche">' +
         (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
-        ligne('Date / heure', '<span class="ob-val">' + esc(dateLongue(c, true)) + ' · ' + esc(heureTxt(c)) + '</span>') +
+        ligne('Date / heure', '<span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
@@ -414,8 +403,8 @@
   };
 
   // ----- Consultation d'une course courue (§ 3.8) : ouverte depuis le Palmarès -----
-  const hmsFiche = s => (s == null ? '' : pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
-  const allureTxt = s => (s == null ? '' : Math.floor(s / 60) + ':' + pad(s % 60) + ' /km');
+  const hmsFiche = s => (s == null ? '' : F.duree(s));
+  const allureTxt = s => (s == null ? '' : F.allure(s));
   // « place / effectif » (la place seule si l'effectif est inconnu) ; rien sans place.
   // Rang ordinal comme dans le Palmarès : « 1er » (« 1re » pour une coureuse), « 2e », « 14e », suivi de l'effectif s'il est connu.
   // Catégorie d'âge FFA, en clair, suivie du sexe : « Master 2 Homme ».
@@ -427,7 +416,7 @@
   window.renderPageCourseCourue = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
     const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
-      '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">×</button></div>';
+      '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>';
     const c = courses.find(x => x.id === id && x.etat === 'courue');
     if (!c) {
       el.innerHTML = barre + '<p class="ob-vide">Course introuvable.</p>';
@@ -454,21 +443,22 @@
       ['Allure', !c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '']].filter(r => r[1]);
     // Montre : ses valeurs seules, en liste comme Résultat ; section absente sans aucune valeur.
     const km = v => (v != null ? nombre(v) + ' km' : '');
-    const deniv = (p, m) => (p == null && m == null ? '' : (p != null ? nombre(p) : '—') + ' · ' + (m != null ? nombre(m) : '—') + ' m');
-    const montre = [['Temps', hmsFiche(c.montre_temps)], ['Distance', km(c.montre_distance)], ['D+ · D−', deniv(c.montre_dplus, c.montre_dmoins)],
-      ['Allure', allureTxt(c.montre_allure)], ['FC moy.', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(r => r[1]).map(r => [r[0], '<span class="ob-val">' + esc(r[1]) + '</span>']);
+    // Dénivelé écrit comme dans la fiche : « 200 m D+ · 200 m D− ».
+    const deniv = (p, m) => [p != null ? nombre(p) + ' m D+' : '', m != null ? nombre(m) + ' m D−' : ''].filter(Boolean).join(' · ');
+    const montre = [['Temps', hmsFiche(c.montre_temps)], ['Distance', km(c.montre_distance)], ['Dénivelé', deniv(c.montre_dplus, c.montre_dmoins)],
+      ['Allure', allureTxt(c.montre_allure)], ['FC moyenne', c.fc_moyenne != null ? c.fc_moyenne + ' bpm' : '']].filter(r => r[1]).map(r => [r[0], '<span class="ob-val">' + esc(r[1]) + '</span>']);
     const liste = l => l.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join('');
     const section = (titreSection, droite, html, classe) => '<section class="pc-section' + (classe ? ' ' + classe : '') + '"><h3 class="pc-intertitre"><span>' + titreSection + '</span>' + droite + '</h3>' + html + '</section>';
     // Sous le titre : la date, l'heure (si connue et date exacte) et le lieu ; le format et le dossard ; la distance et le D+.
-    const infos = [[dateLongue(c, true), heureTxt(c) !== '—' ? heureTxt(c) : '', c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
+    const infos = [[dateLongue(c, true), heureTxt(c), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
       // Résultat, puis la Montre dessous, dans une section repliée (un toucher sur son titre l'ouvre).
-      '<div class="pc-colonnes">' +
+      '<div class="pc-colonnes pc-resultats">' +
       (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res mrt-lien" href="' + esc(resultats) + '" target="_blank" rel="noopener">Classement complet' + FLECHE + '</a>' : '',
         liste(resultat)) : '') +
-      (montre.length ? '<details class="pc-section is-montre mrt-deroule"><summary class="pc-intertitre"><span>Montre</span>' + CHEVRON + '</summary><div class="pc-repli-corps">' + liste(montre) + '</div></details>' : '') +
+      (montre.length ? '<details class="pc-section is-montre mrt-deroule"><summary class="pc-intertitre">' + CHEVRON + '<span>Montre</span></summary><div class="pc-repli-corps">' + liste(montre) + '</div></details>' : '') +
       '</div>' +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
@@ -497,11 +487,11 @@
       // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);
-        if (!c || !window.confirm('Retenir cette course ? Les autres candidats de « ' + c.groupe_options + ' » passeront à surveiller.')) return;
+        if (!c || !(await window.mrtConfirmer({ texte: 'Retenir cette course ? Les autres candidats de « ' + c.groupe_options + ' » passeront à surveiller.', action: 'Retenir' }))) return;
         const db = window.mrtSupabase.from('courses');
         const autres = await db.update({ statut: 'a_surveiller', groupe_options: null }).eq('groupe_options', c.groupe_options).eq('statut', 'option').neq('id', c.id);
         const lui = autres.error ? autres : await window.mrtSupabase.from('courses').update({ statut: 'confirmee', groupe_options: null }).eq('id', c.id);
-        if (lui.error) { console.warn(lui.error); window.alert('Enregistrement impossible pour l\'instant.'); return; }
+        if (lui.error) { console.warn(lui.error); window.mrtConfirmer({ texte: 'Enregistrement impossible pour l\'instant.', action: 'Fermer', seul: true }); return; }
         apres();
       }
     };

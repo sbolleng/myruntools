@@ -77,7 +77,7 @@ Téléphone : trois mois par bloc (6 mois : deux blocs, octobre-décembre puis j
 | 8 | Bloc suivant | janv. à mars | Sous le premier (12 mois ; téléphone) |
 | 11 | Aujourd'hui : case cerclée, numéro dans un rond Accent | « 20 » | Grille |
 
-Retirés en 0.17 : les pastilles des vues (1) et la case « Phases de prépa » (23), remplacées par le menu (25) et le bouton (26) ; en 0.18, la durée sous le titre (13), passée dans le menu. Plan enfoncé, le fond des jours prend la phase de leur semaine (30), samedi et dimanche un cran plus marqués. Pas de numéro de semaine (« s45 ») : il se confondrait avec la semaine du plan (« semaine 9 sur 16 »).
+Retirés en 0.18 : les pastilles des vues (1), la case « Phases de prépa » (23) et la durée sous le titre (13), remplacées par le menu (25) et le bouton (26). Plan enfoncé, le fond des jours prend la phase de leur semaine (30), samedi et dimanche un cran plus marqués. Pas de numéro de semaine (« s45 ») : il se confondrait avec la semaine du plan (« semaine 9 sur 16 »).
 
 ### 3.2 Règles
 

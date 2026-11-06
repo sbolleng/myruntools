@@ -54,6 +54,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
-- Dernier lot : Calendrier 0.17 et 0.18 (menu « Périodicité » avec 3 mois, 6 mois, Année ; bouton « Plan » ; Année en colonnes, jours de chaque mois, fins de semaine marquées, fond de phase ; Mois d'un seul fond et « + » en Accent) ; avant : Nutrition 0.5 (page complète : besoin, sport du jour, jauges, ajout rapide, journal ; à cocher dans les Préférences, évolution 020 pour les menus rangés ; ensuite recherche dans une base d'aliments, sélecteur de jour) ; avant : Calendrier 0.16 (trois vues). Historique : `docs/journal.md`.
+- Dernier lot : Calendrier 0.18 (menu « Périodicité » avec 3 mois, 6 mois, Année ; bouton « Plan » ; Année en colonnes, jours de chaque mois, fins de semaine marquées, fond de phase ; Mois d'un seul fond et « + » en Accent) ; avant : repasse d'uniformité (design 0.39 : échelle de sept tailles en variables, éléments communs `mrtFormat`, `mrtIcone`, `mrtConfirmer`, `mrt-choix`, `mrt-tri`, `mrt-chev`, petit rond ; banc : groupe « uniformite ») ; avant : Nutrition 0.5. Historique : `docs/journal.md`.
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
