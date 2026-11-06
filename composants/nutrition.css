@@ -6,3 +6,41 @@
 .nu-macros { margin: 0 0 0.8rem; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; }
 .nu-macros b { font-weight: 500; color: var(--muted); }
 .nu-mention { margin: 0 0 0.6rem; font-size: 0.75rem; color: var(--muted); }
+
+/* Sport, jauges, ajout rapide, journal */
+.nu-modifier-sport { margin-left: 0.4rem; }
+.nu-jauge { margin-bottom: 0.8rem; }
+.nu-jauge-t { display: flex; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.3rem; }
+.nu-jauge-v { color: var(--muted); }
+.nu-barre { position: relative; height: 0.55rem; overflow: hidden; background: var(--champ); border: 1px solid var(--border); border-radius: 999px; }
+.nu-zone { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.nu-rempli { position: absolute; top: 0; bottom: 0; left: 0; background: var(--muted); border-radius: 999px; }
+.nu-jauge[data-etat="cible"] .nu-rempli { background: var(--accent); }
+.nu-jauge[data-etat="alerte"] .nu-rempli { background: var(--red); }
+.nu-jauge[data-etat="alerte"] .nu-jauge-v { color: var(--red); }
+.nu-sources, .nu-repas-choix { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.8rem; }
+.nu-liste { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+.nu-aliment { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; min-height: 2.75rem; padding: 0.5rem 0.75rem; font: inherit; color: var(--text); text-align: left; background: none; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+.nu-aliment[aria-pressed="true"] { border-color: var(--accent); }
+.nu-aliment-k { flex: none; color: var(--muted); }
+.nu-vide { margin: 0 0 0.8rem; color: var(--muted); }
+.nu-champ { display: block; margin-bottom: 0.7rem; }
+.nu-champ .mrt-champ { display: block; width: 100%; }
+.nu-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 0 0.7rem; }
+.nu-favori-case { margin-bottom: 0.8rem; }
+.nu-choix { margin-top: 0.4rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+.nu-choix-nom { margin: 0 0 0.6rem; font-weight: 500; }
+.nu-quantite { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem; }
+.nu-quantite .mrt-rond { width: 2.75rem; height: 2.75rem; font-size: 1.2rem; }
+.nu-quantite-v { min-width: 2.2rem; text-align: center; font-size: 1.1rem; }
+.nu-ajouter { width: 100%; min-height: 2.75rem; }
+.nu-msg { margin: 0.6rem 0 0; font-size: 0.75rem; color: var(--red); }
+.nu-msg:empty { display: none; }
+.nu-repas { margin-bottom: 0.9rem; }
+.nu-repas-t { display: flex; justify-content: space-between; margin: 0 0 0.3rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.nu-lignes { margin: 0; padding: 0; list-style: none; }
+.nu-lignes li { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-top: 1px solid var(--border); }
+.nu-ligne-nom { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.nu-ligne-k { flex: none; color: var(--muted); }
+.nu-sport-l { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+.nu-sport-l .pf-unite .mrt-champ { width: 4rem; flex: none; }
