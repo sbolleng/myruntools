@@ -10,7 +10,7 @@
 //   ctx.courses, ctx.seances, ctx.semaines, ctx.lectureSeule, ctx.relire() : voir preparation.js.
 (function () {
   const P = window.mrtPreparation;
-  const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, tousLesPlans, plansDeLaSemaine, planDe, modifsDe, lienCourse } = P;
+  const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, tousLesPlans, plansDeLaSemaine, lienCourse } = P;
   const { MOIS_LONG } = window.mrtFormat;
   // Choix du menu « Périodicité » : [vue, nom, durée de l'Année en mois].
   const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
@@ -91,13 +91,6 @@
       const mois = Array.from({ length: nb }, (_, i) => new Date(an(depart), rang(depart) + i, 1));
       const debut = iso(mois[0]), fin = iso(new Date(an(depart), rang(depart) + nb, 0));
       const ensuite = visibles(ctx.courses, debut, '9999-12-31', auj), liste = ensuite.filter(c => c.date <= fin);
-      // Plan : les prépas qui passent dans la période (aussi celles d'une course d'après) ; un couloir par prépa qui en chevauche une autre.
-      const prepas = !phases ? [] : ensuite.filter(c => !c.courue && c.debutPrepa && c.debutPrepa <= fin).map(c => {
-        const course = ctx.courses.find(k => k.id === c.id), plan = course && planDe(course, modifsDe(ctx.semaines, c.id));
-        return plan && Object.assign({ plan, depart: plan.premier < debut ? debut : plan.premier }, c);
-      }).filter(Boolean).sort((a, b) => (a.depart < b.depart ? -1 : a.depart > b.depart ? 1 : a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-      const finCouloir = [];
-      prepas.forEach(x => { let k = finCouloir.findIndex(f => f < x.depart); if (k < 0) { k = finCouloir.length; finCouloir.push(''); } finCouloir[k] = x.date; x.couloir = k; });
       const plans = phases ? tousLesPlans(ctx) : null; // fond de chaque jour : la phase de sa semaine dans le plan suivi (§ 2)
       const taille = mobile.matches ? 3 : Math.min(6, nb);
       let h = '';
@@ -113,18 +106,12 @@
             h += '<span class="cal-a-n' + (j === auj ? ' auj' : '') + '"><i>' + INITIALE[sj] + '</i><b>' + d + '</b></span>';
             if (sj === 0 || sj === 6) cls.push('we');
             if (sj === 0) cls.push('dim');
-            const ph = phaseDuJour(plans, j);
-            if (ph) cls.push('ph-' + ph);
             if (j === auj) { cls.push('auj'); tip.push('aujourd\'hui'); }
             if (c) { cls.push(couleur(c)); tip.push(c.nom + ' · ' + (c.courue ? 'courue' : c.validee ? 'confirmée' : 'en option')); }
-            // Barres du jour : la prépa de chaque course, jusqu'à la veille de la course, à la couleur de la phase de sa semaine.
-            const en = prepas.filter(x => j >= x.depart && j < x.date).map(x => ({ x, w: x.plan.semaines.find(s => s.lundi === lundiDe(j)) })).filter(o => o.w);
-            en.forEach(o => tip.push(o.x.nom + ' : ' + NOM_PHASE[o.w.phase] + ', semaine ' + o.w.n + ' sur ' + o.x.plan.n));
-            const dec = en.length ? Math.max(...en.map(o => o.x.couloir)) + 1 : 0;
+            const ph = phaseDuJour(plans, j);
+            if (ph) { cls.push('ph-' + ph); tip.push(NOM_PHASE[ph]); }
             h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '"' + (c ? ' data-course="' + esc(c.id) + '"' : '') + ' title="' + esc(tip.join(' · ')) + '">' +
-              (c ? '<span class="cal-a-nom" style="--dec:' + dec + '">' + esc(c.nom) + '</span>' : '') +
-              (en.length ? '<span class="cal-a-barres">' + en.map(o => '<i class="cal-a-barre ph-' + o.w.phase + (o.x.validee ? '' : ' is-option') + (j === o.x.plan.premier ? ' debut' : '') + // départ arrondi : le vrai premier jour de la prépa
-                '" style="--k:' + o.x.couloir + '"></i>').join('') + '</span>' : '') + '</span>';
+              (c ? '<span class="cal-a-nom">' + esc(c.nom) + '</span>' : '') + '</span>';
           });
         }
         h += '</div>';
