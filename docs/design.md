@@ -1,6 +1,6 @@
 # Design
 
-Version 0.38 · 2 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.39 · 5 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -179,22 +179,23 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 **Commun aux trois vues** (spécification § 2)
 
 - **Cadre** : toute la page dans un cadre (Surface), comme les autres pages ; page sans en-tête (barre fine « Cap sur … »).
-- **Barre du haut**, sur deux niveaux : les pastilles (§ 1) « Année », « Mois », « Semaine » à gauche (sur téléphone, à parts égales sur toute la largeur) ; la case « Phases de prépa » (case native en Accent, 1 rem, libellé 0,8 rem en Texte) et « Aujourd'hui » (à contour) à droite, sur la même ligne ou dessous.
-- **Période** (Année, Mois) : entre deux filets (Bordure), le titre au centre (1,05 rem, 600, Texte ; 0,95 rem sur téléphone), de chaque côté un rond (‹, ›) et la période voisine (0,8 rem, Texte discret, Accent au survol ; masquée sur téléphone). Durée de l'Année sous le titre : « 3 mois · 6 mois · 12 mois » en 0,78 rem, Texte discret, la choisie en Texte soulignée d'Accent (les réglages discrets de Courses à surveiller).
-- **Légende** : 0,8 rem, Texte, pastilles de 1,1 × 0,75 rem ; groupes précédés d'un libellé (Space Mono 0,7 rem, capitales, Texte discret) : « ROUTE », « TRAIL » (confirmée, option), « PHASES » (case cochée). Sous la période ; Mois et Semaine : seulement la légende des phases, case cochée.
-- **Jours** : un même fond pour tous les jours (Bordure à 70 % sur Surface), passé compris : seul le numéro d'un jour passé passe en Texte discret ; jours des mois voisins (Mois) sur un fond plus pâle (Bordure à 35 %), leur contenu à 50 %. Aujourd'hui : son numéro dans un rond Accent, texte Fond (Mois, Semaine).
-- **Course** : pastille pleine de la couleur de sa famille, nom en Encre, 600 (confirmée) ; couleur à 35 % sur Bordure, cadre de 1 px de la couleur pleine, nom en Texte (option) ; Texte discret, nom en Fond (courue). **Rendez-vous clé** : « ◆ » et texte en Texte discret. **Séance** : case à cocher en Accent, type en Space Mono capitales, Texte discret, libellé en Texte (barré, Texte discret, quand elle est faite). **« + »** : rond de bordure fine, Texte discret.
-- **Phases** (case cochée), Mois et Semaine : fond de la couleur de la phase à 38 % sur Surface (22 % pour un jour passé), filet de la couleur pleine : 3 px en haut de la case (Mois), 4 px à gauche de la ligne (Semaine).
+- **Barre du haut**, sur une ligne : à gauche, le menu « Périodicité » : un bouton à contour (§ 1) qui porte la vue ouverte et un chevron (0,75 rem, retourné quand la liste est ouverte) ; la liste comme l'infobulle des graphiques (Surface 2, Bordure, coins de 8 px, ombre légère, 12 rem de large au moins), le libellé « PÉRIODICITÉ » (Space Mono 0,7 rem, capitales, Texte discret) en tête, les choix en 0,85 rem, Texte (fond des jours au survol), le choix en cours en Accent, 600, avec un trait de 3 px à gauche. À droite, « Plan » (bouton à contour ; enfoncé : contour et texte Accent, fond Accent à 16 %, qui le distingue du survol) et « Aujourd'hui » (à contour), 0,6 rem entre deux. Téléphone : la même ligne, boutons resserrés (0,45 × 0,75 rem).
+- **Période** (Année, Mois) : entre deux filets (Bordure), le titre au centre (1,05 rem, 600, Texte ; 0,95 rem sur téléphone), de chaque côté un rond (‹, ›) et la période voisine (0,8 rem, Texte discret, Accent au survol ; masquée sur téléphone). 
+- **Légende** : 0,8 rem, Texte, pastilles de 1,1 × 0,75 rem ; groupes précédés d'un libellé (Space Mono 0,7 rem, capitales, Texte discret) : « ROUTE », « TRAIL » (confirmée, option), « PHASES » (Plan enfoncé). Sous la période ; Mois et Semaine : seulement la légende des phases, Plan enfoncé.
+- **Jours** : un même fond pour tous les jours (Bordure à 70 % sur Surface), passé et mois voisins compris : seul le numéro d'un jour passé passe en Texte discret, et le contenu d'un jour voisin (Mois) à 50 %. Aujourd'hui : son numéro dans un rond Accent, texte Fond (les trois vues).
+- **Course** : pastille pleine de la couleur de sa famille, nom en Encre, 600 (confirmée) ; couleur à 35 % sur Bordure, cadre de 1 px de la couleur pleine, nom en Texte (option) ; Texte discret, nom en Fond (courue). **Rendez-vous clé** : « ◆ » et texte en Texte discret. **Séance** : case à cocher en Accent, type en Space Mono capitales, Texte discret, libellé en Texte (barré, Texte discret, quand elle est faite). **« + »** : rond de 1,5 rem, contour de 1 px et « + » (1 rem, 600) en Accent ; plein au survol (fond Accent, « + » en Fond).
+- **Phases** (Plan enfoncé), Mois et Semaine : fond de la couleur de la phase à 38 % sur Surface, le même pour tous les jours de la semaine (passés et voisins compris), filet de la couleur pleine : 3 px en haut de la case (Mois), 4 px à gauche de la ligne (Semaine).
 
 **Vue Année** (spécification § 3)
 
-- **Grille** : colonne des numéros de 1,7 rem (Space Mono 0,62 rem, Texte discret) ; lignes de 1,25 rem (téléphone : 1,1 rem), 2 px entre deux jours, 4 px entre deux mois ; mois en Space Mono 0,7 rem, capitales, Texte discret ; jours en Bordure, jour passé sans fond (à revoir, retouches annoncées) ; aujourd'hui cerclé de 2 px de Texte.
+- **Grille** : à gauche des cases de chaque mois, sa colonne de jours de 2,6 rem (téléphone : 1,5 rem) : initiale (0,55 rem) et numéro (0,62 rem) en Space Mono, Texte discret, alignés à droite (téléphone : le numéro seul) ; lignes de 1,5 rem (téléphone : 1,25 rem), cases jointives ; onglet du mois au-dessus de ses cases : Space Mono 0,7 rem, capitales, Texte, sur Bordure, coins hauts de 6 px ; le mois en cours en Accent, texte Fond ; jours en Bordure à 70 %, passés compris ; samedi et dimanche en Bordure (plus foncés sur fond blanc, plus clairs sur fond sombre : un cran plus marqués) ; filet de 1 px en Texte discret (70 %) sous chaque dimanche ; aujourd'hui : case cerclée de 2 px de Texte, numéro dans un rond Accent, texte Fond.
 - **Course** : la case remplie comme une pastille (ci-dessus), le nom en 0,75 rem (téléphone 0,62).
-- **Barre de prépa** (case cochée) : 16 px de large (téléphone : 10 px), couloirs de 19 px (13 px) ; chaque semaine de la couleur de sa phase ; départ arrondi (6 px) ; prépa d'une option à 45 %.
+- **Fond de phase** (Plan enfoncé) : la couleur de la phase à 38 % sur Surface, 52 % pour samedi et dimanche ; une case de course garde sa couleur.
+- **Barre de prépa** (Plan enfoncé) : 16 px de large (téléphone : 10 px), couloirs de 19 px (13 px) ; chaque semaine de la couleur de sa phase ; départ arrondi (6 px) ; prépa d'une option à 45 %.
 
 **Vue Mois** (spécification § 4.1)
 
-- Jours de la semaine en Space Mono 0,7 rem, capitales, Texte discret, une seule fois ; cases de 5,8 rem de haut au moins, 3 px entre deux, coins de 4 px ; numéro en 0,75 rem, 600 ; courses, rendez-vous et séances en 0,68 rem, une ligne chacun, coupés s'ils ne tiennent pas ; « + » de 1,3 rem dans le coin bas droit.
+- Jours de la semaine en Space Mono 0,7 rem, capitales, Texte discret, une seule fois ; cases de 6 rem de haut au moins, jointives, séparées d'un filet de 1 px (le fond du cadre), la grille aux coins de 6 px ; numéro en 0,75 rem, 600 ; courses, rendez-vous et séances en 0,68 rem, une ligne chacun, coupés s'ils ne tiennent pas ; « + » de 1,5 rem dans le coin bas droit.
 - Téléphone : cases de 3,4 rem ; le numéro (0,7 rem) et des repères : barre de 4 px de la couleur de la course, point de 5 px par séance (Texte ; faite : Texte discret), « ◆ » du rendez-vous.
 
 **Vue Semaine** (spécification § 4.3)
