@@ -2,7 +2,7 @@
    docs/module-calendrier-specification.md, § 2 à 4 ; couleurs : docs/design.md, § 10.
    Couleurs des phases, fenêtres d'une séance et rubrique Préparation d'une course : preparation.css. */
 
-.cal-cadre { --barre: 16px; --pas: 19px; --ligne: 1.5rem; /* --case : fond des jours, commun (en-tete.css) */
+.cal-cadre { --ligne: 1.5rem; /* --case : fond des jours, commun (en-tete.css) */
   padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .cal-libelle { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
@@ -61,7 +61,7 @@
 .mrt-rond.cal-v-plus { position: absolute; color: var(--accent); border-color: var(--accent); }
 
 /* ----- Année : la grille (spécification § 3) ; chaque mois, sa colonne de jours (initiale et numéro) à gauche de ses cases ;
-   cases jointives, samedi et dimanche plus foncés, filet sous chaque dimanche ; Plan : barres de prépa aux couleurs des phases ----- */
+   cases jointives, samedi et dimanche plus foncés, filet sous chaque dimanche ; Plan : fond et liseré aux couleurs des phases ----- */
 .cal-a-blocs { display: flex; flex-direction: column; gap: 1.6rem; }
 .cal-a-bloc { display: grid; grid-template-columns: repeat(var(--n), 2.6rem minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: var(--ligne); }
 /* Onglet du mois, au-dessus de ses cases : Bordure, le mois en cours en Accent. */
@@ -88,7 +88,7 @@
 .cal-a-j.vide { visibility: hidden; }
 .cal-a-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 /* Nom de la course dans sa case, décalé des seules barres de ce jour-là. */
-.cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: calc(0.45rem + var(--dec, 0) * var(--pas)); font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: 0.45rem; font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
 .cal-a-j.c-route-v { background: var(--route); }
 .cal-a-j.c-trail-v { background: var(--trail); }
 .cal-a-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
@@ -96,16 +96,12 @@
 .cal-a-j.c-route-v .cal-a-nom, .cal-a-j.c-trail-v .cal-a-nom { font-weight: 600; color: var(--encre); }
 .cal-a-j.courue { background: var(--muted); }
 .cal-a-j.courue .cal-a-nom { color: var(--bg); }
-/* Barre de prépa : 16 px (10 px sur téléphone), un couloir par prépa qui en chevauche une autre, jusqu'à la veille de la course ;
-   chaque semaine à la couleur de sa phase ; départ arrondi ; prépa d'une option atténuée. */
-.cal-a-barres { position: absolute; top: 0; bottom: 0; left: 3px; pointer-events: none; }
-.cal-a-barre { position: absolute; top: 0; bottom: 0; left: calc(var(--k) * var(--pas)); width: var(--barre); }
-.cal-a-barre.debut { top: 2px; border-radius: 6px 6px 0 0; }
-.cal-a-barre.ph-base { background: var(--ph-base); }
-.cal-a-barre.ph-developpement { background: var(--ph-developpement); }
-.cal-a-barre.ph-affutage { background: var(--ph-affutage); }
-.cal-a-barre.ph-deload { background: var(--ph-deload); }
-.cal-a-barre.is-option { opacity: 0.45; }
+/* Plan : liseré de 3 px à gauche de la case, de la couleur pleine de la phase (comme le Mois et la Semaine) ; il reste sur une case de course. */
+.cal-a-j[class*="ph-"]::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 3px; pointer-events: none; }
+.cal-a-j.ph-base::before { background: var(--ph-base); }
+.cal-a-j.ph-developpement::before { background: var(--ph-developpement); }
+.cal-a-j.ph-affutage::before { background: var(--ph-affutage); }
+.cal-a-j.ph-deload::before { background: var(--ph-deload); }
 
 /* ----- Mois : la grille du mois (spécification § 4.1 et 4.2) : cases jointives, un filet de 1 px, un seul fond ----- */
 .cal-m-jours, .cal-m-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; }
@@ -167,7 +163,7 @@
 }
 
 @media (max-width: 600px) {
-  .cal-cadre { --barre: 10px; --pas: 13px; --ligne: 1.25rem; padding: 0.8rem 0.6rem; } /* grille serrée : marges plus étroites que le cadre commun */
+  .cal-cadre { --ligne: 1.25rem; padding: 0.8rem 0.6rem; } /* grille serrée : marges plus étroites que le cadre commun */
   /* Barre du haut sur une ligne : le menu, puis « Plan » et « Aujourd'hui », boutons un peu resserrés. */
   .cal-haut { flex-wrap: nowrap; gap: 0.5rem; }
   .cal-options { gap: 0.4rem; }

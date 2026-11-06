@@ -1,6 +1,6 @@
 # Design
 
-Version 0.40 · 6 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.41 · 6 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -200,7 +200,7 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Grille** : à gauche des cases de chaque mois, sa colonne de jours de 2,6 rem (téléphone : 1,5 rem) : initiale (atténuée) et numéro en Space Mono 0,65 rem, Texte discret, alignés à droite (téléphone : le numéro seul) ; lignes de 1,5 rem (téléphone : 1,25 rem), cases jointives ; onglet du mois au-dessus de ses cases : Space Mono 0,7 rem, capitales, Texte, sur Bordure, coins hauts de 6 px ; le mois en cours en Accent, texte Fond ; jours en Bordure à 70 %, passés compris ; samedi et dimanche en Bordure (plus foncés sur fond blanc, plus clairs sur fond sombre : un cran plus marqués) ; filet de 1 px en Texte discret (70 %) sous chaque dimanche ; aujourd'hui : case cerclée de 2 px de Texte, numéro dans un rond Accent, texte Fond.
 - **Course** : la case remplie comme une pastille (ci-dessus), le nom en 0,75 rem (téléphone 0,62).
 - **Fond de phase** (Plan enfoncé) : la couleur de la phase à 38 % sur Surface, 52 % pour samedi et dimanche ; une case de course garde sa couleur.
-- **Barre de prépa** (Plan enfoncé) : 16 px de large (téléphone : 10 px), couloirs de 19 px (13 px) ; chaque semaine de la couleur de sa phase ; départ arrondi (6 px) ; prépa d'une option à 45 %.
+- **Liseré de phase** (Plan enfoncé) : 3 px à gauche de la case, couleur pleine de la phase (sur une case de course aussi) ; plus de barres de prépa.
 
 **Vue Mois** (spécification § 4.1)
 
