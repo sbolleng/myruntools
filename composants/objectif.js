@@ -275,6 +275,48 @@
   const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ').replace(/ (m D|km)/g, '\u00a0$1');
 
   let parcoursOuvert = null;
+  // Parcours (n° 25), à venir comme courue : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ;
+  // sans GPX, « Importer un GPX » (28), sauf en lecture seule.
+  function parcoursHtml(c, edition) {
+    const T = window.mrtTrace;
+    const trace = !T ? '' : c.gpx
+      ? '<div class="tr-zone"></div>'
+      : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
+        '<div class="tr-choix-zone" hidden></div><p class="tr-erreur" aria-live="polite"></p>' : '';
+    return cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie"><p class="pc-sous-titre">Stratégie de course</p>' + texte(c.strategie) + '</div>' : ''), 'parcours');
+  }
+  // Tracé : dessiné à la première ouverture de Parcours (la carte a besoin de sa taille) ; import depuis la consultation.
+  function brancherParcours(el, c, ctx) {
+    const T = window.mrtTrace, parcours = el.querySelector('#parcours');
+    if (!T || !parcours) return;
+    if (c.gpx) parcours.addEventListener('toggle', () => { if (parcours.open) T.dessiner(parcours.querySelector('.tr-zone'), c); });
+    const fichier = el.querySelector('.tr-fichier');
+    if (fichier) fichier.addEventListener('change', async () => {
+      const f = fichier.files[0], msg = el.querySelector('.tr-erreur'), b = el.querySelector('[data-ob="importer"]');
+      if (!f) return;
+      fichier.value = '';
+      const v = await T.verifier(f);
+      msg.textContent = v.erreur || '';
+      if (v.erreur) return;
+      // Plusieurs tracés dans le fichier : on garde celui de la course.
+      const zone = el.querySelector('.tr-choix-zone');
+      const choisi = v.pistes.length > 1 ? await T.choisir(zone, v.pistes, Number(c.distance)) : v.pistes[0];
+      zone.hidden = true;
+      if (!choisi) return;
+      b.disabled = true;
+      msg.textContent = 'Envoi du GPX…';
+      const err = await T.ranger(c, choisi.texte);
+      b.disabled = false;
+      msg.textContent = err || '';
+      if (err) return;
+      parcoursOuvert = c.id; // la page redessinée rouvre Parcours, avec la carte
+      if (ctx.actualiser) await ctx.actualiser();
+    });
+    if (parcoursOuvert === c.id && c.gpx) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
+    // Parcours renseigné (tracé GPX ou stratégie) : ouvert d'emblée, à l'ouverture de la course (les autres textes restent repliés).
+    else if ((c.gpx || c.strategie) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
+    el.dataset.pcOuvert = c.id;
+  }
 
   // Tous les textes repliés à l'ouverture, sur ordinateur comme sur téléphone, sauf Parcours quand il est renseigné.
   const telephone = window.matchMedia('(max-width: 600px)');
@@ -323,15 +365,8 @@
     const sousTitre = t => '<p class="pc-sous-titre">' + t + '</p>';
     const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Rôle dans la préparation') + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
-    // Parcours (n° 25) : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ; sans GPX, « Importer un GPX » (28),
-    // sauf en lecture seule.
-    const T = window.mrtTrace;
-    const trace = !T ? '' : c.gpx
-      ? '<div class="tr-zone"></div>'
-      : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
-        '<div class="tr-choix-zone" hidden></div><p class="tr-erreur" aria-live="polite"></p>' : '';
     // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
-    const bas = cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie">' + sousTitre('Stratégie de course') + texte(c.strategie) + '</div>' : ''), 'parcours') + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
+    const bas = parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
@@ -364,35 +399,7 @@
     replierCellules(el);
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
     el.dataset.pcId = id;
-    // Tracé : dessiné à la première ouverture de Parcours (la carte a besoin de sa taille).
-    const parcours = el.querySelector('#parcours');
-    if (parcours && c.gpx && T) parcours.addEventListener('toggle', () => { if (parcours.open) T.dessiner(parcours.querySelector('.tr-zone'), c); });
-    const fichier = el.querySelector('.tr-fichier');
-    if (fichier) fichier.addEventListener('change', async () => {
-      const f = fichier.files[0], msg = el.querySelector('.tr-erreur'), b = el.querySelector('[data-ob="importer"]');
-      if (!f) return;
-      fichier.value = '';
-      const v = await T.verifier(f);
-      msg.textContent = v.erreur || '';
-      if (v.erreur) return;
-      // Plusieurs tracés dans le fichier : on garde celui de la course.
-      const zone = el.querySelector('.tr-choix-zone');
-      const choisi = v.pistes.length > 1 ? await T.choisir(zone, v.pistes, Number(c.distance)) : v.pistes[0];
-      zone.hidden = true;
-      if (!choisi) return;
-      b.disabled = true;
-      msg.textContent = 'Envoi du GPX…';
-      const err = await T.ranger(c, choisi.texte);
-      b.disabled = false;
-      msg.textContent = err || '';
-      if (err) return;
-      parcoursOuvert = c.id; // la page redessinée rouvre Parcours, avec la carte
-      if (ctx.actualiser) await ctx.actualiser();
-    });
-    if (parcoursOuvert === c.id && parcours) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
-    // Parcours renseigné (tracé GPX ou stratégie) : ouvert d'emblée, à l'ouverture de la course (les autres textes restent repliés).
-    else if (parcours && (c.gpx || c.strategie) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
-    el.dataset.pcOuvert = c.id;
+    brancherParcours(el, c, ctx);
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
     if (ctx.ancre === '#preparation' && !ctx.ancreFaite) {
@@ -418,6 +425,7 @@
   // ctx.ordre() : identifiants des courses du Palmarès, dans l'ordre du tableau (précédente et suivante).
   window.renderPageCourseCourue = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
+    const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>';
     const c = courses.find(x => x.id === id && x.etat === 'courue');
@@ -439,6 +447,8 @@
     const cat = categorie(c.categorie, ctx.feminin);
     const resultat = [
       ['Temps', temps ? '<b class="pc-grand ob-cible">' + esc(temps) + '</b>' : ''],
+      // Objectif visé, juste sous le temps réalisé : on compare d'un coup d'œil.
+      ['Objectif', c.objectif ? '<span class="ob-val">' + esc(c.objectif) + '</span>' : ''],
       ['Place', c.place != null ? '<b class="pc-grand ob-cible-1">' + rang(c.place, c.effectif) + '</b>' : ''],
       ['Catégorie', c.place_categorie != null ? '<span class="ob-val">' + rang(c.place_categorie, c.effectif_categorie) + '</span>' + (cat ? ' <span class="pc-cat">' + esc(cat) + '</span>' : '') : ''],
       ['Sexe', c.place_sexe != null ? '<span class="ob-val">' + rang(c.place_sexe, c.effectif_sexe) + '</span>' : ''],
@@ -454,6 +464,11 @@
     const section = (titreSection, droite, html, classe) => '<section class="pc-section' + (classe ? ' ' + classe : '') + '"><h3 class="pc-intertitre"><span>' + titreSection + '</span>' + droite + '</h3>' + html + '</section>';
     // Sous le titre : la date, l'heure (si connue et date exacte) et le lieu ; le format et le dossard ; la distance et le D+.
     const infos = [[dateLongue(c, true), heureTxt(c), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
+    // Sous le Résultat et la Montre, tout ce qui a été saisi, replié, dans un seul cadre comme pour une course à venir :
+    // À propos, Parcours (carte, stratégie), Préparation (son rôle ; pas de plan : il n'est pas rangé), Logistique.
+    const bas = cellule('À propos de la course', texte(c.description)) + parcoursHtml(c, edition) +
+      cellule('Préparation', c.pourquoi ? '<div class="pc-role"><p class="pc-sous-titre">Rôle dans la préparation</p>' + texte(c.pourquoi) + '</div>' : '', 'preparation') +
+      cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
@@ -463,11 +478,16 @@
         liste(resultat)) : '') +
       (montre.length ? '<details class="pc-section is-montre mrt-deroule"><summary class="pc-intertitre">' + CHEVRON + '<span>Montre</span></summary><div class="pc-repli-corps">' + liste(montre) + '</div></details>' : '') +
       '</div>' +
+      (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
-    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id) }));
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), importer: () => el.querySelector('.tr-fichier').click() }));
+    replierCellules(el);
+    el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
+    el.dataset.pcId = id;
+    brancherParcours(el, c, ctx);
     couperNoms();
     return c;
   };
