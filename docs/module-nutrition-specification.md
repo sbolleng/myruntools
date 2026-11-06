@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 0.4 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 0.5 · 5 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -39,7 +39,7 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 | Veille de course | J-1 | 55 à 65 % | 15 à 25 % |
 
 - **La phase se déduit seule** de la date de la course cap (ou de la course confirmée la plus proche) ; elle peut être changée à la main pour la journée.
-- **Le sport du jour est saisi à la main** (type de sport et durée) ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, todo du [sommaire](README.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
+- **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, todo du [sommaire](README.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
 - **Chevauchement** : la veille de course (J-1) l'emporte sur le carbo-loading (J-3 à J-1) ; la phase affichée est « Veille de course ».
 - **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche. Le coefficient du métabolisme de base n'existe que pour « femme » et « homme » : un sexe « non précisé » compte comme manquant, et l'encart demande de choisir l'un des deux pour le calcul.
 - Les valeurs sont des **repères**, pas un avis médical (mention affichée sous le résultat).
@@ -153,6 +153,16 @@ Profil complet : sous le besoin du jour
 - **Site partagé en lecture seule** : la page n'affiche aucune donnée de nutrition.
 - **Page** : `nutrition.html`, pour l'instant sans entrée dans le menu (elle y entrera avec la page complète, lot 5) ; elle montre le besoin du jour (jour sans sport saisi) et le profil.
 
+### 4.6 Sport, jauges, ajout rapide et journal : règles (construits le 5 nov. 2026)
+
+- **Sport du jour** (élément 7) : « modifier » ouvre une fenêtre (sport et durée en heures, plusieurs lignes possibles, « + Ajouter un sport », × pour retirer ; durée de 0,25 à 24 h). Il est **retenu sur l'appareil**, un jour à la fois, sans rien écrire dans la base ; il change le besoin et les jauges aussitôt.
+- **Jauges** (9 à 12) : calories, protéines, glucides, lipides, « mangé / besoin ». Sous le minimum : barre neutre ; dans la cible : barre en Accent ; au-delà du maximum : barre et chiffre en rouge. La cible des macros est la fourchette du besoin du jour ; celle des calories va du besoin à 110 % du besoin (tolérance de conception, ajustable). La zone cible est marquée sur la barre.
+- **Ajout rapide** (13 à 16), option A : pastilles Favoris, Récents (les 8 derniers aliments utilisés) et « + Aliment libre » ; choisir un aliment affiche sa ligne : quantité en portions par pas de 0,5 (au moins 0,5), « ☆ Favori » (bascule), repas, « Ajouter ». Le repas est proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir) et se change en un toucher.
+- **Aliment libre** : nom, portion, calories (obligatoires), protéines, glucides, lipides (0 si vides), case Favori ; « Créer l'aliment » le range dans `aliments` et l'affiche prêt à ajouter. Un champ refusé : message sous le bloc, la saisie reste en place. Plafonds : calories 5 000, macros 999 g.
+- **Journal** (17 et 18) : un bloc par repas (petit-déj, midi, encas, soir), total de calories du repas, une ligne par aliment (« Riz cuit · 2 portions », calories, ×) ; × supprime la ligne sans confirmation (saisie rapide). Sans ligne : « Rien de noté aujourd'hui. »
+- **Écritures** : « Ajouter » range la ligne (valeurs figées) puis met à jour le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
+- **Pas encore construit** : le sélecteur de jour (3, flèches pour les jours passés) ; le changement de phase à la main ; la recherche d'aliments dans une base (lot 6).
+
 ## 5. Aliments : favoris, récents, saisie libre
 
 - Un aliment : nom, portion habituelle (« 1 pièce », « 100 g »), calories, protéines, glucides, lipides **pour cette portion**.
@@ -185,7 +195,7 @@ Tables créées par l'évolution 019 ([modèle de données](modele-donnees.md), 
 | 2 | Modèle de données : évolution 019 écrite, à coller dans l'éditeur SQL de Supabase |
 | 3 | Composant `besoin.js` et ses essais |
 | 4 | Profil minimal : champs utiles et encart de premier usage |
-| 5 | Page Nutrition : besoin, jauges, ajout rapide, journal du jour |
+| 5 | Page Nutrition : besoin, sport du jour, jauges, ajout rapide, journal du jour (construit le 5 nov. 2026 ; reste le sélecteur de jour) |
 | 6 | Recherche d'aliments : Ciqual (ANSES, import unique), puis Open Food Facts (à la demande, attribution dans les crédits), puis code-barres |
 | 7 | Historique par mois, bloc « Bilan nutrition » d'En un coup d'œil, repères glucides et eau par heure partagés avec la stratégie de course d'[Objectif](module-objectif-specification.md) |
 | 8 | Import Strava (après validation de l'application par Strava pour d'autres coureurs) |
@@ -222,4 +232,17 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Profil complet, « Modifier mon profil » | Fenêtre avec les cinq champs remplis ; « Annuler » ne range rien ; poids « 72,5 » et activité « actif » : une écriture à cinq champs, besoin 2 401 kcal |
 | Écriture en panne | « Enregistrement impossible pour l'instant. », fenêtre ouverte |
 | Course cap à J-12, J-2, J-1, lointaine | « Avant-course · J-12 », « Carbo-loading · J-2 », « Veille de course · J-1 », « Entraînement » |
+| Journal du jour : riz cuit 2 portions au midi (260 kcal), banane au petit-déj (90 kcal) | Blocs « Petit-déj 90 kcal » et « Midi 260 kcal » ; jauges 350 / 2 117 kcal, 6 / 98–140 g, 76 / 265–318 g, 1 / 59–82 g, toutes sous le minimum |
+| Récents, Favoris | Récents : banane puis riz cuit (le plus récent d'abord, sans l'œuf jamais utilisé) ; Favoris : banane |
+| Banane, quantité portée à 2 (+, +, −, +), ajoutée à 10 h | Repas proposé : midi ; une ligne figée (180 kcal, 2 g, 40 g, 0,6 g) puis la mise à jour du dernier usage ; calories 530 / 2 117 ; midi 440 kcal |
+| × sur cette ligne | La ligne est supprimée ; calories 350 / 2 117 |
+| Quantité à 0,5 | Le bouton « − » est inactif |
+| Aliment libre sans nom, puis sans calories | « Écris le nom de l'aliment. », puis « Indique les calories pour une portion. » ; la saisie reste ; rien d'écrit |
+| Aliment libre « Pain », 1 tranche, 80 kcal, 3,5 g, 15 g, favori | Aliment créé (lipides 0) et prêt à ajouter ; « Favori » retiré : mise à jour du favori |
+| Écriture en panne, « Ajouter » | « Enregistrement impossible pour l'instant. », journal inchangé |
+| Heure de la page : 7 h, 20 h | Repas proposé : petit-déj, soir |
+| Journal à 2 200 kcal, 100 g, 300 g, 90 g de lipides ; puis 3 000 kcal, 150 g, 400 g, 60 g | Calories, protéines, glucides dans la cible, lipides en alerte ; puis calories, protéines, glucides en alerte, lipides dans la cible |
+| Aucun aliment ni ligne | Formulaire libre d'office ; « Rien de noté aujourd'hui. » ; « Aucun favori pour l'instant. » ; « Aucun aliment récent pour l'instant : crée-en un avec « + Aliment libre ». » |
+| Sport : 1 h de jogging à 9,5 km/h | « Sport : 1 h · Jogging à 9,5 km/h (6 min/km) » ; besoin 2 817 kcal ; jauge 350 / 2 817 kcal ; rien d'écrit dans la base |
+| Sport : en plus 30 h de marche, puis 0,5 h | « La durée doit être comprise entre 0,25 et 24 heures. » ; puis deux sports, besoin 2 922 kcal ; retenu après rechargement ; retiré : de nouveau 2 117 kcal |
 | Téléphone (375 et 390 px) | Pas de défilement horizontal ; le bouton « Ajouter » reste visible |

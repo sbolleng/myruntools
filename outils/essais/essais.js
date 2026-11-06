@@ -102,7 +102,7 @@ function simulerBase(ctx, db) {
       const tab = u.pathname.split('/').pop();
       const filtresEq = [...u.searchParams].filter(([k, v]) => /^eq\./.test(v) && k !== 'select');
       const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3));
-      if (['seances', 'plan_semaines'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).join() === 'prepa_semaines')) {
+      if (['seances', 'plan_semaines', 'aliments', 'repas_lignes'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).join() === 'prepa_semaines')) {
         if (!db[tab]) db[tab] = [];
         if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach((l, i) => db[tab].push(Object.assign({ id: 'nouveau-' + db[tab].length + '-' + i, utilisateur: db.profils[0].id }, l)));
         else if (req.method() === 'PATCH') db[tab].filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
@@ -2958,6 +2958,147 @@ const CONTROLES = {
     d = copie(COMPLET); d.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d, { 'mrt-vue': autre }));
     pb.push(egal([0, 0, 'Les données de nutrition ne sont pas partagées.'], [await p.locator('.nu-besoin').count(), await p.locator('.pf-encart').count(), await txt(p, '#nutrition')], 'site partagé : rien de nutrition'));
+    await ctx.close();
+    return pb;
+  },
+  // Nutrition : sport, jauges, ajout rapide, journal (module-nutrition-specification.md, § 4 et 10).
+  async nutritionJournal(nav, db) {
+    const pb = [];
+    const U = db.profils[0].id, norm = t => t.replace(/\s+/g, ' ').trim();
+    const COMPLET = { sexe: 'homme', naissance: '1986-03-15', poids: 70, taille: 175, activite: 'peu' };
+    const ID = n => '00000000-0000-0000-0002-00000000000' + n;
+    const ALIMENTS = () => [
+      { id: ID(1), utilisateur: U, nom: 'Banane', portion: '1 pièce', kcal: 90, proteines: 1, glucides: 20, lipides: 0.3, favori: true, dernier_usage: '2026-10-19T08:00:00Z' },
+      { id: ID(2), utilisateur: U, nom: 'Riz cuit', portion: '100 g', kcal: 130, proteines: 2.7, glucides: 28, lipides: 0.3, favori: false, dernier_usage: '2026-10-18T12:00:00Z' },
+      { id: ID(3), utilisateur: U, nom: 'Œuf', portion: '1 pièce', kcal: 140, proteines: 12, glucides: 1, lipides: 10, favori: false, dernier_usage: null }];
+    const LIGNES = () => [
+      { id: ID(4), utilisateur: U, date: '2026-10-20', repas: 'midi', aliment: ID(2), nom: 'Riz cuit', quantite: 2, kcal: 260, proteines: 5.4, glucides: 56, lipides: 0.6 },
+      { id: ID(5), utilisateur: U, date: '2026-10-20', repas: 'petit_dej', aliment: ID(1), nom: 'Banane', quantite: 1, kcal: 90, proteines: 1, glucides: 20, lipides: 0.3 }];
+    const base = (extra = {}) => { const d = JSON.parse(JSON.stringify(db)); Object.assign(d.profils[0], COMPLET); d.aliments = ALIMENTS(); d.repas_lignes = LIGNES(); d.ecritures = []; return Object.assign(d, extra); };
+    const jauges = p => p.evaluate(() => [...document.querySelectorAll('.nu-jauge')].map(j => j.dataset.jauge + ':' + j.dataset.etat + ':' + j.querySelector('.nu-jauge-v').textContent.replace(/\s+/g, ' ')));
+    const groupes = p => p.evaluate(() => [...document.querySelectorAll('.nu-repas-t')].map(t => [...t.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' ')));
+    const noms = p => p.evaluate(() => [...document.querySelectorAll('.nu-aliment span:first-child')].map(x => x.textContent));
+    const sansId = e => { const c = { ...e.corps }; delete c.id; return c; };
+    const ouvrirN = async (d, w = 390, opts = {}) => { const o = await ouvrir(nav, 'nutrition.html', w, d, {}, opts); await o.p.waitForSelector('.nu-jauges'); return o; };
+
+    // Journal et jauges au départ.
+    let d = base();
+    let { p, ctx, erreurs } = await ouvrirN(d);
+    pb.push(egal(['kcal:sous:350 / 2 117 kcal', 'p:sous:6 / 98–140 g', 'g:sous:76 / 265–318 g', 'l:sous:1 / 59–82 g'], await jauges(p), 'jauges : mangé / besoin'),
+      egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
+      egal(['Banane · 1 pièce', 'Riz cuit · 100 g'], await noms(p), 'Récents : du plus récent au plus ancien, sans l\'aliment jamais utilisé'),
+      egal('Récents', await p.locator('.nu-sources [aria-pressed="true"]').textContent(), 'source de départ : Récents'));
+    await p.click('.nu-aliment >> nth=1');
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
+    await p.click('[data-source="favoris"]');
+    pb.push(egal(['Banane · 1 pièce'], await noms(p), 'Favoris'));
+    await p.click('[data-source="recents"]');
+    // Banane, quantité 2, au repas de l'heure (10 h : midi).
+    await p.click('.nu-aliment >> nth=0');
+    const qte = async () => norm(await p.locator('.nu-quantite-v').textContent());
+    pb.push(egal(['1', 'midi'], [await qte(), await p.locator('.nu-repas-choix [aria-pressed="true"]').getAttribute('data-repas')], 'choix : une portion, repas d\'après l\'heure'));
+    await p.click('[data-act="plus"]'); await p.click('[data-act="plus"]'); await p.click('[data-act="moins"]'); await p.click('[data-act="plus"]');
+    pb.push(egal('2', await qte(), 'quantité par pas de 0,5'));
+    await p.click('[data-act="ajouter"]');
+    await p.waitForSelector('.nu-choix', { state: 'detached' });
+    pb.push(egal([['POST', 'repas_lignes', { date: '2026-10-20', repas: 'midi', aliment: ID(1), nom: 'Banane', quantite: 2, kcal: 180, proteines: 2, glucides: 40, lipides: 0.6 }], ['PATCH', 'aliments', ['dernier_usage'], '?id=eq.' + ID(1)]],
+      d.ecritures.map(e => e.methode === 'POST' ? [e.methode, e.table, sansId(e)] : [e.methode, e.table, Object.keys(e.corps), e.filtres]), 'Ajouter : la ligne figée et le dernier usage de l\'aliment'),
+      egal('kcal:sous:530 / 2 117 kcal', (await jauges(p))[0], 'jauge des calories après l\'ajout'),
+      egal(['Petit-déj 90 kcal', 'Midi 440 kcal'], await groupes(p), 'journal après l\'ajout'));
+    // Supprimer la ligne ajoutée.
+    d.ecritures.length = 0;
+    await p.locator('[data-act="supprimer"][aria-label="Supprimer Banane"]').last().click();
+    await p.waitForFunction(() => document.querySelectorAll('.nu-lignes li').length === 2);
+    pb.push(egal(['DELETE', 'repas_lignes'], [d.ecritures[0].methode, d.ecritures[0].table], '✕ : la ligne est supprimée'),
+      egal('kcal:sous:350 / 2 117 kcal', (await jauges(p))[0], 'jauge revenue après suppression'));
+    // Quantité : jamais sous une demi-portion.
+    await p.click('.nu-aliment >> nth=0');
+    await p.click('[data-act="moins"]');
+    pb.push(egal(['0,5', true], [await qte(), await p.locator('[data-act="moins"]').isDisabled()], 'quantité minimale : une demi-portion'));
+    // Aliment libre : contrôles, puis création et ajout.
+    d.ecritures.length = 0;
+    await p.click('[data-source="libre"]');
+    await p.click('.nu-libre [type="submit"]');
+    pb.push(egal('Écris le nom de l\'aliment.', await norm(await p.locator('.nu-ajout .nu-msg').textContent()), 'aliment libre : nom manquant'));
+    await p.fill('.nu-libre [name="nom"]', 'Pain'); await p.fill('.nu-libre [name="portion"]', '1 tranche');
+    await p.click('.nu-libre [type="submit"]');
+    pb.push(egal('Indique les calories pour une portion.', await norm(await p.locator('.nu-ajout .nu-msg').textContent()), 'aliment libre : calories manquantes'),
+      egal('Pain', await p.inputValue('.nu-libre [name="nom"]'), 'aliment libre : la saisie reste en place après un refus'),
+      egal(0, d.ecritures.length, 'aliment libre refusé : rien d\'écrit'));
+    await p.fill('.nu-libre [name="kcal"]', '80'); await p.fill('.nu-libre [name="proteines"]', '3,5'); await p.fill('.nu-libre [name="glucides"]', '15');
+    await p.click('.nu-favori-case');
+    await p.click('.nu-libre [type="submit"]');
+    await p.waitForFunction(() => /Pain/.test((document.querySelector('.nu-choix-nom') || {}).textContent || ''));
+    pb.push(egal([['POST', 'aliments', { nom: 'Pain', portion: '1 tranche', favori: true, dernier_usage: null, kcal: 80, proteines: 3.5, glucides: 15, lipides: 0 }]], d.ecritures.map(e => [e.methode, e.table, sansId(e)]), 'aliment libre : créé avec ses valeurs'),
+      egal('Pain · 1 tranche', norm(await p.locator('.nu-choix-nom').textContent()), 'aliment libre : prêt à ajouter'));
+    // Favori : bascule.
+    d.ecritures.length = 0;
+    await p.click('[data-act="favori"]');
+    await p.waitForFunction(() => document.querySelector('[data-act="favori"]').getAttribute('aria-pressed') === 'false');
+    pb.push(egal([['PATCH', 'aliments', { favori: false }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'Favori retiré'));
+    pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement horizontal'), egal([], erreurs, 'erreurs JavaScript'));
+    await ctx.close();
+
+    // Panne d'écriture : message, aucune ligne ajoutée.
+    d = base({ panne: true });
+    ({ p, ctx } = await ouvrirN(d));
+    await p.click('.nu-aliment >> nth=0'); await p.click('[data-act="ajouter"]');
+    await p.locator('.nu-ajout .nu-msg:not(:empty)').waitFor();
+    pb.push(egal(['Enregistrement impossible pour l\'instant.', 2], [norm(await p.locator('.nu-ajout .nu-msg').textContent()), await p.locator('.nu-lignes li').count()], 'panne : message, journal inchangé'));
+    await ctx.close();
+
+    // Repas d'après l'heure : 7 h petit-déj, 20 h soir.
+    for (const [h, attendu] of [['07:00', 'petit_dej'], ['20:00', 'soir']]) {
+      ({ p, ctx } = await ouvrirN(base(), 390, { maintenant: new Date('2026-10-20T' + h + ':00') }));
+      await p.click('.nu-aliment >> nth=0');
+      pb.push(egal(attendu, await p.locator('.nu-repas-choix [aria-pressed="true"]').getAttribute('data-repas'), 'repas proposé à ' + h));
+      await ctx.close();
+    }
+
+    // Jauges : cible et alerte.
+    for (const [ligne, attendu, quoi] of [[{ kcal: 2200, proteines: 100, glucides: 300, lipides: 90 }, ['kcal:cible', 'p:cible', 'g:cible', 'l:alerte'], 'cible, puis lipides au-delà du maximum'],
+      [{ kcal: 3000, proteines: 150, glucides: 400, lipides: 60 }, ['kcal:alerte', 'p:alerte', 'g:alerte', 'l:cible'], 'tout au-delà sauf les lipides']]) {
+      d = base(); d.repas_lignes = [{ ...LIGNES()[0], ...ligne }];
+      ({ p, ctx } = await ouvrirN(d));
+      pb.push(egal(attendu, (await jauges(p)).map(x => x.split(':').slice(0, 2).join(':')), 'jauges : ' + quoi));
+      await ctx.close();
+    }
+
+    // Rien de saisi : messages vides, formulaire libre d'office.
+    d = base(); d.aliments = []; d.repas_lignes = [];
+    ({ p, ctx } = await ouvrirN(d));
+    pb.push(egal(['Aliment libre', 'Rien de noté aujourd\'hui.'], [await p.locator('.nu-sources [aria-pressed="true"]').textContent().then(t => t.replace('+ ', '')), norm(await p.locator('.nu-journal .nu-vide').textContent())], 'sans aliment : formulaire libre, journal vide'));
+    await p.click('[data-source="favoris"]');
+    pb.push(egal('Aucun favori pour l\'instant.', norm(await p.locator('.nu-ajout .nu-vide').textContent()), 'sans favori'));
+    await p.click('[data-source="recents"]');
+    pb.push(egal('Aucun aliment récent pour l\'instant : crée-en un avec « + Aliment libre ».', norm(await p.locator('.nu-ajout .nu-vide').textContent()), 'sans récent'));
+    await ctx.close();
+
+    // Sport du jour : saisie, besoin recalculé, mémorisé sur l'appareil, aucune écriture dans la base.
+    d = base();
+    ({ p, ctx } = await ouvrirN(d));
+    const sport = async () => norm(await p.locator('.nu-sport').textContent());
+    const kcal = async () => norm(await p.locator('.nu-kcal').textContent());
+    pb.push(egal(['Sans sport saisi aujourd\'hui modifier', '2 117 kcal'], [await sport(), await kcal()], 'sport : aucun au départ'));
+    await p.click('[data-act="sport"]');
+    await p.selectOption('.pf-panneau [name="type"]', 'j95'); await p.fill('.pf-panneau [name="heures"]', '1');
+    await p.click('.pf-panneau [type="submit"]');
+    pb.push(egal(['Sport : 1 h · Jogging à 9,5 km/h (6 min/km) modifier', '2 817 kcal', 'kcal:sous:350 / 2 817 kcal', 0], [await sport(), await kcal(), (await jauges(p))[0], d.ecritures.length], 'sport : 1 h de jogging, besoin et jauge recalculés, rien d\'écrit'));
+    await p.click('[data-act="sport"]');
+    await p.click('[data-act="ajouter-sport"]');
+    await p.locator('.pf-panneau .nu-sport-l').nth(1).locator('[name="type"]').selectOption('m');
+    await p.locator('.pf-panneau .nu-sport-l').nth(1).locator('[name="heures"]').fill('30');
+    await p.click('.pf-panneau [type="submit"]');
+    pb.push(egal('La durée doit être comprise entre 0,25 et 24 heures.', norm(await p.locator('.pf-panneau .pf-msg').textContent()), 'sport : 30 heures refusées'));
+    await p.locator('.pf-panneau .nu-sport-l').nth(1).locator('[name="heures"]').fill('0,5');
+    await p.click('.pf-panneau [type="submit"]');
+    pb.push(egal(['Sport : 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche modifier', '2 922 kcal'], [await sport(), await kcal()], 'sport : deux sports'));
+    await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); await p.waitForSelector('.nu-jauges');
+    pb.push(egal('2 922 kcal', await kcal(), 'sport : retenu sur l\'appareil après rechargement'));
+    await p.click('[data-act="sport"]');
+    await p.locator('.pf-panneau [data-act="retirer"]').first().click(); await p.locator('.pf-panneau [data-act="retirer"]').first().click();
+    await p.click('.pf-panneau [type="submit"]');
+    pb.push(egal(['Sans sport saisi aujourd\'hui modifier', '2 117 kcal'], [await sport(), await kcal()], 'sport : retiré'));
     await ctx.close();
     return pb;
   },
