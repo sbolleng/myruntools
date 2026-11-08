@@ -14,6 +14,9 @@ create type theme         as enum ('bleu-orange', 'vert-rose', 'violet-turquoise
 create type sexe          as enum ('femme', 'homme', 'non_precise');
 create type phase_plan    as enum ('base', 'developpement', 'affutage', 'deload');
 create type seance_type   as enum ('run', 'renfo');
+create type seance_intensite as enum ('facile', 'moderee', 'intense');
+create type seance_origine   as enum ('saisie', 'ia');
+create type seance_etat      as enum ('proposee', 'acceptee');
 create type activite      as enum ('sedentaire', 'peu', 'actif', 'tres');
 create type repas         as enum ('petit_dej', 'midi', 'encas', 'soir');
 
@@ -190,9 +193,36 @@ create table seances (
   libelle     text not null check (char_length(libelle) between 1 and 100),
   faite       boolean not null default false,
   course      uuid,
+  duree_min   integer check (duree_min between 1 and 1440),
+  distance_km numeric(5,1) check (distance_km > 0 and distance_km < 1000),
+  intensite   seance_intensite,
+  origine     seance_origine not null default 'saisie',
+  etat        seance_etat not null default 'acceptee',
   foreign key (utilisateur, course) references courses (utilisateur, id) on delete set null (course)
 );
 create index seances_utilisateur_date on seances (utilisateur, date);
+
+-- ----- Préparation : profil d'entraînement, une ligne par utilisateur (évolution 024)
+create table profil_entrainement (
+  utilisateur        uuid primary key default auth.uid() references profils (id) on delete cascade,
+  annees             smallint check (annees between 0 and 80),
+  volume             numeric(5,1) check (volume > 0 and volume <= 500),
+  volume_unite       text check (volume_unite in ('km', 'h')),
+  sortie_longue      numeric(5,1) check (sortie_longue > 0 and sortie_longue <= 300),
+  sortie_longue_unite text check (sortie_longue_unite in ('km', 'h')),
+  jours              smallint[] check (jours <@ array[1, 2, 3, 4, 5, 6, 7]::smallint[]),
+  jour_long          smallint check (jour_long between 1 and 7),
+  seance_max_min     integer check (seance_max_min between 10 and 1440),
+  semaine_max_h      numeric(4,1) check (semaine_max_h > 0 and semaine_max_h <= 60),
+  vma                numeric(4,1) check (vma between 8 and 30),
+  temps_10km_s       integer check (temps_10km_s between 1200 and 7200),
+  temps_semi_s       integer check (temps_semi_s between 3000 and 14400),
+  fc_max             smallint check (fc_max between 100 and 230),
+  renfo              smallint check (renfo between 0 and 3),
+  moyens             text[] check (moyens <@ array['tapis', 'velo', 'piscine']),
+  fragiles           text check (char_length(fragiles) <= 300),
+  maj                timestamptz not null default now()
+);
 
 -- ----- Nutrition : aliments de l'utilisateur et lignes de repas
 create table aliments (
@@ -289,6 +319,7 @@ alter table circuits         enable row level security;
 alter table courses_circuits enable row level security;
 alter table plan_semaines    enable row level security;
 alter table seances          enable row level security;
+alter table profil_entrainement enable row level security;
 alter table aliments         enable row level security;
 alter table repas_lignes     enable row level security;
 alter table sport_jour       enable row level security;
@@ -304,6 +335,8 @@ create policy "ses circuits" on courses_circuits for all to authenticated
 create policy "son plan" on plan_semaines for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses séances" on seances for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "son profil d'entraînement" on profil_entrainement for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses aliments" on aliments for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));

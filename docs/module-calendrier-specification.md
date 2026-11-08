@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.21 · 8 novembre 2026 · [Retour au sommaire](README.md) · Le fond de phase suit le plan de saison du [module Préparation](module-preparation-specification.md) : phases de la saison d'un Objectif, Récupération après un Objectif, Entretien sans fond
+Version 0.22 · 8 novembre 2026 · [Retour au sommaire](README.md) · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de saison du [module Préparation](module-preparation-specification.md)
 
 ## 1. Rôle
 
@@ -186,7 +186,7 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 - **Rendez-vous clés** : l'ouverture des inscriptions (`ouverture_inscriptions`) d'une course Confirmée ou Option.
 - **Toucher une course** (jour de course, rendez-vous clé) ouvre sa page, à la rubrique Préparation ; une course courue, son résultat.
 - **Séance** : un type (Course à pied ou Renforcement, écrits en toutes lettres partout ; d'autres types, vélo, tapis…, s'ajouteront à la liste des types et à la base), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.
-- **Saisie d'une séance** : le « + » d'un jour ouvre une fenêtre (date, type, libellé de 100 caractères au plus), présentée comme la fiche d'une course : « Annuler » et « Enregistrer » en haut, le titre en libellé (« AJOUTER UNE SÉANCE »), les champs communs du site ; toucher une séance la modifie, ou la supprime par « Supprimer la séance » (à contour rouge, seul en bas, avec confirmation) ; sa case « faite » s'enregistre aussitôt. Une séance ajoutée depuis un plan est liée à sa course.
+- **Saisie d'une séance** : le « + » d'un jour ouvre une fenêtre (date, type, libellé de 100 caractères au plus ; puis, facultatifs, durée en minutes, distance en km et intensité : Facile, Modérée ou Intense), présentée comme la fiche d'une course : « Annuler » et « Enregistrer » en haut, le titre en libellé (« AJOUTER UNE SÉANCE »), les champs communs du site ; toucher une séance la modifie, ou la supprime par « Supprimer la séance » (à contour rouge, seul en bas, avec confirmation) ; sa case « faite » s'enregistre aussitôt. Une séance ajoutée depuis un plan est liée à sa course.
 
 ## 5. Préparation d'une course
 
@@ -285,7 +285,7 @@ Barre du haut sur une ligne : le menu « Périodicité », « Plan » et « Aujo
 | Durée de prépa par défaut d'un format | `formats.prepa_semaines` | Créé (évolution 009) |
 | Durée de prépa d'une course | `courses.prepa_semaines` (vide : valeur du format) | Créé (évolution 009) |
 | Phases modifiées à la main | Table `plan_semaines`, une ligne par semaine modifiée (course, lundi, phase) | Créée (évolution 009) |
-| Séances : date, type (run, renfo), libellé, faite, course liée facultative | Table `seances` | Créée (évolution 009) |
+| Séances : date, type (run, renfo), libellé, faite, course liée facultative ; durée, distance, intensité, origine et état facultatifs | Table `seances` | Créée (évolution 009), enrichie (évolution 024) |
 
 Le [modèle de données](modele-donnees.md) (§ 4.4) décrit ces champs et tables. Ce qui se calcule n'est jamais rangé : début du plan, phases non modifiées, semaines sans objectif, chevauchements.
 
