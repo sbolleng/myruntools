@@ -91,6 +91,12 @@ function simulerBase(ctx, db) {
       db.fichiers[cle] = m ? m[0] : brut;
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ Key: cle, Id: 'essai' }) });
     }
+    // Fonctions Supabase (relais de recherche d'aliments) : db.relais(corps) rend { status, body } ; sans relais : absent (404).
+    if (u.pathname.startsWith('/functions/v1/')) {
+      if (req.method() === 'OPTIONS') return route.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' }, body: 'ok' });
+      const r = db.relais ? db.relais(req.postDataJSON()) : { status: 404, body: { message: 'Function not found' } };
+      return route.fulfill({ status: r.status, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(r.body) });
+    }
     if (u.pathname.startsWith('/rest/v1/rpc/')) {
       const r = (db.rpc || {})[u.pathname.split('/').pop()] || [];
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify(r) });
@@ -3157,10 +3163,31 @@ const CONTROLES = {
     await p.fill('.nu-recherche [name="q"]', 'introuvable'); await p.press('.nu-recherche [name="q"]', 'Enter');
     await p.waitForFunction(() => /Aucun résultat/.test(document.querySelector('.nu-resultats').textContent));
     pb.push(egal('Aucun résultat.', norm(await p.locator('.nu-resultats').textContent()), 'recherche sans résultat'));
-    reponse = { status: 429, body: {} };
+    reponse = { status: 503, body: {} };
+    const avant = demandes.length;
     await p.fill('.nu-recherche [name="q"]', 'pain'); await p.press('.nu-recherche [name="q"]', 'Enter');
-    await p.waitForFunction(() => /indisponible/.test(document.querySelector('.nu-resultats').textContent));
-    pb.push(egal('Recherche indisponible pour l\'instant, réessaie dans une minute.', norm(await p.locator('.nu-resultats').textContent()), 'recherche refusée (trop de demandes)'));
+    for (let i = 0; i < 20 && !/saturé/.test(await p.locator('.nu-resultats').textContent()); i++) await p.clock.runFor(500);
+    pb.push(egal(['Open Food Facts est saturé, réessaie dans un instant.', 2], [norm(await p.locator('.nu-resultats').textContent()), demandes.length - avant], 'sans relais, ancien moteur saturé : un nouvel essai, puis le message'));
+
+    // Relais Supabase « recherche-aliments » : la voie normale ; l'ancien moteur n'est pas appelé ; recherche gardée.
+    {
+      const d2 = base(), appels = [];
+      d2.relais = c => { appels.push(c); return { status: 200, body: { source: 'search', produits: [{ nom: 'Yaourt nature', marque: 'Marque C', kcal: 53, proteines: 4, glucides: 5, lipides: 1.5, portionG: 125 }] } }; };
+      const o2 = await ouvrirN(d2), p2 = o2.p, ancien = [];
+      await o2.ctx.route('https://world.openfoodfacts.org/**', r => { ancien.push(1); r.fulfill({ status: 503, body: '' }); });
+      const mes = () => p2.evaluate(() => [...document.querySelectorAll('.nu-mes .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | ')));
+      await p2.fill('.nu-recherche [name="q"]', 'oe');
+      pb.push(egal([['Œuf · 1 pièce | 140 kcal'], 0, 0], [await mes(), appels.length, ancien.length], 'pendant la frappe : mes aliments, sans aucun appel'));
+      await p2.fill('.nu-recherche [name="q"]', 'yaourt'); await p2.press('.nu-recherche [name="q"]', 'Enter');
+      await p2.waitForSelector('.nu-off .nu-aliment');
+      pb.push(egal([['Yaourt nature · Marque C | 53 kcal / 100 g'], [{ q: 'yaourt' }], 0], [await p2.evaluate(() => [...document.querySelectorAll('.nu-off .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), appels, ancien.length], 'relais : les produits, sans l\'ancien moteur'));
+      await p2.click('.nu-off .nu-aliment >> nth=0');
+      pb.push(egal('125', await p2.inputValue('.nu-qte'), 'relais : la portion habituelle du produit'));
+      await p2.fill('.nu-recherche [name="q"]', 'skyr'); await p2.fill('.nu-recherche [name="q"]', 'yaourt'); await p2.press('.nu-recherche [name="q"]', 'Enter');
+      await p2.waitForSelector('.nu-off .nu-aliment');
+      pb.push(egal(1, appels.length, 'recherche déjà faite : gardée, aucun nouvel appel'));
+      await o2.ctx.close();
+    }
 
     // Aliment libre : contrôles, puis création.
     d.ecritures.length = 0;
