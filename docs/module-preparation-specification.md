@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.1 · 8 novembre 2026 · [Retour au sommaire](README.md) · Première version : un plan de saison qui combine toutes les courses selon leur rôle, et une IA qui propose les séances
+Version 0.2 · 8 novembre 2026 · [Retour au sommaire](README.md) · Lot 1 construit : plan de saison, rôles fusionnés, récupération, alertes, page Préparation ; le Calendrier suit le plan de saison
 
 ## 1. Rôle
 
@@ -14,7 +14,7 @@ La Préparation construit **un seul plan pour toute la saison**, au lieu d'un pl
 
 - **Jamais d'IA pour les phases ni pour les règles** : elle propose seulement les séances, à l'intérieur de la trame, et les règles vérifient chaque proposition avant de l'afficher.
 - **Rien n'est enregistré sans l'accord de l'utilisateur.**
-- **Le Calendrier lit cette trame** : la règle « la course confirmée la plus proche impose sa phase » ([Calendrier](module-calendrier-specification.md), § 2) disparaît. La rubrique Préparation de la page d'une course montre la place de la course dans la saison.
+- **Le Calendrier lit cette trame** : la règle « la course confirmée la plus proche impose sa phase » ([Calendrier](module-calendrier-specification.md), § 2) a disparu. Plus tard, la rubrique Préparation de la page d'une course montrera la place de la course dans la saison (pour l'instant, elle garde le plan propre à la course).
 - **Hors périmètre** : l'import des séances depuis une montre ou une application ; le suivi de la charge (fatigue, forme) ; l'apparence détaillée ([design](design.md)).
 
 ## 2. Saisons
@@ -73,12 +73,12 @@ Le plan signale ces conflits, sans rien bloquer ; chacun mène à la course conc
 
 - **Phases d'une saison** : les règles du [Calendrier](module-calendrier-specification.md), § 5.1, appliquées à la saison de l'Objectif : affûtage sur les 2 dernières semaines, deload toutes les 4 semaines, le reste réparti entre base et développement. Les phases modifiées à la main restent possibles (« Paramétrer le plan », sur l'Objectif).
 - **Saison raccourcie** (Objectifs trop proches) : elle garde son affûtage, puis le deload, puis le développement ; la base est réduite en premier.
-- **Phases hors saison** : **Récupération** (§ 3.3) et **Entretien** ; ce sont deux phases nouvelles, à côté de Base, Développement, Affûtage et Deload.
+- **Phases hors saison** : **Récupération** (§ 3.3) et **Entretien** ; deux phases nouvelles, à côté de Base, Développement, Affûtage et Deload. Récupération a sa couleur (fond, liseré, légende du Calendrier) ; Entretien n'en a pas : pas de fond au Calendrier, nommée seulement dans la frise et les semaines de la page. Après le dernier Objectif et sa récupération, plus de phase.
 - **Insertion des courses** : un mini-affûtage, un repos la veille ou une récupération ne changent pas la phase de la semaine ; ils s'appliquent aux jours concernés, et l'IA en tient compte (§ 6).
 
 ## 5. Page Préparation
 
-Une page à part, `preparation.html`, avec son onglet dans le menu.
+Une page à part, `preparation.html`. Son onglet se coche dans les Préférences, comme Nutrition : le menu par défaut garde cinq onglets, qui tiennent sur un téléphone.
 
 ### 5.1 Plan de page
 
@@ -86,6 +86,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 
 ```
 (1) Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.)          (2) [Mon profil]
+(11) Cette semaine : Entretien, jusqu'au dim. 15 nov. 2026 ; la saison commence le lun. 16 nov. 2026.
 (3) frise : [Entretien|Base ▓▓▓|Del|Base ▓▓|Dév|Del|Dév ▓▓▓|Del|Dév ▓▓|Aff ▓▓|Récup ▓▓▓▓▓▓|Entretien|Base …]
               ▲Lac (prépa) ▲Corrida (plaisir)                     ▲Gorges (objectif)        ▲Crêtes (objectif)
 (4) ⚠ Alertes (0)
@@ -98,18 +99,21 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 
 | N° | Élément | Contenu |
 |---|---|---|
-| 1 | Titre de saison | L'Objectif visé, sa date, le temps restant ; hors saison, « Entretien jusqu'au … » ou « Récupération jusqu'au … » |
+| 1 | Titre de saison | Le prochain Objectif, sa date, le temps restant ; sans Objectif à venir, à la place de la page : « Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Objectif & plan) pour construire ta saison. » |
+| 11 | État de la semaine | En saison : « Cette semaine : Base, semaine 3 sur 16. » ; « Récupération de … jusqu'au … » ; « Entretien, jusqu'au … ; la saison commence le … » ; « Saison raccourcie : 8 semaines sur 16. » si besoin |
 | 2 | Mon profil | La fenêtre du profil d'entraînement (§ 5.2) |
-| 3 | Frise de saison | Les phases de toutes les semaines à venir et toutes les courses, repérées par leur rôle ; les options en pointillé |
+| 3 | Frise de saison | De la semaine en cours à la fin de la récupération du dernier Objectif : une colonne par semaine à la couleur de sa phase, les courses dessous, repérées par leur rôle (les options en pointillé) ; chaque course mène à sa page ; légende des signes et des six phases |
 | 4 | Alertes | Le nombre, puis la liste (§ 3.4) ; chacune mène à sa course |
 | 5 | Bloc en cours | 4 semaines à partir du lundi de la semaine en cours : l'unité de génération |
 | 6 | Proposer les séances | Appel à l'IA (§ 6) ; le nombre de propositions restantes ce mois-ci ; absent tant que le profil manque d'un champ obligatoire, avec le lien « Compléter mon profil » |
-| 7 | Semaine | Ses séances, comme dans la vue Semaine du Calendrier (case « faite », « + ») ; mini-affûtage, repos de la veille et récupération repérés |
+| 7 | Semaine | Comme dans la rubrique Préparation d'une course : sa phase, ses jours, ses séances (case « faite », « + ») ; au-dessus, ses repères : « Allégé du … au … : avant … (Préparatoire). », « Repos le … : veille de … (Plaisir). », « Récupération de … jusqu'au … : séances faciles seulement. » |
 | 8 | Explication | Une phrase de l'IA par semaine |
 | 9 | Proposition | Affichée en attente, à part des séances enregistrées : tout accepter, accepter semaine par semaine, refaire (une proposition de plus), abandonner |
 | 10 | Suite | Les blocs suivants (phases et courses, sans séances tant qu'ils ne sont pas proposés) ; l'historique des propositions (date, bloc, acceptée ou non) |
 
 Téléphone : même ordre ; la frise défile de gauche à droite.
+
+Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; le profil (2) au lot 2 ; la proposition de séances (6, 8, 9) au lot 3 ; la suite (10) au lot 4.
 
 ### 5.2 Profil d'entraînement
 
@@ -160,7 +164,7 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 
 ## 8. Lots de construction
 
-1. **Trame de saison et règles de combinaison, sans IA** : rôles fusionnés, saisons, récupération, alertes, phases Récupération et Entretien ; le Calendrier lit la trame ; page Préparation avec frise et alertes.
+1. **Trame de saison et règles de combinaison, sans IA**. **Construit** (8 novembre 2026) : calcul dans `composants/preparation.js` (`planSaison`, `phaseDe`, `reperesDuJour`), page `preparation.html` et composant `composants/plan-saison.js` ; rôles fusionnés (évolution `023-roles-objectif.sql`, à coller dans l'éditeur SQL) ; le Calendrier et Nutrition lisent la phase du plan de saison. Reste pour plus tard : la rubrique Préparation de la page d'une course dans la saison.
 2. **Profil d'entraînement et séances enrichies** : évolution de la base, fenêtre du profil.
 3. **Fonction côté serveur et proposition d'un bloc** : aperçu, garde-fous, acceptation, plafond ; préalable : la mention de l'envoi à l'IA dans la politique de confidentialité (lot RGPD).
 4. **Réajustement et historique des propositions.**
@@ -172,7 +176,8 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 - [x] **Valeurs des règles** : sources publiées (§ 3.2) ; km-effort pour le trail (retenu le 8 novembre 2026).
 - [x] **Profil** : champs du § 5.2 (retenu le 8 novembre 2026).
 - [x] **Plafond** : 4 propositions par mois (retenu le 8 novembre 2026).
-- [ ] **Phases Récupération et Entretien** : leurs couleurs, et leur place dans la légende du Calendrier (design).
+- [x] **Phases Récupération et Entretien** : Récupération en rose, Entretien sans fond (retenu le 8 novembre 2026, [design](design.md), § 10).
+- [x] **Place dans le menu** : à cocher dans les Préférences, comme Nutrition (retenu le 8 novembre 2026).
 - [ ] **Progression du volume** d'une semaine à l'autre : pas de garde-fou chiffré tant qu'aucune source solide n'est trouvée (la règle des 10 % courante n'est pas établie).
 - [ ] **Saison raccourcie** : faut-il une durée minimale sous laquelle la seconde saison n'a pas de base du tout ?
 
@@ -193,18 +198,22 @@ Résultats attendus, trame :
 
 - Deux saisons : vers le Trail des Gorges (16 semaines, du lun. 16 nov. 2026 au dim. 7 mars 2027 ; phases du [Calendrier](module-calendrier-specification.md), § 10, plan du Trail des Gorges), puis vers le Trail des Crêtes (16 semaines, du lun. 10 mai au sam. 28 août 2027 ; affûtage les semaines du 16 et du 23 août).
 - Avant la première saison : Entretien (semaines du 19 octobre au 9 novembre). Après le Trail des Gorges : Récupération jusqu'au sam. 17 avril 2027 (66 km-effort, 41 jours), puis Entretien jusqu'au dim. 9 mai.
-- Trail du Lac (Préparatoire) : jours allégés du jeu. 12 au sam. 14 novembre ; récupération de 19 jours (30,5 km-effort), séances intenses possibles à partir du ven. 4 décembre.
+- Trail du Lac (Préparatoire) : jours allégés du jeu. 12 au sam. 14 novembre ; récupération de 19 jours (30,5 km-effort), jusqu'au ven. 4 décembre.
 - Corrida de Noël (Plaisir) : repos le sam. 12 décembre ; récupération de 6 jours, jusqu'au sam. 19 décembre ; la phase de ses semaines ne change pas.
 - 25 semaines entre les deux Objectifs : pas d'alerte. Options (Cimes, Plateau) en pointillé, sans règle.
 - Ultra du Plateau confirmé : 83 km-effort, récupération de 52 jours, jusqu'au mar. 17 août 2027 ; alerte « Récupération dans un affûtage » (affûtage du Trail des Crêtes dès le lun. 16 août) ; pas d'alerte « Préparatoire trop proche » (9 semaines avant).
-- Trail des Cimes confirmé et avancé au sam. 14 août 2027 : alerte « Préparatoire trop proche » (2 semaines avant un ultra-trail).
+- Trail des Cimes confirmé et avancé au sam. 14 août 2027 : alertes « Préparatoire trop proche » (14 jours avant un ultra-trail) et « Récupération dans un affûtage ».
 - Trail des Crêtes avancé au dim. 2 mai 2027 : alerte « Objectifs trop proches » (8 semaines) avec la suggestion de passer l'un en Préparatoire ; la seconde saison commence le lun. 8 mars, raccourcie.
-- Calendrier : le fond du mardi 20 octobre est en Entretien ; celui du lun. 30 novembre en Base (Trail des Gorges), plus en affûtage de la Corrida de Noël.
+- Calendrier : le mardi 20 octobre sans fond (Entretien) ; le lun. 30 novembre en Base (saison du Trail des Gorges), plus en affûtage de la Corrida de Noël.
 
 Résultats attendus, page et profil :
 
-- Titre « Saison : vers « Trail des Gorges » · dim. 7 mars 2027 » ; frise de la semaine du 19 octobre 2026 à celle du Trail des Crêtes ; alertes (0).
-- Profil vide : pas de bouton « Proposer les séances », lien « Compléter mon profil » ; profil rempli (champs obligatoires) : le bouton et « 4 restantes ce mois-ci ».
+- Titre « Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.) » ; état : Entretien jusqu'au 15 novembre, saison à partir du 16 ; frise de la semaine du 19 octobre 2026 à celle du 25 octobre 2027 (fin de la récupération du Trail des Crêtes, 59 jours) ; courses de la frise : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (Objectif), Trail des Cimes, Ultra du Plateau et Trail de la Forêt (options), Trail des Crêtes (Objectif) ; « Alertes (0) ».
+- Bloc en cours : les semaines du 19 et du 26 octobre, du 2 et du 9 novembre, en Entretien ; au-dessus de la semaine du 9 novembre, le seul repère « Allégé du jeu. 12 nov. 2026 au sam. 14 nov. 2026 : avant Trail du Lac (Préparatoire). » ; un « + » par jour.
+- Au 30 novembre : « Cette semaine : Base, semaine 3 sur 16. » ; repères « Récupération de Trail du Lac jusqu'au ven. 4 déc. 2026 » et « Repos le sam. 12 déc. 2026 : veille de Corrida de Noël (Plaisir). ».
+- Calendrier, mars 2027 : affûtage le 2 mars, Récupération le 9, d'une autre couleur.
+- Sans Objectif à venir : le message, pas de frise. Site partagé en lecture seule : la saison s'affiche, sans « + ».
+- (Lot 2) Profil vide : pas de bouton « Proposer les séances », lien « Compléter mon profil » ; profil rempli (champs obligatoires) : le bouton et « 4 restantes ce mois-ci ».
 
 Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût) :
 

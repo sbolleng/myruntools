@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.69 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.70 · 8 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -13,7 +13,7 @@ Les deux profils pilotes ont chacun leur version de la page, écrite à la main.
 | Élément | Profil trail | Profil route | Dans le module |
 | --- | --- | --- | --- |
 | Objectif final | Oui | Oui | Une course marquée « objectif » |
-| Étapes | Confirmées, objectif intermédiaire, à choisir, horizon | Confirmées, objectif intermédiaire, à choisir (avec candidats) | Les mêmes statuts pour tous |
+| Étapes | Confirmées, objectifs, à choisir, horizon | Confirmées, objectifs, à choisir (avec candidats) | Les mêmes statuts pour tous |
 | Cellules d'une étape | Objectif, Dossard, Rôle, Stratégie, Logistique | Objectif, Dossard, Rôle, Enchaînement, Logistique | Champs communs, chacun affiché s'il est rempli |
 | Comptes à rebours | Oui | Oui | Sur chaque course datée |
 | Graphique de difficulté | Oui | Non | Calculé depuis la liste des courses |
@@ -62,7 +62,7 @@ Plan de page d'une carte (ordinateur) :
 
 | N° | Élément | Exemple | Place sur ordinateur | Style |
 | --- | --- | --- | --- | --- |
-| 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Accent pour Objectif intermédiaire et Objectif principal |
+| 4 | Rôle | PRÉPARATOIRE | Ligne 1, à gauche | Libellé ; Texte discret, Accent pour un Objectif |
 | 5 | Compteur | `137 j` (le dernier jour : `05 h` `12 min`) | Ligne 1, à droite | Libellé, dans une case fine : les jours seuls sur une carte (depuis le 6 nov. 2026, pour une feuille de route calme) ; chiffres en Accent, unités en Texte discret ; les quatre cases (j, h, min, s) sur la page de la course (n° 13) |
 | 6 | Course · Parcours | Trail du Lac · Le Tour du Lac | Ligne 2, à gauche | Nom ; Texte (le jaune est réservé au titre de l'écran) |
 | 3 | Date | 15 NOV. 2026 | Ligne 2, à droite | Libellé ; Texte discret. Le mois seul si la date est approximative (« JUILLET 2027 ») |
@@ -94,8 +94,7 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 | Cas | Signification | Rendu |
 | --- | --- | --- |
 | Confirmée | Course retenue (rôle Préparatoire ou Plaisir) | Trait plein, pastille pleine en Texte discret |
-| Rôle Objectif intermédiaire | Course clé de la saison | Pastille pleine en Accent (sans cercle autour, à la différence de l'objectif principal) |
-| Rôle Objectif (affiché « Objectif principal ») | Une course visée ; il peut y en avoir plusieurs | Pastille en Accent, cerclée ; cadre en Accent |
+| Rôle Objectif (affiché « Objectif ») | Une course visée ; il peut y en avoir plusieurs, chacune ouvre une saison ([Préparation](module-preparation-specification.md), § 2) ; l'ancien rôle « Objectif intermédiaire » s'affiche et s'enregistre en Objectif (évolution 023) | Pastille en Accent, cerclée ; cadre en Accent |
 | Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait et cadre en pointillé ; une seule étape (§ 3.6) |
 | Option isolée | Course envisagée, pas encore retenue | Trait et cadre en pointillé, pastille vide |
 
@@ -144,7 +143,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | N° | Élément | Contenu | Règle et style |
 | --- | --- | --- | --- |
 | 1 | Fermer | Croix ronde, tout à droite de la barre du haut (fixe) | Bouton rond ; ferme la modale |
-| 2 | Rôle et rang | « Objectif intermédiaire · Étape 3 sur 6 » | Libellé ; rôle dans sa couleur (§ 3.1) |
+| 2 | Rôle et rang | « Objectif · Étape 3 sur 6 » | Libellé ; rôle dans sa couleur (§ 3.1) |
 | 3 | Titre | Course · parcours | Seul titre de l'écran : Space Grotesk 700, Accent ; plus de flèche ↗ (4 remplacé par 30) |
 | 5 | Modifier | Crayon rond | Bouton rond, dans la barre du haut, à gauche de la croix ; absent en lecture seule |
 | 6 | Format | « Trail long » | Texte discret, sous le titre ; absent si vide (le lieu, la date et l'heure sont dans la fiche : 33, 34) |
@@ -444,13 +443,13 @@ Téléphone : même ordre, le graphique occupe toute la largeur du cadre ; les �
 | 3 | (retiré) | — | — | Les courses courues ne sont plus montrées (la période commence aujourd'hui) |
 | 4 | Course de préparation | Trail du Lac | À sa date | Point plein, Accent, confirmée ou non ; les étapes confirmées sont reliées dans l'ordre par une ligne fine (1 px), Texte discret estompé, comme au Palmarès |
 | 5 | Course en option | Trail des Cimes | À sa date | Point à contour Accent, non relié |
-| 6 | Objectif | Trail des Crêtes | À sa date | Losange plein, Accent, objectif principal ou intermédiaire |
+| 6 | Objectif | Trail des Crêtes | À sa date | Losange plein, Accent, un Objectif |
 | 7 | Date au mois seul | Trail de la Forêt (juillet 2027) | Milieu du mois | Même point que les autres, sans trait |
 | 8 | Axe du temps | janv. 26 · mars · mai | En bas | Une coche par mois ; la date écrite au pas le plus fin qui tient dans la largeur (chaque mois, tous les 2, 3, 6 ou 12 mois, calé sur janvier ; par exemple tous les 2 mois sur ordinateur, tous les 6 sur téléphone) ; l'année sur janvier et sur le premier repère (« janv. 27 ») ; Space Mono 0,7 rem, Texte discret |
 | 9 | (retiré) | — | — | L'axe commence aujourd'hui |
 | 10 | (retiré) | — | — | Le tableau des chiffres est remplacé par la définition (16) |
 | 11 | Bulle | Trail des Gorges · 7 mars 2027… | Au-dessus du point | Survol (souris), toucher ou clavier ; cadre Surface, km-effort en Space Mono ; une seule à la fois ; toucher ailleurs la ferme |
-| 12 | (retiré) | — | — | L'objectif intermédiaire a le même losange (6) |
+| 12 | (retiré) | — | — | Un seul rôle Objectif, un seul losange (6) |
 | 14 | (retiré) | — | — | Les étiquettes sont supprimées (illisibles) ; la bulle (11) donne le nom |
 | 15 | Quadrillage | — | Derrière les points | Une ligne fine (Bordure) par graduation |
 | 16 | Définition | L'effort d'une course se mesure ici en **km-effort**, la mesure normée de l'ITRA (association internationale du trail). Le principe : on ajoute au kilométrage l'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. Un trail de 40 km avec 2 000 m de D+ pèse donc comme une course de 60 km à plat. La descente n'est pas comptée. | Sous la légende, sans filet | Explication : 0,75 rem, italique, Texte discret ; la formule en Texte, 600 |
@@ -530,7 +529,7 @@ Jeu d'essai, données fictives, à la date du 20 octobre 2026 à 10 h, heure de 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Trail du Lac · Le Tour du Lac | 15 nov. 2026, 9 h | Mont-Clair · Trail court | 24 km, 650 m | Confirmée, Préparatoire, À venir | — | 02:45:00 | Inscrit, n° 412, 32 € |
 | 2 | Corrida de Noël | 13 déc. 2026, 18 h 30 | Ville-Haute · 10 km | 10 km, 40 m | Confirmée, Plaisir, À venir | — | Sub 45 min | Pas inscrit, ouverture le 1er nov. 2026 |
-| 3 | Trail des Gorges | 7 mars 2027, 7 h 30 | Mont-Clair · Trail long | 45 km, 2 100 m, D− 2 100 m | Confirmée, Objectif intermédiaire, À venir | — | 06:30:00 | Inscrit, n° 1287, 58 € |
+| 3 | Trail des Gorges | 7 mars 2027, 7 h 30 | Mont-Clair · Trail long | 45 km, 2 100 m, D− 2 100 m | Confirmée, Objectif (rangé en objectif intermédiaire, l'ancien rôle), À venir | — | 06:30:00 | Inscrit, n° 1287, 58 € |
 | 4 | Trail des Cimes | 30 mai 2027 | Haut-Val · Trail long | 42 km, 2 500 m | Option, Préparatoire, À venir | Printemps 2027 | — | Pas inscrit, ouverture le 10 janv. 2027 |
 | 5 | Ultra du Plateau · Le 55 | 26 juin 2027 | Plaine-Neuve · Trail long | 55 km, 2 800 m | Option, Préparatoire, À venir | Printemps 2027 | — | Pas inscrit, ouverture le 1er sept. 2026, site d'inscription connu |
 | 6 | Trail de la Forêt | juillet 2027 (mois seul) | Bois-Joli · Trail court | 30 km, 1 200 m | Option, Préparatoire, À venir | — | — | Pas inscrit, ouverture inconnue |
@@ -574,7 +573,7 @@ Résultats attendus, graphique de difficulté :
 
 Résultats attendus, page d'une course :
 
-- Trail des Gorges : « Objectif intermédiaire · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Trail long » ; pas de « S'inscrire » (inscrit) ; « Site officiel ↗ » en bas à droite de la fiche, sur la ligne d'« À PROPOS DE LA COURSE ».
+- Trail des Gorges : « Objectif · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Trail long » ; pas de « S'inscrire » (inscrit) ; « Site officiel ↗ » en bas à droite de la fiche, sur la ligne d'« À PROPOS DE LA COURSE ».
 - Trail des Gorges, fiche encadrée : LIEU Mont-Clair (lien vers OpenStreetMap, nouvel onglet) ; DATE / HEURE dim. 7 mars 2027 · 7 h 30 ; DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; DOSSARD ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
 - Trail des Gorges : « À propos de la course » repliée dans le cadre de la fiche, sans filet ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
 - Trail des Gorges avec un GPX (boucle fictive de 5,4 km, de 500 à 620 m) : Parcours ouvert, la carte (tracé, départ, arrivée), le profil (620 m et 500 m à gauche, 0 km et 5,4 km dessous), « ↓ GPX » sous les distances du profil, puis la stratégie ; le bouton télécharge « Trail des Gorges.gpx ».
