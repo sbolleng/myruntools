@@ -15,6 +15,7 @@
     { nom: 'Objectif', libelle: 'Objectif & plan', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
     { nom: 'Calendrier', page: 'calendrier.html' },
     { nom: 'Courses à surveiller', libelle: 'À surveiller', page: 'courses-a-surveiller.html' },
+    { nom: 'Préparation', page: 'preparation.html', defaut: false }, // à cocher dans les Préférences, comme Nutrition
     { nom: 'Nutrition', page: 'nutrition.html', defaut: false }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil' },

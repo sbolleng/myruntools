@@ -653,8 +653,8 @@ const CONTROLES = {
       { role: lac.role, compteur: lac.compteur, date: lac.date, info: lac.info, lignes: lac.lignes }, 'Trail du Lac'));
     pb.push(egal({ role: 'Plaisir', compteur: '54j', lignes: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 1er nov. 2026'] },
       { role: corrida.role, compteur: corrida.compteur, lignes: corrida.lignes }, 'Corrida de Noël'));
-    pb.push(egal({ role: 'Objectif intermédiaire', cle: true, compteur: '137j', objectif: 'Objectif | 06:30:00' },
-      { role: gorges.role, cle: /is-cle/.test(gorges.classes), compteur: gorges.compteur, objectif: gorges.lignes[1] }, 'Trail des Gorges'));
+    pb.push(egal({ role: 'Objectif', cle: true, compteur: '137j', objectif: 'Objectif | 06:30:00' },
+      { role: gorges.role, cle: /is-obj/.test(gorges.classes), compteur: gorges.compteur, objectif: gorges.lignes[1] }, 'Trail des Gorges'));
     pb.push(egal({ opt: true, role: 'Préparatoire • 2 candidats', cands: [
       { nom: 'Trail des Cimes', date: '30 mai 2027', lignes: ['Distance | 42 km · 2 500 m D+', 'Dossard | Ouvre le 10 janv. 2027'], compteur: false, role: false },
       { nom: 'Ultra du Plateau · Le 55', date: '26 juin 2027', lignes: ['Distance | 55 km · 2 800 m D+', 'Dossard | Inscription ouverte'], compteur: false, role: false }] },
@@ -662,7 +662,7 @@ const CONTROLES = {
     pb.push(egal(true, await p.evaluate(() => { const a = document.querySelectorAll('.ob-cand .ob-ins')[1]; return a.tagName === 'A' && a.classList.contains('is-ouvert') && a.target === '_blank' && a.getAttribute('href') === 'https://example.org/plateau/inscription'; }), 'inscription ouverte : lien, en Alerte'));
     pb.push(egal({ opt: true, role: 'Préparatoire', date: 'juillet 2027', compteur: null, lignes: ['Distance | 30 km · 1 200 m D+', 'Dossard | Ouverture à venir'] },
       { opt: /is-opt/.test(foret.classes), role: foret.role, date: foret.date, compteur: foret.compteur, lignes: foret.lignes }, 'Trail de la Forêt'));
-    pb.push(egal({ obj: true, role: 'Objectif principal', compteur: '311j', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
+    pb.push(egal({ obj: true, role: 'Objectif', compteur: '311j', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
       { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
     pb.push(egal(['311', '19 h 00 min 00 s'], await p.evaluate(() => [document.querySelector('.mrt-days').textContent, document.querySelector('.mrt-hms').textContent]), 'en-tête : compte à rebours jusqu\'à l\'heure de départ'));
     // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Accent (un seul accent) ; libellés à 0,7 rem.
@@ -716,7 +716,7 @@ const CONTROLES = {
       return [r, o.erreurs];
     };
     let [r, err] = await pageCourse(id(3));
-    pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif intermédiaire · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Trail long',
+    pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Trail long',
       compteur: '137j 22h 30min 00s', fiche: ['Lieu | Mont-Clair', 'Date / heure | dim. 7 mars 2027 · 7 h 30', 'Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00Sous 6 h 45 dans tous les cas.', 'Dossard | Inscrit · n° 1287'], dossards: 1 },
       { modale: r.modale, barre: r.barre, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
     pb.push(egal(['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : À propos de la course, Parcours, Préparation, Logistique en dernier'));
@@ -978,7 +978,7 @@ const CONTROLES = {
     pb.push(egal([true, 6], [await p.evaluate(() => !!document.querySelector('.mrt-bandeau')), k.length], 'lecture seule, feuille de route'));
     await ctx.close();
     [r] = await pageCourse(id(3), PARIS, partage, { 'mrt-vue': autre });
-    pb.push(egal(['Trail des Gorges', 'Objectif intermédiaire · Étape 3 sur 6'], [r.titre, r.sur], 'lecture seule, page d\'une course'));
+    pb.push(egal(['Trail des Gorges', 'Objectif · Étape 3 sur 6'], [r.titre, r.sur], 'lecture seule, page d\'une course'));
     return pb;
   },
 
@@ -1497,7 +1497,7 @@ const CONTROLES = {
     await p.click('.cal-preparer [data-act="enregistrer"]');
     pb.push(egal(['Plan de 12 semaines · début : lun. 14 déc. 2026 → jour J : dim. 7 mars 2027', 0], [await p.textContent('.fc-prep .cal-plan-dates'), o.copie.ecritures.length], 'Valider : résumé à 12 semaines, rien d\'écrit avant « Enregistrer »'));
     const rempli = await p.evaluate(() => Object.fromEntries(['date', 'heure', 'course', 'lieu', 'format', 'dplus', 'dmoins', 'role', 'objectif', 'dossard', 'prix', 'logistique', 'lien', 'inscription', 'lien_resultats'].map(k => [k, document.getElementById('fc-' + k).value])));
-    pb.push(egal({ date: '2027-03-07', heure: '07:30', course: 'Trail des Gorges', lieu: 'Mont-Clair', format: 'trail_long', dplus: '2100', dmoins: '2100', role: 'objectif_intermediaire', objectif: '06:30:00',
+    pb.push(egal({ date: '2027-03-07', heure: '07:30', course: 'Trail des Gorges', lieu: 'Mont-Clair', format: 'trail_long', dplus: '2100', dmoins: '2100', role: 'objectif', objectif: '06:30:00',
       dossard: '1287', prix: '58', logistique: 'Navette depuis le stade à 6 h 30.', lien: 'https://example.org/gorges', inscription: 'https://example.org/gorges/inscription', lien_resultats: 'https://example.org/gorges/resultats' }, rempli, 'modifier : valeurs de la course'));
     pb.push(egal(true, await p.locator('#fc-inscrit').isChecked(), 'modifier : inscrit coché'));
     await p.fill('#fc-objectif', 'Sub 6h30');
@@ -1694,7 +1694,7 @@ const CONTROLES = {
         courses: [...document.querySelectorAll('.cal-a-j[data-course]')].map(j => [j.querySelector('.cal-a-nom').textContent, [...j.classList].find(c => /^c-|^courue$/.test(c))]).sort((a, b) => (a[0] < b[0] ? -1 : 1)),
         seances: ['2026-10-19', '2026-10-20', '2026-10-21'].map(j => { const e = document.querySelector('.cal-a-j[data-jour="' + j + '"] .cal-a-se'); return e ? [e.textContent, e.classList.contains('faite')] : null; }),
         nbPhases: document.querySelectorAll('.cal-a-j[class*="ph-"]').length, barres: document.querySelectorAll('.cal-a-barre').length,
-        p1: phase('2026-10-01'), p12: phase('2026-10-12'), p20: phase('2026-10-20'), p0116: phase('2026-11-16'), p0208: phase('2027-02-08'), l12: lisere('2026-10-12'), l20: lisere('2026-10-20'), lGorges: lisere('2027-03-07'),
+        p1: phase('2026-10-01'), p12: phase('2026-10-12'), p20: phase('2026-10-20'), p0116: phase('2026-11-16'), p0208: phase('2027-02-08'), l12: lisere('2026-12-08'), l20: lisere('2027-01-12'), lGorges: lisere('2027-03-07'),
         titre20: (document.querySelector('.cal-a-j[data-jour="2026-10-20"]') || {}).title || '',
         legende: [...document.querySelectorAll('.cal-legende > span')].map(e => e.classList.contains('cal-groupe') ? [e.querySelector('b').textContent, ...[...e.querySelectorAll(':scope > span')].map(x => x.textContent)] : e.textContent),
         plan: document.querySelector('[data-plan]').getAttribute('aria-pressed') === 'true',
@@ -1733,11 +1733,11 @@ const CONTROLES = {
       const { p, ctx } = await ouvrir(nav, 'calendrier.html#annee', w, db, { 'mrt-calendrier-phases': '1' }, PARIS);
       const r = await lire(p);
       pb.push(
-        egal([true, 158, 0, ['ph-developpement', 'ph-deload', 'ph-developpement', 'ph-developpement', 'ph-developpement']], [r.plan, r.nbPhases, r.barres, [r.p1, r.p12, r.p20, r.p0116, r.p0208]],
-          nom + ', bouton « Plan » enfoncé (retenu sur l\'appareil) : le fond de phase de chaque jour, pas de barres'),
+        egal([true, 136, 0, [null, null, null, 'ph-base', 'ph-developpement']], [r.plan, r.nbPhases, r.barres, [r.p1, r.p12, r.p20, r.p0116, r.p0208]],
+          nom + ', bouton « Plan » enfoncé (retenu sur l\'appareil) : le fond de phase du plan de saison (Entretien sans fond jusqu\'au 15 novembre, saison du Trail des Gorges dès le 16), pas de barres'),
         egal([['3px', 'rgb(143, 168, 201)'], ['3px', 'rgb(230, 184, 77)'], ['3px', 'rgb(180, 142, 240)'], 'rgb(255, 122, 69)', true],
-          [r.l12, r.l20, r.lGorges, r.gorges, r.titre20.includes('Développement · Course à pied 8×400 m · Renforcement Gainage 20 min')], nom + ', liseré de 3 px de la couleur pleine de la phase (deload, développement, affûtage), une course garde sa couleur, infobulle : la phase puis les séances'),
-        egal(LEGENDE.concat([['Phases', 'Base', 'Développement', 'Affûtage', 'Deload']]), r.legende, nom + ', légende des phases'),
+          [r.l12, r.l20, r.lGorges, r.gorges, r.titre20.endsWith('aujourd\'hui · Course à pied 8×400 m · Renforcement Gainage 20 min')], nom + ', liseré de 3 px de la couleur pleine de la phase (deload le 8 décembre, développement le 12 janvier, affûtage le 7 mars), une course garde sa couleur, infobulle : les séances (Entretien : pas de phase)'),
+        egal(LEGENDE.concat([['Phases', 'Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']]), r.legende, nom + ', légende des phases, Récupération comprise'),
         egal(false, r.debordement, nom + ', Plan, débordement horizontal'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-annee-' + nom.replace('é', 'e') + '.png'), fullPage: true });
       await ctx.close();
@@ -1837,9 +1837,14 @@ const CONTROLES = {
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', 1200, d, { 'mrt-calendrier-phases': '1' }, PARIS);
     let r = await lire(p);
-    pb.push(egal([35, 'ph-deload', 'ph-developpement', 'ph-developpement', ['Base', 'Développement', 'Affûtage', 'Deload'], [true, true]],
-      [r.phases.length, (r.phases.find(x => x[0] === '2026-10-12') || [])[1], (r.phases.find(x => x[0] === '2026-10-20') || [])[1], (r.phases.find(x => x[0] === '2026-09-28') || [])[1], r.legende, r.fonds],
-      'Plan : fond de phase (développement, deload la semaine du 12 octobre), le même pour les jours passés et voisins, légende des phases'));
+    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.length, r.legende], 'Plan, octobre : Entretien (pas encore de saison), aucun fond de phase ; légende avec Récupération'));
+    await p.goto(RACINE + 'calendrier.html#mois=2026-12'); await p.waitForSelector('.cal-m-grille');
+    r = await lire(p);
+    const fondM = j => p.evaluate(x => getComputedStyle(document.querySelector('.cal-m-case[data-jour="' + x + '"]')).backgroundColor, j);
+    pb.push(egal([35, 'ph-base', 'ph-deload', 'ph-developpement', true, true],
+      [r.phases.length, (r.phases.find(x => x[0] === '2026-12-01') || [])[1], (r.phases.find(x => x[0] === '2026-12-07') || [])[1], (r.phases.find(x => x[0] === '2027-01-01') || [])[1],
+        await fondM('2026-12-01') === await fondM('2026-12-06'), await fondM('2026-12-29') === await fondM('2027-01-02')],
+      'Plan, décembre : fond de phase de la saison du Trail des Gorges (base, deload la semaine du 7, développement le 1er janvier), le même pour toute la semaine, jours voisins compris'));
     await ctx.close();
     // Navigation, case « faite », « + », séance touchée, jour touché, course et rendez-vous touchés.
     d = copie();
@@ -1978,9 +1983,16 @@ const CONTROLES = {
     // Plan : le fond des jours à la couleur de la phase de la semaine (le même pour tous ses jours), et la légende ; pas de nom de phase.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
     let r = await lire(p);
-    pb.push(egal([7, 'ph-developpement', ['Base', 'Développement', 'Affûtage', 'Deload'], false, true],
-      [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, (r.phases.find(x => x[0] === '2026-10-20') || [])[1], r.legende, /Développement/.test(r.texte.replace(/Phases\s*Base\s*Développement/, '')), r.fonds],
-      'Plan : fond de phase (développement la semaine du 19 octobre, le même pour le jour passé), légende, sans nom de phase'));
+    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, r.legende],
+      'Plan, semaine du 19 octobre : Entretien, pas de fond ; légende avec Récupération'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines=2026-11-30', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
+    r = await lire(p);
+    const fondS = j => p.evaluate(x => getComputedStyle(document.querySelector('.cal-s-ligne[data-jour-ligne="' + x + '"]')).backgroundColor, j);
+    pb.push(egal([7, 'ph-base', false, true],
+      [r.phases.filter(x => x[0] >= '2026-11-30' && x[0] <= '2026-12-06').length, (r.phases.find(x => x[0] === '2026-12-01') || [])[1], /Développement/.test(r.texte.replace(/Phases\s*Base\s*Développement/, '')),
+        await fondS('2026-11-30') === await fondS('2026-12-02')],
+      'Plan, semaine du 30 novembre : base (saison du Trail des Gorges), le même fond pour ses sept jours, sans nom de phase'));
     await ctx.close();
     // Une semaine choisie (depuis le Mois ou l'Année) : le jour de course et le rendez-vous clé mènent à la page de la course.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines=2026-11-09', 1200, copie(), {}, PARIS));
@@ -2140,6 +2152,115 @@ const CONTROLES = {
 
   // Spécification générale, thèmes : chaque page prend le thème de l'utilisateur, cadres compris.
   // Connexion par adresse e-mail et mot de passe (specification-generale.md, § 3 ; module-preferences-specification.md, § 6).
+  // Spécification Préparation, § 10 : plan de saison (saisons, phases hors saison, repères, alertes) et page Préparation.
+  async preparationSaison(nav, db0) {
+    const pb = [];
+    const { db, id } = jeuObjectif(db0);
+    const copie = f => { const d = JSON.parse(JSON.stringify(db)); if (f) f(d); return d; };
+    const course = (d, n) => d.courses.find(c => c.id === id(n));
+    const lire = p => p.evaluate(() => {
+      const t = s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
+      const ph = l => { const e = document.querySelector('.ps-sem[data-lundi="' + l + '"] .ps-ph'); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
+      return {
+        titre: t('.ps-titre'), etat: t('.ps-etat'), vide: t('.ps-vide'),
+        semaines: [...document.querySelectorAll('.ps-sem')].map(e => e.dataset.lundi),
+        phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
+        marques: [...document.querySelectorAll('.ps-marque[href]')].map(a => a.title.split(' · ')[0] + ' ' + [...a.classList].filter(c => c !== 'ps-marque').join(' ')),
+        alertes: [t('.ps-alertes .ps-libelle'), ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
+        textesAlertes: [...document.querySelectorAll('.ps-alerte')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+        bloc: [...document.querySelectorAll('.ps-bloc .cal-sem')].map(e => e.dataset.lundi + ' ' + e.querySelector('.cal-sem-phase').textContent),
+        reperes: [...document.querySelectorAll('.ps-reperes li')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+        plus: document.querySelectorAll('.ps-bloc [data-ajout]').length,
+        debordement: document.documentElement.scrollWidth > innerWidth
+      };
+    });
+    // Le jeu d'essai : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (ancien objectif intermédiaire : un Objectif),
+    // Trail des Cimes et Ultra du Plateau (options), Trail des Crêtes (Objectif).
+    for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
+      const { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', w, copie(), {}, PARIS);
+      await p.waitForSelector('.ps-cadre');
+      const r = await lire(p);
+      pb.push(
+        egal(['Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.)', '2026-10-19', '2027-10-25'], [r.titre, r.semaines[0], r.semaines[r.semaines.length - 1]],
+          nom + ', saison visée ; frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
+        egal(['ph-entretien', 'ph-base', 'ph-base', 'ph-recuperation', 'ph-recuperation', 'ph-entretien', 'ph-entretien', 'ph-base', 'ph-affutage', 'ph-recuperation'], r.phases,
+          nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août'),
+        egal(['Trail du Lac r-preparatoire', 'Corrida de Noël r-plaisir', 'Trail des Gorges r-objectif', 'Trail des Cimes r-preparatoire is-option', 'Ultra du Plateau r-preparatoire is-option', 'Trail de la Forêt r-preparatoire is-option', 'Trail des Crêtes r-objectif'], r.marques,
+          nom + ', courses sur la frise, repérées par leur rôle, options en pointillé'),
+        egal(['Alertes (0)'], r.alertes, nom + ', pas d\'alerte (25 semaines entre les deux Objectifs, options sans règle)'),
+        egal(false, r.debordement, nom + ', débordement horizontal'),
+        egal([], erreurs, nom + ', erreurs JavaScript'));
+      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preparation-' + nom.replace('é', 'e') + '.png'), fullPage: true });
+      await ctx.close();
+    }
+    // État de la semaine, bloc en cours et repères.
+    let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
+    await p.waitForSelector('.ps-cadre');
+    let r = await lire(p);
+    pb.push(egal(['2026-10-19 Entretien', '2026-10-26 Entretien', '2026-11-02 Entretien', '2026-11-09 Entretien'], r.bloc, 'bloc en cours : 4 semaines à partir du 19 octobre, en Entretien'));
+    pb.push(egal(true, /^Cette semaine : Entretien, jusqu'au .*15 nov.* ; la saison commence le .*16 nov/.test(r.etat), 'état de la semaine : Entretien jusqu\'au 15 novembre (' + r.etat + ')'));
+    pb.push(egal([true, true, 28], [r.reperes.some(x => /^Allégé du .*12 nov.* au .*14 nov.* : avant Trail du Lac \(Préparatoire\)\.$/.test(x)), r.reperes.length === 1, r.plus],
+      'repère de la semaine du 9 novembre : allégé du 12 au 14 avant le Trail du Lac ; un « + » par jour'));
+    await ctx.close();
+    // Récupération et repos de la veille : la semaine du 30 novembre (récupération du Trail du Lac jusqu'au 4 décembre).
+    const plusTard = { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-30T10:00:00+01:00') };
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, plusTard));
+    await p.waitForSelector('.ps-cadre');
+    r = await lire(p);
+    pb.push(egal([true, true, '2026-11-30 Base'], [r.reperes.some(x => /^Récupération de Trail du Lac jusqu'au .*4 déc.* : séances faciles seulement\.$/.test(x)),
+      r.reperes.some(x => /^Repos le .*12 déc.* : veille de Corrida de Noël \(Plaisir\)\.$/.test(x)), r.bloc[0].replace(/^(\S+) Semaine \d+ · /, '$1 ')],
+      'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre (19 jours), repos la veille de la Corrida de Noël, semaine 3 de la saison en base'));
+    pb.push(egal(true, /^Cette semaine : Base, semaine 3 sur 16\./.test(r.etat), 'état : base, semaine 3 sur 16 (' + r.etat + ')'));
+    await ctx.close();
+    // Ultra du Plateau confirmé : sa récupération (83 km-effort, 52 jours) déborde sur l'affûtage du Trail des Crêtes.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS));
+    await p.waitForSelector('.ps-cadre');
+    r = await lire(p);
+    pb.push(egal([['Alertes (1)', 'recup-affutage'], true], [r.alertes, /court jusqu'au .*17 août.* : elle déborde sur l'affûtage de Trail des Crêtes \(dès le .*16 août/.test(r.textesAlertes[0])],
+      'Ultra du Plateau confirmé : récupération jusqu\'au 17 août, dans l\'affûtage du Trail des Crêtes ; pas d\'alerte de Préparatoire trop proche (9 semaines)'));
+    await ctx.close();
+    // Trail des Crêtes avancé au 2 mai : Objectifs trop proches (8 semaines) ; la seconde saison part le 8 mars, raccourcie.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 7).date = '2027-05-02'; }), {}, PARIS));
+    await p.waitForSelector('.ps-cadre');
+    r = await lire(p);
+    pb.push(egal([['Alertes (1)', 'proches'], true, 'ph-developpement'], [r.alertes, /est à 8 semaines de Trail des Gorges .* passe l'un des deux en Préparatoire\./.test(r.textesAlertes[0]), r.phases[3]],
+      'Trail des Crêtes au 2 mai : alerte Objectifs trop proches (8 semaines) ; saison raccourcie, le 8 mars en développement'));
+    await ctx.close();
+    // Trail des Cimes confirmé et avancé au 14 août : Préparatoire trop proche (14 jours avant un ultra-trail), et sa récupération dans l'affûtage.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 4).statut = 'confirmee'; course(d, 4).date = '2027-08-14'; }), {}, PARIS));
+    await p.waitForSelector('.ps-cadre');
+    r = await lire(p);
+    pb.push(egal(['Alertes (2)', 'recup-affutage', 'prepa-proche'], r.alertes, 'Trail des Cimes au 14 août : Préparatoire trop proche et récupération dans l\'affûtage'));
+    await ctx.close();
+    // Sans Objectif : un message, pas de frise.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { d.courses.forEach(c => { if (c.role === 'objectif' || c.role === 'objectif_intermediaire') c.role = 'preparatoire'; }); }), {}, PARIS));
+    await p.waitForSelector('.ps-cadre');
+    r = await lire(p);
+    pb.push(egal([true, []], [/^Aucun Objectif à venir/.test(r.vide || ''), r.semaines], 'sans Objectif : un message, pas de frise'));
+    await ctx.close();
+    // Calendrier : la récupération d'un Objectif en rose (semaine du 8 mars), l'Entretien sans fond.
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html#mois=2027-03', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
+    await p.waitForSelector('.cal-m-grille');
+    pb.push(egal(['ph-affutage', 'ph-recuperation', true], await p.evaluate(() => {
+      const cl = j => [...document.querySelector('.cal-m-case[data-jour="' + j + '"]').classList].find(c => c.startsWith('ph-')) || null;
+      return [cl('2027-03-02'), cl('2027-03-09'), getComputedStyle(document.querySelector('.cal-m-case[data-jour="2027-03-09"]')).backgroundColor !== getComputedStyle(document.querySelector('.cal-m-case[data-jour="2027-03-02"]')).backgroundColor];
+    }), 'Calendrier, mars 2027 : affûtage puis Récupération du Trail des Gorges, d\'une autre couleur'));
+    await ctx.close();
+    // Lecture seule : le plan s'affiche, sans « + ».
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = copie(d => {
+      d.courses = d.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
+      d.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+      d.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    });
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
+    await p.waitForSelector('.ps-cadre');
+    r = await lire(p);
+    pb.push(egal([true, 0], [/Trail des Gorges/.test(r.titre || ''), r.plus], 'lecture seule : la saison s\'affiche, sans « + »'));
+    await ctx.close();
+    return pb;
+  },
+
   async connexion(nav, db0) {
     const pb = [];
     const ADRESSE = 'essai@exemple.fr', MDP = 'phrase-de-passe-essai', NEUF = 'une-autre-phrase-de-passe';
@@ -2440,8 +2561,8 @@ const CONTROLES = {
     const accent = await role(p, '--accent');
     pb.push(egal({ role: accent, pastille: accent, inscrit: accent, bientot: accent }, await p.evaluate(() => {
       const st = (s, pr) => getComputedStyle(document.querySelector(s))[pr];
-      return { role: st('.ob-role.is-cle', 'color'), pastille: st('.ob-et.is-cle .ob-pt', 'backgroundColor'), inscrit: st('.ob-ins.is-inscrit i', 'backgroundColor'), bientot: st('.ob-ins.is-bientot i', 'borderTopColor') };
-    }), 'objectif intermédiaire (rôle, pastille) et points du dossard en Accent'));
+      return { role: st('.ob-role.is-obj', 'color'), pastille: st('.ob-et.is-obj .ob-pt', 'backgroundColor'), inscrit: st('.ob-ins.is-inscrit i', 'backgroundColor'), bientot: st('.ob-ins.is-bientot i', 'borderTopColor') };
+    }), 'Objectif (rôle, pastille) et points du dossard en Accent'));
     await p.hover('.ob-ajout');
     const survol = await style(p, '.ob-ajout', 'backgroundColor');
     pb.push(egal([false, false], [survol === 'rgb(255, 212, 0)', survol === await role(p, '--accent')], 'bouton principal au survol : Accent éclairci (' + survol + ')'));
@@ -2998,7 +3119,7 @@ const CONTROLES = {
     pb.push(egal([['PATCH', 'profils', { naissance: '1986-03-15', poids: 70, taille: 175, activite: 'peu' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'enregistrement : seuls les champs de l\'encart'),
       egal(0, await p.locator('.pf-encart').count(), 'encart disparu une fois le profil complet'),
       egal('2 117 kcal', await txt(p, '.nu-kcal'), 'profil A : besoin du jour'),
-      egal('Phase · Entraînement', await txt(p, '.nu-phase'), 'aucun plan ne couvre la semaine : Entraînement'),
+      egal('Phase · Entretien', await txt(p, '.nu-phase'), 'hors saison (avant le premier Objectif) : Entretien'),
       egal(['Besoin 2 117 kcal', 'Besoin 98–140 g', 'Besoin 265–318 g', 'Besoin 59–82 g'], await p.locator('.nu-jauge-besoin').allTextContents().then(l => l.map(x => x.replace(/\s+/g, ' ').trim())), 'besoin du jour sous chaque jauge'),
       egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement horizontal'),
       egal([], erreurs, 'erreurs JavaScript'));
@@ -3041,11 +3162,11 @@ const CONTROLES = {
     await ctx.close();
 
     // Phase d'après la course cap (choisie dans les préférences) : J-12, J-2, J-1, puis une course lointaine.
-    // Phase : celle du plan (règle du Calendrier) ; Carbo-loading de J-3 à J-2 et Veille à J-1 avant la course confirmée la plus proche.
+    // Phase : celle du plan de saison (spécification Préparation, § 4) ; Carbo-loading de J-3 à J-2 et Veille à J-1 avant la course confirmée la plus proche.
     for (const [date, attendu] of [['2026-11-01', 'Phase · Affûtage'], ['2026-10-22', 'Phase · Carbo-loading'], ['2026-10-21', 'Phase · Veille de course'], ['2026-12-20', 'Phase · Deload']]) {
       d = copie(COMPLET);
       const lac = d.courses.find(c => c.course === 'Trail du Lac');
-      lac.date = date; lac.prepa_semaines = 12; d.preferences[0].course_cap = lac.id;
+      lac.date = date; lac.prepa_semaines = 12; lac.role = 'objectif'; d.preferences[0].course_cap = lac.id; // un Objectif : sa saison donne la phase
       ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d));
       pb.push(egal(attendu, await txt(p, '.nu-phase'), 'cap au ' + date + ' : phase'));
       await ctx.close();
@@ -3081,7 +3202,7 @@ const CONTROLES = {
     const LIGNES = () => [
       { id: ID(4), utilisateur: U, date: '2026-10-20', repas: 'midi', aliment: ID(2), nom: 'Riz cuit', quantite: 2, kcal: 260, proteines: 5.4, glucides: 56, lipides: 0.6 },
       { id: ID(5), utilisateur: U, date: '2026-10-20', repas: 'petit_dej', aliment: ID(1), nom: 'Banane', quantite: 1, kcal: 90, proteines: 1, glucides: 20, lipides: 0.3 }];
-    const base = (extra = {}) => { const d = JSON.parse(JSON.stringify(db)); Object.assign(d.profils[0], COMPLET); d.courses.find(c => c.course === 'Trail du Lac').prepa_semaines = 12; d.aliments = ALIMENTS(); d.repas_lignes = LIGNES(); d.ecritures = []; return Object.assign(d, extra); };
+    const base = (extra = {}) => { const d = JSON.parse(JSON.stringify(db)); Object.assign(d.profils[0], COMPLET); Object.assign(d.courses.find(c => c.course === 'Trail du Lac'), { prepa_semaines: 12, role: 'objectif' }); d.aliments = ALIMENTS(); d.repas_lignes = LIGNES(); d.ecritures = []; return Object.assign(d, extra); };
     const jauges = p => p.evaluate(() => [...document.querySelectorAll('.nu-jauge')].map(j => [j.dataset.jauge, j.dataset.etat, j.querySelector('.nu-anneau-v').textContent, j.querySelector('.nu-jauge-reste').textContent, j.querySelector('.nu-jauge-besoin').textContent].join(' | ').replace(/\s+/g, ' ')));
     const groupes = p => p.evaluate(() => [...document.querySelectorAll('.nu-repas-t')].map(t => [...t.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' ')));
     const lignes = p => p.evaluate(() => [...document.querySelectorAll('.nu-ligne-nom')].map(x => x.textContent.replace(/\s+/g, ' ')));

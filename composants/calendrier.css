@@ -79,11 +79,13 @@
 .cal-a-j.ph-developpement:not([data-course]) { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
 .cal-a-j.ph-affutage:not([data-course]) { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
 .cal-a-j.ph-deload:not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
+.cal-a-j.ph-recuperation:not([data-course]) { background: color-mix(in srgb, var(--ph-recuperation) 38%, var(--surface)); }
 /* Plan : samedi et dimanche restent un cran plus marqués, dans la couleur de leur phase. */
 .cal-a-j.we.ph-base:not([data-course]) { background: color-mix(in srgb, var(--ph-base) 52%, var(--surface)); }
 .cal-a-j.we.ph-developpement:not([data-course]) { background: color-mix(in srgb, var(--ph-developpement) 52%, var(--surface)); }
 .cal-a-j.we.ph-affutage:not([data-course]) { background: color-mix(in srgb, var(--ph-affutage) 52%, var(--surface)); }
 .cal-a-j.we.ph-deload:not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 52%, var(--surface)); }
+.cal-a-j.we.ph-recuperation:not([data-course]) { background: color-mix(in srgb, var(--ph-recuperation) 52%, var(--surface)); }
 .cal-a-j.dim::after { content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--muted); opacity: 0.7; pointer-events: none; }
 .cal-a-j.vide { visibility: hidden; }
 .cal-a-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
@@ -104,6 +106,7 @@
 .cal-a-j.ph-developpement::before { background: var(--ph-developpement); }
 .cal-a-j.ph-affutage::before { background: var(--ph-affutage); }
 .cal-a-j.ph-deload::before { background: var(--ph-deload); }
+.cal-a-j.ph-recuperation::before { background: var(--ph-recuperation); }
 
 /* ----- Mois : la grille du mois (spécification § 4.1 et 4.2) : cases jointives, un filet de 1 px, un seul fond ----- */
 .cal-m-jours, .cal-m-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; }
@@ -151,14 +154,17 @@
 .cal-m-case.ph-developpement, .cal-s-ligne.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
 .cal-m-case.ph-affutage, .cal-s-ligne.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
 .cal-m-case.ph-deload, .cal-s-ligne.ph-deload { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
+.cal-m-case.ph-recuperation, .cal-s-ligne.ph-recuperation { background: color-mix(in srgb, var(--ph-recuperation) 38%, var(--surface)); }
 .cal-m-case.ph-base { box-shadow: inset 0 3px 0 var(--ph-base); }
 .cal-m-case.ph-developpement { box-shadow: inset 0 3px 0 var(--ph-developpement); }
 .cal-m-case.ph-affutage { box-shadow: inset 0 3px 0 var(--ph-affutage); }
 .cal-m-case.ph-deload { box-shadow: inset 0 3px 0 var(--ph-deload); }
+.cal-m-case.ph-recuperation { box-shadow: inset 0 3px 0 var(--ph-recuperation); }
 .cal-s-ligne.ph-base { box-shadow: inset 4px 0 0 var(--ph-base); }
 .cal-s-ligne.ph-developpement { box-shadow: inset 4px 0 0 var(--ph-developpement); }
 .cal-s-ligne.ph-affutage { box-shadow: inset 4px 0 0 var(--ph-affutage); }
 .cal-s-ligne.ph-deload { box-shadow: inset 4px 0 0 var(--ph-deload); }
+.cal-s-ligne.ph-recuperation { box-shadow: inset 4px 0 0 var(--ph-recuperation); }
 
 @media (hover: hover) {
   .cal-voisin:hover { color: var(--accent); }

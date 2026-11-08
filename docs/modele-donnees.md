@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.20 · 6 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.21 · 8 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -108,7 +108,7 @@ Trois réglages indépendants décrivent la place d'une course dans le plan.
 | Réglage | Valeurs | Effet |
 | --- | --- | --- |
 | **Statut** | À surveiller · Option · Confirmée | À surveiller : module Courses à surveiller (qui montre aussi toutes les autres). Option et Confirmée : page Objectif. |
-| **Rôle** | Préparatoire · Plaisir · Objectif intermédiaire · Objectif | Rendu de l'étape ; une ou plusieurs courses peuvent avoir le rôle Objectif. |
+| **Rôle** | Objectif · Préparatoire · Plaisir | Rendu de l'étape et place dans le plan de saison ([Préparation](module-preparation-specification.md), § 3) ; une ou plusieurs courses peuvent avoir le rôle Objectif. La valeur `objectif_intermediaire` reste dans le type, mais n'est plus employée (évolution 023 : ses courses passent en Objectif). |
 | **État** | À venir · Abandonnée · Courue | Courue : Palmarès. Abandonnée : affichée nulle part, gardée pour mémoire. |
 
 - **Options** : plusieurs courses au statut Option qui partagent le même `groupe_options` (« Automne 2027 ») sont des candidates pour un même créneau ; la page Objectif les montre ensemble. Une Option sans groupe est une option isolée. Choisir une candidate la passe en Confirmée.

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<script>
+  // Masquée jusqu'à ce qu'elle soit prête. Déjà dans le site (en-tête gardé pour la visite) : seul le contenu attend,
+  // l'en-tête et le menu s'affichent aussitôt, sans page blanche entre deux pages. Le thème de la dernière visite est posé
+  // tout de suite (« auto » : selon le réglage de l'appareil) : pas d'éclair d'un autre fond avant la lecture des préférences.
+  (function () { var c = null, t = null, h = document.documentElement; try { c = sessionStorage.getItem('mrt-entete'); t = localStorage.getItem('mrt-theme'); } catch (e) {}
+    if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noir-orange' : 'blanc-orange';
+    if (t) h.classList.add('t-' + t);
+    h.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
+</script>
+<title>Préparation · MyRunTools</title>
+<!-- Polices : liées ici (et non importées par la feuille de style), pour être chargées en même temps qu'elle. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/objectif.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/trace.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/preparation.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/plan-saison.css?v=__VERSION__">
+</head>
+<body>
+<main>
+  <div id="saison"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script src="composants/donnees.js?v=__VERSION__"></script>
+<script src="composants/preparation.js?v=__VERSION__"></script>
+<script src="composants/trace.js?v=__VERSION__"></script>
+<script src="composants/objectif.js?v=__VERSION__"></script>
+<script src="composants/fiche-course.js?v=__VERSION__"></script>
+<script src="composants/modale-course.js?v=__VERSION__"></script>
+<script src="composants/plan-saison.js?v=__VERSION__"></script>
+<script>
+  // Le plan de saison de l'utilisateur connecté (ou du site partagé), lu dans la base (spécification Préparation, § 5).
+  mrtPage({ courant: 'preparation.html', sansEnTete: true, plan: true }).then(page => {
+    const ctx = { courses: page.courses, seances: page.plan.seances, semaines: page.plan.semaines, lectureSeule: page.lectureSeule };
+    ctx.relire = async () => {
+      const [courses, plan] = await Promise.all([page.relire(), page.relirePlan()]);
+      return { courses, seances: plan.seances, semaines: plan.semaines };
+    };
+    renderSaison(document.getElementById('saison'), ctx);
+    // La page d'une course s'ouvre en modale, par-dessus le plan.
+    mrtModaleCourse(page, { courses: () => ctx.courses, surMaj: () => ctx.actualiser() });
+  });
+</script>
+</body>
+</html>

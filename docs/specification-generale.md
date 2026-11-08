@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.32 · 6 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.33 · 8 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -158,6 +158,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | --- | --- | --- |
 | Objectif & plan | Feuille de route jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Objectif & plan » (le nom rangé dans les préférences reste « Objectif ») | 1 |
 | Calendrier | Saison en trois vues : semaine (par défaut), mois et année, au menu « Périodicité » ; bouton « Plan » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
+| Préparation | Plan de saison : une saison par Objectif, les autres courses insérées selon leur rôle (Préparatoire, Plaisir), récupération et alertes ; séances proposées par une IA à venir ([spécification](module-preparation-specification.md)) ; à cocher dans les Préférences | 1 |
 | Nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
 | Courses à surveiller | Toutes les courses en cartes (à surveiller, courues, à venir) : dates, ouverture des inscriptions avec heure ([spécification](module-courses-a-surveiller-specification.md)) ; dans le menu par défaut, après Calendrier ; index UTMB plus tard | 2 |
 | Guide | Articles et fiches pratiques, publics ou privés | 2 |
