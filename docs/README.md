@@ -44,13 +44,13 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.32 |
 | [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables, confirmations, zones de toucher, formats), échelle de sept tailles, couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.39 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.18 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.67 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : feuille de route, page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.69 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.13 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.32 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
 | [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.8, construit |
 | [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 0.7, construit (reste Ciqual) |
-| [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Périodicité » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.19, construit |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Périodicité » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.20, construit |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -97,7 +97,7 @@ Dans l'ordre :
 2. [ ] **Courses à surveiller** (spécification 0.7, en ligne) :
    - **Dupliquer une course pour l'année suivante** (à rediscuter) : une ligne par édition ; bouton sur la fiche d'une course courue qui crée une copie À surveiller, un an plus tard (mois seul), sans résultat, dossard ni ouverture ; question ouverte : recopier le tracé GPX ?
    - Index UTMB (plus tard).
-3. [ ] **Calendrier** : [spécification 0.19](module-calendrier-specification.md) ; trois vues (Année, Mois, Semaine) au menu « Périodicité », bouton « Plan », modèle de données et séances en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+3. [ ] **Calendrier** : [spécification 0.20](module-calendrier-specification.md) ; trois vues (Année, Mois, Semaine) au menu « Périodicité », bouton « Plan », modèle de données et séances en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **Fonds de phase** (Mois, Semaine ; un seul fond par phase depuis le 0.17) : lisibilité à vérifier à l'usage, notamment sur fond blanc.
    - **Question pour plus tard** : prépa propre aux courses préparatoires et plaisir (§ 9, réponses A, B, C).
    - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases), aussi depuis le formulaire d'une course, nouvelle ou existante.

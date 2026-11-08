@@ -395,7 +395,7 @@
       });
       return file;
     }
-    // « Reprendre » les séances du Calendrier : Renfo devient Musculation ; pour un Run, l'allure reste à choisir ; la durée
+    // « Reprendre » les séances du Calendrier : Renforcement devient Musculation ; pour une Course à pied, l'allure reste à choisir ; la durée
     // vient du libellé quand il la donne clairement.
     function reprendre() {
       const nouvelles = seancesDuJour().map(s => ({ type: s.type === 'renfo' ? 'muscu' : '', heures: dureeDuLibelle(s.libelle) || '' }));

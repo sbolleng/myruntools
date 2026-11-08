@@ -14,7 +14,8 @@
   const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Deload']];
   const NOM_PHASE = Object.fromEntries(PHASES);
 
-  const TYPES = { run: 'Run', renfo: 'Renfo' };
+  // Types de séance, en toutes lettres : pour en ajouter un (vélo, tapis…), une ligne ici et une évolution SQL (valeur de `seance_type`) ; la fenêtre de saisie et les vues les reprennent seules.
+  const TYPES = { run: 'Course à pied', renfo: 'Renforcement' };
 
   // Dates en heure locale, au format 'AAAA-MM-JJ' : comparables comme du texte.
   const pad = n => String(n).padStart(2, '0');
@@ -198,7 +199,7 @@
     const v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
       titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') +
       '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
-      '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type"><option value="run">Run</option><option value="renfo">Renfo</option></select></label>' +
+      '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type">' + Object.keys(TYPES).map(k => '<option value="' + k + '">' + TYPES[k] + '</option>').join('') + '</select></label>' +
       '<label class="cal-champ"><span>Libellé</span><input class="mrt-champ" name="libelle" maxlength="100" placeholder="ex. Footing 45 min" value="' + esc(s ? s.libelle : '') + '"></label>' +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '') + '</form>', 'cal-seance');
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
