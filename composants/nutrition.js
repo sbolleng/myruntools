@@ -5,7 +5,8 @@
 //   renderNutrition(el, { profil, id, courses, semaines, seances })   la page
 //   renderNutritionAccueil(el, { profil, id, courses, semaines, lectureSeule })   le bloc d'En un coup d'œil
 // Données, dans Supabase : `aliments` (favoris, récents), `repas_lignes` (le journal, jour par jour), `sport_jour` (le
-// sport de chaque jour). Recherche : les aliments de l'utilisateur, puis Open Food Facts (valeurs pour 100 g).
+// sport de chaque jour). Recherche : les aliments de l'utilisateur (pendant la frappe), puis Open Food Facts (valeurs pour
+// 100 g) par le relais Supabase « recherche-aliments ».
 (function () {
   const pad = n => String(n).padStart(2, '0');
   const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
@@ -98,22 +99,58 @@
     return aliments.filter(a => { const n = mots(a.nom); return q.every(m => n.some(x => x.startsWith(m))); })
       .sort((x, y) => (y.dernier_usage || '').localeCompare(x.dernier_usage || '')).slice(0, 6);
   }
-  // Open Food Facts : valeurs pour 100 g ; un produit sans calories est écarté.
-  async function chercherOff(texte) {
+  // Produits d'Open Food Facts, valeurs pour 100 g, par le relais Supabase « recherche-aliments »
+  // (supabase/functions/recherche-aliments) ; s'il ne répond pas, l'ancien moteur d'Open Food Facts, directement, avec un
+  // nouvel essai. Les recherches déjà faites sont gardées pendant la visite (sessionStorage).
+  const CLE_RECHERCHES = 'mrt-nutri-recherches';
+  const memoire = () => { try { return JSON.parse(sessionStorage.getItem(CLE_RECHERCHES)) || {}; } catch (e) { return {}; } };
+  function retenir(q, produits) {
+    try {
+      const m = memoire(); delete m[q]; m[q] = produits;
+      const cles = Object.keys(m); while (cles.length > 30) delete m[cles.shift()];
+      sessionStorage.setItem(CLE_RECHERCHES, JSON.stringify(m));
+    } catch (e) { /* stockage indisponible */ }
+  }
+  function normaliser(liste) {
+    const vus = new Set(), sortie = [];
+    for (const p of liste || []) {
+      const n = p.nutriments || {}, nom = String(p.product_name_fr || p.product_name || '').trim();
+      const kcal = n['energy-kcal_100g'] != null ? Number(n['energy-kcal_100g']) : n.energy_100g != null ? Number(n.energy_100g) / 4.184 : NaN;
+      const marque = String((Array.isArray(p.brands) ? p.brands : String(p.brands || '').split(','))[0] || '').trim();
+      const v = k => (Number.isFinite(Number(n[k])) ? arrondi(Number(n[k])) : 0), sq = Number(p.serving_quantity);
+      const cle = (nom + '|' + marque).toLowerCase();
+      if (!nom || !Number.isFinite(kcal) || kcal < 0 || kcal > 1000 || vus.has(cle)) continue;
+      vus.add(cle);
+      sortie.push({ nom, marque, kcal: arrondi(kcal), proteines: v('proteins_100g'), glucides: v('carbohydrates_100g'), lipides: v('fat_100g'), portionG: sq >= 5 && sq <= 1000 ? Math.round(sq) : 100 });
+      if (sortie.length === 8) break;
+    }
+    return sortie;
+  }
+  async function ancienMoteur(texte) {
     const q = new URLSearchParams({ search_terms: texte, search_simple: '1', action: 'process', json: '1', page_size: '20', sort_by: 'unique_scans_n', lc: 'fr', cc: 'fr',
       fields: 'code,product_name,product_name_fr,brands,nutriments,serving_quantity' });
-    const r = await fetch(OFF + '?' + q.toString());
-    if (!r.ok) throw new Error('Open Food Facts : ' + r.status);
-    const d = await r.json();
-    const vus = new Set();
-    return (d.products || []).map(p => {
-      const n = p.nutriments || {}, nom = (p.product_name_fr || p.product_name || '').trim();
-      const kcal = n['energy-kcal_100g'] != null ? Number(n['energy-kcal_100g']) : n.energy_100g != null ? Number(n.energy_100g) / 4.184 : NaN;
-      const marque = (p.brands || '').split(',')[0].trim();
-      const v = k => (Number.isFinite(Number(n[k])) ? arrondi(Number(n[k])) : 0);
-      return { code: p.code, nom, marque, kcal: arrondi(kcal), proteines: v('proteins_100g'), glucides: v('carbohydrates_100g'), lipides: v('fat_100g'),
-        portionG: Number(p.serving_quantity) >= 5 && Number(p.serving_quantity) <= 1000 ? Math.round(Number(p.serving_quantity)) : 100 };
-    }).filter(p => p.nom && Number.isFinite(p.kcal) && p.kcal >= 0 && p.kcal <= 1000 && !vus.has(p.nom + p.marque) && vus.add(p.nom + p.marque)).slice(0, 8);
+    for (let essai = 0; essai < 2; essai++) {
+      if (essai) await new Promise(r => setTimeout(r, 800));
+      try {
+        const r = await fetch(OFF + '?' + q.toString());
+        if (r.ok) return normaliser((await r.json()).products);
+      } catch (err) { /* refusé ou saturé : nouvel essai */ }
+    }
+    throw new Error('Open Food Facts saturé');
+  }
+  async function chercherProduits(texte) {
+    const cle = texte.toLowerCase();
+    const garde = memoire()[cle];
+    if (garde) return garde;
+    let produits = null;
+    try {
+      const { data, error } = await sb().functions.invoke('recherche-aliments', { body: { q: texte } });
+      if (!error && data && Array.isArray(data.produits)) produits = data.produits;
+      else if (error) console.warn('Nutrition : relais de recherche indisponible', error);
+    } catch (err) { console.warn('Nutrition : relais de recherche indisponible', err); }
+    if (!produits) produits = await ancienMoteur(texte);
+    retenir(cle, produits);
+    return produits;
   }
 
   // ----- Séances du Calendrier : la durée, quand le libellé la donne clairement (« 45 min », « 1 h 30 », « 1h ») -----
@@ -202,17 +239,22 @@
     const kcalDe = a => n0(a.kcal) + ' kcal' + (enGrammes(a) ? ' / 100 g' : '');
     const boutonAliment = a => '<button type="button" class="nu-aliment" data-act="choisir" data-id="' + a.id + '"' + (S.choix && S.choix.id === a.id ? ' aria-pressed="true"' : '') + '>' +
       '<span>' + detail(a) + '</span><span class="nu-aliment-k">' + kcalDe(a) + '</span></button>';
-    function htmlRecherche() {
+    function htmlMes() {
+      const m = S.recherche.mes;
+      return m.length ? '<p class="nu-sous-t">Mes aliments</p><div class="nu-liste">' + m.map(boutonAliment).join('') + '</div>' : '';
+    }
+    function htmlProduits() {
       const R0 = S.recherche;
-      let corps = '';
-      if (R0.mes.length) corps += '<p class="nu-sous-t">Mes aliments</p><div class="nu-liste">' + R0.mes.map(boutonAliment).join('') + '</div>';
-      if (R0.etat === 'cours') corps += '<p class="nu-vide">Recherche…</p>';
-      else if (R0.etat === 'erreur') corps += '<p class="nu-vide">Recherche indisponible pour l\'instant, réessaie dans une minute.</p>';
-      else if (R0.etat === 'ok' && !R0.resultats.length && !R0.mes.length) corps += '<p class="nu-vide">Aucun résultat.</p>';
-      else if (R0.etat === 'ok' && R0.resultats.length) corps += (R0.mes.length ? '<p class="nu-sous-t">Produits</p>' : '') + '<div class="nu-liste nu-off">' + R0.resultats.map((p, i) => '<button type="button" class="nu-aliment" data-act="resultat" data-i="' + i + '">' +
+      if (R0.etat === 'cours') return '<p class="nu-vide">Recherche…</p>';
+      if (R0.etat === 'erreur') return '<p class="nu-vide">Open Food Facts est saturé, réessaie dans un instant.</p>';
+      if (R0.etat === 'ok' && !R0.resultats.length) return R0.mes.length ? '' : '<p class="nu-vide">Aucun résultat.</p>';
+      if (R0.etat !== 'ok') return '';
+      return (R0.mes.length ? '<p class="nu-sous-t">Produits</p>' : '') + '<div class="nu-liste nu-off">' + R0.resultats.map((p, i) => '<button type="button" class="nu-aliment" data-act="resultat" data-i="' + i + '">' +
         '<span>' + esc(p.nom) + (p.marque ? ' <span class="nu-marque">· ' + esc(p.marque) + '</span>' : '') + '</span><span class="nu-aliment-k">' + n0(p.kcal) + ' kcal / 100 g</span></button>').join('') + '</div>';
-      return '<form class="nu-recherche" role="search"><input class="mrt-champ" type="search" name="q" placeholder="Rechercher un aliment…" aria-label="Rechercher un aliment" value="' + esc(R0.texte) + '" autocomplete="off" enterkeyhint="search">' +
-        '<button type="submit" class="mrt-btn">Chercher</button></form><div class="nu-resultats">' + corps + '</div>';
+    }
+    function htmlRecherche() {
+      return '<form class="nu-recherche" role="search"><input class="mrt-champ" type="search" name="q" placeholder="Rechercher un aliment…" aria-label="Rechercher un aliment" value="' + esc(S.recherche.texte) + '" autocomplete="off" enterkeyhint="search">' +
+        '<button type="submit" class="mrt-btn">Chercher</button></form><div class="nu-resultats"><div class="nu-mes">' + htmlMes() + '</div><div class="nu-produits">' + htmlProduits() + '</div></div>';
     }
     function htmlChoix() {
       const a = choisi();
@@ -350,16 +392,29 @@
       a.favori = !a.favori; S.msg = '';
       dessinerAjout();
     }
+    const zones = () => {
+      const c = carte('ajout');
+      if (!c.querySelector('.nu-mes')) return dessinerAjout();
+      c.querySelector('.nu-mes').innerHTML = htmlMes();
+      c.querySelector('.nu-produits').innerHTML = htmlProduits();
+    };
+    // Pendant la frappe : mes aliments seulement, sans réseau ; les produits d'une recherche précédente s'effacent.
+    function taper(texte) {
+      const t = texte.trim();
+      if (t === S.recherche.texte) return;
+      S.recherche = { texte: t, etat: null, mes: t.length >= 2 ? chercherChezMoi(S.aliments, t) : [], resultats: [] };
+      zones();
+    }
     async function lancerRecherche(texte) {
       texte = texte.trim();
       if (texte.length < 2) return;
       S.recherche = { texte, etat: 'cours', mes: chercherChezMoi(S.aliments, texte), resultats: [] }; S.choix = null; S.msg = '';
       dessinerAjout();
       let resultats = [], etat = 'ok';
-      try { resultats = await chercherOff(texte); } catch (err) { console.warn('Nutrition : recherche impossible', err); etat = 'erreur'; }
+      try { resultats = await chercherProduits(texte); } catch (err) { console.warn('Nutrition : recherche impossible', err); etat = 'erreur'; }
       if (S.recherche.texte !== texte) return;
       S.recherche.resultats = resultats; S.recherche.etat = etat;
-      dessinerAjout();
+      zones();
     }
 
     // ----- Sport du jour : rangé dans la base, jour par jour -----
@@ -434,7 +489,10 @@
       else if (e.target.classList.contains('nu-recherche')) lancerRecherche(e.target.q.value);
     };
     el.onchange = e => { if (e.target.closest('.nu-sport-l')) lireSports(); };
-    el.oninput = e => { if (e.target.closest('.nu-sport-l') && e.target.name === 'heures') lireSports(); };
+    el.oninput = e => {
+      if (e.target.closest('.nu-sport-l') && e.target.name === 'heures') lireSports();
+      else if (e.target.closest('.nu-recherche') && e.target.name === 'q') taper(e.target.value);
+    };
     window.addEventListener('pagehide', () => { if (aRanger) enregistrerSport(); });
     tout();
   };
