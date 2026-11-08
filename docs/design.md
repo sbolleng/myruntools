@@ -1,6 +1,6 @@
 # Design
 
-Version 0.43 · 8 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.44 · 8 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -227,6 +227,8 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 
 - Dans un cadre (Surface), comme les autres pages. Titre de saison en 1 rem, 600, Texte, le nom de l'Objectif souligné d'un filet (lien vers sa page) ; « (dans 20 sem.) » en 0,8 rem, Texte discret ; état de la semaine dessous, 0,8 rem, Texte discret.
 - **Frise** : une colonne par semaine (0,9 rem au moins, 2 px d'écart), barre de 1,4 rem à la couleur de sa phase ; nom du mois (Space Mono 0,65 rem, Texte discret) sur la semaine où il commence, l'année sur le premier et en janvier ; dessous, un ▲ par course : Accent (Objectif), Texte (Préparatoire), Texte discret (Plaisir), contour seul (option) ; défile de gauche à droite quand elle ne tient pas. Légende dessous, 0,7 rem : les quatre signes, puis les six phases.
+- **Mon profil** : bouton à contour en haut à droite, l'état du profil à sa gauche (0,8 rem, Texte discret ; Texte quand il est complet). Fenêtre comme celle d'une séance, 40 rem au plus : groupes titrés en libellé, champs communs, deux à quatre par ligne (une seule colonne quand l'écran est étroit), jours et moyens en pastilles à cocher, aides en 0,8 rem, Texte discret.
+- **Fenêtre d'une séance** : durée, distance et intensité côte à côte, sous le libellé.
 - **Alertes** et **Bloc en cours** : titres en libellé (Space Mono 0,7 rem, capitales, Texte discret) ; une alerte : 0,8 rem, Texte, sur la couleur des jours, filet de 3 px en Accent à gauche ; repères d'une semaine (allégé, repos, récupération) en 0,8 rem, Texte discret, au-dessus de la semaine ; semaines comme la rubrique Préparation d'une course.
 
 ## 11. Panneau des boutons

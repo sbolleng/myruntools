@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.2 · 8 novembre 2026 · [Retour au sommaire](README.md) · Lot 1 construit : plan de saison, rôles fusionnés, récupération, alertes, page Préparation ; le Calendrier suit le plan de saison
+Version 0.3 · 8 novembre 2026 · [Retour au sommaire](README.md) · Lot 2 construit : profil d'entraînement (fenêtre « Mon profil », état du profil) et séances enrichies (durée, distance, intensité)
 
 ## 1. Rôle
 
@@ -101,7 +101,8 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 |---|---|---|
 | 1 | Titre de saison | Le prochain Objectif, sa date, le temps restant ; sans Objectif à venir, à la place de la page : « Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Objectif & plan) pour construire ta saison. » |
 | 11 | État de la semaine | En saison : « Cette semaine : Base, semaine 3 sur 16. » ; « Récupération de … jusqu'au … » ; « Entretien, jusqu'au … ; la saison commence le … » ; « Saison raccourcie : 8 semaines sur 16. » si besoin |
-| 2 | Mon profil | La fenêtre du profil d'entraînement (§ 5.2) |
+| 2 | Mon profil | Bouton à contour, en haut à droite : la fenêtre du profil d'entraînement (§ 5.2) ; aussi quand aucun Objectif n'est à venir ; absent du site partagé |
+| 12 | État du profil | À gauche du bouton : « Profil à compléter : … » (les champs obligatoires qui manquent) ou « Profil complet. » |
 | 3 | Frise de saison | De la semaine en cours à la fin de la récupération du dernier Objectif : une colonne par semaine à la couleur de sa phase, les courses dessous, repérées par leur rôle (les options en pointillé) ; chaque course mène à sa page ; légende des signes et des six phases |
 | 4 | Alertes | Le nombre, puis la liste (§ 3.4) ; chacune mène à sa course |
 | 5 | Bloc en cours | 4 semaines à partir du lundi de la semaine en cours : l'unité de génération |
@@ -113,7 +114,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 
 Téléphone : même ordre ; la frise défile de gauche à droite.
 
-Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; le profil (2) au lot 2 ; la proposition de séances (6, 8, 9) au lot 3 ; la suite (10) au lot 4.
+Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; lot 2 : le profil (2) et son état (12) ; la proposition de séances (6, 8, 9) au lot 3 ; la suite (10) au lot 4.
 
 ### 5.2 Profil d'entraînement
 
@@ -156,8 +157,8 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 |---|---|---|
 | Rôle d'une course : objectif, préparatoire, plaisir | `courses.role` ; les `objectif_intermediaire` passent en `objectif` | Évolution à écrire |
 | Durée de prépa, phases modifiées à la main | `formats.prepa_semaines`, `courses.prepa_semaines`, `plan_semaines` | Existe (évolution 009) |
-| Profil d'entraînement (§ 5.2) | Nouvelle table, une ligne par utilisateur | Évolution à écrire |
-| Séance enrichie : durée, distance, intensité ; origine (saisie, IA) ; état (proposée, acceptée) | Table `seances`, nouvelles colonnes | Évolution à écrire |
+| Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur (jours : 1 pour lundi à 7 pour dimanche ; temps en secondes) | Créée (évolution 024) |
+| Séance enrichie : durée (min), distance (km), intensité (facile, modérée, intense) ; origine (saisie, IA) ; état (proposée, acceptée) | Table `seances`, nouvelles colonnes (les séances existantes : saisies, acceptées) | Créée (évolution 024) |
 | Propositions : date, bloc, modèle, jetons, acceptée ou non | Nouvelle table, lue par la fonction côté serveur pour le plafond | Évolution à écrire |
 
 Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de récupération, alertes.
@@ -165,7 +166,7 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 ## 8. Lots de construction
 
 1. **Trame de saison et règles de combinaison, sans IA**. **Construit** (8 novembre 2026) : calcul dans `composants/preparation.js` (`planSaison`, `phaseDe`, `reperesDuJour`), page `preparation.html` et composant `composants/plan-saison.js` ; rôles fusionnés (évolution `023-roles-objectif.sql`, à coller dans l'éditeur SQL) ; le Calendrier et Nutrition lisent la phase du plan de saison. Reste pour plus tard : la rubrique Préparation de la page d'une course dans la saison.
-2. **Profil d'entraînement et séances enrichies** : évolution de la base, fenêtre du profil.
+2. **Profil d'entraînement et séances enrichies**. **Construit** (8 novembre 2026) : évolution `024-profil-entrainement.sql` (à coller dans l'éditeur SQL), fenêtre « Mon profil » et état du profil sur la page Préparation ; durée, distance et intensité facultatives dans la fenêtre d'une séance ([Calendrier](module-calendrier-specification.md), § 4.4). Leur affichage dans les vues viendra avec les séances proposées (lot 3).
 3. **Fonction côté serveur et proposition d'un bloc** : aperçu, garde-fous, acceptation, plafond ; préalable : la mention de l'envoi à l'IA dans la politique de confidentialité (lot RGPD).
 4. **Réajustement et historique des propositions.**
 
@@ -213,7 +214,14 @@ Résultats attendus, page et profil :
 - Au 30 novembre : « Cette semaine : Base, semaine 3 sur 16. » ; repères « Récupération de Trail du Lac jusqu'au ven. 4 déc. 2026 » et « Repos le sam. 12 déc. 2026 : veille de Corrida de Noël (Plaisir). ».
 - Calendrier, mars 2027 : affûtage le 2 mars, Récupération le 9, d'une autre couleur.
 - Sans Objectif à venir : le message, pas de frise. Site partagé en lecture seule : la saison s'affiche, sans « + ».
-- (Lot 2) Profil vide : pas de bouton « Proposer les séances », lien « Compléter mon profil » ; profil rempli (champs obligatoires) : le bouton et « 4 restantes ce mois-ci ».
+Résultats attendus, profil (lot 2) :
+
+- Profil vide : « Profil à compléter : années de pratique, volume des 4 dernières semaines, plus longue sortie récente, jours possibles, VMA ou temps de référence. » ; la fenêtre : groupes Niveau, Disponibilités, Allures, Renforcement et moyens, Points fragiles.
+- VMA à 35 : « La VMA doit être comprise entre 8 et 30 km/h. », rien d'écrit. Saisie de 6 ans, 35,5 km par semaine, 2 h de sortie longue, mardi, jeudi et samedi (sortie longue le samedi), 45:30 sur 10 km, tapis : une ligne écrite (35,5 ; 2 730 secondes ; jours 2, 4, 6) ; « Profil complet. ».
+- Profil relu : la fenêtre reprend 35,5, heures, 45:30, 1:42:00, 2 séances de renforcement, le jeudi et le tapis cochés.
+- Séance : distance à 0 refusée (« La distance doit être comprise entre 0,1 et 999 km. ») ; 45 min, 8,5 km, Facile : enregistrés et repris dans la fenêtre.
+- Site partagé : ni bouton ni état du profil. Téléphone : la fenêtre ne déborde pas.
+- (Lot 3) Profil incomplet : pas de bouton « Proposer les séances », lien « Compléter mon profil » ; profil complet : le bouton et « 4 restantes ce mois-ci ».
 
 Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût) :
 

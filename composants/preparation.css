@@ -77,6 +77,8 @@
 .cal-champ { display: block; margin-bottom: 0.7rem; }
 .cal-champ span { display: block; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-champ .mrt-champ { display: block; width: 100%; }
+/* Durée, distance, intensité d'une séance : trois champs côte à côte. */
+.cal-champs3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 0.6rem; }
 .cal-duree .mrt-champ { width: 6rem; }
 .cal-msg { margin: 0 0 0.6rem; font-size: var(--t-petit); color: var(--red); }
 .cal-msg:empty { display: none; }

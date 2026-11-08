@@ -115,6 +115,11 @@ function simulerBase(ctx, db) {
         else if (req.method() === 'DELETE') db[tab] = db[tab].filter(x => !correspond(x));
         return route.fulfill({ contentType: 'application/json', body: '[]' });
       }
+      // Profil d'entraînement (Préparation) : une ligne par utilisateur, remplacée à chaque enregistrement (upsert).
+      if (tab === 'profil_entrainement' && req.method() === 'POST') {
+        db.profil_entrainement = (db.profil_entrainement || []).filter(x => x.utilisateur !== db.profils[0].id).concat([Object.assign({ utilisateur: db.profils[0].id }, req.postDataJSON())]);
+        return route.fulfill({ contentType: 'application/json', body: '[]' });
+      }
       // Profil (Nutrition) : les champs modifiés s'écrivent dans la base simulée.
       if (tab === 'profils' && req.method() === 'PATCH') {
         db.profils.filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
@@ -2257,6 +2262,87 @@ const CONTROLES = {
     await p.waitForSelector('.ps-cadre');
     r = await lire(p);
     pb.push(egal([true, 0], [/Trail des Gorges/.test(r.titre || ''), r.plus], 'lecture seule : la saison s\'affiche, sans « + »'));
+    await ctx.close();
+    return pb;
+  },
+
+  // Spécification Préparation, § 5.2 et 7 (lot 2) : profil d'entraînement, séances enrichies (durée, distance, intensité).
+  async preparationProfil(nav, db0) {
+    const pb = [];
+    const { db } = jeuObjectif(db0);
+    const copie = f => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = d.seances || []; if (f) f(d); return d; };
+    const etat = p => p.evaluate(() => (document.querySelector('.ps-profil-etat') || {}).textContent || null);
+    // Profil vide : ce qui manque ; la fenêtre ; valeur refusée ; enregistrement.
+    let d = copie();
+    let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
+    await p.waitForFunction(() => /Profil/.test((document.querySelector('.ps-profil-etat') || {}).textContent || ''));
+    pb.push(egal('Profil à compléter : années de pratique, volume des 4 dernières semaines, plus longue sortie récente, jours possibles, VMA ou temps de référence.', await etat(p),
+      'profil vide : les cinq champs obligatoires qui manquent'));
+    await p.click('[data-profil]'); await p.waitForSelector('.ps-profil');
+    pb.push(egal(['Niveau', 'Disponibilités', 'Allures', 'Renforcement et moyens', 'Points fragiles'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil legend')].map(x => x.textContent)),
+      'fenêtre du profil : cinq groupes'));
+    await p.fill('.ps-profil [name="annees"]', '6'); await p.fill('.ps-profil [name="volume"]', '35,5'); await p.fill('.ps-profil [name="sortie_longue"]', '2');
+    await p.selectOption('.ps-profil [name="sortie_longue_unite"]', 'h');
+    for (const j of ['2', '4', '6']) await p.click('.ps-profil label:has([name="jours"][value="' + j + '"])');
+    await p.selectOption('.ps-profil [name="jour_long"]', '6');
+    await p.fill('.ps-profil [name="vma"]', '35');
+    await p.click('.ps-profil [type="submit"]');
+    pb.push(egal(['La VMA doit être comprise entre 8 et 30 km/h.', 0], [await p.textContent('.ps-profil .cal-msg'), d.ecritures.length], 'VMA à 35 refusée, rien d\'écrit'));
+    await p.fill('.ps-profil [name="vma"]', ''); await p.fill('.ps-profil [name="temps_10km"]', '45:30');
+    await p.click('.ps-profil label:has([name="moyens"][value="tapis"])');
+    await p.click('.ps-profil [type="submit"]');
+    await p.waitForSelector('.ps-profil', { state: 'detached' });
+    const e = d.ecritures.find(x => x.table === 'profil_entrainement');
+    pb.push(egal({ methode: 'POST', annees: 6, volume: 35.5, volume_unite: 'km', sortie_longue: 2, sortie_longue_unite: 'h', jours: [2, 4, 6], jour_long: 6, vma: null, temps_10km_s: 2730, moyens: ['tapis'], fragiles: null },
+      e && { methode: e.methode, annees: e.corps.annees, volume: e.corps.volume, volume_unite: e.corps.volume_unite, sortie_longue: e.corps.sortie_longue, sortie_longue_unite: e.corps.sortie_longue_unite,
+        jours: e.corps.jours, jour_long: e.corps.jour_long, vma: e.corps.vma, temps_10km_s: e.corps.temps_10km_s, moyens: e.corps.moyens, fragiles: e.corps.fragiles },
+      'enregistrement : une ligne (virgule acceptée, 45:30 en secondes, jours et moyens cochés)'));
+    pb.push(egal('Profil complet.', await etat(p), 'profil complet'));
+    pb.push(egal([], erreurs, 'erreurs JavaScript'));
+    await ctx.close();
+    // Profil relu : la fenêtre reprend les valeurs.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(x => { x.profil_entrainement = [{ utilisateur: x.profils[0].id, annees: 6, volume: 35.5, volume_unite: 'km', sortie_longue: 2, sortie_longue_unite: 'h',
+      jours: [2, 4, 6], jour_long: 6, temps_10km_s: 2730, temps_semi_s: 6120, renfo: 2, moyens: ['tapis'] }]; }), {}, PARIS));
+    await p.waitForFunction(() => /Profil complet/.test((document.querySelector('.ps-profil-etat') || {}).textContent || ''));
+    await p.click('[data-profil]'); await p.waitForSelector('.ps-profil');
+    pb.push(egal(['35,5', 'h', '45:30', '1:42:00', '2', true, true], await p.evaluate(() => { const f = document.querySelector('.ps-profil form');
+      return [f.volume.value, f.sortie_longue_unite.value, f.temps_10km.value, f.temps_semi.value, f.renfo.value, f.querySelector('[name="jours"][value="4"]').checked, f.querySelector('[name="moyens"][value="tapis"]').checked]; }),
+      'profil relu : les valeurs reprises dans la fenêtre'));
+    await p.click('.ps-profil [data-act="annuler"]');
+    await ctx.close();
+    // Séance : durée, distance, intensité facultatives.
+    d = copie();
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, d, {}, PARIS));
+    await p.click('[data-ajout="2026-10-21"]');
+    await p.fill('.cal-seance [name="libelle"]', 'Footing');
+    await p.fill('.cal-seance [name="distance"]', '0');
+    await p.click('.cal-seance button[type="submit"]');
+    pb.push(egal('La distance doit être comprise entre 0,1 et 999 km.', await p.textContent('.cal-msg'), 'séance : distance à 0 refusée'));
+    await p.fill('.cal-seance [name="distance"]', '8,5'); await p.fill('.cal-seance [name="duree"]', '45'); await p.selectOption('.cal-seance [name="intensite"]', 'facile');
+    await p.click('.cal-seance button[type="submit"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile'));
+    const s = d.seances[d.seances.length - 1];
+    pb.push(egal({ libelle: 'Footing', duree_min: 45, distance_km: 8.5, intensite: 'facile' }, s && { libelle: s.libelle, duree_min: s.duree_min, distance_km: s.distance_km, intensite: s.intensite },
+      'séance : durée, distance (virgule acceptée) et intensité enregistrées'));
+    await p.click('[data-edit="' + s.id + '"]');
+    pb.push(egal(['45', '8,5', 'facile'], await p.evaluate(() => { const f = document.querySelector('.cal-seance form'); return [f.duree.value, f.distance.value, f.intensite.value]; }), 'séance relue : les trois champs repris'));
+    await ctx.close();
+    // Site partagé : ni bouton ni état du profil.
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = copie(x => {
+      x.courses = x.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
+      x.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+      x.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    });
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
+    await p.waitForSelector('.ps-cadre');
+    pb.push(egal(0, await p.locator('[data-profil], .ps-profil-etat').count(), 'lecture seule : pas de profil'));
+    await ctx.close();
+    // Téléphone : la fenêtre tient dans l'écran.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS));
+    await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil');
+    pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth || document.querySelector('.ps-profil').scrollWidth > document.querySelector('.ps-profil').clientWidth), 'téléphone : la fenêtre du profil ne déborde pas'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preparation-profil-telephone.png') });
     await ctx.close();
     return pb;
   },

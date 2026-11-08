@@ -17,6 +17,10 @@
 
   // Types de séance, en toutes lettres : pour en ajouter un (vélo, tapis…), une ligne ici et une évolution SQL (valeur de `seance_type`) ; la fenêtre de saisie et les vues les reprennent seules.
   const TYPES = { run: 'Course à pied', renfo: 'Renforcement' };
+  // Intensité d'une séance (facultative) : une séance facile est la seule permise pendant une récupération (spécification Préparation, § 3.3).
+  const INTENSITES = { facile: 'Facile', moderee: 'Modérée', intense: 'Intense' };
+  // Nombre saisi (virgule acceptée) ; vide : null ; illisible : NaN.
+  const nombre = v => { const t = String(v == null ? '' : v).trim().replace(',', '.'); return t === '' ? null : /^\d+(\.\d+)?$/.test(t) ? Number(t) : NaN; };
 
   // Dates en heure locale, au format 'AAAA-MM-JJ' : comparables comme du texte.
   const pad = n => String(n).padStart(2, '0');
@@ -272,6 +276,10 @@
       '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
       '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type">' + Object.keys(TYPES).map(k => '<option value="' + k + '">' + TYPES[k] + '</option>').join('') + '</select></label>' +
       '<label class="cal-champ"><span>Libellé</span><input class="mrt-champ" name="libelle" maxlength="100" placeholder="ex. Footing 45 min" value="' + esc(s ? s.libelle : '') + '"></label>' +
+      // Facultatifs : durée, distance, intensité (spécification Préparation, § 7).
+      '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
+      '<label class="cal-champ"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
+      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label></div>' +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '') + '</form>', 'cal-seance');
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
     if (s) f.type.value = s.type;
@@ -290,7 +298,10 @@
       const libelle = f.libelle.value.trim(), date = f.date.value;
       if (!date) return void (msg.textContent = 'Choisis une date.');
       if (!libelle) return void (msg.textContent = 'Écris le libellé de la séance.');
-      const champs = { date, type: f.type.value, libelle };
+      const duree = nombre(f.duree.value), distance = nombre(f.distance.value);
+      if (duree !== null && !(Number.isInteger(duree) && duree >= 1 && duree <= 1440)) return void (msg.textContent = 'La durée doit être un nombre de minutes entre 1 et 1 440.');
+      if (distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
+      const champs = { date, type: f.type.value, libelle, duree_min: duree, distance_km: distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null };
       const { error } = s ? await sb.from('seances').update(champs).eq('id', s.id)
         : await sb.from('seances').insert(Object.assign({ course: opts.course || null }, champs));
       if (error) return echec(error);
@@ -391,6 +402,6 @@
     });
   }
 
-  window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES };
 })();

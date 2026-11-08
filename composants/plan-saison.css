@@ -40,3 +40,15 @@
 @media (max-width: 600px) {
   .ps-frise { grid-template-columns: repeat(var(--n), 0.9rem); }
 }
+
+/* ----- Profil d'entraînement : bouton et état en tête de page ; fenêtre (comme la fiche d'une course) ----- */
+.ps-profil-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.4rem 0.8rem; margin-bottom: 0.8rem; }
+.ps-profil-etat { font-size: var(--t-second); color: var(--muted); }
+.ps-profil-etat.is-complet { color: var(--text); }
+.cal-panneau.ps-profil { max-width: 40rem; }
+.ps-groupe { margin: 0 0 0.6rem; padding: 0; border: 0; }
+.ps-groupe .ps-libelle { margin: 0.8rem 0 0.5rem; padding: 0; }
+.ps-aide { margin: 0 0 0.7rem; font-size: var(--t-second); color: var(--muted); }
+.ps-ligne { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0 0.7rem; align-items: end; }
+.ps-coches { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: -0.3rem 0 0.8rem; }
+.ps-profil textarea { resize: vertical; }

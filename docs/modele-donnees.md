@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.21 · 8 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.22 · 8 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -23,6 +23,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `courses_circuits` | L'appartenance d'une course à un circuit (UTMB, Challenge Levy…) | `courses`, `circuits` |
 | `plan_semaines` | Une semaine dont la phase de préparation a été modifiée à la main | `courses` |
 | `seances` | Une séance du Calendrier (run ou renfo) | `profils`, `courses` (facultatif) |
+| `profil_entrainement` | Le profil d'entraînement de la Préparation, une ligne par utilisateur | `profils` |
 | `aliments` | Un aliment de l'utilisateur (favori, récent) | `profils` |
 | `repas_lignes` | Un aliment mangé, un jour, à un repas | `profils`, `aliments` (facultatif) |
 | `sport_jour` | Un sport pratiqué un jour (Nutrition) | `profils` |
@@ -145,7 +146,8 @@ Le plan d'une course est calculé à l'affichage ([spécification du Calendrier]
 | Durée par défaut | `formats.prepa_semaines` | Nombre de semaines de préparation d'un format ; vide : pas de préparation affichée (Trail découverte, Course en heure, Marche, Fast hiking, Triathlon pour l'instant) |
 | Durée d'une course | `courses.prepa_semaines` | Remplace celle du format |
 | Phase modifiée | `plan_semaines` : `course`, `lundi` (le lundi de la semaine), `phase` | Une ligne par semaine dont la phase a été changée à la main ; les autres semaines se calculent. Phases : base, développement, affûtage, deload. Supprimée avec la course. |
-| Séance | `seances` : `date`, `type` (run ou renfo), `libelle` (1 à 100 caractères), `faite`, `course` (facultative) | Une séance saisie à la main. Si la course est supprimée, la séance reste, sans course. |
+| Séance | `seances` : `date`, `type` (run ou renfo), `libelle` (1 à 100 caractères), `faite`, `course` (facultative) ; `duree_min` (1 à 1 440), `distance_km` (0,1 à 999,9), `intensite` (facile, modérée, intense), facultatives ; `origine` (saisie, ia) et `etat` (proposée, acceptée), saisie et acceptée par défaut | Une séance saisie à la main, ou proposée par l'IA (Préparation, lot 3). Si la course est supprimée, la séance reste, sans course. |
+| Profil d'entraînement | `profil_entrainement` : `annees`, `volume` et `volume_unite` (km ou h), `sortie_longue` et `sortie_longue_unite`, `jours` (1 lundi à 7 dimanche), `jour_long`, `seance_max_min`, `semaine_max_h`, `vma`, `temps_10km_s`, `temps_semi_s`, `fc_max`, `renfo` (0 à 3), `moyens` (tapis, vélo, piscine), `fragiles` (300 caractères), `maj` | Tout est facultatif dans la base ; le site dit ce qui manque pour proposer des séances ([Préparation](module-preparation-specification.md), § 5.2). Données de santé : jamais lisibles par le site partagé. |
 
 ## 5. Équipement
 
