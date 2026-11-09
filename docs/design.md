@@ -1,6 +1,6 @@
 # Design
 
-Version 0.44 · 8 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.45 · 9 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -229,6 +229,7 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Frise** : une colonne par semaine (0,9 rem au moins, 2 px d'écart), barre de 1,4 rem à la couleur de sa phase ; nom du mois (Space Mono 0,65 rem, Texte discret) sur la semaine où il commence, l'année sur le premier et en janvier ; dessous, un ▲ par course : Accent (Objectif), Texte (Préparatoire), Texte discret (Plaisir), contour seul (option) ; défile de gauche à droite quand elle ne tient pas. Légende dessous, 0,7 rem : les quatre signes, puis les six phases.
 - **Mon profil** : bouton à contour en haut à droite, l'état du profil à sa gauche (0,8 rem, Texte discret ; Texte quand il est complet). Fenêtre comme celle d'une séance, 40 rem au plus : groupes titrés en libellé, champs communs, deux à quatre par ligne (une seule colonne quand l'écran est étroit), jours et moyens en pastilles à cocher, aides en 0,8 rem, Texte discret.
 - **Fenêtre d'une séance** : durée, distance et intensité côte à côte, sous le libellé.
+- **Séances proposées par l'IA** : sous le titre du bloc, « Proposer les séances » (bouton principal), « 4 restantes ce mois-ci » et la mention (0,7 rem, Texte discret), un message d'erreur en Alerte. La proposition en attente dans un cadre fin en Accent : titre en libellé, une semaine par groupe (titre en Space Mono capitales, Texte ; explication en 0,8 rem, italique, Texte discret, entre guillemets ; une ligne par séance en 0,85 rem, le type en Space Mono 0,65 rem capitales), puis les boutons (un seul principal : « Tout accepter » ou « Accepter la sélection »).
 - **Alertes** et **Bloc en cours** : titres en libellé (Space Mono 0,7 rem, capitales, Texte discret) ; une alerte : 0,8 rem, Texte, sur la couleur des jours, filet de 3 px en Accent à gauche ; repères d'une semaine (allégé, repos, récupération) en 0,8 rem, Texte discret, au-dessus de la semaine ; semaines comme la rubrique Préparation d'une course.
 
 ## 11. Panneau des boutons

@@ -11,7 +11,7 @@
 //                                             dans un autre thème que celui des données fictives (bleu-orange)
 // Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares,
 //         calendrier (vue Semaine, par défaut), calendrier-mois, calendrier-annee, et les mêmes bouton « Plan » enfoncé
-//         (calendrier-phases, calendrier-mois-phases, calendrier-annee-phases), calendrier-menu (menu « Périodicité » ouvert), preparation (plan de saison), preparation-profil (fenêtre du profil), filtres, preferences,
+//         (calendrier-phases, calendrier-mois-phases, calendrier-annee-phases), calendrier-menu (menu « Périodicité » ouvert), preparation (plan de saison), preparation-profil (fenêtre du profil), preparation-ia (proposition de l'IA en attente), filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -68,6 +68,15 @@ const PAGES = {
   'calendrier-mois-phases': { url: 'calendrier.html#mois', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   'calendrier-annee-phases': { url: 'calendrier.html#annee', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   preparation: { url: 'preparation.html', donnees: SEANCES },
+  // Une proposition de l'IA en attente (bloc du 19 octobre), le profil complet.
+  'preparation-ia': { url: 'preparation.html', hauteur: { tel: 1900, ordi: 1300 }, donnees: d => {
+    const moi = d.profils[0].id, lundis = ['2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09'];
+    d.profil_entrainement = [{ utilisateur: moi, annees: 6, volume: 35, volume_unite: 'km', sortie_longue: 2, sortie_longue_unite: 'h', jours: [2, 4, 6], jour_long: 6, temps_10km_s: 2730 }];
+    d.propositions = [{ id: 'p1', utilisateur: moi, cree: '2026-10-20T10:00:00Z', bloc: lundis[0], essai: 1, statut: 'brute', reponse: { semaines: lundis.map((l, i) => ({ lundi: l,
+      explication: i === 3 ? 'Semaine allégée avant le Trail du Lac : séances courtes et faciles.' : 'Entretien : deux footings, une séance de seuil et une sortie longue.',
+      seances: [[1, 'run', 'Footing', 45, 8, 'facile'], [3, 'run', i === 3 ? 'Footing léger' : '3 × 10 min au seuil', i === 3 ? 30 : 55, i === 3 ? 5 : 10, i === 3 ? 'facile' : 'intense'], [5, 'run', i === 3 ? 'Footing' : 'Sortie longue', i === 3 ? 30 : 95, i === 3 ? 5 : 16, 'facile']]
+        .map(([k, type, libelle, duree_min, distance_km, intensite]) => { const x = new Date(l + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + k); return { date: x.toISOString().slice(0, 10), type, libelle, duree_min, distance_km, intensite }; }) })) } }];
+    return d; } },
   'preparation-profil': { url: 'preparation.html', hauteur: { tel: 1500, ordi: 1300 }, action: async p => { await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil'); } },
   'calendrier-menu': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.click('[data-menu]'); await p.waitForTimeout(200); } },
   // Consultation d'une course courue : le semi de San Sebastián, avec des valeurs fictives ajoutées.

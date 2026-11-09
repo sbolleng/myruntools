@@ -202,6 +202,21 @@ create table seances (
 );
 create index seances_utilisateur_date on seances (utilisateur, date);
 
+-- ----- Préparation : propositions de séances par l'IA, une ligne par appel (évolution 025)
+create table propositions (
+  id            uuid primary key default gen_random_uuid(),
+  utilisateur   uuid not null default auth.uid() references profils (id) on delete cascade,
+  cree          timestamptz not null default now(),
+  bloc          date not null,
+  essai         smallint not null check (essai in (1, 2)),
+  modele        text not null check (char_length(modele) <= 60),
+  jetons_entree integer not null default 0,
+  jetons_sortie integer not null default 0,
+  statut        text not null default 'brute' check (statut in ('brute', 'invalide', 'echec', 'acceptee', 'abandonnee')),
+  reponse       jsonb
+);
+create index propositions_utilisateur_cree on propositions (utilisateur, cree);
+
 -- ----- Préparation : profil d'entraînement, une ligne par utilisateur (évolution 024)
 create table profil_entrainement (
   utilisateur        uuid primary key default auth.uid() references profils (id) on delete cascade,
@@ -320,6 +335,7 @@ alter table courses_circuits enable row level security;
 alter table plan_semaines    enable row level security;
 alter table seances          enable row level security;
 alter table profil_entrainement enable row level security;
+alter table propositions enable row level security;
 alter table aliments         enable row level security;
 alter table repas_lignes     enable row level security;
 alter table sport_jour       enable row level security;
@@ -337,6 +353,8 @@ create policy "son plan" on plan_semaines for all to authenticated
 create policy "ses séances" on seances for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "son profil d'entraînement" on profil_entrainement for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "ses propositions" on propositions for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses aliments" on aliments for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));

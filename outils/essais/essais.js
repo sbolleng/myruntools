@@ -108,7 +108,7 @@ function simulerBase(ctx, db) {
       const tab = u.pathname.split('/').pop();
       const filtresEq = [...u.searchParams].filter(([k, v]) => /^eq\./.test(v) && k !== 'select');
       const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3));
-      if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).join() === 'prepa_semaines')) {
+      if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour', 'propositions'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).join() === 'prepa_semaines')) {
         if (!db[tab]) db[tab] = [];
         if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach((l, i) => db[tab].push(Object.assign({ id: 'nouveau-' + db[tab].length + '-' + i, utilisateur: db.profils[0].id }, l)));
         else if (req.method() === 'PATCH') db[tab].filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
@@ -2343,6 +2343,153 @@ const CONTROLES = {
     await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil');
     pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth || document.querySelector('.ps-profil').scrollWidth > document.querySelector('.ps-profil').clientWidth), 'téléphone : la fenêtre du profil ne déborde pas'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preparation-profil-telephone.png') });
+    await ctx.close();
+    return pb;
+  },
+
+  // Spécification Préparation, § 6 (lot 3) : séances proposées par l'IA ; l'appel est remplacé par des réponses fixes, sans coût.
+  async preparationIA(nav, db0) {
+    const pb = [];
+    const { db } = jeuObjectif(db0);
+    const moi = db.profils[0].id;
+    const PROFIL = { utilisateur: moi, annees: 6, volume: 35, volume_unite: 'km', sortie_longue: 2, sortie_longue_unite: 'h', jours: [2, 4, 6], jour_long: 6, seance_max_min: 120, temps_10km_s: 2730, renfo: 1, moyens: [] };
+    // Bloc du 19 octobre au 15 novembre : séances les mardis, jeudis et samedis (jours du profil).
+    const LUNDIS = ['2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09'];
+    const bonne = () => ({ semaines: LUNDIS.map(l => ({ lundi: l, explication: 'Entretien : deux footings et une sortie longue.', seances: [1, 3, 5].map(k => {
+      const d = new Date(l + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + k); const j = d.toISOString().slice(0, 10);
+      return { date: j, type: k === 3 ? 'renfo' : 'run', libelle: k === 5 ? 'Sortie longue' : k === 3 ? 'Gainage' : 'Footing', duree_min: k === 5 ? 90 : 45, distance_km: k === 3 ? 0 : k === 5 ? 15 : 8, intensite: 'facile' };
+    }) })) });
+    const mauvaise = () => { const r = bonne(); r.semaines[0].seances.push({ date: '2026-10-21', type: 'run', libelle: 'Fractionné', duree_min: 50, distance_km: 9, intensite: 'intense' }); return r; };
+    // Base simulée : le relais range chaque appel dans « propositions », comme la fonction, et rend la réponse choisie.
+    const copie = (reponses, f) => {
+      const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = []; d.propositions = []; d.profil_entrainement = [Object.assign({}, PROFIL)];
+      d.appels = [];
+      d.relais = corps => {
+        d.appels.push(corps);
+        const r = reponses[Math.min(d.appels.length - 1, reponses.length - 1)];
+        if (r.status) return r;
+        const id = 'prop-' + d.appels.length;
+        d.propositions.push({ id, utilisateur: moi, cree: '2026-10-20T10:00:00Z', bloc: corps.bloc, essai: corps.essai, statut: 'brute', reponse: r });
+        return { status: 200, body: { id, reponse: r } };
+      };
+      if (f) f(d);
+      return d;
+    };
+    const lire = p => p.evaluate(() => ({
+      bouton: (document.querySelector('[data-ia="proposer"]') || {}).textContent || null, desactive: !!(document.querySelector('[data-ia="proposer"]') || {}).disabled,
+      reste: (document.querySelector('.ps-ia-reste') || {}).textContent || null, mention: (document.querySelector('.ps-ia-mention') || {}).textContent || null,
+      msg: (document.querySelector('.ps-ia-msg') || {}).textContent || null, aide: (document.querySelector('.ps-ia-aide') || {}).textContent || null,
+      semaines: [...document.querySelectorAll('.ps-prop-sem')].map(e => e.dataset.lundi), lignes: document.querySelectorAll('.ps-prop-liste li').length,
+      premiere: ((document.querySelector('.ps-prop-liste li') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
+      expl: (document.querySelector('.ps-prop-expl') || {}).textContent || null,
+      actions: [...document.querySelectorAll('.ps-prop-actions button')].map(b => b.textContent)
+    }));
+    const pret = p => p.waitForFunction(() => document.querySelector('[data-ia], .ps-ia-aide'));
+    const attendre = p => p.waitForFunction(() => !document.querySelector('[data-ia][disabled]') || document.querySelector('.ps-ia-msg'));
+
+    // Profil complet, aucune proposition : le bouton, 4 restantes, la mention.
+    let d = copie([bonne()]);
+    let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
+    await pret(p);
+    let r = await lire(p);
+    pb.push(egal(['Proposer les séances', '4 restantes ce mois-ci', 'Séances proposées par une IA, à titre indicatif : ce n\'est pas un avis médical.'], [r.bouton, r.reste, r.mention], 'bouton, propositions restantes et mention'));
+    await p.click('[data-ia="proposer"]');
+    await p.waitForSelector('.ps-proposition');
+    r = await lire(p);
+    const envoi = d.appels[0];
+    pb.push(egal([LUNDIS, 12, 'mar. 20 · Course à pied Footing · 45 min · 8 km · Facile', '« Entretien : deux footings et une sortie longue. »', ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
+      [r.semaines, r.lignes, r.premiere, r.expl, r.actions], 'proposition en attente : 4 semaines, 12 séances, explications, quatre boutons'));
+    pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, ['mardi', 'jeudi', 'samedi'], ['allégé (avant une course Préparatoire)']],
+      [envoi.essai, envoi.contexte.bloc.debut, envoi.contexte.bloc.fin, envoi.contexte.semaines[0].phase, /Trail du Lac|Trail des Gorges|Corrida/.test(JSON.stringify(envoi)), JSON.stringify(envoi).includes(db.profils[0].prenom || '§§'),
+        envoi.contexte.profil.jours_disponibles, envoi.contexte.semaines[3].jours[3].reperes],
+      'contexte envoyé : le bloc, ses phases et repères, le profil ; ni nom de course ni prénom'));
+    await p.click('[data-ia="tout"]');
+    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
+    r = await lire(p);
+    pb.push(egal([12, 'ia', 'acceptee', 'acceptee', '3 restantes ce mois-ci', null], [d.seances.length, d.seances[0].origine, d.seances[0].etat, d.propositions[0].statut, r.reste, d.seances.find(x => x.type === 'renfo').distance_km],
+      'tout accepter : 12 séances écrites (origine IA), proposition acceptée, 3 restantes ; distance vide pour le renforcement'));
+    pb.push(egal([], erreurs, 'erreurs JavaScript'));
+    await ctx.close();
+
+    // Garde-fou : un jour non disponible ; la demande est refaite une fois, avec la correction.
+    d = copie([mauvaise(), bonne()]);
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
+    pb.push(egal([2, 2, true, 'invalide', 'brute', 12], [d.appels.length, d.appels[1].essai, (d.appels[1].corrections || []).some(x => /mer\. 21 oct.* : jour non disponible/.test(x)), d.propositions[0].statut, d.propositions[1].statut, (await lire(p)).lignes],
+      'garde-fou : jour non disponible, proposition refaite (essai 2, avec la correction) ; la première marquée invalide'));
+    // Choisir semaine par semaine : sans la semaine du 26 octobre, 9 séances.
+    await p.click('[data-ia="choisir"]');
+    await p.uncheck('[data-coche="2026-10-26"]');
+    await p.click('[data-ia="selection"]');
+    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
+    pb.push(egal([9, false], [d.seances.length, d.seances.some(x => x.date >= '2026-10-26' && x.date <= '2026-11-01')], 'choisir semaine par semaine : seules les semaines cochées sont écrites'));
+    await ctx.close();
+
+    // Deux réponses fautives de suite : message, plafond inchangé.
+    d = copie([mauvaise()]);
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-ia-msg');
+    r = await lire(p);
+    pb.push(egal(['Proposition impossible à vérifier, réessaie plus tard.', ['echec', 'echec'], '4 restantes ce mois-ci', 0], [r.msg, d.propositions.map(x => x.statut), r.reste, d.seances.length],
+      'deux échecs : message, les deux appels en échec, rien de décompté ni d\'écrit'));
+    await ctx.close();
+
+    // Abandonner : rien n'est écrit.
+    d = copie([bonne()]);
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
+    await p.click('[data-ia="abandonner"]'); await repondre(p, true);
+    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
+    pb.push(egal(['abandonnee', 0, '3 restantes ce mois-ci'], [d.propositions[0].statut, d.seances.length, (await lire(p)).reste], 'abandonner : rien d\'écrit, la proposition compte'));
+    await ctx.close();
+
+    // Plafond atteint : bouton grisé ; refus de la fonction (plafond, réservé aux pilotes) : son message.
+    d = copie([bonne()], x => { for (let i = 0; i < 4; i++) x.propositions.push({ id: 'vieille-' + i, utilisateur: moi, cree: '2026-10-0' + (i + 1) + 'T10:00:00Z', bloc: '2026-09-28', essai: 1, statut: 'acceptee', reponse: null }); });
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await pret(p);
+    r = await lire(p);
+    pb.push(egal([true, '0 restante ce mois-ci'], [r.desactive, r.reste], 'plafond atteint (4 ce mois-ci) : bouton grisé'));
+    await ctx.close();
+    for (const [rep, attendu, nom] of [[{ status: 429, body: { code: 'plafond', prochaine: '2026-11-01' } }, /^Plus de proposition ce mois-ci\s:\sla prochaine le .*1er\snov\.\s2026\.$/, 'plafond de la fonction'],
+      [{ status: 403, body: { code: 'reserve' } }, /^Réservé aux comptes pilotes pour l'instant\.$/, 'compte non pilote']]) {
+      d = copie([rep]);
+      ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+      await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-ia-msg');
+      r = await lire(p);
+      pb.push(egal(true, attendu.test(r.msg || ''), nom + ' : « ' + r.msg + ' »'));
+      await ctx.close();
+    }
+
+    // Profil incomplet : pas de bouton, le lien vers le profil.
+    d = copie([bonne()], x => { x.profil_entrainement = [Object.assign({}, PROFIL, { jours: [] })]; });
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await pret(p);
+    r = await lire(p);
+    pb.push(egal([null, true], [r.bouton, /Compléter mon profil/.test(r.aide || '')], 'profil incomplet : pas de bouton, « Compléter mon profil »'));
+    await ctx.close();
+
+    // Garde-fous au 17 novembre : récupération du Trail du Lac (séance facile seulement), repos la veille de la Corrida de Noël.
+    d = copie([bonne()]);
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-17T10:00:00+01:00') }));
+    await pret(p);
+    const gf = await p.evaluate(() => {
+      const s = (date, intensite) => ({ date, type: 'run', libelle: 'Séance', duree_min: 50, distance_km: 9, intensite });
+      return window.mrtSeancesIA.gardeFous({ semaines: [{ lundi: '2026-11-16', explication: '', seances: [s('2026-11-19', 'intense'), s('2026-12-08', 'intense'), s('2026-12-12', 'facile')] }] }, document.getElementById('saison').__ctx, '2026-11-16');
+    });
+    pb.push(egal([true, false, true], [gf.some(x => /19 nov.* : jour de récupération/.test(x)), gf.some(x => /8 déc/.test(x)), gf.some(x => /12 déc.* : jour de repos/.test(x))],
+      'garde-fous : fractionné le 19 novembre (récupération du Trail du Lac) refusé, le 8 décembre accepté, séance la veille de la Corrida refusée'));
+    await ctx.close();
+
+    // Site partagé : rien de l'IA.
+    const autre = '00000000-0000-0000-0000-00000000000b';
+    const partage = copie([bonne()], x => {
+      x.courses = x.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
+      x.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+      x.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    });
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
+    await p.waitForSelector('.ps-cadre');
+    pb.push(egal(0, await p.locator('[data-ia], .ps-ia-aide, .ps-proposition').count(), 'lecture seule : rien de l\'IA'));
     await ctx.close();
     return pb;
   },

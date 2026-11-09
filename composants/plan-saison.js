@@ -109,6 +109,30 @@
     });
   }
 
+  // ----- Séances proposées par l'IA (spécification, § 6 ; calcul et appel : seances-ia.js) -----
+  const IA = () => window.mrtSeancesIA;
+  const ligneSeance = s => '<li>' + P.jourCourt(s.date) + ' · <b>' + (P.TYPES[s.type] || s.type) + '</b> ' + esc(s.libelle) + ' · ' + s.duree_min + ' min' +
+    (Number(s.distance_km) > 0 ? ' · ' + virgule(s.distance_km) + ' km' : '') + ' · ' + (P.INTENSITES[s.intensite] || s.intensite) + '</li>';
+  // (6) Proposer, (8) explications, (9) proposition en attente et ses boutons.
+  function iaHtml(ctx, lundi) {
+    if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return '';
+    const etat = ctx.ia || {}, manque = manquants(ctx.profil);
+    if (manque.length) return '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
+    const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
+    const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
+    const mention = '<p class="ps-ia-mention">Séances proposées par une IA, à titre indicatif : ce n\'est pas un avis médical.</p>';
+    if (!prop) return '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
+      (etat.encours ? 'Proposition en cours…' : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + mention + msg;
+    const sems = prop.reponse.semaines.map(w => '<div class="ps-prop-sem" data-lundi="' + esc(w.lundi) + '">' +
+      (etat.choix ? '<label class="ps-prop-titre"><input type="checkbox" data-coche="' + esc(w.lundi) + '" checked> ' : '<p class="ps-prop-titre">') + 'Semaine ' + window.mrtFormat.semaine(w.lundi) + (etat.choix ? '</label>' : '</p>') +
+      '<p class="ps-prop-expl">« ' + esc(w.explication) + ' »</p><ul class="ps-prop-liste">' + (w.seances || []).map(ligneSeance).join('') + '</ul></div>').join('');
+    const actions = etat.choix
+      ? '<button type="button" class="mrt-btn is-principal" data-ia="selection">Accepter la sélection</button><button type="button" class="mrt-btn" data-ia="sans-choix">Annuler le choix</button>'
+      : '<button type="button" class="mrt-btn is-principal" data-ia="tout">Tout accepter</button><button type="button" class="mrt-btn" data-ia="choisir">Choisir semaine par semaine</button>' +
+        '<button type="button" class="mrt-btn" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>' + (etat.encours ? 'Proposition en cours…' : 'Refaire') + '</button><button type="button" class="mrt-btn" data-ia="abandonner">Abandonner</button>';
+    return '<section class="ps-proposition"><h3 class="ps-libelle">Proposition de l\'IA · en attente</h3>' + sems + '<div class="ps-prop-actions">' + actions + '</div>' + mention + msg + '</section>';
+  }
+
   window.renderSaison = function (root, ctx) {
     ctx.actualiser = async () => { Object.assign(ctx, await ctx.relire()); dessiner(); };
 
@@ -161,7 +185,7 @@
         (ps.alertes.length ? '<ul>' + ps.alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('') + '</ul>' : '') + '</section>';
 
       // (5) Bloc en cours : 4 semaines à partir de celle-ci, chacune avec ses repères (7) et ses séances.
-      h += '<section class="ps-bloc"><h2 class="ps-libelle">Bloc en cours · ' + BLOC + ' semaines à partir du ' + longue(lundi) + '</h2><div class="cal-sem-liste">';
+      h += '<section class="ps-bloc"><h2 class="ps-libelle">Bloc en cours · ' + BLOC + ' semaines à partir du ' + longue(lundi) + '</h2>' + iaHtml(ctx, lundi) + '<div class="cal-sem-liste">';
       for (let i = 0; i < BLOC; i++) {
         const l = addDays(lundi, 7 * i), x = P.phaseDe(ps, l), rep = reperesSemaine(ps, l);
         h += (rep.length ? '<ul class="ps-reperes">' + rep.map(t => '<li>' + t + '</li>').join('') + '</ul>' : '') +
@@ -171,11 +195,38 @@
     }
 
     ctx.redessiner = dessiner;
+    ctx.ia = {};
+    root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
     root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); });
+    // Boutons de la proposition : proposer, refaire (compte pour une), tout accepter, choisir, accepter la sélection, abandonner.
+    root.addEventListener('click', async e => {
+      const b = e.target.closest('[data-ia]');
+      if (!b || b.disabled) return;
+      const act = b.dataset.ia, lundi = lundiDe(iso(new Date())), prop = IA().enAttente(ctx, lundi);
+      const recharger = async () => { await IA().lirePropositions(ctx); await ctx.actualiser(); };
+      if (act === 'proposer' || act === 'refaire') {
+        if (act === 'refaire' && !(await window.mrtConfirmer({ texte: 'Refaire la proposition ? Elle compte pour une (' + IA().restantes(ctx) + ' restantes ce mois-ci).', action: 'Refaire' }))) return;
+        ctx.ia = { encours: true }; dessiner();
+        if (act === 'refaire' && prop) await IA().abandonner(prop);
+        const r = await IA().proposer(ctx, lundi);
+        await IA().lirePropositions(ctx);
+        ctx.ia = { message: r.message || null }; dessiner();
+      } else if (act === 'choisir' || act === 'sans-choix') { ctx.ia = { choix: act === 'choisir' }; dessiner(); }
+      else if (act === 'tout' || act === 'selection') {
+        const lundis = act === 'tout' ? prop.reponse.semaines.map(w => w.lundi) : [...root.querySelectorAll('[data-coche]:checked')].map(x => x.dataset.coche);
+        const err = await IA().accepter(ctx, prop, lundis);
+        if (err) { console.warn(err); ctx.ia = { message: 'Enregistrement impossible pour l\'instant.' }; dessiner(); return; }
+        ctx.ia = {}; await recharger();
+      } else if (act === 'abandonner') {
+        if (!(await window.mrtConfirmer({ texte: 'Abandonner cette proposition ? Aucune séance n\'est enregistrée.', action: 'Abandonner' }))) return;
+        await IA().abandonner(prop); ctx.ia = {}; await recharger();
+      }
+    });
     P.brancher(root, ctx, null);
     dessiner();
     // Le profil d'entraînement (une ligne, la sienne : règle par ligne), lu après le premier dessin ; jamais sur le site partagé.
-    if (!ctx.lectureSeule) window.mrtSupabase.from('profil_entrainement').select('*').then(({ data, error }) => {
+    // Et les propositions de l'IA (plafond du mois, proposition en attente).
+    if (!ctx.lectureSeule) Promise.all([window.mrtSupabase.from('profil_entrainement').select('*'), IA() ? IA().lirePropositions(ctx) : null]).then(([{ data, error }]) => {
       if (error) console.warn(error);
       ctx.profil = (data && data[0]) || null;
       dessiner();
