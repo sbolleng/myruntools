@@ -147,9 +147,10 @@
     }
     throw new Error('Open Food Facts saturé');
   }
-  // Le relais a déjà répondu pendant la visite : la recherche de produits peut partir pendant la frappe.
-  let relaisOk = false;
-  async function chercherProduits(texte) {
+  // Pendant la frappe, seul le relais est interrogé (l'ancien moteur limite les recherches) ; s'il ne répond pas, la
+  // frappe ne cherche plus que dans mes aliments, et les produits attendent la validation (Entrée ou « Chercher »).
+  let relaisOk = true;
+  async function chercherProduits(texte, enFrappe) {
     const cle = texte.toLowerCase();
     const garde = memoire()[cle];
     if (garde) return garde;
@@ -157,8 +158,9 @@
     try {
       const { data, error } = await sb().functions.invoke('recherche-aliments', { body: { q: texte } });
       if (!error && data && Array.isArray(data.produits)) { produits = data.produits; relaisOk = true; }
-      else if (error) console.warn('Nutrition : relais de recherche indisponible', error);
-    } catch (err) { console.warn('Nutrition : relais de recherche indisponible', err); }
+      else if (error) { console.warn('Nutrition : relais de recherche indisponible', error); relaisOk = false; }
+    } catch (err) { console.warn('Nutrition : relais de recherche indisponible', err); relaisOk = false; }
+    if (!produits && enFrappe) throw new Error('relais indisponible pendant la frappe');
     if (!produits) produits = await ancienMoteur(texte);
     if (produits.length) retenir(cle, produits); // une recherche vide n'est pas gardée : elle sera refaite
     return produits;
@@ -428,7 +430,8 @@
       if (enFrappe) zones();
       else { S.choix = null; S.msg = ''; dessinerAjout(); }
       let resultats = [], etat = 'ok';
-      try { resultats = await chercherProduits(texte); } catch (err) { console.warn('Nutrition : recherche impossible', err); etat = 'erreur'; }
+      try { resultats = await chercherProduits(texte, enFrappe); }
+      catch (err) { if (enFrappe) etat = null; else { console.warn('Nutrition : recherche impossible', err); etat = 'erreur'; } }
       if (S.recherche.texte !== texte) return;
       S.recherche.resultats = resultats; S.recherche.etat = etat;
       zones();
