@@ -22,17 +22,7 @@
     return nom(a.course) + ' est plus longue (en km-effort) que ' + nom(a.autre) + ', l\'Objectif de sa saison.';
   }
 
-  // Repères d'une semaine : jours allégés, repos de la veille, récupération ; chacun limité à la semaine.
-  function reperesSemaine(ps, lundi) {
-    const dim = addDays(lundi, 6), dans = (a, b) => a <= dim && b >= lundi, out = [];
-    ps.reperes.forEach(r => {
-      const c = r.course;
-      if (r.allegeDebut && dans(r.allegeDebut, r.allegeFin)) out.push('Allégé du ' + longue(r.allegeDebut) + ' au ' + longue(r.allegeFin) + ' : avant ' + nom(c) + ' (Préparatoire).');
-      if (r.repos && dans(r.repos, r.repos)) out.push('Repos le ' + longue(r.repos) + ' : veille de ' + nom(c) + ' (Plaisir).');
-      if (dans(r.recupDebut, r.recupFin)) out.push('Récupération de ' + nom(c) + ' jusqu\'au ' + longue(r.recupFin) + ' : séances faciles seulement.');
-    });
-    return out;
-  }
+
 
 
   // ----- Profil d'entraînement (spécification, § 5.2) : une liste de lignes ; chaque ligne ouvre une question ;
@@ -86,89 +76,91 @@
   ];
   // Questions obligatoires qui manquent (le reste du site s'en sert pour proposer, ou non, des séances).
   const manquants = pr => lignes(pr || {}).filter(l => l[3] && !l[2]).map(l => l[1].toLowerCase());
-  const AIDE = {
-    volume_tranche: 'Sur les 4 dernières semaines. « Aucune idée » : l\'IA reste prudente.',
-    semaine: 'Course et renforcement peuvent tomber le même jour : le volume est adapté.',
-    seance_max_min: 'La séance la plus longue que tu peux caser dans ta semaine.',
-    terrain: 'La plus longue montée sur laquelle tu peux t\'entraîner.'
-  };
-
   function ouvrirProfil(ctx) {
-    const v = P.fenetre('<div class="ps-profil-corps"></div>', 'ps-profil'), corps = v.querySelector('.ps-profil-corps');
+    // La feuille d'une course (modale-course.css) : à la largeur des pages, plein écran sur téléphone ; la croix en haut à droite.
+    const voile = document.createElement('div');
+    voile.className = 'mc-voile';
+    voile.innerHTML = '<div class="mc-panneau ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
+    const corps = voile.querySelector('.mc-corps');
+    document.body.appendChild(voile);
+    document.documentElement.classList.add('mc-ouvert');
+    const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
+    const clavier = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue, .cal-voile')) fermer(); };
+    document.addEventListener('keydown', clavier);
+    voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
     const pr = () => ctx.profil || {};
+    const msg = () => corps.querySelector('.ps-msg');
     // Enregistre les champs donnés (le profil entier, fusionné) ; rend vrai si c'est fait.
-    async function ranger(champs, msg) {
+    async function ranger(champs) {
       const ligne = Object.assign({}, pr(), champs, { maj: new Date().toISOString() });
       delete ligne.utilisateur;
       const { error } = await window.mrtSupabase.from('profil_entrainement').upsert(ligne);
-      if (error) { console.warn(error); if (msg) msg.textContent = 'Enregistrement impossible pour l\'instant.'; return false; }
+      if (error) { console.warn(error); msg().textContent = 'Enregistrement impossible pour l\'instant.'; return false; }
       ctx.profil = Object.assign({}, pr(), champs);
       ctx.redessiner();
       return true;
     }
-    const barre = (gauche, titre) => '<div class="cal-barre ps-profil-barre">' + gauche + '<p class="cal-panneau-titre" id="cal-titre">' + titre + '</p><span></span></div><p class="cal-msg" role="alert"></p>';
-    const retour = '<button type="button" class="mrt-btn" data-q="liste">‹ Retour</button>';
-    const aide = k => (AIDE[k] ? '<p class="ps-aide">' + AIDE[k] + '</p>' : '');
+    // Barre du haut : « ‹ » (retour à la liste) à gauche dans une question, la croix à droite ; dessous, le titre en libellé.
+    const barre = (titre, retour) => '<div class="pc-barre ps-profil-barre">' +
+      (retour ? '<button type="button" class="mrt-rond" data-q="liste" aria-label="Retour à la liste" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span></span>') +
+      '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
+      '<p class="fc-libelle" id="ps-titre">' + titre + '</p><p class="ps-msg" role="alert"></p>';
 
     function liste() {
       const ls = lignes(pr()), obligatoires = ls.filter(l => l[3]), faites = obligatoires.filter(l => l[2]).length;
       const ligneHtml = l => '<button type="button" class="ps-ligne-q" data-q="' + l[0] + '"><span>' + l[1] + '</span><span class="ps-rep' + (!l[2] && l[3] ? ' is-a-faire' : '') + '">' + (l[2] ? esc(l[2]) : l[3] ? 'À renseigner' : '—') + '</span><i aria-hidden="true">›</i></button>';
-      corps.innerHTML = barre('<button type="button" class="mrt-btn" data-act="annuler">Fermer</button>', 'Mon profil d\'entraînement') +
-        '<div class="ps-section-t"><span class="ps-libelle">Indispensable pour proposer tes séances</span><span class="ps-compte' + (faites === obligatoires.length ? ' is-complet' : '') + '">' + faites + ' sur ' + obligatoires.length + '</span></div>' +
-        '<div class="ps-groupe-l">' + obligatoires.map(ligneHtml).join('') + '</div>' +
-        '<div class="ps-section-t"><span class="ps-libelle">Pour affiner (facultatif)</span></div><div class="ps-groupe-l">' + ls.filter(l => !l[3]).map(ligneHtml).join('') + '</div>';
-      corps.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+      corps.innerHTML = barre('Mon profil d\'entraînement', false) +
+        '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Indispensable pour proposer tes séances <span class="ps-compte' + (faites === obligatoires.length ? ' is-complet' : '') + '">' + faites + ' sur ' + obligatoires.length + '</span></h2>' +
+        '<div class="ps-groupe-l">' + obligatoires.map(ligneHtml).join('') + '</div></section>' +
+        '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Pour affiner (facultatif)</h2><div class="ps-groupe-l">' + ls.filter(l => !l[3]).map(ligneHtml).join('') + '</div></section>';
     }
     // Une question à choix : un toucher enregistre et revient à la liste.
     function choix(cle, titre) {
-      corps.innerHTML = barre(retour, titre) + '<div class="ps-groupe-l">' + ECHELLES[cle].map(([k, lib]) =>
-        '<button type="button" class="ps-choix' + (String(pr()[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' + aide(cle);
+      corps.innerHTML = barre(titre, true) + '<div class="ps-groupe-l">' + ECHELLES[cle].map(([k, lib]) =>
+        '<button type="button" class="ps-choix' + (String(pr()[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
       corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', async () => {
         const val = cle === 'seance_max_min' ? Number(b.dataset.val) : b.dataset.val;
-        if (await ranger({ [cle]: val }, corps.querySelector('.cal-msg'))) liste();
+        if (await ranger({ [cle]: val })) liste();
       }));
     }
-    // Ma semaine : quatre questions sur un écran, chacune enregistrée à chaque toucher ; « Retour » à la fin.
+    // Ma semaine : jours pour courir et pour le renforcement (cumulables), jour de la sortie longue, en pastilles ; nombres de
+    // sorties et de renforcements, un chiffre de 0 à 7 ; chaque changement s'enregistre.
     function semaine() {
       const p0 = pr(), jc = joursDe(p0, 'jours_course'), jr = joursDe(p0, 'jours_renfo');
       const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
-      const bloc = (titre, html) => '<div class="ps-sem-q"><p class="ps-sem-t">' + titre + '</p><div class="ps-coches">' + html + '</div></div>';
-      const nbMax = Math.max(jc.length, 1);
-      corps.innerHTML = barre(retour, 'Ma semaine') + aide('semaine') +
-        bloc('Jours possibles pour courir', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
-        bloc('Nombre de sorties par semaine', jc.length ? [1, 2, 3, 4, 5, 6, 7].filter(n => n <= nbMax).map(n => pastille('data-nb', n, p0.nb_sorties === n, n)).join('') : '<span class="ps-aide">Choisis d\'abord tes jours.</span>') +
-        bloc('Jour à privilégier pour la sortie longue', jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') + pastille('data-long', 0, !p0.jour_long, 'Peu importe') : '<span class="ps-aide">Choisis d\'abord tes jours.</span>') +
-        bloc('Jours possibles pour le renforcement', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join('')) +
-        bloc('Nombre de renforcements par semaine', [0, 1, 2, 3].map(n => pastille('data-nr', n, (p0.nb_renfo || 0) === n, n)).join(''));
-      const msg = corps.querySelector('.cal-msg');
-      const bascule = (liste, n) => (liste.includes(n) ? liste.filter(x => x !== n) : liste.concat([n]).sort((a, b) => a - b));
-      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-nb], button[data-long], button[data-nr]').forEach(b => b.addEventListener('click', async () => {
+      const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
+      const chiffre = (nom, lib, v) => '<label class="cal-champ ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
+      corps.innerHTML = barre('Ma semaine', true) +
+        q('Jours possibles pour courir', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
+        '<div class="ps-chiffres">' + chiffre('nb_sorties', 'Sorties par semaine', p0.nb_sorties) + chiffre('nb_renfo', 'Renforcements par semaine', p0.nb_renfo) + '</div>' +
+        q('Jour à privilégier pour la sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe')) +
+        q('Jours possibles pour le renforcement', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join(''));
+      const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, b) => a - b));
+      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(b => b.addEventListener('click', async () => {
         const d = b.dataset, champs = {};
-        if (d.jc) {
-          champs.jours_course = bascule(jc, Number(d.jc));
-          // Plus de sorties que de jours, ou sortie longue sur un jour retiré : ramenés.
-          if (p0.nb_sorties > champs.jours_course.length) champs.nb_sorties = champs.jours_course.length || null;
-          if (p0.jour_long && !champs.jours_course.includes(p0.jour_long)) champs.jour_long = null;
-        }
+        if (d.jc) { champs.jours_course = bascule(jc, Number(d.jc)); if (p0.jour_long && !champs.jours_course.includes(p0.jour_long)) champs.jour_long = null; }
         if (d.jr) champs.jours_renfo = bascule(jr, Number(d.jr));
-        if (d.nb) champs.nb_sorties = Number(d.nb);
         if (d.long) champs.jour_long = Number(d.long) || null;
-        if (d.nr) champs.nb_renfo = Number(d.nr);
-        if (await ranger(champs, msg)) semaine();
+        if (await ranger(champs)) semaine();
+      }));
+      corps.querySelectorAll('.ps-chiffre input').forEach(x => x.addEventListener('change', async () => {
+        const t = x.value.trim();
+        if (t !== '' && !/^[0-7]$/.test(t)) { msg().textContent = 'Un chiffre de 0 à 7.'; x.focus(); return; }
+        msg().textContent = '';
+        await ranger({ [x.name]: t === '' ? null : Number(t) });
       }));
     }
     // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
     function allure(type) {
       const t = type || pr().allure_type;
-      const saisie = t === 'vma' ? ['vma', 'VMA (km/h)', virgule(pr().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['temps', 'Temps sur 10 km', enTemps(pr().temps_10km_s), 'ex. 45:30', 'text'] :
-        t === 'semi' ? ['temps', 'Temps sur semi-marathon', enTemps(pr().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
-      corps.innerHTML = barre(retour, 'Repère d\'allure') + '<div class="ps-groupe-l">' + ECHELLES.allure_type.map(([k, lib]) =>
+      const saisie = t === 'vma' ? ['VMA (km/h)', virgule(pr().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['Temps sur 10 km', enTemps(pr().temps_10km_s), 'ex. 45:30', 'text'] :
+        t === 'semi' ? ['Temps sur semi-marathon', enTemps(pr().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
+      corps.innerHTML = barre('Repère d\'allure', true) + '<div class="ps-groupe-l">' + ECHELLES.allure_type.map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (t === k ? ' is-on' : '') + '" data-type="' + k + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' +
-        (saisie ? '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + saisie[1] + '</span><input class="mrt-champ" name="valeur" inputmode="' + saisie[4] + '" placeholder="' + saisie[3] + '" value="' + esc(saisie[2]) + '"></label>' +
+        (saisie ? '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + saisie[0] + '</span><input class="mrt-champ" name="valeur" inputmode="' + saisie[3] + '" placeholder="' + saisie[2] + '" value="' + esc(saisie[1]) + '"></label>' +
           '<button type="submit" class="mrt-btn is-principal">Valider</button></form>' : '');
-      const msg = corps.querySelector('.cal-msg');
       corps.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', async () => {
-        if (b.dataset.type === 'inconnu') { if (await ranger({ allure_type: 'inconnu' }, msg)) liste(); } else allure(b.dataset.type);
+        if (b.dataset.type === 'inconnu') { if (await ranger({ allure_type: 'inconnu' })) liste(); } else allure(b.dataset.type);
       }));
       const f = corps.querySelector('.ps-valeur');
       if (f) {
@@ -177,61 +169,72 @@
           e.preventDefault();
           if (t === 'vma') {
             const x = P.nombre(f.valeur.value);
-            if (x === null || Number.isNaN(x) || x < 8 || x > 30) return void (msg.textContent = 'La VMA doit être comprise entre 8 et 30 km/h.');
-            if (await ranger({ allure_type: 'vma', vma: x }, msg)) liste();
+            if (x === null || Number.isNaN(x) || x < 8 || x > 30) return void (msg().textContent = 'La VMA doit être comprise entre 8 et 30 km/h.');
+            if (await ranger({ allure_type: 'vma', vma: x })) liste();
           } else {
             const x = secondes(f.valeur.value), [a, b2] = t === '10km' ? [1200, 7200] : [3000, 14400];
-            if (x === null || Number.isNaN(x) || x < a || x > b2) return void (msg.textContent = t === '10km' ? 'Le temps sur 10 km s\'écrit 45:30 (entre 20:00 et 2:00:00).' : 'Le temps sur semi s\'écrit 1:42:00 (entre 50:00 et 4:00:00).');
-            if (await ranger(t === '10km' ? { allure_type: '10km', temps_10km_s: x } : { allure_type: 'semi', temps_semi_s: x }, msg)) liste();
+            if (x === null || Number.isNaN(x) || x < a || x > b2) return void (msg().textContent = t === '10km' ? 'Le temps sur 10 km s\'écrit 45:30 (entre 20:00 et 2:00:00).' : 'Le temps sur semi s\'écrit 1:42:00 (entre 50:00 et 4:00:00).');
+            if (await ranger(t === '10km' ? { allure_type: '10km', temps_10km_s: x } : { allure_type: 'semi', temps_semi_s: x })) liste();
           }
         });
       }
     }
     // FC max et points fragiles : deux champs facultatifs, « Valider ».
     function sante() {
-      corps.innerHTML = barre(retour, 'FC max et points fragiles') + '<form class="ps-valeur" novalidate>' +
+      corps.innerHTML = barre('FC max et points fragiles', true) + '<form class="ps-valeur" novalidate>' +
         '<label class="cal-champ"><span>FC max</span><input class="mrt-champ" name="fc" inputmode="numeric" placeholder="ex. 185" value="' + esc(pr().fc_max == null ? '' : pr().fc_max) + '"></label>' +
         '<label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(pr().fragiles || '') + '</textarea></label>' +
         '<button type="submit" class="mrt-btn is-principal">Valider</button></form>';
-      const f = corps.querySelector('form'), msg = corps.querySelector('.cal-msg');
+      const f = corps.querySelector('form');
       f.addEventListener('submit', async e => {
         e.preventDefault();
         const fc = P.nombre(f.fc.value);
-        if (fc !== null && (Number.isNaN(fc) || !Number.isInteger(fc) || fc < 100 || fc > 230)) return void (msg.textContent = 'La FC max doit être comprise entre 100 et 230.');
-        if (await ranger({ fc_max: fc, fragiles: f.fragiles.value.trim() || null }, msg)) liste();
+        if (fc !== null && (Number.isNaN(fc) || !Number.isInteger(fc) || fc < 100 || fc > 230)) return void (msg().textContent = 'La FC max doit être comprise entre 100 et 230.');
+        if (await ranger({ fc_max: fc, fragiles: f.fragiles.value.trim() || null })) liste();
       });
     }
     corps.addEventListener('click', e => {
+      if (e.target.closest('[data-fermer]')) return fermer();
       const q = e.target.closest('[data-q]');
       if (!q) return;
       const k = q.dataset.q, titre = (lignes(pr()).find(l => l[0] === k) || [])[1];
       if (k === 'liste') liste(); else if (k === 'semaine') semaine(); else if (k === 'allure') allure(); else if (k === 'sante') sante(); else choix(k, titre);
     });
     liste();
+    voile.querySelector('.mc-panneau').focus({ preventScroll: true });
   }
 
   // ----- Séances proposées par l'IA (spécification, § 6 ; calcul et appel : seances-ia.js) -----
   const IA = () => window.mrtSeancesIA;
   const ligneSeance = s => '<li>' + P.jourCourt(s.date) + ' · <b>' + (P.TYPES[s.type] || s.type) + '</b> ' + esc(s.libelle) + ' · ' + s.duree_min + ' min' +
     (Number(s.distance_km) > 0 ? ' · ' + virgule(s.distance_km) + ' km' : '') + ' · ' + (P.INTENSITES[s.intensite] || s.intensite) + '</li>';
-  // (6) Proposer, (8) explications, (9) proposition en attente et ses boutons.
+  // (6) Proposer ; (9) proposition en attente : la recommandation (8), seule, et ses boutons ; ses séances sont dans la grille.
   function iaHtml(ctx, lundi) {
     if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return '';
     const etat = ctx.ia || {}, manque = manquants(ctx.profil);
     if (manque.length) return '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
-    const mention = '<p class="ps-ia-mention">Séances proposées par une IA, à titre indicatif : ce n\'est pas un avis médical.</p>';
     if (!prop) return '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
-      (etat.encours ? 'Proposition en cours…' : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + mention + msg;
-    const sems = prop.reponse.semaines.map(w => '<div class="ps-prop-sem" data-lundi="' + esc(w.lundi) + '">' +
-      (etat.choix ? '<label class="ps-prop-titre"><input type="checkbox" data-coche="' + esc(w.lundi) + '" checked> ' : '<p class="ps-prop-titre">') + 'Semaine ' + window.mrtFormat.semaine(w.lundi) + (etat.choix ? '</label>' : '</p>') +
-      '<p class="ps-prop-expl">« ' + esc(w.explication) + ' »</p><ul class="ps-prop-liste">' + (w.seances || []).map(ligneSeance).join('') + '</ul></div>').join('');
+      (etat.encours ? 'Proposition en cours…' : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + msg;
+    const seances = IA().seancesDe(prop.reponse), lundis = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)), choisies = etat.semaines || lundis;
+    const choixSem = etat.choix ? '<div class="ps-coches ps-prop-sems">' + lundis.map(l => '<button type="button" class="mrt-pastille" data-coche="' + l + '" aria-pressed="' + choisies.includes(l) + '">Semaine ' + window.mrtFormat.semaine(l) + '</button>').join('') + '</div>' : '';
     const actions = etat.choix
       ? '<button type="button" class="mrt-btn is-principal" data-ia="selection">Accepter la sélection</button><button type="button" class="mrt-btn" data-ia="sans-choix">Annuler le choix</button>'
       : '<button type="button" class="mrt-btn is-principal" data-ia="tout">Tout accepter</button><button type="button" class="mrt-btn" data-ia="choisir">Choisir semaine par semaine</button>' +
         '<button type="button" class="mrt-btn" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>' + (etat.encours ? 'Proposition en cours…' : 'Refaire') + '</button><button type="button" class="mrt-btn" data-ia="abandonner">Abandonner</button>';
-    return '<section class="ps-proposition"><h3 class="ps-libelle">Proposition de l\'IA · en attente</h3>' + sems + '<div class="ps-prop-actions">' + actions + '</div>' + mention + msg + '</section>';
+    // Téléphone : la grille ne montre que des repères ; la liste des séances proposées s'ajoute sous la recommandation.
+    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de l\'IA · en attente</h3><p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
+      '<ul class="ps-prop-liste">' + seances.map(ligneSeance).join('') + '</ul>' + choixSem + '<div class="ps-prop-actions">' + actions + '</div>' + msg + '</section>';
+  }
+  // Dans une case de la grille : les repères du jour (allégé, repos, récupération) et les séances proposées, en attente.
+  function caseHtml(ctx, ps, j) {
+    const reps = P.reperesDuJour(ps, j).map(r => (r.type === 'allege' ? 'Allégé' : r.type === 'repos' ? 'Repos' : 'Récupération'));
+    const prop = IA() && !ctx.lectureSeule ? IA().enAttente(ctx, lundiDe(iso(new Date()))) : null;
+    const props = prop ? IA().seancesDe(prop.reponse).filter(s => s.date === j) : [];
+    return [...new Set(reps)].map(t => '<span class="cal-v-rep">' + t + '</span>').join('') +
+      props.map(s => '<span class="cal-v-prop" title="' + esc((P.TYPES[s.type] || s.type) + ' · ' + s.libelle + ' · ' + s.duree_min + ' min' + (Number(s.distance_km) > 0 ? ' · ' + virgule(s.distance_km) + ' km' : '') + ' · ' + (P.INTENSITES[s.intensite] || s.intensite)) + '">' +
+        esc(s.libelle) + ' · ' + s.duree_min + ' min</span>').join('');
   }
 
   window.renderSaison = function (root, ctx) {
@@ -285,20 +288,25 @@
       h += '<section class="ps-alertes"><h2 class="ps-libelle">Alertes (' + ps.alertes.length + ')</h2>' +
         (ps.alertes.length ? '<ul>' + ps.alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('') + '</ul>' : '') + '</section>';
 
-      // (5) Bloc en cours : 4 semaines à partir de celle-ci, chacune avec ses repères (7) et ses séances.
-      h += '<section class="ps-bloc"><h2 class="ps-libelle">Bloc en cours · ' + BLOC + ' semaines à partir du ' + longue(lundi) + '</h2>' + iaHtml(ctx, lundi) + '<div class="cal-sem-liste">';
-      for (let i = 0; i < BLOC; i++) {
-        const l = addDays(lundi, 7 * i), x = P.phaseDe(ps, l), rep = reperesSemaine(ps, l);
-        h += (rep.length ? '<ul class="ps-reperes">' + rep.map(t => '<li>' + t + '</li>').join('') + '</ul>' : '') +
-          P.semaineHtml(ctx, l, { phase: x ? x.phase : null, numero: x && x.saison ? x.saison.semaines.findIndex(w => w.lundi === l) + 1 : null, modifiee: x && x.modifiee });
-      }
-      root.innerHTML = h + '</div></section></div>';
+      // (5) Bloc en cours : 4 semaines à partir de celle-ci, dans la grille du mois du Calendrier ; dans les cases, les repères (7)
+      // et les séances proposées par l'IA, en attente.
+      h += '<section class="ps-bloc"><h2 class="ps-libelle">Bloc en cours · ' + BLOC + ' semaines à partir du ' + longue(lundi) + '</h2>' + iaHtml(ctx, lundi) +
+        '<div class="ps-grille">' + window.mrtGrilleMois(ctx, lundi, addDays(lundi, 7 * BLOC - 1), { ps, plus: j => caseHtml(ctx, ps, j) }) + '</div>';
+      root.innerHTML = h + '</section></div>';
     }
 
     ctx.redessiner = dessiner;
     ctx.ia = {};
     root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
     root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); });
+    // Choix semaine par semaine : chaque semaine du bloc en pastille, choisie ou non.
+    root.addEventListener('click', e => {
+      const c = e.target.closest('[data-coche]');
+      if (!c) return;
+      const tous = [0, 1, 2, 3].map(i => addDays(lundiDe(iso(new Date())), 7 * i)), sel = ctx.ia.semaines || tous, l = c.dataset.coche;
+      ctx.ia = Object.assign({}, ctx.ia, { semaines: sel.includes(l) ? sel.filter(x => x !== l) : sel.concat([l]) });
+      dessiner();
+    });
     // Boutons de la proposition : proposer, refaire (compte pour une), tout accepter, choisir, accepter la sélection, abandonner.
     root.addEventListener('click', async e => {
       const b = e.target.closest('[data-ia]');
@@ -314,7 +322,8 @@
         ctx.ia = { message: r.message || null }; dessiner();
       } else if (act === 'choisir' || act === 'sans-choix') { ctx.ia = { choix: act === 'choisir' }; dessiner(); }
       else if (act === 'tout' || act === 'selection') {
-        const lundis = act === 'tout' ? prop.reponse.semaines.map(w => w.lundi) : [...root.querySelectorAll('[data-coche]:checked')].map(x => x.dataset.coche);
+        const tous = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i));
+        const lundis = act === 'tout' ? tous : (ctx.ia.semaines || tous);
         const err = await IA().accepter(ctx, prop, lundis);
         if (err) { console.warn(err); ctx.ia = { message: 'Enregistrement impossible pour l\'instant.' }; dessiner(); return; }
         ctx.ia = {}; await recharger();

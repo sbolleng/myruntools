@@ -29,10 +29,9 @@
 .ps-legende span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .ps-legende .cal-k { display: inline-block; width: 1.1rem; height: 0.75rem; border-radius: 2px; }
 
-/* ----- Alertes et repères ----- */
-.ps-alertes ul, .ps-reperes { display: flex; flex-direction: column; gap: 0.35rem; padding: 0; list-style: none; }
+/* ----- Alertes ----- */
+.ps-alertes ul { display: flex; flex-direction: column; gap: 0.35rem; padding: 0; list-style: none; }
 .ps-alerte { padding: 0.5rem 0.7rem; font-size: var(--t-second); color: var(--text); border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 4px 4px 0; }
-.ps-reperes { margin: 0.2rem 0 -0.4rem; font-size: var(--t-second); color: var(--muted); }
 
 @media (hover: hover) {
   .ps-course:hover, .ps-marque:hover { color: var(--accent); }
@@ -45,12 +44,11 @@
 .ps-profil-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.4rem 0.8rem; margin-bottom: 0.8rem; }
 .ps-profil-etat { font-size: var(--t-second); color: var(--muted); }
 .ps-profil-etat.is-complet { color: var(--text); }
-.cal-panneau.ps-profil { max-width: 34rem; }
-.ps-profil-barre { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.6rem; }
-.ps-profil-barre .cal-panneau-titre { margin: 0; text-align: center; }
-.ps-section-t { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; margin: 1rem 0 0.45rem; }
-.ps-section-t .ps-libelle { margin: 0; }
-.ps-compte { flex: none; font-size: var(--t-second); white-space: nowrap; color: var(--accent); }
+/* La feuille est celle d'une course (modale-course.css) : barre du haut avec « ‹ » à gauche et la croix à droite, titre en libellé. */
+.ps-profil-barre { justify-content: space-between; }
+.ps-msg { min-height: 1.2em; margin: 0 0 0.4rem; font-size: var(--t-petit); color: var(--red); }
+.ps-section-t { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; }
+.ps-compte { flex: none; font-size: var(--t-second); font-weight: 400; white-space: nowrap; color: var(--accent); }
 .ps-compte.is-complet { color: var(--muted); }
 .ps-groupe-l { display: flex; flex-direction: column; background: var(--case); border-radius: 8px; overflow: hidden; }
 .ps-ligne-q, .ps-choix { display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 2.9rem; padding: 0.55rem 0.9rem; font: inherit; font-size: var(--t-texte); text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
@@ -63,28 +61,31 @@
 .ps-choix i { visibility: hidden; color: var(--accent); }
 .ps-choix.is-on { font-weight: 600; color: var(--accent); }
 .ps-choix.is-on i { visibility: visible; }
-.ps-aide { margin: 0.7rem 0 0; font-size: var(--t-second); color: var(--muted); }
 /* Ma semaine : une question par bloc, ses réponses en pastilles (plusieurs pour les jours). */
 .ps-sem-q { margin-top: 1rem; }
-.ps-sem-t { margin-bottom: 0.45rem; font-size: var(--t-texte); font-weight: 600; color: var(--text); }
+.ps-sem-q .cal-champ { margin-bottom: 0.45rem; }
+.ps-chiffres { display: grid; grid-template-columns: repeat(2, minmax(0, 12rem)); align-items: end; gap: 0 0.8rem; margin-top: 1rem; }
 .ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .ps-valeur { margin-top: 1rem; }
 .ps-valeur .mrt-btn { margin-top: 0.2rem; }
 .ps-profil textarea { resize: vertical; }
 @media (hover: hover) { .ps-ligne-q:hover, .ps-choix:hover { background: color-mix(in srgb, var(--text) 5%, transparent); } }
 
-/* ----- Séances proposées par l'IA : le bouton, ce qui reste ce mois-ci, la mention ; la proposition en attente ----- */
-.ps-ia { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin-bottom: 0.4rem; }
+/* ----- Séances proposées par l'IA : le bouton et ce qui reste ce mois-ci ; la recommandation en attente et ses boutons ;
+   les séances proposées dans la grille ----- */
+.ps-ia { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin-bottom: 1rem; }
 .ps-ia-reste, .ps-ia-aide { font-size: var(--t-second); color: var(--muted); }
 .ps-ia-aide { margin-bottom: 0.8rem; }
-.ps-ia-mention { margin-bottom: 0.9rem; font-size: var(--t-libelle); color: var(--muted); }
 .ps-ia-msg { margin: -0.4rem 0 0.9rem; font-size: var(--t-second); color: var(--red); }
 .ps-proposition { margin: 0 0 1rem; padding: 0.8rem 0.9rem; border: 1px solid var(--accent); border-radius: 8px; }
 .ps-proposition .ps-libelle { margin-top: 0; }
-.ps-prop-sem + .ps-prop-sem { margin-top: 0.8rem; }
-.ps-prop-titre { display: flex; align-items: center; gap: 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
-.ps-prop-titre input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
-.ps-prop-expl { margin: 0.2rem 0 0.3rem; font-size: var(--t-second); font-style: italic; color: var(--muted); }
-.ps-prop-liste { display: flex; flex-direction: column; gap: 0.2rem; padding-left: 1rem; font-size: var(--t-texte); color: var(--text); }
+.ps-reco { font-size: var(--t-texte); color: var(--text); }
+.ps-prop-sems { margin-top: 0.8rem; }
+.ps-prop-liste { display: none; flex-direction: column; gap: 0.2rem; margin-top: 0.6rem; padding-left: 1rem; font-size: var(--t-texte); color: var(--text); }
 .ps-prop-liste b { font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
-.ps-prop-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.9rem 0 0.5rem; }
+.ps-prop-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+/* Grille du bloc : celle du Mois du Calendrier (calendrier.css) ; repères du jour et séances proposées (contour Accent, pointillé). */
+.ps-grille { margin-top: 0.4rem; }
+.cal-v-rep { display: block; font-size: var(--t-micro); color: var(--muted); }
+.cal-v-prop { display: block; min-width: 0; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); line-height: 1.35; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px dashed var(--accent); border-radius: 3px; }
+@media (max-width: 600px) { .ps-prop-liste { display: flex; } }

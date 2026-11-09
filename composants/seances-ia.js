@@ -66,10 +66,15 @@
     };
   }
 
+  // Réponse de l'IA : une recommandation et les séances du bloc ; une réponse plus ancienne, rangée par semaines (chacune avec
+  // son explication), est lue de la même façon.
+  const seancesDe = r => (!r ? [] : Array.isArray(r.seances) ? r.seances : (r.semaines || []).flatMap(w => w.seances || []));
+  const recommandationDe = r => (!r ? '' : r.recommandation || (r.semaines || []).map(w => w.explication).filter(Boolean).join(' '));
+
   // Garde-fous (spécification, § 6) : rend la liste des règles non respectées, en phrases courtes (renvoyées à l'IA pour corriger).
   function gardeFous(reponse, ctx, lundi) {
     const err = [], pr = ctx.profil || {}, ps = P.planSaison(ctx), fin = addDays(lundi, 7 * BLOC - 1);
-    const seances = ((reponse && reponse.semaines) || []).flatMap(w => w.seances || []);
+    const seances = seancesDe(reponse);
     if (!seances.length) err.push('aucune séance proposée');
     const vol = {}, nb = {};
     seances.forEach(s => {
@@ -144,7 +149,7 @@
 
   // Séances retenues : écrites avec leur origine (IA) ; la proposition passe en « acceptée ».
   async function accepter(ctx, prop, lundis) {
-    const lignes = prop.reponse.semaines.filter(w => lundis.includes(w.lundi)).flatMap(w => w.seances).map(s => ({
+    const lignes = seancesDe(prop.reponse).filter(s => lundis.includes(lundiDe(s.date))).map(s => ({
       date: s.date, type: s.type, libelle: String(s.libelle).trim().slice(0, 100), duree_min: s.duree_min,
       distance_km: Number(s.distance_km) > 0 ? Math.round(Number(s.distance_km) * 10) / 10 : null, intensite: s.intensite, origine: 'ia', etat: 'acceptee', course: null }));
     if (lignes.length) { const { error } = await sb().from('seances').insert(lignes); if (error) return error; }
@@ -158,5 +163,5 @@
     ctx.propositions = data || [];
   }
 
-  window.mrtSeancesIA = { PLAFOND, contexte, gardeFous, restantes, enAttente, proposer, accepter, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
+  window.mrtSeancesIA = { PLAFOND, seancesDe, recommandationDe, contexte, gardeFous, restantes, enAttente, proposer, accepter, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
 })();
