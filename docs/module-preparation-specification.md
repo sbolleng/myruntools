@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.4 · 9 novembre 2026 · [Retour au sommaire](README.md) · Lot 3 construit, réservé aux comptes pilotes : séances d'un bloc proposées par l'IA, garde-fous, validation, plafond
+Version 0.5 · 9 novembre 2026 · [Retour au sommaire](README.md) · Profil d'entraînement repensé : une question par écran, des tranches, une semaine type, l'indispensable séparé du facultatif
 
 ## 1. Rôle
 
@@ -118,18 +118,52 @@ Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; lot 2 : le profil (2) et son état (12)
 
 ### 5.2 Profil d'entraînement
 
-Une fenêtre présentée comme la fiche d'une course : « Annuler » et « Enregistrer » en haut. Les champs marqués d'une astérisque sont obligatoires pour proposer des séances.
+Une liste de questions courtes, une par ligne ; chaque ligne ouvre un écran avec une seule question. Un choix s'enregistre aussitôt et ramène à la liste : pas de bouton « Enregistrer ». Des tranches plutôt que des nombres, sauf pour le repère d'allure, qui doit rester précis.
 
-| Groupe | Champs |
-|---|---|
-| Niveau | Années de pratique* ; volume moyen des 4 dernières semaines* (km ou heures) ; plus longue sortie récente* (km ou heures) |
-| Disponibilités | Jours possibles* (du lundi au dimanche) ; jour de la sortie longue ; durée maximale d'une séance ; durée maximale par semaine |
-| Allures | VMA (km/h), ou un temps récent sur 10 km ou sur semi-marathon* (au moins l'un des trois) ; FC max (facultative) |
-| Renforcement | Nombre de séances par semaine (0 à 3) |
-| Moyens | Tapis, vélo, piscine : pour les types de séance à venir |
-| Points fragiles | Texte court, facultatif |
+```
+(M1) [Fermer]               MON PROFIL D'ENTRAÎNEMENT
+(M2) INDISPENSABLE POUR PROPOSER TES SÉANCES                      4 sur 5
+     (M3) Je cours depuis                    3 à 6 ans        ›
+          Distance par semaine               Aucune idée      ›
+          Plus longue sortie récente         À renseigner     ›   (Accent)
+          Ma semaine type                    4 jours          ›
+          Repère d'allure                    10 km en 45:30   ›
+(M4) POUR AFFINER (FACULTATIF)
+          Durée maximale d'une séance        1 h 30           ›
+          Terrains d'entraînement            Vallonné         ›
+          Niveau en renforcement             —                ›
+          FC max et points fragiles          FC max 186       ›
 
-La FC max et les points fragiles sont des données de santé : le lot RGPD (sommaire, à faire) doit les couvrir avant la mise en ligne de l'IA.
+(M5) [‹ Retour]             JE COURS DEPUIS
+(M6) Je débute · 1 à 3 ans · 3 à 6 ans ✓ · 6 à 10 ans · Plus de 10 ans     (une ligne par choix)
+(M7) Une phrase d'aide, si besoin
+```
+
+| N° | Élément | Contenu |
+|---|---|---|
+| M1 | Barre de la liste | « Fermer » ; le titre en libellé |
+| M2 | Section indispensable | Titre ; à droite « 4 sur 5 » (Accent tant qu'elle n'est pas complète) |
+| M3 | Ligne | La question ; à droite la réponse résumée, ou « À renseigner » (Accent) pour une question indispensable sans réponse, « — » pour une facultative |
+| M4 | Section facultative | Toujours visible |
+| M5 | Barre d'une question | « ‹ Retour » ; la question en libellé |
+| M6 | Choix | Une ligne par choix ; le choix en cours en Accent, coché |
+| M7 | Aide | Distance : « Sur les 4 dernières semaines. « Aucune idée » : l'IA reste prudente. » ; semaine type, durée maximale, terrains : une phrase |
+
+| Question | Choix | Indispensable |
+|---|---|---|
+| Je cours depuis | Je débute · 1 à 3 ans · 3 à 6 ans · 6 à 10 ans · Plus de 10 ans | Oui |
+| Distance par semaine | Aucune idée · 0 à 20 km · 20 à 40 km · 40 à 60 km · 60 à 80 km · Plus de 80 km | Oui |
+| Plus longue sortie récente | Moins de 1 h · 1 h à 1 h 30 · 1 h 30 à 2 h · 2 à 3 h · Plus de 3 h | Oui |
+| Ma semaine type | Pour chaque jour : Repos · Course · Sortie longue · Renforcement ; une seule sortie longue (en choisir une autre remet l'ancienne en Course) ; enregistrée à chaque toucher, « ‹ Retour » à la fin ; au moins un jour actif | Oui |
+| Repère d'allure | VMA · Temps sur 10 km · Temps sur semi-marathon · Je ne sais pas ; puis la valeur (VMA de 8 à 30 km/h ; 10 km de 20:00 à 2:00:00 ; semi de 50:00 à 4:00:00), « Valider » | Oui |
+| Durée maximale d'une séance | 45 min · 1 h · 1 h 30 · 2 h · Sans limite | Non |
+| Terrains d'entraînement | Pas de dénivelé · Petites côtes (moins de 50 m de D+) · Vallonné (50 à 500 m) · Montagne (plus de 500 m) | Non |
+| Niveau en renforcement | Débutant · Intermédiaire · Confirmé · Expert | Non |
+| FC max et points fragiles | FC max (100 à 230), points fragiles (300 caractères), « Valider » | Non |
+
+Les jours disponibles, le jour de la sortie longue et le nombre de renforcements se lisent dans la semaine type. Hors du profil : les autres sports (tant que les séances ne sont que course et renforcement) et l'accès à une piste.
+
+La FC max et les points fragiles sont des données de santé : le lot RGPD (sommaire, à faire) doit les couvrir avant l'ouverture de l'IA à tous.
 
 ## 6. Séances proposées par l'IA
 
@@ -138,7 +172,7 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 - **Ce qui revient** : une liste de séances dans un format imposé (date, type, libellé, durée, distance, intensité) et une explication par semaine.
 - **Garde-fous** (des règles, vérifiées par le site avant d'afficher) :
   - dates dans le bloc, type connu, libellé de 1 à 100 caractères, durée de 1 à 1 440 minutes ;
-  - seulement les jours disponibles ; aucune séance un jour de course ni la veille d'une Plaisir (repos) ;
+  - seulement les jours actifs de la semaine type ; aucune séance un jour de course ni la veille d'une Plaisir (repos) ;
   - durées maximales respectées (séance, semaine) ;
   - séances faciles seulement pendant une récupération ;
   - volume des semaines d'affûtage entre 40 et 59 % de la moyenne des 3 semaines d'avant (une réduction de 41 à 60 %), quand ces 3 semaines ont des durées connues.
@@ -161,7 +195,7 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 |---|---|---|
 | Rôle d'une course : objectif, préparatoire, plaisir | `courses.role` ; les `objectif_intermediaire` passent en `objectif` | Évolution à écrire |
 | Durée de prépa, phases modifiées à la main | `formats.prepa_semaines`, `courses.prepa_semaines`, `plan_semaines` | Existe (évolution 009) |
-| Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur (jours : 1 pour lundi à 7 pour dimanche ; temps en secondes) | Créée (évolution 024) |
+| Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur : tranches (`anciennete`, `volume_tranche`, `sortie_tranche`), `semaine_type` (7 activités, du lundi au dimanche), repère d'allure (`allure_type`, `vma` ou temps en secondes), `seance_max_min` (1 440 : sans limite), `terrain`, `renfo_niveau`, `fc_max`, `fragiles` | Créée (évolution 024), en tranches (évolution 026, avec conversion du profil déjà saisi) |
 | Séance enrichie : durée (min), distance (km), intensité (facile, modérée, intense) ; origine (saisie, IA) ; état (proposée, acceptée) | Table `seances`, nouvelles colonnes (les séances existantes : saisies, acceptées) | Créée (évolution 024) |
 | Propositions : date, bloc, essai, modèle, jetons, statut, réponse | Table `propositions`, écrite par la fonction, lue par le site et la fonction (plafond) | Créée (évolution 025) |
 
@@ -218,21 +252,23 @@ Résultats attendus, page et profil :
 - Au 30 novembre : « Cette semaine : Base, semaine 3 sur 16. » ; repères « Récupération de Trail du Lac jusqu'au ven. 4 déc. 2026 » et « Repos le sam. 12 déc. 2026 : veille de Corrida de Noël (Plaisir). ».
 - Calendrier, mars 2027 : affûtage le 2 mars, Récupération le 9, d'une autre couleur.
 - Sans Objectif à venir : le message, pas de frise. Site partagé en lecture seule : la saison s'affiche, sans « + ».
-Résultats attendus, profil (lot 2) :
+Résultats attendus, profil :
 
-- Profil vide : « Profil à compléter : années de pratique, volume des 4 dernières semaines, plus longue sortie récente, jours possibles, VMA ou temps de référence. » ; la fenêtre : groupes Niveau, Disponibilités, Allures, Renforcement et moyens, Points fragiles.
-- VMA à 35 : « La VMA doit être comprise entre 8 et 30 km/h. », rien d'écrit. Saisie de 6 ans, 35,5 km par semaine, 2 h de sortie longue, mardi, jeudi et samedi (sortie longue le samedi), 45:30 sur 10 km, tapis : une ligne écrite (35,5 ; 2 730 secondes ; jours 2, 4, 6) ; « Profil complet. ».
-- Profil relu : la fenêtre reprend 35,5, heures, 45:30, 1:42:00, 2 séances de renforcement, le jeudi et le tapis cochés.
-- Séance : distance à 0 refusée (« La distance doit être comprise entre 0,1 et 999 km. ») ; 45 min, 8,5 km, Facile : enregistrés et repris dans la fenêtre.
-- Site partagé : ni bouton ni état du profil. Téléphone : la fenêtre ne déborde pas.
+- Profil vide : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine type, repère d'allure. » ; la liste : « Indispensable pour proposer tes séances » (« 0 sur 5 », cinq « À renseigner ») et « Pour affiner (facultatif) », 9 lignes ; ni astérisque ni phrase sur le site partagé.
+- « Je cours depuis » : cinq tranches ; « 3 à 6 ans » s'enregistre aussitôt, retour à la liste, « 1 sur 5 ».
+- Semaine type : mardi Course, jeudi Renforcement, samedi puis dimanche Sortie longue : le samedi redevient Course ; enregistrée à chaque toucher.
+- Repère d'allure : VMA à 35 refusée (« La VMA doit être comprise entre 8 et 30 km/h. ») ; 10 km en 45:30 : 2 730 secondes. Puis « 5 sur 5 », résumés « 10 km en 45:30 », « 4 jours », « Aucune idée ».
+- Facultatif : 1 h 30, Vallonné ; FC max à 250 refusée, 186 acceptée. Sur la page : « Profil complet. ».
+- Séance : distance à 0 refusée ; 45 min, 8,5 km, Facile enregistrés.
+- Site partagé : ni bouton ni état du profil. Téléphone : liste et semaine type sans débordement.
 
-Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût ; profil : mardi, jeudi, samedi, séance de 120 min au plus) :
+Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût ; profil : semaine type mardi Course, jeudi Renforcement, samedi Sortie longue ; séance de 2 h au plus) :
 
 - Au départ : « Proposer les séances », « 4 restantes ce mois-ci » et la mention.
 - Proposition du bloc du 19 octobre : en attente, à part des séances enregistrées : 4 semaines, 12 séances (« mar. 20 · Course à pied Footing · 45 min · 8 km · Facile »), une explication par semaine ; boutons Tout accepter, Choisir semaine par semaine, Refaire, Abandonner.
 - Ce qui est envoyé : le bloc du 19 octobre au 15 novembre, en Entretien, les jours disponibles (mardi, jeudi, samedi), le repère « allégé » du jeudi 12 novembre ; ni nom de course, ni prénom.
 - « Tout accepter » : 12 séances écrites (origine IA, état acceptée ; distance vide pour le renforcement), proposition acceptée, « 3 restantes ce mois-ci ».
-- Garde-fou : une séance le mercredi 21 (jour non disponible) : la demande est refaite (essai 2, avec « mer. 21 oct. … : jour non disponible »), la première marquée invalide. « Choisir semaine par semaine » sans la semaine du 26 octobre : 9 séances écrites.
+- Garde-fou : une séance le mercredi 21 (jour de repos de la semaine type) : la demande est refaite (essai 2, avec « mer. 21 oct. … : jour de repos dans la semaine type, aucune séance »), la première marquée invalide. « Choisir semaine par semaine » sans la semaine du 26 octobre : 9 séances écrites.
 - Deux réponses fautives de suite : « Proposition impossible à vérifier, réessaie plus tard. », les deux appels en échec, toujours 4 restantes, rien d'écrit.
 - « Abandonner » (confirmé) : rien d'écrit, la proposition compte (3 restantes).
 - 4 propositions déjà faites ce mois-ci : bouton grisé, « 0 restante ce mois-ci ». Refus de la fonction : « Plus de proposition ce mois-ci : la prochaine le dim. 1er nov. 2026. » ; compte non pilote : « Réservé aux comptes pilotes pour l'instant. ».
