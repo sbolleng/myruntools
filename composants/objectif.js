@@ -14,7 +14,8 @@
 (function () {
   // Dates, heures, nombres : les formats communs (en-tete.js, mrtFormat).
   const F = window.mrtFormat;
-  const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif intermédiaire', objectif: 'Objectif principal' };
+  // Trois rôles (spécification Préparation, § 3) ; l'ancien « objectif intermédiaire » compte comme un Objectif.
+  const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif', objectif: 'Objectif' };
   const STATUTS_LIB = { a_surveiller: 'À surveiller', option: 'Option', confirmee: 'Confirmée' };
   const UNITE = { j: 'j', h: 'h', m: 'min', s: 's' };
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -24,7 +25,7 @@
   // Liens saisis par l'utilisateur : seulement des adresses web.
   const lienSur = u => (u && /^https?:\/\//i.test(u) ? u : null);
   const pageCourse = c => 'course.html?id=' + encodeURIComponent(c.id);
-  const classeRole = c => (c.role === 'objectif' ? 'is-obj' : c.role === 'objectif_intermediaire' ? 'is-cle' : '');
+  const classeRole = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'is-obj' : '');
 
   // Départ : jour et heure locale de la course, lus dans le fuseau du navigateur (§ 5.1) ;
   // mois seul : le 1er du mois, à minuit.

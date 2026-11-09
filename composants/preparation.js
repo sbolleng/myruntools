@@ -11,11 +11,16 @@
 (function () {
   // Noms des mois et des jours, dates : les formats communs (en-tete.js, mrtFormat) ; le 1er du mois s'écrit « 1er ».
   const F = window.mrtFormat, { MOIS, JOURS } = F;
+  // Phases d'un plan (au choix dans « Paramétrer le plan ») ; hors saison, deux phases de plus (spécification Préparation, § 4).
   const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Deload']];
-  const NOM_PHASE = Object.fromEntries(PHASES);
+  const NOM_PHASE = Object.assign(Object.fromEntries(PHASES), { recuperation: 'Récupération', entretien: 'Entretien' });
 
   // Types de séance, en toutes lettres : pour en ajouter un (vélo, tapis…), une ligne ici et une évolution SQL (valeur de `seance_type`) ; la fenêtre de saisie et les vues les reprennent seules.
   const TYPES = { run: 'Course à pied', renfo: 'Renforcement' };
+  // Intensité d'une séance (facultative) : une séance facile est la seule permise pendant une récupération (spécification Préparation, § 3.3).
+  const INTENSITES = { facile: 'Facile', moderee: 'Modérée', intense: 'Intense' };
+  // Nombre saisi (virgule acceptée) ; vide : null ; illisible : NaN.
+  const nombre = v => { const t = String(v == null ? '' : v).trim().replace(',', '.'); return t === '' ? null : /^\d+(\.\d+)?$/.test(t) ? Number(t) : NaN; };
 
   // Dates en heure locale, au format 'AAAA-MM-JJ' : comparables comme du texte.
   const pad = n => String(n).padStart(2, '0');
@@ -101,6 +106,76 @@
       return { plan: p, n: w.n, phase: w.phase, modifiee: w.modifiee };
     });
   }
+
+
+  // ----- Plan de saison : une saison par Objectif, les autres courses insérées selon leur rôle (spécification Préparation, § 2 à 4) -----
+
+  // Rôle dans le plan : l'ancien « objectif intermédiaire » compte comme un Objectif.
+  const roleDe = c => (c.role === 'objectif_intermediaire' ? 'objectif' : c.role);
+  // Kilomètres-effort : la distance, plus le dénivelé positif compté 1 km pour 100 m ; jours de récupération : un par mile.
+  const kmEffort = c => (Number(c.distance) || 0) + (Number(c.dplus) || 0) / 100;
+  const joursRecup = c => Math.round(kmEffort(c) / 1.609);
+  const ECART_OBJECTIFS = 12; // semaines au moins entre deux Objectifs
+  const ecartJours = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+
+  // La saison de chaque Objectif confirmé et à venir (le plan de sa course, raccourci s'il commence avant l'Objectif précédent),
+  // les repères des courses (jours allégés, repos de la veille, récupération), et les alertes.
+  function planSaison(ctx) {
+    const confirmees = ctx.courses.filter(c => c.statut === 'confirmee' && c.date && (c.etat === 'a_venir' || c.etat === 'courue'));
+    const objectifs = confirmees.filter(c => c.etat === 'a_venir' && roleDe(c) === 'objectif').sort((a, b) => (a.date < b.date ? -1 : 1));
+    const saisons = [], alertes = [];
+    let avant = null;
+    objectifs.forEach(c => {
+      if (avant && ecartJours(avant.date, c.date) < ECART_OBJECTIFS * 7)
+        alertes.push({ type: 'proches', course: c, autre: avant, semaines: Math.floor(ecartJours(avant.date, c.date) / 7) });
+      const plan = planDe(c, modifsDe(ctx.semaines, c.id));
+      if (plan) {
+        // Commencée avant l'Objectif précédent : elle part de la semaine qui le suit ; la base se réduit la première.
+        const depart = avant ? addDays(lundiDe(avant.date), 7) : null;
+        const semaines = depart && plan.premier < depart ? plan.semaines.filter(w => w.lundi >= depart) : plan.semaines;
+        if (semaines.length) saisons.push({ course: c, plan, semaines, premier: semaines[0].lundi, jourJ: c.date, raccourcie: semaines.length < plan.semaines.length,
+          affutage: (semaines.find(w => w.phase === 'affutage') || {}).lundi || null });
+      }
+      avant = c;
+    });
+    const saisonDe = jour => saisons.find(x => jour >= x.premier && jour <= x.jourJ) || null;
+    // Repères : récupération après toute course (même courue) ; jours allégés avant une Préparatoire ; repos la veille d'une Plaisir.
+    const reperes = confirmees.filter(c => roleDe(c) !== 'objectif' || c.etat === 'a_venir' || c.etat === 'courue').map(c => {
+      const role = roleDe(c), r = { course: c, role, recupDebut: addDays(c.date, 1), recupFin: addDays(c.date, joursRecup(c)), jours: joursRecup(c) };
+      if (c.etat === 'a_venir' && role === 'preparatoire') { r.allegeDebut = addDays(c.date, -3); r.allegeFin = addDays(c.date, -1); }
+      if (c.etat === 'a_venir' && role === 'plaisir') r.repos = addDays(c.date, -1);
+      return r;
+    });
+    // Alertes des autres courses à venir, par rapport à l'Objectif de leur saison (ou au suivant).
+    reperes.filter(r => r.role !== 'objectif' && r.course.etat === 'a_venir').forEach(r => {
+      const c = r.course, sx = saisons.find(x => x.jourJ >= c.date);
+      if (!sx) return;
+      if (sx.affutage && r.recupFin >= sx.affutage && c.date < sx.jourJ) alertes.push({ type: 'recup-affutage', course: c, autre: sx.course, fin: r.recupFin, affutage: sx.affutage });
+      const mini = Number(sx.course.distance) >= 42 ? 21 : 14;
+      if (r.role === 'preparatoire' && ecartJours(c.date, sx.jourJ) < mini) alertes.push({ type: 'prepa-proche', course: c, autre: sx.course, jours: ecartJours(c.date, sx.jourJ) });
+      if (c.date >= sx.premier && kmEffort(c) > kmEffort(sx.course)) alertes.push({ type: 'plus-longue', course: c, autre: sx.course });
+    });
+    return { saisons, reperes, alertes, saisonDe };
+  }
+
+  // Phase d'une semaine dans le plan de saison : celle de sa saison ; hors saison, Récupération (la récupération d'un Objectif
+  // couvre un de ses jours) puis Entretien jusqu'à la saison suivante ; après le dernier Objectif, rien.
+  function phaseDe(ps, lundi) {
+    const dimanche = addDays(lundi, 6);
+    const sx = ps.saisons.find(x => lundi >= x.premier && lundi <= lundiDe(x.jourJ));
+    if (sx) { const w = sx.semaines.find(x => x.lundi === lundi); return { phase: w.phase, n: w.n, modifiee: w.modifiee, saison: sx }; }
+    const recup = ps.reperes.find(r => r.role === 'objectif' && r.recupDebut <= dimanche && r.recupFin >= lundi && lundi > r.course.date);
+    if (recup) return { phase: 'recuperation', saison: null, apres: recup.course };
+    const suivante = ps.saisons.find(x => x.premier > lundi);
+    return suivante ? { phase: 'entretien', saison: null, vers: suivante } : null;
+  }
+
+  // Repères d'un jour : allégé (avant une Préparatoire), repos (veille d'une Plaisir), récupération (après une course).
+  const reperesDuJour = (ps, jour) => ps.reperes.flatMap(r => [
+    r.allegeDebut && jour >= r.allegeDebut && jour <= r.allegeFin ? { type: 'allege', course: r.course } : null,
+    r.repos === jour ? { type: 'repos', course: r.course } : null,
+    jour >= r.recupDebut && jour <= r.recupFin ? { type: 'recup', course: r.course, fin: r.recupFin } : null
+  ]).filter(Boolean);
 
   const ecriture = ctx => !ctx.lectureSeule;
 
@@ -201,6 +276,10 @@
       '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
       '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type">' + Object.keys(TYPES).map(k => '<option value="' + k + '">' + TYPES[k] + '</option>').join('') + '</select></label>' +
       '<label class="cal-champ"><span>Libellé</span><input class="mrt-champ" name="libelle" maxlength="100" placeholder="ex. Footing 45 min" value="' + esc(s ? s.libelle : '') + '"></label>' +
+      // Facultatifs : durée, distance, intensité (spécification Préparation, § 7).
+      '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
+      '<label class="cal-champ"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
+      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label></div>' +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '') + '</form>', 'cal-seance');
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
     if (s) f.type.value = s.type;
@@ -219,7 +298,10 @@
       const libelle = f.libelle.value.trim(), date = f.date.value;
       if (!date) return void (msg.textContent = 'Choisis une date.');
       if (!libelle) return void (msg.textContent = 'Écris le libellé de la séance.');
-      const champs = { date, type: f.type.value, libelle };
+      const duree = nombre(f.duree.value), distance = nombre(f.distance.value);
+      if (duree !== null && !(Number.isInteger(duree) && duree >= 1 && duree <= 1440)) return void (msg.textContent = 'La durée doit être un nombre de minutes entre 1 et 1 440.');
+      if (distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
+      const champs = { date, type: f.type.value, libelle, duree_min: duree, distance_km: distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null };
       const { error } = s ? await sb.from('seances').update(champs).eq('id', s.id)
         : await sb.from('seances').insert(Object.assign({ course: opts.course || null }, champs));
       if (error) return echec(error);
@@ -320,6 +402,6 @@
     });
   }
 
-  window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES };
+  window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+    phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES };
 })();

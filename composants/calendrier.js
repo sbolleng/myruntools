@@ -10,7 +10,7 @@
 //   ctx.courses, ctx.seances, ctx.semaines, ctx.lectureSeule, ctx.relire() : voir preparation.js.
 (function () {
   const P = window.mrtPreparation;
-  const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, tousLesPlans, plansDeLaSemaine, lienCourse } = P;
+  const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, planSaison, phaseDe, lienCourse } = P;
   const { MOIS_LONG } = window.mrtFormat;
   // Choix du menu « Périodicité » : [vue, nom, durée de l'Année en mois].
   const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
@@ -72,9 +72,9 @@
       '<a class="cal-voisin" href="' + avant[1] + '" aria-label="' + avant[2] + '"><span class="mrt-rond">' + window.mrtIcone.gauche + '</span><span class="cal-voisin-txt">' + avant[0] + '</span></a>' +
       '<div class="cal-titre-bloc"><h2 class="cal-titre">' + titre + '</h2>' + (sous || '') + '</div>' +
       '<a class="cal-voisin is-suiv" href="' + apres[1] + '" aria-label="' + apres[2] + '"><span class="cal-voisin-txt">' + apres[0] + '</span><span class="mrt-rond">' + window.mrtIcone.droite + '</span></a></div>';
-    const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
-    // Phase d'un jour : celle de sa semaine dans le plan suivi (la course confirmée la plus proche qui couvre la semaine).
-    const phaseDuJour = (plans, jour) => { const s = plans && plansDeLaSemaine(lundiDe(jour), plans)[0]; return s ? s.phase : null; };
+    const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.concat([['recuperation', NOM_PHASE.recuperation]]).map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
+    // Phase d'un jour : celle de sa semaine dans le plan de saison (spécification Préparation, § 4) ; l'Entretien n'a pas de fond.
+    const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
     const rdvDuJour = jour => ctx.courses.filter(c => aPlan(c) && c.ouverture_inscriptions === jour);
     // Course, rendez-vous clé (ouverture des inscriptions), séance (case « faite », libellé qui ouvre sa fenêtre), « + ».
     const courseHtml = c => '<a class="cal-v-course ' + couleur(c) + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + esc(c.nom) + '</a>';
@@ -91,7 +91,7 @@
       const mois = Array.from({ length: nb }, (_, i) => new Date(an(depart), rang(depart) + i, 1));
       const debut = iso(mois[0]), fin = iso(new Date(an(depart), rang(depart) + nb, 0));
       const ensuite = visibles(ctx.courses, debut, '9999-12-31', auj), liste = ensuite.filter(c => c.date <= fin);
-      const plans = phases ? tousLesPlans(ctx) : null; // fond de chaque jour : la phase de sa semaine dans le plan suivi (§ 2)
+      const plans = phases ? planSaison(ctx) : null; // fond de chaque jour : la phase de sa semaine dans le plan de saison
       const taille = mobile.matches ? 3 : Math.min(6, nb);
       let h = '';
       for (let i = 0; i < nb; i += taille) {
@@ -135,7 +135,7 @@
     function vueMois(m) {
       const auj = iso(new Date()), phases = phasesVisibles();
       const debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
-      const courses = visibles(ctx.courses, debut, fin, auj), plans = phases ? tousLesPlans(ctx) : null;
+      const courses = visibles(ctx.courses, debut, fin, auj), plans = phases ? planSaison(ctx) : null;
       let h = '<div class="cal-m-jours">' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cal-libelle">' + j + '</span>').join('') + '</div><div class="cal-m-grille">';
       for (let j = debut; j <= fin; j = addDays(j, 1)) {
         const d = parse(j), cls = ['cal-m-case'], ph = phaseDuJour(plans, j);
@@ -173,7 +173,7 @@
       return h + '</div></section>';
     }
     function vueSemaine() {
-      const phases = phasesVisibles(), plans = phases ? tousLesPlans(ctx) : null;
+      const phases = phasesVisibles(), plans = phases ? planSaison(ctx) : null;
       let h = haut('semaines') + '<div class="cal-sep"></div>' + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') +
         '<button type="button" class="mrt-lien cal-passees" data-passees>↑ Afficher les semaines passées</button>';
       for (let i = 0; i < liste.nb; i++) h += semaineHtml(addDays(liste.debut, 7 * i), plans);

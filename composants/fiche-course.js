@@ -13,7 +13,8 @@
   // Bouton « Supprimer la course » : à contour rouge, avec une poubelle.
   const POUBELLE = '<svg class="fc-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CHEVRON = window.mrtIcone.chevron; // chevron commun des titres repliables (mrt-chev)
-  const ROLES = [['preparatoire', 'Préparatoire'], ['plaisir', 'Plaisir'], ['objectif_intermediaire', 'Objectif intermédiaire'], ['objectif', 'Objectif']];
+  // Trois rôles (spécification Préparation, § 3) ; l'ancien « objectif intermédiaire » s'affiche et s'enregistre en Objectif.
+  const ROLES = [['objectif', 'Objectif'], ['preparatoire', 'Préparatoire'], ['plaisir', 'Plaisir']];
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad = n => String(n).padStart(2, '0');
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
@@ -195,7 +196,7 @@
           : k === 'categorie' ? CATEGORIES
           : sousDe(typeDe(c.format)).map(s => [s.id, s.libelle]);
         const vide = DEFAUT[k] ? '' : '<option value="">—</option>';
-        const courant = valeur || DEFAUT[k] || '';
+        const courant = (k === 'role' && valeur === 'objectif_intermediaire' ? 'objectif' : valeur) || DEFAUT[k] || '';
         input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
       } else if (genre === 'groupe') {
         const noms = (groupes || []).slice();

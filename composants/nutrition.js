@@ -50,7 +50,8 @@
     const jours = prochaine ? Math.round((parse(prochaine.date) - parse(jour)) / 86400000) : null;
     const calc = B.phaseDuJour(jours);
     if (calc === 'carbo' || calc === 'veille') return { calc, libelle: B.PHASES[calc].libelle };
-    const sem = P ? P.phaseSemaine(P.lundiDe(jour), P.tousLesPlans({ courses: ctx.courses || [], semaines: ctx.semaines || [] })) : null;
+    // Phase de la semaine dans le plan de saison (spécification Préparation, § 4), Récupération et Entretien compris.
+    const sem = P ? P.phaseDe(P.planSaison({ courses: ctx.courses || [], semaines: ctx.semaines || [] }), P.lundiDe(jour)) : null;
     return { calc: 'train', libelle: sem ? P.NOM_PHASE[sem.phase] : 'Entraînement' };
   }
 
