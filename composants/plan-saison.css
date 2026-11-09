@@ -64,15 +64,14 @@
 .ps-choix.is-on { font-weight: 600; color: var(--accent); }
 .ps-choix.is-on i { visibility: visible; }
 .ps-aide { margin: 0.7rem 0 0; font-size: var(--t-second); color: var(--muted); }
-.ps-semaine { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.8rem; }
-.ps-jour { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: center; gap: 0.5rem; }
-.ps-jour-nom { font-size: var(--t-texte); color: var(--text); }
-.ps-jour-choix { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+/* Ma semaine : une question par bloc, ses réponses en pastilles (plusieurs pour les jours). */
+.ps-sem-q { margin-top: 1rem; }
+.ps-sem-t { margin-bottom: 0.45rem; font-size: var(--t-texte); font-weight: 600; color: var(--text); }
+.ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .ps-valeur { margin-top: 1rem; }
 .ps-valeur .mrt-btn { margin-top: 0.2rem; }
 .ps-profil textarea { resize: vertical; }
 @media (hover: hover) { .ps-ligne-q:hover, .ps-choix:hover { background: color-mix(in srgb, var(--text) 5%, transparent); } }
-@media (max-width: 600px) { .ps-jour { grid-template-columns: 1fr; gap: 0.25rem; } }
 
 /* ----- Séances proposées par l'IA : le bouton, ce qui reste ce mois-ci, la mention ; la proposition en attente ----- */
 .ps-ia { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin-bottom: 0.4rem; }

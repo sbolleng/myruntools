@@ -71,14 +71,14 @@ const PAGES = {
   // Une proposition de l'IA en attente (bloc du 19 octobre), le profil complet.
   'preparation-ia': { url: 'preparation.html', hauteur: { tel: 1900, ordi: 1300 }, donnees: d => {
     const moi = d.profils[0].id, lundis = ['2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09'];
-    d.profil_entrainement = [{ utilisateur: moi, anciennete: '3-6', volume_tranche: '20-40', sortie_tranche: '1h30-2h', semaine_type: ['repos', 'course', 'repos', 'renfo', 'repos', 'longue', 'repos'], allure_type: '10km', temps_10km_s: 2730 }];
+    d.profil_entrainement = [{ utilisateur: moi, anciennete: '3-6', volume_tranche: '20-40', sortie_tranche: '1h30-2h', jours_course: [2, 4, 6], jours_renfo: [2, 4], nb_sorties: 3, nb_renfo: 1, jour_long: 6, allure_type: '10km', temps_10km_s: 2730 }];
     d.propositions = [{ id: 'p1', utilisateur: moi, cree: '2026-10-20T10:00:00Z', bloc: lundis[0], essai: 1, statut: 'brute', reponse: { semaines: lundis.map((l, i) => ({ lundi: l,
       explication: i === 3 ? 'Semaine allégée avant le Trail du Lac : séances courtes et faciles.' : 'Entretien : deux footings, une séance de seuil et une sortie longue.',
       seances: [[1, 'run', 'Footing', 45, 8, 'facile'], [3, 'run', i === 3 ? 'Footing léger' : '3 × 10 min au seuil', i === 3 ? 30 : 55, i === 3 ? 5 : 10, i === 3 ? 'facile' : 'intense'], [5, 'run', i === 3 ? 'Footing' : 'Sortie longue', i === 3 ? 30 : 95, i === 3 ? 5 : 16, 'facile']]
         .map(([k, type, libelle, duree_min, distance_km, intensite]) => { const x = new Date(l + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + k); return { date: x.toISOString().slice(0, 10), type, libelle, duree_min, distance_km, intensite }; }) })) } }];
     return d; } },
   'preparation-profil': { url: 'preparation.html', hauteur: { tel: 1500, ordi: 1300 }, action: async p => { await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil'); } },
-  'preparation-semaine': { url: 'preparation.html', hauteur: { tel: 1100, ordi: 900 }, donnees: d => { d.profil_entrainement = [{ utilisateur: d.profils[0].id, anciennete: '3-6', semaine_type: ['repos', 'course', 'repos', 'renfo', 'repos', 'longue', 'repos'] }]; return d; },
+  'preparation-semaine': { url: 'preparation.html', hauteur: { tel: 1100, ordi: 900 }, donnees: d => { d.profil_entrainement = [{ utilisateur: d.profils[0].id, anciennete: '3-6', jours_course: [2, 4, 6], jours_renfo: [2, 4], nb_sorties: 3, nb_renfo: 1, jour_long: 6 }]; return d; },
     action: async p => { await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q'); await p.click('.ps-profil [data-q="semaine"]'); } },
   'preparation-question': { url: 'preparation.html', hauteur: { tel: 844, ordi: 900 }, donnees: d => { d.profil_entrainement = [{ utilisateur: d.profils[0].id, anciennete: '3-6' }]; return d; },
     action: async p => { await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q'); await p.click('.ps-profil [data-q="anciennete"]'); } },

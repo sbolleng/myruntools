@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.5 · 9 novembre 2026 · [Retour au sommaire](README.md) · Profil d'entraînement repensé : une question par écran, des tranches, une semaine type, l'indispensable séparé du facultatif
+Version 0.6 · 9 novembre 2026 · [Retour au sommaire](README.md) · Profil : « Ma semaine » (jours possibles pour courir et pour le renforcement, cumulables, nombre de sorties et de renforcements, jour de la sortie longue) à la place de la semaine type
 
 ## 1. Rôle
 
@@ -126,7 +126,7 @@ Une liste de questions courtes, une par ligne ; chaque ligne ouvre un écran ave
      (M3) Je cours depuis                    3 à 6 ans        ›
           Distance par semaine               Aucune idée      ›
           Plus longue sortie récente         À renseigner     ›   (Accent)
-          Ma semaine type                    4 jours          ›
+          Ma semaine                         3 sorties, 1 renforcement ›
           Repère d'allure                    10 km en 45:30   ›
 (M4) POUR AFFINER (FACULTATIF)
           Durée maximale d'une séance        1 h 30           ›
@@ -154,14 +154,14 @@ Une liste de questions courtes, une par ligne ; chaque ligne ouvre un écran ave
 | Je cours depuis | Je débute · 1 à 3 ans · 3 à 6 ans · 6 à 10 ans · Plus de 10 ans | Oui |
 | Distance par semaine | Aucune idée · 0 à 20 km · 20 à 40 km · 40 à 60 km · 60 à 80 km · Plus de 80 km | Oui |
 | Plus longue sortie récente | Moins de 1 h · 1 h à 1 h 30 · 1 h 30 à 2 h · 2 à 3 h · Plus de 3 h | Oui |
-| Ma semaine type | Pour chaque jour : Repos · Course · Sortie longue · Renforcement ; une seule sortie longue (en choisir une autre remet l'ancienne en Course) ; enregistrée à chaque toucher, « ‹ Retour » à la fin ; au moins un jour actif | Oui |
+| Ma semaine | Sur un écran, cinq questions enregistrées à chaque toucher, « ‹ Retour » à la fin : jours possibles pour courir (plusieurs) ; nombre de sorties par semaine (1 au nombre de jours choisis) ; jour à privilégier pour la sortie longue (un des jours de course, ou Peu importe) ; jours possibles pour le renforcement (plusieurs, un même jour que la course possible : le volume est adapté) ; nombre de renforcements par semaine (0 à 3). Retirer un jour ramène le nombre de sorties et la sortie longue si besoin. Complète avec au moins un jour pour courir et un nombre de sorties | Oui |
 | Repère d'allure | VMA · Temps sur 10 km · Temps sur semi-marathon · Je ne sais pas ; puis la valeur (VMA de 8 à 30 km/h ; 10 km de 20:00 à 2:00:00 ; semi de 50:00 à 4:00:00), « Valider » | Oui |
 | Durée maximale d'une séance | 45 min · 1 h · 1 h 30 · 2 h · Sans limite | Non |
 | Terrains d'entraînement | Pas de dénivelé · Petites côtes (moins de 50 m de D+) · Vallonné (50 à 500 m) · Montagne (plus de 500 m) | Non |
 | Niveau en renforcement | Débutant · Intermédiaire · Confirmé · Expert | Non |
 | FC max et points fragiles | FC max (100 à 230), points fragiles (300 caractères), « Valider » | Non |
 
-Les jours disponibles, le jour de la sortie longue et le nombre de renforcements se lisent dans la semaine type. Hors du profil : les autres sports (tant que les séances ne sont que course et renforcement) et l'accès à une piste.
+Ma semaine dit aussi ce que l'IA respecte : au plus le nombre de sorties et de renforcements prévus, chacun seulement ses jours possibles. Hors du profil : les autres sports (tant que les séances ne sont que course et renforcement) et l'accès à une piste.
 
 La FC max et les points fragiles sont des données de santé : le lot RGPD (sommaire, à faire) doit les couvrir avant l'ouverture de l'IA à tous.
 
@@ -172,7 +172,7 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 - **Ce qui revient** : une liste de séances dans un format imposé (date, type, libellé, durée, distance, intensité) et une explication par semaine.
 - **Garde-fous** (des règles, vérifiées par le site avant d'afficher) :
   - dates dans le bloc, type connu, libellé de 1 à 100 caractères, durée de 1 à 1 440 minutes ;
-  - seulement les jours actifs de la semaine type ; aucune séance un jour de course ni la veille d'une Plaisir (repos) ;
+  - une course seulement un jour possible pour courir, un renforcement seulement un jour possible pour le renforcement ; pas plus de sorties ni de renforcements par semaine que prévu ; aucune séance un jour de course ni la veille d'une Plaisir (repos) ;
   - durées maximales respectées (séance, semaine) ;
   - séances faciles seulement pendant une récupération ;
   - volume des semaines d'affûtage entre 40 et 59 % de la moyenne des 3 semaines d'avant (une réduction de 41 à 60 %), quand ces 3 semaines ont des durées connues.
@@ -195,7 +195,7 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 |---|---|---|
 | Rôle d'une course : objectif, préparatoire, plaisir | `courses.role` ; les `objectif_intermediaire` passent en `objectif` | Évolution à écrire |
 | Durée de prépa, phases modifiées à la main | `formats.prepa_semaines`, `courses.prepa_semaines`, `plan_semaines` | Existe (évolution 009) |
-| Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur : tranches (`anciennete`, `volume_tranche`, `sortie_tranche`), `semaine_type` (7 activités, du lundi au dimanche), repère d'allure (`allure_type`, `vma` ou temps en secondes), `seance_max_min` (1 440 : sans limite), `terrain`, `renfo_niveau`, `fc_max`, `fragiles` | Créée (évolution 024), en tranches (évolution 026, avec conversion du profil déjà saisi) |
+| Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur : tranches (`anciennete`, `volume_tranche`, `sortie_tranche`), `jours_course`, `jours_renfo`, `nb_sorties`, `nb_renfo`, `jour_long` (évolution 027 ; la semaine type de l'évolution 026 n'est plus employée), repère d'allure (`allure_type`, `vma` ou temps en secondes), `seance_max_min` (1 440 : sans limite), `terrain`, `renfo_niveau`, `fc_max`, `fragiles` | Créée (évolution 024), en tranches (évolution 026, avec conversion du profil déjà saisi) |
 | Séance enrichie : durée (min), distance (km), intensité (facile, modérée, intense) ; origine (saisie, IA) ; état (proposée, acceptée) | Table `seances`, nouvelles colonnes (les séances existantes : saisies, acceptées) | Créée (évolution 024) |
 | Propositions : date, bloc, essai, modèle, jetons, statut, réponse | Table `propositions`, écrite par la fonction, lue par le site et la fonction (plafond) | Créée (évolution 025) |
 
@@ -254,21 +254,21 @@ Résultats attendus, page et profil :
 - Sans Objectif à venir : le message, pas de frise. Site partagé en lecture seule : la saison s'affiche, sans « + ».
 Résultats attendus, profil :
 
-- Profil vide : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine type, repère d'allure. » ; la liste : « Indispensable pour proposer tes séances » (« 0 sur 5 », cinq « À renseigner ») et « Pour affiner (facultatif) », 9 lignes ; ni astérisque ni phrase sur le site partagé.
+- Profil vide : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. » ; la liste : « Indispensable pour proposer tes séances » (« 0 sur 5 », cinq « À renseigner ») et « Pour affiner (facultatif) », 9 lignes ; ni astérisque ni phrase sur le site partagé.
 - « Je cours depuis » : cinq tranches ; « 3 à 6 ans » s'enregistre aussitôt, retour à la liste, « 1 sur 5 ».
-- Semaine type : mardi Course, jeudi Renforcement, samedi puis dimanche Sortie longue : le samedi redevient Course ; enregistrée à chaque toucher.
-- Repère d'allure : VMA à 35 refusée (« La VMA doit être comprise entre 8 et 30 km/h. ») ; 10 km en 45:30 : 2 730 secondes. Puis « 5 sur 5 », résumés « 10 km en 45:30 », « 4 jours », « Aucune idée ».
+- Ma semaine : jours pour courir mardi, jeudi, samedi, dimanche : 1 à 4 sorties proposées ; 4 sorties, sortie longue le dimanche, puis le dimanche retiré : 3 sorties, sortie longue « peu importe » ; sortie longue le samedi, renforcement mardi et jeudi, 1 par semaine : enregistrés à chaque toucher.
+- Repère d'allure : VMA à 35 refusée (« La VMA doit être comprise entre 8 et 30 km/h. ») ; 10 km en 45:30 : 2 730 secondes. Puis « 5 sur 5 », résumés « 10 km en 45:30 », « 3 sorties, 1 renforcement », « Aucune idée ».
 - Facultatif : 1 h 30, Vallonné ; FC max à 250 refusée, 186 acceptée. Sur la page : « Profil complet. ».
 - Séance : distance à 0 refusée ; 45 min, 8,5 km, Facile enregistrés.
 - Site partagé : ni bouton ni état du profil. Téléphone : liste et semaine type sans débordement.
 
-Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût ; profil : semaine type mardi Course, jeudi Renforcement, samedi Sortie longue ; séance de 2 h au plus) :
+Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût ; profil : course le mardi et le samedi (2 sorties, la longue le samedi), renforcement le jeudi (1) ; séance de 2 h au plus) :
 
 - Au départ : « Proposer les séances », « 4 restantes ce mois-ci » et la mention.
 - Proposition du bloc du 19 octobre : en attente, à part des séances enregistrées : 4 semaines, 12 séances (« mar. 20 · Course à pied Footing · 45 min · 8 km · Facile »), une explication par semaine ; boutons Tout accepter, Choisir semaine par semaine, Refaire, Abandonner.
 - Ce qui est envoyé : le bloc du 19 octobre au 15 novembre, en Entretien, les jours disponibles (mardi, jeudi, samedi), le repère « allégé » du jeudi 12 novembre ; ni nom de course, ni prénom.
 - « Tout accepter » : 12 séances écrites (origine IA, état acceptée ; distance vide pour le renforcement), proposition acceptée, « 3 restantes ce mois-ci ».
-- Garde-fou : une séance le mercredi 21 (jour de repos de la semaine type) : la demande est refaite (essai 2, avec « mer. 21 oct. … : jour de repos dans la semaine type, aucune séance »), la première marquée invalide. « Choisir semaine par semaine » sans la semaine du 26 octobre : 9 séances écrites.
+- Garde-fou : une course le mercredi 21 (jour non prévu pour courir) : la demande est refaite (essai 2, avec « mer. 21 oct. … : jour non prévu pour courir »), la première marquée invalide. « Choisir semaine par semaine » sans la semaine du 26 octobre : 9 séances écrites.
 - Deux réponses fautives de suite : « Proposition impossible à vérifier, réessaie plus tard. », les deux appels en échec, toujours 4 restantes, rien d'écrit.
 - « Abandonner » (confirmé) : rien d'écrit, la proposition compte (3 restantes).
 - 4 propositions déjà faites ce mois-ci : bouton grisé, « 0 restante ce mois-ci ». Refus de la fonction : « Plus de proposition ce mois-ci : la prochaine le dim. 1er nov. 2026. » ; compte non pilote : « Réservé aux comptes pilotes pour l'instant. ».
