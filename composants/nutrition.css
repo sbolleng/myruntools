@@ -113,3 +113,6 @@
 .nu-ac-anneaux .nu-anneau { width: 64px; height: 64px; }
 .nu-ac-anneaux .nu-anneau-v { font-size: var(--t-second); }
 .nu-ac-anneaux .nu-jauge-besoin { display: none; }
+
+/* L'activité se détache des repas : un espace et un filet plein avant elle. */
+.nu-journal .nu-activites { margin-top: 1.6rem; padding-top: 1rem; border-top: 2px solid var(--border); }

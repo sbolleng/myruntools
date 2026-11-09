@@ -223,7 +223,7 @@
       const p = ctx.profil, act = (B.ACTIVITES[p.activite].libelle || '').split(' · ')[0].toLowerCase();
       return [virgule(Number(p.poids)) + ' kg', p.taille + ' cm', act].join(' · ') + ' ›';
     }
-    const resumeSport = () => (S.sports.length ? S.sports.map(x => duree(x.heures) + ' · ' + B.SPORTS[x.type].libelle).join(' ; ') : 'Aucune');
+
     const ligneSport = s => '<div class="nu-sport-l"><select class="mrt-champ" name="type" aria-label="Sport"><option value="">Sport…</option>' +
       Object.entries(B.SPORTS).map(x => '<option value="' + x[0] + '"' + (s && s.type === x[0] ? ' selected' : '') + '>' + esc(x[1].libelle) + '</option>').join('') + '</select>' +
       '<span class="nu-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s && s.heures ? virgule(s.heures) : '') + '">h</span></div>';
@@ -241,7 +241,7 @@
         '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal</p><p class="nu-phase"></p>' +
         '<p class="nu-calcule"><button type="button" class="mrt-lien nu-profil-l" data-act="profil">Calculé pour ' + esc(htmlProfil()) + '</button></p>' +
         '<div class="nu-anneaux"></div>' +
-        '<div class="nu-tuiles"><button type="button" class="nu-tuile" data-act="activite"><span class="nu-tuile-l">Activité</span><span class="nu-tuile-v nu-tuile-sport"></span></button>' +
+        '<div class="nu-tuiles"><button type="button" class="nu-tuile" data-act="activite"><span class="nu-tuile-l">Activité</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button>' +
         '<button type="button" class="nu-tuile" data-act="ajout-repas"><span class="nu-tuile-l">Repas</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button></div>' +
         '<p class="nu-msg nu-msg-sport" role="alert">' + esc(S.msgSport) + '</p>';
     }
@@ -340,7 +340,6 @@
       carte('besoin').querySelector('.nu-kcal-val').textContent = n0(r.kcal);
       carte('besoin').querySelector('.nu-phase').textContent = 'Phase · ' + phaseDuJour(ctx, S.jour).libelle;
       carte('besoin').querySelector('.nu-anneaux').innerHTML = htmlJauges(r);
-      carte('besoin').querySelector('.nu-tuile-sport').textContent = resumeSport();
     }
     const dessinerBesoin = () => { carte('besoin').innerHTML = htmlBesoin(); chiffres(); };
     const dessinerAjout = () => { const z = zoneAjout(); if (z) z.innerHTML = htmlAjout(); };
@@ -353,7 +352,7 @@
       voile.className = 'mc-voile';
       voile.innerHTML = '<div class="mc-panneau nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
         '<div class="pc-barre"><button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
-        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment · ' + titreJour(S.jour) : 'Activité · ' + titreJour(S.jour)) + '</p>' +
+        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : 'Activité') + '</p>' +
         '<div class="' + (type === 'repas' ? 'nu-ajout' : 'nu-activite') + '"></div></div></div>';
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');

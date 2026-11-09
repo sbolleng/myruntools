@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.1 · 10 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 1.2 · 10 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -63,7 +63,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 │ (26–29)  quatre anneaux : nom, valeur, Reste, Besoin    │
 │ ─────────────────────────────────────────────────────── │
 │ (45) ┌ ACTIVITÉ        ┐  (46) ┌ REPAS           ┐       │
-│      │ 1 h · Jogging…  │       │ + Ajouter       │       │
+│      │ + Ajouter       │       │ + Ajouter       │       │
 │      └─────────────────┘       └─────────────────┘       │
 └─────────────────────────────────────────────────────────┘
 ┌ (17) Journal du jour ───────────────────────────────────┐
@@ -74,7 +74,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 │ (50) Jogging à 8 km/h · 1 h                             │  ← toucher : Modifier (51)
 └─────────────────────────────────────────────────────────┘
 
-(47) Feuille « Ajouter un aliment · Lundi 9 novembre » (ou « Activité · … ») : la feuille d'une course,
+(47) Feuille « Ajouter un aliment » (ou « Activité »), sans la date (celle de la page) : la feuille d'une course,
      plein écran sur téléphone, croix ronde en haut à droite ; dessous, la recherche (30, 31, 35), les sources (14),
      l'aliment choisi (15), le repas, « Ajouter » (16), puis « Banane ajouté · midi » ; la feuille reste ouverte.
 ```
@@ -93,10 +93,10 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 33 | Retour à aujourd'hui | « Aujourd'hui » | À droite du 32, sur un autre jour seulement | `mrt-lien` |
 | 34 | Séances du Calendrier | « Au calendrier : Gainage 30 min · Footing 1 h 15 · Reprendre » | Sous le 23, s'il y a des séances ce jour-là | Texte discret, `mrt-lien` |
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
-| 45 | Case Activité | « ACTIVITÉ · 1 h · Jogging à 9,5 km/h » ou « Aucune » | Sous les anneaux, à gauche | Case sur le fond des champs, coins de 8 px, libellé en capitales, valeur en Texte ; ouvre la feuille Activité |
+| 45 | Case Activité | « ACTIVITÉ · + Ajouter » (toujours, comme la case Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Case sur le fond des champs, coins de 8 px, libellé en capitales, valeur en Texte ; ouvre la feuille Activité |
 | 46 | Case Repas | « REPAS · + Ajouter » | À droite du 45 | Même case ; ouvre la feuille d'ajout, repas d'après l'heure |
-| 47 | Feuilles | « Ajouter un aliment · … », « Activité · … » | Par-dessus la page | La feuille d'une course (`mc-voile`, `mc-panneau`), croix ronde, titre en libellé ; jamais de bouton « Fermer » |
-| 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir | Comme un repas ; le « + » ouvre la feuille Activité |
+| 47 | Feuilles | « Ajouter un aliment », « Activité » | Par-dessus la page | La feuille d'une course (`mc-voile`, `mc-panneau`), croix ronde, titre en libellé ; jamais de bouton « Fermer » |
+| 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la feuille Activité |
 | 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
 | 51 | Fenêtre Modifier | « Modifier · Riz cuit » | Par-dessus la page | Fenêtre de saisie du site : « Annuler », « Enregistrer » en haut, titre en libellé ; quantité et repas (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, seul en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
 | 48 | « + » d'un repas | Rond à droite de PETIT-DÉJ, MIDI, ENCAS, SOIR | Journal | Petit rond commun ; ouvre la feuille d'ajout sur ce repas |

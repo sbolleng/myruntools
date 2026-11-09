@@ -3518,12 +3518,12 @@ const CONTROLES = {
       egal(['kcal | sous | 350 | Reste 1 767 kcal | Besoin 2 117 kcal', 'p | sous | 6 g | Reste 92 g | Besoin 98–140 g', 'g | sous | 76 g | Reste 189 g | Besoin 265–318 g', 'l | sous | 1 g | Reste 58 g | Besoin 59–82 g'], await jauges(p), 'anneaux : nom, valeur, reste, besoin'),
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
-      egal(['Aucune', 'Ajouter', 0], [norm(await p.locator('.nu-tuile-sport').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"] .nu-tuile-v').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'cases Activité et Repas ; ajout et sport dans leurs feuilles'),
+      egal(['Ajouter', 'Ajouter', 0], [norm(await p.locator('.nu-tuile[data-act="activite"] .nu-tuile-v').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"] .nu-tuile-v').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'cases Activité et Repas ; ajout et sport dans leurs feuilles'),
       egal(0, await p.locator('.nu-mention, .nu-macros, .nu-editer').count(), 'page épurée : ni mention, ni fourchettes en texte, ni bouton « Modifier »'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
     await ouvrirRepas(p);
     if (CAPTURES) { await p.waitForTimeout(600); await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-feuille.png') }); }
-    pb.push(egal(['Ajouter un aliment · Mardi 20 octobre', ['Banane · 1 pièce | 90 kcal', 'Riz cuit | 130 kcal / 100 g']], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await liste(p)], 'feuille Repas : titre, Récents sans l\'aliment jamais utilisé'));
+    pb.push(egal(['Ajouter un aliment', ['Banane · 1 pièce | 90 kcal', 'Riz cuit | 130 kcal / 100 g']], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await liste(p)], 'feuille Repas : titre, Récents sans l\'aliment jamais utilisé'));
     await p.click('[data-source="favoris"]');
     pb.push(egal(['Banane · 1 pièce | 90 kcal'], await liste(p), 'Favoris'));
     await p.click('[data-source="recents"]');
@@ -3707,7 +3707,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     const ligneS = i => p.locator('.nu-sport-l').nth(i);
     await ouvrirActivite(p);
-    pb.push(egal(['Activité · Mardi 20 octobre', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
+    pb.push(egal(['Activité', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
     await ligneS(0).locator('[name="type"]').selectOption('j95');
     await ligneS(0).locator('[name="heures"]').fill('1');
     pb.push(egal([2, '2 817 kcal', 'kcal | sous | 350 | Reste 2 467 kcal | Besoin 2 817 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p), (await jauges(p))[0]], 'sport : 1 h de jogging, une 2e ligne, besoin et anneau recalculés'));
@@ -3720,8 +3720,7 @@ const CONTROLES = {
     pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
     await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST' && e.corps.length === 2);
     await fermerF(p);
-    pb.push(egal('1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche', norm(await p.locator('.nu-tuile-sport').textContent()), 'case Activité : le sport du jour'),
-      egal(['Jogging à 9,5 km/h (6 min/km) · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
+    pb.push(egal(['Jogging à 9,5 km/h (6 min/km) · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
     await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); await p.waitForSelector('.nu-jauge');
     await ouvrirActivite(p);
     pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
