@@ -26,7 +26,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 /* Page privée masquée tant que la session n'est pas vérifiée (session.js). */
 html.mrt-attente body, html.mrt-attente-contenu main, html.mrt-attente-contenu .mrt-pied { visibility: hidden; }
-html { background: var(--bg); }
+html { background: var(--bg); overscroll-behavior-y: none; } /* pas de rebond vertical : le menu collant ne « glisse » plus */
 body {
   font-family: 'Space Grotesk', sans-serif;
   background: var(--bg);
