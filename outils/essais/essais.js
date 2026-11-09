@@ -1135,6 +1135,10 @@ const CONTROLES = {
     pb.push(egal({ plan: ['role'], dossard: ['dossard', 'prix'], parcours: ['fc-gpx', 'strategie'], preparation: ['pourquoi'] },
       { plan: await champsDe('plan'), dossard: await champsDe('dossard'), parcours: await champsDe('parcours'), preparation: await champsDe('preparation') },
       'Palmarès : Parcours comme une course à venir (tracé GPX, stratégie) ; Préparation sans plan ; ni statut ni inscription'));
+    // Un champ toujours à la même place : sans « Date approximative », sa place reste vide ; l'heure reste sous la date, le lieu à sa droite.
+    pb.push(egal([true, true], await p.evaluate(() => { const r = k => document.querySelector('#fc-' + k).getBoundingClientRect();
+      return [Math.abs(r('heure').left - r('date').left) < 1 && r('heure').top > r('date').bottom, Math.abs(r('lieu').top - r('heure').top) < 1 && r('lieu').left > r('heure').right]; }),
+      'Palmarès : place de « Date approximative » gardée vide ; heure sous la date, lieu à sa droite, comme pour une course à venir'));
     await p.keyboard.press('Escape');
     await p.waitForSelector('.mc-voile', { state: 'detached' });
     pb.push(egal([], erreurs, 'fiche, Palmarès, erreurs JavaScript'));

@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.70 · 8 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.71 · 9 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -352,7 +352,7 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 
 | Ordre | Bloc | À venir | Courue | Champs |
 | --- | --- | --- | --- | --- |
-| 1 | (F3) Course | ouvert | ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement) ; heure, lieu ; type, format ; distance ; D+, D− ; **objectif et précisions** (comme dans la fiche de la consultation) ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
+| 1 | (F3) Course | ouvert | ouvert | Course, parcours ; date (+ « Date approximative » (F5), à venir seulement ; pour une course courue, sa place reste vide, pour que les champs suivants gardent la leur) ; heure, lieu ; type, format ; distance ; D+, D− ; **objectif et précisions** (comme dans la fiche de la consultation) ; description. **Le numéro de dossard n'y est plus** (il passe dans Dossard) |
 | 2 | (F15) Place dans le plan | ouvert | replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
 | 3 | (F19) Dossard | ouvert | replié si vide | Numéro, prix ; à venir seulement : ouverture des inscriptions, « Inscrit » (le numéro ne se saisit qu'inscrit), site d'inscription |
 | 4 | (F46) Parcours | replié (ouvert pour une course existante) | replié | Tracé GPX (importer, remplacer, supprimer ; F28) puis stratégie de course, à venir comme courue (depuis le 6 nov. 2026) |
@@ -640,7 +640,7 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Trail des Gorges, consultation puis crayon : la même feuille passe en édition, barre « Annuler · Modifier la course · Enregistrer », pas de croix, aucune autre fenêtre ouverte. Blocs dans l'ordre : Course, Place dans le plan, Préparation, Logistique, Dossard (n° 1287 dedans), Liens.
 - « Annuler » sans saisie : retour à la consultation, sans question ; après une saisie : « Abandonner les modifications ? ». « Enregistrer » : retour à la consultation, mise à jour.
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
-- Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Dossard (numéro, prix), Parcours (tracé GPX, stratégie, comme une course à venir), Préparation (rôle, sans plan), Logistique, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente.
+- Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Dossard (numéro, prix), Parcours (tracé GPX, stratégie, comme une course à venir), Préparation (rôle, sans plan), Logistique, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Date approximative » absente, sa place gardée vide : l'heure reste sous la date, le lieu à sa droite.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
 - Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, sans libellé « Courue » ; sous le titre « dim. 4 oct. 2026 », « Semi-marathon », « 21,1 km » ; Résultat : Temps 01:56:05, Place 1 951e, Vitesse 10,9 km/h, Allure 5:30 /km ; pas de section Montre ; un seul texte replié, Parcours, avec « Importer un GPX » ; ni fiche encadrée, ni lien Résultats, ni compte à rebours, ni plan, ni boutons « Retenir » et « Marquer comme courue ».
 - Même course renseignée (classements 112e / 640, 18e / 96 en M2, 95e / 510 ; dossard 1287 ; D+ 40 ; montre 1:55:50, 21,3 km, D+ 40, FC 151 ; objectif, prix, liens) : « Semi-marathon · Dossard 1287 » puis « 21,1 km · 40 m D+ » ; Résultat : Temps, Objectif 01:50:00 et dessous « Sous 1 h 55 dans tous les cas. », Place 112e / 640, Catégorie 18e / 96 Master 2 Homme, Sexe 95e / 510, Vitesse, Allure ; Montre : Temps 01:55:50, Distance 21,3 km, D+ · D− 40 · — m, FC moy. 151 bpm ; lien « Résultats » dans l'intertitre ; ni prix, ni bloc Liens ; sous la Montre, À propos (« Semi. »), Parcours (ouvert : stratégie « Partir prudemment. »), Préparation (rôle « Répétition. », sans plan), Logistique (« Train. ») ; Résultat et Montre tiennent sans défilement sur un écran de 1200 × 700 ; site officiel par une flèche dessinée. Sur ordinateur, Montre à droite de Résultat, valeurs en Texte discret ; sur téléphone, Montre dessous, rien ne dépasse.
