@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.0 · 10 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 1.1 · 10 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -68,8 +68,10 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 └─────────────────────────────────────────────────────────┘
 ┌ (17) Journal du jour ───────────────────────────────────┐
 │ (18) PETIT-DÉJ                         90 KCAL   (48)(+) │
-│      Banane                            90 kcal      (×) │
+│      Banane                            90 kcal          │  ← toucher : Modifier (51)
 │      MIDI · ENCAS · SOIR (idem, chacun avec son +)      │
+│ (49) ACTIVITÉ                                      (+) │
+│ (50) Jogging à 8 km/h · 1 h                             │  ← toucher : Modifier (51)
 └─────────────────────────────────────────────────────────┘
 
 (47) Feuille « Ajouter un aliment · Lundi 9 novembre » (ou « Activité · … ») : la feuille d'une course,
@@ -94,6 +96,9 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 45 | Case Activité | « ACTIVITÉ · 1 h · Jogging à 9,5 km/h » ou « Aucune » | Sous les anneaux, à gauche | Case sur le fond des champs, coins de 8 px, libellé en capitales, valeur en Texte ; ouvre la feuille Activité |
 | 46 | Case Repas | « REPAS · + Ajouter » | À droite du 45 | Même case ; ouvre la feuille d'ajout, repas d'après l'heure |
 | 47 | Feuilles | « Ajouter un aliment · … », « Activité · … » | Par-dessus la page | La feuille d'une course (`mc-voile`, `mc-panneau`), croix ronde, titre en libellé ; jamais de bouton « Fermer » |
+| 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir | Comme un repas ; le « + » ouvre la feuille Activité |
+| 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
+| 51 | Fenêtre Modifier | « Modifier · Riz cuit » | Par-dessus la page | Fenêtre de saisie du site : « Annuler », « Enregistrer » en haut, titre en libellé ; quantité et repas (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, seul en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
 | 48 | « + » d'un repas | Rond à droite de PETIT-DÉJ, MIDI, ENCAS, SOIR | Journal | Petit rond commun ; ouvre la feuille d'ajout sur ce repas |
 | 20 | Modifier le profil (retiré le 10 nov. 2026) | « Modifier » | En haut à droite de la carte 1 | `mrt-btn` ; ouvre la fenêtre du profil (§ 4.5) |
 | 21 | Profil du calcul | « Calculé pour 59 kg · 163 cm · sédentaire › » | Sous la phase, centré | Lien d'action (0,8 rem) ; ouvre la fenêtre du profil (§ 4.5) |
@@ -111,7 +116,7 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 15 | Quantité | « (−) 190 g (+) », « (−) 2 portions (+) » | Sous l'aliment choisi | `mrt-rond`, `mrt-champ` |
 | 16 | Ajouter | « Ajouter » | Bas de la carte 3 | `mrt-btn is-principal`, toute la largeur |
 | 17 | Journal du jour | « Journal du jour » | Carte 4 | Titre de cadre commun |
-| 18 | Ligne du journal | « Riz cuit · 200 g · 260 kcal (×) » | Carte 4, par repas | × : `mrt-rond is-fermer`, croix dessinée ; − et + de la quantité dessinés aussi |
+| 18 | Ligne du journal | « Riz cuit · 200 g · 260 kcal » | Carte 4, par repas | La ligne entière se touche (Modifier, 51) ; aucun rond au bout |
 
 ### 4.4 Options
 
@@ -138,7 +143,7 @@ Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tar
 - **Quantité** (15) : en grammes pour un aliment donné pour 100 g (pas de 10 g, de 1 à 5 000 g), en portions pour les autres (pas de 0,5, de 0,1 à 50) ; le champ se saisit aussi au clavier. Hors bornes : message, rien n'est écrit.
 - **Ajout rapide** (14 à 16) : Favoris, Récents (les 8 derniers aliments utilisés), « + Aliment libre » (nom, portion, calories obligatoires ; protéines, glucides, lipides à 0 si vides ; case Favori ; « Créer l'aliment »). Repas proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir), changé en un toucher.
 - **Ajout** (47) : la feuille s'ouvre par la case Repas (repas d'après l'heure) ou par le « + » d'un repas du journal (48, ce repas d'office) ; elle reste ouverte après « Ajouter » (« Banane ajouté · midi »), les jauges et le journal se mettent à jour dessous ; la croix, Échap ou un toucher à côté la ferment.
-- **Journal** (17, 18) : les quatre repas toujours affichés, chacun avec son « + » et, s'il a des lignes, son total ; une ligne par aliment (« Riz cuit · 190 g », « Banane · 2 portions ») ; × supprime sans confirmation. Sans ligne : « Rien de noté. »
+- **Journal** (17, 18, 49, 50) : les quatre repas toujours affichés, puis l'activité du jour, chacun avec son « + » et, pour un repas qui a des lignes, son total ; une ligne par aliment (« Riz cuit · 190 g », « Banane · 2 portions »). Toucher une ligne ouvre « Modifier » (51) : la quantité (en grammes ou en portions, comme à l'ajout) et le repas d'un aliment, dont les valeurs figées sont recalculées à la nouvelle quantité ; le sport et la durée d'une activité ; « Supprimer » demande « Supprimer cette ligne ? ».
 - **Écritures** : « Ajouter » range la ligne (valeurs figées) puis le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
 - **Pas encore construit** : Ciqual (aliments génériques, § 8) ; Open Food Facts ne connaît que des produits de marque.
 
@@ -267,4 +272,8 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : « Banane ajouté · midi », la feuille reste ouverte |
 | Journal vide ; « + » du soir | Les quatre repas, chacun avec son « + » ; la feuille d'ajout s'ouvre |
 | Feuille Activité : 1 h de jogging et 0,5 h de marche, puis la croix | « Activité · Mardi 20 octobre » ; case « 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche » ; rien n'est réécrit à la fermeture quand rien n'a changé |
+| Journal : toucher « Banane », Supprimer | Question « Supprimer cette ligne ? », rien d'écrit avant la réponse ; « Supprimer » : la ligne effacée, la fenêtre fermée ; aucun rond au bout des lignes |
+| Toucher « Riz cuit · 200 g » (midi) | « Modifier · Riz cuit », 200, Midi ; Annuler : rien d'écrit ; 100 g au soir puis Enregistrer : la ligne à 1 portion, 130 kcal, 2,7 g, 28 g, 0,3 g, au soir |
+| Activités du jour : jogging 1 h, marche 0,5 h ; toucher la marche, Supprimer | 2 922 kcal ; « Supprimer cette activité ? » ; 2 817 kcal, la ligne du jogging seule, rangée dans la base |
+| Journal vide | Petit-déj, Midi, Encas, Soir, Activité, chacun avec son « + » |
 | Téléphone (375 et 390 px) | Pas de défilement horizontal ; le bouton « Ajouter » reste visible |

@@ -310,14 +310,21 @@
         '<div class="nu-source">' + corps + '</div>' + htmlChoix() + '<p class="nu-msg" role="alert">' + esc(S.msg) + '</p><p class="nu-ok" role="status">' + esc(S.ok || '') + '</p>';
     }
     // ----- Carte 3 : journal du jour -----
+    // Journal : les quatre repas, puis l'activité ; chaque ligne se touche pour la modifier ou la supprimer ; un « + » par section.
+    const qteLigne = l => { const a = trouver(l.aliment); return a && enGrammes(a) ? n0(Number(l.quantite) * 100) + ' g' : Number(l.quantite) !== 1 ? virgule(Number(l.quantite)) + ' portions' : ''; };
+    const ligneSportTexte = x => B.SPORTS[x.type].libelle + ' · ' + duree(x.heures);
     function htmlJournal() {
-      const groupes = REPAS.map(r => [r, S.lignes.filter(l => l.repas === r[0])]);
-      const qte = l => { const a = trouver(l.aliment); return a && enGrammes(a) ? ' · ' + n0(Number(l.quantite) * 100) + ' g' : Number(l.quantite) !== 1 ? ' · ' + virgule(Number(l.quantite)) + ' portions' : ''; };
-      return '<h2 class="nu-titre">Journal du jour</h2>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') +
-        groupes.map(g => '<div class="nu-repas"><p class="nu-repas-t"><span>' + g[0][1] + '</span><span class="nu-repas-d">' + (g[1].length ? '<span>' + n0(g[1].reduce((t, l) => t + Number(l.kcal), 0)) + ' kcal</span>' : '') +
-          '<button type="button" class="mrt-rond is-petit" data-act="ajout-repas" data-repas="' + g[0][0] + '" aria-label="Ajouter : ' + g[0][1] + '">' + mrtIcone.plus + '</button></span></p>' +
-          (g[1].length ? '<ul class="nu-lignes">' + g[1].map(l => '<li data-id="' + l.id + '"><span class="nu-ligne-nom">' + esc(l.nom) + qte(l) + '</span>' +
-            '<span class="nu-ligne-k">' + n0(l.kcal) + ' kcal</span><button type="button" class="mrt-rond is-fermer" data-act="supprimer" data-id="' + l.id + '" aria-label="Supprimer ' + esc(l.nom) + '">' + mrtIcone.fermer + '</button></li>').join('') + '</ul>' : '') + '</div>').join('');
+      const tete = (nom, droite, plus) => '<p class="nu-repas-t"><span>' + nom + '</span><span class="nu-repas-d">' + droite + plus + '</span></p>';
+      const plus = (act, repas, nom) => '<button type="button" class="mrt-rond is-petit" data-act="' + act + '"' + (repas ? ' data-repas="' + repas + '"' : '') + ' aria-label="Ajouter : ' + nom + '">' + mrtIcone.plus + '</button>';
+      const ligne = (attrs, nom, droite) => '<li><button type="button" class="nu-ligne" ' + attrs + '><span class="nu-ligne-nom">' + nom + '</span>' + (droite ? '<span class="nu-ligne-k">' + droite + '</span>' : '') + '</button></li>';
+      const repas = REPAS.map(r => {
+        const ls = S.lignes.filter(l => l.repas === r[0]);
+        return '<div class="nu-repas">' + tete(r[1], ls.length ? '<span>' + n0(ls.reduce((t, l) => t + Number(l.kcal), 0)) + ' kcal</span>' : '', plus('ajout-repas', r[0], r[1])) +
+          (ls.length ? '<ul class="nu-lignes">' + ls.map(l => { const q = qteLigne(l); return ligne('data-act="ligne" data-id="' + l.id + '"', esc(l.nom) + (q ? ' · ' + q : ''), n0(l.kcal) + ' kcal'); }).join('') + '</ul>' : '') + '</div>';
+      }).join('');
+      const activite = '<div class="nu-repas nu-activites">' + tete('Activité', '', plus('activite', null, 'Activité')) +
+        (S.sports.length ? '<ul class="nu-lignes">' + S.sports.map((x, i) => ligne('data-act="ligne-sport" data-i="' + i + '"', esc(ligneSportTexte(x)), '')).join('') + '</ul>' : '') + '</div>';
+      return '<h2 class="nu-titre">Journal du jour</h2>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') + repas + activite;
     }
 
     // Les cartes se redessinent chacune à leur tour : une saisie en cours (sport, recherche) garde sa place.
@@ -433,12 +440,6 @@
       S.choix = { id: aliment.id, quantite: enGrammes(aliment) ? 100 : 1 }; S.source = aliment.favori ? 'favoris' : 'recents'; S.msg = ''; S.ok = '';
       dessinerAjout();
     }
-    async function supprimer(id) {
-      const { error } = await sb().from('repas_lignes').delete().eq('id', id);
-      if (error) return echec(error, 'suppression impossible');
-      S.lignes = S.lignes.filter(l => l.id !== id); S.msg = '';
-      chiffres(); dessinerJournal();
-    }
     async function basculerFavori() {
       const a = choisi();
       if (!a) return;
@@ -483,6 +484,88 @@
       zones();
     }
 
+    // ----- Fenêtre « Modifier » d'une ligne du journal (aliment ou activité) -----
+    // La fenêtre de saisie du site : « Annuler » à gauche, « Enregistrer » à droite, le titre en libellé, « Supprimer »
+    // seul en bas (question du site avant de supprimer).
+    const POUBELLE = '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    function fenetreModifier(titre, corps, enregistrer, supprimer, question) {
+      const voile = document.createElement('div');
+      voile.className = 'pf-voile';
+      voile.innerHTML = '<form class="pf-panneau nu-modifier" role="dialog" aria-modal="true" aria-labelledby="nu-modifier-titre" novalidate>' +
+        '<div class="pf-barre"><button type="button" class="mrt-btn" data-f="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div>' +
+        '<p class="pf-titre" id="nu-modifier-titre">' + esc(titre) + '</p><p class="pf-msg" role="alert"></p>' + corps +
+        '<div class="nu-bas"><button type="button" class="mrt-btn is-danger" data-f="supprimer">' + POUBELLE + 'Supprimer</button></div></form>';
+      document.body.appendChild(voile);
+      const form = voile.querySelector('form'), msg = voile.querySelector('.pf-msg');
+      const echap = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue')) fermer(); };
+      const fermer = () => { voile.remove(); document.removeEventListener('keydown', echap); };
+      document.addEventListener('keydown', echap);
+      voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
+      form.addEventListener('click', async e => {
+        const b = e.target.closest('[data-f]');
+        if (!b) return;
+        if (b.dataset.f === 'annuler') fermer();
+        else if (b.dataset.f === 'supprimer') {
+          if (!(await window.mrtConfirmer({ texte: question, action: 'Supprimer', danger: true }))) return;
+          const err = await supprimer();
+          if (err) msg.textContent = err; else fermer();
+        }
+      });
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const err = await enregistrer(form);
+        if (err) msg.textContent = err; else fermer();
+      });
+      return form;
+    }
+    function modifierLigne(id) {
+      const l = S.lignes.find(x => x.id === id);
+      if (!l) return;
+      const a = trouver(l.aliment), g = !!a && enGrammes(a), pasQ = g ? 10 : 0.5;
+      const valeur = g ? Math.round(Number(l.quantite) * 100) : Number(l.quantite);
+      let repas = l.repas;
+      const corps = '<div class="nu-quantite"><button type="button" class="mrt-rond" data-q="-1" aria-label="Moins">' + mrtIcone.moins + '</button>' +
+        '<span class="nu-unite"><input class="mrt-champ nu-qte" name="quantite" type="text" inputmode="decimal" aria-label="Quantité" value="' + virgule(valeur) + '">' + (g ? 'g' : 'portions') + '</span>' +
+        '<button type="button" class="mrt-rond" data-q="1" aria-label="Plus">' + mrtIcone.plus + '</button></div>' +
+        '<div class="nu-repas-choix">' + REPAS.map(r => '<button type="button" class="mrt-pastille" data-r="' + r[0] + '" aria-pressed="' + (repas === r[0]) + '">' + r[1] + '</button>').join('') + '</div>';
+      const form = fenetreModifier('Modifier · ' + l.nom, corps, async f => {
+        const q0 = nombre(f.quantite.value);
+        if (!(q0 > 0 && q0 <= (g ? 5000 : 50))) return g ? 'La quantité doit être comprise entre 1 et 5 000 g.' : 'La quantité doit être comprise entre 0,1 et 50 portions.';
+        const q = g ? q0 / 100 : q0, k = q / Number(l.quantite);
+        // Les valeurs restent celles figées à la saisie, à la nouvelle quantité.
+        const champs = { repas, quantite: Math.round(q * 100) / 100, kcal: arrondi(l.kcal * k), proteines: arrondi(l.proteines * k), glucides: arrondi(l.glucides * k), lipides: arrondi(l.lipides * k) };
+        const { error } = await sb().from('repas_lignes').update(champs).eq('id', l.id);
+        if (error) { console.warn('Nutrition : ligne non modifiée', error); return ERREUR; }
+        Object.assign(l, champs);
+        chiffres(); dessinerJournal();
+      }, async () => {
+        const { error } = await sb().from('repas_lignes').delete().eq('id', l.id);
+        if (error) { console.warn('Nutrition : suppression impossible', error); return ERREUR; }
+        S.lignes = S.lignes.filter(x => x.id !== l.id);
+        chiffres(); dessinerJournal();
+      }, 'Supprimer cette ligne ?');
+      form.addEventListener('click', e => {
+        const q = e.target.closest('[data-q]'), r = e.target.closest('[data-r]');
+        if (q) { const v = nombre(form.quantite.value), base = Number.isFinite(v) ? v : valeur; form.quantite.value = virgule(Math.max(pasQ, Math.round((base + Number(q.dataset.q) * pasQ) / pasQ) * pasQ)); }
+        if (r) { repas = r.dataset.r; form.querySelectorAll('[data-r]').forEach(x => x.setAttribute('aria-pressed', String(x === r))); }
+      });
+    }
+    function modifierSport(i) {
+      const x = S.sports[i];
+      if (!x) return;
+      const ranger = () => { aRanger = { jour: S.jour, sports: S.sports.slice() }; S.lignesSport = S.sports.concat([null]); chiffres(); dessinerJournal(); return enregistrerSport(); };
+      fenetreModifier('Modifier · ' + B.SPORTS[x.type].libelle, ligneSport(x), async f => {
+        const type = f.querySelector('[name="type"]').value, h = nombre(f.querySelector('[name="heures"]').value);
+        if (!B.SPORTS[type]) return 'Choisis le sport.';
+        if (!(h > 0 && h <= 24)) return 'La durée doit être comprise entre 0 et 24 heures.';
+        S.sports[i] = { type, heures: Math.round(h * 100) / 100 };
+        await ranger();
+      }, async () => {
+        S.sports.splice(i, 1);
+        await ranger();
+      }, 'Supprimer cette activité ?');
+    }
+
     // ----- Sport du jour : rangé dans la base, jour par jour -----
     // Une ligne remplie en fait apparaître une autre (cinq au plus). Le besoin suit la saisie ; l'enregistrement
     // part peu après la dernière frappe (ou au changement de jour).
@@ -499,7 +582,7 @@
         z.querySelector('.nu-sports').insertAdjacentHTML('beforeend', ligneSport(null));
         S.lignesSport.push(null);
       }
-      chiffres();
+      chiffres(); dessinerJournal();
       aRanger = { jour: S.jour, sports: S.sports.slice() };
       clearTimeout(minuteur);
       minuteur = setTimeout(enregistrerSport, 700);
@@ -553,7 +636,8 @@
       else if (act === 'repas') { const q = lireQuantite(); if (Number.isFinite(q)) S.choix.quantite = q; S.repas = b.dataset.repas; dessinerAjout(); }
       else if (act === 'favori') basculerFavori();
       else if (act === 'ajouter') ajouter();
-      else if (act === 'supprimer') supprimer(b.dataset.id);
+      else if (act === 'ligne') modifierLigne(b.dataset.id);
+      else if (act === 'ligne-sport') modifierSport(Number(b.dataset.i));
     };
     const soumettre = e => {
       e.preventDefault();
