@@ -103,8 +103,12 @@
   // Produits d'Open Food Facts, valeurs pour 100 g, par le relais Supabase « recherche-aliments »
   // (supabase/functions/recherche-aliments) ; s'il ne répond pas, l'ancien moteur d'Open Food Facts, directement, avec un
   // nouvel essai. Les recherches déjà faites sont gardées pendant la visite (sessionStorage).
-  const CLE_RECHERCHES = 'mrt-nutri-recherches';
+  // Clé liée à la version du site : une nouvelle mise en ligne (relais ou filtre changés) efface les recherches gardées.
+  const versionSite = () => { const m = document.querySelector('meta[name="site-version"]'); return m ? m.content : ''; };
+  const CLE_RECHERCHES = 'mrt-nutri-recherches-' + versionSite();
   const memoire = () => { try { return JSON.parse(sessionStorage.getItem(CLE_RECHERCHES)) || {}; } catch (e) { return {}; } };
+  // Les recherches gardées par une version précédente du site sont retirées.
+  try { Object.keys(sessionStorage).filter(k => k.startsWith('mrt-nutri-recherches') && k !== CLE_RECHERCHES).forEach(k => sessionStorage.removeItem(k)); } catch (e) { /* stockage indisponible */ }
   function retenir(q, produits) {
     try {
       const m = memoire(); delete m[q]; m[q] = produits;
@@ -156,7 +160,7 @@
       else if (error) console.warn('Nutrition : relais de recherche indisponible', error);
     } catch (err) { console.warn('Nutrition : relais de recherche indisponible', err); }
     if (!produits) produits = await ancienMoteur(texte);
-    retenir(cle, produits);
+    if (produits.length) retenir(cle, produits); // une recherche vide n'est pas gardée : elle sera refaite
     return produits;
   }
 
