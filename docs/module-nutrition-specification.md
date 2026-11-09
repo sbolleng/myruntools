@@ -253,7 +253,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Écriture en panne, « Ajouter » | « Enregistrement impossible pour l'instant. », journal inchangé |
 | Heure de la page : 7 h, 20 h | Repas proposé : petit-déj, soir |
 | Journal à 2 200 kcal, 100 g, 300 g, 90 g de lipides ; puis 3 000 kcal, 150 g, 400 g, 60 g | « Dans la cible » ×3, lipides « Dépassé de 8 g » ; puis « Dépassé de 671 kcal », « de 10 g », « de 82 g », lipides « Dans la cible » |
-| Aucun aliment ni ligne | « + Aliment libre » d'office ; « Rien de noté. » ; « Aucun favori. » ; « Aucun aliment récent. » |
+| Aucun aliment ni ligne | Feuille d'ajout : « + Aliment libre » d'office ; « Aucun favori. » ; « Aucun aliment récent. » |
 | Sport : une ligne vide ; jogging à 9,5 km/h, 1 h | Une 2e ligne apparaît ; « 2 817 kcal aujourd'hui » ; anneau 350, Reste 2 467 kcal ; rien d'écrit dans la base |
 | Sport : marche 30 h, puis 0,5 h ; rechargement ; jogging retiré | 30 h ignorées ; 2 922 kcal, trois lignes ; retenu après rechargement ; 2 222 kcal |
 | Sélecteur : aujourd'hui (20 oct.), puis (‹) | Pas de jour suivant ni de lien « Aujourd'hui » ; « Lundi 19 octobre » : journal vide, calories 0, Reste 2 117 kcal, (›) et « Aujourd'hui » proposés ; banane ajoutée : ligne du 19 octobre ; « Aujourd'hui » : retour au journal du 20 |
