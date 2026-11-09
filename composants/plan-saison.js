@@ -35,19 +35,21 @@
   }
 
 
-  // ----- Profil d'entraînement (spécification, § 5.2) -----
-  const JOURS7 = [[1, 'Lundi'], [2, 'Mardi'], [3, 'Mercredi'], [4, 'Jeudi'], [5, 'Vendredi'], [6, 'Samedi'], [7, 'Dimanche']];
-  const MOYENS = [['tapis', 'Tapis'], ['velo', 'Vélo'], ['piscine', 'Piscine']];
-  // Champs obligatoires pour proposer des séances ; rend la liste de ce qui manque.
-  function manquants(pr) {
-    const m = [];
-    if (!pr || pr.annees == null) m.push('années de pratique');
-    if (!pr || pr.volume == null) m.push('volume des 4 dernières semaines');
-    if (!pr || pr.sortie_longue == null) m.push('plus longue sortie récente');
-    if (!pr || !(pr.jours || []).length) m.push('jours possibles');
-    if (!pr || (pr.vma == null && pr.temps_10km_s == null && pr.temps_semi_s == null)) m.push('VMA ou temps de référence');
-    return m;
-  }
+  // ----- Profil d'entraînement (spécification, § 5.2) : une liste de lignes ; chaque ligne ouvre une question ;
+  // un choix s'enregistre aussitôt et ramène à la liste. -----
+  const JOURS7 = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  const ACTIVITES = [['repos', 'Repos'], ['course', 'Course'], ['longue', 'Sortie longue'], ['renfo', 'Renforcement']];
+  const ECHELLES = {
+    anciennete: [['debut', 'Je débute'], ['1-3', '1 à 3 ans'], ['3-6', '3 à 6 ans'], ['6-10', '6 à 10 ans'], ['10+', 'Plus de 10 ans']],
+    volume_tranche: [['inconnu', 'Aucune idée'], ['0-20', '0 à 20 km'], ['20-40', '20 à 40 km'], ['40-60', '40 à 60 km'], ['60-80', '60 à 80 km'], ['80+', 'Plus de 80 km']],
+    sortie_tranche: [['-1h', 'Moins de 1 h'], ['1h-1h30', '1 h à 1 h 30'], ['1h30-2h', '1 h 30 à 2 h'], ['2-3h', '2 à 3 h'], ['3h+', 'Plus de 3 h']],
+    seance_max_min: [[45, '45 min'], [60, '1 h'], [90, '1 h 30'], [120, '2 h'], [1440, 'Sans limite']],
+    terrain: [['plat', 'Pas de dénivelé'], ['cotes', 'Petites côtes (moins de 50 m de D+)'], ['vallonne', 'Vallonné (50 à 500 m de D+)'], ['montagne', 'Montagne (plus de 500 m de D+)']],
+    renfo_niveau: [['debutant', 'Débutant'], ['intermediaire', 'Intermédiaire'], ['confirme', 'Confirmé'], ['expert', 'Expert']],
+    allure_type: [['vma', 'VMA'], ['10km', 'Temps sur 10 km'], ['semi', 'Temps sur semi-marathon'], ['inconnu', 'Je ne sais pas']]
+  };
+  const libelleDe = (cle, v) => ((ECHELLES[cle] || []).find(x => String(x[0]) === String(v)) || [])[1] || null;
+  const semaineType = pr => (Array.isArray(pr && pr.semaine_type) && pr.semaine_type.length === 7 ? pr.semaine_type : null);
   // Temps : « 45:30 » ou « 1:42:00 » → secondes ; vide → null ; illisible → NaN. Et l'inverse.
   function secondes(v) {
     const t = String(v || '').trim();
@@ -58,55 +60,131 @@
   const pad2 = n => String(n).padStart(2, '0');
   const enTemps = s => (s == null ? '' : (s >= 3600 ? Math.floor(s / 3600) + ':' + pad2(Math.floor(s % 3600 / 60)) : Math.floor(s / 60)) + ':' + pad2(s % 60));
   const virgule = v => (v == null ? '' : String(v).replace('.', ','));
+  // Repère d'allure : complet s'il est « je ne sais pas », ou si la valeur de son type est là.
+  const allureFaite = pr => !!pr && (pr.allure_type === 'inconnu' || (pr.allure_type === 'vma' && pr.vma != null) || (pr.allure_type === '10km' && pr.temps_10km_s != null) || (pr.allure_type === 'semi' && pr.temps_semi_s != null));
+  const resumeAllure = pr => (!allureFaite(pr) ? null : pr.allure_type === 'inconnu' ? 'Je ne sais pas' : pr.allure_type === 'vma' ? 'VMA ' + virgule(pr.vma) + ' km/h' :
+    pr.allure_type === '10km' ? '10 km en ' + enTemps(pr.temps_10km_s) : 'Semi en ' + enTemps(pr.temps_semi_s));
+  const resumeSemaine = pr => { const st = semaineType(pr); if (!st) return null; const n = st.filter(x => x !== 'repos').length; return n ? n + (n > 1 ? ' jours' : ' jour') : null; };
+  // Lignes de la liste : [clé, question, résumé, obligatoire].
+  const lignes = pr => [
+    ['anciennete', 'Je cours depuis', libelleDe('anciennete', pr.anciennete), true],
+    ['volume_tranche', 'Distance par semaine', libelleDe('volume_tranche', pr.volume_tranche), true],
+    ['sortie_tranche', 'Plus longue sortie récente', libelleDe('sortie_tranche', pr.sortie_tranche), true],
+    ['semaine', 'Ma semaine type', resumeSemaine(pr), true],
+    ['allure', 'Repère d\'allure', resumeAllure(pr), true],
+    ['seance_max_min', 'Durée maximale d\'une séance', libelleDe('seance_max_min', pr.seance_max_min), false],
+    ['terrain', 'Terrains d\'entraînement', (libelleDe('terrain', pr.terrain) || '').replace(/ \(.*\)$/, '') || null, false],
+    ['renfo_niveau', 'Niveau en renforcement', libelleDe('renfo_niveau', pr.renfo_niveau), false],
+    ['sante', 'FC max et points fragiles', [pr.fc_max ? 'FC max ' + pr.fc_max : '', pr.fragiles ? 'points fragiles' : ''].filter(Boolean).join(', ') || null, false]
+  ];
+  // Questions obligatoires qui manquent (le reste du site s'en sert pour proposer, ou non, des séances).
+  const manquants = pr => lignes(pr || {}).filter(l => l[3] && !l[2]).map(l => l[1].toLowerCase());
+  const AIDE = {
+    volume_tranche: 'Sur les 4 dernières semaines. « Aucune idée » : l\'IA reste prudente.',
+    semaine: 'Une activité par jour ; elle sert de cadre aux séances proposées.',
+    seance_max_min: 'La séance la plus longue que tu peux caser dans ta semaine.',
+    terrain: 'La plus longue montée sur laquelle tu peux t\'entraîner.'
+  };
 
   function ouvrirProfil(ctx) {
-    const pr = ctx.profil || {}, champ = (lib, html, cls) => '<label class="cal-champ' + (cls ? ' ' + cls : '') + '"><span>' + lib + '</span>' + html + '</label>';
-    const entree = (n, v, mode) => '<input class="mrt-champ" name="' + n + '" inputmode="' + (mode || 'decimal') + '" value="' + esc(v) + '">';
-    const unite = (n, v) => '<select class="mrt-champ" name="' + n + '"><option value="km"' + (v !== 'h' ? ' selected' : '') + '>km</option><option value="h"' + (v === 'h' ? ' selected' : '') + '>heures</option></select>';
-    const coches = (n, liste, choisis) => '<div class="ps-coches">' + liste.map(([k, lib]) => '<label class="mrt-pastille"><input type="checkbox" name="' + n + '" value="' + k + '"' + ((choisis || []).map(String).includes(String(k)) ? ' checked' : '') + '>' + lib + '</label>').join('') + '</div>';
-    const groupe = (titre, html) => '<fieldset class="ps-groupe"><legend class="ps-libelle">' + titre + '</legend>' + html + '</fieldset>';
-    const v = P.fenetre('<form novalidate>' + P.barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') + P.titreFenetre('Mon profil d\'entraînement') +
-      '<p class="ps-aide">Les champs marqués * sont nécessaires pour proposer des séances. Ton profil n\'est jamais visible sur le site partagé.</p>' +
-      groupe('Niveau', champ('Années de pratique *', entree('annees', pr.annees == null ? '' : pr.annees, 'numeric')) +
-        '<div class="ps-ligne">' + champ('Volume moyen des 4 dernières semaines *', entree('volume', virgule(pr.volume))) + champ('Par semaine, en', unite('volume_unite', pr.volume_unite)) + '</div>' +
-        '<div class="ps-ligne">' + champ('Plus longue sortie récente *', entree('sortie_longue', virgule(pr.sortie_longue))) + champ('En', unite('sortie_longue_unite', pr.sortie_longue_unite)) + '</div>') +
-      groupe('Disponibilités', '<p class="cal-champ"><span>Jours possibles *</span></p>' + coches('jours', JOURS7.map(([k, n]) => [k, n.slice(0, 3) + '.']), pr.jours) +
-        '<div class="ps-ligne">' + champ('Jour de la sortie longue', '<select class="mrt-champ" name="jour_long"><option value="">—</option>' + JOURS7.map(([k, n]) => '<option value="' + k + '"' + (pr.jour_long === k ? ' selected' : '') + '>' + n + '</option>').join('') + '</select>') +
-        champ('Séance la plus longue (min)', entree('seance_max_min', pr.seance_max_min == null ? '' : pr.seance_max_min, 'numeric')) + champ('Par semaine, au plus (h)', entree('semaine_max_h', virgule(pr.semaine_max_h))) + '</div>') +
-      groupe('Allures', '<p class="ps-aide">Au moins l\'un des trois * : ta VMA, ou un temps récent sur 10 km ou sur semi-marathon.</p><div class="ps-ligne">' +
-        champ('VMA (km/h)', entree('vma', virgule(pr.vma))) + champ('Temps sur 10 km', entree('temps_10km', enTemps(pr.temps_10km_s), 'text').replace('>', ' placeholder="ex. 45:30">')) +
-        champ('Temps sur semi', entree('temps_semi', enTemps(pr.temps_semi_s), 'text').replace('>', ' placeholder="ex. 1:42:00">')) + champ('FC max (facultative)', entree('fc_max', pr.fc_max == null ? '' : pr.fc_max, 'numeric')) + '</div>') +
-      groupe('Renforcement et moyens', '<div class="ps-ligne">' + champ('Séances de renforcement par semaine', '<select class="mrt-champ" name="renfo"><option value="">—</option>' + [0, 1, 2, 3].map(k => '<option value="' + k + '"' + (pr.renfo === k ? ' selected' : '') + '>' + k + '</option>').join('') + '</select>') + '</div>' +
-        '<p class="cal-champ"><span>Moyens</span></p>' + coches('moyens', MOYENS, pr.moyens)) +
-      groupe('Points fragiles', champ('Facultatif', '<textarea class="mrt-champ" name="fragiles" maxlength="300" rows="2" placeholder="ex. tendon d\'Achille gauche">' + esc(pr.fragiles || '') + '</textarea>')) +
-      '</form>', 'ps-profil');
-    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
-    v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
-    f.addEventListener('submit', async e => {
-      e.preventDefault();
-      const n = k => P.nombre(f[k].value), err = t => { msg.textContent = t; };
-      const r = {
-        annees: n('annees'), volume: n('volume'), volume_unite: f.volume_unite.value, sortie_longue: n('sortie_longue'), sortie_longue_unite: f.sortie_longue_unite.value,
-        jours: [...f.querySelectorAll('[name="jours"]:checked')].map(x => Number(x.value)), jour_long: f.jour_long.value ? Number(f.jour_long.value) : null,
-        seance_max_min: n('seance_max_min'), semaine_max_h: n('semaine_max_h'), vma: n('vma'), temps_10km_s: secondes(f.temps_10km.value), temps_semi_s: secondes(f.temps_semi.value),
-        fc_max: n('fc_max'), renfo: f.renfo.value === '' ? null : Number(f.renfo.value), moyens: [...f.querySelectorAll('[name="moyens"]:checked')].map(x => x.value), fragiles: f.fragiles.value.trim() || null
-      };
-      const hors = (x, a, b, entier) => x !== null && (Number.isNaN(x) || x < a || x > b || (entier && !Number.isInteger(x)));
-      if (hors(r.annees, 0, 80, true)) return err('Années de pratique : un nombre entier de 0 à 80.');
-      if (hors(r.volume, 0.1, 500)) return err('Le volume doit être compris entre 0,1 et 500.');
-      if (hors(r.sortie_longue, 0.1, 300)) return err('La plus longue sortie doit être comprise entre 0,1 et 300.');
-      if (hors(r.seance_max_min, 10, 1440, true)) return err('La séance la plus longue : un nombre de minutes entre 10 et 1 440.');
-      if (hors(r.semaine_max_h, 0.1, 60)) return err('Le maximum par semaine doit être compris entre 0,1 et 60 heures.');
-      if (hors(r.vma, 8, 30)) return err('La VMA doit être comprise entre 8 et 30 km/h.');
-      if (hors(r.temps_10km_s, 1200, 7200, true)) return err('Le temps sur 10 km s\'écrit 45:30 (entre 20:00 et 2:00:00).');
-      if (hors(r.temps_semi_s, 3000, 14400, true)) return err('Le temps sur semi s\'écrit 1:42:00 (entre 50:00 et 4:00:00).');
-      if (hors(r.fc_max, 100, 230, true)) return err('La FC max doit être comprise entre 100 et 230.');
-      const btn = f.querySelector('[type="submit"]'); btn.disabled = true;
-      const { error } = await window.mrtSupabase.from('profil_entrainement').upsert(Object.assign({}, r, { maj: new Date().toISOString() }));
-      if (error) { btn.disabled = false; console.warn(error); return err('Enregistrement impossible pour l\'instant.'); }
-      ctx.profil = Object.assign({}, ctx.profil, r);
-      v.fermer(); ctx.redessiner();
+    const v = P.fenetre('<div class="ps-profil-corps"></div>', 'ps-profil'), corps = v.querySelector('.ps-profil-corps');
+    const pr = () => ctx.profil || {};
+    // Enregistre les champs donnés (le profil entier, fusionné) ; rend vrai si c'est fait.
+    async function ranger(champs, msg) {
+      const ligne = Object.assign({}, pr(), champs, { maj: new Date().toISOString() });
+      delete ligne.utilisateur;
+      const { error } = await window.mrtSupabase.from('profil_entrainement').upsert(ligne);
+      if (error) { console.warn(error); if (msg) msg.textContent = 'Enregistrement impossible pour l\'instant.'; return false; }
+      ctx.profil = Object.assign({}, pr(), champs);
+      ctx.redessiner();
+      return true;
+    }
+    const barre = (gauche, titre) => '<div class="cal-barre ps-profil-barre">' + gauche + '<p class="cal-panneau-titre" id="cal-titre">' + titre + '</p><span></span></div><p class="cal-msg" role="alert"></p>';
+    const retour = '<button type="button" class="mrt-btn" data-q="liste">‹ Retour</button>';
+    const aide = k => (AIDE[k] ? '<p class="ps-aide">' + AIDE[k] + '</p>' : '');
+
+    function liste() {
+      const ls = lignes(pr()), obligatoires = ls.filter(l => l[3]), faites = obligatoires.filter(l => l[2]).length;
+      const ligneHtml = l => '<button type="button" class="ps-ligne-q" data-q="' + l[0] + '"><span>' + l[1] + '</span><span class="ps-rep' + (!l[2] && l[3] ? ' is-a-faire' : '') + '">' + (l[2] ? esc(l[2]) : l[3] ? 'À renseigner' : '—') + '</span><i aria-hidden="true">›</i></button>';
+      corps.innerHTML = barre('<button type="button" class="mrt-btn" data-act="annuler">Fermer</button>', 'Mon profil d\'entraînement') +
+        '<div class="ps-section-t"><span class="ps-libelle">Indispensable pour proposer tes séances</span><span class="ps-compte' + (faites === obligatoires.length ? ' is-complet' : '') + '">' + faites + ' sur ' + obligatoires.length + '</span></div>' +
+        '<div class="ps-groupe-l">' + obligatoires.map(ligneHtml).join('') + '</div>' +
+        '<div class="ps-section-t"><span class="ps-libelle">Pour affiner (facultatif)</span></div><div class="ps-groupe-l">' + ls.filter(l => !l[3]).map(ligneHtml).join('') + '</div>';
+      corps.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+    }
+    // Une question à choix : un toucher enregistre et revient à la liste.
+    function choix(cle, titre) {
+      corps.innerHTML = barre(retour, titre) + '<div class="ps-groupe-l">' + ECHELLES[cle].map(([k, lib]) =>
+        '<button type="button" class="ps-choix' + (String(pr()[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' + aide(cle);
+      corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', async () => {
+        const val = cle === 'seance_max_min' ? Number(b.dataset.val) : b.dataset.val;
+        if (await ranger({ [cle]: val }, corps.querySelector('.cal-msg'))) liste();
+      }));
+    }
+    // Semaine type : une activité par jour, enregistrée à chaque toucher ; « Retour » à la fin.
+    function semaine() {
+      const st = (semaineType(pr()) || ['repos', 'repos', 'repos', 'repos', 'repos', 'repos', 'repos']).slice();
+      corps.innerHTML = barre(retour, 'Ma semaine type') + aide('semaine') + '<div class="ps-semaine">' + JOURS7.map((j, i) => '<div class="ps-jour"><span class="ps-jour-nom">' + j + '</span><span class="ps-jour-choix">' +
+        ACTIVITES.map(([k, lib]) => '<button type="button" class="mrt-pastille" data-jour="' + i + '" data-act-j="' + k + '" aria-pressed="' + (st[i] === k) + '">' + lib + '</button>').join('') + '</span></div>').join('') + '</div>';
+      corps.querySelectorAll('[data-act-j]').forEach(b => b.addEventListener('click', async () => {
+        const i = Number(b.dataset.jour), k = b.dataset.actJ;
+        // Une seule sortie longue dans la semaine : l'ancienne redevient une course.
+        if (k === 'longue') st.forEach((x, n) => { if (x === 'longue') st[n] = 'course'; });
+        st[i] = k;
+        if (await ranger({ semaine_type: st.slice() }, corps.querySelector('.cal-msg'))) semaine();
+      }));
+    }
+    // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
+    function allure(type) {
+      const t = type || pr().allure_type;
+      const saisie = t === 'vma' ? ['vma', 'VMA (km/h)', virgule(pr().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['temps', 'Temps sur 10 km', enTemps(pr().temps_10km_s), 'ex. 45:30', 'text'] :
+        t === 'semi' ? ['temps', 'Temps sur semi-marathon', enTemps(pr().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
+      corps.innerHTML = barre(retour, 'Repère d\'allure') + '<div class="ps-groupe-l">' + ECHELLES.allure_type.map(([k, lib]) =>
+        '<button type="button" class="ps-choix' + (t === k ? ' is-on' : '') + '" data-type="' + k + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' +
+        (saisie ? '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + saisie[1] + '</span><input class="mrt-champ" name="valeur" inputmode="' + saisie[4] + '" placeholder="' + saisie[3] + '" value="' + esc(saisie[2]) + '"></label>' +
+          '<button type="submit" class="mrt-btn is-principal">Valider</button></form>' : '');
+      const msg = corps.querySelector('.cal-msg');
+      corps.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', async () => {
+        if (b.dataset.type === 'inconnu') { if (await ranger({ allure_type: 'inconnu' }, msg)) liste(); } else allure(b.dataset.type);
+      }));
+      const f = corps.querySelector('.ps-valeur');
+      if (f) {
+        f.valeur.focus();
+        f.addEventListener('submit', async e => {
+          e.preventDefault();
+          if (t === 'vma') {
+            const x = P.nombre(f.valeur.value);
+            if (x === null || Number.isNaN(x) || x < 8 || x > 30) return void (msg.textContent = 'La VMA doit être comprise entre 8 et 30 km/h.');
+            if (await ranger({ allure_type: 'vma', vma: x }, msg)) liste();
+          } else {
+            const x = secondes(f.valeur.value), [a, b2] = t === '10km' ? [1200, 7200] : [3000, 14400];
+            if (x === null || Number.isNaN(x) || x < a || x > b2) return void (msg.textContent = t === '10km' ? 'Le temps sur 10 km s\'écrit 45:30 (entre 20:00 et 2:00:00).' : 'Le temps sur semi s\'écrit 1:42:00 (entre 50:00 et 4:00:00).');
+            if (await ranger(t === '10km' ? { allure_type: '10km', temps_10km_s: x } : { allure_type: 'semi', temps_semi_s: x }, msg)) liste();
+          }
+        });
+      }
+    }
+    // FC max et points fragiles : deux champs facultatifs, « Valider ».
+    function sante() {
+      corps.innerHTML = barre(retour, 'FC max et points fragiles') + '<form class="ps-valeur" novalidate>' +
+        '<label class="cal-champ"><span>FC max</span><input class="mrt-champ" name="fc" inputmode="numeric" placeholder="ex. 185" value="' + esc(pr().fc_max == null ? '' : pr().fc_max) + '"></label>' +
+        '<label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(pr().fragiles || '') + '</textarea></label>' +
+        '<button type="submit" class="mrt-btn is-principal">Valider</button></form>';
+      const f = corps.querySelector('form'), msg = corps.querySelector('.cal-msg');
+      f.addEventListener('submit', async e => {
+        e.preventDefault();
+        const fc = P.nombre(f.fc.value);
+        if (fc !== null && (Number.isNaN(fc) || !Number.isInteger(fc) || fc < 100 || fc > 230)) return void (msg.textContent = 'La FC max doit être comprise entre 100 et 230.');
+        if (await ranger({ fc_max: fc, fragiles: f.fragiles.value.trim() || null }, msg)) liste();
+      });
+    }
+    corps.addEventListener('click', e => {
+      const q = e.target.closest('[data-q]');
+      if (!q) return;
+      const k = q.dataset.q, titre = (lignes(pr()).find(l => l[0] === k) || [])[1];
+      if (k === 'liste') liste(); else if (k === 'semaine') semaine(); else if (k === 'allure') allure(); else if (k === 'sante') sante(); else choix(k, titre);
     });
+    liste();
   }
 
   // ----- Séances proposées par l'IA (spécification, § 6 ; calcul et appel : seances-ia.js) -----

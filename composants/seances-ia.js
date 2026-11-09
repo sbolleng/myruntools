@@ -11,6 +11,17 @@
   const NOMS_JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   const ROLES = { objectif: 'Objectif', preparatoire: 'Préparatoire', plaisir: 'Plaisir' };
   const numJour = j => ((parse(j).getDay() + 6) % 7) + 1; // 1 lundi … 7 dimanche
+  // Semaine type du profil : une activité par jour (lundi … dimanche) ; un jour est disponible s'il n'est pas au repos.
+  const ACTIVITE = { repos: 'repos', course: 'course', longue: 'sortie longue', renfo: 'renforcement' };
+  const semaineType = pr => (Array.isArray(pr && pr.semaine_type) && pr.semaine_type.length === 7 ? pr.semaine_type : ['repos', 'repos', 'repos', 'repos', 'repos', 'repos', 'repos']);
+  const prevuLe = (pr, j) => semaineType(pr)[numJour(j) - 1];
+  const disponible = (pr, j) => prevuLe(pr, j) !== 'repos';
+  const LIBELLES = {
+    anciennete: { debut: 'débute', '1-3': '1 à 3 ans', '3-6': '3 à 6 ans', '6-10': '6 à 10 ans', '10+': 'plus de 10 ans' },
+    volume_tranche: { inconnu: 'inconnue (rester prudent)', '0-20': '0 à 20 km', '20-40': '20 à 40 km', '40-60': '40 à 60 km', '60-80': '60 à 80 km', '80+': 'plus de 80 km' },
+    sortie_tranche: { '-1h': 'moins de 1 h', '1h-1h30': '1 h à 1 h 30', '1h30-2h': '1 h 30 à 2 h', '2-3h': '2 à 3 h', '3h+': 'plus de 3 h' },
+    terrain: { plat: 'pas de dénivelé', cotes: 'petites côtes (moins de 50 m de D+)', vallonne: 'vallonné (50 à 500 m de D+)', montagne: 'montagne (plus de 500 m de D+)' }
+  };
   const sb = () => window.mrtSupabase;
   const ceMois = () => iso(new Date()).slice(0, 7);
 
@@ -28,7 +39,7 @@
       for (let k = 0; k < 7; k++) {
         const j = addDays(l, k), rep = P.reperesDuJour(ps, j).map(r => r.type === 'allege' ? 'allégé (avant une course Préparatoire)' : r.type === 'repos' ? 'repos (veille d\'une course Plaisir)' : 'récupération (séances faciles seulement)');
         const cs = coursesDuJour(ctx, j).map(c => ({ role: ROLES[P.roleDe(c)] || c.role, format: c.formatLibelle || c.format, distance_km: c.distance != null ? Number(c.distance) : null, dplus_m: c.dplus != null ? Number(c.dplus) : null }));
-        jours.push(Object.assign({ date: j, jour: NOMS_JOURS[parse(j).getDay()], disponible: (pr.jours || []).includes(numJour(j)) }, rep.length ? { reperes: rep } : {}, cs.length ? { course: cs } : {}));
+        jours.push(Object.assign({ date: j, jour: NOMS_JOURS[parse(j).getDay()], disponible: disponible(pr, j), prevu: ACTIVITE[prevuLe(pr, j)] }, rep.length ? { reperes: rep } : {}, cs.length ? { course: cs } : {}));
       }
       semaines.push({ lundi: l, phase: x ? NOM_PHASE[x.phase] : 'Entretien', semaine_de_saison: x && x.saison ? (x.saison.semaines.findIndex(w => w.lundi === l) + 1) + ' sur ' + x.saison.semaines.length : null, jours });
     }
@@ -40,12 +51,15 @@
       objectif_de_saison: sx ? { date: sx.jourJ, format: sx.course.formatLibelle || sx.course.format, distance_km: Number(sx.course.distance) || null, dplus_m: Number(sx.course.dplus) || null } : null,
       semaines,
       profil: {
-        annees_de_pratique: pr.annees, volume_hebdomadaire: pr.volume != null ? pr.volume + ' ' + (pr.volume_unite === 'h' ? 'h' : 'km') : null,
-        plus_longue_sortie_recente: pr.sortie_longue != null ? pr.sortie_longue + ' ' + (pr.sortie_longue_unite === 'h' ? 'h' : 'km') : null,
-        jours_disponibles: (pr.jours || []).map(n => NOMS_JOURS[n % 7]), jour_sortie_longue: pr.jour_long ? NOMS_JOURS[pr.jour_long % 7] : null,
-        seance_max_min: pr.seance_max_min == null ? null : pr.seance_max_min, semaine_max_h: pr.semaine_max_h == null ? null : Number(pr.semaine_max_h),
-        vma_kmh: pr.vma == null ? null : Number(pr.vma), temps_10km: temps(pr.temps_10km_s), temps_semi: temps(pr.temps_semi_s), fc_max: pr.fc_max == null ? null : pr.fc_max,
-        renforcement_par_semaine: pr.renfo == null ? null : pr.renfo, moyens: pr.moyens || [], points_fragiles: pr.fragiles || null
+        je_cours_depuis: LIBELLES.anciennete[pr.anciennete] || null, distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
+        plus_longue_sortie_recente: LIBELLES.sortie_tranche[pr.sortie_tranche] || null,
+        semaine_type: semaineType(pr).map((a, n) => ({ jour: NOMS_JOURS[(n + 1) % 7], activite: ACTIVITE[a] })),
+        jours_disponibles: semaineType(pr).map((a, n) => (a !== 'repos' ? NOMS_JOURS[(n + 1) % 7] : null)).filter(Boolean),
+        jour_sortie_longue: semaineType(pr).indexOf('longue') >= 0 ? NOMS_JOURS[(semaineType(pr).indexOf('longue') + 1) % 7] : null,
+        renforcement_par_semaine: semaineType(pr).filter(a => a === 'renfo').length,
+        seance_max_min: pr.seance_max_min && pr.seance_max_min < 1440 ? pr.seance_max_min : null,
+        repere_allure: pr.allure_type === 'vma' ? 'VMA ' + pr.vma + ' km/h' : pr.allure_type === '10km' ? '10 km en ' + temps(pr.temps_10km_s) : pr.allure_type === 'semi' ? 'semi-marathon en ' + temps(pr.temps_semi_s) : 'inconnu (rester prudent)',
+        terrains: LIBELLES.terrain[pr.terrain] || null, niveau_renforcement: pr.renfo_niveau || null, fc_max: pr.fc_max == null ? null : pr.fc_max, points_fragiles: pr.fragiles || null
       },
       historique
     };
@@ -63,15 +77,14 @@
       if (!TYPES[s.type]) err.push(quand + ' : type inconnu');
       if (!String(s.libelle || '').trim() || String(s.libelle).length > 100) err.push(quand + ' : libellé vide ou de plus de 100 caractères');
       if (!Number.isInteger(s.duree_min) || s.duree_min < 1 || s.duree_min > 1440) err.push(quand + ' : durée invalide');
-      if (!(pr.jours || []).includes(numJour(j))) err.push(quand + ' : jour non disponible');
+      if (!disponible(pr, j)) err.push(quand + ' : jour de repos dans la semaine type, aucune séance');
       if (coursesDuJour(ctx, j).length) err.push(quand + ' : jour de course, aucune séance');
       const reps = P.reperesDuJour(ps, j);
       if (reps.some(r => r.type === 'repos')) err.push(quand + ' : jour de repos (veille de course), aucune séance');
       if (reps.some(r => r.type === 'recup') && s.intensite !== 'facile') err.push(quand + ' : jour de récupération, séance facile seulement');
-      if (pr.seance_max_min && s.duree_min > pr.seance_max_min) err.push(quand + ' : séance de plus de ' + pr.seance_max_min + ' min');
+      if (pr.seance_max_min && pr.seance_max_min < 1440 && s.duree_min > pr.seance_max_min) err.push(quand + ' : séance de plus de ' + pr.seance_max_min + ' min');
       const l = lundiDe(j); vol[l] = (vol[l] || 0) + (Number(s.duree_min) || 0);
     });
-    if (pr.semaine_max_h) Object.keys(vol).forEach(l => { if (vol[l] > pr.semaine_max_h * 60) err.push('semaine du ' + longue(l) + ' : plus de ' + String(pr.semaine_max_h).replace('.', ',') + ' h'); });
     // Affûtage : volume réduit de 41 à 60 % par rapport aux 3 semaines d'avant (séances de la proposition, ou déjà saisies avec leur durée).
     const volume = l => (vol[l] != null && l >= lundi ? vol[l] : ctx.seances.filter(s => lundiDe(s.date) === l && s.duree_min).reduce((t, s) => t + s.duree_min, 0));
     const affutage = [];
