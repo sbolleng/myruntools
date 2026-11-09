@@ -224,7 +224,9 @@
       // La case DNF se range juste sous le temps : les deux vont ensemble.
       const dnf = k === 'temps' ? champ(CHAMPS.find(f => f[0] === 'dnf')) : '';
       // « Date approximative » reste à droite de la date, même sur téléphone.
-      const jourInconnu = k === 'date' && venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>' : '';
+      // Course courue : la case n'a pas de sens, sa place reste vide, pour que les champs suivants ne remontent pas.
+      const jourInconnu = k !== 'date' ? '' : venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>'
+        : '<div class="fc-champ fc-vide" aria-hidden="true"></div>';
       const classes = 'fc-champ' + (k === 'distance' ? ' fc-seul' : '') + (['place', 'effectif', 'place_sexe', 'effectif_sexe'].includes(k) ? ' fc-moitie' : ['categorie', 'place_categorie', 'effectif_categorie'].includes(k) ? ' fc-tiers' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
       const attrs = genre === 'groupe' ? ' data-champ="groupe_options"' + (c.statut === 'option' ? '' : ' hidden') : '';
       const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
