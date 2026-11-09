@@ -2289,7 +2289,7 @@ const CONTROLES = {
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForFunction(() => /Profil/.test((document.querySelector('.ps-profil-etat') || {}).textContent || ''));
-    pb.push(egal('Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine type, repère d\'allure.', await etat(p), 'profil vide : les cinq questions indispensables'));
+    pb.push(egal('Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', await etat(p), 'profil vide : les cinq questions indispensables'));
     await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     let r = await liste(p);
     pb.push(egal([['Indispensable pour proposer tes séances', 'Pour affiner (facultatif)'], '0 sur 5', 5, 9, false, false],
@@ -2301,10 +2301,19 @@ const CONTROLES = {
     pb.push(egal([{ anciennete: '3-6' }, 'Je cours depuis | 3 à 6 ans', '1 sur 5'], [(c => c && { anciennete: c.anciennete })(derniere(d)), (await liste(p)).lignes[0], (await liste(p)).compte], 'choix enregistré aussitôt, retour à la liste'));
     await p.click('.ps-profil [data-q="volume_tranche"]'); await p.click('.ps-profil [data-val="inconnu"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await p.click('.ps-profil [data-q="sortie_tranche"]'); await p.click('.ps-profil [data-val="1h30-2h"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
-    // Semaine type : mardi course, jeudi renforcement, samedi sortie longue ; une seule sortie longue.
+    // Ma semaine : jours pour courir (mardi, jeudi, samedi, dimanche), 3 sorties, sortie longue le dimanche puis le dimanche retiré
+    // (sortie longue : peu importe) ; renforcement mardi et jeudi (cumul avec la course), 1 par semaine.
     await p.click('.ps-profil [data-q="semaine"]');
-    for (const [j, a] of [[1, 'course'], [3, 'renfo'], [5, 'longue'], [6, 'longue']]) { await p.click('.ps-profil [data-jour="' + j + '"][data-act-j="' + a + '"]'); await pause(); }
-    pb.push(egal(['repos', 'course', 'repos', 'renfo', 'repos', 'course', 'longue'], (derniere(d) || {}).semaine_type, 'semaine type enregistrée à chaque toucher ; une seule sortie longue (le samedi redevient une course)'));
+    const tap = async sel => { await p.click('.ps-profil ' + sel); await pause(); };
+    for (const j of [2, 4, 6, 7]) await tap('[data-jc="' + j + '"]');
+    pb.push(egal(['1', '2', '3', '4'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil [data-nb]')].map(b => b.textContent)), 'nombre de sorties : au plus le nombre de jours choisis'));
+    await tap('[data-nb="4"]'); await tap('[data-long="7"]');
+    await tap('[data-jc="7"]');
+    const apres = derniere(d) || {};
+    pb.push(egal([[2, 4, 6], 3, null], [apres.jours_course, apres.nb_sorties, apres.jour_long], 'dimanche retiré : 3 sorties au plus, sortie longue ramenée à « peu importe »'));
+    await tap('[data-long="6"]'); await tap('[data-jr="2"]'); await tap('[data-jr="4"]'); await tap('[data-nr="1"]');
+    const sem = derniere(d) || {};
+    pb.push(egal([[2, 4, 6], [2, 4], 3, 1, 6], [sem.jours_course, sem.jours_renfo, sem.nb_sorties, sem.nb_renfo, sem.jour_long], 'ma semaine enregistrée à chaque toucher ; course et renforcement le même jour possibles'));
     await p.click('.ps-profil [data-q="liste"]');
     // Repère d'allure : VMA refusée hors bornes, puis un temps sur 10 km.
     await p.click('.ps-profil [data-q="allure"]'); await p.click('.ps-profil [data-type="vma"]');
@@ -2313,7 +2322,7 @@ const CONTROLES = {
     await p.click('.ps-profil [data-type="10km"]'); await p.fill('.ps-profil [name="valeur"]', '45:30'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     await p.waitForSelector('.ps-profil .ps-ligne-q');
     r = await liste(p);
-    pb.push(egal(['5 sur 5', 0, 'Repère d\'allure | 10 km en 45:30', 'Ma semaine type | 4 jours', 'Distance par semaine | Aucune idée'], [r.compte, r.aFaire, r.lignes[4], r.lignes[3], r.lignes[1]], 'profil complet : 5 sur 5, résumés à droite'));
+    pb.push(egal(['5 sur 5', 0, 'Repère d\'allure | 10 km en 45:30', 'Ma semaine | 3 sorties, 1 renforcement', 'Distance par semaine | Aucune idée'], [r.compte, r.aFaire, r.lignes[4], r.lignes[3], r.lignes[1]], 'profil complet : 5 sur 5, résumés à droite'));
     pb.push(egal({ allure_type: '10km', temps_10km_s: 2730 }, (c => c && { allure_type: c.allure_type, temps_10km_s: c.temps_10km_s })(derniere(d)), 'repère d\'allure : 10 km en 2 730 secondes'));
     // Facultatif : durée maximale, terrains, santé.
     await p.click('.ps-profil [data-q="seance_max_min"]'); await p.click('.ps-profil [data-val="90"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
@@ -2369,7 +2378,7 @@ const CONTROLES = {
     const pb = [];
     const { db } = jeuObjectif(db0);
     const moi = db.profils[0].id;
-    const PROFIL = { utilisateur: moi, anciennete: '3-6', volume_tranche: '20-40', sortie_tranche: '1h30-2h', semaine_type: ['repos', 'course', 'repos', 'renfo', 'repos', 'longue', 'repos'], seance_max_min: 120, allure_type: '10km', temps_10km_s: 2730 };
+    const PROFIL = { utilisateur: moi, anciennete: '3-6', volume_tranche: '20-40', sortie_tranche: '1h30-2h', jours_course: [2, 6], jours_renfo: [4], nb_sorties: 2, nb_renfo: 1, jour_long: 6, seance_max_min: 120, allure_type: '10km', temps_10km_s: 2730 };
     // Bloc du 19 octobre au 15 novembre : séances les mardis, jeudis et samedis (jours du profil).
     const LUNDIS = ['2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09'];
     const bonne = () => ({ semaines: LUNDIS.map(l => ({ lundi: l, explication: 'Entretien : deux footings et une sortie longue.', seances: [1, 3, 5].map(k => {
@@ -2416,9 +2425,9 @@ const CONTROLES = {
     const envoi = d.appels[0];
     pb.push(egal([LUNDIS, 12, 'mar. 20 · Course à pied Footing · 45 min · 8 km · Facile', '« Entretien : deux footings et une sortie longue. »', ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
       [r.semaines, r.lignes, r.premiere, r.expl, r.actions], 'proposition en attente : 4 semaines, 12 séances, explications, quatre boutons'));
-    pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, ['mardi', 'jeudi', 'samedi'], ['allégé (avant une course Préparatoire)']],
+    pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, [['mardi', 'samedi'], ['jeudi']], ['allégé (avant une course Préparatoire)']],
       [envoi.essai, envoi.contexte.bloc.debut, envoi.contexte.bloc.fin, envoi.contexte.semaines[0].phase, /Trail du Lac|Trail des Gorges|Corrida/.test(JSON.stringify(envoi)), JSON.stringify(envoi).includes(db.profils[0].prenom || '§§'),
-        envoi.contexte.profil.jours_disponibles, envoi.contexte.semaines[3].jours[3].reperes],
+        [envoi.contexte.profil.jours_possibles_course, envoi.contexte.profil.jours_possibles_renforcement], envoi.contexte.semaines[3].jours[3].reperes],
       'contexte envoyé : le bloc, ses phases et repères, le profil ; ni nom de course ni prénom'));
     await p.click('[data-ia="tout"]');
     await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
@@ -2432,8 +2441,8 @@ const CONTROLES = {
     d = copie([mauvaise(), bonne()]);
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
     await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
-    pb.push(egal([2, 2, true, 'invalide', 'brute', 12], [d.appels.length, d.appels[1].essai, (d.appels[1].corrections || []).some(x => /mer\. 21 oct.* : jour de repos dans la semaine type/.test(x)), d.propositions[0].statut, d.propositions[1].statut, (await lire(p)).lignes],
-      'garde-fou : jour de repos dans la semaine type, proposition refaite (essai 2, avec la correction) ; la première marquée invalide'));
+    pb.push(egal([2, 2, true, 'invalide', 'brute', 12], [d.appels.length, d.appels[1].essai, (d.appels[1].corrections || []).some(x => /mer\. 21 oct.* : jour non prévu pour courir/.test(x)), d.propositions[0].statut, d.propositions[1].statut, (await lire(p)).lignes],
+      'garde-fou : jour non prévu pour courir, proposition refaite (essai 2, avec la correction) ; la première marquée invalide'));
     // Choisir semaine par semaine : sans la semaine du 26 octobre, 9 séances.
     await p.click('[data-ia="choisir"]');
     await p.uncheck('[data-coche="2026-10-26"]');
@@ -2478,7 +2487,7 @@ const CONTROLES = {
     }
 
     // Profil incomplet : pas de bouton, le lien vers le profil.
-    d = copie([bonne()], x => { x.profil_entrainement = [Object.assign({}, PROFIL, { semaine_type: null })]; });
+    d = copie([bonne()], x => { x.profil_entrainement = [Object.assign({}, PROFIL, { jours_course: [] })]; });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
     await pret(p);
     r = await lire(p);

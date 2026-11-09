@@ -11,11 +11,11 @@
   const NOMS_JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   const ROLES = { objectif: 'Objectif', preparatoire: 'Préparatoire', plaisir: 'Plaisir' };
   const numJour = j => ((parse(j).getDay() + 6) % 7) + 1; // 1 lundi … 7 dimanche
-  // Semaine type du profil : une activité par jour (lundi … dimanche) ; un jour est disponible s'il n'est pas au repos.
-  const ACTIVITE = { repos: 'repos', course: 'course', longue: 'sortie longue', renfo: 'renforcement' };
-  const semaineType = pr => (Array.isArray(pr && pr.semaine_type) && pr.semaine_type.length === 7 ? pr.semaine_type : ['repos', 'repos', 'repos', 'repos', 'repos', 'repos', 'repos']);
-  const prevuLe = (pr, j) => semaineType(pr)[numJour(j) - 1];
-  const disponible = (pr, j) => prevuLe(pr, j) !== 'repos';
+  // Semaine du profil : jours possibles pour courir et pour le renforcement (un même jour peut avoir les deux), nombre de sorties
+  // et de renforcements par semaine, jour à privilégier pour la sortie longue (spécification, § 5.2). Jours : 1 lundi … 7 dimanche.
+  const joursDe = (pr, k) => (Array.isArray(pr && pr[k]) ? pr[k].map(Number) : []);
+  const nomJour = n => NOMS_JOURS[n % 7];
+  const possibles = (pr, j) => [joursDe(pr, 'jours_course').includes(numJour(j)) ? 'course' : null, joursDe(pr, 'jours_renfo').includes(numJour(j)) ? 'renforcement' : null].filter(Boolean);
   const LIBELLES = {
     anciennete: { debut: 'débute', '1-3': '1 à 3 ans', '3-6': '3 à 6 ans', '6-10': '6 à 10 ans', '10+': 'plus de 10 ans' },
     volume_tranche: { inconnu: 'inconnue (rester prudent)', '0-20': '0 à 20 km', '20-40': '20 à 40 km', '40-60': '40 à 60 km', '60-80': '60 à 80 km', '80+': 'plus de 80 km' },
@@ -39,7 +39,7 @@
       for (let k = 0; k < 7; k++) {
         const j = addDays(l, k), rep = P.reperesDuJour(ps, j).map(r => r.type === 'allege' ? 'allégé (avant une course Préparatoire)' : r.type === 'repos' ? 'repos (veille d\'une course Plaisir)' : 'récupération (séances faciles seulement)');
         const cs = coursesDuJour(ctx, j).map(c => ({ role: ROLES[P.roleDe(c)] || c.role, format: c.formatLibelle || c.format, distance_km: c.distance != null ? Number(c.distance) : null, dplus_m: c.dplus != null ? Number(c.dplus) : null }));
-        jours.push(Object.assign({ date: j, jour: NOMS_JOURS[parse(j).getDay()], disponible: disponible(pr, j), prevu: ACTIVITE[prevuLe(pr, j)] }, rep.length ? { reperes: rep } : {}, cs.length ? { course: cs } : {}));
+        jours.push(Object.assign({ date: j, jour: NOMS_JOURS[parse(j).getDay()], possible: possibles(pr, j) }, rep.length ? { reperes: rep } : {}, cs.length ? { course: cs } : {}));
       }
       semaines.push({ lundi: l, phase: x ? NOM_PHASE[x.phase] : 'Entretien', semaine_de_saison: x && x.saison ? (x.saison.semaines.findIndex(w => w.lundi === l) + 1) + ' sur ' + x.saison.semaines.length : null, jours });
     }
@@ -53,10 +53,11 @@
       profil: {
         je_cours_depuis: LIBELLES.anciennete[pr.anciennete] || null, distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
         plus_longue_sortie_recente: LIBELLES.sortie_tranche[pr.sortie_tranche] || null,
-        semaine_type: semaineType(pr).map((a, n) => ({ jour: NOMS_JOURS[(n + 1) % 7], activite: ACTIVITE[a] })),
-        jours_disponibles: semaineType(pr).map((a, n) => (a !== 'repos' ? NOMS_JOURS[(n + 1) % 7] : null)).filter(Boolean),
-        jour_sortie_longue: semaineType(pr).indexOf('longue') >= 0 ? NOMS_JOURS[(semaineType(pr).indexOf('longue') + 1) % 7] : null,
-        renforcement_par_semaine: semaineType(pr).filter(a => a === 'renfo').length,
+        jours_possibles_course: joursDe(pr, 'jours_course').map(nomJour), jours_possibles_renforcement: joursDe(pr, 'jours_renfo').map(nomJour),
+        sorties_course_par_semaine: pr.nb_sorties || null, renforcements_par_semaine: pr.nb_renfo || 0,
+        jour_sortie_longue: pr.jour_long ? nomJour(pr.jour_long) + ' de préférence' : 'peu importe',
+        consigne_semaine: 'Au plus ' + (pr.nb_sorties || 0) + ' sorties de course par semaine, seulement les jours possibles pour courir ; au plus ' + (pr.nb_renfo || 0) +
+          ' renforcements, seulement les jours possibles pour le renforcement ; course et renforcement peuvent tomber le même jour : adapte alors le volume.',
         seance_max_min: pr.seance_max_min && pr.seance_max_min < 1440 ? pr.seance_max_min : null,
         repere_allure: pr.allure_type === 'vma' ? 'VMA ' + pr.vma + ' km/h' : pr.allure_type === '10km' ? '10 km en ' + temps(pr.temps_10km_s) : pr.allure_type === 'semi' ? 'semi-marathon en ' + temps(pr.temps_semi_s) : 'inconnu (rester prudent)',
         terrains: LIBELLES.terrain[pr.terrain] || null, niveau_renforcement: pr.renfo_niveau || null, fc_max: pr.fc_max == null ? null : pr.fc_max, points_fragiles: pr.fragiles || null
@@ -70,20 +71,28 @@
     const err = [], pr = ctx.profil || {}, ps = P.planSaison(ctx), fin = addDays(lundi, 7 * BLOC - 1);
     const seances = ((reponse && reponse.semaines) || []).flatMap(w => w.seances || []);
     if (!seances.length) err.push('aucune séance proposée');
-    const vol = {};
+    const vol = {}, nb = {};
     seances.forEach(s => {
       const j = String(s.date || ''), quand = /^\d{4}-\d\d-\d\d$/.test(j) ? longue(j) : '« ' + j + ' »';
       if (!/^\d{4}-\d\d-\d\d$/.test(j) || j < lundi || j > fin) return err.push(quand + ' : date hors du bloc (' + lundi + ' au ' + fin + ')');
       if (!TYPES[s.type]) err.push(quand + ' : type inconnu');
       if (!String(s.libelle || '').trim() || String(s.libelle).length > 100) err.push(quand + ' : libellé vide ou de plus de 100 caractères');
       if (!Number.isInteger(s.duree_min) || s.duree_min < 1 || s.duree_min > 1440) err.push(quand + ' : durée invalide');
-      if (!disponible(pr, j)) err.push(quand + ' : jour de repos dans la semaine type, aucune séance');
+      const ok = possibles(pr, j);
+      if (s.type === 'run' && !ok.includes('course')) err.push(quand + ' : jour non prévu pour courir');
+      if (s.type === 'renfo' && !ok.includes('renforcement')) err.push(quand + ' : jour non prévu pour le renforcement');
       if (coursesDuJour(ctx, j).length) err.push(quand + ' : jour de course, aucune séance');
       const reps = P.reperesDuJour(ps, j);
       if (reps.some(r => r.type === 'repos')) err.push(quand + ' : jour de repos (veille de course), aucune séance');
       if (reps.some(r => r.type === 'recup') && s.intensite !== 'facile') err.push(quand + ' : jour de récupération, séance facile seulement');
       if (pr.seance_max_min && pr.seance_max_min < 1440 && s.duree_min > pr.seance_max_min) err.push(quand + ' : séance de plus de ' + pr.seance_max_min + ' min');
       const l = lundiDe(j); vol[l] = (vol[l] || 0) + (Number(s.duree_min) || 0);
+      nb[l] = nb[l] || { run: 0, renfo: 0 }; if (nb[l][s.type] != null) nb[l][s.type]++;
+    });
+    // Nombre de séances : pas plus de sorties ni de renforcements par semaine que le profil n'en prévoit.
+    Object.keys(nb).forEach(l => {
+      if (pr.nb_sorties && nb[l].run > pr.nb_sorties) err.push('semaine du ' + longue(l) + ' : ' + nb[l].run + ' sorties, ' + pr.nb_sorties + ' au plus');
+      if (nb[l].renfo > (pr.nb_renfo || 0)) err.push('semaine du ' + longue(l) + ' : ' + nb[l].renfo + ' renforcements, ' + (pr.nb_renfo || 0) + ' au plus');
     });
     // Affûtage : volume réduit de 41 à 60 % par rapport aux 3 semaines d'avant (séances de la proposition, ou déjà saisies avec leur durée).
     const volume = l => (vol[l] != null && l >= lundi ? vol[l] : ctx.seances.filter(s => lundiDe(s.date) === l && s.duree_min).reduce((t, s) => t + s.duree_min, 0));

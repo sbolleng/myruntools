@@ -38,7 +38,7 @@
   // ----- Profil d'entraînement (spécification, § 5.2) : une liste de lignes ; chaque ligne ouvre une question ;
   // un choix s'enregistre aussitôt et ramène à la liste. -----
   const JOURS7 = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-  const ACTIVITES = [['repos', 'Repos'], ['course', 'Course'], ['longue', 'Sortie longue'], ['renfo', 'Renforcement']];
+  const JOURS_COURTS = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
   const ECHELLES = {
     anciennete: [['debut', 'Je débute'], ['1-3', '1 à 3 ans'], ['3-6', '3 à 6 ans'], ['6-10', '6 à 10 ans'], ['10+', 'Plus de 10 ans']],
     volume_tranche: [['inconnu', 'Aucune idée'], ['0-20', '0 à 20 km'], ['20-40', '20 à 40 km'], ['40-60', '40 à 60 km'], ['60-80', '60 à 80 km'], ['80+', 'Plus de 80 km']],
@@ -49,7 +49,9 @@
     allure_type: [['vma', 'VMA'], ['10km', 'Temps sur 10 km'], ['semi', 'Temps sur semi-marathon'], ['inconnu', 'Je ne sais pas']]
   };
   const libelleDe = (cle, v) => ((ECHELLES[cle] || []).find(x => String(x[0]) === String(v)) || [])[1] || null;
-  const semaineType = pr => (Array.isArray(pr && pr.semaine_type) && pr.semaine_type.length === 7 ? pr.semaine_type : null);
+  // Ma semaine : jours possibles pour courir et pour le renforcement (un même jour peut avoir les deux), nombre de sorties et de
+  // renforcements, jour à privilégier pour la sortie longue (vide : peu importe). Jours : 1 (lundi) à 7 (dimanche).
+  const joursDe = (pr, k) => (Array.isArray(pr && pr[k]) ? pr[k].map(Number) : []);
   // Temps : « 45:30 » ou « 1:42:00 » → secondes ; vide → null ; illisible → NaN. Et l'inverse.
   function secondes(v) {
     const t = String(v || '').trim();
@@ -64,13 +66,18 @@
   const allureFaite = pr => !!pr && (pr.allure_type === 'inconnu' || (pr.allure_type === 'vma' && pr.vma != null) || (pr.allure_type === '10km' && pr.temps_10km_s != null) || (pr.allure_type === 'semi' && pr.temps_semi_s != null));
   const resumeAllure = pr => (!allureFaite(pr) ? null : pr.allure_type === 'inconnu' ? 'Je ne sais pas' : pr.allure_type === 'vma' ? 'VMA ' + virgule(pr.vma) + ' km/h' :
     pr.allure_type === '10km' ? '10 km en ' + enTemps(pr.temps_10km_s) : 'Semi en ' + enTemps(pr.temps_semi_s));
-  const resumeSemaine = pr => { const st = semaineType(pr); if (!st) return null; const n = st.filter(x => x !== 'repos').length; return n ? n + (n > 1 ? ' jours' : ' jour') : null; };
+  // Résumé de la semaine : complète quand il y a au moins un jour de course et un nombre de sorties.
+  const resumeSemaine = pr => {
+    if (!joursDe(pr, 'jours_course').length || !pr.nb_sorties) return null;
+    const r = pr.nb_renfo || 0;
+    return pr.nb_sorties + (pr.nb_sorties > 1 ? ' sorties' : ' sortie') + (r ? ', ' + r + (r > 1 ? ' renforcements' : ' renforcement') : '');
+  };
   // Lignes de la liste : [clé, question, résumé, obligatoire].
   const lignes = pr => [
     ['anciennete', 'Je cours depuis', libelleDe('anciennete', pr.anciennete), true],
     ['volume_tranche', 'Distance par semaine', libelleDe('volume_tranche', pr.volume_tranche), true],
     ['sortie_tranche', 'Plus longue sortie récente', libelleDe('sortie_tranche', pr.sortie_tranche), true],
-    ['semaine', 'Ma semaine type', resumeSemaine(pr), true],
+    ['semaine', 'Ma semaine', resumeSemaine(pr), true],
     ['allure', 'Repère d\'allure', resumeAllure(pr), true],
     ['seance_max_min', 'Durée maximale d\'une séance', libelleDe('seance_max_min', pr.seance_max_min), false],
     ['terrain', 'Terrains d\'entraînement', (libelleDe('terrain', pr.terrain) || '').replace(/ \(.*\)$/, '') || null, false],
@@ -81,7 +88,7 @@
   const manquants = pr => lignes(pr || {}).filter(l => l[3] && !l[2]).map(l => l[1].toLowerCase());
   const AIDE = {
     volume_tranche: 'Sur les 4 dernières semaines. « Aucune idée » : l\'IA reste prudente.',
-    semaine: 'Une activité par jour ; elle sert de cadre aux séances proposées.',
+    semaine: 'Course et renforcement peuvent tomber le même jour : le volume est adapté.',
     seance_max_min: 'La séance la plus longue que tu peux caser dans ta semaine.',
     terrain: 'La plus longue montée sur laquelle tu peux t\'entraîner.'
   };
@@ -121,17 +128,33 @@
         if (await ranger({ [cle]: val }, corps.querySelector('.cal-msg'))) liste();
       }));
     }
-    // Semaine type : une activité par jour, enregistrée à chaque toucher ; « Retour » à la fin.
+    // Ma semaine : quatre questions sur un écran, chacune enregistrée à chaque toucher ; « Retour » à la fin.
     function semaine() {
-      const st = (semaineType(pr()) || ['repos', 'repos', 'repos', 'repos', 'repos', 'repos', 'repos']).slice();
-      corps.innerHTML = barre(retour, 'Ma semaine type') + aide('semaine') + '<div class="ps-semaine">' + JOURS7.map((j, i) => '<div class="ps-jour"><span class="ps-jour-nom">' + j + '</span><span class="ps-jour-choix">' +
-        ACTIVITES.map(([k, lib]) => '<button type="button" class="mrt-pastille" data-jour="' + i + '" data-act-j="' + k + '" aria-pressed="' + (st[i] === k) + '">' + lib + '</button>').join('') + '</span></div>').join('') + '</div>';
-      corps.querySelectorAll('[data-act-j]').forEach(b => b.addEventListener('click', async () => {
-        const i = Number(b.dataset.jour), k = b.dataset.actJ;
-        // Une seule sortie longue dans la semaine : l'ancienne redevient une course.
-        if (k === 'longue') st.forEach((x, n) => { if (x === 'longue') st[n] = 'course'; });
-        st[i] = k;
-        if (await ranger({ semaine_type: st.slice() }, corps.querySelector('.cal-msg'))) semaine();
+      const p0 = pr(), jc = joursDe(p0, 'jours_course'), jr = joursDe(p0, 'jours_renfo');
+      const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
+      const bloc = (titre, html) => '<div class="ps-sem-q"><p class="ps-sem-t">' + titre + '</p><div class="ps-coches">' + html + '</div></div>';
+      const nbMax = Math.max(jc.length, 1);
+      corps.innerHTML = barre(retour, 'Ma semaine') + aide('semaine') +
+        bloc('Jours possibles pour courir', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
+        bloc('Nombre de sorties par semaine', jc.length ? [1, 2, 3, 4, 5, 6, 7].filter(n => n <= nbMax).map(n => pastille('data-nb', n, p0.nb_sorties === n, n)).join('') : '<span class="ps-aide">Choisis d\'abord tes jours.</span>') +
+        bloc('Jour à privilégier pour la sortie longue', jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') + pastille('data-long', 0, !p0.jour_long, 'Peu importe') : '<span class="ps-aide">Choisis d\'abord tes jours.</span>') +
+        bloc('Jours possibles pour le renforcement', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join('')) +
+        bloc('Nombre de renforcements par semaine', [0, 1, 2, 3].map(n => pastille('data-nr', n, (p0.nb_renfo || 0) === n, n)).join(''));
+      const msg = corps.querySelector('.cal-msg');
+      const bascule = (liste, n) => (liste.includes(n) ? liste.filter(x => x !== n) : liste.concat([n]).sort((a, b) => a - b));
+      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-nb], button[data-long], button[data-nr]').forEach(b => b.addEventListener('click', async () => {
+        const d = b.dataset, champs = {};
+        if (d.jc) {
+          champs.jours_course = bascule(jc, Number(d.jc));
+          // Plus de sorties que de jours, ou sortie longue sur un jour retiré : ramenés.
+          if (p0.nb_sorties > champs.jours_course.length) champs.nb_sorties = champs.jours_course.length || null;
+          if (p0.jour_long && !champs.jours_course.includes(p0.jour_long)) champs.jour_long = null;
+        }
+        if (d.jr) champs.jours_renfo = bascule(jr, Number(d.jr));
+        if (d.nb) champs.nb_sorties = Number(d.nb);
+        if (d.long) champs.jour_long = Number(d.long) || null;
+        if (d.nr) champs.nb_renfo = Number(d.nr);
+        if (await ranger(champs, msg)) semaine();
       }));
     }
     // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
