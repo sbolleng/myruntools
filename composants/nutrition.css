@@ -81,12 +81,18 @@
 .nu-seances { margin: 0 0 0.5rem; font-size: var(--t-second); color: var(--muted); }
 .nu-seances .mrt-lien { margin-left: 0.3rem; }
 
-/* Bloc Nutrition d'En un coup d'œil */
+/* Bloc Nutrition d'En un coup d'œil : bilan, barre, puis trois jauges simplifiées sur une ligne */
+.ac-titre a.nu-ac-detail { font-size: var(--t-second); font-weight: 600; color: var(--text); } /* bouton commun, pas un lien de titre */
+.ac-titre:has(.nu-ac-detail) { align-items: center; }
 .nu-ac-bilan { margin: 0 0 0.4rem; font-size: var(--t-texte); color: var(--muted); }
 .nu-ac-kcal { font-family: 'Space Mono', monospace; font-size: var(--t-nom); font-weight: 700; color: var(--accent); }
-.nu-ac-barre { height: 0.5rem; overflow: hidden; background: var(--champ); border-radius: 999px; }
+.nu-ac-bilan[data-etat="alerte"] .nu-ac-kcal { color: var(--red); }
+.nu-ac-barre { display: block; height: 0.5rem; overflow: hidden; background: var(--champ); border-radius: 999px; }
 .nu-ac-barre span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
 .nu-ac-barre span.is-alerte { background: var(--red); }
-.nu-ac-choix { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
-.nu-ac-annonce { margin: 0.6rem 0 0; font-size: var(--t-second); color: var(--muted); }
-.nu-ac-annonce:empty { display: none; }
+.nu-ac-jauges { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; margin-top: 0.9rem; }
+.nu-ac-j { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.nu-ac-j .nu-ac-barre { height: 0.35rem; }
+.nu-ac-nom { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.nu-ac-v { font-size: var(--t-petit); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nu-ac-j[data-etat="alerte"] .nu-ac-v { color: var(--red); }
