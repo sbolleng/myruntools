@@ -3422,6 +3422,35 @@ const CONTROLES = {
     await ctx.close();
     return pb;
   },
+  // Relais de recherche d'aliments (supabase/functions/recherche-aliments) : rejoué dans Node, moteur simulé.
+  async relais() {
+    const pb = [];
+    const m = await import(path.resolve(__dirname, '../../supabase/functions/recherche-aliments/index.ts'));
+    const hit = (nom, marque, kcal) => ({ product_name: nom, brands: [marque], nutriments: { 'energy-kcal_100g': kcal, proteins_100g: 4, carbohydrates_100g: 5, fat_100g: 1.5 } });
+    const appels = [];
+    // Moteur simulé : « yaourt na » ramène des marques « NA » ; « yaourt » ramène des yaourts.
+    const moteur = async url => {
+      const u = new URL(url); appels.push(u.hostname + ' ' + (u.searchParams.get('q') || u.searchParams.get('search_terms')));
+      if (u.hostname === 'world.openfoodfacts.org') return new Response('saturé', { status: 503 });
+      const q = u.searchParams.get('q');
+      const hits = q === 'yaourt na' ? [hit('NA', 'Borges', 900), hit('Swiss cheese', 'Na', 90)] : q === 'yaourt' ? [hit('Yaourt nature', 'Marque C', 53), hit('Yaourt fraise', 'Marque D', 90), hit('Yaourt nature', 'Marque C', 53), hit('Yaourt au lait entier nature', 'Marque E', 60)] : [];
+      return new Response(JSON.stringify({ hits }), { status: 200 });
+    };
+    const demander = async (corps, f = moteur, methode = 'POST') => { const r = await m.repondre(new Request('https://x/', methode === 'POST' ? { method: 'POST', body: JSON.stringify(corps) } : { method: methode }), f); return [r.status, await r.json().catch(() => null)]; };
+    let [st, d] = await demander({ q: 'yaourt na' });
+    pb.push(egal([200, 'search', ['Yaourt nature · Marque C', 'Yaourt au lait entier nature · Marque E']], [st, d.source, d.produits.map(p => p.nom + ' · ' + p.marque)], '« yaourt na » : les marques « NA » écartées, puis sans le dernier mot, filtré sur « na »'),
+      egal(['search.openfoodfacts.org yaourt na', 'search.openfoodfacts.org yaourt'], appels, 'deux demandes : ce qui est tapé, puis sans le mot commencé'));
+    pb.push(egal({ nom: 'Yaourt nature', marque: 'Marque C', kcal: 53, proteines: 4, glucides: 5, lipides: 1.5, portionG: 100 }, d.produits[0], 'produit : valeurs pour 100 g, portion de 100 g sans portion habituelle'));
+    pb.push(egal(true, m.correspond({ nom: 'Œufs au plat', marque: '' }, 'oeuf au pl'), 'sans accent ni pluriel, mot commencé'));
+    const panne = async () => new Response('saturé', { status: 503 });
+    [st, d] = await demander({ q: 'skyr' }, panne);
+    pb.push(egal([503, 'Open Food Facts indisponible'], [st, d.erreur], 'les deux moteurs en panne : 503'));
+    [st, d] = await demander({ q: 'a' });
+    pb.push(egal(400, st, 'recherche trop courte : refusée'));
+    const o = await m.repondre(new Request('https://x/', { method: 'OPTIONS' }), moteur);
+    pb.push(egal([200, '*'], [o.status, o.headers.get('access-control-allow-origin')], 'pré-demande du navigateur acceptée'));
+    return pb;
+  },
   // Nutrition : besoin, sport en lignes, anneaux, recherche, ajout, journal (module-nutrition-specification.md, § 4 et 10).
   async nutritionJournal(nav, db) {
     const pb = [];
@@ -3494,12 +3523,13 @@ const CONTROLES = {
     let reponse = { status: 200, body: { products: [
       { code: '1', product_name: 'Riz basmati', brands: 'Marque A, Autre', serving_quantity: 60, nutriments: { 'energy-kcal_100g': 350, proteins_100g: 8, carbohydrates_100g: 78, fat_100g: 1 } },
       { code: '2', product_name: 'Sans calories', brands: 'Marque B', nutriments: {} },
-      { code: '3', product_name: 'Applesauce', product_name_fr: 'Compote', brands: '', nutriments: { energy_100g: 300, carbohydrates_100g: 17 } }] } };
+      { code: '3', product_name: 'Rice pudding', product_name_fr: 'Riz au lait', brands: '', nutriments: { energy_100g: 300, carbohydrates_100g: 17 } },
+      { code: '4', product_name: 'Compote', brands: '', nutriments: { 'energy-kcal_100g': 70 } }] } };
     await ctx.route('https://world.openfoodfacts.org/**', r => { demandes.push(r.request().url()); r.fulfill({ status: reponse.status, contentType: 'application/json', body: JSON.stringify(reponse.body) }); });
     await p.fill('.nu-recherche [name="q"]', 'riz'); await p.press('.nu-recherche [name="q"]', 'Enter');
     await p.waitForSelector('.nu-off .nu-aliment');
     pb.push(egal(['Riz cuit | 130 kcal / 100 g'], await p.evaluate(() => [...document.querySelectorAll('.nu-resultats .nu-liste:not(.nu-off) .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), 'recherche : mes aliments d\'abord'));
-    pb.push(egal(['Riz basmati · Marque A | 350 kcal / 100 g', 'Compote | 72 kcal / 100 g'], await p.evaluate(() => [...document.querySelectorAll('.nu-off .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), 'résultats : pour 100 g, sans produit sans calories'),
+    pb.push(egal(['Riz basmati · Marque A | 350 kcal / 100 g', 'Riz au lait | 72 kcal / 100 g'], await p.evaluate(() => [...document.querySelectorAll('.nu-off .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), 'résultats : pour 100 g (kJ convertis), sans produit sans calories ni produit sans le mot « riz »'),
       egal(['riz', 'unique_scans_n'], [new URL(demandes[0]).searchParams.get('search_terms'), new URL(demandes[0]).searchParams.get('sort_by')], 'recherche : le texte saisi, les produits les plus courants d\'abord'));
     d.ecritures.length = 0;
     await p.click('.nu-off .nu-aliment >> nth=0');
@@ -3513,6 +3543,12 @@ const CONTROLES = {
       d.ecritures.map(e => e.methode === 'POST' ? [e.methode, e.table, sansId(e)] : [e.methode, e.table]), 'produit ajouté : il devient un aliment (favori), puis une ligne de 60 g'));
     await p.click('[data-source="recents"]');
     pb.push(egal('Riz basmati · Marque A | 350 kcal / 100 g', (await p.evaluate(() => [...document.querySelectorAll('.nu-source .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))))[0], 'le produit revient en tête des Récents'));
+    reponse = { status: 200, body: { products: [
+      { product_name: 'NA', brands: 'Borges', nutriments: { 'energy-kcal_100g': 900 } },
+      { product_name: 'Yaourt nature', brands: 'Marque F', nutriments: { 'energy-kcal_100g': 50, proteins_100g: 4 } }] } };
+    await p.fill('.nu-recherche [name="q"]', 'yaourt na'); await p.press('.nu-recherche [name="q"]', 'Enter');
+    await p.waitForSelector('.nu-off .nu-aliment');
+    pb.push(egal(['Yaourt nature · Marque F | 50 kcal / 100 g'], await p.evaluate(() => [...document.querySelectorAll('.nu-off .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), 'moteur de secours : « yaourt na » écarte la marque « NA »'));
     reponse = { status: 200, body: { products: [] } };
     await p.fill('.nu-recherche [name="q"]', 'introuvable'); await p.press('.nu-recherche [name="q"]', 'Enter');
     await p.waitForFunction(() => /Aucun résultat/.test(document.querySelector('.nu-resultats').textContent));
@@ -3540,6 +3576,12 @@ const CONTROLES = {
       await p2.fill('.nu-recherche [name="q"]', 'skyr'); await p2.fill('.nu-recherche [name="q"]', 'yaourt'); await p2.press('.nu-recherche [name="q"]', 'Enter');
       await p2.waitForSelector('.nu-off .nu-aliment');
       pb.push(egal(1, appels.length, 'recherche déjà faite : gardée, aucun nouvel appel'));
+      // Le relais a répondu : les produits arrivent aussi pendant la frappe, une demi-seconde après la dernière lettre.
+      await p2.fill('.nu-recherche [name="q"]', 'yaourt fr');
+      pb.push(egal(1, appels.length, 'pendant la frappe : rien avant la pause'));
+      await p2.clock.runFor(600);
+      await p2.waitForFunction(() => document.querySelector('.nu-off .nu-aliment'));
+      pb.push(egal([[{ q: 'yaourt' }, { q: 'yaourt fr' }], 'yaourt fr'], [appels, await p2.inputValue('.nu-recherche [name="q"]')], 'pendant la frappe : la recherche part après la pause, le champ reste en place'));
       await o2.ctx.close();
     }
 

@@ -112,7 +112,9 @@
       sessionStorage.setItem(CLE_RECHERCHES, JSON.stringify(m));
     } catch (e) { /* stockage indisponible */ }
   }
-  function normaliser(liste) {
+  // Chaque mot tapé, même commencé, commence un mot du nom ou de la marque (« yaourt na » : « Yaourt nature », pas la marque « NA »).
+  const repond = (r, q) => { const n = mots(r.nom + ' ' + r.marque); return mots(q).every(m => n.some(x => x.startsWith(m))); };
+  function normaliser(liste, q) {
     const vus = new Set(), sortie = [];
     for (const p of liste || []) {
       const n = p.nutriments || {}, nom = String(p.product_name_fr || p.product_name || '').trim();
@@ -121,6 +123,8 @@
       const v = k => (Number.isFinite(Number(n[k])) ? arrondi(Number(n[k])) : 0), sq = Number(p.serving_quantity);
       const cle = (nom + '|' + marque).toLowerCase();
       if (!nom || !Number.isFinite(kcal) || kcal < 0 || kcal > 1000 || vus.has(cle)) continue;
+      const r = { nom, marque };
+      if (q && !repond(r, q)) continue;
       vus.add(cle);
       sortie.push({ nom, marque, kcal: arrondi(kcal), proteines: v('proteins_100g'), glucides: v('carbohydrates_100g'), lipides: v('fat_100g'), portionG: sq >= 5 && sq <= 1000 ? Math.round(sq) : 100 });
       if (sortie.length === 8) break;
@@ -134,11 +138,13 @@
       if (essai) await new Promise(r => setTimeout(r, 800));
       try {
         const r = await fetch(OFF + '?' + q.toString());
-        if (r.ok) return normaliser((await r.json()).products);
+        if (r.ok) return normaliser((await r.json()).products, texte);
       } catch (err) { /* refusé ou saturé : nouvel essai */ }
     }
     throw new Error('Open Food Facts saturé');
   }
+  // Le relais a déjà répondu pendant la visite : la recherche de produits peut partir pendant la frappe.
+  let relaisOk = false;
   async function chercherProduits(texte) {
     const cle = texte.toLowerCase();
     const garde = memoire()[cle];
@@ -146,7 +152,7 @@
     let produits = null;
     try {
       const { data, error } = await sb().functions.invoke('recherche-aliments', { body: { q: texte } });
-      if (!error && data && Array.isArray(data.produits)) produits = data.produits;
+      if (!error && data && Array.isArray(data.produits)) { produits = data.produits; relaisOk = true; }
       else if (error) console.warn('Nutrition : relais de recherche indisponible', error);
     } catch (err) { console.warn('Nutrition : relais de recherche indisponible', err); }
     if (!produits) produits = await ancienMoteur(texte);
@@ -400,17 +406,23 @@
       c.querySelector('.nu-produits').innerHTML = htmlProduits();
     };
     // Pendant la frappe : mes aliments seulement, sans réseau ; les produits d'une recherche précédente s'effacent.
+    let pause = null;
     function taper(texte) {
       const t = texte.trim();
       if (t === S.recherche.texte) return;
       S.recherche = { texte: t, etat: null, mes: t.length >= 2 ? chercherChezMoi(S.aliments, t) : [], resultats: [] };
       zones();
+      clearTimeout(pause);
+      if (relaisOk && t.length >= 3) pause = setTimeout(() => lancerRecherche(t, true), 500);
     }
-    async function lancerRecherche(texte) {
+    // enFrappe : lancée pendant la frappe ; le champ et l'aliment choisi restent en place.
+    async function lancerRecherche(texte, enFrappe) {
       texte = texte.trim();
+      clearTimeout(pause);
       if (texte.length < 2) return;
-      S.recherche = { texte, etat: 'cours', mes: chercherChezMoi(S.aliments, texte), resultats: [] }; S.choix = null; S.msg = '';
-      dessinerAjout();
+      S.recherche = { texte, etat: 'cours', mes: chercherChezMoi(S.aliments, texte), resultats: [] };
+      if (enFrappe) zones();
+      else { S.choix = null; S.msg = ''; dessinerAjout(); }
       let resultats = [], etat = 'ok';
       try { resultats = await chercherProduits(texte); } catch (err) { console.warn('Nutrition : recherche impossible', err); etat = 'erreur'; }
       if (S.recherche.texte !== texte) return;
