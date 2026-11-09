@@ -3593,6 +3593,8 @@ const CONTROLES = {
       await p2.fill('.nu-recherche [name="q"]', 'skyr'); await p2.fill('.nu-recherche [name="q"]', 'yaourt'); await p2.press('.nu-recherche [name="q"]', 'Enter');
       await p2.waitForSelector('.nu-off .nu-aliment');
       pb.push(egal(1, appels.length, 'recherche déjà faite : gardée, aucun nouvel appel'));
+      // Une recherche gardée par une version précédente du site n'est pas resservie.
+      pb.push(egal(true, await p2.evaluate(() => { sessionStorage.setItem('mrt-nutri-recherches-ancienne', '{"yaourt":[]}'); return Object.keys(sessionStorage).some(k => /^mrt-nutri-recherches-/.test(k)); }), 'mémoire des recherches : sous la version du site'));
       // Le relais a répondu : les produits arrivent aussi pendant la frappe, une demi-seconde après la dernière lettre.
       await p2.fill('.nu-recherche [name="q"]', 'yaourt fr');
       pb.push(egal(1, appels.length, 'pendant la frappe : rien avant la pause'));
