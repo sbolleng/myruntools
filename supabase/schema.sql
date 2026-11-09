@@ -236,7 +236,15 @@ create table profil_entrainement (
   renfo              smallint check (renfo between 0 and 3),
   moyens             text[] check (moyens <@ array['tapis', 'velo', 'piscine']),
   fragiles           text check (char_length(fragiles) <= 300),
-  maj                timestamptz not null default now()
+  maj                timestamptz not null default now(),
+  -- Évolution 026 : tranches et semaine type (les colonnes annees … moyens au-dessus ne sont plus employées par le site).
+  anciennete     text check (anciennete in ('debut', '1-3', '3-6', '6-10', '10+')),
+  volume_tranche text check (volume_tranche in ('inconnu', '0-20', '20-40', '40-60', '60-80', '80+')),
+  sortie_tranche text check (sortie_tranche in ('-1h', '1h-1h30', '1h30-2h', '2-3h', '3h+')),
+  semaine_type   text[] check (cardinality(semaine_type) = 7 and semaine_type <@ array['repos', 'course', 'longue', 'renfo']),
+  allure_type    text check (allure_type in ('vma', '10km', 'semi', 'inconnu')),
+  terrain        text check (terrain in ('plat', 'cotes', 'vallonne', 'montagne')),
+  renfo_niveau   text check (renfo_niveau in ('debutant', 'intermediaire', 'confirme', 'expert'))
 );
 
 -- ----- Nutrition : aliments de l'utilisateur et lignes de repas
