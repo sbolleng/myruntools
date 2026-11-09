@@ -63,7 +63,13 @@
 .nu-repas:last-child { margin-bottom: 0; }
 .nu-repas-t { display: flex; justify-content: space-between; margin: 0 0 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .nu-lignes { margin: 0; padding: 0; list-style: none; }
-.nu-lignes li { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-top: 1px solid var(--border); }
+.nu-lignes li { border-top: 1px solid var(--border); }
+/* Une ligne du journal se touche tout entière (modifier, supprimer) : pas de rond au bout. */
+.nu-ligne { display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 2.75rem; padding: 0.4rem 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
+.nu-ligne:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) { .nu-ligne:hover .nu-ligne-nom { color: var(--accent); } }
+.nu-bas { margin-top: 1.2rem; }
+.nu-modifier .nu-sport-l { margin-top: 0.4rem; }
 .nu-ligne-nom { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .nu-ligne-k { flex: none; color: var(--muted); }
 .nu-journal .nu-vide { margin: 0; }

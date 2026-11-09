@@ -3542,9 +3542,14 @@ const CONTROLES = {
       egal(['Banane ajouté · midi', 1], [norm(await p.locator('.nu-ok').textContent()), await p.locator('.nu-feuille').count()], 'feuille : l\'ajout confirmé, la feuille reste ouverte'));
     d.ecritures.length = 0;
     await fermerF(p);
-    await p.locator('[data-act="supprimer"][aria-label="Supprimer Banane"]').last().click();
+    pb.push(egal(0, await p.locator('.nu-journal li .mrt-rond').count(), 'journal : aucun rond au bout des lignes'));
+    await p.locator('.nu-ligne:has-text("Banane")').last().click();
+    await p.waitForSelector('.nu-modifier');
+    await p.click('.nu-modifier [data-f="supprimer"]');
+    pb.push(egal(['Supprimer cette ligne ?', 0], [norm(await p.locator('.mrt-dialogue p').textContent()), d.ecritures.length], 'Supprimer : la question du site, rien d\'écrit avant la réponse'));
+    await p.click('.mrt-dialogue [data-r="oui"]');
     await p.waitForFunction(() => document.querySelectorAll('.nu-lignes li').length === 2);
-    pb.push(egal(['DELETE', 'repas_lignes'], [d.ecritures[0].methode, d.ecritures[0].table], '× : la ligne est supprimée'));
+    pb.push(egal([['DELETE', 'repas_lignes'], 0], [[d.ecritures[0].methode, d.ecritures[0].table], await p.locator('.nu-modifier').count()], 'toucher la ligne, Supprimer, Supprimer : la ligne est supprimée, la fenêtre fermée'));
     // Riz cuit, en grammes : 100 g d'office, saisie de 200 g puis « − » : 190 g.
     d.ecritures.length = 0;
     await ouvrirRepas(p);
@@ -3687,7 +3692,7 @@ const CONTROLES = {
     // Rien de saisi.
     d = base(); d.aliments = []; d.repas_lignes = [];
     ({ p, ctx } = await ouvrirN(d));
-    pb.push(egal([4, 0], [await p.locator('.nu-journal .nu-repas').count(), await p.locator('.nu-journal li').count()], 'journal vide : les quatre repas, chacun avec son « + »'));
+    pb.push(egal([['Petit-déj', 'Midi', 'Encas', 'Soir', 'Activité'], 0], [await p.locator('.nu-journal .nu-repas-t > span:first-child').allTextContents(), await p.locator('.nu-journal li').count()], 'journal vide : les quatre repas puis l\'activité, chacun avec son « + »'));
     await ouvrirRepas(p, 'soir');
     pb.push(egal('soir', await p.evaluate(() => document.querySelector('.nu-feuille .nu-sources') && 'soir'), '« + » du soir : la feuille s\'ouvre'));
     pb.push(egal(['+ Aliment libre', ''], [norm(await p.locator('.nu-sources [aria-pressed="true"]').textContent()), ''], 'sans aliment : formulaire libre, journal vide'));
@@ -3715,12 +3720,41 @@ const CONTROLES = {
     pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
     await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST' && e.corps.length === 2);
     await fermerF(p);
-    pb.push(egal('1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche', norm(await p.locator('.nu-tuile-sport').textContent()), 'case Activité : le sport du jour'));
+    pb.push(egal('1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche', norm(await p.locator('.nu-tuile-sport').textContent()), 'case Activité : le sport du jour'),
+      egal(['Jogging à 9,5 km/h (6 min/km) · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
     await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); await p.waitForSelector('.nu-jauge');
     await ouvrirActivite(p);
     pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
     await ligneS(0).locator('[name="type"]').selectOption('');
     pb.push(egal('2 222 kcal', await kcal(p), 'sport : le jogging retiré'));
+    await ctx.close();
+
+    // Toucher une ligne : Modifier (quantité, repas) ; Annuler ne range rien.
+    d = base();
+    ({ p, ctx } = await ouvrirN(d));
+    await p.click('.nu-ligne:has-text("Riz cuit")');
+    await p.waitForSelector('.nu-modifier');
+    pb.push(egal(['Modifier · Riz cuit', '200', 'midi'], [norm(await p.locator('.nu-modifier .pf-titre').textContent()), await p.inputValue('.nu-modifier .nu-qte'), await p.locator('.nu-modifier [data-r][aria-pressed="true"]').getAttribute('data-r')], 'Modifier : la quantité et le repas de la ligne'));
+    await p.click('.nu-modifier [data-f="annuler"]');
+    pb.push(egal([0, 0], [await p.locator('.nu-modifier').count(), d.ecritures.length], 'Annuler : fenêtre fermée, rien d\'écrit'));
+    await p.click('.nu-ligne:has-text("Riz cuit")');
+    await p.fill('.nu-modifier .nu-qte', '100'); await p.click('.nu-modifier [data-r="soir"]');
+    await p.click('.nu-modifier [type="submit"]');
+    await p.waitForSelector('.nu-modifier', { state: 'detached' });
+    pb.push(egal([['PATCH', 'repas_lignes', { repas: 'soir', quantite: 1, kcal: 130, proteines: 2.7, glucides: 28, lipides: 0.3 }, '?id=eq.' + ID(4)]], d.ecritures.map(e => [e.methode, e.table, e.corps, e.filtres]), 'Enregistrer : 100 g au soir, valeurs figées à la nouvelle quantité'),
+      egal(['Petit-déj 90 kcal', 'Soir 130 kcal'], await groupes(p), 'journal : la ligne passée au soir'));
+    await ctx.close();
+    // Une activité du journal : Modifier, Supprimer.
+    d = base(); d.sport_jour = [{ id: ID(8), utilisateur: U, date: '2026-10-20', type: 'j95', heures: 1 }, { id: ID(9), utilisateur: U, date: '2026-10-20', type: 'm', heures: 0.5 }];
+    ({ p, ctx } = await ouvrirN(d));
+    pb.push(egal('2 922 kcal', await kcal(p), 'activités lues dans la base'));
+    await p.click('.nu-activites .nu-ligne:has-text("Marche")');
+    await p.click('.nu-modifier [data-f="supprimer"]');
+    pb.push(egal('Supprimer cette activité ?', norm(await p.locator('.mrt-dialogue p').textContent()), 'Supprimer une activité : la question du site'));
+    await p.click('.mrt-dialogue [data-r="oui"]');
+    await p.waitForSelector('.nu-modifier', { state: 'detached' });
+    await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST');
+    pb.push(egal(['2 817 kcal', ['Jogging à 9,5 km/h (6 min/km) · 1 h'], [{ date: '2026-10-20', type: 'j95', heures: 1 }]], [await kcal(p), await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), d.ecritures.filter(e => e.table === 'sport_jour' && e.methode === 'POST').pop().corps], 'activité supprimée : besoin et journal à jour, rangé dans la base'));
     await ctx.close();
 
     // Sélecteur de jour : la veille, un repas oublié, puis retour à aujourd'hui.
