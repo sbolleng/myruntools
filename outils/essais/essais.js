@@ -2177,8 +2177,9 @@ const CONTROLES = {
         marques: [...document.querySelectorAll('.ps-marque[href]')].map(a => a.title.split(' · ')[0] + ' ' + [...a.classList].filter(c => c !== 'ps-marque').join(' ')),
         alertes: [t('.ps-alertes .ps-libelle'), ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
         textesAlertes: [...document.querySelectorAll('.ps-alerte')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
-        bloc: [...document.querySelectorAll('.ps-bloc .cal-sem')].map(e => e.dataset.lundi + ' ' + e.querySelector('.cal-sem-phase').textContent),
-        reperes: [...document.querySelectorAll('.ps-reperes li')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+        // Bloc en cours : la grille du mois ; ses cases, et les repères du jour écrits dedans.
+        bloc: [...document.querySelectorAll('.ps-bloc .cal-m-case')].map(e => e.dataset.jour),
+        reperes: [...document.querySelectorAll('.ps-bloc .cal-v-rep')].map(e => e.closest('.cal-m-case').dataset.jour + ' ' + e.textContent),
         plus: document.querySelectorAll('.ps-bloc [data-ajout]').length,
         debordement: document.documentElement.scrollWidth > innerWidth
       };
@@ -2206,18 +2207,17 @@ const CONTROLES = {
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
     await p.waitForSelector('.ps-cadre');
     let r = await lire(p);
-    pb.push(egal(['2026-10-19 Entretien', '2026-10-26 Entretien', '2026-11-02 Entretien', '2026-11-09 Entretien'], r.bloc, 'bloc en cours : 4 semaines à partir du 19 octobre, en Entretien'));
+    pb.push(egal([28, '2026-10-19', '2026-11-15', 0], [r.bloc.length, r.bloc[0], r.bloc[27], await p.locator('.ps-bloc .cal-sem').count()], 'bloc en cours : la grille du mois, 28 cases du 19 octobre au 15 novembre'));
     pb.push(egal(true, /^Cette semaine : Entretien, jusqu'au .*15 nov.* ; la saison commence le .*16 nov/.test(r.etat), 'état de la semaine : Entretien jusqu\'au 15 novembre (' + r.etat + ')'));
-    pb.push(egal([true, true, 28], [r.reperes.some(x => /^Allégé du .*12 nov.* au .*14 nov.* : avant Trail du Lac \(Préparatoire\)\.$/.test(x)), r.reperes.length === 1, r.plus],
-      'repère de la semaine du 9 novembre : allégé du 12 au 14 avant le Trail du Lac ; un « + » par jour'));
+    pb.push(egal([['2026-11-12 Allégé', '2026-11-13 Allégé', '2026-11-14 Allégé'], 28], [r.reperes, r.plus], 'repères dans les cases : allégé du 12 au 14 novembre avant le Trail du Lac ; un « + » par jour'));
     await ctx.close();
     // Récupération et repos de la veille : la semaine du 30 novembre (récupération du Trail du Lac jusqu'au 4 décembre).
     const plusTard = { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-30T10:00:00+01:00') };
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, plusTard));
     await p.waitForSelector('.ps-cadre');
     r = await lire(p);
-    pb.push(egal([true, true, '2026-11-30 Base'], [r.reperes.some(x => /^Récupération de Trail du Lac jusqu'au .*4 déc.* : séances faciles seulement\.$/.test(x)),
-      r.reperes.some(x => /^Repos le .*12 déc.* : veille de Corrida de Noël \(Plaisir\)\.$/.test(x)), r.bloc[0].replace(/^(\S+) Semaine \d+ · /, '$1 ')],
+    pb.push(egal([true, false, true, 'ph-base'], [r.reperes.includes('2026-12-04 Récupération'), r.reperes.includes('2026-12-05 Récupération'), r.reperes.includes('2026-12-12 Repos'),
+      await p.evaluate(() => [...document.querySelector('.ps-bloc .cal-m-case[data-jour="2026-11-30"]').classList].find(c => c.startsWith('ph-')))],
       'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre (19 jours), repos la veille de la Corrida de Noël, semaine 3 de la saison en base'));
     pb.push(egal(true, /^Cette semaine : Base, semaine 3 sur 16\./.test(r.etat), 'état : base, semaine 3 sur 16 (' + r.etat + ')'));
     await ctx.close();
@@ -2278,7 +2278,8 @@ const CONTROLES = {
     const copie = f => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = d.seances || []; if (f) f(d); return d; };
     const etat = p => p.evaluate(() => (document.querySelector('.ps-profil-etat') || {}).textContent || null);
     const liste = p => p.evaluate(() => ({
-      sections: [...document.querySelectorAll('.ps-profil .ps-section-t .ps-libelle')].map(e => e.textContent),
+      sections: [...document.querySelectorAll('.ps-profil .ps-section-t')].map(e => e.childNodes[0].textContent.trim()),
+      feuille: !!document.querySelector('.mc-voile > .mc-panneau.ps-profil') && !!document.querySelector('.ps-profil .mrt-rond.is-fermer[data-fermer]') && !/Fermer/.test([...document.querySelectorAll('.ps-profil button')].map(b => b.textContent).join(' ')),
       compte: (document.querySelector('.ps-profil .ps-compte') || {}).textContent || null,
       lignes: [...document.querySelectorAll('.ps-profil .ps-ligne-q')].map(b => b.children[0].textContent + ' | ' + b.children[1].textContent),
       aFaire: document.querySelectorAll('.ps-profil .ps-rep.is-a-faire').length,
@@ -2292,8 +2293,8 @@ const CONTROLES = {
     pb.push(egal('Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', await etat(p), 'profil vide : les cinq questions indispensables'));
     await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     let r = await liste(p);
-    pb.push(egal([['Indispensable pour proposer tes séances', 'Pour affiner (facultatif)'], '0 sur 5', 5, 9, false, false],
-      [r.sections, r.compte, r.aFaire, r.lignes.length, /\*/.test(r.texte), /site partagé/.test(r.texte)], 'liste : deux sections, « 0 sur 5 », cinq lignes à renseigner, ni astérisque ni mention du site partagé'));
+    pb.push(egal([true, ['Indispensable pour proposer tes séances', 'Pour affiner (facultatif)'], '0 sur 5', 5, 9, false, false],
+      [r.feuille, r.sections, r.compte, r.aFaire, r.lignes.length, /\*/.test(r.texte), /site partagé/.test(r.texte)], 'liste : feuille d\'une course (croix ronde, pas de bouton « Fermer »), deux sections, « 0 sur 5 », cinq lignes à renseigner, ni astérisque ni mention du site partagé'));
     // Une question à choix : un toucher enregistre et revient à la liste.
     await p.click('.ps-profil [data-q="anciennete"]');
     pb.push(egal(['Je débute', '1 à 3 ans', '3 à 6 ans', '6 à 10 ans', 'Plus de 10 ans'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil .ps-choix')].map(b => b.childNodes[0].textContent)), 'Je cours depuis : cinq tranches'));
@@ -2306,19 +2307,23 @@ const CONTROLES = {
     await p.click('.ps-profil [data-q="semaine"]');
     const tap = async sel => { await p.click('.ps-profil ' + sel); await pause(); };
     for (const j of [2, 4, 6, 7]) await tap('[data-jc="' + j + '"]');
-    pb.push(egal(['1', '2', '3', '4'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil [data-nb]')].map(b => b.textContent)), 'nombre de sorties : au plus le nombre de jours choisis'));
-    await tap('[data-nb="4"]'); await tap('[data-long="7"]');
+    const chiffre = async (nom, v) => { await p.fill('.ps-profil [name="' + nom + '"]', v); await p.dispatchEvent('.ps-profil [name="' + nom + '"]', 'change'); await pause(); };
+    await chiffre('nb_sorties', '8');
+    pb.push(egal(['Un chiffre de 0 à 7.', undefined], [await p.textContent('.ps-profil .ps-msg'), (derniere(d) || {}).nb_sorties], 'nombre de sorties : 8 refusé'));
+    await chiffre('nb_sorties', '3'); await tap('[data-long="7"]');
     await tap('[data-jc="7"]');
     const apres = derniere(d) || {};
-    pb.push(egal([[2, 4, 6], 3, null], [apres.jours_course, apres.nb_sorties, apres.jour_long], 'dimanche retiré : 3 sorties au plus, sortie longue ramenée à « peu importe »'));
-    await tap('[data-long="6"]'); await tap('[data-jr="2"]'); await tap('[data-jr="4"]'); await tap('[data-nr="1"]');
+    pb.push(egal([[2, 4, 6], 3, null, ''], [apres.jours_course, apres.nb_sorties, apres.jour_long, await p.textContent('.ps-profil .ps-msg')], 'dimanche retiré : sortie longue ramenée à « peu importe »'));
+    await tap('[data-long="6"]'); await tap('[data-jr="2"]'); await tap('[data-jr="4"]'); await chiffre('nb_renfo', '7');
+    pb.push(egal(7, (derniere(d) || {}).nb_renfo, 'renforcements : 7 accepté'));
+    await chiffre('nb_renfo', '1');
     const sem = derniere(d) || {};
     pb.push(egal([[2, 4, 6], [2, 4], 3, 1, 6], [sem.jours_course, sem.jours_renfo, sem.nb_sorties, sem.nb_renfo, sem.jour_long], 'ma semaine enregistrée à chaque toucher ; course et renforcement le même jour possibles'));
     await p.click('.ps-profil [data-q="liste"]');
     // Repère d'allure : VMA refusée hors bornes, puis un temps sur 10 km.
     await p.click('.ps-profil [data-q="allure"]'); await p.click('.ps-profil [data-type="vma"]');
     await p.fill('.ps-profil [name="valeur"]', '35'); await p.click('.ps-profil .ps-valeur [type="submit"]');
-    pb.push(egal('La VMA doit être comprise entre 8 et 30 km/h.', await p.textContent('.ps-profil .cal-msg'), 'VMA à 35 refusée'));
+    pb.push(egal('La VMA doit être comprise entre 8 et 30 km/h.', await p.textContent('.ps-profil .ps-msg'), 'VMA à 35 refusée'));
     await p.click('.ps-profil [data-type="10km"]'); await p.fill('.ps-profil [name="valeur"]', '45:30'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     await p.waitForSelector('.ps-profil .ps-ligne-q');
     r = await liste(p);
@@ -2328,11 +2333,11 @@ const CONTROLES = {
     await p.click('.ps-profil [data-q="seance_max_min"]'); await p.click('.ps-profil [data-val="90"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await p.click('.ps-profil [data-q="terrain"]'); await p.click('.ps-profil [data-val="vallonne"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await p.click('.ps-profil [data-q="sante"]'); await p.fill('.ps-profil [name="fc"]', '250'); await p.click('.ps-profil .ps-valeur [type="submit"]');
-    pb.push(egal('La FC max doit être comprise entre 100 et 230.', await p.textContent('.ps-profil .cal-msg'), 'FC max à 250 refusée'));
+    pb.push(egal('La FC max doit être comprise entre 100 et 230.', await p.textContent('.ps-profil .ps-msg'), 'FC max à 250 refusée'));
     await p.fill('.ps-profil [name="fc"]', '186'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     r = await liste(p);
     pb.push(egal(['Durée maximale d\'une séance | 1 h 30', 'Terrains d\'entraînement | Vallonné', 'FC max et points fragiles | FC max 186'], [r.lignes[5], r.lignes[6], r.lignes[8]], 'facultatif : résumés'));
-    await p.click('.ps-profil [data-act="annuler"]');
+    await p.click('.ps-profil [data-fermer]');
     pb.push(egal('Profil complet.', await etat(p), 'profil complet sur la page'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
     await ctx.close();
@@ -2381,11 +2386,11 @@ const CONTROLES = {
     const PROFIL = { utilisateur: moi, anciennete: '3-6', volume_tranche: '20-40', sortie_tranche: '1h30-2h', jours_course: [2, 6], jours_renfo: [4], nb_sorties: 2, nb_renfo: 1, jour_long: 6, seance_max_min: 120, allure_type: '10km', temps_10km_s: 2730 };
     // Bloc du 19 octobre au 15 novembre : séances les mardis, jeudis et samedis (jours du profil).
     const LUNDIS = ['2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09'];
-    const bonne = () => ({ semaines: LUNDIS.map(l => ({ lundi: l, explication: 'Entretien : deux footings et une sortie longue.', seances: [1, 3, 5].map(k => {
+    const bonne = () => ({ recommandation: 'Entretien : deux footings et une sortie longue par semaine.', seances: LUNDIS.flatMap(l => [1, 3, 5].map(k => {
       const d = new Date(l + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + k); const j = d.toISOString().slice(0, 10);
       return { date: j, type: k === 3 ? 'renfo' : 'run', libelle: k === 5 ? 'Sortie longue' : k === 3 ? 'Gainage' : 'Footing', duree_min: k === 5 ? 90 : 45, distance_km: k === 3 ? 0 : k === 5 ? 15 : 8, intensite: 'facile' };
-    }) })) });
-    const mauvaise = () => { const r = bonne(); r.semaines[0].seances.push({ date: '2026-10-21', type: 'run', libelle: 'Fractionné', duree_min: 50, distance_km: 9, intensite: 'intense' }); return r; };
+    })) });
+    const mauvaise = () => { const r = bonne(); r.seances.push({ date: '2026-10-21', type: 'run', libelle: 'Fractionné', duree_min: 50, distance_km: 9, intensite: 'intense' }); return r; };
     // Base simulée : le relais range chaque appel dans « propositions », comme la fonction, et rend la réponse choisie.
     const copie = (reponses, f) => {
       const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = []; d.propositions = []; d.profil_entrainement = [Object.assign({}, PROFIL)];
@@ -2403,28 +2408,28 @@ const CONTROLES = {
     };
     const lire = p => p.evaluate(() => ({
       bouton: (document.querySelector('[data-ia="proposer"]') || {}).textContent || null, desactive: !!(document.querySelector('[data-ia="proposer"]') || {}).disabled,
-      reste: (document.querySelector('.ps-ia-reste') || {}).textContent || null, mention: (document.querySelector('.ps-ia-mention') || {}).textContent || null,
+      reste: (document.querySelector('.ps-ia-reste') || {}).textContent || null,
       msg: (document.querySelector('.ps-ia-msg') || {}).textContent || null, aide: (document.querySelector('.ps-ia-aide') || {}).textContent || null,
-      semaines: [...document.querySelectorAll('.ps-prop-sem')].map(e => e.dataset.lundi), lignes: document.querySelectorAll('.ps-prop-liste li').length,
-      premiere: ((document.querySelector('.ps-prop-liste li') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
-      expl: (document.querySelector('.ps-prop-expl') || {}).textContent || null,
+      props: document.querySelectorAll('.ps-bloc .cal-v-prop').length, lignes: document.querySelectorAll('.ps-prop-liste li').length,
+      premiere: ((document.querySelector('.ps-bloc .cal-m-case[data-jour="2026-10-20"] .cal-v-prop') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
+      reco: (document.querySelector('.ps-reco') || {}).textContent || null, autres: document.querySelectorAll('.ps-prop-expl, .ps-ia-mention, .ps-prop-sem').length,
       actions: [...document.querySelectorAll('.ps-prop-actions button')].map(b => b.textContent)
     }));
     const pret = p => p.waitForFunction(() => document.querySelector('[data-ia], .ps-ia-aide'));
     const attendre = p => p.waitForFunction(() => !document.querySelector('[data-ia][disabled]') || document.querySelector('.ps-ia-msg'));
 
-    // Profil complet, aucune proposition : le bouton, 4 restantes, la mention.
+    // Profil complet, aucune proposition : le bouton, 4 restantes, aucune mention.
     let d = copie([bonne()]);
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await pret(p);
     let r = await lire(p);
-    pb.push(egal(['Proposer les séances', '4 restantes ce mois-ci', 'Séances proposées par une IA, à titre indicatif : ce n\'est pas un avis médical.'], [r.bouton, r.reste, r.mention], 'bouton, propositions restantes et mention'));
+    pb.push(egal(['Proposer les séances', '4 restantes ce mois-ci', null, 0], [r.bouton, r.reste, r.msg, r.autres], 'bouton et propositions restantes, sans mention'));
     await p.click('[data-ia="proposer"]');
     await p.waitForSelector('.ps-proposition');
     r = await lire(p);
     const envoi = d.appels[0];
-    pb.push(egal([LUNDIS, 12, 'mar. 20 · Course à pied Footing · 45 min · 8 km · Facile', '« Entretien : deux footings et une sortie longue. »', ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
-      [r.semaines, r.lignes, r.premiere, r.expl, r.actions], 'proposition en attente : 4 semaines, 12 séances, explications, quatre boutons'));
+    pb.push(egal([12, 12, 'Footing · 45 min', 'Entretien : deux footings et une sortie longue par semaine.', 0, ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
+      [r.props, r.lignes, r.premiere, r.reco, r.autres, r.actions], 'proposition en attente : une recommandation, 12 séances dans la grille du bloc, quatre boutons'));
     pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, [['mardi', 'samedi'], ['jeudi']], ['allégé (avant une course Préparatoire)']],
       [envoi.essai, envoi.contexte.bloc.debut, envoi.contexte.bloc.fin, envoi.contexte.semaines[0].phase, /Trail du Lac|Trail des Gorges|Corrida/.test(JSON.stringify(envoi)), JSON.stringify(envoi).includes(db.profils[0].prenom || '§§'),
         [envoi.contexte.profil.jours_possibles_course, envoi.contexte.profil.jours_possibles_renforcement], envoi.contexte.semaines[3].jours[3].reperes],
@@ -2445,7 +2450,7 @@ const CONTROLES = {
       'garde-fou : jour non prévu pour courir, proposition refaite (essai 2, avec la correction) ; la première marquée invalide'));
     // Choisir semaine par semaine : sans la semaine du 26 octobre, 9 séances.
     await p.click('[data-ia="choisir"]');
-    await p.uncheck('[data-coche="2026-10-26"]');
+    await p.click('[data-coche="2026-10-26"]');
     await p.click('[data-ia="selection"]');
     await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
     pb.push(egal([9, false], [d.seances.length, d.seances.some(x => x.date >= '2026-10-26' && x.date <= '2026-11-01')], 'choisir semaine par semaine : seules les semaines cochées sont écrites'));
@@ -2500,7 +2505,7 @@ const CONTROLES = {
     await pret(p);
     const gf = await p.evaluate(() => {
       const s = (date, intensite) => ({ date, type: 'run', libelle: 'Séance', duree_min: 50, distance_km: 9, intensite });
-      return window.mrtSeancesIA.gardeFous({ semaines: [{ lundi: '2026-11-16', explication: '', seances: [s('2026-11-19', 'intense'), s('2026-12-08', 'intense'), s('2026-12-12', 'facile')] }] }, document.getElementById('saison').__ctx, '2026-11-16');
+      return window.mrtSeancesIA.gardeFous({ recommandation: '', seances: [s('2026-11-19', 'intense'), s('2026-12-08', 'intense'), s('2026-12-12', 'facile')] }, document.getElementById('saison').__ctx, '2026-11-16');
     });
     pb.push(egal([true, false, true], [gf.some(x => /19 nov.* : jour de récupération/.test(x)), gf.some(x => /8 déc/.test(x)), gf.some(x => /12 déc.* : jour de repos/.test(x))],
       'garde-fous : fractionné le 19 novembre (récupération du Trail du Lac) refusé, le 8 décembre accepté, séance la veille de la Corrida refusée'));

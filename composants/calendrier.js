@@ -36,6 +36,43 @@
   const an = m => Number(m.slice(0, 4)), rang = m => Number(m.slice(5, 7)) - 1;
   const couleur = c => (c.courue ? 'courue' : 'c-' + c.famille + (c.validee ? '-v' : '-n'));
 
+  // Contenus d'une case (Mois, Semaine, et la grille de la page Préparation) : course, rendez-vous clé, séance (case « faite »,
+  // libellé qui ouvre sa fenêtre), « + ».
+  function contenus(ctx) {
+    const rdvDuJour = jour => ctx.courses.filter(c => aPlan(c) && c.ouverture_inscriptions === jour);
+    // Course, rendez-vous clé (ouverture des inscriptions), séance (case « faite », libellé qui ouvre sa fenêtre), « + ».
+    const courseHtml = c => '<a class="cal-v-course ' + couleur(c) + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + esc(c.nom) + '</a>';
+    const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ ' + (court ? 'Inscriptions' : 'Ouverture des inscriptions') + ' · ' + esc(c.course) + '</a>';
+    const seanceHtml = s => '<span class="cal-v-se' + (s.faite ? ' faite' : '') + '"><input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') +
+      ' aria-label="Faite">' + (!ctx.lectureSeule ? '<button type="button" class="cal-v-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-v-se-txt">') +
+      '<b>' + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
+    const plusHtml = jour => (!ctx.lectureSeule ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
+    return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml };
+  }
+
+  // Grille du mois (spécification du Calendrier, § 4.1), du lundi debut au dimanche fin : une case par jour, ses courses, rendez-vous,
+  // séances et « + » ; opts.ps : le plan de saison (fond de phase) ; opts.mois : rang du mois (jours voisins atténués) ;
+  // opts.plus(jour) : ce qui s'ajoute dans la case (page Préparation : repères et séances proposées).
+  function grilleMois(ctx, debut, fin, opts) {
+    const o = opts || {}, auj = iso(new Date()), cc = contenus(ctx), courses = visibles(ctx.courses, debut, fin, auj);
+    const phaseDuJour = j => { const x = o.ps && phaseDe(o.ps, lundiDe(j)); return x && x.phase !== 'entretien' ? x.phase : null; };
+    let h = '<div class="cal-m-jours">' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cal-libelle">' + j + '</span>').join('') + '</div><div class="cal-m-grille">';
+    for (let j = debut; j <= fin; j = addDays(j, 1)) {
+      const d = parse(j), cls = ['cal-m-case'], ph = phaseDuJour(j);
+      if (j < auj) cls.push('passe');
+      if (o.mois != null && d.getMonth() !== o.mois) cls.push('hors');
+      if (ph) cls.push('ph-' + ph);
+      const cs = courses.filter(c => c.date === j), rdv = cc.rdvDuJour(j), se = ctx.seances.filter(s => s.date === j);
+      h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cal-m-num' + (j === auj ? ' auj' : '') + '">' + d.getDate() + '</span>' +
+        '<span class="cal-m-txt">' + cs.map(cc.courseHtml).join('') + rdv.map(c => cc.rdvHtml(c, true)).join('') + se.map(cc.seanceHtml).join('') + (o.plus ? o.plus(j) : '') + '</span>' +
+        // Téléphone : des repères à la place du texte (barre de la course, point par séance, losange du rendez-vous).
+        '<span class="cal-m-points" aria-hidden="true">' + cs.map(c => '<i class="barre ' + couleur(c) + '"></i>').join('') +
+        se.map(s => '<i class="pt' + (s.faite ? ' faite' : '') + '"></i>').join('') + rdv.map(() => '<i class="rdv">◆</i>').join('') + '</span>' + cc.plusHtml(j) + '</div>';
+    }
+    return h + '</div>';
+  }
+  window.mrtGrilleMois = grilleMois;
+
   window.renderCalendrier = function (root, ctx) {
     const mobile = window.matchMedia('(max-width: 600px)');
     const ecrit = () => !ctx.lectureSeule;
@@ -75,14 +112,7 @@
     const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.concat([['recuperation', NOM_PHASE.recuperation]]).map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
     // Phase d'un jour : celle de sa semaine dans le plan de saison (spécification Préparation, § 4) ; l'Entretien n'a pas de fond.
     const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
-    const rdvDuJour = jour => ctx.courses.filter(c => aPlan(c) && c.ouverture_inscriptions === jour);
-    // Course, rendez-vous clé (ouverture des inscriptions), séance (case « faite », libellé qui ouvre sa fenêtre), « + ».
-    const courseHtml = c => '<a class="cal-v-course ' + couleur(c) + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + esc(c.nom) + '</a>';
-    const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ ' + (court ? 'Inscriptions' : 'Ouverture des inscriptions') + ' · ' + esc(c.course) + '</a>';
-    const seanceHtml = s => '<span class="cal-v-se' + (s.faite ? ' faite' : '') + '"><input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecrit() ? '' : ' disabled') +
-      ' aria-label="Faite">' + (ecrit() ? '<button type="button" class="cal-v-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-v-se-txt">') +
-      '<b>' + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' + (ecrit() ? '</button>' : '</span>') + '</span>';
-    const plusHtml = jour => (ecrit() ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
+    const { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml } = contenus(ctx);
 
     // ----- Année : la grille, jours en lignes et mois en colonnes, sur 3, 6 ou 12 mois (spécification § 3) ;
     // chaque mois a ses jours (initiale et numéro), samedi et dimanche plus foncés, un filet sous chaque dimanche. -----
@@ -136,22 +166,10 @@
       const auj = iso(new Date()), phases = phasesVisibles();
       const debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
       const courses = visibles(ctx.courses, debut, fin, auj), plans = phases ? planSaison(ctx) : null;
-      let h = '<div class="cal-m-jours">' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cal-libelle">' + j + '</span>').join('') + '</div><div class="cal-m-grille">';
-      for (let j = debut; j <= fin; j = addDays(j, 1)) {
-        const d = parse(j), cls = ['cal-m-case'], ph = phaseDuJour(plans, j);
-        if (j < auj) cls.push('passe');
-        if (d.getMonth() !== rang(m)) cls.push('hors');
-        if (ph) cls.push('ph-' + ph);
-        const cs = courses.filter(c => c.date === j), rdv = rdvDuJour(j), se = ctx.seances.filter(s => s.date === j);
-        h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cal-m-num' + (j === auj ? ' auj' : '') + '">' + d.getDate() + '</span>' +
-          '<span class="cal-m-txt">' + cs.map(courseHtml).join('') + rdv.map(c => rdvHtml(c, true)).join('') + se.map(seanceHtml).join('') + '</span>' +
-          // Téléphone : des repères à la place du texte (barre de la course, point par séance, losange du rendez-vous).
-          '<span class="cal-m-points" aria-hidden="true">' + cs.map(c => '<i class="barre ' + couleur(c) + '"></i>').join('') +
-          se.map(s => '<i class="pt' + (s.faite ? ' faite' : '') + '"></i>').join('') + rdv.map(() => '<i class="rdv">◆</i>').join('') + '</span>' + plusHtml(j) + '</div>';
-      }
+      const h = grilleMois(ctx, debut, fin, { ps: plans, mois: rang(m) });
       const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
       return haut('mois') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), '', [court(decaler(m, -1)), '#mois=' + decaler(m, -1), 'Mois précédent'],
-        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + h + '</div>';
+        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + h;
     }
 
     // ----- Semaine : un jour par ligne ; les semaines suivantes au fil du défilement, les passées par un lien (spécification § 4.3 et 4.4) -----

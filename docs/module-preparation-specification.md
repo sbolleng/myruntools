@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.6 · 9 novembre 2026 · [Retour au sommaire](README.md) · Profil : « Ma semaine » (jours possibles pour courir et pour le renforcement, cumulables, nombre de sorties et de renforcements, jour de la sortie longue) à la place de la semaine type
+Version 0.7 · 9 novembre 2026 · [Retour au sommaire](README.md) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -10,7 +10,7 @@ La Préparation construit **un seul plan pour toute la saison**, au lieu d'un pl
 |---|---|---|
 | 1. Trame | Des règles fixes (§ 4) | Les phases de chaque semaine, saison après saison |
 | 2. Insertion des courses | Des règles selon le rôle (§ 3) | Mini-affûtage, récupération, alertes |
-| 3. Séances | L'IA, puis l'utilisateur, qui valide (§ 6) | Les séances de chaque semaine, une explication courte, un réajustement |
+| 3. Séances | L'IA, puis l'utilisateur, qui valide (§ 6) | Les séances du bloc, une recommandation, un réajustement |
 
 - **Jamais d'IA pour les phases ni pour les règles** : elle propose seulement les séances, à l'intérieur de la trame, et les règles vérifient chaque proposition avant de l'afficher.
 - **Rien n'est enregistré sans l'accord de l'utilisateur.**
@@ -90,10 +90,17 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 (3) frise : [Entretien|Base ▓▓▓|Del|Base ▓▓|Dév|Del|Dév ▓▓▓|Del|Dév ▓▓|Aff ▓▓|Récup ▓▓▓▓▓▓|Entretien|Base …]
               ▲Lac (prépa) ▲Corrida (plaisir)                     ▲Gorges (objectif)        ▲Crêtes (objectif)
 (4) ⚠ Alertes (0)
-(5) BLOC EN COURS · 4 semaines à partir du 19 oct. · Entretien      (6) [Proposer les séances] · 4 restantes ce mois-ci
-(7) Sem. du 19 oct.   lun. Repos · mar. Course à pied 8×400 m · jeu. Renforcement · sam. Course à pied 1 h 30
-    (8) « Semaine d'entretien avant le Trail du Lac : deux séances de qualité, une sortie longue. »
-(9) Proposition : [Tout accepter] [Choisir semaine par semaine] [Refaire] [Abandonner]
+(5) BLOC EN COURS · 4 semaines à partir du 19 oct. · Entretien
+(6) [Proposer les séances] · 4 restantes ce mois-ci
+(9) ┌ RECOMMANDATION DE L'IA · EN ATTENTE ───────────────────────────────┐
+    │ (8) Entretien sur trois semaines : deux footings, une séance de     │
+    │     seuil et une sortie longue. La dernière s'allège avant le Lac.  │
+    │ [Tout accepter] [Choisir semaine par semaine] [Refaire] [Abandonner]│
+    └─────────────────────────────────────────────────────────────────────┘
+(7)  LUN    MAR             MER   JEU          VEN   SAM              DIM
+     19     20              21    22           23    24               25
+            ┆Footing · 45 min┆    ┆Seuil…┆          ┆Sortie longue┆    +
+     …  (4 semaines ; jeu. 12 à sam. 14 nov. : « Allégé »)
 (10) ▸ Blocs suivants · ▸ Historique des propositions
 ```
 
@@ -107,21 +114,21 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 | 4 | Alertes | Le nombre, puis la liste (§ 3.4) ; chacune mène à sa course |
 | 5 | Bloc en cours | 4 semaines à partir du lundi de la semaine en cours : l'unité de génération |
 | 6 | Proposer les séances | Appel à l'IA (§ 6) ; le nombre de propositions restantes ce mois-ci ; absent tant que le profil manque d'un champ obligatoire, avec le lien « Compléter mon profil » |
-| 7 | Semaine | Comme dans la rubrique Préparation d'une course : sa phase, ses jours, ses séances (case « faite », « + ») ; au-dessus, ses repères : « Allégé du … au … : avant … (Préparatoire). », « Repos le … : veille de … (Plaisir). », « Récupération de … jusqu'au … : séances faciles seulement. » |
-| 8 | Explication | Une phrase de l'IA par semaine |
-| 9 | Proposition | Affichée en attente, à part des séances enregistrées : tout accepter, accepter semaine par semaine, refaire (une proposition de plus), abandonner |
+| 7 | Grille du bloc | La mise en page du Mois du Calendrier (vue Mois, mêmes cases, fond de la phase, courses, séances, « + ») sur les 4 semaines du bloc ; dans la case d'un jour, son repère en petit (« Allégé », « Repos », « Récupération ») et les séances proposées en attente (contour Accent en pointillé, détail au survol) |
+| 8 | Recommandation | Un seul bloc de texte de l'IA pour l'ensemble du bloc, trois phrases au plus ; aucun commentaire par semaine |
+| 9 | Proposition | Le cadre de la recommandation, en attente, à part des séances enregistrées : tout accepter, choisir semaine par semaine (les semaines en pastilles), refaire (une proposition de plus), abandonner ; sur téléphone, la liste des séances proposées s'y ajoute (la grille n'y montre que des points) |
 | 10 | Suite | Les blocs suivants (phases et courses, sans séances tant qu'ils ne sont pas proposés) ; l'historique des propositions (date, bloc, acceptée ou non) |
 
-Téléphone : même ordre ; la frise défile de gauche à droite.
+Téléphone : même ordre ; la frise défile de gauche à droite ; la grille est celle du Mois sur téléphone.
 
 Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; lot 2 : le profil (2) et son état (12) ; lot 3 : la proposition de séances (6, 8, 9) ; la suite (10) au lot 4.
 
 ### 5.2 Profil d'entraînement
 
-Une liste de questions courtes, une par ligne ; chaque ligne ouvre un écran avec une seule question. Un choix s'enregistre aussitôt et ramène à la liste : pas de bouton « Enregistrer ». Des tranches plutôt que des nombres, sauf pour le repère d'allure, qui doit rester précis.
+Dans la feuille d'une course (§ 5.3). Une liste de questions courtes, une par ligne ; chaque ligne ouvre un écran avec une seule question. Un choix s'enregistre aussitôt et ramène à la liste : pas de bouton « Enregistrer ». Des tranches plutôt que des nombres, sauf pour le repère d'allure, qui doit rester précis. Aucune phrase d'aide.
 
 ```
-(M1) [Fermer]               MON PROFIL D'ENTRAÎNEMENT
+(M1) MON PROFIL D'ENTRAÎNEMENT                                       (×)
 (M2) INDISPENSABLE POUR PROPOSER TES SÉANCES                      4 sur 5
      (M3) Je cours depuis                    3 à 6 ans        ›
           Distance par semaine               Aucune idée      ›
@@ -134,27 +141,26 @@ Une liste de questions courtes, une par ligne ; chaque ligne ouvre un écran ave
           Niveau en renforcement             —                ›
           FC max et points fragiles          FC max 186       ›
 
-(M5) [‹ Retour]             JE COURS DEPUIS
+(M5) (‹)                                                             (×)
+     JE COURS DEPUIS
 (M6) Je débute · 1 à 3 ans · 3 à 6 ans ✓ · 6 à 10 ans · Plus de 10 ans     (une ligne par choix)
-(M7) Une phrase d'aide, si besoin
 ```
 
 | N° | Élément | Contenu |
 |---|---|---|
-| M1 | Barre de la liste | « Fermer » ; le titre en libellé |
+| M1 | Barre de la liste | Le titre en libellé de la feuille ; la croix ronde en haut à droite |
 | M2 | Section indispensable | Titre ; à droite « 4 sur 5 » (Accent tant qu'elle n'est pas complète) |
 | M3 | Ligne | La question ; à droite la réponse résumée, ou « À renseigner » (Accent) pour une question indispensable sans réponse, « — » pour une facultative |
 | M4 | Section facultative | Toujours visible |
-| M5 | Barre d'une question | « ‹ Retour » ; la question en libellé |
+| M5 | Barre d'une question | Le rond « ‹ » (retour à la liste) à gauche, la croix à droite ; la question en libellé |
 | M6 | Choix | Une ligne par choix ; le choix en cours en Accent, coché |
-| M7 | Aide | Distance : « Sur les 4 dernières semaines. « Aucune idée » : l'IA reste prudente. » ; semaine type, durée maximale, terrains : une phrase |
 
 | Question | Choix | Indispensable |
 |---|---|---|
 | Je cours depuis | Je débute · 1 à 3 ans · 3 à 6 ans · 6 à 10 ans · Plus de 10 ans | Oui |
 | Distance par semaine | Aucune idée · 0 à 20 km · 20 à 40 km · 40 à 60 km · 60 à 80 km · Plus de 80 km | Oui |
 | Plus longue sortie récente | Moins de 1 h · 1 h à 1 h 30 · 1 h 30 à 2 h · 2 à 3 h · Plus de 3 h | Oui |
-| Ma semaine | Sur un écran, cinq questions enregistrées à chaque toucher, « ‹ Retour » à la fin : jours possibles pour courir (plusieurs) ; nombre de sorties par semaine (1 au nombre de jours choisis) ; jour à privilégier pour la sortie longue (un des jours de course, ou Peu importe) ; jours possibles pour le renforcement (plusieurs, un même jour que la course possible : le volume est adapté) ; nombre de renforcements par semaine (0 à 3). Retirer un jour ramène le nombre de sorties et la sortie longue si besoin. Complète avec au moins un jour pour courir et un nombre de sorties | Oui |
+| Ma semaine | Sur un écran, cinq questions enregistrées à chaque toucher, « ‹ Retour » à la fin : jours possibles pour courir (plusieurs) ; nombre de sorties par semaine (champ texte, un chiffre de 0 à 7, sinon « Un chiffre de 0 à 7. ») ; jour à privilégier pour la sortie longue (un des jours de course, ou Peu importe) ; jours possibles pour le renforcement (plusieurs, un même jour que la course possible : le volume est adapté) ; nombre de renforcements par semaine (même champ, 0 à 7). Retirer un jour ramène la sortie longue à « Peu importe » si besoin. Complète avec au moins un jour pour courir et un nombre de sorties | Oui |
 | Repère d'allure | VMA · Temps sur 10 km · Temps sur semi-marathon · Je ne sais pas ; puis la valeur (VMA de 8 à 30 km/h ; 10 km de 20:00 à 2:00:00 ; semi de 50:00 à 4:00:00), « Valider » | Oui |
 | Durée maximale d'une séance | 45 min · 1 h · 1 h 30 · 2 h · Sans limite | Non |
 | Terrains d'entraînement | Pas de dénivelé · Petites côtes (moins de 50 m de D+) · Vallonné (50 à 500 m) · Montagne (plus de 500 m) | Non |
@@ -165,11 +171,20 @@ Ma semaine dit aussi ce que l'IA respecte : au plus le nombre de sorties et de r
 
 La FC max et les points fragiles sont des données de santé : le lot RGPD (sommaire, à faire) doit les couvrir avant l'ouverture de l'IA à tous.
 
+### 5.3 Fenêtres et feuilles : celles du site
+
+Toute fenêtre ou feuille du module (profil, et les suivantes) reprend la feuille d'une course ([design](design.md), § Fenêtres) ; elle n'invente aucun style :
+
+- largeur de la page, plein écran sur téléphone, même voile ;
+- en haut à droite, la croix ronde (`mrt-rond is-fermer`) ; jamais de bouton texte « Fermer » ; un retour éventuel en rond « ‹ » à gauche ;
+- titre en libellé de la feuille, sections et titres de section communs, champs, pastilles et boutons communs, tailles de l'échelle du site ;
+- Échap ou un clic sur le voile ferme.
+
 ## 6. Séances proposées par l'IA
 
 - **Unité** : un bloc de 4 semaines. Proposer la saison entière d'un coup collerait moins à ce qui est vraiment fait, et chaque appel coûterait plus.
 - **Ce qui est envoyé** : la trame du bloc (phases, jours de mini-affûtage, de repos et de récupération), les courses du bloc avec leur rôle, le profil, les séances des 4 semaines passées (faites ou non). Ni nom, ni adresse, ni nom de course ; les courses sont désignées par leur format, leur distance, leur D+ et leur rôle.
-- **Ce qui revient** : une liste de séances dans un format imposé (date, type, libellé, durée, distance, intensité) et une explication par semaine.
+- **Ce qui revient** : dans un format imposé, une recommandation pour le bloc (trois phrases au plus) et la liste des séances (date, type, libellé, durée, distance, intensité).
 - **Garde-fous** (des règles, vérifiées par le site avant d'afficher) :
   - dates dans le bloc, type connu, libellé de 1 à 100 caractères, durée de 1 à 1 440 minutes ;
   - une course seulement un jour possible pour courir, un renforcement seulement un jour possible pour le renforcement ; pas plus de sorties ni de renforcements par semaine que prévu ; aucune séance un jour de course ni la veille d'une Plaisir (repos) ;
@@ -186,7 +201,6 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 - **Sécurité** : la clé de l'API ne figure jamais sur le site ni dans le dépôt. La fonction `proposer-seances` (Supabase Edge Function, `supabase/functions/proposer-seances/index.ts`) la garde en secret, vérifie l'utilisateur connecté, la liste des pilotes et le plafond, appelle l'API et range l'appel (table `propositions`, avec le jeton de l'utilisateur).
 - **Réservé aux pilotes** (lot 3) : tant que la mention de l'envoi à l'IA n'est pas dans la politique de confidentialité (lot RGPD), seuls les comptes de la liste `PILOTES` (secret de la fonction) peuvent proposer ; les autres lisent « Réservé aux comptes pilotes pour l'instant. ».
 - **Statuts d'une proposition** : brute (en attente), invalide (refaite par la reprise), échec (deux essais refusés, non comptée), acceptée, abandonnée. Une proposition en attente reste affichée tant qu'elle n'est ni acceptée ni abandonnée, même après avoir quitté la page.
-- **Mention**, sous le bouton : « Séances proposées par une IA, à titre indicatif : ce n'est pas un avis médical. »
 - **Site partagé en lecture seule** : le plan et les séances s'affichent ; ni profil, ni proposition.
 
 ## 7. Données
@@ -248,15 +262,16 @@ Résultats attendus, trame :
 Résultats attendus, page et profil :
 
 - Titre « Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.) » ; état : Entretien jusqu'au 15 novembre, saison à partir du 16 ; frise de la semaine du 19 octobre 2026 à celle du 25 octobre 2027 (fin de la récupération du Trail des Crêtes, 59 jours) ; courses de la frise : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (Objectif), Trail des Cimes, Ultra du Plateau et Trail de la Forêt (options), Trail des Crêtes (Objectif) ; « Alertes (0) ».
-- Bloc en cours : les semaines du 19 et du 26 octobre, du 2 et du 9 novembre, en Entretien ; au-dessus de la semaine du 9 novembre, le seul repère « Allégé du jeu. 12 nov. 2026 au sam. 14 nov. 2026 : avant Trail du Lac (Préparatoire). » ; un « + » par jour.
-- Au 30 novembre : « Cette semaine : Base, semaine 3 sur 16. » ; repères « Récupération de Trail du Lac jusqu'au ven. 4 déc. 2026 » et « Repos le sam. 12 déc. 2026 : veille de Corrida de Noël (Plaisir). ».
+- Bloc en cours : la grille du Mois, 28 cases du lun. 19 octobre au dim. 15 novembre, en Entretien ; « Allégé » dans les cases du 12 au 14 novembre, aucun autre repère ; un « + » par jour.
+- Au 30 novembre : « Cette semaine : Base, semaine 3 sur 16. » ; « Récupération » dans la case du ven. 4 décembre (pas le 5), « Repos » dans celle du sam. 12 décembre ; la case du 30 novembre au fond de la Base.
 - Calendrier, mars 2027 : affûtage le 2 mars, Récupération le 9, d'une autre couleur.
 - Sans Objectif à venir : le message, pas de frise. Site partagé en lecture seule : la saison s'affiche, sans « + ».
 Résultats attendus, profil :
 
 - Profil vide : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. » ; la liste : « Indispensable pour proposer tes séances » (« 0 sur 5 », cinq « À renseigner ») et « Pour affiner (facultatif) », 9 lignes ; ni astérisque ni phrase sur le site partagé.
 - « Je cours depuis » : cinq tranches ; « 3 à 6 ans » s'enregistre aussitôt, retour à la liste, « 1 sur 5 ».
-- Ma semaine : jours pour courir mardi, jeudi, samedi, dimanche : 1 à 4 sorties proposées ; 4 sorties, sortie longue le dimanche, puis le dimanche retiré : 3 sorties, sortie longue « peu importe » ; sortie longue le samedi, renforcement mardi et jeudi, 1 par semaine : enregistrés à chaque toucher.
+- La fenêtre est la feuille d'une course : croix ronde, aucun bouton « Fermer ».
+- Ma semaine : jours pour courir mardi, jeudi, samedi, dimanche ; « 8 » sorties refusé (« Un chiffre de 0 à 7. ») ; 3 sorties, sortie longue le dimanche, puis le dimanche retiré : sortie longue « peu importe » ; sortie longue le samedi, renforcement mardi et jeudi ; 7 renforcements acceptés, puis 1 : enregistrés à chaque changement.
 - Repère d'allure : VMA à 35 refusée (« La VMA doit être comprise entre 8 et 30 km/h. ») ; 10 km en 45:30 : 2 730 secondes. Puis « 5 sur 5 », résumés « 10 km en 45:30 », « 3 sorties, 1 renforcement », « Aucune idée ».
 - Facultatif : 1 h 30, Vallonné ; FC max à 250 refusée, 186 acceptée. Sur la page : « Profil complet. ».
 - Séance : distance à 0 refusée ; 45 min, 8,5 km, Facile enregistrés.
@@ -264,8 +279,8 @@ Résultats attendus, profil :
 
 Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût ; profil : course le mardi et le samedi (2 sorties, la longue le samedi), renforcement le jeudi (1) ; séance de 2 h au plus) :
 
-- Au départ : « Proposer les séances », « 4 restantes ce mois-ci » et la mention.
-- Proposition du bloc du 19 octobre : en attente, à part des séances enregistrées : 4 semaines, 12 séances (« mar. 20 · Course à pied Footing · 45 min · 8 km · Facile »), une explication par semaine ; boutons Tout accepter, Choisir semaine par semaine, Refaire, Abandonner.
+- Au départ : « Proposer les séances », « 4 restantes ce mois-ci », aucune mention.
+- Proposition du bloc du 19 octobre : en attente, à part des séances enregistrées : une recommandation, aucun commentaire par semaine ; 12 séances dans la grille (mar. 20 : « Footing · 45 min ») ; boutons Tout accepter, Choisir semaine par semaine, Refaire, Abandonner.
 - Ce qui est envoyé : le bloc du 19 octobre au 15 novembre, en Entretien, les jours disponibles (mardi, jeudi, samedi), le repère « allégé » du jeudi 12 novembre ; ni nom de course, ni prénom.
 - « Tout accepter » : 12 séances écrites (origine IA, état acceptée ; distance vide pour le renforcement), proposition acceptée, « 3 restantes ce mois-ci ».
 - Garde-fou : une course le mercredi 21 (jour non prévu pour courir) : la demande est refaite (essai 2, avec « mer. 21 oct. … : jour non prévu pour courir »), la première marquée invalide. « Choisir semaine par semaine » sans la semaine du 26 octobre : 9 séances écrites.

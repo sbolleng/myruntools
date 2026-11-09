@@ -248,7 +248,7 @@ create table profil_entrainement (
   -- Évolution 027 : jours possibles et nombre de séances (semaine_type n'est plus employée ; jour_long : la sortie longue, vide : peu importe).
   jours_course smallint[] check (jours_course <@ array[1, 2, 3, 4, 5, 6, 7]::smallint[]),
   jours_renfo  smallint[] check (jours_renfo <@ array[1, 2, 3, 4, 5, 6, 7]::smallint[]),
-  nb_sorties   smallint check (nb_sorties between 1 and 7),
+  nb_sorties   smallint check (nb_sorties between 0 and 7),
   nb_renfo     smallint check (nb_renfo between 0 and 7)
 );
 

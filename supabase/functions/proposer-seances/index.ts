@@ -5,7 +5,7 @@
 // demande les séances à Claude dans un format imposé, range l'appel dans la table « propositions » et rend la réponse.
 // Les garde-fous (jours, durées, récupération, affûtage) sont vérifiés par le site, qui refait une fois la demande (essai 2).
 //   POST { bloc: 'AAAA-MM-JJ', essai: 1 | 2, contexte: {…}, corrections?: ['…'] }
-//     → 200 { id, reponse: { semaines: [{ lundi, explication, seances: [{ date, type, libelle, duree_min, distance_km, intensite }] }] } }
+//     → 200 { id, reponse: { recommandation, seances: [{ date, type, libelle, duree_min, distance_km, intensite }] } }
 //     → 401 (pas connecté), 403 { code: 'reserve' } (pas pilote), 429 { code: 'plafond', prochaine }, 502 { code: 'ia' | 'refus' }
 // Réglages (secrets de la fonction, dans le tableau de bord de Supabase ; jamais dans le dépôt) :
 //   ANTHROPIC_API_KEY  la clé de l'API d'Anthropic
@@ -24,37 +24,26 @@ const ENTETES = {
 const PLAFOND = 4; // propositions par mois civil (essai 1) ; les reprises (essai 2) ne comptent pas, dans la limite d'autant
 const repondre = (status, corps) => new Response(JSON.stringify(corps), { status, headers: ENTETES });
 
-// Format imposé de la réponse : des semaines, chacune avec son explication et ses séances.
+// Format imposé de la réponse : une recommandation pour le bloc, puis ses séances.
 const SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['semaines'],
+  required: ['recommandation', 'seances'],
   properties: {
-    semaines: {
+    recommandation: { type: 'string', description: 'La recommandation pour le bloc, en français, trois phrases au plus' },
+    seances: {
       type: 'array',
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['lundi', 'explication', 'seances'],
+        required: ['date', 'type', 'libelle', 'duree_min', 'distance_km', 'intensite'],
         properties: {
-          lundi: { type: 'string', description: 'Lundi de la semaine, AAAA-MM-JJ' },
-          explication: { type: 'string', description: 'Une phrase en français qui explique la semaine' },
-          seances: {
-            type: 'array',
-            items: {
-              type: 'object',
-              additionalProperties: false,
-              required: ['date', 'type', 'libelle', 'duree_min', 'distance_km', 'intensite'],
-              properties: {
-                date: { type: 'string', description: 'AAAA-MM-JJ' },
-                type: { type: 'string', enum: ['run', 'renfo'] },
-                libelle: { type: 'string', description: 'Libellé court en français, 100 caractères au plus' },
-                duree_min: { type: 'integer' },
-                distance_km: { type: 'number', description: '0 pour une séance sans distance (renforcement)' },
-                intensite: { type: 'string', enum: ['facile', 'moderee', 'intense'] }
-              }
-            }
-          }
+          date: { type: 'string', description: 'AAAA-MM-JJ' },
+          type: { type: 'string', enum: ['run', 'renfo'] },
+          libelle: { type: 'string', description: 'Libellé court en français, 100 caractères au plus' },
+          duree_min: { type: 'integer' },
+          distance_km: { type: 'number', description: '0 pour une séance sans distance (renforcement)' },
+          intensite: { type: 'string', enum: ['facile', 'moderee', 'intense'] }
         }
       }
     }
@@ -73,7 +62,7 @@ Règles impératives :
 - Respecte le nombre de séances de renforcement par semaine du profil ; la sortie longue le jour prévu par le profil.
 - Pars du volume récent du coureur et progresse prudemment.
 - distance_km : 0 pour une séance de renforcement.
-Rends toutes les semaines du bloc, dans l'ordre, chacune avec une explication d'une phrase.`;
+Rends une recommandation pour l'ensemble du bloc (trois phrases au plus, sans détailler chaque séance), puis toutes les séances du bloc, dans l'ordre des dates.`;
 
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: ENTETES });
