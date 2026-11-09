@@ -147,23 +147,27 @@ Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tar
 
 ### 4.7 Bloc Nutrition d'En un coup d'œil
 
+Deuxième bloc de la page (ordre par défaut ; évolution 029 pour les ordres déjà rangés). Revu le 10 nov. 2026 : plus d'aliments en pastilles, des jauges simplifiées.
+
 ```
-┌ Nutrition                                   Détail → ┐
-│ (40) 350 / 2 117 kcal                               │
-│      ▓▓▓▓░░░░░░░░░░░░                               │
-│ (41) [★ Banane] [Riz cuit · 200 g]                  │
-│ (42) Riz cuit ajouté · midi · Annuler               │
-└─────────────────────────────────────────────────────┘
+┌ Nutrition                               (43) [Détail] ┐
+│ (40) 350 / 2 117 kcal                                 │
+│      ▓▓▓▓░░░░░░░░░░░░░░                               │
+│ (44) PROTÉINES      GLUCIDES          LIPIDES         │
+│      6 / 98–140 g   76 / 265–318 g    1 / 59–82 g     │
+│      ▓░░░░░         ▓▓░░░░            ░░░░░░          │
+└───────────────────────────────────────────────────────┘
 ```
 
 | N° | Élément | Règle |
 | --- | --- | --- |
-| 40 | Bilan du jour | Calories mangées / besoin du jour (sport du jour compris), avec une barre (rouge au-delà de 110 % du besoin). |
-| 41 | Pastilles | Les favoris (★), puis les récents, six au plus, avec la dernière quantité utilisée (« Riz cuit · 200 g »). Une touche ajoute l'aliment au repas du moment, avec cette quantité. |
-| 42 | Annonce | « … ajouté · midi · Annuler » pendant 6 s ; « Annuler » retire la ligne (« … retiré »). |
+| 40 | Bilan du jour | Calories mangées / besoin du jour (sport du jour compris), avec une barre ; chiffre et barre en rouge au-delà de 110 % du besoin. |
+| 43 | Détail | Bouton commun du site (`mrt-btn`), vers la page Nutrition. |
+| 44 | Jauges simplifiées | Protéines, glucides, lipides : nom en libellé, « mangé / fourchette du besoin », petite barre (rouge au-delà du maximum) ; les trois sur une ligne, téléphone compris. |
 
 - Le bloc n'apparaît que si le module Nutrition est dans le menu de l'utilisateur ; il se range et se décoche dans les Préférences comme les autres blocs.
-- Profil incomplet : « Complète ton profil sur la page Nutrition. » ; site partagé : « Les données de nutrition ne sont pas partagées. » ; ni favori ni récent : « Tes favoris et tes récents apparaîtront ici. »
+- Profil incomplet : « Complète ton profil sur la page Nutrition. » ; site partagé : « Les données de nutrition ne sont pas partagées. »
+- Les éléments 41 et 42 (aliments en pastilles, ajout en une touche et « Annuler ») sont retirés : l'ajout se fait sur la page Nutrition.
 
 ## 5. Aliments : favoris, récents, saisie libre
 
@@ -254,7 +258,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Sport 1 h de jogging, puis 0,5 h de marche | Rangé dans la base : effacement du sport du 20 octobre puis la ligne (j95, 1 h) ; puis les deux sports ; relus après rechargement |
 | Recherche « oeufs » | « Mes aliments » : « Œuf · 1 pièce · 140 kcal » ; recherche « riz » : « Riz cuit » au-dessus des produits |
 | Séances du 20 octobre : Renfo « Gainage 30 min », Run « Footing 1 h 15 » | « Au calendrier : Gainage 30 min · Footing 1 h 15 Reprendre » ; « Reprendre » : musculation 0,5 h (comptée : 2 222 kcal), footing 1,25 h sans allure (non compté) ; seule la musculation est rangée |
-| Accueil, Nutrition au menu | Bloc « 350 / 2 117 kcal », pastilles « ★ Banane », « Riz cuit · 200 g » ; une touche sur le riz : ligne du 20 octobre au midi (2 portions, 260 kcal), « Riz cuit ajouté · midi · Annuler », 610 kcal ; « Annuler » : ligne effacée, 350 kcal ; l'annonce s'efface après 6 s |
+| Accueil, Nutrition au menu | Deuxième bloc ; « 350 / 2 117 kcal » ; « Protéines 6 / 98–140 g », « Glucides 76 / 265–318 g », « Lipides 1 / 59–82 g », sur une ligne à 390 px ; pas de pastille ; « Détail », bouton commun, vers la page Nutrition ; pas de débordement |
 | Accueil, Nutrition hors du menu ; profil sans poids | Pas de bloc Nutrition ; « Complète ton profil sur la page Nutrition. » |
 | Recherche « oe » en cours de frappe | « Mes aliments » : « Œuf · 1 pièce · 140 kcal », sans aucun appel |
 | Recherche « yaourt » validée, relais en service | Un appel au relais ({ q: « yaourt » }), aucun à l'ancien moteur ; « Yaourt nature · Marque C · 53 kcal / 100 g » ; choisi : 125 g d'office ; « yaourt » refait : aucun nouvel appel |

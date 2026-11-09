@@ -3734,23 +3734,18 @@ const CONTROLES = {
     pb.push(egal(['POST', 'sport_jour', [{ date: '2026-10-20', type: 'muscu', heures: 0.5 }]], (e => [e.methode, e.table, e.corps])(d.ecritures[d.ecritures.length - 1]), 'Reprendre : seule la séance complète est rangée'));
     await ctx.close();
 
-    // Bloc d'En un coup d'œil : affiché quand Nutrition est dans le menu ; ajout en une touche, puis « Annuler ».
+    // Bloc d'En un coup d'œil : deuxième, quand Nutrition est dans le menu ; bilan, trois jauges simplifiées sur une ligne, bouton « Détail ».
     d = base(); d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));
     await p.waitForSelector('.nu-ac-bilan');
-    const bilan = async () => norm(await p.locator('.nu-ac-bilan').textContent());
-    pb.push(egal(['350 / 2 117 kcal', ['★ Banane', 'Riz cuit · 200 g']], [await bilan(), await p.locator('.nu-ac-choix .mrt-pastille').allTextContents().then(l => l.map(norm))], 'Accueil : bilan du jour, favoris puis récents avec leur dernière quantité'));
-    d.ecritures.length = 0;
-    await p.click('.nu-ac-choix .mrt-pastille:has-text("Riz cuit")');
-    await p.waitForSelector('[data-annuler]');
-    pb.push(egal([{ date: '2026-10-20', repas: 'midi', aliment: ID(2), nom: 'Riz cuit', quantite: 2, kcal: 260, proteines: 5.4, glucides: 56, lipides: 0.6 }, '610 / 2 117 kcal', 'Riz cuit ajouté · midi · Annuler'],
-      [sansId(d.ecritures[0]), await bilan(), norm(await p.locator('.nu-ac-annonce').textContent())], 'Accueil : une touche ajoute au repas du moment'));
-    await p.click('[data-annuler]');
-    await p.waitForFunction(() => /retiré/.test(document.querySelector('.nu-ac-annonce').textContent));
-    pb.push(egal(['DELETE', '350 / 2 117 kcal'], [d.ecritures[d.ecritures.length - 1].methode, await bilan()], 'Accueil : Annuler retire la ligne'));
-    await p.clock.runFor(7000);
-    pb.push(egal(0, await p.locator('.nu-ac-annonce').count() && (await p.locator('.nu-ac-annonce').textContent()).length, 'Accueil : l\'annonce s\'efface'));
-    pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'Accueil : pas de débordement horizontal'));
+    if (CAPTURES) await p.locator('[data-bloc="nutrition"]').screenshot({ path: path.join(__dirname, 'captures', 'accueil-nutrition.png') });
+    pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]')[1].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position'),
+      egal(['350 / 2 117 kcal', ['proteines|sous|6 / 98–140 g', 'glucides|sous|76 / 265–318 g', 'lipides|sous|1 / 59–82 g']],
+        [norm(await p.locator('.nu-ac-bilan').textContent()), await p.evaluate(() => [...document.querySelectorAll('.nu-ac-j')].map(j => j.dataset.jauge + '|' + j.dataset.etat + '|' + j.querySelector('.nu-ac-v').textContent.replace(/\s+/g, ' ')))], 'Accueil : bilan du jour, puis protéines, glucides, lipides'),
+      egal([0, 1], await p.evaluate(() => { const t = [...document.querySelectorAll('.nu-ac-j')].map(j => Math.round(j.getBoundingClientRect().top)); return [t[2] - t[0], new Set(t).size]; }), 'Accueil : les trois jauges sur une ligne, téléphone compris'),
+      egal(0, await p.locator('[data-bloc="nutrition"] .mrt-pastille').count(), 'Accueil : plus d\'aliments en pastilles'),
+      egal(['Détail', 'nutrition.html', true], await p.evaluate(() => { const a = document.querySelector('[data-bloc="nutrition"] .ac-titre a'); return [a.textContent, a.getAttribute('href'), a.classList.contains('mrt-btn')]; }), 'Accueil : « Détail », bouton commun du site'),
+      egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'Accueil : pas de débordement horizontal'));
     await ctx.close();
     d = base();
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));

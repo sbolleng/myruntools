@@ -25,7 +25,8 @@
     },
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),
     // Le bilan du jour et l'ajout en une touche (nutrition.js, renderNutritionAccueil).
-    nutrition: () => bloc('nutrition', 'Nutrition', ['nutrition.html', 'Détail'], '<div class="nu-accueil"></div>'),
+    // « Détail » : le bouton commun du site (mrt-btn), vers la page Nutrition.
+    nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a class="mrt-btn nu-ac-detail" href="nutrition.html">Détail</a></h2><div class="nu-accueil"></div></section>',
     // Les étapes de la feuille de route jusqu'au cap compris.
     dicila: (courses, prefs) => {
       const cap = window.mrtCap(courses, prefs), etapes = [];

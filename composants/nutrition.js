@@ -518,8 +518,8 @@
   };
 
   // ===================== Le bloc d'En un coup d'œil =====================
-  // Le bilan du jour (mangé / besoin) et l'ajout en une touche des favoris, puis des récents (six au plus), au repas
-  // du moment, avec la dernière quantité utilisée ; « Annuler » le retire.
+  // Le bilan du jour (calories mangées / besoin, avec une barre), puis protéines, glucides et lipides en jauges simplifiées,
+  // sur une ligne, téléphone compris.
   window.renderNutritionAccueil = async function (el, ctx) {
     const B = window.mrtBesoin;
     const vide = t => '<p class="ac-vide">' + esc(t) + '</p>';
@@ -527,56 +527,21 @@
     const jour = iso(new Date());
     if (B.manquants(ctx.profil, jour).length) { el.innerHTML = vide('Complète ton profil sur la page Nutrition.'); return; }
     el.innerHTML = vide('Chargement…');
-    let aliments = [], j = { lignes: [], sports: [] }, passees = [];
-    try {
-      const r = await Promise.all([lireAliments(ctx.id), lireJour(ctx.id, jour),
-        sb().from('repas_lignes').select('aliment, quantite, date').eq('utilisateur', ctx.id).order('date', { ascending: false }).limit(200)]);
-      aliments = r[0]; j = r[1];
-      if (r[2].error) throw r[2].error;
-      passees = r[2].data || [];
-    } catch (err) { console.warn('Nutrition : lecture impossible', err); el.innerHTML = vide('Lecture impossible pour l\'instant.'); return; }
-    // Dernière quantité utilisée pour chaque aliment (sinon une portion, ou 100 g).
-    const derniere = {};
-    passees.concat(j.lignes).slice().sort((a, b) => (a.date < b.date ? -1 : 1)).forEach(l => { derniere[l.aliment] = Number(l.quantite); });
-    const favs = favorisDe(aliments);
-    const choix = favs.concat(recentsDe(aliments).filter(a => !a.favori)).slice(0, 6);
-    const besoin = B.calculer(ctx.profil, { date: jour, sports: j.sports, phase: phaseDuJour(ctx, jour).calc });
-    let annonce = null, minuteur = null;
-    const quantiteDe = a => derniere[a.id] || 1;
-    const etiquette = a => {
-      const q = quantiteDe(a);
-      return (a.favori ? '★ ' : '') + esc(a.nom) + (enGrammes(a) ? ' · ' + n0(q * 100) + ' g' : q !== 1 ? ' · ' + virgule(q) : '');
+    let j;
+    try { j = await lireJour(ctx.id, jour); }
+    catch (err) { console.warn('Nutrition : lecture impossible', err); el.innerHTML = vide('Lecture impossible pour l\'instant.'); return; }
+    const r = B.calculer(ctx.profil, { date: jour, sports: j.sports, phase: phaseDuJour(ctx, jour).calc });
+    // Sous le minimum : « sous » ; dans la cible : « cible » ; au-delà du maximum : « alerte » (barre rouge).
+    const etat = (v, min, max) => (v < min ? 'sous' : v <= max ? 'cible' : 'alerte');
+    const barre = (v, max, e) => '<span class="nu-ac-barre"><span style="width:' + Math.min(100, v / (max * 1.15) * 100).toFixed(1) + '%"' + (e === 'alerte' ? ' class="is-alerte"' : '') + '></span></span>';
+    const kcal = total(j.lignes, 'kcal'), eK = etat(kcal, r.kcal, r.kcal * TOLERANCE_KCAL);
+    const mini = (cle, nom, plageR) => {
+      const v = total(j.lignes, cle), e = etat(v, plageR[0], plageR[1]);
+      return '<div class="nu-ac-j" data-jauge="' + cle + '" data-etat="' + e + '"><span class="nu-ac-nom">' + nom + '</span>' +
+        '<span class="nu-ac-v">' + n0(v) + ' / ' + plage(plageR) + ' g</span>' + barre(v, plageR[1], e) + '</div>';
     };
-    function dessiner() {
-      const mange = total(j.lignes, 'kcal'), pct = Math.min(100, mange / (besoin.kcal * 1.15) * 100);
-      el.innerHTML = '<p class="nu-ac-bilan"><span class="nu-ac-kcal">' + n0(mange) + '</span> / ' + n0(besoin.kcal) + ' kcal</p>' +
-        '<div class="nu-ac-barre" role="progressbar" aria-label="Calories du jour" aria-valuemin="0" aria-valuemax="' + Math.round(besoin.kcal) + '" aria-valuenow="' + Math.round(mange) + '"><span style="width:' + pct.toFixed(1) + '%"' + (mange > besoin.kcal * TOLERANCE_KCAL ? ' class="is-alerte"' : '') + '></span></div>' +
-        (choix.length ? '<div class="nu-ac-choix">' + choix.map(a => '<button type="button" class="mrt-pastille" data-ajout="' + a.id + '">' + etiquette(a) + '</button>').join('') + '</div>'
-          : vide('Tes favoris et tes récents apparaîtront ici.')) +
-        '<p class="nu-ac-annonce" role="status">' + (annonce ? annonce.texte + (annonce.ligne ? ' · <button type="button" class="mrt-lien" data-annuler>Annuler</button>' : '') : '') + '</p>';
-    }
-    el.onclick = async e => {
-      const b = e.target.closest('[data-ajout], [data-annuler]');
-      if (!b) return;
-      clearTimeout(minuteur);
-      if (b.hasAttribute('data-annuler')) {
-        const l = annonce && annonce.ligne;
-        if (!l) return;
-        const { error } = await sb().from('repas_lignes').delete().eq('id', l.id);
-        if (error) { console.warn('Nutrition : suppression impossible', error); annonce = { texte: ERREUR }; }
-        else { j.lignes = j.lignes.filter(x => x.id !== l.id); annonce = { texte: esc(l.nom) + ' retiré' }; }
-      } else {
-        const a = aliments.find(x => x.id === b.dataset.ajout), repas = repasDe(new Date());
-        try {
-          const l = await ajouterLigne(a, jour, repas, quantiteDe(a));
-          j.lignes.push(l);
-          annonce = { texte: esc(a.nom) + ' ajouté · ' + NOM_REPAS[repas].toLowerCase(), ligne: l };
-        } catch (err) { console.warn('Nutrition : ajout impossible', err); annonce = { texte: ERREUR }; }
-      }
-      dessiner();
-      minuteur = setTimeout(() => { annonce = null; dessiner(); }, 6000);
-    };
-    dessiner();
+    el.innerHTML = '<p class="nu-ac-bilan" data-etat="' + eK + '"><span class="nu-ac-kcal">' + n0(kcal) + '</span> / ' + n0(r.kcal) + ' kcal</p>' + barre(kcal, r.kcal * TOLERANCE_KCAL, eK) +
+      '<div class="nu-ac-jauges">' + mini('proteines', 'Protéines', r.proteines) + mini('glucides', 'Glucides', r.glucides) + mini('lipides', 'Lipides', r.lipides) + '</div>';
   };
 
   window.mrtNutrition = { phaseDuJour, chercherChezMoi, dureeDuLibelle, repasDe };
