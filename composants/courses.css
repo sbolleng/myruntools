@@ -9,7 +9,7 @@
 .cs-outils { display: flex; flex: 1 1 100%; align-items: center; flex-wrap: wrap; gap: 0.5rem 1.4rem; }
 .cs-outils .ob-ajout { margin-left: auto; }
 @media (max-width: 600px) {
-  .cs-vues { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -1rem; padding: 0 1rem; }
+  .cs-vues { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 -1rem; padding: 0 1rem; }
   .cs-vues::-webkit-scrollbar { display: none; }
   .cs-pastille { flex: none; white-space: nowrap; }
 }
