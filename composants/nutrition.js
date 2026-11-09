@@ -167,6 +167,8 @@
   }
 
   // ----- Séances du Calendrier : la durée, quand le libellé la donne clairement (« 45 min », « 1 h 30 », « 1h ») -----
+  // 1 → « 1 h », 1,5 → « 1 h 30 », 0,5 → « 30 min ».
+  function duree(h) { const m = Math.round(h * 60), hh = Math.floor(m / 60), mm = m % 60; return hh ? hh + ' h' + (mm ? ' ' + pad(mm) : '') : mm + ' min'; }
   function dureeDuLibelle(t) {
     const h = String(t).match(/(\d+(?:[.,]\d+)?)\s*h(?:\s*(\d{1,2})(?!\s*(?:km|m\b)))?/i);
     if (h) { const v = nombre(h[1]) + (h[2] ? Number(h[2]) / 60 : 0); return v > 0 && v <= 24 ? Math.round(v * 100) / 100 : null; }
@@ -216,11 +218,12 @@
     const choisi = () => S.choix && (S.choix.aliment || trouver(S.choix.id));
     const seancesDuJour = () => (ctx.seances || []).filter(s => s.date === S.jour);
 
-    // ----- Carte 1 : mon besoin du jour (le jour, le besoin en titre, les jauges, le sport) -----
+    // ----- Carte du besoin : le jour, le besoin, la phase, le profil du calcul, les jauges, puis Activité et Repas -----
     function htmlProfil() {
-      const p = ctx.profil, act = (B.ACTIVITES[p.activite].libelle || '').split(' · ')[0];
-      return [p.sexe === 'femme' ? 'Femme' : 'Homme', B.age(p.naissance, S.jour) + ' ans', virgule(Number(p.poids)) + ' kg', p.taille + ' cm', act].join(' · ');
+      const p = ctx.profil, act = (B.ACTIVITES[p.activite].libelle || '').split(' · ')[0].toLowerCase();
+      return [virgule(Number(p.poids)) + ' kg', p.taille + ' cm', act].join(' · ') + ' ›';
     }
+    const resumeSport = () => (S.sports.length ? S.sports.map(x => duree(x.heures) + ' · ' + B.SPORTS[x.type].libelle).join(' ; ') : 'Aucune');
     const ligneSport = s => '<div class="nu-sport-l"><select class="mrt-champ" name="type" aria-label="Sport"><option value="">Sport…</option>' +
       Object.entries(B.SPORTS).map(x => '<option value="' + x[0] + '"' + (s && s.type === x[0] ? ' selected' : '') + '>' + esc(x[1].libelle) + '</option>').join('') + '</select>' +
       '<span class="nu-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s && s.heures ? virgule(s.heures) : '') + '">h</span></div>';
@@ -231,15 +234,20 @@
     }
     function htmlBesoin() {
       const estAuj = S.jour === aujourdhui;
-      return '<div class="nu-carte-t"><h2 class="nu-titre">Mon besoin du jour</h2><button type="button" class="mrt-btn nu-editer" data-act="profil">Modifier</button></div>' +
-        '<div class="nu-jour"><button type="button" class="mrt-rond" data-act="veille" aria-label="Jour précédent">' + mrtIcone.gauche + '</button>' +
-        '<span class="nu-jour-t">' + titreJour(S.jour) + '</span>' +
-        '<button type="button" class="mrt-rond" data-act="lendemain" aria-label="Jour suivant"' + (estAuj ? ' disabled' : '') + '>' + mrtIcone.droite + '</button>' +
-        (estAuj ? '' : '<button type="button" class="mrt-lien nu-auj" data-act="aujourdhui">Aujourd\'hui</button>') + '</div>' +
-        '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal</p>' +
-        '<p class="nu-profil-l">' + esc(htmlProfil()) + '</p><p class="nu-phase"></p><div class="nu-anneaux"></div>' +
-        '<p class="nu-sous-t">Sport du jour</p>' + htmlSeances() + '<div class="nu-sports">' + S.lignesSport.map(ligneSport).join('') + '</div>' +
-        '<p class="nu-msg" role="alert">' + esc(S.msgSport) + '</p>';
+      return '<div class="nu-jour"><button type="button" class="mrt-rond" data-act="veille" aria-label="Jour précédent">' + mrtIcone.gauche + '</button>' +
+        '<h2 class="nu-jour-t">' + titreJour(S.jour) + '</h2>' +
+        '<button type="button" class="mrt-rond" data-act="lendemain" aria-label="Jour suivant"' + (estAuj ? ' disabled' : '') + '>' + mrtIcone.droite + '</button></div>' +
+        (estAuj ? '' : '<p class="nu-auj"><button type="button" class="mrt-lien" data-act="aujourdhui">Aujourd\'hui</button></p>') +
+        '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal</p><p class="nu-phase"></p>' +
+        '<p class="nu-calcule"><button type="button" class="mrt-lien nu-profil-l" data-act="profil">Calculé pour ' + esc(htmlProfil()) + '</button></p>' +
+        '<div class="nu-anneaux"></div>' +
+        '<div class="nu-tuiles"><button type="button" class="nu-tuile" data-act="activite"><span class="nu-tuile-l">Activité</span><span class="nu-tuile-v nu-tuile-sport"></span></button>' +
+        '<button type="button" class="nu-tuile" data-act="ajout-repas"><span class="nu-tuile-l">Repas</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button></div>' +
+        '<p class="nu-msg nu-msg-sport" role="alert">' + esc(S.msgSport) + '</p>';
+    }
+    // Feuille Activité : les séances du Calendrier à reprendre, puis les lignes de sport.
+    function htmlActivite() {
+      return htmlSeances() + '<div class="nu-sports">' + S.lignesSport.map(ligneSport).join('') + '</div><p class="nu-msg" role="alert">' + esc(S.msgSport) + '</p>';
     }
     function htmlJauges(r) {
       return jauge('kcal', 'Calories', total(S.lignes, 'kcal'), r.kcal, r.kcal * TOLERANCE_KCAL, 'kcal', n0(r.kcal)) +
@@ -297,44 +305,81 @@
         corps = liste.length ? '<div class="nu-liste">' + liste.map(boutonAliment).join('') + '</div>'
           : '<p class="nu-vide">' + (S.source === 'favoris' ? 'Aucun favori.' : 'Aucun aliment récent.') + '</p>';
       }
-      return '<h2 class="nu-titre">Ajouter un aliment</h2>' + htmlRecherche() +
+      return htmlRecherche() +
         '<div class="nu-sources">' + sources.map(s => '<button type="button" class="mrt-pastille" data-act="source" data-source="' + s[0] + '" aria-pressed="' + (S.source === s[0]) + '">' + s[1] + '</button>').join('') + '</div>' +
-        '<div class="nu-source">' + corps + '</div>' + htmlChoix() + '<p class="nu-msg" role="alert">' + esc(S.msg) + '</p>';
+        '<div class="nu-source">' + corps + '</div>' + htmlChoix() + '<p class="nu-msg" role="alert">' + esc(S.msg) + '</p><p class="nu-ok" role="status">' + esc(S.ok || '') + '</p>';
     }
     // ----- Carte 3 : journal du jour -----
     function htmlJournal() {
-      const groupes = REPAS.map(r => [r, S.lignes.filter(l => l.repas === r[0])]).filter(g => g[1].length);
+      const groupes = REPAS.map(r => [r, S.lignes.filter(l => l.repas === r[0])]);
       const qte = l => { const a = trouver(l.aliment); return a && enGrammes(a) ? ' · ' + n0(Number(l.quantite) * 100) + ' g' : Number(l.quantite) !== 1 ? ' · ' + virgule(Number(l.quantite)) + ' portions' : ''; };
       return '<h2 class="nu-titre">Journal du jour</h2>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') +
-        (groupes.length ? groupes.map(g => '<div class="nu-repas"><p class="nu-repas-t"><span>' + g[0][1] + '</span><span>' + n0(g[1].reduce((t, l) => t + Number(l.kcal), 0)) + ' kcal</span></p><ul class="nu-lignes">' +
-          g[1].map(l => '<li data-id="' + l.id + '"><span class="nu-ligne-nom">' + esc(l.nom) + qte(l) + '</span>' +
-            '<span class="nu-ligne-k">' + n0(l.kcal) + ' kcal</span><button type="button" class="mrt-rond is-fermer" data-act="supprimer" data-id="' + l.id + '" aria-label="Supprimer ' + esc(l.nom) + '">' + mrtIcone.fermer + '</button></li>').join('') + '</ul></div>').join('')
-          : '<p class="nu-vide">Rien de noté.</p>');
+        groupes.map(g => '<div class="nu-repas"><p class="nu-repas-t"><span>' + g[0][1] + '</span><span class="nu-repas-d">' + (g[1].length ? '<span>' + n0(g[1].reduce((t, l) => t + Number(l.kcal), 0)) + ' kcal</span>' : '') +
+          '<button type="button" class="mrt-rond is-petit" data-act="ajout-repas" data-repas="' + g[0][0] + '" aria-label="Ajouter : ' + g[0][1] + '">' + mrtIcone.plus + '</button></span></p>' +
+          (g[1].length ? '<ul class="nu-lignes">' + g[1].map(l => '<li data-id="' + l.id + '"><span class="nu-ligne-nom">' + esc(l.nom) + qte(l) + '</span>' +
+            '<span class="nu-ligne-k">' + n0(l.kcal) + ' kcal</span><button type="button" class="mrt-rond is-fermer" data-act="supprimer" data-id="' + l.id + '" aria-label="Supprimer ' + esc(l.nom) + '">' + mrtIcone.fermer + '</button></li>').join('') + '</ul>' : '') + '</div>').join('');
     }
 
     // Les cartes se redessinent chacune à leur tour : une saisie en cours (sport, recherche) garde sa place.
-    el.innerHTML = '<section class="card nu-carte nu-besoin"></section><section class="card nu-carte nu-ajout"></section><section class="card nu-carte nu-journal"></section>';
+    el.innerHTML = '<section class="card nu-carte nu-besoin"></section><section class="card nu-carte nu-journal"></section>';
     const carte = c => el.querySelector('.nu-' + c);
+    // Feuilles « Repas » (ajouter un aliment) et « Activité » : la feuille d'une course (modale-course.css), plein écran sur
+    // téléphone, la croix en haut à droite ; la page reste dessous, à jour.
+    let feuille = null;
+    const zoneAjout = () => (feuille && feuille.type === 'repas' ? feuille.corps : null);
+    const zoneActivite = () => (feuille && feuille.type === 'activite' ? feuille.corps : null);
     function chiffres() {
       const r = besoin();
       carte('besoin').querySelector('.nu-kcal-val').textContent = n0(r.kcal);
       carte('besoin').querySelector('.nu-phase').textContent = 'Phase · ' + phaseDuJour(ctx, S.jour).libelle;
       carte('besoin').querySelector('.nu-anneaux').innerHTML = htmlJauges(r);
+      carte('besoin').querySelector('.nu-tuile-sport').textContent = resumeSport();
     }
     const dessinerBesoin = () => { carte('besoin').innerHTML = htmlBesoin(); chiffres(); };
-    const dessinerAjout = () => { carte('ajout').innerHTML = htmlAjout(); };
+    const dessinerAjout = () => { const z = zoneAjout(); if (z) z.innerHTML = htmlAjout(); };
+    const dessinerActivite = () => { const z = zoneActivite(); if (z) z.innerHTML = htmlActivite(); };
     const dessinerJournal = () => { carte('journal').innerHTML = htmlJournal(); };
-    function tout() { dessinerBesoin(); dessinerAjout(); dessinerJournal(); }
+    function tout() { dessinerBesoin(); dessinerAjout(); dessinerActivite(); dessinerJournal(); }
+    function ouvrirFeuille(type) {
+      fermerFeuille();
+      const voile = document.createElement('div');
+      voile.className = 'mc-voile';
+      voile.innerHTML = '<div class="mc-panneau nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
+        '<div class="pc-barre"><button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
+        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment · ' + titreJour(S.jour) : 'Activité · ' + titreJour(S.jour)) + '</p>' +
+        '<div class="' + (type === 'repas' ? 'nu-ajout' : 'nu-activite') + '"></div></div></div>';
+      document.body.appendChild(voile);
+      document.documentElement.classList.add('mc-ouvert');
+      feuille = { type, voile, corps: voile.querySelector(type === 'repas' ? '.nu-ajout' : '.nu-activite') };
+      brancher(voile);
+      voile.addEventListener('mousedown', e => { if (e.target === voile) fermerFeuille(); });
+      if (type === 'repas') dessinerAjout(); else dessinerActivite();
+      voile.querySelector('.mc-panneau').focus();
+    }
+    function fermerFeuille() {
+      if (!feuille) return;
+      if (feuille.type === 'activite' && aRanger) enregistrerSport();
+      feuille.voile.remove();
+      document.documentElement.classList.remove('mc-ouvert');
+      feuille = null;
+      S.ok = ''; S.msg = '';
+      chiffres();
+    }
+    // Échap ferme la feuille (une seule écoute, même quand la page se redessine).
+    if (window.__nuEchap) document.removeEventListener('keydown', window.__nuEchap);
+    window.__nuEchap = e => { if (e.key === 'Escape' && feuille && !document.querySelector('.pf-voile, .mrt-dialogue')) fermerFeuille(); };
+    document.addEventListener('keydown', window.__nuEchap);
 
     // ----- Actions -----
-    const echec = (err, quoi) => { console.warn('Nutrition : ' + quoi, err); S.msg = ERREUR; dessinerAjout(); };
-    const refus = m => { S.msg = m; const n = carte('ajout').querySelector('.nu-msg'); if (n) n.textContent = m; };
-    const lireQuantite = () => { const n = nombre((carte('ajout').querySelector('.nu-qte') || {}).value); return Number.isFinite(n) ? n : NaN; };
+    const echec = (err, quoi) => { console.warn('Nutrition : ' + quoi, err); S.msg = ERREUR; S.ok = ''; dessinerAjout(); };
+    const refus = m => { S.msg = m; const z = zoneAjout(), n = z && z.querySelector('.nu-msg'); if (n) n.textContent = m; };
+    const lireQuantite = () => { const z = zoneAjout(), n = nombre(((z && z.querySelector('.nu-qte')) || {}).value); return Number.isFinite(n) ? n : NaN; };
     async function changerDeJour(jour) {
       if (jour > aujourdhui) return;
       await enregistrerSport(); // ce qui est en cours de saisie est rangé avec son jour
+      fermerFeuille();
       S.jour = jour; S.choix = null; S.msg = ''; S.msgSport = '';
-      try { const j = await lireJour(ctx.id, jour); S.lignes = j.lignes; S.sports = j.sports; S.erreurLecture = false; }
+      try { const j = await lireJour(ctx.id, jour); S.lignes = j.lignes; S.sports = j.sports; S.erreurLecture = false; range = JSON.stringify({ jour, sports: S.sports }); }
       catch (err) { console.warn('Nutrition : lecture impossible', err); S.lignes = []; S.sports = []; S.erreurLecture = true; }
       S.lignesSport = S.sports.concat([null]);
       tout();
@@ -364,7 +409,7 @@
       }
       try { S.lignes.push(await ajouterLigne(al, S.jour, S.repas, g ? q0 / 100 : q0)); }
       catch (err) { return echec(err, 'ajout impossible'); }
-      S.choix = null; S.msg = '';
+      S.choix = null; S.msg = ''; S.ok = al.nom + ' ajouté · ' + NOM_REPAS[S.repas].toLowerCase();
       chiffres(); dessinerAjout(); dessinerJournal();
     }
     async function creer(form) {
@@ -385,7 +430,7 @@
       const { error } = await sb().from('aliments').insert(aliment);
       if (error) return refus(ERREUR);
       S.aliments.push(aliment);
-      S.choix = { id: aliment.id, quantite: enGrammes(aliment) ? 100 : 1 }; S.source = aliment.favori ? 'favoris' : 'recents'; S.msg = '';
+      S.choix = { id: aliment.id, quantite: enGrammes(aliment) ? 100 : 1 }; S.source = aliment.favori ? 'favoris' : 'recents'; S.msg = ''; S.ok = '';
       dessinerAjout();
     }
     async function supprimer(id) {
@@ -406,7 +451,8 @@
       dessinerAjout();
     }
     const zones = () => {
-      const c = carte('ajout');
+      const c = zoneAjout();
+      if (!c) return;
       if (!c.querySelector('.nu-mes')) return dessinerAjout();
       c.querySelector('.nu-mes').innerHTML = htmlMes();
       c.querySelector('.nu-produits').innerHTML = htmlProduits();
@@ -440,14 +486,17 @@
     // ----- Sport du jour : rangé dans la base, jour par jour -----
     // Une ligne remplie en fait apparaître une autre (cinq au plus). Le besoin suit la saisie ; l'enregistrement
     // part peu après la dernière frappe (ou au changement de jour).
-    let minuteur = null, file = Promise.resolve(), aRanger = null;
+    // rangé : ce qui est dans la base pour le jour affiché ; rien n'est réécrit quand rien n'a changé (fermer la feuille, changer de jour).
+    let minuteur = null, file = Promise.resolve(), aRanger = null, range = JSON.stringify({ jour: S.jour, sports: S.sports });
     function lireSports() {
-      const lignes = [...carte('besoin').querySelectorAll('.nu-sport-l')];
+      const z = zoneActivite();
+      if (!z) return;
+      const lignes = [...z.querySelectorAll('.nu-sport-l')];
       S.lignesSport = lignes.map(l => ({ type: l.querySelector('[name="type"]').value, heures: nombre(l.querySelector('[name="heures"]').value) || '' }));
       S.sports = S.lignesSport.filter(s => B.SPORTS[s.type] && s.heures > 0 && s.heures <= 24).map(s => ({ type: s.type, heures: Math.round(s.heures * 100) / 100 }));
       const derniere = lignes[lignes.length - 1];
       if (derniere.querySelector('[name="type"]').value && lignes.length < 5) {
-        carte('besoin').querySelector('.nu-sports').insertAdjacentHTML('beforeend', ligneSport(null));
+        z.querySelector('.nu-sports').insertAdjacentHTML('beforeend', ligneSport(null));
         S.lignesSport.push(null);
       }
       chiffres();
@@ -459,14 +508,14 @@
       clearTimeout(minuteur);
       const r = aRanger;
       aRanger = null;
-      if (!r) return file;
+      if (!r || JSON.stringify(r) === range) return file;
+      range = JSON.stringify(r);
       file = file.then(async () => {
         const d = await sb().from('sport_jour').delete().eq('utilisateur', ctx.id).eq('date', r.jour);
         const i = d.error || !r.sports.length ? d : await sb().from('sport_jour').insert(r.sports.map(s => ({ date: r.jour, type: s.type, heures: s.heures })));
-        const m = carte('besoin').querySelector('.nu-msg');
         S.msgSport = d.error || i.error ? ERREUR : '';
         if (d.error || i.error) console.warn('Nutrition : sport non rangé', d.error || i.error);
-        if (m && r.jour === S.jour) m.textContent = S.msgSport;
+        if (r.jour === S.jour) [zoneActivite(), carte('besoin').querySelector('.nu-msg-sport')].forEach(z => { const m = z && (z.classList.contains('nu-msg') ? z : z.querySelector('.nu-msg')); if (m) m.textContent = S.msgSport; });
       });
       return file;
     }
@@ -475,16 +524,19 @@
     function reprendre() {
       const nouvelles = seancesDuJour().map(s => ({ type: s.type === 'renfo' ? 'muscu' : '', heures: dureeDuLibelle(s.libelle) || '' }));
       S.lignesSport = S.lignesSport.filter(Boolean).filter(s => s.type || s.heures).concat(nouvelles).slice(0, 4).concat([null]);
-      dessinerBesoin();
+      dessinerActivite();
       lireSports();
     }
 
     // ----- Branchements -----
-    el.onclick = e => {
+    const clic = e => {
       const b = e.target.closest('[data-act]');
-      if (!b || !el.contains(b) || b.disabled) return;
+      if (!b || !e.currentTarget.contains(b) || b.disabled) return;
       const act = b.dataset.act;
       if (act === 'profil') window.mrtProfilFenetre({ profil: ctx.profil, id: ctx.id, surEnregistre: redessiner });
+      else if (act === 'fermer') fermerFeuille();
+      else if (act === 'activite') ouvrirFeuille('activite');
+      else if (act === 'ajout-repas') { S.repas = b.dataset.repas || repasDe(new Date()); S.ok = ''; ouvrirFeuille('repas'); }
       else if (act === 'veille') changerDeJour(decaler(S.jour, -1));
       else if (act === 'lendemain') changerDeJour(decaler(S.jour, 1));
       else if (act === 'aujourdhui') changerDeJour(aujourdhui);
@@ -503,23 +555,25 @@
       else if (act === 'ajouter') ajouter();
       else if (act === 'supprimer') supprimer(b.dataset.id);
     };
-    el.onsubmit = e => {
+    const soumettre = e => {
       e.preventDefault();
       if (e.target.classList.contains('nu-libre')) creer(e.target);
       else if (e.target.classList.contains('nu-recherche')) lancerRecherche(e.target.q.value);
     };
-    el.onchange = e => { if (e.target.closest('.nu-sport-l')) lireSports(); };
-    el.oninput = e => {
+    const changer = e => { if (e.target.closest('.nu-sport-l')) lireSports(); };
+    const saisir = e => {
       if (e.target.closest('.nu-sport-l') && e.target.name === 'heures') lireSports();
       else if (e.target.closest('.nu-recherche') && e.target.name === 'q') taper(e.target.value);
     };
+    function brancher(cible) { cible.onclick = clic; cible.onsubmit = soumettre; cible.onchange = changer; cible.oninput = saisir; }
+    brancher(el);
     window.addEventListener('pagehide', () => { if (aRanger) enregistrerSport(); });
     tout();
   };
 
   // ===================== Le bloc d'En un coup d'œil =====================
-  // Le bilan du jour (calories mangées / besoin, avec une barre), puis protéines, glucides et lipides en jauges simplifiées,
-  // sur une ligne, téléphone compris.
+  // Le bilan du jour (calories mangées / besoin, avec une barre), puis protéines, glucides et lipides en petits anneaux
+  // avec « Reste … », sur une ligne, téléphone compris.
   window.renderNutritionAccueil = async function (el, ctx) {
     const B = window.mrtBesoin;
     const vide = t => '<p class="ac-vide">' + esc(t) + '</p>';
@@ -535,13 +589,10 @@
     const etat = (v, min, max) => (v < min ? 'sous' : v <= max ? 'cible' : 'alerte');
     const barre = (v, max, e) => '<span class="nu-ac-barre"><span style="width:' + Math.min(100, v / (max * 1.15) * 100).toFixed(1) + '%"' + (e === 'alerte' ? ' class="is-alerte"' : '') + '></span></span>';
     const kcal = total(j.lignes, 'kcal'), eK = etat(kcal, r.kcal, r.kcal * TOLERANCE_KCAL);
-    const mini = (cle, nom, plageR) => {
-      const v = total(j.lignes, cle), e = etat(v, plageR[0], plageR[1]);
-      return '<div class="nu-ac-j" data-jauge="' + cle + '" data-etat="' + e + '"><span class="nu-ac-nom">' + nom + '</span>' +
-        '<span class="nu-ac-v">' + n0(v) + ' / ' + plage(plageR) + ' g</span>' + barre(v, plageR[1], e) + '</div>';
-    };
+    // Les anneaux de la page Nutrition, en plus petit : nom, anneau, « Reste … » (le besoin est sur la page).
+    const anneau = (cle, nom, plageR) => jauge(cle, nom, total(j.lignes, cle === 'p' ? 'proteines' : cle === 'g' ? 'glucides' : 'lipides'), plageR[0], plageR[1], 'g', plage(plageR));
     el.innerHTML = '<p class="nu-ac-bilan" data-etat="' + eK + '"><span class="nu-ac-kcal">' + n0(kcal) + '</span> / ' + n0(r.kcal) + ' kcal</p>' + barre(kcal, r.kcal * TOLERANCE_KCAL, eK) +
-      '<div class="nu-ac-jauges">' + mini('proteines', 'Protéines', r.proteines) + mini('glucides', 'Glucides', r.glucides) + mini('lipides', 'Lipides', r.lipides) + '</div>';
+      '<div class="nu-ac-anneaux">' + anneau('p', 'Protéines', r.proteines) + anneau('g', 'Glucides', r.glucides) + anneau('l', 'Lipides', r.lipides) + '</div>';
   };
 
   window.mrtNutrition = { phaseDuJour, chercherChezMoi, dureeDuLibelle, repasDe };
