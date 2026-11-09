@@ -72,14 +72,27 @@
 #nutrition > .pf-encart { padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 #nutrition > .pf-encart .pf-titre { margin-bottom: 0.7rem; font-family: inherit; font-size: var(--t-texte); font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text); } /* titre de cadre commun */
 
-/* Carte 1 : le jour choisi (‹ jour ›), les jauges sous le besoin, le sport en bas */
-.nu-jour { display: flex; align-items: center; gap: 0.6rem; }
-.nu-jour-t { min-width: 0; font-size: var(--t-texte); color: var(--text); }
-.nu-auj { margin-left: auto; }
+/* Carte du besoin : le jour et le besoin au centre, la phase et le profil du calcul en discret, les jauges, puis deux cases */
+.nu-jour { display: flex; align-items: center; justify-content: center; gap: 0.8rem; }
+.nu-jour-t { margin: 0; min-width: 0; font-size: var(--t-texte); font-weight: 400; color: var(--text); text-align: center; }
+.nu-auj { margin: 0.2rem 0 0; text-align: center; }
+.nu-besoin .nu-kcal { justify-content: center; margin: 0.5rem 0 0.2rem; }
+.nu-besoin .nu-phase { margin: 0; text-align: center; font-size: var(--t-second); color: var(--muted); }
+.nu-calcule { margin: 0.2rem 0 0; text-align: center; }
+.nu-calcule .mrt-lien { font-size: var(--t-second); }
 .nu-anneaux { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-.nu-besoin .nu-sous-t { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-.nu-seances { margin: 0 0 0.5rem; font-size: var(--t-second); color: var(--muted); }
+.nu-tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.nu-tuile { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; min-width: 0; min-height: 4rem; padding: 0.75rem 0.9rem; font: inherit; text-align: left; color: var(--text); background: var(--champ); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+.nu-tuile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nu-tuile-l { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.nu-tuile-v { display: flex; align-items: center; gap: 0.35rem; max-width: 100%; font-size: var(--t-texte); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nu-msg-sport { text-align: center; }
+.nu-seances { margin: 0 0 0.7rem; font-size: var(--t-second); color: var(--muted); }
 .nu-seances .mrt-lien { margin-left: 0.3rem; }
+.nu-ok { margin: 0.6rem 0 0; font-size: var(--t-second); color: var(--muted); }
+.nu-ok:empty { display: none; }
+.nu-repas-d { display: flex; align-items: center; gap: 0.5rem; }
+@media (hover: hover) { .nu-tuile:hover { border-color: var(--accent); } }
 
 /* Bloc Nutrition d'En un coup d'œil : bilan, barre, puis trois jauges simplifiées sur une ligne */
 .ac-titre a.nu-ac-detail { font-size: var(--t-second); font-weight: 600; color: var(--text); } /* bouton commun, pas un lien de titre */
@@ -90,9 +103,7 @@
 .nu-ac-barre { display: block; height: 0.5rem; overflow: hidden; background: var(--champ); border-radius: 999px; }
 .nu-ac-barre span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
 .nu-ac-barre span.is-alerte { background: var(--red); }
-.nu-ac-jauges { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; margin-top: 0.9rem; }
-.nu-ac-j { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
-.nu-ac-j .nu-ac-barre { height: 0.35rem; }
-.nu-ac-nom { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.nu-ac-v { font-size: var(--t-petit); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.nu-ac-j[data-etat="alerte"] .nu-ac-v { color: var(--red); }
+.nu-ac-anneaux { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.9rem; }
+.nu-ac-anneaux .nu-anneau { width: 64px; height: 64px; }
+.nu-ac-anneaux .nu-anneau-v { font-size: var(--t-second); }
+.nu-ac-anneaux .nu-jauge-besoin { display: none; }

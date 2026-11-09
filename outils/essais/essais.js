@@ -3405,12 +3405,12 @@ const CONTROLES = {
     d = copie(COMPLET);
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d));
     pb.push(egal(0, await p.locator('.pf-encart').count(), 'profil complet : pas d\'encart'), egal('2 117 kcal', await txt(p, '.nu-kcal'), 'profil complet : besoin du jour'));
-    await p.click('.nu-editer');
+    await p.click('.nu-profil-l');
     pb.push(egal(['sexe', 'naissance', 'poids', 'taille', 'activite'], await p.evaluate(() => [...document.querySelectorAll('.pf-panneau .pf-champ')].map(c => (c.querySelector('[name]') || {}).name)), 'fenêtre : les cinq champs'),
       egal(['homme', '1986-03-15', '70', '175', 'peu'], await p.evaluate(() => { const f = document.querySelector('.pf-panneau'); return [f.querySelector('input[name="sexe"]:checked').value, f.naissance.value, f.poids.value, f.taille.value, f.activite.value]; }), 'fenêtre : valeurs du profil'));
     await p.click('.pf-panneau [data-act="annuler"]');
     pb.push(egal([0, 0], [await p.locator('.pf-panneau').count(), d.ecritures.length], 'Annuler : fenêtre fermée, rien d\'écrit'));
-    await p.click('.nu-editer');
+    await p.click('.nu-profil-l');
     await p.fill('.pf-panneau [name="poids"]', '72,5');
     await p.selectOption('.pf-panneau [name="activite"]', 'actif');
     await p.click('.pf-panneau [type="submit"]');
@@ -3419,7 +3419,7 @@ const CONTROLES = {
       egal('2 401 kcal', await txt(p, '.nu-kcal'), 'besoin recalculé avec 72,5 kg et activité « actif »'));
     // Échec d'écriture : message, fenêtre ouverte.
     d.panne = true;
-    await p.click('.nu-editer');
+    await p.click('.nu-profil-l');
     await p.click('.pf-panneau [type="submit"]');
     await p.locator('.pf-msg:not(:empty)').waitFor();
     pb.push(egal('Enregistrement impossible pour l\'instant.', await txt(p, '.pf-msg'), 'panne : message d\'erreur'), egal(1, await p.locator('.pf-panneau').count(), 'panne : la fenêtre reste ouverte'));
@@ -3497,7 +3497,11 @@ const CONTROLES = {
       { id: ID(5), utilisateur: U, date: '2026-10-20', repas: 'petit_dej', aliment: ID(1), nom: 'Banane', quantite: 1, kcal: 90, proteines: 1, glucides: 20, lipides: 0.3 }];
     const base = (extra = {}) => { const d = JSON.parse(JSON.stringify(db)); Object.assign(d.profils[0], COMPLET); Object.assign(d.courses.find(c => c.course === 'Trail du Lac'), { prepa_semaines: 12, role: 'objectif' }); d.aliments = ALIMENTS(); d.repas_lignes = LIGNES(); d.ecritures = []; return Object.assign(d, extra); };
     const jauges = p => p.evaluate(() => [...document.querySelectorAll('.nu-jauge')].map(j => [j.dataset.jauge, j.dataset.etat, j.querySelector('.nu-anneau-v').textContent, j.querySelector('.nu-jauge-reste').textContent, j.querySelector('.nu-jauge-besoin').textContent].join(' | ').replace(/\s+/g, ' ')));
-    const groupes = p => p.evaluate(() => [...document.querySelectorAll('.nu-repas-t')].map(t => [...t.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' ')));
+    const groupes = p => p.evaluate(() => [...document.querySelectorAll('.nu-repas')].filter(r => r.querySelector('li')).map(r => r.querySelector('.nu-repas-t').textContent.replace(/\s+/g, ' ').trim().replace(/^(Petit-déj|Midi|Encas|Soir)/, '$1 ')).map(x => x.replace(/\s+/g, ' ')));
+    // Feuilles « Repas » et « Activité » : ouvertes par les cases (ou le « + » d'un repas), fermées par la croix.
+    const ouvrirRepas = async (p, repas) => { await p.click(repas ? '.nu-journal [data-act="ajout-repas"][data-repas="' + repas + '"]' : '.nu-tuile[data-act="ajout-repas"]'); await p.waitForSelector('.nu-feuille .nu-sources'); };
+    const ouvrirActivite = async p => { await p.click('.nu-tuile[data-act="activite"]'); await p.waitForSelector('.nu-feuille .nu-sport-l'); };
+    const fermerF = async p => { await p.click('.nu-feuille [data-act="fermer"]'); await p.waitForSelector('.nu-feuille', { state: 'detached' }); };
     const lignes = p => p.evaluate(() => [...document.querySelectorAll('.nu-ligne-nom')].map(x => x.textContent.replace(/\s+/g, ' ')));
     const liste = p => p.evaluate(() => [...document.querySelectorAll('.nu-source .nu-aliment, .nu-resultats .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | ')));
     const sansId = e => { const c = { ...e.corps }; delete c.id; return c; };
@@ -3509,14 +3513,17 @@ const CONTROLES = {
     // Carte 1 et jauges au départ.
     let d = base();
     let { p, ctx, erreurs } = await ouvrirN(d);
-    pb.push(egal(['Homme · 40 ans · 70 kg · 175 cm · Peu actif', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
+    pb.push(egal(['Calculé pour 70 kg · 175 cm · peu actif ›', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
       egal(['Mardi 20 octobre', true, 0], [norm(await p.locator('.nu-jour-t').textContent()), await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count()], 'sélecteur : le jour, pas de jour suivant, pas de lien « Aujourd\'hui »'),
       egal(['kcal | sous | 350 | Reste 1 767 kcal | Besoin 2 117 kcal', 'p | sous | 6 g | Reste 92 g | Besoin 98–140 g', 'g | sous | 76 g | Reste 189 g | Besoin 265–318 g', 'l | sous | 1 g | Reste 58 g | Besoin 59–82 g'], await jauges(p), 'anneaux : nom, valeur, reste, besoin'),
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
-      egal(['Banane · 1 pièce | 90 kcal', 'Riz cuit | 130 kcal / 100 g'], await liste(p), 'Récents, sans l\'aliment jamais utilisé'),
-      egal(0, await p.locator('.nu-mention, .nu-macros').count(), 'page épurée : ni mention ni fourchettes en texte'));
+      egal(['Aucune', 'Ajouter', 0], [norm(await p.locator('.nu-tuile-sport').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"] .nu-tuile-v').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'cases Activité et Repas ; ajout et sport dans leurs feuilles'),
+      egal(0, await p.locator('.nu-mention, .nu-macros, .nu-editer').count(), 'page épurée : ni mention, ni fourchettes en texte, ni bouton « Modifier »'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
+    await ouvrirRepas(p);
+    if (CAPTURES) { await p.waitForTimeout(600); await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-feuille.png') }); }
+    pb.push(egal(['Ajouter un aliment · Mardi 20 octobre', ['Banane · 1 pièce | 90 kcal', 'Riz cuit | 130 kcal / 100 g']], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await liste(p)], 'feuille Repas : titre, Récents sans l\'aliment jamais utilisé'));
     await p.click('[data-source="favoris"]');
     pb.push(egal(['Banane · 1 pièce | 90 kcal'], await liste(p), 'Favoris'));
     await p.click('[data-source="recents"]');
@@ -3531,13 +3538,16 @@ const CONTROLES = {
     pb.push(egal([['POST', 'repas_lignes', { date: '2026-10-20', repas: 'midi', aliment: ID(1), nom: 'Banane', quantite: 2, kcal: 180, proteines: 2, glucides: 40, lipides: 0.6 }], ['PATCH', 'aliments', ['dernier_usage'], '?id=eq.' + ID(1)]],
       d.ecritures.map(e => e.methode === 'POST' ? [e.methode, e.table, sansId(e)] : [e.methode, e.table, Object.keys(e.corps), e.filtres]), 'Ajouter : la ligne figée et le dernier usage de l\'aliment'),
       egal('kcal | sous | 530 | Reste 1 587 kcal | Besoin 2 117 kcal', (await jauges(p))[0], 'anneau des calories après l\'ajout'),
-      egal(['Petit-déj 90 kcal', 'Midi 440 kcal'], await groupes(p), 'journal après l\'ajout'));
+      egal(['Petit-déj 90 kcal', 'Midi 440 kcal'], await groupes(p), 'journal après l\'ajout'),
+      egal(['Banane ajouté · midi', 1], [norm(await p.locator('.nu-ok').textContent()), await p.locator('.nu-feuille').count()], 'feuille : l\'ajout confirmé, la feuille reste ouverte'));
     d.ecritures.length = 0;
+    await fermerF(p);
     await p.locator('[data-act="supprimer"][aria-label="Supprimer Banane"]').last().click();
     await p.waitForFunction(() => document.querySelectorAll('.nu-lignes li').length === 2);
     pb.push(egal(['DELETE', 'repas_lignes'], [d.ecritures[0].methode, d.ecritures[0].table], '× : la ligne est supprimée'));
     // Riz cuit, en grammes : 100 g d'office, saisie de 200 g puis « − » : 190 g.
     d.ecritures.length = 0;
+    await ouvrirRepas(p);
     await p.click('.nu-aliment:has-text("Riz cuit")');
     pb.push(egal(['100', 'g'], [await qte(), norm(await p.locator('.nu-quantite .nu-unite').textContent())], 'aliment pour 100 g : quantité en grammes'));
     await p.fill('.nu-qte', '0'); await p.click('[data-act="ajouter"]');
@@ -3599,6 +3609,7 @@ const CONTROLES = {
       d2.relais = c => { appels.push(c); return { status: 200, body: { source: 'search', produits: [{ nom: 'Yaourt nature', marque: 'Marque C', kcal: 53, proteines: 4, glucides: 5, lipides: 1.5, portionG: 125 }] } }; };
       const o2 = await ouvrirN(d2), p2 = o2.p, ancien = [];
       await o2.ctx.route('https://world.openfoodfacts.org/**', r => { ancien.push(1); r.fulfill({ status: 503, body: '' }); });
+      await ouvrirRepas(p2);
       const mes = () => p2.evaluate(() => [...document.querySelectorAll('.nu-mes .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | ')));
       await p2.fill('.nu-recherche [name="q"]', 'oe');
       pb.push(egal([['Œuf · 1 pièce | 140 kcal'], 0, 0], [await mes(), appels.length, ancien.length], 'pendant la frappe : mes aliments, sans aucun appel'));
@@ -3649,6 +3660,7 @@ const CONTROLES = {
     // Panne d'écriture : message, aucune ligne ajoutée.
     d = base({ panne: true });
     ({ p, ctx } = await ouvrirN(d));
+    await ouvrirRepas(p);
     await p.click('.nu-aliment >> nth=0'); await p.click('[data-act="ajouter"]');
     await p.locator('.nu-ajout .nu-msg:not(:empty)').waitFor();
     pb.push(egal(['Enregistrement impossible pour l\'instant.', 2], [norm(await p.locator('.nu-ajout .nu-msg').textContent()), await p.locator('.nu-lignes li').count()], 'panne : message, journal inchangé'));
@@ -3657,6 +3669,7 @@ const CONTROLES = {
     // Repas d'après l'heure : 7 h petit-déj, 20 h soir.
     for (const [h, attendu] of [['07:00', 'petit_dej'], ['20:00', 'soir']]) {
       ({ p, ctx } = await ouvrirN(base(), 390, { maintenant: new Date('2026-10-20T' + h + ':00') }));
+      await ouvrirRepas(p);
       await p.click('.nu-aliment >> nth=0');
       pb.push(egal(attendu, await p.locator('.nu-repas-choix [aria-pressed="true"]').getAttribute('data-repas'), 'repas proposé à ' + h));
       await ctx.close();
@@ -3674,7 +3687,10 @@ const CONTROLES = {
     // Rien de saisi.
     d = base(); d.aliments = []; d.repas_lignes = [];
     ({ p, ctx } = await ouvrirN(d));
-    pb.push(egal(['+ Aliment libre', 'Rien de noté.'], [norm(await p.locator('.nu-sources [aria-pressed="true"]').textContent()), norm(await p.locator('.nu-journal .nu-vide').textContent())], 'sans aliment : formulaire libre, journal vide'));
+    pb.push(egal([4, 0], [await p.locator('.nu-journal .nu-repas').count(), await p.locator('.nu-journal li').count()], 'journal vide : les quatre repas, chacun avec son « + »'));
+    await ouvrirRepas(p, 'soir');
+    pb.push(egal('soir', await p.evaluate(() => document.querySelector('.nu-feuille .nu-sources') && 'soir'), '« + » du soir : la feuille s\'ouvre'));
+    pb.push(egal(['+ Aliment libre', ''], [norm(await p.locator('.nu-sources [aria-pressed="true"]').textContent()), ''], 'sans aliment : formulaire libre, journal vide'));
     await p.click('[data-source="favoris"]');
     pb.push(egal('Aucun favori.', norm(await p.locator('.nu-source .nu-vide').textContent()), 'sans favori'));
     await p.click('[data-source="recents"]');
@@ -3685,7 +3701,8 @@ const CONTROLES = {
     d = base();
     ({ p, ctx } = await ouvrirN(d));
     const ligneS = i => p.locator('.nu-sport-l').nth(i);
-    pb.push(egal(1, await p.locator('.nu-sport-l').count(), 'sport : une ligne vide au départ'));
+    await ouvrirActivite(p);
+    pb.push(egal(['Activité · Mardi 20 octobre', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
     await ligneS(0).locator('[name="type"]').selectOption('j95');
     await ligneS(0).locator('[name="heures"]').fill('1');
     pb.push(egal([2, '2 817 kcal', 'kcal | sous | 350 | Reste 2 467 kcal | Besoin 2 817 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p), (await jauges(p))[0]], 'sport : 1 h de jogging, une 2e ligne, besoin et anneau recalculés'));
@@ -3697,7 +3714,10 @@ const CONTROLES = {
     await ligneS(1).locator('[name="heures"]').fill('0,5');
     pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
     await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST' && e.corps.length === 2);
+    await fermerF(p);
+    pb.push(egal('1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche', norm(await p.locator('.nu-tuile-sport').textContent()), 'case Activité : le sport du jour'));
     await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); await p.waitForSelector('.nu-jauge');
+    await ouvrirActivite(p);
     pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
     await ligneS(0).locator('[name="type"]').selectOption('');
     pb.push(egal('2 222 kcal', await kcal(p), 'sport : le jogging retiré'));
@@ -3708,15 +3728,18 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     await p.click('[data-act="veille"]');
     await p.waitForFunction(() => /Lundi 19 octobre/.test(document.querySelector('.nu-jour-t').textContent));
-    pb.push(egal([false, 1, 'Rien de noté.', 'kcal | sous | 0 | Reste 2 117 kcal | Besoin 2 117 kcal'], [await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count(), norm(await p.locator('.nu-journal .nu-vide').textContent()), (await jauges(p))[0]], 'veille : son journal (vide), jour suivant et « Aujourd\'hui » proposés'));
+    pb.push(egal([false, 1, 0, 'kcal | sous | 0 | Reste 2 117 kcal | Besoin 2 117 kcal'], [await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count(), await p.locator('.nu-journal li').count(), (await jauges(p))[0]], 'veille : son journal (vide), jour suivant et « Aujourd\'hui » proposés'));
+    await ouvrirRepas(p);
     await p.click('.nu-aliment:has-text("Banane")'); await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
     pb.push(egal('2026-10-19', d.ecritures.filter(e => e.table === 'repas_lignes').pop().corps.date, 'veille : l\'aliment ajouté va dans ce jour'));
+    await fermerF(p);
     await p.click('[data-act="aujourdhui"]');
     await p.waitForFunction(() => /Mardi 20 octobre/.test(document.querySelector('.nu-jour-t').textContent));
     pb.push(egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'retour à aujourd\'hui : son journal'));
     // Recherche dans mes aliments : sans accent ni pluriel.
     await ctx.route('https://world.openfoodfacts.org/**', r => r.fulfill({ status: 200, contentType: 'application/json', body: '{"products":[]}' }));
+    await ouvrirRepas(p);
     await p.fill('.nu-recherche [name="q"]', 'oeufs'); await p.press('.nu-recherche [name="q"]', 'Enter');
     await p.waitForFunction(() => !/Recherche…/.test(document.querySelector('.nu-resultats').textContent));
     pb.push(egal(['Œuf · 1 pièce | 140 kcal'], await p.evaluate(() => [...document.querySelectorAll('.nu-resultats .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), 'recherche « oeufs » : mon aliment « Œuf »'));
@@ -3727,6 +3750,7 @@ const CONTROLES = {
     d.seances = [{ id: ID(6), utilisateur: U, date: '2026-10-20', type: 'renfo', libelle: 'Gainage 30 min', faite: false, course: null },
       { id: ID(7), utilisateur: U, date: '2026-10-20', type: 'run', libelle: 'Footing 1 h 15', faite: false, course: null }];
     ({ p, ctx } = await ouvrirN(d));
+    await ouvrirActivite(p);
     pb.push(egal('Au calendrier : Gainage 30 min · Footing 1 h 15 Reprendre', norm(await p.locator('.nu-seances').textContent()), 'séances du jour rappelées'));
     await p.click('[data-act="reprendre"]');
     pb.push(egal([[['muscu', '0,5'], ['', '1,25'], ['', '']], '2 222 kcal'], [await p.evaluate(() => [...document.querySelectorAll('.nu-sport-l')].map(l => [l.querySelector('[name="type"]').value, l.querySelector('[name="heures"]').value])), await kcal(p)], 'Reprendre : musculation 30 min comptée, footing à compléter'));
@@ -3740,9 +3764,9 @@ const CONTROLES = {
     await p.waitForSelector('.nu-ac-bilan');
     if (CAPTURES) await p.locator('[data-bloc="nutrition"]').screenshot({ path: path.join(__dirname, 'captures', 'accueil-nutrition.png') });
     pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]')[1].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position'),
-      egal(['350 / 2 117 kcal', ['proteines|sous|6 / 98–140 g', 'glucides|sous|76 / 265–318 g', 'lipides|sous|1 / 59–82 g']],
-        [norm(await p.locator('.nu-ac-bilan').textContent()), await p.evaluate(() => [...document.querySelectorAll('.nu-ac-j')].map(j => j.dataset.jauge + '|' + j.dataset.etat + '|' + j.querySelector('.nu-ac-v').textContent.replace(/\s+/g, ' ')))], 'Accueil : bilan du jour, puis protéines, glucides, lipides'),
-      egal([0, 1], await p.evaluate(() => { const t = [...document.querySelectorAll('.nu-ac-j')].map(j => Math.round(j.getBoundingClientRect().top)); return [t[2] - t[0], new Set(t).size]; }), 'Accueil : les trois jauges sur une ligne, téléphone compris'),
+      egal(['350 / 2 117 kcal', ['p|sous|6 g|Reste 92 g', 'g|sous|76 g|Reste 189 g', 'l|sous|1 g|Reste 58 g']],
+        [norm(await p.locator('.nu-ac-bilan').textContent()), await p.evaluate(() => [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => [j.dataset.jauge, j.dataset.etat, j.querySelector('.nu-anneau-v').textContent, j.querySelector('.nu-jauge-reste').textContent].join('|').replace(/\s+/g, ' ')))], 'Accueil : bilan du jour, puis protéines, glucides, lipides en anneaux avec « Reste »'),
+      egal([0, 1], await p.evaluate(() => { const t = [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => Math.round(j.getBoundingClientRect().top)); return [t[2] - t[0], new Set(t).size]; }), 'Accueil : les trois anneaux sur une ligne, téléphone compris'),
       egal(0, await p.locator('[data-bloc="nutrition"] .mrt-pastille').count(), 'Accueil : plus d\'aliments en pastilles'),
       egal(['Détail', 'nutrition.html', true], await p.evaluate(() => { const a = document.querySelector('[data-bloc="nutrition"] .ac-titre a'); return [a.textContent, a.getAttribute('href'), a.classList.contains('mrt-btn')]; }), 'Accueil : « Détail », bouton commun du site'),
       egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'Accueil : pas de débordement horizontal'));
