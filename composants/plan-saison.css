@@ -52,3 +52,19 @@
 .ps-ligne { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0 0.7rem; align-items: end; }
 .ps-coches { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: -0.3rem 0 0.8rem; }
 .ps-profil textarea { resize: vertical; }
+
+/* ----- Séances proposées par l'IA : le bouton, ce qui reste ce mois-ci, la mention ; la proposition en attente ----- */
+.ps-ia { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin-bottom: 0.4rem; }
+.ps-ia-reste, .ps-ia-aide { font-size: var(--t-second); color: var(--muted); }
+.ps-ia-aide { margin-bottom: 0.8rem; }
+.ps-ia-mention { margin-bottom: 0.9rem; font-size: var(--t-libelle); color: var(--muted); }
+.ps-ia-msg { margin: -0.4rem 0 0.9rem; font-size: var(--t-second); color: var(--red); }
+.ps-proposition { margin: 0 0 1rem; padding: 0.8rem 0.9rem; border: 1px solid var(--accent); border-radius: 8px; }
+.ps-proposition .ps-libelle { margin-top: 0; }
+.ps-prop-sem + .ps-prop-sem { margin-top: 0.8rem; }
+.ps-prop-titre { display: flex; align-items: center; gap: 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+.ps-prop-titre input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
+.ps-prop-expl { margin: 0.2rem 0 0.3rem; font-size: var(--t-second); font-style: italic; color: var(--muted); }
+.ps-prop-liste { display: flex; flex-direction: column; gap: 0.2rem; padding-left: 1rem; font-size: var(--t-texte); color: var(--text); }
+.ps-prop-liste b { font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.ps-prop-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.9rem 0 0.5rem; }

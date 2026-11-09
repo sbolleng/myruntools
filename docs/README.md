@@ -51,7 +51,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : vues À surveiller (par défaut), Déjà couru, À venir, Tout ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.8, construit |
 | [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 0.8, construit (reste Ciqual) |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Périodicité » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.20, construit |
-| [Module Préparation](module-preparation-specification.md) | Un plan de saison qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 0.3, lots 1 et 2 construits |
+| [Module Préparation](module-preparation-specification.md) | Un plan de saison qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 0.4, lots 1 à 3 construits (lot 3 réservé aux pilotes) |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -87,7 +87,7 @@ Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne term
 
 Dans l'ordre :
 
-1. [ ] **Préparation** : [spécification 0.3](module-preparation-specification.md), lots 1 et 2 en ligne (plan de saison, profil d'entraînement, séances enrichies ; page à cocher dans les Préférences). **À faire** : coller l'évolution `024-profil-entrainement.sql` dans l'éditeur SQL de Supabase. Lots suivants : fonction côté serveur et proposition d'un bloc par l'IA (après la mention RGPD) ; réajustement et historique ; rubrique Préparation d'une course placée dans la saison.
+1. [ ] **Préparation** : [spécification 0.4](module-preparation-specification.md), lots 1 à 3 en ligne (plan de saison, profil, séances proposées par l'IA, réservées aux pilotes). **À faire pour la mise en service de l'IA** : coller l'évolution `025-propositions.sql` ; créer la fonction `proposer-seances` dans le tableau de bord de Supabase (Edge Functions, coller `supabase/functions/proposer-seances/index.ts`) ; lui donner les secrets `ANTHROPIC_API_KEY` (clé d'un compte Anthropic avec crédit) et `PILOTES` (les identifiants des deux comptes, séparés par une virgule) ; puis essayer une proposition en réel. Lots suivants : ouverture à tous après la mention RGPD ; réajustement et historique ; rubrique Préparation d'une course placée dans la saison ; affichage de la durée, de la distance et de l'intensité dans les vues.
 1. [ ] **Objectif** :
    - **À essayer en réel** : « Remplacer » le GPX du Rock'Angel (fichier à plusieurs tracés : choix du bon tracé), puis « ↓ GPX ».
    - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.

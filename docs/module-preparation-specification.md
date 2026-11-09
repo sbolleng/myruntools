@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.3 · 8 novembre 2026 · [Retour au sommaire](README.md) · Lot 2 construit : profil d'entraînement (fenêtre « Mon profil », état du profil) et séances enrichies (durée, distance, intensité)
+Version 0.4 · 9 novembre 2026 · [Retour au sommaire](README.md) · Lot 3 construit, réservé aux comptes pilotes : séances d'un bloc proposées par l'IA, garde-fous, validation, plafond
 
 ## 1. Rôle
 
@@ -114,7 +114,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 
 Téléphone : même ordre ; la frise défile de gauche à droite.
 
-Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; lot 2 : le profil (2) et son état (12) ; la proposition de séances (6, 8, 9) au lot 3 ; la suite (10) au lot 4.
+Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; lot 2 : le profil (2) et son état (12) ; lot 3 : la proposition de séances (6, 8, 9) ; la suite (10) au lot 4.
 
 ### 5.2 Profil d'entraînement
 
@@ -136,18 +136,22 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 - **Unité** : un bloc de 4 semaines. Proposer la saison entière d'un coup collerait moins à ce qui est vraiment fait, et chaque appel coûterait plus.
 - **Ce qui est envoyé** : la trame du bloc (phases, jours de mini-affûtage, de repos et de récupération), les courses du bloc avec leur rôle, le profil, les séances des 4 semaines passées (faites ou non). Ni nom, ni adresse, ni nom de course ; les courses sont désignées par leur format, leur distance, leur D+ et leur rôle.
 - **Ce qui revient** : une liste de séances dans un format imposé (date, type, libellé, durée, distance, intensité) et une explication par semaine.
-- **Garde-fous** (des règles, vérifiées avant d'afficher) :
-  - seulement les jours disponibles ;
-  - durées maximales respectées ;
+- **Garde-fous** (des règles, vérifiées par le site avant d'afficher) :
+  - dates dans le bloc, type connu, libellé de 1 à 100 caractères, durée de 1 à 1 440 minutes ;
+  - seulement les jours disponibles ; aucune séance un jour de course ni la veille d'une Plaisir (repos) ;
+  - durées maximales respectées (séance, semaine) ;
   - séances faciles seulement pendant une récupération ;
-  - repos la veille d'une course ;
-  - volume des semaines d'affûtage réduit de 41 à 60 % par rapport aux 3 semaines d'avant.
+  - volume des semaines d'affûtage entre 40 et 59 % de la moyenne des 3 semaines d'avant (une réduction de 41 à 60 %), quand ces 3 semaines ont des durées connues.
+
+  Les règles non respectées sont renvoyées à l'IA, en phrases courtes, pour qu'elle corrige.
 
   Une proposition qui ne passe pas est refaite une fois automatiquement ; si elle échoue encore, le message « Proposition impossible à vérifier, réessaie plus tard. » s'affiche, sans rien décompter.
 - **Réajustement** : quand des séances passées n'ont pas été faites, « Proposer les séances » refait le bloc à partir d'aujourd'hui, en en tenant compte.
-- **Plafond** : 4 propositions par utilisateur et par mois civil (refaire compte pour une). Au-delà : « Plus de proposition ce mois-ci : la prochaine le 1er … ».
-- **Modèle** : Claude Sonnet 5.5, réglable sans toucher au site. Coût estimé : quelques centimes par proposition, à mesurer au premier lot.
-- **Sécurité** : la clé de l'API ne figure jamais sur le site. Une fonction côté serveur (Supabase Edge Function) la garde en secret, vérifie l'utilisateur connecté et son plafond, appelle l'API et applique les garde-fous.
+- **Plafond** : 4 propositions par utilisateur et par mois civil (refaire compte pour une ; la reprise automatique après un garde-fou ne compte pas, dans la limite de 4 par mois). Le bouton affiche « 4 restantes ce mois-ci » et se grise à 0 ; au-delà, la fonction répond « Plus de proposition ce mois-ci : la prochaine le 1er … ».
+- **Modèle** : Claude Sonnet 5.5 (effort moyen, format de réponse imposé ; repli automatique d'Anthropic si le modèle décline), réglable sans toucher au site (secret `MODELE`). Coût estimé : quelques centimes par proposition ; chaque appel range ses jetons dans la table des propositions, pour le mesurer.
+- **Sécurité** : la clé de l'API ne figure jamais sur le site ni dans le dépôt. La fonction `proposer-seances` (Supabase Edge Function, `supabase/functions/proposer-seances/index.ts`) la garde en secret, vérifie l'utilisateur connecté, la liste des pilotes et le plafond, appelle l'API et range l'appel (table `propositions`, avec le jeton de l'utilisateur).
+- **Réservé aux pilotes** (lot 3) : tant que la mention de l'envoi à l'IA n'est pas dans la politique de confidentialité (lot RGPD), seuls les comptes de la liste `PILOTES` (secret de la fonction) peuvent proposer ; les autres lisent « Réservé aux comptes pilotes pour l'instant. ».
+- **Statuts d'une proposition** : brute (en attente), invalide (refaite par la reprise), échec (deux essais refusés, non comptée), acceptée, abandonnée. Une proposition en attente reste affichée tant qu'elle n'est ni acceptée ni abandonnée, même après avoir quitté la page.
 - **Mention**, sous le bouton : « Séances proposées par une IA, à titre indicatif : ce n'est pas un avis médical. »
 - **Site partagé en lecture seule** : le plan et les séances s'affichent ; ni profil, ni proposition.
 
@@ -159,7 +163,7 @@ La FC max et les points fragiles sont des données de santé : le lot RGPD (somm
 | Durée de prépa, phases modifiées à la main | `formats.prepa_semaines`, `courses.prepa_semaines`, `plan_semaines` | Existe (évolution 009) |
 | Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur (jours : 1 pour lundi à 7 pour dimanche ; temps en secondes) | Créée (évolution 024) |
 | Séance enrichie : durée (min), distance (km), intensité (facile, modérée, intense) ; origine (saisie, IA) ; état (proposée, acceptée) | Table `seances`, nouvelles colonnes (les séances existantes : saisies, acceptées) | Créée (évolution 024) |
-| Propositions : date, bloc, modèle, jetons, acceptée ou non | Nouvelle table, lue par la fonction côté serveur pour le plafond | Évolution à écrire |
+| Propositions : date, bloc, essai, modèle, jetons, statut, réponse | Table `propositions`, écrite par la fonction, lue par le site et la fonction (plafond) | Créée (évolution 025) |
 
 Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de récupération, alertes.
 
@@ -167,7 +171,7 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 
 1. **Trame de saison et règles de combinaison, sans IA**. **Construit** (8 novembre 2026) : calcul dans `composants/preparation.js` (`planSaison`, `phaseDe`, `reperesDuJour`), page `preparation.html` et composant `composants/plan-saison.js` ; rôles fusionnés (évolution `023-roles-objectif.sql`, à coller dans l'éditeur SQL) ; le Calendrier et Nutrition lisent la phase du plan de saison. Reste pour plus tard : la rubrique Préparation de la page d'une course dans la saison.
 2. **Profil d'entraînement et séances enrichies**. **Construit** (8 novembre 2026) : évolution `024-profil-entrainement.sql` (à coller dans l'éditeur SQL), fenêtre « Mon profil » et état du profil sur la page Préparation ; durée, distance et intensité facultatives dans la fenêtre d'une séance ([Calendrier](module-calendrier-specification.md), § 4.4). Leur affichage dans les vues viendra avec les séances proposées (lot 3).
-3. **Fonction côté serveur et proposition d'un bloc** : aperçu, garde-fous, acceptation, plafond ; préalable : la mention de l'envoi à l'IA dans la politique de confidentialité (lot RGPD).
+3. **Fonction côté serveur et proposition d'un bloc**. **Construit** (9 novembre 2026), réservé aux pilotes : fonction `supabase/functions/proposer-seances/index.ts` (à créer dans le tableau de bord de Supabase, avec ses secrets `ANTHROPIC_API_KEY` et `PILOTES`), évolution `025-propositions.sql`, composant `composants/seances-ia.js` (contexte, garde-fous, essais) et affichage dans `plan-saison.js`. Ouverture à tous : après la mention de l'envoi à l'IA dans la politique de confidentialité (lot RGPD).
 4. **Réajustement et historique des propositions.**
 
 ## 9. Questions ouvertes
@@ -221,13 +225,18 @@ Résultats attendus, profil (lot 2) :
 - Profil relu : la fenêtre reprend 35,5, heures, 45:30, 1:42:00, 2 séances de renforcement, le jeudi et le tapis cochés.
 - Séance : distance à 0 refusée (« La distance doit être comprise entre 0,1 et 999 km. ») ; 45 min, 8,5 km, Facile : enregistrés et repris dans la fenêtre.
 - Site partagé : ni bouton ni état du profil. Téléphone : la fenêtre ne déborde pas.
-- (Lot 3) Profil incomplet : pas de bouton « Proposer les séances », lien « Compléter mon profil » ; profil complet : le bouton et « 4 restantes ce mois-ci ».
 
-Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût) :
+Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe, sans coût ; profil : mardi, jeudi, samedi, séance de 120 min au plus) :
 
-- Proposition d'un bloc : séances en attente, séparées des séances enregistrées ; « Tout accepter » : écriture des séances (origine IA, état acceptée) ; « Choisir semaine par semaine » : seules les semaines cochées sont écrites ; « Abandonner » : rien n'est écrit.
-- Garde-fous : une réponse fixe avec du fractionné le 20 novembre (récupération du Trail du Lac) est refaite automatiquement ; deux réponses fautives de suite : le message « Proposition impossible à vérifier, réessaie plus tard. », plafond inchangé.
-- Plafond : après 4 propositions dans le mois, la 5e est refusée avec la date de la prochaine.
-- Ce qui est envoyé : ni nom de course, ni nom ou adresse de l'utilisateur.
+- Au départ : « Proposer les séances », « 4 restantes ce mois-ci » et la mention.
+- Proposition du bloc du 19 octobre : en attente, à part des séances enregistrées : 4 semaines, 12 séances (« mar. 20 · Course à pied Footing · 45 min · 8 km · Facile »), une explication par semaine ; boutons Tout accepter, Choisir semaine par semaine, Refaire, Abandonner.
+- Ce qui est envoyé : le bloc du 19 octobre au 15 novembre, en Entretien, les jours disponibles (mardi, jeudi, samedi), le repère « allégé » du jeudi 12 novembre ; ni nom de course, ni prénom.
+- « Tout accepter » : 12 séances écrites (origine IA, état acceptée ; distance vide pour le renforcement), proposition acceptée, « 3 restantes ce mois-ci ».
+- Garde-fou : une séance le mercredi 21 (jour non disponible) : la demande est refaite (essai 2, avec « mer. 21 oct. … : jour non disponible »), la première marquée invalide. « Choisir semaine par semaine » sans la semaine du 26 octobre : 9 séances écrites.
+- Deux réponses fautives de suite : « Proposition impossible à vérifier, réessaie plus tard. », les deux appels en échec, toujours 4 restantes, rien d'écrit.
+- « Abandonner » (confirmé) : rien d'écrit, la proposition compte (3 restantes).
+- 4 propositions déjà faites ce mois-ci : bouton grisé, « 0 restante ce mois-ci ». Refus de la fonction : « Plus de proposition ce mois-ci : la prochaine le dim. 1er nov. 2026. » ; compte non pilote : « Réservé aux comptes pilotes pour l'instant. ».
+- Profil incomplet : pas de bouton, « Compléter mon profil ».
+- Garde-fous au 17 novembre : fractionné le 19 novembre (récupération du Trail du Lac) refusé, le 8 décembre accepté ; une séance le 12 décembre (veille de la Corrida de Noël) refusée.
 - Site partagé en lecture seule : trame et séances visibles ; ni profil, ni proposition.
 - Téléphone : rien ne déborde, la frise défile.
