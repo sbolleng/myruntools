@@ -546,12 +546,12 @@ const CONTROLES = {
     // Menu
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     // Le menu ne montre que les modules construits ; les autres sont sur une ligne, « bientôt ».
-    const construits = ['En un coup d\'œil', 'Plan & objectifs', 'Calendrier', 'À surveiller', 'Palmarès'];
+    const construits = ['En un coup d\'œil', 'Plan & objectifs', 'Calendrier', 'Courses', 'Palmarès'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(5, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les cinq modules construits cochés, En un coup d\'œil compris, sauf Nutrition (à cocher)'));
     pb.push(egal('Bientôt dans le menu : Cette semaine, Profil, Guide.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Calendrier', 'Plan & objectifs', 'À surveiller', 'Palmarès'];
+    const monte = ['En un coup d\'œil', 'Calendrier', 'Plan & objectifs', 'Courses', 'Palmarès'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -2768,7 +2768,7 @@ const CONTROLES = {
     // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Plan & objectifs', 'Calendrier', 'À surveiller', 'Palmarès'], visibles: true }, await p.evaluate(() => {
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Plan & objectifs', 'Calendrier', 'Courses', 'Palmarès'], visibles: true }, await p.evaluate(() => {
         const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
           visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
@@ -3910,7 +3910,7 @@ const CONTROLES = {
       return [...vu].sort();
     });
     for (const [page, quoi] of [['index.html', 'Accueil'], ['objectif.html', 'Objectif'], ['course.html?id=' + id(3), 'page d\'une course'], ['palmares.html', 'Palmarès'],
-      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'À surveiller'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition']]) {
+      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition']]) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);
         if (page.startsWith('course.html')) await o.p.waitForSelector('.mc-panneau .pc-titre');

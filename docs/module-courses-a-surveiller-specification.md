@@ -103,7 +103,7 @@ Sans date d'ouverture, ni l'heure ni le mois seul ne sont rangés. États du dos
 
 ## 6. Menu
 
-Le module est dans le catalogue sous le nom « Courses à surveiller » (onglet « À surveiller »), **affiché par défaut pour tous, juste après Calendrier** ; chacun peut le décocher dans les Préférences. Les profils qui avaient déjà rangé leurs modules le reçoivent par l'évolution 018. Cinq onglets tiennent dans l'écran d'un téléphone (375 px) grâce à des onglets resserrés sur téléphone (marges 0,3 rem, texte 0,72 rem).
+Le module est dans le catalogue sous le nom « Courses à surveiller » (onglet « Courses »), **affiché par défaut pour tous, juste après Calendrier** ; chacun peut le décocher dans les Préférences. Les profils qui avaient déjà rangé leurs modules le reçoivent par l'évolution 018. Cinq onglets tiennent dans l'écran d'un téléphone (375 px) grâce à des onglets resserrés sur téléphone (marges 0,3 rem, texte 0,72 rem).
 
 ## 7. Hors périmètre
 
@@ -130,6 +130,6 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | Tableau | Choisi par le rond : colonnes Événement, Course, Distance · D+, Date, Ouverture des inscriptions ; sans titres de mois ; une ligne par course (À surveiller : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour le dossard d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement ; Date croissante par défaut ; Distance : croissante puis décroissante, à plat (sans distance en dernier) ; Ouverture : les plus proches d'abord ; Événement : alphabétique ; troisième toucher : retour à l'ordre d'origine ; rien ne dépasse de la page sur téléphone |
 | Ordinateur (1200 px) | Deux cartes du même mois côte à côte, moins de 420 px de large ; toutes les cartes de la même hauteur (aussi sur téléphone) |
 | Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
-| Menu | Onglet « À surveiller » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |
+| Menu | Onglet « Courses » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |
 | `?vue=courue` | La vue Déjà couru |
 | Site partagé | Lecture seule, pas de bouton d'ajout ; toucher une carte ouvre la page de la course, pas la fiche |
