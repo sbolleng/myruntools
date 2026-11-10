@@ -62,9 +62,11 @@
 .ps-choix.is-on { font-weight: 600; color: var(--accent); }
 .ps-choix.is-on i { visibility: visible; }
 /* Ma semaine : une question par bloc, ses réponses en pastilles (plusieurs pour les jours). */
-.ps-sem-q { margin-top: 1rem; }
-.ps-sem-q .cal-champ { margin-bottom: 0.45rem; }
-.ps-chiffres { display: grid; grid-template-columns: repeat(2, minmax(0, 12rem)); align-items: end; gap: 0 0.8rem; margin-top: 1rem; }
+.ps-sem-q { padding: 0.8rem 0.9rem; }
+.ps-sem-q + .ps-sem-q { border-top: 1px solid var(--surface); }
+.ps-sem-q .cal-champ { margin-bottom: 0.5rem; }
+.ps-chiffre { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; font-size: var(--t-texte); color: var(--text); }
+.ps-chiffre .mrt-champ { width: 4.5rem; text-align: center; }
 .ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .ps-valeur { margin-top: 1rem; }
 .ps-valeur .mrt-btn { margin-top: 0.2rem; }

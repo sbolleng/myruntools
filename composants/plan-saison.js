@@ -80,7 +80,7 @@
     // La feuille d'une course (modale-course.css) : à la largeur des pages, plein écran sur téléphone ; la croix en haut à droite.
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
-    voile.innerHTML = '<div class="mc-panneau ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
+    voile.innerHTML = '<div class="mc-panneau mc-ecrans ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
@@ -106,7 +106,17 @@
       '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
       '<p class="fc-libelle" id="ps-titre">' + titre + '</p><p class="ps-msg" role="alert"></p>';
 
+    // Glissement du contenu (ordinateur seulement, voir modale-course.css) : vers une question par la droite, retour à la liste par la gauche.
+    let ecran = 'liste';
+    const glisse = sens => {
+      corps.classList.remove('mc-glisse-avant', 'mc-glisse-retour');
+      void corps.offsetWidth;
+      corps.classList.add('mc-glisse-' + sens);
+    };
+    const versQuestion = () => { if (ecran === 'liste') glisse('avant'); ecran = 'question'; };
     function liste() {
+      if (ecran === 'question') glisse('retour');
+      ecran = 'liste';
       const ls = lignes(pr()), obligatoires = ls.filter(l => l[3]), faites = obligatoires.filter(l => l[2]).length;
       const ligneHtml = l => '<button type="button" class="ps-ligne-q" data-q="' + l[0] + '"><span>' + l[1] + '</span><span class="ps-rep' + (!l[2] && l[3] ? ' is-a-faire' : '') + '">' + (l[2] ? esc(l[2]) : l[3] ? 'À renseigner' : '—') + '</span><i aria-hidden="true">›</i></button>';
       corps.innerHTML = barre('Mon profil d\'entraînement', false) +
@@ -116,6 +126,7 @@
     }
     // Une question à choix : un toucher enregistre et revient à la liste.
     function choix(cle, titre) {
+      versQuestion();
       corps.innerHTML = barre(titre, true) + '<div class="ps-groupe-l">' + ECHELLES[cle].map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (String(pr()[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
       corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', async () => {
@@ -126,15 +137,20 @@
     // Ma semaine : jours pour courir et pour le renforcement (cumulables), jour de la sortie longue, en pastilles ; nombres de
     // sorties et de renforcements, un chiffre de 0 à 7 ; chaque changement s'enregistre.
     function semaine() {
+      versQuestion();
       const p0 = pr(), jc = joursDe(p0, 'jours_course'), jr = joursDe(p0, 'jours_renfo');
       const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
       const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
-      const chiffre = (nom, lib, v) => '<label class="cal-champ ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
+      const chiffre = (nom, lib, v) => '<label class="ps-sem-q ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
+      const section = (titre, html) => '<section class="mrt-section"><h2 class="mrt-section-titre">' + titre + '</h2><div class="ps-groupe-l">' + html + '</div></section>';
       corps.innerHTML = barre('Ma semaine', true) +
-        q('Jours possibles pour courir', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
-        '<div class="ps-chiffres">' + chiffre('nb_sorties', 'Sorties par semaine', p0.nb_sorties) + chiffre('nb_renfo', 'Renforcements par semaine', p0.nb_renfo) + '</div>' +
-        q('Jour à privilégier pour la sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe')) +
-        q('Jours possibles pour le renforcement', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join(''));
+        section('Course',
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
+          chiffre('nb_sorties', 'Sorties par semaine', p0.nb_sorties) +
+          q('Sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe'))) +
+        section('Renforcement',
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join('')) +
+          chiffre('nb_renfo', 'Séances par semaine', p0.nb_renfo));
       const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, b) => a - b));
       corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(b => b.addEventListener('click', async () => {
         const d = b.dataset, champs = {};
@@ -152,6 +168,7 @@
     }
     // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
     function allure(type) {
+      versQuestion();
       const t = type || pr().allure_type;
       const saisie = t === 'vma' ? ['VMA (km/h)', virgule(pr().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['Temps sur 10 km', enTemps(pr().temps_10km_s), 'ex. 45:30', 'text'] :
         t === 'semi' ? ['Temps sur semi-marathon', enTemps(pr().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
@@ -181,6 +198,7 @@
     }
     // FC max et points fragiles : deux champs facultatifs, « Valider ».
     function sante() {
+      versQuestion();
       corps.innerHTML = barre('FC max et points fragiles', true) + '<form class="ps-valeur" novalidate>' +
         '<label class="cal-champ"><span>FC max</span><input class="mrt-champ" name="fc" inputmode="numeric" placeholder="ex. 185" value="' + esc(pr().fc_max == null ? '' : pr().fc_max) + '"></label>' +
         '<label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(pr().fragiles || '') + '</textarea></label>' +
