@@ -265,7 +265,6 @@
           '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
         // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
         '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +
-        '<p class="fc-legende"><span class="fc-oblig" aria-hidden="true">*</span> obligatoire</p>' +
         '<p class="fc-msg" aria-live="polite"></p>' +
         BLOCS.map(([b, titre]) =>
           '<section class="fc-bloc">' +
