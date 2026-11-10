@@ -3440,6 +3440,7 @@ const CONTROLES = {
     await p.selectOption('.pf-panneau [name="activite"]', 'actif');
     await p.click('.pf-panneau [type="submit"]');
     await p.waitForSelector('.pf-panneau', { state: 'detached' });
+    await p.waitForFunction(() => /2 401/.test((document.querySelector('.nu-kcal') || {}).textContent || ''), null, { timeout: 5000 }).catch(() => {});
     pb.push(egal([['PATCH', 'profils', { ...COMPLET, poids: 72.5, activite: 'actif' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'fenêtre : les cinq champs rangés, virgule acceptée'),
       egal('2 401 kcal', await txt(p, '.nu-kcal'), 'besoin recalculé avec 72,5 kg et activité « actif »'));
     // Échec d'écriture : message, fenêtre ouverte.
@@ -3538,7 +3539,7 @@ const CONTROLES = {
     // Carte 1 et jauges au départ.
     let d = base();
     let { p, ctx, erreurs } = await ouvrirN(d);
-    pb.push(egal(['Calculé pour 70 kg · 175 cm · peu actif ›', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
+    pb.push(egal(['Calculé pour H · 70 kg · 175 cm · peu actif ›', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
       egal(['Mardi 20 octobre', true, 0], [norm(await p.locator('.nu-jour-t').textContent()), await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count()], 'sélecteur : le jour, pas de jour suivant, pas de lien « Aujourd\'hui »'),
       egal(['kcal | sous | 350 | Reste 1 767 kcal | Besoin 2 117 kcal', 'p | sous | 6 g | Reste 92 g | Besoin 98–140 g', 'g | sous | 76 g | Reste 189 g | Besoin 265–318 g', 'l | sous | 1 g | Reste 58 g | Besoin 59–82 g'], await jauges(p), 'anneaux : nom, valeur, reste, besoin'),
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
@@ -3553,8 +3554,14 @@ const CONTROLES = {
     pb.push(egal(['Banane · 1 pièce | 90 kcal'], await liste(p), 'Favoris'));
     await p.click('[data-source="recents"]');
     // Banane : deux portions, au repas de l'heure (10 h : midi).
+    pb.push(egal(['Récents', 'Favoris', '+ Aliment libre'], (await p.locator('.nu-sources button').allTextContents()).map(norm), 'sources : Récents, Favoris, Aliment libre'));
     await p.click('.nu-aliment >> nth=0');
     const qte = async () => p.inputValue('.nu-qte');
+    pb.push(egal([0, 0, true, 'Banane · 1 pièce'], [await p.locator('.nu-feuille .nu-sources').count(), await p.locator('.nu-feuille .nu-recherche').count(), await p.locator('.nu-retour').isVisible(), norm(await p.locator('.nu-choix-nom').textContent())],
+      'étape 2 : l\'aliment seul, sans la recherche ni les listes ; « ‹ » proposé'));
+    await p.click('[data-act="retour"]');
+    pb.push(egal([1, 0, false], [await p.locator('.nu-feuille .nu-sources').count(), await p.locator('.nu-choix').count(), await p.locator('.nu-retour').isVisible()], '« ‹ » : retour à la recherche et aux listes'));
+    await p.click('.nu-aliment >> nth=0');
     pb.push(egal(['1', 'midi'], [await qte(), await p.locator('.nu-repas-choix [aria-pressed="true"]').getAttribute('data-repas')], 'choix : une portion, repas d\'après l\'heure'));
     await p.click('[data-act="plus"]'); await p.click('[data-act="plus"]'); await p.click('[data-act="moins"]'); await p.click('[data-act="plus"]');
     pb.push(egal(['2', '2 portions'], [await qte(), norm(await p.locator('.nu-quantite .nu-unite').textContent()).replace(/^/, '2 ')], 'quantité par pas de 0,5'));
@@ -3570,7 +3577,7 @@ const CONTROLES = {
     pb.push(egal(0, await p.locator('.nu-journal li .mrt-rond').count(), 'journal : aucun rond au bout des lignes'));
     await p.locator('.nu-ligne:has-text("Banane")').last().click();
     await p.waitForSelector('.nu-modifier');
-    await p.click('.nu-modifier [data-f="supprimer"]');
+    await p.click('.nu-modifier [data-act="supprimer"]');
     pb.push(egal(['Supprimer cette ligne ?', 0], [norm(await p.locator('.mrt-dialogue p').textContent()), d.ecritures.length], 'Supprimer : la question du site, rien d\'écrit avant la réponse'));
     await p.click('.mrt-dialogue [data-r="oui"]');
     await p.waitForFunction(() => document.querySelectorAll('.nu-lignes li').length === 2);
@@ -3652,6 +3659,8 @@ const CONTROLES = {
       pb.push(egal([['Yaourt nature · Marque C | 53 kcal / 100 g'], [{ q: 'yaourt' }], 0], [await p2.evaluate(() => [...document.querySelectorAll('.nu-off .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), appels, ancien.length], 'relais : les produits, sans l\'ancien moteur'));
       await p2.click('.nu-off .nu-aliment >> nth=0');
       pb.push(egal('125', await p2.inputValue('.nu-qte'), 'relais : la portion habituelle du produit'));
+      await p2.click('[data-act="retour"]');
+      pb.push(egal(['yaourt', 1], [await p2.inputValue('.nu-recherche [name="q"]'), await p2.locator('.nu-off .nu-aliment').count()], '« ‹ » : la recherche et ses résultats retrouvés'));
       await p2.fill('.nu-recherche [name="q"]', 'skyr'); await p2.fill('.nu-recherche [name="q"]', 'yaourt'); await p2.press('.nu-recherche [name="q"]', 'Enter');
       await p2.waitForSelector('.nu-off .nu-aliment');
       pb.push(egal(1, appels.length, 'recherche déjà faite : gardée, aucun nouvel appel'));
@@ -3759,11 +3768,13 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     await p.click('.nu-ligne:has-text("Riz cuit")');
     await p.waitForSelector('.nu-modifier');
-    pb.push(egal(['Modifier · Riz cuit', '200', 'midi'], [norm(await p.locator('.nu-modifier .pf-titre').textContent()), await p.inputValue('.nu-modifier .nu-qte'), await p.locator('.nu-modifier [data-r][aria-pressed="true"]').getAttribute('data-r')], 'Modifier : la quantité et le repas de la ligne'));
-    await p.click('.nu-modifier [data-f="annuler"]');
+    pb.push(egal(['Riz cuit', '200', 'midi', true, true], [norm(await p.locator('.nu-modifier .cal-panneau-titre').textContent()), await p.inputValue('.nu-modifier .nu-qte'), await p.inputValue('.nu-modifier select[name="repas"]'),
+      await p.evaluate(() => !!document.querySelector('.cal-voile > .cal-panneau.nu-modifier .cal-barre [data-act="annuler"]')), await p.evaluate(() => !!document.querySelector('.nu-modifier .cal-bas [data-act="supprimer"]'))],
+      'Modifier : fenêtre d\'une séance du Calendrier, titre sans « Modifier », repas en liste'));
+    await p.click('.nu-modifier [data-act="annuler"]');
     pb.push(egal([0, 0], [await p.locator('.nu-modifier').count(), d.ecritures.length], 'Annuler : fenêtre fermée, rien d\'écrit'));
     await p.click('.nu-ligne:has-text("Riz cuit")');
-    await p.fill('.nu-modifier .nu-qte', '100'); await p.click('.nu-modifier [data-r="soir"]');
+    await p.fill('.nu-modifier .nu-qte', '100'); await p.selectOption('.nu-modifier select[name="repas"]', 'soir');
     await p.click('.nu-modifier [type="submit"]');
     await p.waitForSelector('.nu-modifier', { state: 'detached' });
     pb.push(egal([['PATCH', 'repas_lignes', { repas: 'soir', quantite: 1, kcal: 130, proteines: 2.7, glucides: 28, lipides: 0.3 }, '?id=eq.' + ID(4)]], d.ecritures.map(e => [e.methode, e.table, e.corps, e.filtres]), 'Enregistrer : 100 g au soir, valeurs figées à la nouvelle quantité'),
@@ -3774,7 +3785,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     pb.push(egal('2 712 kcal', await kcal(p), 'activités lues dans la base'));
     await p.click('.nu-activites .nu-ligne:has-text("Marche")');
-    await p.click('.nu-modifier [data-f="supprimer"]');
+    await p.click('.nu-modifier [data-act="supprimer"]');
     pb.push(egal('Supprimer cette activité ?', norm(await p.locator('.mrt-dialogue p').textContent()), 'Supprimer une activité : la question du site'));
     await p.click('.mrt-dialogue [data-r="oui"]');
     await p.waitForSelector('.nu-modifier', { state: 'detached' });
