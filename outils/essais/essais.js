@@ -3440,6 +3440,7 @@ const CONTROLES = {
     await p.selectOption('.pf-panneau [name="activite"]', 'actif');
     await p.click('.pf-panneau [type="submit"]');
     await p.waitForSelector('.pf-panneau', { state: 'detached' });
+    await p.waitForFunction(() => /2 401/.test((document.querySelector('.nu-kcal') || {}).textContent || ''), null, { timeout: 5000 }).catch(() => {});
     pb.push(egal([['PATCH', 'profils', { ...COMPLET, poids: 72.5, activite: 'actif' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'fenêtre : les cinq champs rangés, virgule acceptée'),
       egal('2 401 kcal', await txt(p, '.nu-kcal'), 'besoin recalculé avec 72,5 kg et activité « actif »'));
     // Échec d'écriture : message, fenêtre ouverte.
