@@ -2244,6 +2244,8 @@ const CONTROLES = {
       const t = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS);
       await t.p.waitForSelector('.ps-cadre');
       pb.push(egal('none', await t.p.evaluate(() => { const b = document.querySelector('.mrt-plein'); return b ? getComputedStyle(b).display : 'none'; }), 'téléphone : pas de plein écran'));
+      // Téléphone, « Saison » : la frise remplit la largeur et les noms de phase restent dans leur barre.
+      pb.push(egal(true, await t.p.evaluate(() => { const f = document.querySelector('.ps-frise').getBoundingClientRect(), g = [...document.querySelectorAll('.ps-sem .ps-ph')].pop().getBoundingClientRect(); return [...document.querySelectorAll('.ps-ph-nom')].every(e => { const r = e.getBoundingClientRect(); return r.left >= f.left - 1 && r.right <= f.right + 1; }) && Math.abs(g.right - f.right) < 2; }), 'téléphone, « Saison » : la frise remplit la largeur, les noms de phase restent dans la frise'));
       await t.ctx.close();
       const q = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS);
       await q.p.waitForSelector('.ps-cadre');
