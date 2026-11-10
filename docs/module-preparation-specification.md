@@ -92,7 +92,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 (4) ⚠ Alertes (0)
 (5) BLOC EN COURS · 4 semaines à partir du 19 oct. · Entretien
 (6) [Proposer les séances] · 4 restantes ce mois-ci
-(9) ┌ RECOMMANDATION DE L'IA · EN ATTENTE ───────────────────────────────┐
+(9) ┌ RECOMMANDATION DE MYRUNTOOLS ───────────────────────────────────────┐
     │ (8) Entretien sur trois semaines : deux footings, une séance de     │
     │     seuil et une sortie longue. La dernière s'allège avant le Lac.  │
     │ [Tout accepter] [Choisir semaine par semaine] [Refaire] [Abandonner]│

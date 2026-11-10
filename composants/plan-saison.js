@@ -242,7 +242,7 @@
       : '<button type="button" class="mrt-btn is-principal" data-ia="tout">Tout accepter</button><button type="button" class="mrt-btn" data-ia="choisir">Choisir semaine par semaine</button>' +
         '<button type="button" class="mrt-btn" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>' + (etat.encours ? 'Proposition en cours…' : 'Refaire') + '</button><button type="button" class="mrt-btn" data-ia="abandonner">Abandonner</button>';
     // Téléphone : la grille ne montre que des repères ; la liste des séances proposées s'ajoute sous la recommandation.
-    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de l\'IA · en attente</h3><p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
+    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de MyRunTools</h3><p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
       '<ul class="ps-prop-liste">' + seances.map(ligneSeance).join('') + '</ul>' + choixSem + '<div class="ps-prop-actions">' + actions + '</div>' + msg + '</section>';
   }
   // Dans une case de la grille : les repères du jour (allégé, repos, récupération) et les séances proposées, en attente.
