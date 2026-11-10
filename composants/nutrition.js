@@ -296,17 +296,35 @@
       return '<form class="nu-recherche" role="search"><input class="mrt-champ" type="search" name="q" placeholder="Rechercher un aliment…" aria-label="Rechercher un aliment" value="' + esc(S.recherche.texte) + '" autocomplete="off" enterkeyhint="search">' +
         '<button type="submit" class="mrt-btn">Chercher</button></form><div class="nu-resultats"><div class="nu-mes">' + htmlMes() + '</div><div class="nu-produits">' + htmlProduits() + '</div></div>';
     }
+    // Aperçu de la quantité saisie : calories et macros, comme elles seront figées à l'ajout.
+    function apercu(a, q0) {
+      if (!(q0 > 0)) return null;
+      const k = enGrammes(a) ? q0 / 100 : q0, v = c => Math.round((Number(a[c]) || 0) * k);
+      return { kcal: v('kcal'), p: v('proteines'), g: v('glucides'), l: v('lipides') };
+    }
+    const texteApercu = x => x ? n0(x.kcal) + ' kcal · P ' + x.p + ' g · G ' + x.g + ' g · L ' + x.l + ' g' : '';
+    const texteAjouter = x => 'Ajouter' + (x ? ' · ' + n0(x.kcal) + ' kcal' : '');
+    function majApercu() {
+      const a = choisi(), z = zoneAjout();
+      if (!a || !z || !z.querySelector('.nu-apercu')) return;
+      const x = apercu(a, lireQuantite());
+      z.querySelector('.nu-apercu').textContent = texteApercu(x);
+      z.querySelector('.nu-ajouter').textContent = texteAjouter(x);
+    }
     function htmlChoix() {
       const a = choisi();
       if (!a) return '';
-      const g = enGrammes(a);
-      return '<div class="nu-choix"><p class="nu-choix-nom">' + detail(a) + '</p><p class="nu-choix-k">' + kcalDe(a) + '</p>' +
+      const g = enGrammes(a), x = apercu(a, S.choix.quantite);
+      return '<div class="nu-choix"><div class="nu-choix-tete"><div><p class="nu-choix-nom">' + detail(a) + '</p><p class="nu-choix-k">' + kcalDe(a) + '</p></div>' +
+        '<button type="button" class="mrt-rond nu-fav" data-act="favori" aria-pressed="' + !!a.favori + '" aria-label="Favori" title="Favori">' + (a.favori ? '★' : '☆') + '</button></div>' +
+        '<p class="nu-choix-l">Quantité</p>' +
         '<div class="nu-quantite"><button type="button" class="mrt-rond" data-act="moins" aria-label="Moins">' + mrtIcone.moins + '</button>' +
         '<span class="nu-unite"><input class="mrt-champ nu-qte" name="quantite" type="text" inputmode="decimal" aria-label="Quantité" value="' + virgule(S.choix.quantite) + '">' + (g ? 'g' : 'portion' + (S.choix.quantite > 1 ? 's' : '')) + '</span>' +
-        '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">' + mrtIcone.plus + '</button>' +
-        '<button type="button" class="mrt-pastille nu-fav" data-act="favori" aria-pressed="' + !!a.favori + '">' + (a.favori ? '★' : '☆') + ' Favori</button></div>' +
+        '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">' + mrtIcone.plus + '</button></div>' +
+        '<p class="nu-apercu" aria-live="polite">' + texteApercu(x) + '</p>' +
+        '<p class="nu-choix-l">Repas</p>' +
         '<div class="nu-repas-choix">' + REPAS.map(r => '<button type="button" class="mrt-pastille" data-act="repas" data-repas="' + r[0] + '" aria-pressed="' + (S.repas === r[0]) + '">' + r[1] + '</button>').join('') + '</div>' +
-        '<button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">Ajouter</button></div>';
+        '<button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">' + texteAjouter(x) + '</button></div>';
     }
     function htmlAjout() {
       // Étape 2 : l'aliment choisi (quantité, favori, repas, Ajouter) ; « ‹ » ramène à l'étape 1.
@@ -390,6 +408,7 @@
       feuille = { type, voile, corps: voile.querySelector(type === 'repas' ? '.nu-ajout' : '.nu-activite') };
       brancher(voile);
       voile.addEventListener('mousedown', e => { if (e.target === voile) fermerFeuille(); });
+      voile.addEventListener('input', e => { if (e.target.classList.contains('nu-qte')) majApercu(); });
       if (type === 'repas') dessinerAjout(); else dessinerActivite();
       voile.querySelector('.mc-panneau').focus();
     }
