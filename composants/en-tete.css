@@ -319,3 +319,7 @@ body.mrt-public { display: grid; place-items: center; grid-template-rows: 1fr au
 .mrt-pied { max-width: 960px; margin: 0 auto; padding: 0.5rem 2rem 1.5rem; text-align: center; font-size: var(--t-libelle); color: var(--muted); }
 .mrt-pied a { color: var(--muted); }
 @media (hover: hover) { .mrt-pied a:hover { color: var(--text); } }
+
+/* Plein écran (mrtPleinEcran) : ordinateur seulement ; la zone prend l'écran sur le fond du site. */
+@media (max-width: 600px), (hover: none) { .mrt-plein { display: none; } }
+[data-plein-cible]:fullscreen { box-sizing: border-box; padding: 1.5rem 2rem; overflow: auto; background: var(--bg); }

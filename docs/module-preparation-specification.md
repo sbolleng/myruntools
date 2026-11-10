@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.9 · 10 novembre 2026 · [Retour au sommaire](README.md) · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
+Version 1.0 · 10 novembre 2026 · [Retour au sommaire](README.md) · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -85,18 +85,18 @@ Une page à part, `preparation.html`. Son onglet se coche dans les Préférences
 Jeu d'essai, au 20 octobre 2026 (§ 9).
 
 ```
-(1) Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.)          (2) [Mon profil]
-(11) Cette semaine : Entretien, jusqu'au dim. 15 nov. 2026 ; la saison commence le lun. 16 nov. 2026.
-(3) frise : [Entretien|Base ▓▓▓|Del|Base ▓▓|Dév|Del|Dév ▓▓▓|Del|Dév ▓▓|Aff ▓▓|Récup ▓▓▓▓▓▓|Entretien|Base …]
-              ▲Lac (prépa) ▲Corrida (plaisir)                     ▲Gorges (objectif)        ▲Crêtes (objectif)
-(4) ⚠ Alertes (0)
-(5) BLOC EN COURS · 4 semaines à partir du 19 oct. · Entretien
+(1) Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.)          (12) Profil à compléter…  (2) [Mon profil]
+(3) [Saison] [Tout]                                                                                          (13) [⤢]
+    oct. 26  nov.        déc.         janv. 27     févr.        mars
+    [Entretien ▓▓▓|Base ▓▓▓▓▓|Déload|Base ▓▓▓|Dév ▓▓▓▓|Déload|Dév ▓▓▓▓|Aff ▓▓]
+    ▲Lac (prépa)  ▲Corrida (plaisir)                                    ▲Gorges (objectif)
+    légende : signes des courses + six phases
+(9) ┌ RECOMMANDATION DE MYRUNTOOLS ───────────────────────────────────────────┐
+    │ (4) ⚠ Gorges et Crêtes : 8 semaines d'écart (12 conseillées)            │  seulement s'il y en a
+    │ (8) Entretien sur trois semaines : deux footings, une séance de seuil…   │  seulement avec une proposition
+    │ [Tout accepter] [Choisir semaine par semaine] [Refaire] [Abandonner]     │
+    └──────────────────────────────────────────────────────────────────────────┘
 (6) [Proposer les séances] · 4 restantes ce mois-ci
-(9) ┌ RECOMMANDATION DE MYRUNTOOLS ───────────────────────────────────────┐
-    │ (8) Entretien sur trois semaines : deux footings, une séance de     │
-    │     seuil et une sortie longue. La dernière s'allège avant le Lac.  │
-    │ [Tout accepter] [Choisir semaine par semaine] [Refaire] [Abandonner]│
-    └─────────────────────────────────────────────────────────────────────┘
 (7)  LUN    MAR             MER   JEU          VEN   SAM              DIM
      19     20              21    22           23    24               25
             ┆Footing · 45 min┆    ┆Seuil…┆          ┆Sortie longue┆    +
@@ -107,21 +107,22 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 | N° | Élément | Contenu |
 |---|---|---|
 | 1 | Titre de saison | Le prochain Objectif, sa date, le temps restant ; sans Objectif à venir, à la place de la page : « Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Plan & objectifs) pour construire ta saison. » |
-| 11 | État de la semaine | En saison : « Cette semaine : Base, semaine 3 sur 16. » ; « Récupération de … jusqu'au … » ; « Entretien, jusqu'au … ; la saison commence le … » ; « Saison raccourcie : 8 semaines sur 16. » si besoin |
+| 11 | *(supprimé)* | L'état de la semaine (phase, semaine n sur N) n'est plus affiché : la frise et le fond des cases le disent. |
 | 2 | Mon profil | Bouton à contour, en haut à droite : la fenêtre du profil d'entraînement (§ 5.2) ; aussi quand aucun Objectif n'est à venir ; absent du site partagé |
 | 12 | État du profil | À gauche du bouton : « Profil à compléter : … » (les champs obligatoires qui manquent) ou « Profil complet. » |
-| 3 | Frise de saison | De la semaine en cours à la fin de la récupération du dernier Objectif : une colonne par semaine à la couleur de sa phase, les courses dessous, repérées par leur rôle (les options en pointillé) ; chaque course mène à sa page ; légende des signes et des six phases |
-| 4 | Alertes | Le nombre, puis la liste (§ 3.4) ; chacune mène à sa course |
-| 5 | Bloc en cours | 4 semaines à partir du lundi de la semaine en cours : l'unité de génération |
+| 13 | Plein écran | Sur ordinateur seulement : un rond « agrandir » à droite des pastilles de la frise ; la frise prend tout l'écran (4,5 rem de haut), Échap ou le même rond pour sortir ; le Calendrier a le même rond dans sa barre du haut (§ Calendrier) |
+| 3 | Frise de saison | Deux niveaux, au choix par deux pastilles : **Saison** (par défaut ; de la semaine en cours à celle de l'Objectif visé) et **Tout** (jusqu'à la fin de la récupération du dernier Objectif) ; une colonne par semaine (1,6 rem au moins) à la couleur de sa phase, 2,4 rem de haut, le nom de la phase écrit sur chaque suite de deux semaines au moins, les mois au-dessus, les courses dessous, repérées par leur rôle (les options en pointillé) ; chaque course mène à sa page ; légende des signes et des six phases |
+| 4 | Alertes | **Dans le bloc de la recommandation (9), seulement s'il y en a** (ni compteur, ni titre à part) : une ligne chacune, le nom des courses en gras, chacune menant à sa course (§ 3.4) : « Gorges et Crêtes : 8 semaines d'écart (12 conseillées) » ; « Lac : récupération jusqu'au ven. 4 déc. 2026, sur l'affûtage de Gorges » ; « Cimes : à 14 jours de Crêtes (3 semaines conseillées) » ; « Plateau est plus longue que Gorges » |
+| 5 | *(supprimé)* | Le titre « Bloc en cours » n'est plus affiché ; le bloc reste de 4 semaines à partir du lundi de la semaine en cours (l'unité de génération). |
 | 6 | Proposer les séances | Appel à l'IA (§ 6) ; le nombre de propositions restantes ce mois-ci ; absent tant que le profil manque d'un champ obligatoire, avec le lien « Compléter mon profil » |
 | 7 | Grille du bloc | La mise en page du Mois du Calendrier (vue Mois, mêmes cases, fond de la phase, courses, séances, « + ») sur les 4 semaines du bloc ; dans la case d'un jour, son repère en petit (« Allégé », « Repos », « Récupération ») et les séances proposées en attente (contour Accent en pointillé, détail au survol) |
 | 8 | Recommandation | Un seul bloc de texte de l'IA pour l'ensemble du bloc, trois phrases au plus ; aucun commentaire par semaine |
-| 9 | Proposition | Le cadre de la recommandation, en attente, à part des séances enregistrées : tout accepter, choisir semaine par semaine (les semaines en pastilles), refaire (une proposition de plus), abandonner ; sur téléphone, la liste des séances proposées s'y ajoute (la grille n'y montre que des points) |
+| 9 | Recommandation de MyRunTools | Le cadre, titré « Recommandation de MyRunTools » (aucun état dans le titre), porte les alertes (4) puis le texte (8), en attente, à part des séances enregistrées : tout accepter, choisir semaine par semaine (les semaines en pastilles), refaire (une proposition de plus), abandonner ; sur téléphone, la liste des séances proposées s'y ajoute (la grille n'y montre que des points) |
 | 10 | Suite | Les blocs suivants (phases et courses, sans séances tant qu'ils ne sont pas proposés) ; l'historique des propositions (date, bloc, acceptée ou non) |
 
 Téléphone : même ordre ; la frise défile de gauche à droite ; la grille est celle du Mois sur téléphone.
 
-Lot 1 : éléments 1, 3, 4, 5, 7 et 11 ; lot 2 : le profil (2) et son état (12) ; lot 3 : la proposition de séances (6, 8, 9) ; la suite (10) au lot 4.
+Lot 1 : éléments 1, 3, 4, 7 (puis 5 et 11, supprimés) ; lot 2 : le profil (2) et son état (12) ; lot 3 : la proposition de séances (6, 8, 9) ; la suite (10) au lot 4.
 
 ### 5.2 Profil d'entraînement
 
@@ -264,9 +265,9 @@ Résultats attendus, trame :
 
 Résultats attendus, page et profil :
 
-- Titre « Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.) » ; état : Entretien jusqu'au 15 novembre, saison à partir du 16 ; frise de la semaine du 19 octobre 2026 à celle du 25 octobre 2027 (fin de la récupération du Trail des Crêtes, 59 jours) ; courses de la frise : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (Objectif), Trail des Cimes, Ultra du Plateau et Trail de la Forêt (options), Trail des Crêtes (Objectif) ; « Alertes (0) ».
+- Titre « Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.) » ; ni état de la semaine ni titre « Bloc en cours » ; frise « Saison » par défaut, de la semaine du 19 octobre 2026 à celle du 1er mars 2027, nom de la phase écrit sur la barre ; « Tout » : de la semaine du 19 octobre 2026 à celle du 25 octobre 2027 (fin de la récupération du Trail des Crêtes, 59 jours) ; courses de la frise : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (Objectif), Trail des Cimes, Ultra du Plateau et Trail de la Forêt (options), Trail des Crêtes (Objectif) ; aucune alerte : rien d'affiché. Plein écran : un rond sur ordinateur, aucun sur téléphone.
 - Bloc en cours : la grille du Mois, 28 cases du lun. 19 octobre au dim. 15 novembre, en Entretien ; « Allégé » dans les cases du 12 au 14 novembre, aucun autre repère ; un « + » par jour.
-- Au 30 novembre : « Cette semaine : Base, semaine 3 sur 16. » ; « Récupération » dans la case du ven. 4 décembre (pas le 5), « Repos » dans celle du sam. 12 décembre ; la case du 30 novembre au fond de la Base.
+- Au 30 novembre : « Récupération » dans la case du ven. 4 décembre (pas le 5), « Repos » dans celle du sam. 12 décembre ; la case du 30 novembre au fond de la Base.
 - Calendrier, mars 2027 : affûtage le 2 mars, Récupération le 9, d'une autre couleur.
 - Sans Objectif à venir : le message, pas de frise. Site partagé en lecture seule : la saison s'affiche, sans « + ».
 Résultats attendus, profil :
@@ -291,6 +292,7 @@ Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe,
 - « Abandonner » (confirmé) : rien d'écrit, la proposition compte (3 restantes).
 - 4 propositions déjà faites ce mois-ci : bouton grisé, « 0 restante ce mois-ci ». Refus de la fonction : « Plus de proposition ce mois-ci : la prochaine le dim. 1er nov. 2026. » ; compte non pilote : « Réservé aux comptes pilotes pour l'instant. ».
 - Profil incomplet : pas de bouton, « Compléter mon profil ».
+- Seconde acceptation : « 1 séance déjà proposée par MyRunTools sur ces semaines sera remplacée (pas celles que tu as saisies, ni les faites). » ; après confirmation, la séance de l'IA non faite est remplacée, la séance saisie et la séance faite restent, 12 nouvelles séances.
 - Garde-fous au 17 novembre : fractionné le 19 novembre (récupération du Trail du Lac) refusé, le 8 décembre accepté ; une séance le 12 décembre (veille de la Corrida de Noël) refusée.
 - Site partagé en lecture seule : trame et séances visibles ; ni profil, ni proposition.
 - Téléphone : rien ne déborde, la frise défile.

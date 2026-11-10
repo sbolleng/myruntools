@@ -101,7 +101,7 @@
         '<nav class="cal-menu" id="cal-menu" aria-label="Périodicité" hidden><span class="cal-libelle">Périodicité</span>' + VUES.map(x =>
           '<a href="#' + x[0] + (x[2] && depart ? '=' + depart : '') + '" data-vue="' + x[0] + '"' + (x[2] ? ' data-periode="' + x[2] + '"' : '') +
           (est(x) ? ' class="is-on" aria-current="true"' : '') + '>' + x[1] + '</a>').join('') + '</nav></div>' +
-        '<div class="cal-options"><button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Phases de prépa">Plan</button>' +
+        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Phases de prépa">Plan</button>' +
         '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     };
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
@@ -278,6 +278,7 @@
       const jour = t.closest('[data-jour]');
       if (jour) location.hash = '#semaines=' + lundiDe(jour.dataset.jour);
     });
+    root.setAttribute('data-plein-cible', ''); // plein écran (ordinateur) : tout le Calendrier
     P.brancher(root, ctx, null);
     window.addEventListener('hashchange', () => { if (dessiner()) window.scrollTo(0, 0); });
     if (mobile.addEventListener) mobile.addEventListener('change', () => { if (lireHash().v === 'annee') dessiner(); });

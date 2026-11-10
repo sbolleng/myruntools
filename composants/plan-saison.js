@@ -14,16 +14,13 @@
   const nom = c => '<a class="ps-course" href="' + lien(c) + '">' + esc(c.course) + '</a>';
   const semainesEntre = (a, b) => Math.ceil((parse(b) - parse(a)) / (7 * 86400000));
 
-  // Texte d'une alerte (spécification, § 3.4).
+  // Texte d'une alerte (spécification, § 3.4) : une ligne, le nom des courses en gras (CSS), le fait et, entre parenthèses, ce qui est conseillé.
   function texteAlerte(a) {
-    if (a.type === 'proches') return nom(a.course) + ' est à ' + a.semaines + ' semaines de ' + nom(a.autre) + ' (12 au moins conseillées entre deux Objectifs) : passe l\'un des deux en Préparatoire.';
-    if (a.type === 'recup-affutage') return 'La récupération de ' + nom(a.course) + ' court jusqu\'au ' + longue(a.fin) + ' : elle déborde sur l\'affûtage de ' + nom(a.autre) + ' (dès le ' + longue(a.affutage) + ').';
-    if (a.type === 'prepa-proche') return nom(a.course) + ' est à ' + a.jours + ' jours de ' + nom(a.autre) + ' : une Préparatoire se court au moins 3 semaines avant un Objectif de la distance du marathon ou plus, 2 semaines avant un plus court.';
-    return nom(a.course) + ' est plus longue (en km-effort) que ' + nom(a.autre) + ', l\'Objectif de sa saison.';
+    if (a.type === 'proches') return nom(a.autre) + ' et ' + nom(a.course) + ' : ' + a.semaines + ' semaines d\'écart (12 conseillées)';
+    if (a.type === 'recup-affutage') return nom(a.course) + ' : récupération jusqu\'au ' + longue(a.fin) + ', sur l\'affûtage de ' + nom(a.autre);
+    if (a.type === 'prepa-proche') return nom(a.course) + ' : à ' + a.jours + ' jours de ' + nom(a.autre) + ' (' + a.conseillees + ' semaines conseillées)';
+    return nom(a.course) + ' est plus longue que ' + nom(a.autre);
   }
-
-
-
 
   // ----- Profil d'entraînement (spécification, § 5.2) : une liste de lignes ; chaque ligne ouvre une question ;
   // un choix s'enregistre aussitôt et ramène à la liste. -----
@@ -227,13 +224,16 @@
   const ligneSeance = s => '<li>' + P.jourCourt(s.date) + ' · <b>' + (P.TYPES[s.type] || s.type) + '</b> ' + esc(s.libelle) + ' · ' + s.duree_min + ' min' +
     (Number(s.distance_km) > 0 ? ' · ' + virgule(s.distance_km) + ' km' : '') + ' · ' + (P.INTENSITES[s.intensite] || s.intensite) + '</li>';
   // (6) Proposer ; (9) proposition en attente : la recommandation (8), seule, et ses boutons ; ses séances sont dans la grille.
-  function iaHtml(ctx, lundi) {
-    if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return '';
+  function iaHtml(ctx, lundi, alertes) {
+    // Les alertes (seulement s'il y en a) sont dans le bloc de la recommandation ; sans proposition, le bloc ne les porte que seules.
+    const listeAl = alertes && alertes.length ? '<ul class="ps-alertes">' + alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('') + '</ul>' : '';
+    const blocAl = listeAl ? '<section class="ps-proposition ps-seul"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '</section>' : '';
+    if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return blocAl;
     const etat = ctx.ia || {}, manque = manquants(ctx.profil);
-    if (manque.length) return '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
+    if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
-    if (!prop) return '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
+    if (!prop) return blocAl + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
       (etat.encours ? 'Proposition en cours…' : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + msg;
     const seances = IA().seancesDe(prop.reponse), lundis = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)), choisies = etat.semaines || lundis;
     const choixSem = etat.choix ? '<div class="ps-coches ps-prop-sems">' + lundis.map(l => '<button type="button" class="mrt-pastille" data-coche="' + l + '" aria-pressed="' + choisies.includes(l) + '">Semaine ' + window.mrtFormat.semaine(l) + '</button>').join('') + '</div>' : '';
@@ -242,7 +242,7 @@
       : '<button type="button" class="mrt-btn is-principal" data-ia="tout">Tout accepter</button><button type="button" class="mrt-btn" data-ia="choisir">Choisir semaine par semaine</button>' +
         '<button type="button" class="mrt-btn" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>' + (etat.encours ? 'Proposition en cours…' : 'Refaire') + '</button><button type="button" class="mrt-btn" data-ia="abandonner">Abandonner</button>';
     // Téléphone : la grille ne montre que des repères ; la liste des séances proposées s'ajoute sous la recommandation.
-    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de MyRunTools</h3><p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
+    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '<p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
       '<ul class="ps-prop-liste">' + seances.map(ligneSeance).join('') + '</ul>' + choixSem + '<div class="ps-prop-actions">' + actions + '</div>' + msg + '</section>';
   }
   // Dans une case de la grille : les repères du jour (allégé, repos, récupération) et les séances proposées, en attente.
@@ -269,46 +269,60 @@
         root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Plan & objectifs) pour construire ta saison.</p></div>';
         return;
       }
-      // (1) Saison visée ; (11) état de la semaine.
-      const ici = P.phaseDe(ps, lundi);
+      // (1) Saison visée.
       const dans = semainesEntre(auj, prochaine.jourJ);
-      let etat = '';
-      if (ici && ici.saison) etat = 'Cette semaine : ' + NOM_PHASE[ici.phase] + ', semaine ' + (ici.saison.semaines.findIndex(w => w.lundi === lundi) + 1) + ' sur ' + ici.saison.semaines.length + '.';
-      else if (ici && ici.phase === 'recuperation') { const r = ps.reperes.find(x => x.course === ici.apres); etat = 'Cette semaine : Récupération de ' + nom(ici.apres) + ', jusqu\'au ' + longue(r.recupFin) + '.'; }
-      else if (ici) etat = 'Cette semaine : Entretien, jusqu\'au ' + longue(addDays(prochaine.premier, -1)) + ' ; la saison commence le ' + longue(prochaine.premier) + '.';
-      let h = '<div class="ps-cadre">' + profil + '<h1 class="ps-titre">Saison : vers « ' + nom(prochaine.course) + ' » · ' + longue(prochaine.jourJ) + ' <small>(dans ' + dans + ' sem.)</small></h1>' +
-        '<p class="ps-etat">' + etat + (prochaine.raccourcie ? ' Saison raccourcie : ' + prochaine.semaines.length + ' semaines sur ' + prochaine.plan.n + '.' : '') + '</p>';
+      let h = '<div class="ps-cadre">' + profil + '<h1 class="ps-titre">Saison : vers « ' + nom(prochaine.course) + ' » · ' + longue(prochaine.jourJ) + ' <small>(dans ' + dans + ' sem.)</small></h1>';
 
-      // (3) Frise : de la semaine en cours à la dernière semaine du plan (dernière saison, ou récupération du dernier Objectif).
+      // (3) Frise, à deux niveaux : « Saison » (jusqu'à l'Objectif, par défaut) ou « Tout » (jusqu'à la fin de la dernière récupération).
       const derniere = ps.saisons[ps.saisons.length - 1], recupDer = ps.reperes.find(r => r.course === derniere.course);
-      const fin = lundiDe(recupDer && recupDer.recupFin > derniere.jourJ ? recupDer.recupFin : derniere.jourJ);
-      const semaines = [];
-      for (let l = lundi; l <= fin; l = addDays(l, 7)) semaines.push(l);
-      const courses = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && c.date >= lundi && c.date <= addDays(fin, 6));
-      let premierMois = false;
-      h += '<div class="ps-frise-defile"><div class="ps-frise" style="--n:' + semaines.length + '">' + semaines.map((l, i) => {
-        const x = P.phaseDe(ps, l), ph = x ? x.phase : 'entretien', d = parse(l);
-        // Nom du mois sur la semaine où il commence ; l'année sur le premier nom affiché et en janvier.
-        const prec = i ? parse(semaines[i - 1]) : null, change = prec && prec.getMonth() !== d.getMonth();
-        const mois = change ? MOIS[d.getMonth()] + (d.getMonth() === 0 || !premierMois ? ' ' + String(d.getFullYear()).slice(2) : '') : '';
-        if (change) premierMois = true;
-        const marques = courses.filter(c => lundiDe(c.date) === l).map(c => {
-          const role = roleDe(c);
-          return '<a class="ps-marque r-' + role + (c.statut === 'option' ? ' is-option' : '') + '" href="' + lien(c) + '" title="' + esc(c.course + ' · ' + longue(c.date) + ' · ' + ROLE[role] + (c.statut === 'option' ? ' (option)' : '')) + '">▲</a>';
+      const finTout = lundiDe(recupDer && recupDer.recupFin > derniere.jourJ ? recupDer.recupFin : derniere.jourJ);
+      const friseCorps = mode => {
+        const fin = mode === 'tout' ? finTout : lundiDe(prochaine.jourJ);
+        const semaines = [];
+        for (let l = lundi; l <= fin; l = addDays(l, 7)) semaines.push(l);
+        const courses = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && c.date >= lundi && c.date <= addDays(fin, 6));
+        let premierMois = false;
+        const phases = semaines.map(l => { const x = P.phaseDe(ps, l); return x ? x.phase : 'entretien'; });
+        const n = semaines.length;
+        // Nom de la phase écrit sur la barre, une fois par suite de semaines de même phase (deux semaines au moins).
+        let noms = '';
+        for (let i = 0; i < n;) {
+          let j = i; while (j < n && phases[j] === phases[i]) j++;
+          if (j - i >= 2) noms += '<span class="ps-ph-nom ph-' + phases[i] + '" style="left:calc(' + i + ' * (100% + 2px) / ' + n + ');width:calc(' + (j - i) + ' * (100% + 2px) / ' + n + ' - 2px)">' + NOM_PHASE[phases[i]] + '</span>';
+          i = j;
+        }
+        const cols = semaines.map((l, i) => {
+          const ph = phases[i], d = parse(l);
+          // Nom du mois sur la semaine où il commence ; l'année sur le premier nom affiché et en janvier.
+          const prec = i ? parse(semaines[i - 1]) : null, change = prec && prec.getMonth() !== d.getMonth();
+          const mois = change ? MOIS[d.getMonth()] + (d.getMonth() === 0 || !premierMois ? ' ' + String(d.getFullYear()).slice(2) : '') : '';
+          if (change) premierMois = true;
+          const marques = courses.filter(c => lundiDe(c.date) === l).map(c => {
+            const role = roleDe(c);
+            return '<a class="ps-marque r-' + role + (c.statut === 'option' ? ' is-option' : '') + '" href="' + lien(c) + '" title="' + esc(c.course + ' · ' + longue(c.date) + ' · ' + ROLE[role] + (c.statut === 'option' ? ' (option)' : '')) + '">▲</a>';
+          }).join('');
+          return '<div class="ps-sem" data-lundi="' + l + '"><span class="ps-mois">' + mois + '</span><span class="ps-ph ph-' + ph + '" title="' + esc('Semaine du ' + longue(l) + ' · ' + NOM_PHASE[ph]) + '"></span><span class="ps-marques">' + marques + '</span></div>';
         }).join('');
-        return '<div class="ps-sem" data-lundi="' + l + '"><span class="ps-mois">' + mois + '</span><span class="ps-ph ph-' + ph + '" title="' + esc('Semaine du ' + longue(l) + ' · ' + NOM_PHASE[ph]) + '"></span><span class="ps-marques">' + marques + '</span></div>';
-      }).join('') + '</div></div>';
-      h += '<p class="ps-legende"><span><b class="ps-marque r-objectif">▲</b>Objectif</span><span><b class="ps-marque r-preparatoire">▲</b>Préparatoire</span><span><b class="ps-marque r-plaisir">▲</b>Plaisir</span>' +
-        '<span><b class="ps-marque is-option">▲</b>option</span>' +
-        ['base', 'developpement', 'affutage', 'deload', 'recuperation', 'entretien'].map(k => '<span><i class="cal-k ph-' + k + '"></i>' + NOM_PHASE[k] + '</span>').join('') + '</p>';
+        return '<div class="ps-frise-defile"><div class="ps-frise" style="--n:' + n + '">' + cols + noms + '</div></div>' +
+          '<p class="ps-legende"><span><b class="ps-marque r-objectif">▲</b>Objectif</span><span><b class="ps-marque r-preparatoire">▲</b>Préparatoire</span><span><b class="ps-marque r-plaisir">▲</b>Plaisir</span>' +
+          '<span><b class="ps-marque is-option">▲</b>option</span>' +
+          ['base', 'developpement', 'affutage', 'deload', 'recuperation', 'entretien'].map(k => '<span><i class="cal-k ph-' + k + '"></i>' + NOM_PHASE[k] + '</span>').join('') + '</p>';
+      };
+      const mode = ctx.friseMode || 'saison';
+      ctx.friseMaj = m => {
+        ctx.friseMode = m;
+        const z = root.querySelector('.ps-frise-zone');
+        if (!z) return;
+        z.querySelector('.ps-frise-corps').innerHTML = friseCorps(m);
+        z.querySelectorAll('[data-frise]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.frise === m)));
+      };
+      h += '<div class="ps-frise-zone" data-plein-cible><div class="ps-frise-barre"><div class="ps-coches">' +
+        [['saison', 'Saison'], ['tout', 'Tout']].map(x => '<button type="button" class="mrt-pastille" data-frise="' + x[0] + '" aria-pressed="' + (mode === x[0]) + '">' + x[1] + '</button>').join('') + '</div>' +
+        window.mrtPleinEcran.bouton() + '</div><div class="ps-frise-corps">' + friseCorps(mode) + '</div></div>';
 
-      // (4) Alertes.
-      h += '<section class="ps-alertes"><h2 class="ps-libelle">Alertes (' + ps.alertes.length + ')</h2>' +
-        (ps.alertes.length ? '<ul>' + ps.alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('') + '</ul>' : '') + '</section>';
-
-      // (5) Bloc en cours : 4 semaines à partir de celle-ci, dans la grille du mois du Calendrier ; dans les cases, les repères (7)
-      // et les séances proposées par l'IA, en attente.
-      h += '<section class="ps-bloc"><h2 class="ps-libelle">Bloc en cours · ' + BLOC + ' semaines à partir du ' + longue(lundi) + '</h2>' + iaHtml(ctx, lundi) +
+      // Le bloc en cours : la recommandation (avec les alertes, s'il y en a) et la grille des 4 semaines à partir de celle-ci, dans la grille
+      // du mois du Calendrier ; dans les cases, les repères et les séances proposées par l'IA, en attente.
+      h += '<section class="ps-bloc">' + iaHtml(ctx, lundi, ps.alertes) +
         '<div class="ps-grille">' + window.mrtGrilleMois(ctx, lundi, addDays(lundi, 7 * BLOC - 1), { ps, plus: j => caseHtml(ctx, ps, j) }) + '</div>';
       root.innerHTML = h + '</section></div>';
     }
@@ -316,7 +330,7 @@
     ctx.redessiner = dessiner;
     ctx.ia = {};
     root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
-    root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); });
+    root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); const f = e.target.closest('[data-frise]'); if (f && ctx.friseMaj) ctx.friseMaj(f.dataset.frise); });
     // Choix semaine par semaine : chaque semaine du bloc en pastille, choisie ou non.
     root.addEventListener('click', e => {
       const c = e.target.closest('[data-coche]');
@@ -342,6 +356,8 @@
       else if (act === 'tout' || act === 'selection') {
         const tous = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i));
         const lundis = act === 'tout' ? tous : (ctx.ia.semaines || tous);
+        const n = IA().aRemplacer(ctx, lundis).length;
+        if (n && !(await window.mrtConfirmer({ texte: n + (n > 1 ? ' séances' : ' séance') + ' déjà proposée' + (n > 1 ? 's' : '') + ' par MyRunTools sur ces semaines ' + (n > 1 ? 'seront remplacées' : 'sera remplacée') + ' (pas celles que tu as saisies, ni les faites).', action: 'Remplacer' }))) return;
         const err = await IA().accepter(ctx, prop, lundis);
         if (err) { console.warn(err); ctx.ia = { message: 'Enregistrement impossible pour l\'instant.' }; dessiner(); return; }
         ctx.ia = {}; await recharger();
