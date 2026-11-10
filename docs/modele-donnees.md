@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.26 · 9 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.21 · 10 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -194,7 +194,7 @@ Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'
 
 ### `sport_jour`
 
-Évolution 022. Le sport du jour de la page Nutrition, rangé pour être retrouvé sur tous les appareils et pour les jours passés.
+Évolution 022. Les **autres sports** du jour de la page Nutrition (vélo, natation, marche, crossfit), rangés pour être retrouvés sur tous les appareils et pour les jours passés. La course à pied et le renforcement viennent des `seances` du Calendrier (évolution 030 : l'ancien sport du jour de ces types est devenu des séances).
 
 | Champ | Contenu | Obligatoire |
 | --- | --- | --- |
