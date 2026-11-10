@@ -141,12 +141,16 @@
       const p0 = pr(), jc = joursDe(p0, 'jours_course'), jr = joursDe(p0, 'jours_renfo');
       const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
       const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
-      const chiffre = (nom, lib, v) => '<label class="cal-champ ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
+      const chiffre = (nom, lib, v) => '<label class="ps-sem-q ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
+      const section = (titre, html) => '<section class="mrt-section"><h2 class="mrt-section-titre">' + titre + '</h2><div class="ps-groupe-l">' + html + '</div></section>';
       corps.innerHTML = barre('Ma semaine', true) +
-        q('Jours possibles pour courir', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
-        '<div class="ps-chiffres">' + chiffre('nb_sorties', 'Sorties par semaine', p0.nb_sorties) + chiffre('nb_renfo', 'Renforcements par semaine', p0.nb_renfo) + '</div>' +
-        q('Jour à privilégier pour la sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe')) +
-        q('Jours possibles pour le renforcement', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join(''));
+        section('Course',
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
+          chiffre('nb_sorties', 'Sorties par semaine', p0.nb_sorties) +
+          q('Sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe'))) +
+        section('Renforcement',
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join('')) +
+          chiffre('nb_renfo', 'Séances par semaine', p0.nb_renfo));
       const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, b) => a - b));
       corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(b => b.addEventListener('click', async () => {
         const d = b.dataset, champs = {};

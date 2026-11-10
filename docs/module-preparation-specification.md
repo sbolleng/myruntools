@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.8 · 10 novembre 2026 · [Retour au sommaire](README.md) · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
+Version 0.9 · 10 novembre 2026 · [Retour au sommaire](README.md) · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -166,6 +166,8 @@ Dans la feuille d'une course (§ 5.3). Une liste de questions courtes, une par l
 | Terrains d'entraînement | Pas de dénivelé · Petites côtes (moins de 50 m de D+) · Vallonné (50 à 500 m) · Montagne (plus de 500 m) | Non |
 | Niveau en renforcement | Débutant · Intermédiaire · Confirmé · Expert | Non |
 | FC max et points fragiles | FC max (100 à 230), points fragiles (300 caractères), « Valider » | Non |
+
+Plan de « Ma semaine » : deux sections à titre commun, chacune dans un cadre (fond des lignes du profil, coins de 8 px, filet entre deux questions, 0,9 rem de marge intérieure) ; **Course** : jours possibles (pastilles), sorties par semaine (libellé à gauche, champ étroit à droite), sortie longue (pastilles des jours possibles et « Peu importe ») ; **Renforcement** : jours possibles (pastilles), séances par semaine (même ligne que les sorties).
 
 Ma semaine dit aussi ce que l'IA respecte : au plus le nombre de sorties et de renforcements prévus, chacun seulement ses jours possibles. Hors du profil : les autres sports (tant que les séances ne sont que course et renforcement) et l'accès à une piste.
 

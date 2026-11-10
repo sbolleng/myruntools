@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 10 nov. 2026 | Ma semaine (profil) | Écran en deux cadres, Course et Renforcement, aux lignes du profil : pastilles sous leur libellé, nombres sur la ligne de leur libellé ; plus de blocs serrés (option A retenue). |
 | 10 nov. 2026 | Feuilles à plusieurs écrans | Sur ordinateur, la feuille d'un profil d'entraînement garde une taille fixe (40 rem de haut au plus) d'un écran à l'autre ; le contenu glisse (vers une question par la droite, retour à la liste par la gauche, 0,2 s, coupé si l'appareil demande moins de mouvement). Règle commune du design, reprise par toute feuille à plusieurs écrans. Téléphone inchangé (plein écran, sans glissement). |
 | 10 nov. 2026 | Préparation, panne de l'IA | Crédit d'API épuisé : la proposition échoue sans rien décompter. Le message reste le même pour tous, sans donner la cause (« Proposition impossible pour l'instant, réessaie plus tard. ») ; la cause se lit dans les journaux de la fonction. Une alerte par e-mail à l'administrateur viendra avec l'ouverture à tous. |
 | 10 nov. 2026 | Évolutions passées | 021 (Nutrition dans tous les menus), 022 (table sport_jour), 029 (Nutrition en 2e sur En un coup d'œil) et 030 (course et renforcement du sport du jour convertis en séances) passées dans Supabase ; vérifiées par une requête de lecture (sport_jour présente, Nutrition au menu des 2 profils). |
