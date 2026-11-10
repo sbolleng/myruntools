@@ -550,6 +550,8 @@ const CONTROLES = {
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(5, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les cinq modules construits cochés, En un coup d\'œil compris, sauf Nutrition (à cocher)'));
     pb.push(egal('Bientôt dans le menu : Cette semaine, Profil, Guide.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
+    // Préparation (non cochée) est entre Plan & objectifs et Calendrier dans la liste : deux clics pour passer devant Plan & objectifs.
+    await p.click('[aria-label="Monter Calendrier"]'); await attendre();
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
     const monte = ['En un coup d\'œil', 'Calendrier', 'Plan & objectifs', 'Courses', 'Palmarès'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 10 nov. 2026 | Menu : Calendrier après Préparation | Ordre du menu : En un coup d'œil, Plan & objectifs, Préparation, Calendrier, Nutrition, Courses, Palmarès (catalogue du site réordonné de même ; évolution 032 à passer dans Supabase). |
 | 10 nov. 2026 | Nutrition, cases et ajout ; En un coup d'œil | Cases Activité et Repas : le picto à gauche des deux lignes (libellé, « + Ajouter » en gras) ; plus de message « … ajouté · soir » dans la feuille d'ajout ; bloc Nutrition d'En un coup d'œil : « Détail → » en lien de titre, comme « Feuille de route → » (plus de bouton). |
 | 10 nov. 2026 | Ma semaine (profil) | Écran en deux cadres, Course et Renforcement, aux lignes du profil : pastilles sous leur libellé, nombres sur la ligne de leur libellé ; plus de blocs serrés (option A retenue). |
 | 10 nov. 2026 | Feuilles à plusieurs écrans | Sur ordinateur, la feuille d'un profil d'entraînement garde une taille fixe (40 rem de haut au plus) d'un écran à l'autre ; le contenu glisse (vers une question par la droite, retour à la liste par la gauche, 0,2 s, coupé si l'appareil demande moins de mouvement). Règle commune du design, reprise par toute feuille à plusieurs écrans. Téléphone inchangé (plein écran, sans glissement). |
