@@ -36,9 +36,8 @@
   text-transform: uppercase;
   color: var(--muted);
 }
-.fc-oblig { color: var(--accent); font-size: 1.15em; font-weight: 700; line-height: 1; } /* champ obligatoire : l'étoile en Accent */
+.fc-oblig { color: var(--accent); font-size: 1.15em; font-weight: 700; line-height: 0; vertical-align: 0.35em; margin-left: -0.3em; } /* champ obligatoire : l'étoile en Accent, en exposant (en haut à droite du mot) */
 .fc-oblig[hidden] { display: none; }
-.fc-legende { margin: 0 0 0.4rem; font-size: var(--t-petit); color: var(--muted); }
 /* Objectif : la liste, puis la durée à sa droite. */
 .fc-objectif { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 1rem; }
 .fc-objectif .mrt-champ[hidden] { display: none; }

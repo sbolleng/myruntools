@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.72 · 10 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.73 · 10 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -240,7 +240,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 | Liens | Site officiel ; résultats en direct |
 
 - **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Paramétrer le plan » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
-- **Obligatoires**, marqués d'une étoile en Accent (légende « * obligatoire » sous le titre de la fiche) : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course À surveiller peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « Non terminée (DNF) » est cochée. Décidé le 10 nov. 2026.
+- **Obligatoires**, marqués d'une étoile en Accent, en exposant (en haut à droite du libellé), sans légende : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course À surveiller peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « Non terminée (DNF) » est cochée. Décidé le 10 nov. 2026.
 - **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 3h, 1h30 ou 45 min » (Moins de…), « ex. 02:45:00 » (Temps précis), « ex. Partir prudemment, sous 4 h dans tous les cas », « ex. https://… ».
 - **Objectif normé** : une liste à choix unique (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), puis la durée si le choix en demande une ; rangé comme avant : « Finisher », « Sub 3h » / « Sub 1h30 » / « Sub 45 min », ou un temps `hh:mm:ss`. Tout le reste (intention, fourchette, contexte) va dans **Précisions sur l'objectif** (nom décidé le 10 nov. 2026).
 - **Contrôles de saisie** :
@@ -619,7 +619,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 Résultats attendus, formulaire en détail (écritures relues par le banc d'essai) :
 
 - Sur la feuille de route, un bouton « + Ajouter une course » en haut à droite, au-dessus de la première carte ; il ouvre « Ajouter une course » : sept blocs, Course et Place dans le plan ouverts, les cinq autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
-- Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course, Format et Distance, « Choisis un type. » sous Type ; rien n'est écrit. Les cinq libellés portent une étoile en Accent, sous la légende « * obligatoire » ; statut « À surveiller » : l'étoile de la date et de la distance disparaît. Course courue : « Champ obligatoire. » sous Temps, sauf « Non terminée (DNF) » cochée (étoile retirée).
+- Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course, Format et Distance, « Choisis un type. » sous Type ; rien n'est écrit. Les cinq libellés portent une étoile en Accent, en exposant ; statut « À surveiller » : l'étoile de la date et de la distance disparaît. Course courue : « Champ obligatoire. » sous Temps, sauf « Non terminée (DNF) » cochée (étoile retirée).
 - Date au 1er janvier 2026 : « La date d'une course à venir ne peut pas être dans le passé. » ; heure `25h` : « Heure illisible (ex. 07:30). » ; objectif « Moins de… » avec `rapide` : « Durée illisible (ex. 3h, 1h30 ou 45 min). » ; lien `www.exemple.org` : « Lien attendu : il commence par http:// ou https://. » ; prix −3 : « Le nombre doit être positif. » ; le bloc d'un champ en erreur se déplie.
 - Objectif : `2:45:00`, `2h45` et `24500` sont rangés `02:45:00` ; `finisher` devient `Finisher` ; `sub 3h`, `Sub 1h30`, `sub1h5`, `SUB 45 min` et `sub 45` deviennent `Sub 3h`, `Sub 1h30`, `Sub 1h05`, `Sub 45 min` et `Sub 45 min`. Heure : `07:30`, `7h30`, `730` et `0730` donnent `07:30` ; `7h` donne `07:00`.
 - Trail, distance 28,5 : format Trail court proposé. Description : compteur « 0 / 1 000 ».
