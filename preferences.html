@@ -191,7 +191,7 @@
     // ----- Menu : les modules construits, dans l'ordre choisi, puis les autres ; les modules « bientôt » sur une ligne,
     // sans case ni flèches : ils entreront à la fin du menu une fois construits (ils restent dans la liste enregistrée).
     const blocMenu = blocs[1];
-    // Libellé affiché d'un module (« Objectif & plan ») ; la clé rangée reste son nom.
+    // Libellé affiché d'un module (« Plan & objectifs ») ; la clé rangée reste son nom.
     const libelle = n => ((mrtModules.find(m => m.nom === n) || {}).libelle || n);
     const construits = mrtModules.filter(m => m.page), aVenir = mrtModules.filter(m => !m.page).map(m => m.nom);
     const parDefaut = () => construits.map(m => ({ nom: m.nom, affiche: m.defaut !== false })); // un module « à cocher » (Nutrition) reste décoché
