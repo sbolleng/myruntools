@@ -50,7 +50,6 @@
 .nu-choix { padding-top: 0.8rem; border-top: 1px solid var(--border); }
 .nu-choix-nom { margin: 0 0 0.6rem; font-weight: 500; }
 .nu-quantite { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem; }
-.nu-quantite .mrt-rond { width: 2.75rem; height: 2.75rem; } /* grand rond : un pouce, pendant le repas */
 .nu-quantite .nu-unite { width: 7rem; }
 .nu-qte { text-align: center; }
 .nu-fav { margin-left: auto; }
@@ -88,10 +87,11 @@
 .nu-calcule .mrt-lien { font-size: var(--t-second); }
 .nu-anneaux { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .nu-tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-.nu-tuile { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; min-width: 0; min-height: 4rem; padding: 0.75rem 0.9rem; font: inherit; text-align: left; color: var(--text); background: var(--champ); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+.nu-tuile { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; min-width: 0; padding: 0.8rem 0.9rem; font: inherit; text-align: left; color: var(--text); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid var(--accent); border-radius: 8px; cursor: pointer; }
 .nu-tuile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.nu-tuile-l { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.nu-tuile-v { display: flex; align-items: center; gap: 0.35rem; max-width: 100%; font-size: var(--t-texte); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nu-tuile-ico { width: 1.6rem; height: 1.6rem; color: var(--accent); }
+.nu-tuile-l { font-size: var(--t-texte); font-weight: 600; color: var(--text); }
+.nu-tuile-v { display: flex; align-items: center; gap: 0.35rem; max-width: 100%; font-size: var(--t-second); color: var(--accent); }
 .nu-msg-sport { text-align: center; }
 .nu-seances { margin: 0 0 0.7rem; font-size: var(--t-second); color: var(--muted); }
 .nu-seances .mrt-lien { margin-left: 0.3rem; }
@@ -125,3 +125,10 @@
 .nu-seance-l.is-non-comptee .nu-ligne { color: var(--muted); }
 .nu-ajout-seance { margin: 0.6rem 0 0.4rem; }
 .nu-seances-f { margin-bottom: 0.2rem; }
+
+/* Feuille d'ajout, étape 2 : « ‹ » à gauche de la barre, la croix à droite. */
+.nu-feuille .pc-barre .is-fermer { margin-left: auto; }
+.nu-retour[hidden] { display: none; }
+.nu-choix-k { margin: -0.4rem 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
+.nu-feuille .nu-choix { padding-top: 0; border-top: 0; }
+.nu-modifier .nu-quantite { margin-bottom: 0; }

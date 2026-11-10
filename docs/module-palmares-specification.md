@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.32 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.33 · 10 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -147,11 +147,11 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 | Bloc (propre à une course courue) | Champs |
 | --- | --- |
-| Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure moyenne ; puis les classements : place et effectif au général, sur toute la largeur ; catégorie d'âge (liste de la Fédération française d'athlétisme : CA, JU, ES, SE, M0 à M10), place et effectif en catégorie, trois champs sur la ligne ; place et effectif par sexe, sur toute la largeur |
+| Résultat | Sur une seule ligne : temps, case « DNF » et allure moyenne ; puis les classements : place et effectif au général, sur toute la largeur ; catégorie d'âge (liste de la Fédération française d'athlétisme : CA, JU, ES, SE, M0 à M10), place et effectif en catégorie, trois champs sur la ligne ; place et effectif par sexe, sur toute la largeur |
 | Montre | Temps et distance ; D+ et D− ; allure moyenne et FC moyenne |
 
 - **Données de préparation** (rôle, objectif, précisions, stratégie, logistique, liens) : visibles et modifiables, repliées ; une course marquée courue les garde.
-- **Non terminée (DNF)** : cochée, elle vide et grise le temps et l'allure moyenne ; la course est rangée sans temps ni allure.
+- **DNF** (course non terminée ; la case ne porte que ce libellé, décidé le 10 nov. 2026) : cochée, elle vide et grise le temps et l'allure moyenne ; la course est rangée sans temps ni allure.
 - **Vitesse** : plus saisie ; à l'enregistrement, elle est calculée depuis l'allure moyenne (3 600 ÷ allure, en km/h, deux décimales) et rangée. Même règle pour la vitesse montre. Une course qui n'avait qu'une vitesse reçoit son allure moyenne à l'ouverture du formulaire, pour ne rien perdre.
 
 - **Obligatoires** : date, course, type et format. Les autres champs, parcours compris, peuvent rester vides.

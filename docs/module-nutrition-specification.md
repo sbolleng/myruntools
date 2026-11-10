@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.3 · 10 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 1.4 · 10 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -58,7 +58,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 │ (33)              Aujourd'hui                           │  sur un autre jour seulement
 │ (5)              1 701  kcal                            │  centré, Accent, 1,5 rem
 │ (22)          Phase · Entretien                         │  discret
-│ (21)   Calculé pour 59 kg · 163 cm · sédentaire ›       │  lien d'action : la fenêtre du profil
+│ (21) Calculé pour F · 59 kg · 163 cm · sédentaire ›     │  lien d'action : la fenêtre du profil
 │ ─────────────────────────────────────────────────────── │
 │ (26–29)  quatre anneaux : nom, valeur, Reste, Besoin    │
 │ ─────────────────────────────────────────────────────── │
@@ -98,10 +98,10 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 47 | Feuilles | « Ajouter un aliment », « Activité » | Par-dessus la page | La feuille d'une course (`mc-voile`, `mc-panneau`), croix ronde, titre en libellé ; jamais de bouton « Fermer » |
 | 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la feuille Activité |
 | 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
-| 51 | Fenêtre Modifier | « Modifier · Riz cuit » | Par-dessus la page | Fenêtre de saisie du site : « Annuler », « Enregistrer » en haut, titre en libellé ; quantité et repas (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, seul en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
+| 51 | Fenêtre Modifier | « Riz cuit » | Par-dessus la page | La fenêtre d'une séance du Calendrier (même taille, mêmes marges) : « Annuler », « Enregistrer » en haut, titre = nom de la ligne, sans « Modifier » ; quantité (−, champ, +) et repas en liste à choix unique (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, seul en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
 | 48 | « + » d'un repas | Rond à droite de PETIT-DÉJ, MIDI, ENCAS, SOIR | Journal | Petit rond commun ; ouvre la feuille d'ajout sur ce repas |
 | 20 | Modifier le profil (retiré le 10 nov. 2026) | « Modifier » | En haut à droite de la carte 1 | `mrt-btn` ; ouvre la fenêtre du profil (§ 4.5) |
-| 21 | Profil du calcul | « Calculé pour 59 kg · 163 cm · sédentaire › » | Sous la phase, centré | Lien d'action (0,8 rem) ; ouvre la fenêtre du profil (§ 4.5) |
+| 21 | Profil du calcul | « Calculé pour F · 59 kg · 163 cm · sédentaire › » (H pour un homme) | Sous la phase, centré | Lien d'action (0,8 rem) ; ouvre la fenêtre du profil (§ 4.5) |
 | 22 | Phase | « Phase · Développement » | Sous le 21 | Texte discret |
 | 23 | Titre « Sport du jour » | « SPORT DU JOUR » | Sous le 22 | Libellé en capitales (Space Mono) |
 | 24 | Ligne de sport | Sport (liste) et durée en heures | Sous le 23 | `mrt-champ` ; remplir la dernière ligne en fait apparaître une autre (cinq au plus) |
@@ -112,7 +112,7 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 29 | Besoin journalier | « Besoin 98–140 g » | Sous le 28 | Texte discret |
 | 30 | Recherche | « Rechercher un aliment… » + « Chercher » | Haut de la carte 3 | `mrt-champ`, `mrt-btn` |
 | 31 | Résultat | « Riz basmati · Marque A · 350 kcal / 100 g » | Sous le 30 | Comme une ligne d'aliment |
-| 14 | Sources | Favoris, Récents, + Aliment libre | Sous les résultats | Pastilles |
+| 14 | Sources | Récents, Favoris, + Aliment libre | Sous les résultats | Pastilles |
 | 15 | Quantité | « (−) 190 g (+) », « (−) 2 portions (+) » | Sous l'aliment choisi | `mrt-rond`, `mrt-champ` |
 | 16 | Ajouter | « Ajouter » | Bas de la carte 3 | `mrt-btn is-principal`, toute la largeur |
 | 17 | Journal du jour | « Journal du jour » | Carte 4 | Titre de cadre commun |
@@ -142,7 +142,9 @@ Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tar
 - **Recherche** (30, 31, 35) : **pendant la frappe**, les aliments de l'utilisateur seulement, sans réseau (« Mes aliments », six au plus : chaque mot de la recherche commence un mot du nom, sans accent ni pluriel, « oeufs au plat » trouve « Œuf au plat ») ; **à la validation** (touche Entrée ou « Chercher »), les produits d'Open Food Facts, huit au plus, sans produit sans calories ni doublon, valeurs pour 100 g ; ils arrivent aussi **pendant la frappe**, dès trois lettres, une demi-seconde après la dernière, par le relais seulement (l'ancien moteur limite les recherches) ; si le relais ne répond pas, la frappe ne montre plus que mes aliments, et les produits attendent la validation. Le moteur ne complète pas un mot commencé (« yaourt na » cherche « na », qui ramène des marques « NA ») : seuls restent les produits dont le nom ou la marque contient tous les mots tapés, même commencés, sans accent ni pluriel ; s'il en reste moins de trois, le relais recommence sans le dernier mot (« yaourt na » : les yaourts, gardés s'ils sont « nature »). Les produits passent par un **relais Supabase** (fonction `recherche-aliments`, `supabase/functions/`) : le téléphone ne peut pas interroger directement le moteur de recherche d'Open Food Facts, et l'ancien moteur est souvent saturé ; le relais interroge le nouveau moteur, puis l'ancien en cas d'échec. Si le relais ne répond pas (pas encore créé), la page interroge l'ancien moteur elle-même, avec un nouvel essai. Une recherche déjà faite est gardée pendant la visite (aucun nouvel appel), sous la version du site : une mise en ligne efface ce qui était gardé ; une recherche sans résultat n'est pas gardée. « Recherche… », « Aucun résultat. », ou « Open Food Facts est saturé, réessaie dans un instant. ». Source citée dans les crédits des mentions légales. Limite : Open Food Facts ne connaît que des produits du commerce (« oeufs au plat » ramène des bonbons) ; les plats simples viendront de Ciqual.
 - **Produit choisi** : quantité en grammes, sa portion habituelle d'office (sinon 100 g) ; à « Ajouter », il devient un aliment de l'utilisateur (une seule fois, portion « 100 g ») et revient dans Récents ; « ☆ Favori » est rangé avec lui.
 - **Quantité** (15) : en grammes pour un aliment donné pour 100 g (pas de 10 g, de 1 à 5 000 g), en portions pour les autres (pas de 0,5, de 0,1 à 50) ; le champ se saisit aussi au clavier. Hors bornes : message, rien n'est écrit.
-- **Ajout rapide** (14 à 16) : Favoris, Récents (les 8 derniers aliments utilisés), « + Aliment libre » (nom, portion, calories obligatoires ; protéines, glucides, lipides à 0 si vides ; case Favori ; « Créer l'aliment »). Repas proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir), changé en un toucher.
+- **Ajout rapide** (14 à 16) : Récents (les 8 derniers aliments utilisés), Favoris, « + Aliment libre » (nom, portion, calories obligatoires ; protéines, glucides, lipides à 0 si vides ; case Favori ; « Créer l'aliment »). Repas proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir), changé en un toucher.
+- **Ajout en deux étapes** (47) : étape 1, la recherche et les listes (Récents, Favoris, Aliment libre) ; toucher un aliment ouvre l'étape 2 à la place : nom, calories, quantité (−, champ, + ; ronds de taille commune), ☆ Favori, repas, « Ajouter » ; un rond « ‹ » en haut à gauche revient à l'étape 1, recherche et résultats gardés ; après « Ajouter », retour à l'étape 1.
+- **Cases Activité et Repas** (45, 46) : fond Accent léger (12 %), contour Accent, picto en trait (haltère, assiette et couverts) et « + Ajouter » en Accent, libellé en Texte.
 - **Ajout** (47) : la feuille s'ouvre par la case Repas (repas d'après l'heure) ou par le « + » d'un repas du journal (48, ce repas d'office) ; elle reste ouverte après « Ajouter » (« Banane ajouté · midi »), les jauges et le journal se mettent à jour dessous ; la croix, Échap ou un toucher à côté la ferment.
 - **Journal** (17, 18, 49, 50) : les quatre repas toujours affichés, puis l'activité du jour, chacun avec son « + » et, pour un repas qui a des lignes, son total ; une ligne par aliment (« Riz cuit · 190 g », « Banane · 2 portions »). Toucher une ligne ouvre « Modifier » (51) : la quantité (en grammes ou en portions, comme à l'ajout) et le repas d'un aliment, dont les valeurs figées sont recalculées à la nouvelle quantité ; le sport et la durée d'une activité ; « Supprimer » demande « Supprimer cette ligne ? ».
 - **Écritures** : « Ajouter » range la ligne (valeurs figées) puis le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
@@ -243,6 +245,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Écriture en panne | « Enregistrement impossible pour l'instant. », fenêtre ouverte |
 | Profil A, plan de 12 semaines du Trail du Lac | Carte 1 : « Homme · 40 ans · 70 kg · 175 cm · Peu actif », « Phase · Développement », « 2 117 kcal aujourd'hui » ; titre des jauges « Mardi 20 octobre » ; ni mention ni fourchettes en texte |
 | Journal du jour : riz cuit 200 g au midi (260 kcal), banane au petit-déj (90 kcal) | Blocs « Petit-déj 90 kcal » et « Midi 260 kcal » ; « Riz cuit · 200 g » ; anneaux : 350, Reste 1 767 kcal, Besoin 2 117 kcal ; 6 g, Reste 92 g, Besoin 98–140 g ; 76 g, Reste 189 g, Besoin 265–318 g ; 1 g, Reste 58 g, Besoin 59–82 g |
+| Sources dans l'ordre Récents, Favoris, + Aliment libre ; toucher la banane, puis « ‹ » | Étape 2 : la banane seule, sans recherche ni listes, « ‹ » visible ; « ‹ » : retour aux listes |
 | Récents, Favoris | Récents : « Banane · 1 pièce · 90 kcal », « Riz cuit · 130 kcal / 100 g » (sans l'œuf jamais utilisé) ; Favoris : banane |
 | Banane, quantité portée à 2 (+, +, −, +), ajoutée à 10 h | Repas proposé : midi ; une ligne figée (180 kcal, 2 g, 40 g, 0,6 g) puis la mise à jour du dernier usage ; calories 530, Reste 1 587 kcal ; midi 440 kcal ; × la supprime |
 | Riz cuit : 100 g d'office ; 0 g ; 200 g puis « − » | « La quantité doit être comprise entre 1 et 5 000 g. », rien d'écrit ; 190 g : ligne de 1,9 fois les valeurs (247 kcal, 5,1 g, 53,2 g, 0,6 g), « Riz cuit · 190 g » |
@@ -269,12 +272,12 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Relais en service, frappe « yaourt fr » | Aucun appel avant la pause ; après une demi-seconde, un appel ({ q : « yaourt fr » }) ; le champ reste en place |
 | Moteur de secours, « yaourt na » (réponse : « NA · Borges », « Yaourt nature · Marque F ») | Seul « Yaourt nature · Marque F » reste |
 | Relais absent, ancien moteur saturé deux fois | Deux appels à l'ancien moteur, puis « Open Food Facts est saturé, réessaie dans un instant. » |
-| Page, profil A | « Calculé pour 70 kg · 175 cm · peu actif › » ; cases « Activité · Aucune » et « Repas · Ajouter » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
+| Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; cases « Activité · Aucune » et « Repas · Ajouter » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
 | Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : « Banane ajouté · midi », la feuille reste ouverte |
 | Journal vide ; « + » du soir | Les quatre repas, chacun avec son « + » ; la feuille d'ajout s'ouvre |
 | Feuille Activité : 1 h de jogging et 0,5 h de marche, puis la croix | « Activité · Mardi 20 octobre » ; case « 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche » ; rien n'est réécrit à la fermeture quand rien n'a changé |
 | Journal : toucher « Banane », Supprimer | Question « Supprimer cette ligne ? », rien d'écrit avant la réponse ; « Supprimer » : la ligne effacée, la fenêtre fermée ; aucun rond au bout des lignes |
-| Toucher « Riz cuit · 200 g » (midi) | « Modifier · Riz cuit », 200, Midi ; Annuler : rien d'écrit ; 100 g au soir puis Enregistrer : la ligne à 1 portion, 130 kcal, 2,7 g, 28 g, 0,3 g, au soir |
+| Toucher « Riz cuit · 200 g » (midi) | Fenêtre de séance du Calendrier « Riz cuit », 200, Midi en liste ; Annuler : rien d'écrit ; 100 g au soir puis Enregistrer : la ligne à 1 portion, 130 kcal, 2,7 g, 28 g, 0,3 g, au soir |
 | Activités du jour : jogging 1 h, marche 0,5 h ; toucher la marche, Supprimer | 2 922 kcal ; « Supprimer cette activité ? » ; 2 817 kcal, la ligne du jogging seule, rangée dans la base |
 | Journal vide | Petit-déj, Midi, Encas, Soir, Activité, chacun avec son « + » |
 | Séances du 20 oct. : footing 10 km en 1 h, gainage 30 min, une proposition de l'IA | 2 959 kcal ; journal « Footing · Course à pied · 1 h · 10 km », « Gainage · Renforcement · 30 min » ; pas la proposition |
