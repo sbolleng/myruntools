@@ -76,7 +76,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 
 (47) Feuille « Ajouter un aliment » (ou « Activité »), sans la date (celle de la page) : la feuille d'une course,
      plein écran sur téléphone, croix ronde en haut à droite ; dessous, la recherche (30, 31, 35), les sources (14),
-     l'aliment choisi (15), le repas, « Ajouter » (16), puis « Banane ajouté · midi » ; la feuille reste ouverte.
+     l'aliment choisi (15), le repas, « Ajouter » (16) ; la feuille reste ouverte, sans message de confirmation.
 ```
 
 ### 4.2 Ordinateur
@@ -144,8 +144,8 @@ Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tar
 - **Quantité** (15) : en grammes pour un aliment donné pour 100 g (pas de 10 g, de 1 à 5 000 g), en portions pour les autres (pas de 0,5, de 0,1 à 50) ; le champ se saisit aussi au clavier. Hors bornes : message, rien n'est écrit.
 - **Ajout rapide** (14 à 16) : Récents (les 8 derniers aliments utilisés), Favoris, « + Aliment libre » (nom, portion, calories obligatoires ; protéines, glucides, lipides à 0 si vides ; case Favori ; « Créer l'aliment »). Repas proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir), changé en un toucher.
 - **Ajout en deux étapes** (47) : étape 1, la recherche et les listes (Récents, Favoris, Aliment libre) ; toucher un aliment ouvre l'étape 2 à la place : nom, calories, quantité (−, champ, + ; ronds de taille commune), ☆ Favori, repas, « Ajouter » ; un rond « ‹ » en haut à gauche revient à l'étape 1, recherche et résultats gardés ; après « Ajouter », retour à l'étape 1.
-- **Cases Activité et Repas** (45, 46) : fond Accent léger (12 %), contour Accent, picto en trait (haltère, assiette et couverts) et « + Ajouter » en Accent, libellé en Texte.
-- **Ajout** (47) : la feuille s'ouvre par la case Repas (repas d'après l'heure) ou par le « + » d'un repas du journal (48, ce repas d'office) ; elle reste ouverte après « Ajouter » (« Banane ajouté · midi »), les jauges et le journal se mettent à jour dessous ; la croix, Échap ou un toucher à côté la ferment.
+- **Cases Activité et Repas** (45, 46) : fond Accent léger (12 %), contour Accent, picto en trait (haltère, assiette et couverts) à gauche des deux lignes, libellé en Texte au-dessus de « + Ajouter » en Accent, 600.
+- **Ajout** (47) : la feuille s'ouvre par la case Repas (repas d'après l'heure) ou par le « + » d'un repas du journal (48, ce repas d'office) ; elle reste ouverte après « Ajouter » (aucun message de confirmation), les jauges et le journal se mettent à jour dessous ; la croix, Échap ou un toucher à côté la ferment.
 - **Journal** (17, 18, 49, 50) : les quatre repas toujours affichés, puis l'activité du jour, chacun avec son « + » et, pour un repas qui a des lignes, son total ; une ligne par aliment (« Riz cuit · 190 g », « Banane · 2 portions »). Toucher une ligne ouvre « Modifier » (51) : la quantité (en grammes ou en portions, comme à l'ajout) et le repas d'un aliment, dont les valeurs figées sont recalculées à la nouvelle quantité ; le sport et la durée d'une activité ; « Supprimer » demande « Supprimer cette ligne ? ».
 - **Écritures** : « Ajouter » range la ligne (valeurs figées) puis le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
 - **Pas encore construit** : Ciqual (aliments génériques, § 8) ; Open Food Facts ne connaît que des produits de marque.
@@ -155,7 +155,7 @@ Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tar
 Deuxième bloc de la page (ordre par défaut ; évolution 029 pour les ordres déjà rangés). Revu le 10 nov. 2026 : protéines, glucides et lipides en petits anneaux, comme sur la page.
 
 ```
-┌ Nutrition                               (43) [Détail] ┐
+┌ Nutrition                               (43) Détail → ┐
 │ (40) 350 / 2 117 kcal                                 │
 │      ▓▓▓▓░░░░░░░░░░░░░░                               │
 │ (44)  PROTÉINES      GLUCIDES       LIPIDES           │
@@ -167,7 +167,7 @@ Deuxième bloc de la page (ordre par défaut ; évolution 029 pour les ordres d�
 | N° | Élément | Règle |
 | --- | --- | --- |
 | 40 | Bilan du jour | Calories mangées / besoin du jour (sport du jour compris), avec une barre ; chiffre et barre en rouge au-delà de 110 % du besoin. |
-| 43 | Détail | Bouton commun du site (`mrt-btn`), vers la page Nutrition. |
+| 43 | Détail → | Lien de titre commun, comme « Feuille de route → » (0,8 rem, Texte discret), vers la page Nutrition. |
 | 44 | Anneaux | Protéines, glucides, lipides : les anneaux de la page en petit (64 px), nom, valeur, « Reste … » (ou « Dans la cible », « Dépassé de … ») ; les trois sur une ligne, téléphone compris. |
 
 - Le bloc n'apparaît que si le module Nutrition est dans le menu de l'utilisateur ; il se range et se décoche dans les Préférences comme les autres blocs.
@@ -264,7 +264,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Sport 1 h de jogging, puis 0,5 h de marche | Rangé dans la base : effacement du sport du 20 octobre puis la ligne (j95, 1 h) ; puis les deux sports ; relus après rechargement |
 | Recherche « oeufs » | « Mes aliments » : « Œuf · 1 pièce · 140 kcal » ; recherche « riz » : « Riz cuit » au-dessus des produits |
 | Séances du 20 octobre : Renfo « Gainage 30 min », Run « Footing 1 h 15 » | « Au calendrier : Gainage 30 min · Footing 1 h 15 Reprendre » ; « Reprendre » : musculation 0,5 h (comptée : 2 222 kcal), footing 1,25 h sans allure (non compté) ; seule la musculation est rangée |
-| Accueil, Nutrition au menu | Deuxième bloc ; « 350 / 2 117 kcal » ; anneaux « 6 g · Reste 92 g », « 76 g · Reste 189 g », « 1 g · Reste 58 g », sur une ligne à 390 px ; « Détail », bouton commun ; pas de débordement |
+| Accueil, Nutrition au menu | Deuxième bloc ; « 350 / 2 117 kcal » ; anneaux « 6 g · Reste 92 g », « 76 g · Reste 189 g », « 1 g · Reste 58 g », sur une ligne à 390 px ; « Détail → », lien de titre commun ; pas de débordement |
 | Accueil, Nutrition hors du menu ; profil sans poids | Pas de bloc Nutrition ; « Complète ton profil sur la page Nutrition. » |
 | Recherche « oe » en cours de frappe | « Mes aliments » : « Œuf · 1 pièce · 140 kcal », sans aucun appel |
 | Recherche « yaourt » validée, relais en service | Un appel au relais ({ q: « yaourt » }), aucun à l'ancien moteur ; « Yaourt nature · Marque C · 53 kcal / 100 g » ; choisi : 125 g d'office ; « yaourt » refait : aucun nouvel appel |
@@ -273,7 +273,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Moteur de secours, « yaourt na » (réponse : « NA · Borges », « Yaourt nature · Marque F ») | Seul « Yaourt nature · Marque F » reste |
 | Relais absent, ancien moteur saturé deux fois | Deux appels à l'ancien moteur, puis « Open Food Facts est saturé, réessaie dans un instant. » |
 | Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; cases « Activité · Aucune » et « Repas · Ajouter » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
-| Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : « Banane ajouté · midi », la feuille reste ouverte |
+| Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : la feuille reste ouverte, sans message |
 | Journal vide ; « + » du soir | Les quatre repas, chacun avec son « + » ; la feuille d'ajout s'ouvre |
 | Feuille Activité : 1 h de jogging et 0,5 h de marche, puis la croix | « Activité · Mardi 20 octobre » ; case « 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche » ; rien n'est réécrit à la fermeture quand rien n'a changé |
 | Journal : toucher « Banane », Supprimer | Question « Supprimer cette ligne ? », rien d'écrit avant la réponse ; « Supprimer » : la ligne effacée, la fenêtre fermée ; aucun rond au bout des lignes |

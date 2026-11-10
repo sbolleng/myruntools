@@ -3560,6 +3560,7 @@ const CONTROLES = {
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
       egal(['Ajouter', 'Ajouter', 0], [norm(await p.locator('.nu-tuile[data-act="activite"] .nu-tuile-v').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"] .nu-tuile-v').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'cases Activité et Repas ; ajout et sport dans leurs feuilles'),
+      egal([true, true, true], await p.evaluate(() => [...document.querySelectorAll('.nu-tuile')].map(t => { const i = t.querySelector('.nu-tuile-ico').getBoundingClientRect(), l = t.querySelector('.nu-tuile-l').getBoundingClientRect(), v = t.querySelector('.nu-tuile-v'); return i.right <= l.left && i.right <= v.getBoundingClientRect().left && Number(getComputedStyle(v).fontWeight) >= 600; }).concat([document.querySelectorAll('.nu-tuile').length === 2])), 'cases Activité et Repas : le picto à gauche des deux lignes, « Ajouter » en gras'),
       egal(0, await p.locator('.nu-mention, .nu-macros, .nu-editer').count(), 'page épurée : ni mention, ni fourchettes en texte, ni bouton « Modifier »'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
     await ouvrirRepas(p);
@@ -3586,7 +3587,7 @@ const CONTROLES = {
       d.ecritures.map(e => e.methode === 'POST' ? [e.methode, e.table, sansId(e)] : [e.methode, e.table, Object.keys(e.corps), e.filtres]), 'Ajouter : la ligne figée et le dernier usage de l\'aliment'),
       egal('kcal | sous | 530 | Reste 1 587 kcal | Besoin 2 117 kcal', (await jauges(p))[0], 'anneau des calories après l\'ajout'),
       egal(['Petit-déj 90 kcal', 'Midi 440 kcal'], await groupes(p), 'journal après l\'ajout'),
-      egal(['Banane ajouté · midi', 1], [norm(await p.locator('.nu-ok').textContent()), await p.locator('.nu-feuille').count()], 'feuille : l\'ajout confirmé, la feuille reste ouverte'));
+      egal([0, 1], [await p.locator('.nu-ok').count(), await p.locator('.nu-feuille').count()], 'feuille : plus de message « ajouté », la feuille reste ouverte'));
     d.ecritures.length = 0;
     await fermerF(p);
     pb.push(egal(0, await p.locator('.nu-journal li .mrt-rond').count(), 'journal : aucun rond au bout des lignes'));
@@ -3885,7 +3886,7 @@ const CONTROLES = {
     pb.push(egal('2 657 kcal', await kcal(p), 'sans distance, VMA 15 : facile, 65 % de la VMA'));
     await ctx.close();
 
-    // Bloc d'En un coup d'œil : deuxième, quand Nutrition est dans le menu ; bilan, trois jauges simplifiées sur une ligne, bouton « Détail ».
+    // Bloc d'En un coup d'œil : deuxième, quand Nutrition est dans le menu ; bilan, trois jauges simplifiées sur une ligne, lien « Détail → ».
     d = base(); d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));
     await p.waitForSelector('.nu-ac-bilan');
@@ -3895,7 +3896,7 @@ const CONTROLES = {
         [norm(await p.locator('.nu-ac-bilan').textContent()), await p.evaluate(() => [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => [j.dataset.jauge, j.dataset.etat, j.querySelector('.nu-anneau-v').textContent, j.querySelector('.nu-jauge-reste').textContent].join('|').replace(/\s+/g, ' ')))], 'Accueil : bilan du jour, puis protéines, glucides, lipides en anneaux avec « Reste »'),
       egal([0, 1], await p.evaluate(() => { const t = [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => Math.round(j.getBoundingClientRect().top)); return [t[2] - t[0], new Set(t).size]; }), 'Accueil : les trois anneaux sur une ligne, téléphone compris'),
       egal(0, await p.locator('[data-bloc="nutrition"] .mrt-pastille').count(), 'Accueil : plus d\'aliments en pastilles'),
-      egal(['Détail', 'nutrition.html', true], await p.evaluate(() => { const a = document.querySelector('[data-bloc="nutrition"] .ac-titre a'); return [a.textContent, a.getAttribute('href'), a.classList.contains('mrt-btn')]; }), 'Accueil : « Détail », bouton commun du site'),
+      egal(['Détail →', 'nutrition.html', false], await p.evaluate(() => { const a = document.querySelector('[data-bloc="nutrition"] .ac-titre a'); return [a.textContent, a.getAttribute('href'), a.classList.contains('mrt-btn')]; }), 'Accueil : « Détail → », lien de titre comme « Feuille de route → »'),
       egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'Accueil : pas de débordement horizontal'));
     await ctx.close();
     d = base();

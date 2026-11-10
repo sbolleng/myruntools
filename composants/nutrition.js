@@ -328,7 +328,7 @@
       }
       return htmlRecherche() +
         '<div class="nu-sources">' + sources.map(s => '<button type="button" class="mrt-pastille" data-act="source" data-source="' + s[0] + '" aria-pressed="' + (S.source === s[0]) + '">' + s[1] + '</button>').join('') + '</div>' +
-        '<p class="nu-ok" role="status">' + esc(S.ok || '') + '</p><div class="nu-source">' + corps + '</div><p class="nu-msg" role="alert">' + esc(S.msg) + '</p>';
+        '<div class="nu-source">' + corps + '</div><p class="nu-msg" role="alert">' + esc(S.msg) + '</p>';
     }
     // ----- Carte 3 : journal du jour -----
     // Journal : les quatre repas, puis l'activité ; chaque ligne se touche pour la modifier ou la supprimer ; un « + » par section.
@@ -399,7 +399,7 @@
       feuille.voile.remove();
       document.documentElement.classList.remove('mc-ouvert');
       feuille = null;
-      S.ok = ''; S.msg = '';
+      S.msg = '';
       chiffres();
     }
     // Échap ferme la feuille (une seule écoute, même quand la page se redessine).
@@ -408,7 +408,7 @@
     document.addEventListener('keydown', window.__nuEchap);
 
     // ----- Actions -----
-    const echec = (err, quoi) => { console.warn('Nutrition : ' + quoi, err); S.msg = ERREUR; S.ok = ''; dessinerAjout(); };
+    const echec = (err, quoi) => { console.warn('Nutrition : ' + quoi, err); S.msg = ERREUR; dessinerAjout(); };
     const refus = m => { S.msg = m; const z = zoneAjout(), n = z && z.querySelector('.nu-msg'); if (n) n.textContent = m; };
     const lireQuantite = () => { const z = zoneAjout(), n = nombre(((z && z.querySelector('.nu-qte')) || {}).value); return Number.isFinite(n) ? n : NaN; };
     async function changerDeJour(jour) {
@@ -446,7 +446,7 @@
       }
       try { S.lignes.push(await ajouterLigne(al, S.jour, S.repas, g ? q0 / 100 : q0)); }
       catch (err) { return echec(err, 'ajout impossible'); }
-      S.choix = null; S.msg = ''; S.ok = al.nom + ' ajouté · ' + NOM_REPAS[S.repas].toLowerCase();
+      S.choix = null; S.msg = '';
       chiffres(); dessinerAjout(); dessinerJournal();
     }
     async function creer(form) {
@@ -467,7 +467,7 @@
       const { error } = await sb().from('aliments').insert(aliment);
       if (error) return refus(ERREUR);
       S.aliments.push(aliment);
-      S.choix = { id: aliment.id, quantite: enGrammes(aliment) ? 100 : 1 }; S.source = aliment.favori ? 'favoris' : 'recents'; S.msg = ''; S.ok = '';
+      S.choix = { id: aliment.id, quantite: enGrammes(aliment) ? 100 : 1 }; S.source = aliment.favori ? 'favoris' : 'recents'; S.msg = '';
       dessinerAjout();
     }
     async function basculerFavori() {
@@ -630,7 +630,7 @@
       else if (act === 'fermer') fermerFeuille();
       else if (act === 'retour') { S.choix = null; S.msg = ''; dessinerAjout(); }
       else if (act === 'activite') ouvrirFeuille('activite');
-      else if (act === 'ajout-repas') { S.repas = b.dataset.repas || repasDe(new Date()); S.ok = ''; ouvrirFeuille('repas'); }
+      else if (act === 'ajout-repas') { S.repas = b.dataset.repas || repasDe(new Date()); ouvrirFeuille('repas'); }
       else if (act === 'veille') changerDeJour(decaler(S.jour, -1));
       else if (act === 'lendemain') changerDeJour(decaler(S.jour, 1));
       else if (act === 'aujourdhui') changerDeJour(aujourdhui);
