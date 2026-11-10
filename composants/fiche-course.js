@@ -78,23 +78,23 @@
     ['course', 'Course', 'texte', 'course', true],
     ['parcours', 'Parcours', 'texte', 'course'],
     ['date', 'Date', 'date', 'course', true],
-    ['date_approx', 'Date approximative (mois seulement)', 'case', 'course'],
+    ['date_approx', 'Seul le mois est connu', 'case', 'course'],
     ['heure', 'Heure de départ', 'heure', 'course'],
     ['lieu', 'Lieu', 'texte', 'course'],
     ['type', 'Type', 'choix', 'course', true],
     ['format', 'Format', 'choix', 'course', true],
-    ['distance', 'Distance (km)', 'nombre', 'course'],
+    ['distance', 'Distance (km)', 'nombre', 'course', true],
     ['dplus', 'D+ (m)', 'entier', 'course'],
     ['dmoins', 'D− (m)', 'entier', 'course'],
     ['objectif', 'Objectif', 'objectif', 'course'],
-    ['objectif_precisions', 'Précisions', 'long', 'course'],
+    ['objectif_precisions', 'Précisions sur l\'objectif', 'long', 'course'],
     ['description', 'Description', 'long', 'course'],
     ['statut', 'Statut', 'choix', 'plan'],
     ['role', 'Rôle', 'choix', 'plan'],
     ['groupe_options', 'Groupe d\'options', 'groupe', 'plan'],
     ['ouverture_inscriptions', 'Ouverture des inscriptions', 'dateLibre', 'dossard'],
     ['ouverture_heure', 'Heure d\'ouverture', 'heure', 'dossard'],
-    ['ouverture_approx', 'Mois seulement', 'case', 'dossard'],
+    ['ouverture_approx', 'Seul le mois est connu', 'case', 'dossard'],
     ['inscrit', 'Inscrit', 'case', 'dossard'],
     ['inscription', 'Site d\'inscription', 'url', 'dossard'],
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
@@ -104,7 +104,7 @@
     ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
     ['logistique', 'Logistique', 'long', 'logistique'],
     // Résultat, puis classements : un seul bloc. Général et sexe : deux champs sur toute la largeur ; catégorie : trois.
-    ['temps', 'Temps', 'duree', 'resultat'],
+    ['temps', 'Temps', 'duree', 'resultat', true],
     ['dnf', 'Non terminée (DNF)', 'case', 'resultat'],
     ['allure', 'Allure moyenne (par km)', 'allure', 'resultat'],
     ['place', 'Place au général', 'entier', 'resultat'],
@@ -139,7 +139,11 @@
   const APPROX = 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.';
   const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
   const NOUVEAU = '__nouveau__';
-  const FORMAT_OBJECTIF = 'Format attendu : 02:45:00, Finisher ou Sub 3h';
+  // Objectif : une liste à choix unique, puis une durée quand le choix en demande une. Rangé comme avant : « Finisher », « Sub 3h », « 02:45:00 ».
+  const OBJECTIFS = [['', '— Aucun'], ['finisher', 'Finisher (terminer)'], ['sub', 'Moins de… (Sub)'], ['temps', 'Temps précis']];
+  const AIDE_OBJECTIF = { sub: 'ex. 3h, 1h30 ou 45 min', temps: 'ex. 02:45:00' };
+  const decouperObjectif = o => { const t = String(o || '').trim(), m = t.match(/^Sub\s+(.+)$/i);
+    return !t ? { type: '', val: '' } : /^finisher$/i.test(t) ? { type: 'finisher', val: '' } : m ? { type: 'sub', val: m[1] } : { type: 'temps', val: t }; };
   // Exemples affichés dans les champs vides.
   const AIDE = {
     course: 'ex. Forez Trails', parcours: 'ex. L\'Olmetoise (facultatif)', distance: 'ex. 24,4', dplus: 'ex. 933', dmoins: 'ex. 930',
@@ -198,6 +202,12 @@
         const vide = DEFAUT[k] ? '' : '<option value="">—</option>';
         const courant = (k === 'role' && valeur === 'objectif_intermediaire' ? 'objectif' : valeur) || DEFAUT[k] || '';
         input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
+      } else if (genre === 'objectif') {
+        const o = decouperObjectif(valeur), avec = o.type === 'sub' || o.type === 'temps';
+        input = '<div class="fc-objectif"><select class="mrt-champ" id="fc-objectif_type" data-k="objectif_type" aria-label="Type d\'objectif">' +
+          OBJECTIFS.map(([v, l]) => '<option value="' + v + '"' + (v === o.type ? ' selected' : '') + '>' + esc(l) + '</option>').join('') + '</select>' +
+          '<input class="mrt-champ" type="text" id="' + id + '" data-k="' + k + '" value="' + esc(o.val) + '" autocomplete="off" aria-label="Durée de l\'objectif"' +
+          (avec ? ' placeholder="' + AIDE_OBJECTIF[o.type] + '"' : ' hidden') + '></div>';
       } else if (genre === 'groupe') {
         const noms = (groupes || []).slice();
         if (valeur && !noms.includes(valeur)) noms.push(valeur);
@@ -227,10 +237,12 @@
       // Course courue : la case n'a pas de sens, sa place reste vide, pour que les champs suivants ne remontent pas.
       const jourInconnu = k !== 'date' ? '' : venir ? '<div class="fc-champ fc-bas">' + champ(CHAMPS.find(f => f[0] === 'date_approx')) + '</div>'
         : '<div class="fc-champ fc-vide" aria-hidden="true"></div>';
+      // Ouverture des inscriptions : la date, l'heure et « Seul le mois est connu » sur une seule ligne.
+      const ouverture = k === 'ouverture_inscriptions' ? champ(CHAMPS.find(f => f[0] === 'ouverture_heure')) + champ(CHAMPS.find(f => f[0] === 'ouverture_approx')) : '';
       const classes = 'fc-champ' + (k === 'distance' ? ' fc-seul' : '') + (['place', 'effectif', 'place_sexe', 'effectif_sexe'].includes(k) ? ' fc-moitie' : ['categorie', 'place_categorie', 'effectif_categorie'].includes(k) ? ' fc-tiers' : '') + (['long', 'url', 'objectif', 'groupe'].includes(genre) ? ' fc-large' : '') + (k === 'logistique' ? ' fc-sanslib' : '');
       const attrs = genre === 'groupe' ? ' data-champ="groupe_options"' + (c.statut === 'option' ? '' : ' hidden') : '';
-      const html = '<div class="' + classes + '"' + attrs + '><label for="' + id + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
-      return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : html;
+      const html = '<div class="' + classes + '"' + attrs + '><label for="' + (k === 'objectif' ? 'fc-objectif_type' : id) + '">' + esc(lib) + (oblig ? ' <span class="fc-oblig" aria-hidden="true">*</span>' : '') + '</label>' + input + dnf + '<p class="fc-erreur" id="' + id + '-err" aria-live="polite"></p></div>';
+      return jourInconnu ? '<div class="fc-ligne-date">' + html + jourInconnu + '</div>' : ouverture ? '<div class="fc-ligne-ouv">' + html + ouverture + '</div>' : html;
     };
     // Blocs ouverts : les mêmes pour une course nouvelle ou existante, les titres des autres restent visibles d'un coup d'œil :
     // à venir, Course et Place dans le plan ; courue, Course et Résultat. Un champ en erreur ouvre son bloc.
@@ -253,12 +265,13 @@
           '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
         // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
         '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +
+        '<p class="fc-legende"><span class="fc-oblig" aria-hidden="true">*</span> obligatoire</p>' +
         '<p class="fc-msg" aria-live="polite"></p>' +
         BLOCS.map(([b, titre]) =>
           '<section class="fc-bloc">' +
             '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
-              (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && f[0] !== 'dnf' && f[0] !== 'date_approx').map(champ).join('') + '</div>' +
+              (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && !['dnf', 'date_approx', 'ouverture_heure', 'ouverture_approx'].includes(f[0])).map(champ).join('') + '</div>' +
           '</section>').join('') +
         (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' : '') +
       '</form>';
@@ -401,6 +414,21 @@
       majPrep();
     }
 
+    // Objectif : la durée n'apparaît que pour « Moins de… » et « Temps précis ».
+    val('objectif_type').addEventListener('change', () => {
+      const t = val('objectif_type').value, d = val('objectif'), avec = t === 'sub' || t === 'temps';
+      d.hidden = !avec;
+      d.value = '';
+      if (avec) { d.placeholder = AIDE_OBJECTIF[t]; d.focus(); } else erreur('objectif', '');
+    });
+    // Étoiles : une course à surveiller n'a pas besoin de date ni de distance ; une course non terminée, pas de temps.
+    function majOblig() {
+      const facultatif = k => (venir ? (k === 'date' || k === 'distance') && val('statut').value === 'a_surveiller' : k === 'temps' && val('dnf').checked);
+      ['date', 'distance', 'temps'].forEach(k => { const e = racine.querySelector('label[for="fc-' + k + '"] .fc-oblig'); if (e) e.hidden = facultatif(k); });
+    }
+    if (venir) val('statut').addEventListener('change', majOblig); else val('dnf').addEventListener('change', majOblig);
+    majOblig();
+
     // Type → formats du type ; trail : celui de la distance, modifiable.
     function remplirSous(choix) {
       const t = val('type').value;
@@ -494,7 +522,7 @@
         if (k === 'ouverture_approx') { out[k] = approxO; continue; }
         if (k === 'gpx') continue; // rangé à part, après la course
         const el = val(k);
-        const oblig = venir && k === 'date' ? statut !== 'a_surveiller' : oblig0;
+        const oblig = oblig0 && !(venir ? (k === 'date' || k === 'distance') && statut === 'a_surveiller' : k === 'temps' && val('dnf').checked);
         let v, msg = '';
         if (genre === 'case') v = el.checked;
         else if (genre === 'choix') v = el.value || null;
@@ -517,8 +545,14 @@
           if (Number.isNaN(v)) { msg = 'Heure illisible (' + AIDE[k] + ').'; v = null; }
           else if ((k === 'heure' && approx) || (k === 'ouverture_heure' && approxO)) v = null;
         } else if (genre === 'objectif') {
-          v = parseObjectif(el.value);
-          if (Number.isNaN(v)) { msg = FORMAT_OBJECTIF; v = null; }
+          const t = val('objectif_type').value, txt = el.value.trim();
+          v = null;
+          if (t === 'finisher') v = 'Finisher';
+          else if (t && !txt) msg = 'Indique la durée.';
+          else if (t) {
+            v = parseObjectif(t === 'sub' ? 'Sub ' + txt : txt);
+            if (Number.isNaN(v) || (t === 'temps' && !/^\d{2}:/.test(v))) { msg = 'Durée illisible (' + AIDE_OBJECTIF[t] + ').'; v = null; }
+          }
         } else if (genre === 'dateLibre') {
           v = el.value || null;
           // Mois seul : le mois saisi est rangé au 1er du mois.
