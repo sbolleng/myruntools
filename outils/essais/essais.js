@@ -3560,7 +3560,7 @@ const CONTROLES = {
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
       egal(['Ajouter', 'Ajouter', 0], [norm(await p.locator('.nu-tuile[data-act="activite"] .nu-tuile-v').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"] .nu-tuile-v').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'cases Activité et Repas ; ajout et sport dans leurs feuilles'),
-      egal([true, true, true], await p.evaluate(() => [...document.querySelectorAll('.nu-tuile')].map(t => { const i = t.querySelector('.nu-tuile-ico').getBoundingClientRect(), l = t.querySelector('.nu-tuile-l').getBoundingClientRect(), v = t.querySelector('.nu-tuile-v'); return i.right <= l.left && i.right <= v.getBoundingClientRect().left && Number(getComputedStyle(v).fontWeight) >= 600; }).concat([document.querySelectorAll('.nu-tuile').length === 2])), 'cases Activité et Repas : le picto à gauche des deux lignes, « Ajouter » en gras'),
+      egal([true, true, true], await p.evaluate(() => [...document.querySelectorAll('.nu-tuile')].map(t => { const i = t.querySelector('.nu-tuile-ico').getBoundingClientRect(), l = t.querySelector('.nu-tuile-l').getBoundingClientRect(), v = t.querySelector('.nu-tuile-v'); const r = t.getBoundingClientRect(); return i.left >= l.right && i.left >= v.getBoundingClientRect().right && r.right - i.right < 20 && Number(getComputedStyle(v).fontWeight) >= 600; }).concat([document.querySelectorAll('.nu-tuile').length === 2])), 'cases Activité et Repas : le picto tout à droite des deux lignes, « Ajouter » en gras'),
       egal(0, await p.locator('.nu-mention, .nu-macros, .nu-editer').count(), 'page épurée : ni mention, ni fourchettes en texte, ni bouton « Modifier »'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
     await ouvrirRepas(p);
@@ -3757,7 +3757,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     const ligneS = i => p.locator('.nu-sport-l').nth(i);
     await ouvrirActivite(p);
-    pb.push(egal(['Activité', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
+    pb.push(egal(['Ajouter une activité', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
     pb.push(egal([false, false, true], await p.evaluate(() => { const o = [...document.querySelectorAll('.nu-feuille .nu-sport-l [name="type"] option')].map(x => x.value); return [o.includes('j95'), o.includes('muscu'), o.includes('v2')]; }), 'autres sports : ni course ni renforcement (ils viennent du Calendrier)'));
     await ligneS(0).locator('[name="type"]').selectOption('v2');
     await ligneS(0).locator('[name="heures"]').fill('1');

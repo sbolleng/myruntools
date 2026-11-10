@@ -74,7 +74,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 │ (50) Jogging à 8 km/h · 1 h                             │  ← toucher : Modifier (51)
 └─────────────────────────────────────────────────────────┘
 
-(47) Feuille « Ajouter un aliment » (ou « Activité »), sans la date (celle de la page) : la feuille d'une course,
+(47) Feuille « Ajouter un aliment » (ou « Ajouter une activité »), sans la date (celle de la page) : la feuille d'une course,
      plein écran sur téléphone, croix ronde en haut à droite ; dessous, la recherche (30, 31, 35), les sources (14),
      l'aliment choisi (15), le repas, « Ajouter » (16) ; la feuille reste ouverte, sans message de confirmation.
 ```
@@ -95,7 +95,7 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
 | 45 | Case Activité | « ACTIVITÉ · + Ajouter » (toujours, comme la case Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Case sur le fond des champs, coins de 8 px, libellé en capitales, valeur en Texte ; ouvre la feuille Activité |
 | 46 | Case Repas | « REPAS · + Ajouter » | À droite du 45 | Même case ; ouvre la feuille d'ajout, repas d'après l'heure |
-| 47 | Feuilles | « Ajouter un aliment », « Activité » | Par-dessus la page | La feuille d'une course (`mc-voile`, `mc-panneau`), croix ronde, titre en libellé ; jamais de bouton « Fermer » |
+| 47 | Feuilles | « Ajouter un aliment », « Ajouter une activité » | Par-dessus la page | La feuille d'une course (`mc-voile`, `mc-panneau`), croix ronde, titre en libellé ; jamais de bouton « Fermer » |
 | 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la feuille Activité |
 | 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
 | 51 | Fenêtre Modifier | « Riz cuit » | Par-dessus la page | La fenêtre d'une séance du Calendrier (même taille, mêmes marges) : « Annuler », « Enregistrer » en haut, titre = nom de la ligne, sans « Modifier » ; quantité (−, champ, +) et repas en liste à choix unique (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, seul en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
@@ -144,7 +144,7 @@ Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tar
 - **Quantité** (15) : en grammes pour un aliment donné pour 100 g (pas de 10 g, de 1 à 5 000 g), en portions pour les autres (pas de 0,5, de 0,1 à 50) ; le champ se saisit aussi au clavier. Hors bornes : message, rien n'est écrit.
 - **Ajout rapide** (14 à 16) : Récents (les 8 derniers aliments utilisés), Favoris, « + Aliment libre » (nom, portion, calories obligatoires ; protéines, glucides, lipides à 0 si vides ; case Favori ; « Créer l'aliment »). Repas proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir), changé en un toucher.
 - **Ajout en deux étapes** (47) : étape 1, la recherche et les listes (Récents, Favoris, Aliment libre) ; toucher un aliment ouvre l'étape 2 à la place : nom, calories, quantité (−, champ, + ; ronds de taille commune), ☆ Favori, repas, « Ajouter » ; un rond « ‹ » en haut à gauche revient à l'étape 1, recherche et résultats gardés ; après « Ajouter », retour à l'étape 1.
-- **Cases Activité et Repas** (45, 46) : fond Accent léger (12 %), contour Accent, picto en trait (haltère, assiette et couverts) à gauche des deux lignes, libellé en Texte au-dessus de « + Ajouter » en Accent, 600.
+- **Cases Activité et Repas** (45, 46) : fond Accent léger (12 %), contour Accent, picto en trait tout à droite (haltère, assiette et couverts) à gauche des deux lignes, libellé en Texte au-dessus de « + Ajouter » en Accent, 600.
 - **Ajout** (47) : la feuille s'ouvre par la case Repas (repas d'après l'heure) ou par le « + » d'un repas du journal (48, ce repas d'office) ; elle reste ouverte après « Ajouter » (aucun message de confirmation), les jauges et le journal se mettent à jour dessous ; la croix, Échap ou un toucher à côté la ferment.
 - **Journal** (17, 18, 49, 50) : les quatre repas toujours affichés, puis l'activité du jour, chacun avec son « + » et, pour un repas qui a des lignes, son total ; une ligne par aliment (« Riz cuit · 190 g », « Banane · 2 portions »). Toucher une ligne ouvre « Modifier » (51) : la quantité (en grammes ou en portions, comme à l'ajout) et le repas d'un aliment, dont les valeurs figées sont recalculées à la nouvelle quantité ; le sport et la durée d'une activité ; « Supprimer » demande « Supprimer cette ligne ? ».
 - **Écritures** : « Ajouter » range la ligne (valeurs figées) puis le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
