@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.21 · 10 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.22 · 10 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -101,7 +101,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Données montre | `montre_distance`, `montre_dplus`, `montre_dmoins` (évolution 013), `montre_temps`, `montre_allure`, `montre_vitesse`, `fc_moyenne` | Palmarès |
 | Équipement | `chaussures` (équipement porté) | Usure des chaussures |
 
-`dnf` : vrai pour une course commencée mais pas terminée ; le Palmarès affiche « DNF » à la place du temps.
+`dnf` : n'est plus utilisé depuis le 10 nov. 2026 (la notion de course non terminée est supprimée) ; la colonne reste en base, ignorée.
 
 ### 4.1 Statut, rôle, état
 
@@ -225,7 +225,7 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 | --- | --- |
 | Type d'une course | Celui de son format |
 | Vitesse (et vitesse montre) | 3 600 ÷ allure moyenne, calculée et rangée à l'enregistrement (évolution 011) ; à l'affichage, une course ancienne qui n'a qu'une des deux voit l'autre calculée |
-| Record 🥇 | Meilleur temps par format à distance fixe, hors DNF |
+| Record 🥇 | Meilleur temps par format à distance fixe, sans temps |
 | km-effort | Distance + D+/100 + D−/200 (D− = D+ si inconnu) |
 | Cap par défaut | Course à venir de la page Objectif la plus lointaine |
 | D'ici là | Blocs de la page Objectif à venir avant le cap : une course confirmée, une option isolée ou un groupe d'options comptent chacun pour un |
@@ -257,7 +257,7 @@ Résultats attendus :
 - A choisit une option comme cap : l'en-tête l'affiche ; la passer à Abandonnée ramène le cap par défaut.
 - Passer la course préparatoire à Courue : elle quitte la page Objectif et apparaît dans le Palmarès, sans nouvelle saisie.
 - Une option ne peut pas passer à Courue sans être d'abord confirmée.
-- Une course marquée DNF affiche « DNF » dans le Palmarès et n'entre pas dans les records.
+- Une course sans temps affiche « — » dans le Palmarès et n'entre pas dans les records.
 - Une valeur de statut, de rôle ou d'état inconnue est refusée ; une description de plus de 1 000 caractères aussi.
 - Un format inconnu est refusé ; une course sans nom de course aussi ; un utilisateur ne peut pas modifier les listes de référence.
 - A rattache une course au circuit UTMB, catégorie 20K, 1 stone : B ne voit pas ce rattachement ; supprimer la course le supprime.

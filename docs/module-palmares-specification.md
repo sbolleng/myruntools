@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.32 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.33 · 10 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -59,7 +59,7 @@ Liste fermée, commune à toute l'application : on choisit une valeur, on ne la 
 
 - **Données de la course** : distance et D+ annoncés par l'organisateur ; temps, allure et place saisis par l'utilisateur.
 - **Course sans classement officiel** : la colonne Classement reste vide.
-- **Course non terminée** : « DNF » dans la colonne Temps ; elle n'entre pas dans les records ; au tri par temps, elle se range avec les valeurs vides, en fin de liste.
+- **Course sans temps** : « — » dans la colonne Temps ; elle n'entre pas dans les records ; au tri par temps, elle se range avec les valeurs vides, en fin de liste. La notion de course « non terminée » (DNF) n'existe plus (décidé le 10 nov. 2026) : le temps est obligatoire à la saisie.
 - **Données montre** : facultatives, elles servent d'information.
 - **Allure et vitesse** : deux façons d'écrire la même donnée (vitesse en km/h = 3 600 ÷ allure en secondes par km). Quand une seule des deux est renseignée, la page calcule l'autre, en italique, avec la mention « calculée » au survol ; quand les deux le sont, chacune est affichée telle que saisie. Même règle pour l'allure et la vitesse montre. Arrondis : allure à la seconde, vitesse au dixième. Tri et filtres utilisent aussi les valeurs calculées.
 - **Valeur absente** : « — ». En dehors de l'allure et de la vitesse, aucune valeur n'est estimée ni recalculée.
@@ -147,11 +147,11 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 
 | Bloc (propre à une course courue) | Champs |
 | --- | --- |
-| Résultat | Temps et, juste dessous, la case « Non terminée (DNF) » ; allure moyenne ; puis les classements : place et effectif au général, sur toute la largeur ; catégorie d'âge (liste de la Fédération française d'athlétisme : CA, JU, ES, SE, M0 à M10), place et effectif en catégorie, trois champs sur la ligne ; place et effectif par sexe, sur toute la largeur |
+| Résultat | Temps et allure moyenne, sur la même ligne ; puis les classements : place et effectif au général, sur toute la largeur ; catégorie d'âge (liste de la Fédération française d'athlétisme : CA, JU, ES, SE, M0 à M10), place et effectif en catégorie, trois champs sur la ligne ; place et effectif par sexe, sur toute la largeur |
 | Montre | Temps et distance ; D+ et D− ; allure moyenne et FC moyenne |
 
 - **Données de préparation** (rôle, objectif, précisions, stratégie, logistique, liens) : visibles et modifiables, repliées ; une course marquée courue les garde.
-- **Non terminée (DNF)** : cochée, elle vide et grise le temps et l'allure moyenne ; la course est rangée sans temps ni allure.
+- **Temps** : obligatoire ; plus de case « Non terminée (DNF) ».
 - **Vitesse** : plus saisie ; à l'enregistrement, elle est calculée depuis l'allure moyenne (3 600 ÷ allure, en km/h, deux décimales) et rangée. Même règle pour la vitesse montre. Une course qui n'avait qu'une vitesse reçoit son allure moyenne à l'ouverture du formulaire, pour ne rien perdre.
 
 - **Obligatoires** : date, course, type et format. Les autres champs, parcours compris, peuvent rester vides.
@@ -173,7 +173,6 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 | Donnée | Format | Exemple |
 | --- | --- | --- |
 | Valeur absente | Tiret | — |
-| Course non terminée | Dans la colonne Temps | DNF |
 | Date | Jour, mois abrégé, année | 4 oct. 2026 |
 | Distance | Kilomètres, une décimale | 21,1 km |
 | D+ | Mètres | 932 m |
@@ -280,7 +279,7 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Groupé, filtre sur l'année 2025 : 2 courses dans chaque groupe, compteur « 4 courses sur 7 ».
 - Toucher l'intertitre Trail : ses lignes disparaissent, l'intertitre reste ; le toucher à nouveau les fait revenir.
 - Recharger la page : le regroupement est toujours actif. Le désactiver : retour à la vue globale, colonne Type comprise.
-- Une course marquée non terminée affiche « DNF » dans Temps, sans 🥇, et se range en fin de liste au tri par temps.
+- Une course sans temps (ancienne course non terminée) affiche « — » dans Temps, sans 🥇, et se range en fin de liste au tri par temps.
 - Ajouter une course « Test », 1er octobre 2026, Course sur route · 10 km, temps saisi `4500` : elle apparaît avec 00:45:00, et prend le 🥇 du 10 km.
 - Formulaire sans parcours, ou avec une distance négative : « Enregistrer » reste sans effet, l'erreur est signalée sous le champ.
 - Type Trail, distance 24 : le format proposé est Trail court.
@@ -302,6 +301,6 @@ Résultats attendus (sauf mention contraire, regroupement désactivé) :
 - Progression, la course « Test » ajoutée (1er oct. 2026, 10 km, 10,0 km, 00:45:00, 4:30 /km, D+ vide), filtre format 10 km : 3 points (5:08, 4:55, 4:30) ; droite de tendance ; « ↗ 24 s /km plus rapide par an », en Accent ; pastille Temps : « ↗ 4 min 13 s plus rapide par an » ; pastille Allure-effort : « ↗ 19 s /km-effort plus rapide par an ».
 - Progression, filtre format 10 km : 2 points, pas de tendance.
 - Progression, filtre Course « sete » : « Pas assez de courses pour un graphique ».
-- Progression, une course marquée DNF : pas de point.
+- Progression, une course sans temps : pas de point.
 - Progression : la ligne qui relie les points est fine (1 px) et en Texte discret ; la tendance, quand elle apparaît, est en pointillé.
 - Progression, survol du point de Sète : bulle « 5:24 /km », « Semi-marathon de Sète · 5 oct. 2025 · 01:53:12 · 20,8 km · 56 m D+ » ; le nom ouvre sa consultation.
