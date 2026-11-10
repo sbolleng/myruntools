@@ -1235,11 +1235,11 @@ const CONTROLES = {
     pb.push(egal(true, await p.evaluate(() => { const [r, m] = [...document.querySelectorAll('.pc-section')].map(x => x.getBoundingClientRect()); return m.top >= r.bottom; }), 'téléphone : Montre sous Résultat'));
     await ctx.close();
     d = copie();
-    Object.assign(d.courses.find(c => c.id === SEB), { temps: null, allure: null, vitesse: null });
+    Object.assign(d.courses.find(c => c.id === SEB), { dnf: true, temps: null, allure: null });
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await ligneSeb(p);
     await consultation(p);
-    pb.push(egal(['Place | 1 951e'], (await fiche(p)).Résultat, 'sans temps : pas de ligne Temps, ni vitesse ni allure (plus de notion de course non terminée)'));
+    pb.push(egal(['Temps | DNF', 'Place | 1 951e'], (await fiche(p)).Résultat, 'course non terminée : DNF, ni vitesse ni allure'));
     await ctx.close();
 
     // Première place : « 1er », « 1re » pour une coureuse ; chaque valeur sur une ligne.
@@ -1606,11 +1606,11 @@ const CONTROLES = {
       egal(['Course', 'Parcours', 'Date', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Objectif', 'Précisions sur l\'objectif', 'Description', 'Site officiel'], await labels('[data-bloc="course"]'), 'Palmarès : bloc Course, dans l\'ordre'),
       egal([['Place au général', 2], ['Effectif du général', 2], ['Catégorie', 3], ['Place en catégorie', 3], ['Effectif de la catégorie', 3], ['Place par sexe', 2], ['Effectif par sexe', 2]],
         await p.evaluate(() => { const g = document.querySelector('[data-bloc="resultat"]').nextElementSibling; g.hidden = false; const l = g.getBoundingClientRect().width;
-          return [...g.children].slice(2, 9).map(e => [e.querySelector(':scope > label').textContent.trim(), Math.round(l / e.getBoundingClientRect().width)]); }),
+          return [...g.children].slice(1, 8).map(e => [e.querySelector(':scope > label').textContent.trim(), Math.round(l / e.getBoundingClientRect().width)]); }),
         'Palmarès : classements dans Résultat, général et sexe sur toute la largeur (deux champs), catégorie à gauche de la place en catégorie (trois champs)'),
       egal(['Temps', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Allure moyenne (par km)', 'FC moyenne (bpm)'], await labels('[data-bloc="montre"]'), 'Palmarès : Montre, temps et distance, D+ et D−, allure et FC'),
       egal(['M0', 'M10', 15], await p.evaluate(() => { const o = [...document.querySelectorAll('#fc-categorie option')].map(x => x.value).filter(Boolean); return [o[4], o[14], o.length]; }), 'Palmarès : catégories FFA (CA, JU, ES, SE, M0 à M10)'),
-      egal(['Temps', 'Allure moyenne (par km)', 'Place au général', 'Effectif du général', 'Catégorie', 'Place en catégorie', 'Effectif de la catégorie', 'Place par sexe', 'Effectif par sexe', 'Résultats en direct'],
+      egal(['Temps', 'DNF', 'Allure moyenne (par km)', 'Place au général', 'Effectif du général', 'Catégorie', 'Place en catégorie', 'Effectif de la catégorie', 'Place par sexe', 'Effectif par sexe', 'Résultats en direct'],
         await labels('[data-bloc="resultat"]'), 'Palmarès : bloc Résultat (résultat puis classements), sans vitesse'),
       egal(0, await p.locator('#fc-vitesse, #fc-montre_vitesse, #fc-statut, #fc-date_approx, #fc-inscrit').count(), 'Palmarès : ni Vitesse, ni Statut, ni date approximative, ni Inscrit'),
       egal('fc-course', await p.evaluate(() => document.activeElement.id), 'Palmarès : curseur dans Course'));
@@ -1620,8 +1620,12 @@ const CONTROLES = {
         description: r('fc-description').top > r('fc-dmoins').bottom }; });
     pb.push(egal({ dossardDansDossard: true, distanceSeule: true, dplusDmoins: true, description: true }, pos, 'Palmarès : dossard dans le bloc Dossard, distance seule, D+ et D− côte à côte, description dessous'));
     await p.fill('#fc-temps', '49:18'); await p.fill('#fc-allure', '4:56');
-    pb.push(egal([true, 0], await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
-      return [Math.abs(r('fc-temps').top - r('fc-allure').top) < 2 && r('fc-allure').left > r('fc-temps').right, document.querySelectorAll('#fc-dnf').length]; }), 'Temps et Allure moyenne sur la même ligne ; plus de case « Non terminée »'));
+    pb.push(egal(true, await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
+      return Math.abs(r('fc-temps').top - r('fc-allure').top) < 2 && r('fc-dnf').left > r('fc-temps').right && r('fc-allure').left > r('fc-dnf').right; }), 'Résultat : Temps, DNF et Allure moyenne sur la même ligne, dans cet ordre'));
+    await p.check('#fc-dnf');
+    pb.push(egal(['', '', true, true], [await p.inputValue('#fc-temps'), await p.inputValue('#fc-allure'), await p.isDisabled('#fc-temps'), await p.isDisabled('#fc-allure')], 'DNF coché : temps et allure vidés et grisés'));
+    pb.push(egal(false, await p.evaluate(() => !document.querySelector('label[for="fc-temps"] .fc-oblig').hidden), 'DNF coché : l\'étoile du temps disparaît'));
+    await p.uncheck('#fc-dnf');
     pb.push(egal(true, await p.evaluate(() => { const g = document.querySelector('[data-bloc="resultat"]').nextElementSibling; return Math.abs(document.getElementById('fc-lien_resultats').getBoundingClientRect().width - g.getBoundingClientRect().width) < 2; }), '« Résultats en direct » : toute la largeur du bloc Résultat'));
     await p.fill('#fc-course', 'Course d\'essai DNF'); await p.fill('#fc-date', '2026-10-11'); await p.selectOption('#fc-type', 'route'); await p.selectOption('#fc-format', 'route_10km'); await p.fill('#fc-distance', '10');
     await p.fill('#fc-temps', '50:00'); await p.fill('#fc-allure', '5:00'); await p.click('.fc-plein');
@@ -3041,9 +3045,9 @@ const CONTROLES = {
     const db2 = JSON.parse(JSON.stringify(db0));
     const modele = db2.courses.find(c => c.date === '2026-03-29');
     db2.courses.push(Object.assign({}, modele, { id: '00000000-0000-0000-0001-0000000000a1', course: 'Test', date: '2026-10-01', distance: 10, dplus: null, temps: 2700, allure: 270 }));
-    db2.courses.push(Object.assign({}, modele, { id: '00000000-0000-0000-0001-0000000000a2', course: 'Test sans temps', date: '2026-09-01', temps: null, allure: null }));
+    db2.courses.push(Object.assign({}, modele, { id: '00000000-0000-0000-0001-0000000000a2', course: 'Test DNF', date: '2026-09-01', temps: null, allure: null, dnf: true }));
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, db2));
-    pb.push(egal(8, (await lire(p)).points.length, 'progression : une course sans temps, sans point'));
+    pb.push(egal(8, (await lire(p)).points.length, 'progression : une DNF sans point'));
     await filtre(p, '.pv2-panel label.pv2-check:has(input[value="10 km"])');
     g = await lire(p);
     pb.push(egal({ n: 3, droite: '↗ 24 s /km plus rapide par an', mieux: true, tendance: true },
