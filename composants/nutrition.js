@@ -383,7 +383,7 @@
       voile.innerHTML = '<div class="mc-panneau nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
         '<div class="pc-barre"><button type="button" class="mrt-rond nu-retour" data-act="retour" aria-label="Retour à la recherche" title="Retour" hidden>' + mrtIcone.gauche + '</button>' +
         '<button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
-        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : 'Activité') + '</p>' +
+        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : 'Ajouter une activité') + '</p>' +
         '<div class="' + (type === 'repas' ? 'nu-ajout' : 'nu-activite') + '"></div></div></div>';
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');
