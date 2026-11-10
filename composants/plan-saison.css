@@ -13,7 +13,7 @@
 .ps-frise-zone { margin-top: 1rem; }
 .ps-frise-barre { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
 .ps-frise-defile { margin-top: 0.8rem; overflow-x: auto; scrollbar-width: thin; }
-.ps-frise { --ph-h: 2.4rem; position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(1.6rem, 1fr)); gap: 2px; min-width: calc(var(--n) * 1.6rem); }
+.ps-frise { --ph-h: 2.4rem; position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(1.6rem, 1fr)); gap: 2px; min-width: calc(var(--n) * 1.6rem + (var(--n) - 1) * 2px); }
 .ps-sem { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
 .ps-mois { height: 1.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); color: var(--muted); white-space: nowrap; overflow: visible; }
 .ps-ph { height: var(--ph-h); border-radius: 2px; background: var(--case); }
@@ -45,9 +45,6 @@
 
 @media (hover: hover) {
   .ps-course:hover, .ps-marque:hover { color: var(--accent); }
-}
-@media (max-width: 600px) {
-  .ps-frise { grid-template-columns: repeat(var(--n), 1.6rem); }
 }
 
 /* ----- Profil d'entraînement : bouton et état en tête de page ; fenêtre : une liste groupée, une question par écran ----- */
