@@ -3624,6 +3624,9 @@ const CONTROLES = {
     pb.push(egal(['1', 'midi'], [await qte(), await p.locator('.nu-repas-choix [aria-pressed="true"]').getAttribute('data-repas')], 'choix : une portion, repas d\'après l\'heure'));
     await p.click('[data-act="plus"]'); await p.click('[data-act="plus"]'); await p.click('[data-act="moins"]'); await p.click('[data-act="plus"]');
     pb.push(egal(['2', '2 portions'], [await qte(), norm(await p.locator('.nu-quantite .nu-unite').textContent()).replace(/^/, '2 ')], 'quantité par pas de 0,5'));
+    pb.push(egal(['180 kcal · P 2 g · G 40 g · L 1 g', 'Ajouter · 180 kcal', ['Quantité', 'Repas'], 1], [norm(await p.locator('.nu-apercu').textContent()), norm(await p.locator('.nu-ajouter').textContent()), (await p.locator('.nu-choix-l').allTextContents()).map(norm), await p.locator('.nu-choix-tete .nu-fav').count()],
+      'étape 2 : aperçu de la quantité, total dans le bouton, libellés Quantité et Repas, Favori à côté du nom'));
+    if (CAPTURES) { const vp = p.viewportSize(); await p.setViewportSize({ width: 390, height: 844 }); await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-ajout-etape2.png') }); await p.setViewportSize(vp); }
     await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
     pb.push(egal([['POST', 'repas_lignes', { date: '2026-10-20', repas: 'midi', aliment: ID(1), nom: 'Banane', quantite: 2, kcal: 180, proteines: 2, glucides: 40, lipides: 0.6 }], ['PATCH', 'aliments', ['dernier_usage'], '?id=eq.' + ID(1)]],
@@ -3650,6 +3653,10 @@ const CONTROLES = {
     pb.push(egal(['La quantité doit être comprise entre 1 et 5 000 g.', 0], [norm(await p.locator('.nu-ajout .nu-msg').textContent()), d.ecritures.length], 'quantité nulle refusée'));
     await p.fill('.nu-qte', '200'); await p.click('[data-act="moins"]');
     pb.push(egal('190', await qte(), '« − » : 10 g de moins'));
+    pb.push(egal('247 kcal · P 5 g · G 53 g · L 1 g', norm(await p.locator('.nu-apercu').textContent()), 'aperçu de 190 g de riz'));
+    await p.fill('.nu-qte', '200');
+    pb.push(egal(['260 kcal · P 5 g · G 56 g · L 1 g', 'Ajouter · 260 kcal'], [norm(await p.locator('.nu-apercu').textContent()), norm(await p.locator('.nu-ajouter').textContent())], 'aperçu à la frappe, sans redessiner'));
+    await p.fill('.nu-qte', '190');
     await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
     pb.push(egal({ date: '2026-10-20', repas: 'midi', aliment: ID(2), nom: 'Riz cuit', quantite: 1.9, kcal: 247, proteines: 5.1, glucides: 53.2, lipides: 0.6 }, sansId(d.ecritures[0]), '190 g de riz : 1,9 fois les valeurs pour 100 g'),

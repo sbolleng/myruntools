@@ -52,7 +52,6 @@
 .nu-quantite { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem; }
 .nu-quantite .nu-unite { width: 7rem; }
 .nu-qte { text-align: center; }
-.nu-fav { margin-left: auto; }
 .nu-ajouter { width: 100%; min-height: 2.75rem; }
 .nu-msg { margin: 0.6rem 0 0; font-size: var(--t-petit); color: var(--red); }
 .nu-msg:empty { display: none; }
@@ -126,6 +125,17 @@
 /* Feuille d'ajout, étape 2 : « ‹ » à gauche de la barre, la croix à droite. */
 .nu-feuille .pc-barre .is-fermer { margin-left: auto; }
 .nu-retour[hidden] { display: none; }
-.nu-choix-k { margin: -0.4rem 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
 .nu-feuille .nu-choix { padding-top: 0; border-top: 0; }
 .nu-modifier .nu-quantite { margin-bottom: 0; }
+
+/* Étape 2 de l'ajout : des blocs aérés, chacun sous son libellé. */
+.nu-choix-tete { display: flex; align-items: flex-start; gap: 0.8rem; margin-bottom: 1.5rem; }
+.nu-choix-tete > div { flex: 1; min-width: 0; }
+.nu-feuille .nu-choix-nom { margin: 0 0 0.3rem; }
+.nu-choix-k { margin: 0; font-size: var(--t-second); color: var(--muted); }
+.nu-fav { flex: none; font-size: var(--t-nom); }
+.nu-fav[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.nu-choix-l { margin: 0 0 0.5rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.nu-feuille .nu-quantite { gap: 0.9rem; margin-bottom: 0.5rem; }
+.nu-apercu { margin: 0 0 1.5rem; font-size: var(--t-second); color: var(--muted); }
+.nu-feuille .nu-repas-choix { margin: 0 0 2rem; }

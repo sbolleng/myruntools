@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 10 nov. 2026 | Nutrition, étape 2 de l'ajout aérée | Favori en rond étoile à côté du nom ; libellés « Quantité » et « Repas » ; aperçu des calories et macros de la quantité saisie ; total dans le bouton (« Ajouter · 180 kcal »), juste sous Repas ; blocs espacés d'environ 1,5 rem. |
 | 10 nov. 2026 | Nutrition 1.4, retouches | Picto des cases Activité et Repas tout à droite ; feuille Activité renommée « Ajouter une activité ». |
 | 10 nov. 2026 | Menu : Calendrier après Préparation | Ordre du menu : En un coup d'œil, Plan & objectifs, Préparation, Calendrier, Nutrition, Courses, Palmarès (catalogue du site réordonné de même ; évolution 032 à passer dans Supabase). |
 | 10 nov. 2026 | Préparation 1.0, page allégée | Supprimés : l'état de la semaine et le titre « Bloc en cours ». Alertes en une ligne, dans le bloc « Recommandation de MyRunTools », seulement s'il y en a. Frise à deux niveaux (Saison par défaut, Tout), plus large et plus haute, nom de la phase sur la barre. Rond « plein écran » (ordinateur) pour la frise et le Calendrier, élément commun. Une nouvelle acceptation remplace les séances de l'IA non faites du bloc, après confirmation (saisies et faites jamais touchées). Voix de coach de la recommandation : notée à la todo, ton formel pour l'instant. |
