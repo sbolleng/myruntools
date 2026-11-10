@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 0.7 · 9 novembre 2026 · [Retour au sommaire](README.md) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
+Version 0.8 · 10 novembre 2026 · [Retour au sommaire](README.md) · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -178,7 +178,8 @@ Toute fenêtre ou feuille du module (profil, et les suivantes) reprend la feuill
 - largeur de la page, plein écran sur téléphone, même voile ;
 - en haut à droite, la croix ronde (`mrt-rond is-fermer`) ; jamais de bouton texte « Fermer » ; un retour éventuel en rond « ‹ » à gauche ;
 - titre en libellé de la feuille, sections et titres de section communs, champs, pastilles et boutons communs, tailles de l'échelle du site ;
-- Échap ou un clic sur le voile ferme.
+- Échap ou un clic sur le voile ferme ;
+- sur ordinateur, la feuille à plusieurs écrans (le profil) garde la même taille d'un écran à l'autre (40 rem de haut au plus) ; le contenu glisse en 0,2 s, par la droite quand une question s'ouvre, par la gauche au retour ; pas de glissement sur téléphone ni si l'appareil demande moins de mouvement.
 
 ## 6. Séances proposées par l'IA
 
@@ -270,7 +271,7 @@ Résultats attendus, profil :
 
 - Profil vide : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. » ; la liste : « Indispensable pour proposer tes séances » (« 0 sur 5 », cinq « À renseigner ») et « Pour affiner (facultatif) », 9 lignes ; ni astérisque ni phrase sur le site partagé.
 - « Je cours depuis » : cinq tranches ; « 3 à 6 ans » s'enregistre aussitôt, retour à la liste, « 1 sur 5 ».
-- La fenêtre est la feuille d'une course : croix ronde, aucun bouton « Fermer ».
+- La fenêtre est la feuille d'une course : croix ronde, aucun bouton « Fermer ». Sur ordinateur : même taille pour la liste et les neuf questions, glissement vers la droite à l'ouverture d'une question, vers la gauche au retour.
 - Ma semaine : jours pour courir mardi, jeudi, samedi, dimanche ; « 8 » sorties refusé (« Un chiffre de 0 à 7. ») ; 3 sorties, sortie longue le dimanche, puis le dimanche retiré : sortie longue « peu importe » ; sortie longue le samedi, renforcement mardi et jeudi ; 7 renforcements acceptés, puis 1 : enregistrés à chaque changement.
 - Repère d'allure : VMA à 35 refusée (« La VMA doit être comprise entre 8 et 30 km/h. ») ; 10 km en 45:30 : 2 730 secondes. Puis « 5 sur 5 », résumés « 10 km en 45:30 », « 3 sorties, 1 renforcement », « Aucune idée ».
 - Facultatif : 1 h 30, Vallonné ; FC max à 250 refusée, 186 acceptée. Sur la page : « Profil complet. ».

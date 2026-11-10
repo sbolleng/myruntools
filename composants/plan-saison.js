@@ -80,7 +80,7 @@
     // La feuille d'une course (modale-course.css) : à la largeur des pages, plein écran sur téléphone ; la croix en haut à droite.
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
-    voile.innerHTML = '<div class="mc-panneau ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
+    voile.innerHTML = '<div class="mc-panneau mc-ecrans ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
@@ -106,7 +106,17 @@
       '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
       '<p class="fc-libelle" id="ps-titre">' + titre + '</p><p class="ps-msg" role="alert"></p>';
 
+    // Glissement du contenu (ordinateur seulement, voir modale-course.css) : vers une question par la droite, retour à la liste par la gauche.
+    let ecran = 'liste';
+    const glisse = sens => {
+      corps.classList.remove('mc-glisse-avant', 'mc-glisse-retour');
+      void corps.offsetWidth;
+      corps.classList.add('mc-glisse-' + sens);
+    };
+    const versQuestion = () => { if (ecran === 'liste') glisse('avant'); ecran = 'question'; };
     function liste() {
+      if (ecran === 'question') glisse('retour');
+      ecran = 'liste';
       const ls = lignes(pr()), obligatoires = ls.filter(l => l[3]), faites = obligatoires.filter(l => l[2]).length;
       const ligneHtml = l => '<button type="button" class="ps-ligne-q" data-q="' + l[0] + '"><span>' + l[1] + '</span><span class="ps-rep' + (!l[2] && l[3] ? ' is-a-faire' : '') + '">' + (l[2] ? esc(l[2]) : l[3] ? 'À renseigner' : '—') + '</span><i aria-hidden="true">›</i></button>';
       corps.innerHTML = barre('Mon profil d\'entraînement', false) +
@@ -116,6 +126,7 @@
     }
     // Une question à choix : un toucher enregistre et revient à la liste.
     function choix(cle, titre) {
+      versQuestion();
       corps.innerHTML = barre(titre, true) + '<div class="ps-groupe-l">' + ECHELLES[cle].map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (String(pr()[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
       corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', async () => {
@@ -126,6 +137,7 @@
     // Ma semaine : jours pour courir et pour le renforcement (cumulables), jour de la sortie longue, en pastilles ; nombres de
     // sorties et de renforcements, un chiffre de 0 à 7 ; chaque changement s'enregistre.
     function semaine() {
+      versQuestion();
       const p0 = pr(), jc = joursDe(p0, 'jours_course'), jr = joursDe(p0, 'jours_renfo');
       const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
       const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
@@ -152,6 +164,7 @@
     }
     // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
     function allure(type) {
+      versQuestion();
       const t = type || pr().allure_type;
       const saisie = t === 'vma' ? ['VMA (km/h)', virgule(pr().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['Temps sur 10 km', enTemps(pr().temps_10km_s), 'ex. 45:30', 'text'] :
         t === 'semi' ? ['Temps sur semi-marathon', enTemps(pr().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
@@ -181,6 +194,7 @@
     }
     // FC max et points fragiles : deux champs facultatifs, « Valider ».
     function sante() {
+      versQuestion();
       corps.innerHTML = barre('FC max et points fragiles', true) + '<form class="ps-valeur" novalidate>' +
         '<label class="cal-champ"><span>FC max</span><input class="mrt-champ" name="fc" inputmode="numeric" placeholder="ex. 185" value="' + esc(pr().fc_max == null ? '' : pr().fc_max) + '"></label>' +
         '<label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(pr().fragiles || '') + '</textarea></label>' +

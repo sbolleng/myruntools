@@ -2295,6 +2295,17 @@ const CONTROLES = {
     let r = await liste(p);
     pb.push(egal([true, ['Indispensable pour proposer tes séances', 'Pour affiner (facultatif)'], '0 sur 5', 5, 9, false, false],
       [r.feuille, r.sections, r.compte, r.aFaire, r.lignes.length, /\*/.test(r.texte), /site partagé/.test(r.texte)], 'liste : feuille d\'une course (croix ronde, pas de bouton « Fermer »), deux sections, « 0 sur 5 », cinq lignes à renseigner, ni astérisque ni mention du site partagé'));
+    // Largeur fixe sur ordinateur : la liste et les neuf questions ont la même largeur ; le contenu glisse (par la droite à l'ouverture, par la gauche au retour).
+    const largeur = () => p.evaluate(() => (r => Math.round(r.width) + 'x' + Math.round(r.height))(document.querySelector('.ps-profil').getBoundingClientRect()));
+    const l0 = await largeur(), largeurs = [], glisses = [];
+    for (const q of ['anciennete', 'volume_tranche', 'sortie_tranche', 'semaine', 'allure', 'seance_max_min', 'terrain', 'renfo_niveau', 'sante']) {
+      await p.click('.ps-profil [data-q="' + q + '"]');
+      glisses.push(await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-avant')));
+      largeurs.push(await largeur());
+      await p.click('.ps-profil [data-q="liste"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    }
+    pb.push(egal([true, true, true], [largeurs.every(x => x === l0), glisses.every(Boolean), await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-retour'))],
+      'profil sur ordinateur : même taille (largeur et hauteur) pour la liste et les neuf questions, glissement vers la droite à l\'ouverture, vers la gauche au retour'));
     // Une question à choix : un toucher enregistre et revient à la liste.
     await p.click('.ps-profil [data-q="anciennete"]');
     pb.push(egal(['Je débute', '1 à 3 ans', '3 à 6 ans', '6 à 10 ans', 'Plus de 10 ans'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil .ps-choix')].map(b => b.childNodes[0].textContent)), 'Je cours depuis : cinq tranches'));
