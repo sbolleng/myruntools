@@ -133,6 +133,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - **Feuille d'une course** (consultation et fiche de saisie) : surface (Surface), bordure fine (Bordure), coins arrondis de 8 px, comme les cartes, à la largeur des pages sur ordinateur ; sur téléphone, elle occupe tout l'écran, monte du bas et défile, sans jamais déborder sur les côtés.
 - **Champs sur écran tactile** : texte à 16 px au moins (tous les formulaires du site), sinon Safari sur iPhone zoome sur le champ touché et la page déborde. Sur iPhone et iPad, le site ajoute en plus `maximum-scale=1` à la balise viewport : plus de zoom automatique, le zoom à deux doigts reste possible.
 - **Barre du haut de la fiche** : « Annuler » (à contour) à gauche, « Enregistrer » (principal) à droite, toujours visibles quand la fiche défile ; dessous, le mode (« Modifier la course », « Ajouter une course », « Marquer comme courue ») en libellé : Space Mono, capitales, 0,75 rem, Texte discret. En consultation : crayon et « × », boutons ronds, à droite.
+- **Case « DNF »** : entre le champ Temps et l'Allure moyenne, sur la même ligne, en texte discret, pour montrer qu'elle se rapporte au temps.
 - **Nombres** : virgule décimale (« 24,4 »).
 - **Blocs** : titre repliable (§ 1 et § 3) : chevron à gauche, Space Grotesk 600, 0,85 rem, Texte, casse normale ; Accent au survol.
 - **Champs** : le champ commun (§ 1), libellé au-dessus en petites capitales, exemple en Texte discret dans le champ vide ; deux colonnes sur ordinateur, une sur téléphone ; la date seule sur sa ligne.
@@ -157,7 +158,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 ## 8. Menu
 
 - Seuls les modules construits ont un onglet ; un module « bientôt » reste dans les Préférences.
-- Onglets en Space Grotesk, casse normale, 0,8 rem (0,7 rem sur téléphone), graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés (0,6 rem sur téléphone, pour que « Plan & objectifs » tienne avec les autres : les quatre modules construits tiennent dans un écran de 375 px).
+- Onglets en Space Grotesk, casse normale, 0,8 rem (0,7 rem sur téléphone), graisse 500 ; marges de 0,85 rem en haut et en bas, 1,1 rem sur les côtés (0,6 rem sur téléphone, pour que « Objectif & plan » tienne avec les autres : les quatre modules construits tiennent dans un écran de 375 px).
 - Onglet En un coup d'œil : « En un coup d' » suivi d'un picto d'œil (contour et pupille, couleur de l'onglet, 1,15 em de large) ; le nom complet en infobulle et pour les lecteurs d'écran.
 - Onglet ordinaire en Texte discret, Texte au survol ; onglet de la page ouverte en Accent, souligné de 2 px en Accent.
 - **Barre fine**, au-dessus du menu, sur les pages sans en-tête : « Cap sur » en Texte discret et le nom du cap en Accent, 600, comme le grand titre dont il prend le relais (0,8 rem, coupé par « … » s'il est trop long ; il mène à l'Accueil) à gauche ; l'engrenage à droite (§ 4 : dessiné, en Accent sur les Préférences). Marges de 0,55 rem en haut et en bas, filet (Bordure) dessous.

@@ -41,6 +41,8 @@
 /* Objectif : la liste, puis la durée à sa droite. */
 .fc-objectif { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 1rem; }
 .fc-objectif .mrt-champ[hidden] { display: none; }
+/* Résultat : le temps, la case DNF et l'allure moyenne sur une ligne. */
+.fc-ligne-res { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 0 1rem; align-items: end; }
 /* Ouverture des inscriptions : date, heure et « Seul le mois est connu » sur une ligne. */
 .fc-ligne-ouv { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0 1rem; align-items: end; }
 .fc-champ { min-width: 0; }
@@ -62,6 +64,8 @@
   .fc-grille { grid-template-columns: minmax(0, 1fr); }
   .fc-ligne-ouv { grid-template-columns: minmax(0, 1fr) auto; }
   .fc-ligne-ouv > :first-child { grid-column: 1 / -1; }
+  .fc-ligne-res { grid-template-columns: minmax(0, 1fr) auto; }
+  .fc-ligne-res > :last-child { grid-column: 1 / -1; }
   .fc-objectif { grid-template-columns: minmax(0, 1fr); }
   .fc-champ.fc-seul input { max-width: none; }
 }
