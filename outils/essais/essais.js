@@ -107,7 +107,8 @@ function simulerBase(ctx, db) {
       // Calendrier : séances et phases modifiées s'écrivent vraiment dans la base simulée ; la durée de prépa d'une course aussi.
       const tab = u.pathname.split('/').pop();
       const filtresEq = [...u.searchParams].filter(([k, v]) => /^eq\./.test(v) && k !== 'select');
-      const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3));
+      const filtresIn = [...u.searchParams].filter(([k, v]) => /^in\.\(/.test(v));
+      const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3)) && filtresIn.every(([k, v]) => v.slice(4, -1).split(',').includes(String(x[k])));
       if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour', 'propositions'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).join() === 'prepa_semaines')) {
         if (!db[tab]) db[tab] = [];
         if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach((l, i) => db[tab].push(Object.assign({ id: 'nouveau-' + db[tab].length + '-' + i, utilisateur: db.profils[0].id }, l)));
@@ -2193,15 +2194,15 @@ const CONTROLES = {
     const { db, id } = jeuObjectif(db0);
     const copie = f => { const d = JSON.parse(JSON.stringify(db)); if (f) f(d); return d; };
     const course = (d, n) => d.courses.find(c => c.id === id(n));
-    const lire = p => p.evaluate(() => {
+    const lire = async (p, defaut) => { if (!defaut) await p.click('[data-frise="tout"]'); return p.evaluate(() => {
       const t = s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
       const ph = l => { const e = document.querySelector('.ps-sem[data-lundi="' + l + '"] .ps-ph'); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
       return {
-        titre: t('.ps-titre'), etat: t('.ps-etat'), vide: t('.ps-vide'),
+        titre: t('.ps-titre'), etat: t('.ps-etat'), titreBloc: t('.ps-bloc > .ps-libelle'), vide: t('.ps-vide'),
         semaines: [...document.querySelectorAll('.ps-sem')].map(e => e.dataset.lundi),
         phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
         marques: [...document.querySelectorAll('.ps-marque[href]')].map(a => a.title.split(' · ')[0] + ' ' + [...a.classList].filter(c => c !== 'ps-marque').join(' ')),
-        alertes: [t('.ps-alertes .ps-libelle'), ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
+        alertes: ['Alertes (' + document.querySelectorAll('.ps-alerte').length + ')', ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
         textesAlertes: [...document.querySelectorAll('.ps-alerte')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
         // Bloc en cours : la grille du mois ; ses cases, et les repères du jour écrits dedans.
         bloc: [...document.querySelectorAll('.ps-bloc .cal-m-case')].map(e => e.dataset.jour),
@@ -2209,13 +2210,13 @@ const CONTROLES = {
         plus: document.querySelectorAll('.ps-bloc [data-ajout]').length,
         debordement: document.documentElement.scrollWidth > innerWidth
       };
-    });
+    }); };
     // Le jeu d'essai : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (ancien objectif intermédiaire : un Objectif),
     // Trail des Cimes et Ultra du Plateau (options), Trail des Crêtes (Objectif).
     for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
       const { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', w, copie(), {}, PARIS);
       await p.waitForSelector('.ps-cadre');
-      const r = await lire(p);
+      const r = await lire(p, false);
       pb.push(
         egal(['Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.)', '2026-10-19', '2027-10-25'], [r.titre, r.semaines[0], r.semaines[r.semaines.length - 1]],
           nom + ', saison visée ; frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
@@ -2229,48 +2230,72 @@ const CONTROLES = {
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preparation-' + nom.replace('é', 'e') + '.png'), fullPage: true });
       await ctx.close();
     }
+    // Frise à deux niveaux : « Saison » par défaut (jusqu'à l'Objectif), « Tout » ; plein écran sur ordinateur seulement ; alertes dans le bloc de la recommandation.
+    {
+      const { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
+      await p.waitForSelector('.ps-cadre');
+      const f = () => p.evaluate(() => { const l = [...document.querySelectorAll('.ps-sem')].map(e => e.dataset.lundi); return [l[0], l[l.length - 1], document.querySelector('[data-frise][aria-pressed="true"]').textContent, [...document.querySelectorAll('.ps-ph-nom')].map(e => e.textContent).join(',')]; });
+      pb.push(egal(['2026-10-19', '2027-03-01', 'Saison', 'Entretien,Base,Développement'], (await f()).slice(0, 3).concat([(await f())[3].split(',').filter((x, i, t) => t.indexOf(x) === i).filter(x => ['Entretien', 'Base', 'Développement'].includes(x)).join(',')]),
+        'frise : « Saison » par défaut, de la semaine en cours à celle de l\'Objectif, le nom de la phase écrit sur la barre'));
+      await p.click('[data-frise="tout"]');
+      pb.push(egal(['2026-10-19', '2027-10-25', 'Tout'], (await f()).slice(0, 3), 'frise : « Tout » jusqu\'à la fin de la dernière récupération'));
+      pb.push(egal([1, 'data-plein-cible'], [await p.locator('.ps-frise-zone .mrt-plein').count(), await p.evaluate(() => document.querySelector('.ps-frise-zone').hasAttribute('data-plein-cible') ? 'data-plein-cible' : '')], 'frise : le rond « plein écran » sur ordinateur'));
+      await ctx.close();
+      const t = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS);
+      await t.p.waitForSelector('.ps-cadre');
+      pb.push(egal('none', await t.p.evaluate(() => { const b = document.querySelector('.mrt-plein'); return b ? getComputedStyle(b).display : 'none'; }), 'téléphone : pas de plein écran'));
+      await t.ctx.close();
+      const q = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS);
+      await q.p.waitForSelector('.ps-cadre');
+      pb.push(egal([1, 'Recommandation de MyRunTools', 1, 0], await q.p.evaluate(() => [document.querySelectorAll('.ps-bloc .ps-proposition').length, document.querySelector('.ps-bloc .ps-proposition .ps-libelle').textContent, document.querySelectorAll('.ps-bloc .ps-proposition .ps-alerte').length, document.querySelectorAll('section.ps-alertes').length].map((x, i) => i === 3 ? x : x)),
+        'une alerte : dans le bloc « Recommandation de MyRunTools » (pas de section Alertes à part)'));
+      await q.ctx.close();
+      const z = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
+      await z.p.waitForSelector('.ps-cadre');
+      pb.push(egal(0, await z.p.locator('.ps-alerte').count(), 'sans alerte : rien (ni compteur, ni titre « Alertes »)'));
+      await z.ctx.close();
+    }
     // État de la semaine, bloc en cours et repères.
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
     await p.waitForSelector('.ps-cadre');
-    let r = await lire(p);
+    let r = await lire(p, false);
     pb.push(egal([28, '2026-10-19', '2026-11-15', 0], [r.bloc.length, r.bloc[0], r.bloc[27], await p.locator('.ps-bloc .cal-sem').count()], 'bloc en cours : la grille du mois, 28 cases du 19 octobre au 15 novembre'));
-    pb.push(egal(true, /^Cette semaine : Entretien, jusqu'au .*15 nov.* ; la saison commence le .*16 nov/.test(r.etat), 'état de la semaine : Entretien jusqu\'au 15 novembre (' + r.etat + ')'));
+    pb.push(egal([null, null], [r.etat, r.titreBloc], 'plus d\'état de la semaine ni de titre « Bloc en cours »'));
     pb.push(egal([['2026-11-12 Allégé', '2026-11-13 Allégé', '2026-11-14 Allégé'], 28], [r.reperes, r.plus], 'repères dans les cases : allégé du 12 au 14 novembre avant le Trail du Lac ; un « + » par jour'));
     await ctx.close();
     // Récupération et repos de la veille : la semaine du 30 novembre (récupération du Trail du Lac jusqu'au 4 décembre).
     const plusTard = { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-30T10:00:00+01:00') };
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, plusTard));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
+    r = await lire(p, false);
     pb.push(egal([true, false, true, 'ph-base'], [r.reperes.includes('2026-12-04 Récupération'), r.reperes.includes('2026-12-05 Récupération'), r.reperes.includes('2026-12-12 Repos'),
       await p.evaluate(() => [...document.querySelector('.ps-bloc .cal-m-case[data-jour="2026-11-30"]').classList].find(c => c.startsWith('ph-')))],
       'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre (19 jours), repos la veille de la Corrida de Noël, semaine 3 de la saison en base'));
-    pb.push(egal(true, /^Cette semaine : Base, semaine 3 sur 16\./.test(r.etat), 'état : base, semaine 3 sur 16 (' + r.etat + ')'));
     await ctx.close();
     // Ultra du Plateau confirmé : sa récupération (83 km-effort, 52 jours) déborde sur l'affûtage du Trail des Crêtes.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
-    pb.push(egal([['Alertes (1)', 'recup-affutage'], true], [r.alertes, /court jusqu'au .*17 août.* : elle déborde sur l'affûtage de Trail des Crêtes \(dès le .*16 août/.test(r.textesAlertes[0])],
+    r = await lire(p, false);
+    pb.push(egal([['Alertes (1)', 'recup-affutage'], true], [r.alertes, /^Ultra du Plateau : récupération jusqu'au .*17 août.*, sur l'affûtage de Trail des Crêtes$/.test(r.textesAlertes[0])],
       'Ultra du Plateau confirmé : récupération jusqu\'au 17 août, dans l\'affûtage du Trail des Crêtes ; pas d\'alerte de Préparatoire trop proche (9 semaines)'));
     await ctx.close();
     // Trail des Crêtes avancé au 2 mai : Objectifs trop proches (8 semaines) ; la seconde saison part le 8 mars, raccourcie.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 7).date = '2027-05-02'; }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
-    pb.push(egal([['Alertes (1)', 'proches'], true, 'ph-developpement'], [r.alertes, /est à 8 semaines de Trail des Gorges .* passe l'un des deux en Préparatoire\./.test(r.textesAlertes[0]), r.phases[3]],
+    r = await lire(p, false);
+    pb.push(egal([['Alertes (1)', 'proches'], true, 'ph-developpement'], [r.alertes, r.textesAlertes[0] === 'Trail des Gorges et Trail des Crêtes : 8 semaines d\'écart (12 conseillées)', r.phases[3]],
       'Trail des Crêtes au 2 mai : alerte Objectifs trop proches (8 semaines) ; saison raccourcie, le 8 mars en développement'));
     await ctx.close();
     // Trail des Cimes confirmé et avancé au 14 août : Préparatoire trop proche (14 jours avant un ultra-trail), et sa récupération dans l'affûtage.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 4).statut = 'confirmee'; course(d, 4).date = '2027-08-14'; }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
-    pb.push(egal(['Alertes (2)', 'recup-affutage', 'prepa-proche'], r.alertes, 'Trail des Cimes au 14 août : Préparatoire trop proche et récupération dans l\'affûtage'));
+    r = await lire(p, false);
+    pb.push(egal([['Alertes (2)', 'recup-affutage', 'prepa-proche'], 'Trail des Cimes : à 14 jours de Trail des Crêtes (3 semaines conseillées)'], [r.alertes, r.textesAlertes[1]], 'Trail des Cimes au 14 août : Préparatoire trop proche et récupération dans l\'affûtage, en une ligne chacune'));
     await ctx.close();
     // Sans Objectif : un message, pas de frise.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { d.courses.forEach(c => { if (c.role === 'objectif' || c.role === 'objectif_intermediaire') c.role = 'preparatoire'; }); }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
+    r = await lire(p, true);
     pb.push(egal([true, []], [/^Aucun Objectif à venir/.test(r.vide || ''), r.semaines], 'sans Objectif : un message, pas de frise'));
     await ctx.close();
     // Calendrier : la récupération d'un Objectif en rose (semaine du 8 mars), l'Entretien sans fond.
@@ -2477,6 +2502,22 @@ const CONTROLES = {
     pb.push(egal([12, 'ia', 'acceptee', 'acceptee', '3 restantes ce mois-ci', null], [d.seances.length, d.seances[0].origine, d.seances[0].etat, d.propositions[0].statut, r.reste, d.seances.find(x => x.type === 'renfo').distance_km],
       'tout accepter : 12 séances écrites (origine IA), proposition acceptée, 3 restantes ; distance vide pour le renforcement'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
+    await ctx.close();
+
+    // Une seconde acceptation remplace les séances de l'IA non faites du bloc, sans toucher aux séances saisies ni aux faites.
+    d = copie([bonne()], x => x.seances.push(
+      { id: 'ia-a', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Ancien footing', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: false },
+      { id: 'ia-b', utilisateur: moi, date: '2026-10-22', type: 'run', libelle: 'Footing fait', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: true },
+      { id: 'main-c', utilisateur: moi, date: '2026-10-23', type: 'run', libelle: 'Ma séance', duree_min: 30, origine: 'saisie', etat: 'acceptee', faite: false }));
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await pret(p);
+    await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
+    await p.click('[data-ia="tout"]');
+    const question = await repondre(p, true);
+    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
+    pb.push(egal(['1 séance déjà proposée par MyRunTools sur ces semaines sera remplacée (pas celles que tu as saisies, ni les faites).', 14, ['ia-b', 'main-c'], 0],
+      [question, d.seances.length, d.seances.filter(x => !String(x.id).startsWith('nouveau')).map(x => x.id), d.seances.filter(x => x.libelle === 'Ancien footing').length],
+      'seconde acceptation : la séance de l\'IA non faite est remplacée après confirmation ; la séance saisie et la séance faite restent ; 12 nouvelles'));
     await ctx.close();
 
     // Garde-fou : un jour non disponible ; la demande est refaite une fois, avec la correction.

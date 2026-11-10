@@ -152,7 +152,7 @@
       if (!sx) return;
       if (sx.affutage && r.recupFin >= sx.affutage && c.date < sx.jourJ) alertes.push({ type: 'recup-affutage', course: c, autre: sx.course, fin: r.recupFin, affutage: sx.affutage });
       const mini = Number(sx.course.distance) >= 42 ? 21 : 14;
-      if (r.role === 'preparatoire' && ecartJours(c.date, sx.jourJ) < mini) alertes.push({ type: 'prepa-proche', course: c, autre: sx.course, jours: ecartJours(c.date, sx.jourJ) });
+      if (r.role === 'preparatoire' && ecartJours(c.date, sx.jourJ) < mini) alertes.push({ type: 'prepa-proche', course: c, autre: sx.course, jours: ecartJours(c.date, sx.jourJ), conseillees: mini / 7 });
       if (c.date >= sx.premier && kmEffort(c) > kmEffort(sx.course)) alertes.push({ type: 'plus-longue', course: c, autre: sx.course });
     });
     return { saisons, reperes, alertes, saisonDe };

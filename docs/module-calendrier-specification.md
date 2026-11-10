@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.22 · 8 novembre 2026 · [Retour au sommaire](README.md) · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de saison du [module Préparation](module-preparation-specification.md)
+Version 0.23 · 10 novembre 2026 · [Retour au sommaire](README.md) · Rond « plein écran » (ordinateur) dans la barre du haut · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de saison du [module Préparation](module-preparation-specification.md)
 
 ## 1. Rôle
 
@@ -24,7 +24,7 @@ Le zoom « une course » n'est pas une vue du Calendrier : c'est la rubrique **P
 **Barre du haut**, la même sur les trois vues, sur une ligne (téléphone compris) :
 
 - **Menu « Périodicité »** (25), à gauche : un bouton qui porte le nom de la vue ouverte (« Semaine ⌄ ») ; touché, il déroule la liste « Semaine », « Mois », « 3 mois », « 6 mois », « Année » (12 mois) sous le libellé « PÉRIODICITÉ », le choix en cours repéré. La liste se ferme au choix, en touchant ailleurs ou par Échap (la main revient au bouton) ; ouverte au clavier, la main va au choix en cours. Chaque choix change l'adresse : le retour du navigateur ramène à la vue d'avant. « 3 mois », « 6 mois » et « Année » ouvrent la grille de l'Année sur cette durée, retenue sur l'appareil, à partir du mois en cours (ou du premier mois déjà affiché).
-- **Bouton « Plan »** (26) et bouton **« Aujourd'hui »** (22, à contour), à droite ; « Aujourd'hui » ramène au mois en cours (Année, Mois) ou à la semaine en cours (Semaine).
+- **Bouton « Plan »** (26) et bouton **« Aujourd'hui »** (22, à contour), à droite ; « Aujourd'hui » ramène au mois en cours (Année, Mois) ou à la semaine en cours (Semaine). À leur gauche, sur ordinateur seulement, le rond **« plein écran »** (élément commun, [design](design.md)) : le Calendrier prend tout l'écran avec sa barre ; Échap ou le même rond pour sortir.
 
 **Adresse** : `#semaines=AAAA-MM-JJ` (cette semaine en tête de liste ; sans adresse, la semaine en cours), `#mois=AAAA-MM`, `#annee=AAAA-MM` (premier mois affiché ; sans date, le mois en cours). Le bouton retour du navigateur ramène à la vue d'avant.
 

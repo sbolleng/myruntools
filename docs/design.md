@@ -244,6 +244,7 @@ Les boutons du site, à reprendre tels quels (feuille de style partagée, `compo
 | Danger | `mrt-btn is-danger` | À contour en Alerte, avec une poubelle ; plein Alerte au survol | Supprimer la course, Supprimer la séance, Supprimer (confirmation) |
 | Rond | `mrt-rond` | Cercle de 2 rem, bordure fine, icône dessinée (`mrtIcone`) en Texte discret ; en Accent quand il est actif ou enfoncé | Filtres, Grouper par type, Colonnes, crayon, ‹ et ›, ↑ et ↓, Cartes et Tableau, plein écran de la carte |
 | Petit rond | `mrt-rond is-petit` | Cercle de 1,5 rem, « + » dessiné, zone de toucher de 2 rem | Ajouter une séance (Calendrier, préparation) |
+| Plein écran | `mrt-rond mrt-plein` (`mrtPleinEcran.bouton()`) | Rond avec quatre coins (agrandir) ou leurs flèches vers l'intérieur (réduire), dans une zone qui porte `data-plein-cible` ; ordinateur seulement (absent sur téléphone et écran tactile) ; le plein écran du navigateur, fond du site, Échap pour sortir | Frise de Préparation, Calendrier |
 | Fermer | `mrt-rond is-fermer` | Rond avec « × » de 1,2 rem, la même croix partout | Fermer une feuille |
 | Réduire | `mrt-rond` | Rond avec un chevron vers le haut | Replier un panneau (filtres, colonnes du Palmarès) |
 | Lien d'action | `mrt-lien` | Souligné, Texte discret, 0,8 rem, sans cadre ; `is-danger` en Alerte | Se déconnecter, Mot de passe oublié ?, Retour à la connexion, Rétablir l'ordre par défaut, Effacer les filtres, Recalculer selon les règles, Retirer |
