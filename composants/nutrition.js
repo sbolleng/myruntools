@@ -72,6 +72,18 @@
     if (error) throw error;
     return data || [];
   }
+  // VMA pour la vitesse d'une course sans distance : celle du profil, sinon celle du profil d'entraînement (Préparation).
+  async function lireVma(id, profil) {
+    if (Number(profil && profil.vma) > 0) return Number(profil.vma);
+    try { const { data } = await sb().from('profil_entrainement').select('vma').eq('utilisateur', id).maybeSingle(); return data && Number(data.vma) > 0 ? Number(data.vma) : null; }
+    catch (e) { return null; }
+  }
+  // L'activité qui compte dans le besoin d'un jour : les séances du Calendrier (course à pied, renforcement), puis les
+  // autres sports, saisis dans Nutrition.
+  function activiteDuJour(autres, seances, jour, aujourdhui, vma) {
+    const B = window.mrtBesoin;
+    return B.seancesQuiComptent(seances, jour, aujourdhui).map(x => B.activiteSeance(x, vma)).filter(Boolean).concat(autres);
+  }
   // Une ligne du journal (valeurs figées), puis le dernier usage de l'aliment (il remonte dans Récents).
   async function ajouterLigne(aliment, jour, repas, quantite) {
     const ligne = { id: uuid(), date: jour, repas, aliment: aliment.id, nom: aliment.nom, quantite: Math.round(quantite * 100) / 100,
@@ -169,13 +181,7 @@
   // ----- Séances du Calendrier : la durée, quand le libellé la donne clairement (« 45 min », « 1 h 30 », « 1h ») -----
   // 1 → « 1 h », 1,5 → « 1 h 30 », 0,5 → « 30 min ».
   function duree(h) { const m = Math.round(h * 60), hh = Math.floor(m / 60), mm = m % 60; return hh ? hh + ' h' + (mm ? ' ' + pad(mm) : '') : mm + ' min'; }
-  function dureeDuLibelle(t) {
-    const h = String(t).match(/(\d+(?:[.,]\d+)?)\s*h(?:\s*(\d{1,2})(?!\s*(?:km|m\b)))?/i);
-    if (h) { const v = nombre(h[1]) + (h[2] ? Number(h[2]) / 60 : 0); return v > 0 && v <= 24 ? Math.round(v * 100) / 100 : null; }
-    const m = String(t).match(/(\d+)\s*min/i);
-    if (m) { const v = Number(m[1]) / 60; return v > 0 && v <= 24 ? Math.round(v * 100) / 100 : null; }
-    return null;
-  }
+
 
   // ----- Jauges en anneau -----
   // Sous le minimum : « Reste … » ; entre le minimum et le maximum : « Dans la cible » ; au-delà : « Dépassé de … ».
@@ -207,16 +213,26 @@
     const S = { jour: aujourdhui, aliments: [], lignes: [], sports: [], lignesSport: [null], source: null, choix: null, repas: repasDe(new Date()), msg: '', msgSport: '',
       erreurLecture: false, recherche: { texte: '', etat: null, mes: [], resultats: [] } };
     try {
-      const [aliments, j] = await Promise.all([lireAliments(ctx.id), lireJour(ctx.id, S.jour)]);
-      S.aliments = aliments; S.lignes = j.lignes; S.sports = j.sports;
+      const [aliments, j, vma] = await Promise.all([lireAliments(ctx.id), lireJour(ctx.id, S.jour), lireVma(ctx.id, ctx.profil)]);
+      S.aliments = aliments; S.lignes = j.lignes; S.sports = j.sports; S.vma = vma;
     } catch (err) { console.warn('Nutrition : lecture impossible', err); S.erreurLecture = true; }
     S.lignesSport = S.sports.concat([null]);
     S.source = S.aliments.some(x => x.dernier_usage) ? 'recents' : S.aliments.some(x => x.favori) ? 'favoris' : 'libre';
 
-    const besoin = () => B.calculer(ctx.profil, { date: S.jour, sports: S.sports, phase: phaseDuJour(ctx, S.jour).calc });
+    S.seances = (ctx.seances || []).slice();
+    const besoin = () => B.calculer(ctx.profil, { date: S.jour, sports: activiteDuJour(S.sports, S.seances, S.jour, aujourdhui, S.vma), phase: phaseDuJour(ctx, S.jour).calc });
     const trouver = id => S.aliments.find(a => a.id === id);
     const choisi = () => S.choix && (S.choix.aliment || trouver(S.choix.id));
-    const seancesDuJour = () => (ctx.seances || []).filter(s => s.date === S.jour);
+    // Séances du jour (sans les propositions de l'IA en attente) ; un jour passé, une séance non faite ne compte pas.
+    const seancesDuJour = () => S.seances.filter(x => x.date === S.jour && x.etat !== 'proposee');
+    const compte = x => S.jour >= aujourdhui || x.faite;
+    const P = window.mrtPreparation;
+    const texteSeance = x => [x.libelle, P.TYPES[x.type], x.duree_min ? duree(x.duree_min / 60) : '', x.distance_km ? virgule(Number(x.distance_km)) + ' km' : ''].filter(Boolean).filter((v, i, t) => t.indexOf(v) === i).join(' · ');
+    // La fenêtre de séance du Calendrier, ouverte depuis Nutrition ; après un enregistrement, les séances sont relues.
+    const calendrier = { get seances() { return S.seances; }, actualiser: async () => {
+      try { S.seances = (await window.mrtLirePlan(ctx.id)).seances; } catch (err) { console.warn('Nutrition : séances illisibles', err); }
+      chiffres(); dessinerJournal(); dessinerActivite();
+    } };
 
     // ----- Carte du besoin : le jour, le besoin, la phase, le profil du calcul, les jauges, puis Activité et Repas -----
     function htmlProfil() {
@@ -225,13 +241,8 @@
     }
 
     const ligneSport = s => '<div class="nu-sport-l"><select class="mrt-champ" name="type" aria-label="Sport"><option value="">Sport…</option>' +
-      Object.entries(B.SPORTS).map(x => '<option value="' + x[0] + '"' + (s && s.type === x[0] ? ' selected' : '') + '>' + esc(x[1].libelle) + '</option>').join('') + '</select>' +
+      Object.entries(B.SPORTS).filter(x => !x[1].seance || (s && s.type === x[0])).map(x => '<option value="' + x[0] + '"' + (s && s.type === x[0] ? ' selected' : '') + '>' + esc(x[1].libelle) + '</option>').join('') + '</select>' +
       '<span class="nu-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s && s.heures ? virgule(s.heures) : '') + '">h</span></div>';
-    function htmlSeances() {
-      const ss = seancesDuJour();
-      if (!ss.length) return '';
-      return '<p class="nu-seances">Au calendrier : ' + ss.map(s => esc(s.libelle)).join(' · ') + ' <button type="button" class="mrt-lien" data-act="reprendre">Reprendre</button></p>';
-    }
     function htmlBesoin() {
       const estAuj = S.jour === aujourdhui;
       return '<div class="nu-jour"><button type="button" class="mrt-rond" data-act="veille" aria-label="Jour précédent">' + mrtIcone.gauche + '</button>' +
@@ -245,9 +256,12 @@
         '<button type="button" class="nu-tuile" data-act="ajout-repas"><span class="nu-tuile-l">Repas</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button></div>' +
         '<p class="nu-msg nu-msg-sport" role="alert">' + esc(S.msgSport) + '</p>';
     }
-    // Feuille Activité : les séances du Calendrier à reprendre, puis les lignes de sport.
+    // Feuille Activité : les séances du jour (celles du Calendrier, sa fenêtre pour les ajouter ou les modifier), puis les autres sports.
     function htmlActivite() {
-      return htmlSeances() + '<div class="nu-sports">' + S.lignesSport.map(ligneSport).join('') + '</div><p class="nu-msg" role="alert">' + esc(S.msgSport) + '</p>';
+      const ss = seancesDuJour();
+      return '<p class="nu-sous-t">Séances</p>' + (ss.length ? '<ul class="nu-lignes nu-seances-f">' + ss.map(x => '<li><button type="button" class="nu-ligne" data-act="seance" data-id="' + x.id + '"><span class="nu-ligne-nom">' + esc(texteSeance(x)) + '</span></button></li>').join('') + '</ul>' : '') +
+        '<button type="button" class="mrt-btn nu-ajout-seance" data-act="ajout-seance">' + mrtIcone.plus + 'Ajouter une séance</button>' +
+        '<p class="nu-sous-t">Autres sports</p><div class="nu-sports">' + S.lignesSport.map(ligneSport).join('') + '</div><p class="nu-msg" role="alert">' + esc(S.msgSport) + '</p>';
     }
     function htmlJauges(r) {
       return jauge('kcal', 'Calories', total(S.lignes, 'kcal'), r.kcal, r.kcal * TOLERANCE_KCAL, 'kcal', n0(r.kcal)) +
@@ -322,8 +336,12 @@
         return '<div class="nu-repas">' + tete(r[1], ls.length ? '<span>' + n0(ls.reduce((t, l) => t + Number(l.kcal), 0)) + ' kcal</span>' : '', plus('ajout-repas', r[0], r[1])) +
           (ls.length ? '<ul class="nu-lignes">' + ls.map(l => { const q = qteLigne(l); return ligne('data-act="ligne" data-id="' + l.id + '"', esc(l.nom) + (q ? ' · ' + q : ''), n0(l.kcal) + ' kcal'); }).join('') + '</ul>' : '') + '</div>';
       }).join('');
+      const ss = seancesDuJour();
+      const lignesSeances = ss.map(x => '<li class="nu-seance-l' + (compte(x) ? '' : ' is-non-comptee') + '"><label class="nu-faite"><input type="checkbox" data-faite="' + x.id + '"' + (x.faite ? ' checked' : '') + ' aria-label="Faite : ' + esc(x.libelle) + '"></label>' +
+        '<button type="button" class="nu-ligne" data-act="seance" data-id="' + x.id + '"><span class="nu-ligne-nom">' + esc(texteSeance(x)) + '</span>' + (compte(x) ? '' : '<span class="nu-ligne-k">non faite</span>') + '</button></li>').join('');
+      const lignesAutres = S.sports.map((x, i) => ligne('data-act="ligne-sport" data-i="' + i + '"', esc(ligneSportTexte(x)), '')).join('');
       const activite = '<div class="nu-repas nu-activites">' + tete('Activité', '', plus('activite', null, 'Activité')) +
-        (S.sports.length ? '<ul class="nu-lignes">' + S.sports.map((x, i) => ligne('data-act="ligne-sport" data-i="' + i + '"', esc(ligneSportTexte(x)), '')).join('') + '</ul>' : '') + '</div>';
+        (lignesSeances || lignesAutres ? '<ul class="nu-lignes">' + lignesSeances + lignesAutres + '</ul>' : '') + '</div>';
       return '<h2 class="nu-titre">Journal du jour</h2>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') + repas + activite;
     }
 
@@ -373,7 +391,7 @@
     }
     // Échap ferme la feuille (une seule écoute, même quand la page se redessine).
     if (window.__nuEchap) document.removeEventListener('keydown', window.__nuEchap);
-    window.__nuEchap = e => { if (e.key === 'Escape' && feuille && !document.querySelector('.pf-voile, .mrt-dialogue')) fermerFeuille(); };
+    window.__nuEchap = e => { if (e.key === 'Escape' && feuille && !document.querySelector('.pf-voile, .cal-voile, .mrt-dialogue')) fermerFeuille(); };
     document.addEventListener('keydown', window.__nuEchap);
 
     // ----- Actions -----
@@ -601,15 +619,6 @@
       });
       return file;
     }
-    // « Reprendre » les séances du Calendrier : Renforcement devient Musculation ; pour une Course à pied, l'allure reste à choisir ; la durée
-    // vient du libellé quand il la donne clairement.
-    function reprendre() {
-      const nouvelles = seancesDuJour().map(s => ({ type: s.type === 'renfo' ? 'muscu' : '', heures: dureeDuLibelle(s.libelle) || '' }));
-      S.lignesSport = S.lignesSport.filter(Boolean).filter(s => s.type || s.heures).concat(nouvelles).slice(0, 4).concat([null]);
-      dessinerActivite();
-      lireSports();
-    }
-
     // ----- Branchements -----
     const clic = e => {
       const b = e.target.closest('[data-act]');
@@ -622,7 +631,8 @@
       else if (act === 'veille') changerDeJour(decaler(S.jour, -1));
       else if (act === 'lendemain') changerDeJour(decaler(S.jour, 1));
       else if (act === 'aujourdhui') changerDeJour(aujourdhui);
-      else if (act === 'reprendre') reprendre();
+      else if (act === 'ajout-seance') P.ouvrirSeance(calendrier, { date: S.jour, type: 'run' });
+      else if (act === 'seance') { const x = S.seances.find(y => y.id === b.dataset.id); if (x) P.ouvrirSeance(calendrier, { seance: x }); }
       else if (act === 'source') { S.source = b.dataset.source; S.msg = ''; dessinerAjout(); }
       else if (act === 'choisir') { const a = trouver(b.dataset.id); S.choix = { id: a.id, quantite: enGrammes(a) ? 100 : 1 }; S.msg = ''; dessinerAjout(); }
       else if (act === 'resultat') {
@@ -643,7 +653,17 @@
       if (e.target.classList.contains('nu-libre')) creer(e.target);
       else if (e.target.classList.contains('nu-recherche')) lancerRecherche(e.target.q.value);
     };
-    const changer = e => { if (e.target.closest('.nu-sport-l')) lireSports(); };
+    // Case « faite » d'une séance : rangée dans le Calendrier.
+    async function cocher(id, faite) {
+      const { error } = await sb().from('seances').update({ faite }).eq('id', id);
+      if (error) { console.warn('Nutrition : séance non rangée', error); dessinerJournal(); return; }
+      const x = S.seances.find(y => y.id === id); if (x) x.faite = faite;
+      chiffres(); dessinerJournal();
+    }
+    const changer = e => {
+      if (e.target.closest('.nu-sport-l')) lireSports();
+      else if (e.target.dataset && e.target.dataset.faite) cocher(e.target.dataset.faite, e.target.checked);
+    };
     const saisir = e => {
       if (e.target.closest('.nu-sport-l') && e.target.name === 'heures') lireSports();
       else if (e.target.closest('.nu-recherche') && e.target.name === 'q') taper(e.target.value);
@@ -664,10 +684,12 @@
     const jour = iso(new Date());
     if (B.manquants(ctx.profil, jour).length) { el.innerHTML = vide('Complète ton profil sur la page Nutrition.'); return; }
     el.innerHTML = vide('Chargement…');
-    let j;
-    try { j = await lireJour(ctx.id, jour); }
-    catch (err) { console.warn('Nutrition : lecture impossible', err); el.innerHTML = vide('Lecture impossible pour l\'instant.'); return; }
-    const r = B.calculer(ctx.profil, { date: jour, sports: j.sports, phase: phaseDuJour(ctx, jour).calc });
+    let j, seances = [], vma = null;
+    try {
+      const r0 = await Promise.all([lireJour(ctx.id, jour), sb().from('seances').select('*').eq('utilisateur', ctx.id).eq('date', jour), lireVma(ctx.id, ctx.profil)]);
+      j = r0[0]; seances = r0[1].error ? [] : r0[1].data || []; vma = r0[2];
+    } catch (err) { console.warn('Nutrition : lecture impossible', err); el.innerHTML = vide('Lecture impossible pour l\'instant.'); return; }
+    const r = B.calculer(ctx.profil, { date: jour, sports: activiteDuJour(j.sports, seances, jour, jour, vma), phase: phaseDuJour(ctx, jour).calc });
     // Sous le minimum : « sous » ; dans la cible : « cible » ; au-delà du maximum : « alerte » (barre rouge).
     const etat = (v, min, max) => (v < min ? 'sous' : v <= max ? 'cible' : 'alerte');
     const barre = (v, max, e) => '<span class="nu-ac-barre"><span style="width:' + Math.min(100, v / (max * 1.15) * 100).toFixed(1) + '%"' + (e === 'alerte' ? ' class="is-alerte"' : '') + '></span></span>';
@@ -678,5 +700,5 @@
       '<div class="nu-ac-anneaux">' + anneau('p', 'Protéines', r.proteines) + anneau('g', 'Glucides', r.glucides) + anneau('l', 'Lipides', r.lipides) + '</div>';
   };
 
-  window.mrtNutrition = { phaseDuJour, chercherChezMoi, dureeDuLibelle, repasDe };
+  window.mrtNutrition = { phaseDuJour, chercherChezMoi, repasDe, activiteDuJour };
 })();

@@ -3352,7 +3352,12 @@ const CONTROLES = {
       egal('Avant-course', B.PHASES[B.phaseDuJour(12)].libelle, 'J-12 : Avant-course'),
       egal('Carbo-loading', B.PHASES[B.phaseDuJour(2)].libelle, 'J-2 : Carbo-loading'),
       egal('Veille de course', B.PHASES[B.phaseDuJour(1)].libelle, 'J-1 : Veille de course'),
-      egal(r0(B.calculer(A, jour([], 'train')).kcal), r0(B.calculer(A, jour([{ type: 'inconnu', heures: 2 }, { type: 'm', heures: 0 }], 'train')).kcal), 'sport inconnu ou de durée nulle : ignoré'));
+      egal(r0(B.calculer(A, jour([], 'train')).kcal), r0(B.calculer(A, jour([{ type: 'inconnu', heures: 2 }, { type: 'm', heures: 0 }], 'train')).kcal), 'sport inconnu ou de durée nulle : ignoré'),
+      // Séances du Calendrier : équation de course de l'ACSM, la même pour tous.
+      egal(['10.52', '12.43'], [B.metCourse(10).toFixed(2), B.metCourse(12).toFixed(2)], 'ACSM : 10,5 MET à 10 km/h, 12,4 à 12 km/h'),
+      egal([10, 9.75, 9.5], [B.vitesseSeance({ duree_min: 60, distance_km: 10 }, 15), B.vitesseSeance({ duree_min: 45, intensite: 'facile' }, 15), B.vitesseSeance({ duree_min: 45, intensite: 'facile' }, null)], 'vitesse : distance ÷ durée ; sinon 65 % de la VMA (facile) ; sinon 9,5 km/h'),
+      egal([{ met: 3, heures: 0.5 }, null], [B.activiteSeance({ type: 'renfo', duree_min: 30 }), B.activiteSeance({ type: 'run', distance_km: 10 })], 'renforcement : 3 MET ; séance sans durée : rien'),
+      egal(['a', 'c'], B.seancesQuiComptent([{ id: 'a', date: '2026-10-20', faite: false, etat: 'acceptee' }, { id: 'b', date: '2026-10-20', etat: 'proposee' }, { id: 'c', date: '2026-10-19', faite: true }, { id: 'd', date: '2026-10-19', faite: false }], '2026-10-20', '2026-10-20').map(x => x.id).concat(B.seancesQuiComptent([{ id: 'c', date: '2026-10-19', faite: true }, { id: 'd', date: '2026-10-19', faite: false }], '2026-10-19', '2026-10-20').map(x => x.id)), 'qui compte : aujourd\'hui, faite ou non, sans les propositions de l\'IA ; un jour passé, faite seulement'));
     return pb;
   },
   // Nutrition : profil minimal et besoin du jour (module-nutrition-specification.md, § 4.5 et 10).
@@ -3708,24 +3713,25 @@ const CONTROLES = {
     const ligneS = i => p.locator('.nu-sport-l').nth(i);
     await ouvrirActivite(p);
     pb.push(egal(['Activité', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
-    await ligneS(0).locator('[name="type"]').selectOption('j95');
+    pb.push(egal([false, false, true], await p.evaluate(() => { const o = [...document.querySelectorAll('.nu-feuille .nu-sport-l [name="type"] option')].map(x => x.value); return [o.includes('j95'), o.includes('muscu'), o.includes('v2')]; }), 'autres sports : ni course ni renforcement (ils viennent du Calendrier)'));
+    await ligneS(0).locator('[name="type"]').selectOption('v2');
     await ligneS(0).locator('[name="heures"]').fill('1');
-    pb.push(egal([2, '2 817 kcal', 'kcal | sous | 350 | Reste 2 467 kcal | Besoin 2 817 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p), (await jauges(p))[0]], 'sport : 1 h de jogging, une 2e ligne, besoin et anneau recalculés'));
+    pb.push(egal([2, '2 607 kcal', 'kcal | sous | 350 | Reste 2 257 kcal | Besoin 2 607 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p), (await jauges(p))[0]], 'sport : 1 h de vélo, une 2e ligne, besoin et anneau recalculés'));
     await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST');
-    pb.push(egal([['DELETE', 'sport_jour', '?utilisateur=eq.' + U + '&date=eq.2026-10-20'], ['POST', 'sport_jour', [{ date: '2026-10-20', type: 'j95', heures: 1 }]]], d.ecritures.slice(-2).map(e => e.methode === 'DELETE' ? [e.methode, e.table, e.filtres] : [e.methode, e.table, e.corps]), 'sport : rangé dans la base, jour par jour'));
+    pb.push(egal([['DELETE', 'sport_jour', '?utilisateur=eq.' + U + '&date=eq.2026-10-20'], ['POST', 'sport_jour', [{ date: '2026-10-20', type: 'v2', heures: 1 }]]], d.ecritures.slice(-2).map(e => e.methode === 'DELETE' ? [e.methode, e.table, e.filtres] : [e.methode, e.table, e.corps]), 'sport : rangé dans la base, jour par jour'));
     await ligneS(1).locator('[name="type"]').selectOption('m');
     await ligneS(1).locator('[name="heures"]').fill('30');
-    pb.push(egal('2 817 kcal', await kcal(p), 'sport : 30 heures ignorées'));
+    pb.push(egal('2 607 kcal', await kcal(p), 'sport : 30 heures ignorées'));
     await ligneS(1).locator('[name="heures"]').fill('0,5');
-    pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
+    pb.push(egal([3, '2 712 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
     await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST' && e.corps.length === 2);
     await fermerF(p);
-    pb.push(egal(['Jogging à 9,5 km/h (6 min/km) · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
+    pb.push(egal(['Vélo (19 à 22 km/h) · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
     await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); await p.waitForSelector('.nu-jauge');
     await ouvrirActivite(p);
-    pb.push(egal([3, '2 922 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
+    pb.push(egal([3, '2 712 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
     await ligneS(0).locator('[name="type"]').selectOption('');
-    pb.push(egal('2 222 kcal', await kcal(p), 'sport : le jogging retiré'));
+    pb.push(egal('2 222 kcal', await kcal(p), 'sport : le vélo retiré'));
     await ctx.close();
 
     // Toucher une ligne : Modifier (quantité, repas) ; Annuler ne range rien.
@@ -3744,16 +3750,16 @@ const CONTROLES = {
       egal(['Petit-déj 90 kcal', 'Soir 130 kcal'], await groupes(p), 'journal : la ligne passée au soir'));
     await ctx.close();
     // Une activité du journal : Modifier, Supprimer.
-    d = base(); d.sport_jour = [{ id: ID(8), utilisateur: U, date: '2026-10-20', type: 'j95', heures: 1 }, { id: ID(9), utilisateur: U, date: '2026-10-20', type: 'm', heures: 0.5 }];
+    d = base(); d.sport_jour = [{ id: ID(8), utilisateur: U, date: '2026-10-20', type: 'v2', heures: 1 }, { id: ID(9), utilisateur: U, date: '2026-10-20', type: 'm', heures: 0.5 }];
     ({ p, ctx } = await ouvrirN(d));
-    pb.push(egal('2 922 kcal', await kcal(p), 'activités lues dans la base'));
+    pb.push(egal('2 712 kcal', await kcal(p), 'activités lues dans la base'));
     await p.click('.nu-activites .nu-ligne:has-text("Marche")');
     await p.click('.nu-modifier [data-f="supprimer"]');
     pb.push(egal('Supprimer cette activité ?', norm(await p.locator('.mrt-dialogue p').textContent()), 'Supprimer une activité : la question du site'));
     await p.click('.mrt-dialogue [data-r="oui"]');
     await p.waitForSelector('.nu-modifier', { state: 'detached' });
     await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST');
-    pb.push(egal(['2 817 kcal', ['Jogging à 9,5 km/h (6 min/km) · 1 h'], [{ date: '2026-10-20', type: 'j95', heures: 1 }]], [await kcal(p), await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), d.ecritures.filter(e => e.table === 'sport_jour' && e.methode === 'POST').pop().corps], 'activité supprimée : besoin et journal à jour, rangé dans la base'));
+    pb.push(egal(['2 607 kcal', ['Vélo (19 à 22 km/h) · 1 h'], [{ date: '2026-10-20', type: 'v2', heures: 1 }]], [await kcal(p), await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), d.ecritures.filter(e => e.table === 'sport_jour' && e.methode === 'POST').pop().corps], 'activité supprimée : besoin et journal à jour, rangé dans la base'));
     await ctx.close();
 
     // Sélecteur de jour : la veille, un repas oublié, puis retour à aujourd'hui.
@@ -3778,17 +3784,59 @@ const CONTROLES = {
     pb.push(egal(['Œuf · 1 pièce | 140 kcal'], await p.evaluate(() => [...document.querySelectorAll('.nu-resultats .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), 'recherche « oeufs » : mon aliment « Œuf »'));
     await ctx.close();
 
-    // Séances du Calendrier : « Reprendre » (Renfo : Musculation, durée du libellé ; Run : l'allure reste à choisir).
-    d = base();
-    d.seances = [{ id: ID(6), utilisateur: U, date: '2026-10-20', type: 'renfo', libelle: 'Gainage 30 min', faite: false, course: null },
-      { id: ID(7), utilisateur: U, date: '2026-10-20', type: 'run', libelle: 'Footing 1 h 15', faite: false, course: null }];
+    // Séances du Calendrier : elles font l'activité (course à pied, renforcement) ; la fenêtre de séance du Calendrier pour les ajouter ou les modifier.
+    const SEANCES = () => [
+      { id: ID(6), utilisateur: U, date: '2026-10-20', type: 'run', libelle: 'Footing', duree_min: 60, distance_km: 10, intensite: null, faite: false, etat: 'acceptee', origine: 'saisie', course: null },
+      { id: ID(7), utilisateur: U, date: '2026-10-20', type: 'renfo', libelle: 'Gainage', duree_min: 30, distance_km: null, intensite: null, faite: false, etat: 'acceptee', origine: 'saisie', course: null },
+      { id: 'seance-ia', utilisateur: U, date: '2026-10-20', type: 'run', libelle: 'Proposition', duree_min: 60, distance_km: 12, intensite: null, faite: false, etat: 'proposee', origine: 'ia', course: null },
+      { id: 'seance-19', utilisateur: U, date: '2026-10-19', type: 'run', libelle: 'Sortie oubliée', duree_min: 60, distance_km: 10, intensite: null, faite: false, etat: 'acceptee', origine: 'saisie', course: null },
+      { id: 'seance-18', utilisateur: U, date: '2026-10-18', type: 'run', libelle: 'Footing de dimanche', duree_min: 45, distance_km: null, intensite: 'facile', faite: true, etat: 'acceptee', origine: 'saisie', course: null }];
+    d = base(); d.seances = SEANCES();
     ({ p, ctx } = await ouvrirN(d));
+    const activites = () => p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm));
+    pb.push(egal(['2 959 kcal', ['Footing · Course à pied · 1 h · 10 km', 'Gainage · Renforcement · 30 min']], [await kcal(p), await activites()], 'séances du jour : comptées (ACSM : 10 km en 1 h ; renforcement 3 MET), sans la proposition de l\'IA'));
     await ouvrirActivite(p);
-    pb.push(egal('Au calendrier : Gainage 30 min · Footing 1 h 15 Reprendre', norm(await p.locator('.nu-seances').textContent()), 'séances du jour rappelées'));
-    await p.click('[data-act="reprendre"]');
-    pb.push(egal([[['muscu', '0,5'], ['', '1,25'], ['', '']], '2 222 kcal'], [await p.evaluate(() => [...document.querySelectorAll('.nu-sport-l')].map(l => [l.querySelector('[name="type"]').value, l.querySelector('[name="heures"]').value])), await kcal(p)], 'Reprendre : musculation 30 min comptée, footing à compléter'));
-    await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST');
-    pb.push(egal(['POST', 'sport_jour', [{ date: '2026-10-20', type: 'muscu', heures: 0.5 }]], (e => [e.methode, e.table, e.corps])(d.ecritures[d.ecritures.length - 1]), 'Reprendre : seule la séance complète est rangée'));
+    pb.push(egal([['Footing · Course à pied · 1 h · 10 km', 'Gainage · Renforcement · 30 min'], 1], [await p.locator('.nu-feuille .nu-seances-f .nu-ligne-nom').allTextContents().then(l => l.map(norm)), await p.locator('.nu-feuille [data-act="ajout-seance"]').count()], 'feuille Activité : les séances, « Ajouter une séance », puis les autres sports'));
+    // Ajouter une séance : la fenêtre du Calendrier, au jour de la page.
+    d.ecritures.length = 0;
+    await p.click('.nu-feuille [data-act="ajout-seance"]');
+    await p.waitForSelector('.cal-voile .cal-seance');
+    pb.push(egal(['Ajouter une séance', '2026-10-20', 'run'], [norm(await p.locator('.cal-voile .cal-panneau-titre').textContent()), await p.inputValue('.cal-voile [name="date"]'), await p.inputValue('.cal-voile [name="type"]')], 'Ajouter une séance : la fenêtre du Calendrier, au jour de la page'));
+    await p.fill('.cal-voile [name="libelle"]', 'Fractionné'); await p.fill('.cal-voile [name="duree"]', '40'); await p.fill('.cal-voile [name="distance"]', '8');
+    await p.click('.cal-voile [type="submit"]');
+    await p.waitForSelector('.cal-voile', { state: 'detached' });
+    await p.waitForFunction(() => /3\s539/.test(document.querySelector('.nu-kcal').textContent));
+    pb.push(egal([['POST', 'seances', { course: null, date: '2026-10-20', type: 'run', libelle: 'Fractionné', duree_min: 40, distance_km: 8, intensite: null }], '3 539 kcal'],
+      [[d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].corps], await kcal(p)], 'séance ajoutée : rangée dans le Calendrier, besoin recalculé (8 km en 40 min)'));
+    await fermerF(p);
+    // Toucher une séance du journal : la fenêtre du Calendrier, Supprimer avec la question du site.
+    d.ecritures.length = 0;
+    await p.click('.nu-activites .nu-ligne:has-text("Gainage")');
+    await p.waitForSelector('.cal-voile .cal-seance');
+    pb.push(egal('Modifier la séance', norm(await p.locator('.cal-voile .cal-panneau-titre').textContent()), 'toucher une séance : « Modifier la séance » du Calendrier'));
+    await p.click('.cal-voile [data-act="supprimer"]');
+    await p.click('.mrt-dialogue [data-r="oui"]');
+    await p.waitForSelector('.cal-voile', { state: 'detached' });
+    await p.waitForFunction(() => !/Gainage/.test(document.querySelector('.nu-activites').textContent));
+    pb.push(egal(['DELETE', 'seances', '?id=eq.' + ID(7)], [d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].filtres], 'séance supprimée dans le Calendrier depuis Nutrition'));
+    // La veille : une séance non faite ne compte pas ; cochée « faite », elle compte.
+    await p.click('[data-act="veille"]');
+    await p.waitForFunction(() => /Lundi 19 octobre/.test(document.querySelector('.nu-jour-t').textContent));
+    pb.push(egal(['2 117 kcal', ['Sortie oubliée · Course à pied · 1 h · 10 km'], 'non faite'], [await kcal(p), await activites(), norm(await p.locator('.nu-activites .nu-ligne-k').textContent())], 'la veille : la séance non faite ne compte pas'));
+    d.ecritures.length = 0;
+    await p.click('.nu-activites .nu-faite');
+    await p.waitForFunction(() => /2\s854/.test(document.querySelector('.nu-kcal').textContent));
+    pb.push(egal([['PATCH', 'seances', { faite: true }, '?id=eq.seance-19'], '2 854 kcal'], [[d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].corps, d.ecritures[0].filtres], await kcal(p)], 'cochée « faite » : rangée dans le Calendrier, elle compte'));
+    // Sans distance : la vitesse vient de l'intensité et de la VMA ; sans VMA, 9,5 km/h.
+    await p.click('[data-act="veille"]');
+    await p.waitForFunction(() => /Dimanche 18 octobre/.test(document.querySelector('.nu-jour-t').textContent));
+    pb.push(egal('2 645 kcal', await kcal(p), 'sans distance ni VMA : 9,5 km/h'));
+    await ctx.close();
+    d = base(); d.seances = SEANCES(); d.profils[0].vma = 15;
+    ({ p, ctx } = await ouvrirN(d));
+    await p.click('[data-act="veille"]'); await p.waitForFunction(() => /Lundi/.test(document.querySelector('.nu-jour-t').textContent));
+    await p.click('[data-act="veille"]'); await p.waitForFunction(() => /Dimanche 18 octobre/.test(document.querySelector('.nu-jour-t').textContent));
+    pb.push(egal('2 657 kcal', await kcal(p), 'sans distance, VMA 15 : facile, 65 % de la VMA'));
     await ctx.close();
 
     // Bloc d'En un coup d'œil : deuxième, quand Nutrition est dans le menu ; bilan, trois jauges simplifiées sur une ligne, bouton « Détail ».

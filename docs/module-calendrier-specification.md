@@ -9,6 +9,8 @@ Le Calendrier montre la saison à trois échelles : l'année, le mois et la sema
 - **Hors périmètre** : la saisie des courses (elle reste dans [Objectif](module-objectif-specification.md)) ; l'apparence détaillée (couleurs, tailles : [design](design.md)) ; l'import des séances depuis une application et la génération d'un plan par intelligence artificielle (todo du [sommaire](README.md)).
 - **Aucun calcul par intelligence artificielle** : les phases d'un plan se déduisent de règles générales de la course à pied et du trail (§ 5).
 
+- **Nutrition** : la fenêtre de séance (ajouter, modifier, supprimer) est aussi ouverte depuis la page Nutrition, au jour de la page ; les séances de course à pied et de renforcement y font l'activité du jour ([Nutrition](module-nutrition-specification.md), § 4.6).
+
 ## 2. Les trois vues
 
 | Vue | Échelle | Comment on l'ouvre |

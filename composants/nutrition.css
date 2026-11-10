@@ -116,3 +116,12 @@
 
 /* L'activité se détache des repas : un espace et un filet plein avant elle. */
 .nu-journal .nu-activites { margin-top: 1.6rem; padding-top: 1rem; border-top: 2px solid var(--border); }
+
+/* Séances du Calendrier dans le journal : la case « faite » à gauche, la ligne à toucher ; non faite un jour passé : estompée, ne compte pas. */
+.nu-seance-l { display: flex; align-items: center; gap: 0.6rem; }
+.nu-faite { display: flex; align-items: center; justify-content: center; width: 1.5rem; min-height: 2.75rem; cursor: pointer; }
+.nu-faite input { width: 1.05rem; height: 1.05rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.nu-seance-l .nu-ligne { flex: 1; min-width: 0; }
+.nu-seance-l.is-non-comptee .nu-ligne { color: var(--muted); }
+.nu-ajout-seance { margin: 0.6rem 0 0.4rem; }
+.nu-seances-f { margin-bottom: 0.2rem; }
