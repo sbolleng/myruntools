@@ -98,12 +98,12 @@
 .fc-fiche .fc-msg:empty { display: none; }
 .fc-fiche form > .fc-bloc:first-of-type { border-top: 0; }
 /* Résultat : temps et allure sur une demi-ligne chacun, puis les classements. */
-.fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: span 3; }
+.fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: span 3; }
 .fc-fiche .fc-actions { justify-content: flex-start; margin-top: 1.4rem; }
 /* « Supprimer la course » : seul en bas de la fiche, loin d'« Enregistrer » ; à contour rouge (fc-danger), avec sa poubelle. */
 .fc-ico { width: 0.9rem; height: 0.9rem; flex: none; }
 @media (max-width: 600px) {
-  .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: auto; }
+  .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: auto; }
 }
 
 /* Tracé GPX : l'état, puis « Importer un GPX » ou « Remplacer » et « Supprimer ». */

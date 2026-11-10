@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.73 · 10 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.74 · 10 novembre 2026 · [Retour au sommaire](README.md) · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -232,15 +232,15 @@ Site partagé en lecture seule : aucun de ces boutons.
 
 | Bloc | Champs |
 | --- | --- |
-| Course | Course et parcours ; date, ou mois seul (case « Seul le mois est connu » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ (vidée et grisée tant qu'il n'y a pas de date exacte : sans date, ou en mois seul) ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; **objectif**, choisi dans une liste (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), la durée n'apparaissant que pour les deux derniers ; **précisions sur l'objectif** (100 caractères au plus) ; description (1 000 caractères au plus), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
+| Course | Course et parcours ; date, ou mois seul (case « Seul le mois est connu » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ (vidée et grisée tant qu'il n'y a pas de date exacte : sans date, ou en mois seul) ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; **objectif**, choisi dans une liste (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), la durée n'apparaissant que pour les deux derniers ; **précisions sur l'objectif** (100 caractères au plus) ; description (1 000 caractères au plus), puis **site officiel** (sous la description, comme dans la consultation où il rejoint « À propos de la course »), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
 | Préparation | En tête, le plan de préparation, comme sur la page de la course (§ 3.4) : durée et dates (39), frise des phases (40), bouton à contour « Paramétrer le plan » (41) (« Enregistrer » reste le seul bouton principal). Seulement pour une course Confirmée ou Option ; calculé sur la date, le format et le statut saisis, il suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) remplace 39 et 40 et le bouton est grisé : « Choisis d'abord la date et le format. ». Date approximative : le plan vise le 1er du mois, avec sous 39 la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. » ; case décochée, le plan se recalcule sur la date précise, selon les règles (Calendrier, § 5.1). Date précise changée : les phases réglées à la main suivent la course, au même numéro de semaine. Le bouton ouvre la fenêtre de réglage (Calendrier, § 5.3) par-dessus le formulaire, avec « Valider » : rien n'est rangé avant « Enregistrer » du formulaire, qui range la course, sa durée de prépa et ses phases modifiées ; « Annuler » abandonne le tout ; Échap ne ferme que la fenêtre du plan. Même comportement pour une nouvelle course et une course existante. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Logistique | Logistique |
 | Dossard | Date d'ouverture des inscriptions, heure d'ouverture et case « Seul le mois est connu » **sur une seule ligne** (sur téléphone : la date seule, puis l'heure et la case ensemble) ; case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
-| Liens | Site officiel ; résultats en direct |
+| Résultat | Avant la course : « Résultats en direct » seul (lien à ouvrir le jour de la course). Voir § 3.8 |
 
 - **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Paramétrer le plan » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
-- **Obligatoires**, marqués d'une étoile en Accent, en exposant (en haut à droite du libellé), sans légende : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course À surveiller peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « Non terminée (DNF) » est cochée. Décidé le 10 nov. 2026.
+- **Obligatoires** (le temps, pour une course courue, sans exception : plus de course « non terminée »), marqués d'une étoile en Accent, en exposant (en haut à droite du libellé), sans légende : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course À surveiller peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « Non terminée (DNF) » est cochée. Décidé le 10 nov. 2026.
 - **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 3h, 1h30 ou 45 min » (Moins de…), « ex. 02:45:00 » (Temps précis), « ex. Partir prudemment, sous 4 h dans tous les cas », « ex. https://… ».
 - **Objectif normé** : une liste à choix unique (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), puis la durée si le choix en demande une ; rangé comme avant : « Finisher », « Sub 3h » / « Sub 1h30 » / « Sub 45 min », ou un temps `hh:mm:ss`. Tout le reste (intention, fourchette, contexte) va dans **Précisions sur l'objectif** (nom décidé le 10 nov. 2026).
 - **Contrôles de saisie** :
@@ -330,18 +330,18 @@ Ouverte en touchant une ligne du Palmarès, et partout ailleurs où une course c
 | C9 | Distance et D+ | Troisième ligne, même style : « 10 km · 128 m D+ » (sans D−) |
 | C30 | Intertitres | « Résultat », « Montre » : capitales discrètes, un filet fin dessous ; une section sans valeur n'est pas affichée |
 | C32 | Classement complet | Lien (pas un bouton : il mène hors du site) « Classement complet » et sa flèche, casse normale, à droite de l'intertitre Résultat ; il ouvre la page des résultats officiels ; absent sans adresse (décidé le 31 oct. 2026) |
-| C25 | Temps | Première ligne de Résultat ; valeur en grand, en Accent ; « DNF » si non terminée |
+| C25 | Temps | Première ligne de Résultat ; valeur en grand, en Accent |
 | C34 | Place | Rang général en grand, en Accent ; l'effectif (« / 174 ») plus petit, en Texte discret |
 | C27 | Catégorie, Sexe | Une ligne chacun, rang puis effectif ; la catégorie d'âge en clair après le rang, avec le sexe du profil (« Master 2 Homme », « Senior Femme ») |
-| C35 | Vitesse | En km/h, celle de la base, sinon tirée de l'allure ; absente si DNF |
-| C26 | Allure moyenne | En Texte ; absente si DNF ou vide |
+| C35 | Vitesse | En km/h, celle de la base, sinon tirée de l'allure |
+| C26 | Allure moyenne | En Texte ; absente si vide |
 | C36 | Objectif | Ligne sous le Temps, en Texte (comme Catégorie) : l'objectif visé, tel que saisi (« 01:50:00 », « Finisher », « Sub 3h »), et dessous ses précisions, en Petit, Texte discret ; absente sans objectif |
 | C37 | Textes | Le cadre de textes repliés de la page d'une course à venir (C24, C25), même style, même ordre de lecture ; sous la Montre |
 | C31 | Montre | Temps, Distance, Dénivelé (« 200 m D+ · 200 m D− », la valeur connue seule s'il en manque une), Allure, FC moyenne ; valeurs en Texte discret (Résultat reste en avant) ; la section disparaît sans aucune valeur de montre |
 | C20, C21 | Navigation | Parcourt le Palmarès dans l'ordre du tableau (tri et filtres du moment) |
 
 - Rang ordinal partout : « 1er », ou « 1re » pour une coureuse (comme le Palmarès), « 2e », « 14e ». Une ligne sans valeur n'est pas affichée.
-- **Retirés de la consultation** (gardés en base, modifiables en édition) : C2 (libellé « Courue · type »), C7, C8, C13, C24, C15 à C18, C10 (D−), C11 (objectif), C29 (écart), C23 (précisions), C14 (prix), C19 (Liens), C22 (cadre de la fiche).
+- **Retirés de la consultation** (gardés en base, modifiables en édition) : C2 (libellé « Courue · type »), C7, C8, C13, C24, C15 à C18, C10 (D−), C11 (objectif), C29 (écart), C23 (précisions), C14 (prix), C19 (Liens : il n'y a plus de bloc Liens), C22 (cadre de la fiche).
 - **Site partagé en lecture seule** : la feuille s'ouvre, sans crayon (C5).
 - **Montre (C28)** : section repliée sous le Résultat, fermée à l'ouverture ; un toucher sur son titre (chevron) l'ouvre, dans le même ordre de lignes. **Ordinateur** : Résultat et Montre (fermée) tiennent sans défilement sur un écran de 1200 × 700 ; les textes repliés suivent.
 - **Téléphone** : Montre sous Résultat, plein écran ; rien ne dépasse.
@@ -358,11 +358,12 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 | 4 | (F46) Parcours | replié (ouvert pour une course existante) | replié | Tracé GPX (importer, remplacer, supprimer ; F28) puis stratégie de course, à venir comme courue (depuis le 6 nov. 2026) |
 | 5 | (F20) Préparation | replié (ouvert pour une course existante) | replié | À venir : plan (F39 à F42), puis rôle dans la préparation ; courue : le rôle seulement (le plan n'est pas rangé : pour une course courue, il serait recalculé, donc inventé) |
 | 6 | (F38) Logistique | replié (ouvert pour une course existante) | replié | Logistique |
-| 7 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (temps, DNF, allure moyenne), puis les classements (général, catégorie, sexe : places et effectifs). Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé) |
+| 7 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (**temps et allure moyenne sur la même ligne**), puis les classements (général, catégorie, sexe : places et effectifs), puis « Résultats en direct », sur toute la largeur. Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé). **Avant la course, le bloc existe aussi, avec ce seul lien** (replié) ; il n'y a plus de case « Non terminée (DNF) » (décidé le 10 nov. 2026) |
 | 8 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
-| 9 | (F21) Liens | replié (ouvert pour une course existante) | replié si vide | Site officiel, résultats en direct |
 
-**Harmonisation avec la consultation** (décidée le 1er nov. 2026) : l'ordre des blocs suit l'ordre de lecture de la page d'une course : identité (Course), place dans le plan, dossard, parcours, préparation, logistique, liens. Le GPX et la stratégie quittent Course et Préparation pour le bloc Parcours (F46), comme la rubrique Parcours (C25) de la consultation ; l'objectif et ses précisions passent dans Course, comme dans la fiche (C11). Construit le 1er nov. 2026 (0.56).
+**Harmonisation avec la consultation** (décidée le 1er nov. 2026) : l'ordre des blocs suit l'ordre de lecture de la page d'une course : identité (Course), place dans le plan, dossard, parcours, préparation, logistique, résultat. Le GPX et la stratégie quittent Course et Préparation pour le bloc Parcours (F46), comme la rubrique Parcours (C25) de la consultation ; l'objectif et ses précisions passent dans Course, comme dans la fiche (C11). Construit le 1er nov. 2026 (0.56).
+
+**Le bloc Liens n'existe plus** (décidé le 10 nov. 2026) : « Site officiel » est dans Course, sous la description ; « Résultats en direct » est dans Résultat.
 
 Pour une course courue : son objectif, sa stratégie, sa logistique, son prix et ses liens, gardés en base, redeviennent visibles et modifiables ; le lien des résultats s'ajoute après coup.
 
@@ -599,7 +600,7 @@ Résultats attendus, page d'une course :
 
 Résultats attendus, saisie et édition (mêmes données, même date) :
 
-- « + » ouvre un formulaire vide : statut Confirmée, rôle Préparatoire ; blocs Préparation, Dossard, Logistique et Liens repliés.
+- « + » ouvre un formulaire vide : statut Confirmée, rôle Préparatoire ; blocs Dossard, Parcours, Préparation, Logistique et Résultat (« Résultats en direct » seul) repliés ; « Site officiel » dans Course, sous la description.
 - Ajouter « Trail des Brumes », 18 avril 2027, 8 h, objectif saisi `15000` (lu 1:50:00) : il s'affiche « 01:50:00 » ; la carte prend place entre Trail des Gorges et Printemps 2027 ; l'en-tête affiche « 6 courses ».
 - Objectif : « Moins de… » avec « vite » : « Durée illisible (ex. 3h, 1h30 ou 45 min). » sous le champ ; « Enregistrer » reste sans effet. « Finisher » est rangé « Finisher » (sans durée), « Moins de… » avec « 3h » est rangé « Sub 3h », « Temps précis » avec « 2h45 » est rangé « 02:45:00 ». Une course existante s'ouvre sur le bon choix (« 06:30:00 » : Temps précis).
 - Date du 1er octobre 2026 : erreur sous la date. Site officiel « example.org » : erreur sous le champ.
@@ -637,15 +638,15 @@ Résultats attendus, formulaire en détail (écritures relues par le banc d'essa
 
 Résultats attendus, fiche d'une course (§ 3.8) :
 
-- Trail des Gorges, consultation puis crayon : la même feuille passe en édition, barre « Annuler · Modifier la course · Enregistrer », pas de croix, aucune autre fenêtre ouverte. Blocs dans l'ordre : Course, Place dans le plan, Préparation, Logistique, Dossard (n° 1287 dedans), Liens.
+- Trail des Gorges, consultation puis crayon : la même feuille passe en édition, barre « Annuler · Modifier la course · Enregistrer », pas de croix, aucune autre fenêtre ouverte. Blocs dans l'ordre : Course, Place dans le plan, Préparation, Logistique, Dossard (n° 1287 dedans), Résultat (« Résultats en direct » seul).
 - « Annuler » sans saisie : retour à la consultation, sans question ; après une saisie : « Abandonner les modifications ? ». « Enregistrer » : retour à la consultation, mise à jour.
 - « + Ajouter une course » (Objectif) : la feuille s'ouvre en édition, « Ajouter une course » ; Trail des Lacs enregistré (12 juin 2027, Confirmée) : la feuille montre sa consultation.
-- Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Dossard (numéro, prix), Parcours (tracé GPX, stratégie, comme une course à venir), Préparation (rôle, sans plan), Logistique, Résultat (résultat puis classements), Montre, Liens ; Course et Résultat ouverts ; « Seul le mois est connu » absente, sa place gardée vide : l'heure reste sous la date, le lieu à sa droite.
+- Palmarès, Semi de San Sebastián, crayon : la même feuille en édition, blocs Course, Place dans le plan (rôle seul), Dossard (numéro, prix), Parcours (tracé GPX, stratégie, comme une course à venir), Préparation (rôle, sans plan), Logistique, Résultat (temps et allure moyenne sur une ligne, classements, « Résultats en direct »), Montre ; Course et Résultat ouverts ; « Seul le mois est connu » absente, sa place gardée vide : l'heure reste sous la date, le lieu à sa droite.
 - Trail du Lac au jour de la course, « Marquer comme courue » : bascule en édition, état Courue, pré-remplie, sans « Supprimer » ; enregistrée, la feuille se ferme et la course quitte la feuille de route.
 - Palmarès, toucher la ligne du Semi de San Sebastián (valeurs du jeu fictif) : la feuille s'ouvre en consultation, sans libellé « Courue » ; sous le titre « dim. 4 oct. 2026 », « Semi-marathon », « 21,1 km » ; Résultat : Temps 01:56:05, Place 1 951e, Vitesse 10,9 km/h, Allure 5:30 /km ; pas de section Montre ; un seul texte replié, Parcours, avec « Importer un GPX » ; ni fiche encadrée, ni lien Résultats, ni compte à rebours, ni plan, ni boutons « Retenir » et « Marquer comme courue ».
 - Même course renseignée (classements 112e / 640, 18e / 96 en M2, 95e / 510 ; dossard 1287 ; D+ 40 ; montre 1:55:50, 21,3 km, D+ 40, FC 151 ; objectif, prix, liens) : « Semi-marathon · Dossard 1287 » puis « 21,1 km · 40 m D+ » ; Résultat : Temps, Objectif 01:50:00 et dessous « Sous 1 h 55 dans tous les cas. », Place 112e / 640, Catégorie 18e / 96 Master 2 Homme, Sexe 95e / 510, Vitesse, Allure ; Montre : Temps 01:55:50, Distance 21,3 km, D+ · D− 40 · — m, FC moy. 151 bpm ; lien « Résultats » dans l'intertitre ; ni prix, ni bloc Liens ; sous la Montre, À propos (« Semi. »), Parcours (ouvert : stratégie « Partir prudemment. »), Préparation (rôle « Répétition. », sans plan), Logistique (« Train. ») ; Résultat et Montre tiennent sans défilement sur un écran de 1200 × 700 ; site officiel par une flèche dessinée. Sur ordinateur, Montre à droite de Résultat, valeurs en Texte discret ; sur téléphone, Montre dessous, rien ne dépasse.
 - Première place : « 1er » pour un coureur, « 1re » pour une coureuse ; chaque valeur sur une ligne.
-- Course non terminée (DNF) : « DNF » à la place du temps, ni vitesse ni allure.
+- Course sans temps (ancienne course non terminée) : pas de ligne Temps, ni vitesse ni allure ; la case « Non terminée (DNF) » n'existe plus.
 - Crayon de la feuille : bascule en édition ; Annuler sans saisie revient à la consultation. Crayon de la ligne du tableau : ouvre directement l'édition ; le retour du navigateur la ferme, le Palmarès reste. « Course suivante » et « précédente » suivent l'ordre du tableau, tri et filtres compris.
 - Semi de San Sebastián ouvert par son adresse, ou touché dans la vue Année du Calendrier, ou depuis « Dernière course » sur l'accueil : sa consultation (section Résultat, ligne Temps) ; par son adresse, une seule course voisine (la plus récente n'a pas de « précédente ») ; la croix laisse la feuille de route.
 - « + Ajouter une course » puis le retour du navigateur : sans saisie, la fiche se ferme et la feuille de route reste ; après une saisie, « Abandonner les modifications ? » ; refusé, la fiche reste ; accepté, elle se ferme. « Annuler » retire aussi l'entrée d'historique de la fiche.

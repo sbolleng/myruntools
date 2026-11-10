@@ -11,8 +11,7 @@
 //   ou 'mm:ss'), pace (allure, 'm:ss'), speed (vitesse, km/h), rank, rankCat,
 //   rankSex (places aux classements général, catégorie, sexe) avec leurs
 //   effectifs facultatifs rankTotal, rankCatTotal, rankSexTotal, et les données
-//   montre wDist, wDplus, wTime, wPace, wSpeed, hr ; dnf: true pour une course
-//   non terminée (« DNF » dans Temps, hors records, en fin de tri).
+//   montre wDist, wDplus, wTime, wPace, wSpeed, hr.
 //   Allure et vitesse : si une seule est donnée, l'autre est calculée.
 // config.feminin : true pour une coureuse (première place « 1re »).
 //   type et sub viennent de la liste de référence ci-dessous.
@@ -102,7 +101,7 @@
   const fmtTime = sec => window.mrtFormat.duree(sec);
   const fmtDate = iso => window.mrtFormat.date(iso);
   function fmtCell(col, val, r) {
-    if (val == null) return col.key === 'time' && r && r.dnf ? 'DNF' : '<span class="muted">—</span>';
+    if (val == null) return '<span class="muted">—</span>';
     const out = fmtValue(col, val, r);
     return r && r.calc.has(col.key) ? '<em title="calculée">' + out + '</em>' : out;
   }
@@ -154,9 +153,7 @@
       const n = race[k + 'Total'];
       totals[k] = n == null || n === '' || isNaN(n) ? null : Number(n);
     });
-    // Non terminée : pas de temps, donc ni record ni place au tri par temps.
-    if (race.dnf) v.time = null;
-    return { id: race.id, v, calc, totals, dnf: !!race.dnf, record: false };
+    return { id: race.id, v, calc, totals, record: false };
   }
 
   // Record 🥇, recalculé à chaque affichage : on écarte les courses sans temps

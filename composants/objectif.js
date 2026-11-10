@@ -441,12 +441,12 @@
     const ordre = ctx.ordre ? ctx.ordre().map(i => courses.find(x => x.id === i)).filter(Boolean)
       : courses.filter(x => x.etat === 'courue' && x.date).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     const k = ordre.findIndex(x => x.id === id), prec = ordre[k - 1], suiv = ordre[k + 1];
-    const temps = c.dnf ? 'DNF' : hmsFiche(c.temps);
+    const temps = hmsFiche(c.temps);
     const resultats = lienSur(c.lien_resultats);
     // Résultat : une ligne par valeur (libellé, valeur), le temps puis la place en grand ; une ligne vide n'est pas affichée.
     const effectif = n => (n != null ? ' <span class="pc-sur-n">/ ' + nombre(n) + '</span>' : '');
     const rang = (p, n) => (p == null ? '' : esc(place(p, null, ctx.feminin)) + effectif(n));
-    const vitesse = c.dnf ? null : c.vitesse || (c.allure ? Math.round(36000 / c.allure) / 10 : null);
+    const vitesse = c.vitesse || (c.allure ? Math.round(36000 / c.allure) / 10 : null);
     const cat = categorie(c.categorie, ctx.feminin);
     const resultat = [
       ['Temps', temps ? '<b class="pc-grand ob-cible">' + esc(temps) + '</b>' : ''],
@@ -456,7 +456,7 @@
       ['Catégorie', c.place_categorie != null ? '<span class="ob-val">' + rang(c.place_categorie, c.effectif_categorie) + '</span>' + (cat ? ' <span class="pc-cat">' + esc(cat) + '</span>' : '') : ''],
       ['Sexe', c.place_sexe != null ? '<span class="ob-val">' + rang(c.place_sexe, c.effectif_sexe) + '</span>' : ''],
       ['Vitesse', vitesse ? '<span class="ob-val">' + esc(nombre(vitesse)) + ' km/h</span>' : ''],
-      ['Allure', !c.dnf && c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '']].filter(r => r[1]);
+      ['Allure', c.allure != null ? '<span class="ob-val">' + esc(allureTxt(c.allure)) + '</span>' : '']].filter(r => r[1]);
     // Montre : ses valeurs seules, en liste comme Résultat ; section absente sans aucune valeur.
     const km = v => (v != null ? nombre(v) + ' km' : '');
     // Dénivelé écrit comme dans la fiche : « 200 m D+ · 200 m D− ».
