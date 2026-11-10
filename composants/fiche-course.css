@@ -36,7 +36,14 @@
   text-transform: uppercase;
   color: var(--muted);
 }
-.fc-oblig { color: var(--muted); } /* astérisque discret : l'Accent marque ce qui est actif */
+.fc-oblig { color: var(--accent); font-size: 1.15em; font-weight: 700; line-height: 1; } /* champ obligatoire : l'étoile en Accent */
+.fc-oblig[hidden] { display: none; }
+.fc-legende { margin: 0 0 0.4rem; font-size: var(--t-petit); color: var(--muted); }
+/* Objectif : la liste, puis la durée à sa droite. */
+.fc-objectif { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 1rem; }
+.fc-objectif .mrt-champ[hidden] { display: none; }
+/* Ouverture des inscriptions : date, heure et « Seul le mois est connu » sur une ligne. */
+.fc-ligne-ouv { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0 1rem; align-items: end; }
 .fc-champ { min-width: 0; }
 /* Champs (mrt-champ) : toute la largeur de leur colonne. */
 .fc-champ .mrt-champ { display: block; width: 100%; }
@@ -54,6 +61,9 @@
   .fc-grille-3 { grid-template-columns: minmax(0, 1fr); }
   .fc-grille-3 .fc-moitie, .fc-grille-3 .fc-tiers { grid-column: auto; }
   .fc-grille { grid-template-columns: minmax(0, 1fr); }
+  .fc-ligne-ouv { grid-template-columns: minmax(0, 1fr) auto; }
+  .fc-ligne-ouv > :first-child { grid-column: 1 / -1; }
+  .fc-objectif { grid-template-columns: minmax(0, 1fr); }
   .fc-champ.fc-seul input { max-width: none; }
 }
 
