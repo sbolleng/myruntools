@@ -504,6 +504,7 @@ const CONTROLES = {
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.ac-decouvrir button')].map(b => b.textContent),
           document.querySelector('.ac-decouvrir .ac-titre').textContent, [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'Pour aller plus loin : une ligne et son bouton par module absent du menu'));
+      pb.push(egal(0, await o.p.locator('[data-bloc="dicila"] .ac-titre a').count(), 'D\'ici là : pas de lien tant que Préparation n\'est pas au menu'));
       await o.p.click('.ac-decouvrir [data-module="Préparation"]');
       await o.p.waitForSelector('.mrt-tab:has-text("Préparation")');
       const e = neuf.ecritures.filter(x => x.table === 'preferences')[0];
@@ -511,10 +512,25 @@ const CONTROLES = {
       pb.push(egal([['Nutrition'], ['En un coup d\'œil', 'Saison', 'Préparation', 'Calendrier', 'Courses', 'Palmarès']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'après l\'ajout : l\'onglet apparaît, la ligne de Préparation disparaît'));
+      pb.push(egal(['Préparation →', 'preparation.html'], await o.p.evaluate(() => { const l = document.querySelector('[data-bloc="dicila"] .ac-titre a'); return [l && l.textContent.trim(), l && l.getAttribute('href')]; }),
+        'D\'ici là : lien vers Préparation une fois le module au menu'));
       await o.p.click('.ac-decouvrir [data-module="Nutrition"]');
       await o.p.waitForSelector('.ac-decouvrir', { state: 'detached' });
       pb.push(egal([], o.erreurs, 'Pour aller plus loin : erreurs JavaScript'));
       await o.ctx.close();
+      // N2 : depuis la page Préparation, le nom d'une course s'ouvre en modale au-dessus ; l'onglet de la page reste actif
+      {
+        const d = jeuObjectif(db0).db;
+        d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès'];
+        const q = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
+        await q.p.waitForSelector('.ps-plans .ps-course'); await q.p.click('.ps-plans .ps-course');
+        await q.p.waitForSelector('.mc-panneau .pc-titre');
+        pb.push(egal(['Préparation', 1], await q.p.evaluate(() => [document.querySelector('.mrt-tab.is-on').textContent.trim(), document.querySelectorAll('.mc-panneau').length]), 'Préparation : une course s\'ouvre en modale, l\'onglet reste Préparation'));
+        await q.p.click('.mc-panneau .pc-fermer');
+        await q.p.waitForSelector('.mc-panneau', { state: 'detached' });
+        pb.push(egal([0, 'Préparation'], [await q.p.locator('.mc-panneau').count(), (await q.p.textContent('.mrt-tab.is-on')).trim()], 'fermer la course : retour à Préparation, onglet inchangé'));
+        await q.ctx.close();
+      }
       // Site d'un autre : pas d'invitation
       const autre = '00000000-0000-0000-0000-00000000000b', partage = jeuObjectif(db0).db;
       partage.courses = partage.courses.map(c => Object.assign({}, c, { utilisateur: autre }));

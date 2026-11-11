@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.35 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.36 · 11 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -142,7 +142,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Prochaine course | La carte de la prochaine course confirmée, comme sur la saison ; lien vers la saison | Affiché |
 | Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt : jamais affiché avant d'être construit | — |
 | Nutrition | Bilan du jour (mangé / besoin) et ajout en une touche des favoris et récents ([Nutrition](module-nutrition-specification.md), § 4.7) ; seulement quand le module Nutrition est au menu | Affiché |
-| D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent | Affiché |
+| D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent ; lien « Préparation → » quand ce module est au menu | Affiché |
 | Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Affiché |
 | Pour aller plus loin | Une ligne par module « à cocher » absent du menu (Préparation, Nutrition) : son nom, une phrase d'aide et le bouton « Ajouter au menu », qui l'ajoute à sa place du menu (liste enregistrée dans les Préférences) et redessine le menu ; la ligne disparaît, puis tout le bloc quand les deux sont au menu. Sur toute la largeur, toujours en dernier, ni choisi ni rangé dans les Préférences ; absent d'un site partagé | Affiché tant qu'un module manque |
 
