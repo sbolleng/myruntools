@@ -256,6 +256,9 @@
   }
 
   window.renderSaison = function (root, ctx) {
+    // Téléphone : la frise est une liste verticale ; elle se redessine quand l'écran change de classe.
+    const mq = window.matchMedia('(max-width: 600px)');
+    mq.addEventListener('change', () => { if (ctx.friseMaj) ctx.friseMaj(ctx.friseMode || 'saison'); });
     ctx.actualiser = async () => { Object.assign(ctx, await ctx.relire()); dessiner(); };
 
     function dessiner() {
@@ -271,42 +274,53 @@
       }
       // (1) Saison visée.
       const dans = semainesEntre(auj, prochaine.jourJ);
-      let h = '<div class="ps-cadre">' + profil + '<h1 class="ps-titre">Saison : vers « ' + nom(prochaine.course) + ' » · ' + longue(prochaine.jourJ) + ' <small>(dans ' + dans + ' sem.)</small></h1>';
+      // Le nom de la course visée en titre ; dessous, petit : la date (l'année seulement si ce n'est pas la présente) et le temps restant.
+      const dateVisee = window.mrtFormat.date(prochaine.jourJ, { semaine: true, annee: parse(prochaine.jourJ).getFullYear() !== new Date().getFullYear() });
+      let h = '<div class="ps-cadre">' + profil + '<h1 class="ps-titre">' + nom(prochaine.course) + '</h1><p class="ps-sous">' + dateVisee + ' · dans ' + dans + ' sem.</p>';
 
       // (3) Frise, à deux niveaux : « Saison » (jusqu'à l'Objectif, par défaut) ou « Tout » (jusqu'à la fin de la dernière récupération).
       const derniere = ps.saisons[ps.saisons.length - 1], recupDer = ps.reperes.find(r => r.course === derniere.course);
       const finTout = lundiDe(recupDer && recupDer.recupFin > derniere.jourJ ? recupDer.recupFin : derniere.jourJ);
+      const jm = d => d.getDate() + ' ' + MOIS[d.getMonth()];
+      // Nom d'une phase sur un segment de deux semaines, quand le nom entier ne tient pas.
+      const COURT = { developpement: 'Dév.', affutage: 'Aff.', recuperation: 'Récup.', entretien: 'Entr.', deload: 'Del.' };
+      // 9 → 22 nov, ou 28 nov → 6 déc.
+      const plage = (l1, l2) => { const x = parse(l1), y = parse(addDays(l2, 6)); return (x.getMonth() === y.getMonth() ? x.getDate() : jm(x)) + ' → ' + jm(y); };
       const friseCorps = mode => {
         const fin = mode === 'tout' ? finTout : lundiDe(prochaine.jourJ);
         const semaines = [];
         for (let l = lundi; l <= fin; l = addDays(l, 7)) semaines.push(l);
-        const courses = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && c.date >= lundi && c.date <= addDays(fin, 6));
-        let premierMois = false;
-        const phases = semaines.map(l => { const x = P.phaseDe(ps, l); return x ? x.phase : 'entretien'; });
         const n = semaines.length;
-        // Nom de la phase écrit sur la barre, une fois par suite de semaines de même phase (deux semaines au moins).
-        let noms = '';
-        for (let i = 0; i < n;) {
-          let j = i; while (j < n && phases[j] === phases[i]) j++;
-          if (j - i >= 2) noms += '<span class="ps-ph-nom ph-' + phases[i] + '" style="left:calc(' + i + ' * (100% + 2px) / ' + n + ');width:calc(' + (j - i) + ' * (100% + 2px) / ' + n + ' - 2px)">' + NOM_PHASE[phases[i]] + '</span>';
-          i = j;
+        const courses = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && c.date >= lundi && c.date <= addDays(fin, 6));
+        const phases = semaines.map(l => { const x = P.phaseDe(ps, l); return x ? x.phase : 'entretien'; });
+        // Suites de semaines de même phase : un segment chacune [premier index, longueur].
+        const runs = [];
+        for (let i = 0; i < n;) { let j = i; while (j < n && phases[j] === phases[i]) j++; runs.push({ i, len: j - i, ph: phases[i] }); i = j; }
+        const marque = c => { const role = roleDe(c); return '<a class="ps-marque r-' + role + (c.statut === 'option' ? ' is-option' : '') + '" href="' + lien(c) + '" title="' + esc(c.course + ' · ' + longue(c.date) + ' · ' + ROLE[role] + (c.statut === 'option' ? ' (option)' : '')) + '"><b>▲</b><span class="ps-marque-nom">' + esc(c.course) + ' · ' + jm(parse(c.date)) + '</span></a>'; };
+        // Légende : seulement ce que la frise montre.
+        const roles = [...new Set(courses.filter(c => c.statut !== 'option').map(roleDe))], option = courses.some(c => c.statut === 'option');
+        const legende = '<p class="ps-legende">' + ['objectif', 'preparatoire', 'plaisir'].filter(r => roles.includes(r)).map(r => '<span><b class="ps-marque r-' + r + '">▲</b>' + ROLE[r] + '</span>').join('') +
+          (option ? '<span><b class="ps-marque is-option">▲</b>option</span>' : '') +
+          ['base', 'developpement', 'affutage', 'deload', 'recuperation', 'entretien'].filter(k => phases.includes(k)).map(k => '<span><i class="cal-k ph-' + k + '"></i>' + NOM_PHASE[k] + '</span>').join('') + '</p>';
+        // Téléphone : une liste verticale, une ligne par phase (couleur, nom, dates, durée), les courses sous leur phase.
+        if (mq.matches) {
+          return '<ol class="ps-liste">' + runs.map(r => {
+            const l1 = semaines[r.i], l2 = semaines[r.i + r.len - 1], cs = courses.filter(c => c.date >= l1 && c.date <= addDays(l2, 6));
+            return '<li class="ps-run" data-lundi="' + l1 + '" data-fin="' + l2 + '"><i class="cal-k ph-' + r.ph + '"></i><b class="ps-run-nom">' + NOM_PHASE[r.ph] + '</b><span class="ps-run-dates">' + plage(l1, l2) + ' · ' + r.len + ' sem.</span>' +
+              cs.map(marque).join('') + '</li>';
+          }).join('') + '</ol>';
         }
-        const cols = semaines.map((l, i) => {
-          const ph = phases[i], d = parse(l);
-          // Nom du mois sur la semaine où il commence ; l'année sur le premier nom affiché et en janvier.
-          const prec = i ? parse(semaines[i - 1]) : null, change = prec && prec.getMonth() !== d.getMonth();
-          const mois = change ? MOIS[d.getMonth()] + (d.getMonth() === 0 || !premierMois ? ' ' + String(d.getFullYear()).slice(2) : '') : '';
-          if (change) premierMois = true;
-          const marques = courses.filter(c => lundiDe(c.date) === l).map(c => {
-            const role = roleDe(c);
-            return '<a class="ps-marque r-' + role + (c.statut === 'option' ? ' is-option' : '') + '" href="' + lien(c) + '" title="' + esc(c.course + ' · ' + longue(c.date) + ' · ' + ROLE[role] + (c.statut === 'option' ? ' (option)' : '')) + '">▲</a>';
-          }).join('');
-          return '<div class="ps-sem" data-lundi="' + l + '"><span class="ps-mois">' + mois + '</span><span class="ps-ph ph-' + ph + '" title="' + esc('Semaine du ' + longue(l) + ' · ' + NOM_PHASE[ph]) + '"></span><span class="ps-marques">' + marques + '</span></div>';
+        // Ordinateur : trois rangées sur la même grille, une colonne par semaine : les dates, les phases (un segment par suite de semaines), les courses (nom et date écrits).
+        const pas = n <= 12 ? 1 : n <= 26 ? 2 : 4;
+        const dates = semaines.map((l, i) => i % pas ? '' : '<span class="ps-date" style="grid-column:' + (i + 1) + ' / span ' + pas + '">' + jm(parse(l)) + '</span>').join('');
+        const segs = runs.map(r => '<span class="ps-seg ph-' + r.ph + '" data-debut="' + semaines[r.i] + '" data-fin="' + semaines[r.i + r.len - 1] + '" style="grid-column:' + (r.i + 1) + ' / span ' + r.len + '" title="' +
+          esc(NOM_PHASE[r.ph] + ' · ' + plage(semaines[r.i], semaines[r.i + r.len - 1]) + ' · ' + r.len + ' sem.') + '">' + (r.len >= 3 || (r.len === 2 && NOM_PHASE[r.ph].length <= 6) ? NOM_PHASE[r.ph] : r.len === 2 ? COURT[r.ph] : '') + '</span>').join('');
+        // Une course dans les dernières semaines s'écrit vers la gauche (le nom finit sous son signe), pour ne pas sortir de la frise.
+        const marques = courses.map((c, k) => {
+          const i = semaines.indexOf(lundiDe(c.date)), fin = i >= n - 6, debut = fin ? Math.max(1, i + 1 - 7) : i + 1;
+          return '<span class="ps-marque-c' + (fin ? ' is-fin' : '') + '" style="grid-column:' + debut + ' / ' + (fin ? i + 2 : 'span 1') + ';grid-row:' + (3 + k % 2) + '">' + marque(c) + '</span>';
         }).join('');
-        return '<div class="ps-frise-defile"><div class="ps-frise" style="--n:' + n + '">' + cols + noms + '</div></div>' +
-          '<p class="ps-legende"><span><b class="ps-marque r-objectif">▲</b>Objectif</span><span><b class="ps-marque r-preparatoire">▲</b>Préparatoire</span><span><b class="ps-marque r-plaisir">▲</b>Plaisir</span>' +
-          '<span><b class="ps-marque is-option">▲</b>option</span>' +
-          ['base', 'developpement', 'affutage', 'deload', 'recuperation', 'entretien'].map(k => '<span><i class="cal-k ph-' + k + '"></i>' + NOM_PHASE[k] + '</span>').join('') + '</p>';
+        return '<div class="ps-frise-defile"><div class="ps-frise" style="--n:' + n + '">' + dates + segs + marques + '</div></div>' + legende;
       };
       const mode = ctx.friseMode || 'saison';
       ctx.friseMaj = m => {

@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 11 nov. 2026 | Préparation 1.1, frise lisible | Titre sur deux lignes (nom de la course, puis date et temps restant). Frise en segments par phase avec noms, dates des lundis, nom et date des courses écrits sous leur ▲, légende limitée au présent ; téléphone : liste verticale, une ligne par phase. Correctif : colonnes qui remplissent la largeur sur téléphone. |
 | 10 nov. 2026 | Nutrition, étape 2 de l'ajout aérée | Favori en rond étoile à côté du nom ; libellés « Quantité » et « Repas » ; aperçu des calories et macros de la quantité saisie ; total dans le bouton (« Ajouter · 180 kcal »), juste sous Repas ; blocs espacés d'environ 1,5 rem. |
 | 10 nov. 2026 | Nutrition 1.4, retouches | Picto des cases Activité et Repas tout à droite ; feuille Activité renommée « Ajouter une activité ». |
 | 10 nov. 2026 | Menu : Calendrier après Préparation | Ordre du menu : En un coup d'œil, Plan & objectifs, Préparation, Calendrier, Nutrition, Courses, Palmarès (catalogue du site réordonné de même ; évolution 032 à passer dans Supabase). |
