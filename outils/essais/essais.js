@@ -107,7 +107,8 @@ function simulerBase(ctx, db) {
       // Calendrier : séances et phases modifiées s'écrivent vraiment dans la base simulée ; la durée de prépa d'une course aussi.
       const tab = u.pathname.split('/').pop();
       const filtresEq = [...u.searchParams].filter(([k, v]) => /^eq\./.test(v) && k !== 'select');
-      const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3));
+      const filtresIn = [...u.searchParams].filter(([k, v]) => /^in\.\(/.test(v));
+      const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3)) && filtresIn.every(([k, v]) => v.slice(4, -1).split(',').includes(String(x[k])));
       if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour', 'propositions'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).join() === 'prepa_semaines')) {
         if (!db[tab]) db[tab] = [];
         if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach((l, i) => db[tab].push(Object.assign({ id: 'nouveau-' + db[tab].length + '-' + i, utilisateur: db.profils[0].id }, l)));
@@ -276,7 +277,7 @@ async function surDialogue(p, rappel) {
     d.__vu = true;
     const oui = await window.__mrtQuestion(d.querySelector('p').textContent);
     d.querySelector('[data-r="' + (oui ? 'oui' : 'non') + '"]').click();
-  }).observe(document.documentElement, { childList: true, subtree: true });
+  }).observe(document, { childList: true, subtree: true });
   await p.addInitScript(brancher);
   await p.evaluate(brancher);
 }
@@ -444,7 +445,8 @@ const CONTROLES = {
     // Par défaut : l'Accueil est la page de démarrage, avec le grand en-tête ; blocs par défaut.
     let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 1200, db, {}, PARIS);
     pb.push(egal([true, 'En un coup d\'œil'], [await p.evaluate(() => !!document.querySelector('.mrt-header')), await p.getAttribute('.mrt-tab.is-on', 'aria-label')], 'En un coup d\'œil : grand en-tête, onglet actif'));
-    pb.push(egal(['prochaine', 'dicila', 'derniere'], await blocs(p), 'Accueil : blocs par défaut, Dernière course comprise, aucun bloc « bientôt » (vide)'));
+    pb.push(egal(['aujourdhui', 'prochaine', 'dicila', 'derniere', 'decouvrir'], await blocs(p), 'Accueil : « Aujourd\'hui » en tête, puis les blocs par défaut, Dernière course comprise, aucun bloc « bientôt » (vide), puis « Pour aller plus loin » tant que Préparation ou Nutrition manque au menu'));
+    pb.push(egal(['course'], await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), 'Aujourd\'hui : sans Nutrition au menu, seule la saisie rapide « Ajouter une course »'));
     pb.push(egal('Trail du Lac · Le Tour du Lac', (await p.textContent('[data-bloc="prochaine"] .ob-nom a')).replace(/[  ]/g, ' ').trim(), 'prochaine course : la carte de la feuille de route'));
     const etapes = await p.evaluate(() => [...document.querySelectorAll('.ac-etape')].map(e => e.textContent + (e.classList.contains('is-cap') ? ' (cap)' : '')));
     pb.push(egal('Trail des Crêtes (cap)', etapes[etapes.length - 1], 'd\'ici là : jusqu\'au cap compris, en Accent'));
@@ -453,8 +455,22 @@ const CONTROLES = {
     // Blocs choisis dans les Préférences : ordre et Dernière course.
     const choix = JSON.parse(JSON.stringify(db)); choix.preferences[0].accueil_blocs = ['derniere', 'prochaine'];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, choix, {}, PARIS));
-    pb.push(egal(['derniere', 'prochaine'], await blocs(p), 'blocs choisis, dans l\'ordre choisi'));
+    pb.push(egal(['aujourdhui', 'derniere', 'prochaine', 'decouvrir'], await blocs(p), 'blocs choisis, dans l\'ordre choisi (« Pour aller plus loin » toujours en dernier)'));
     pb.push(egal(true, /Course.+Date.+Temps\s*\d{2}:\d{2}:\d{2}/.test(await p.textContent('[data-bloc="derniere"]')), 'dernière course : nom, date, temps en hh:mm:ss'));
+    await ctx.close();
+    // Aujourd'hui : les séances du jour (20 octobre 2026), la case « faite », trois saisies rapides avec Nutrition au menu.
+    const jourJ = JSON.parse(JSON.stringify(db)); jourJ.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
+    jourJ.seances = [['se-a', '2026-10-20', 'run', '8×400 m', false], ['se-b', '2026-10-21', 'run', 'Footing 45 min', false]].map(([i, date, type, libelle, faite]) => ({ id: i, utilisateur: jourJ.profils[0].id, date, type, libelle, faite, course: null }));
+    jourJ.ecritures = [];
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, jourJ, {}, PARIS));
+    await p.waitForSelector('.ac-jour-ligne');
+    pb.push(egal([['Course à pied 8×400 m'], ['repas', 'activite', 'course'], 'aujourdhui'], [await p.evaluate(() => [...document.querySelectorAll('.ac-jour-ligne')].map(l => l.textContent.replace(/\s+/g, ' ').trim())),
+      await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), (await blocs(p))[0]], 'Aujourd\'hui : la séance du jour seulement, trois saisies rapides, bloc en tête'));
+    await p.check('[data-faite="se-a"]'); await p.waitForTimeout(300);
+    pb.push(egal(true, jourJ.ecritures.length > 0 && jourJ.ecritures[0].corps && jourJ.ecritures[0].corps.faite === true, 'Aujourd\'hui : la case « faite » est rangée'));
+    await p.click('[data-rapide="course"]'); await p.waitForSelector('.fc-fiche');
+    pb.push(egal('Ajouter une course', await p.textContent('#fc-titre'), 'Aujourd\'hui : « Ajouter une course » ouvre la fiche d\'ajout'));
+    await p.click('[data-fc="annuler"]');
     await ctx.close();
     // Page de démarrage : la feuille de route. En arrivant sur l'Accueil, on y est renvoyé ; elle seule a le grand en-tête.
     const dem = JSON.parse(JSON.stringify(db)); dem.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès'];
@@ -486,7 +502,7 @@ const CONTROLES = {
     pb.push(egal([0, ['En un coup d\'œil']], [await p.locator('.pref-modules input[type="radio"]').count(), await ouverture()], 'menu : pas de choix de démarrage, le premier module marqué « à l\'ouverture »'));
     await p.uncheck('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
-    pb.push(egal(['Objectif & plan'], await ouverture(), 'En un coup d\'œil décoché : Objectif & plan s\'ouvre en arrivant'));
+    pb.push(egal(['Saison'], await ouverture(), 'En un coup d\'œil décoché : Saison s\'ouvre en arrivant'));
     await p.check('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
     pb.push(egal([['Prochaine course', 'Nutrition', 'D\'ici là', 'Dernière course'], 'Bientôt : Pense-bête.'], await p.evaluate(() => [[...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim()),
@@ -495,6 +511,50 @@ const CONTROLES = {
     await p.waitForSelector('#bloc-accueil .pref-msg:has-text("Enregistré")');
     pb.push(egal(['prochaine', 'nutrition', 'dicila', 'pensebete'], db.preferences[0].accueil_blocs, 'Dernière course décochée : enregistrée, les blocs « bientôt » gardés pour leur arrivée'));
     await ctx.close();
+    // Pour aller plus loin : Préparation et Nutrition, décochées par défaut, s'ajoutent au menu d'un toucher (design, § 12 ; E1)
+    {
+      const neuf = jeuObjectif(db0).db; neuf.ecritures = [];
+      const o = await ouvrir(nav, 'index.html', 1200, neuf, {}, PARIS);
+      pb.push(egal([['Préparation', 'Nutrition'], ['Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès']],
+        await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.ac-decouvrir button')].map(b => b.textContent),
+          document.querySelector('.ac-decouvrir .ac-titre').textContent, [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
+        'Pour aller plus loin : une ligne et son bouton par module absent du menu'));
+      pb.push(egal(0, await o.p.locator('[data-bloc="dicila"] .ac-titre a').count(), 'D\'ici là : pas de lien tant que Préparation n\'est pas au menu'));
+      await o.p.click('.ac-decouvrir [data-module="Préparation"]');
+      await o.p.waitForSelector('.mrt-tab:has-text("Préparation")');
+      const e = neuf.ecritures.filter(x => x.table === 'preferences')[0];
+      pb.push(egal(['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès', 'Cette semaine', 'Profil', 'Guide'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
+      pb.push(egal([['Nutrition'], ['En un coup d\'œil', 'Saison', 'Préparation', 'Calendrier', 'Courses', 'Palmarès']],
+        await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
+        'après l\'ajout : l\'onglet apparaît, la ligne de Préparation disparaît'));
+      pb.push(egal(['Préparation →', 'preparation.html'], await o.p.evaluate(() => { const l = document.querySelector('[data-bloc="dicila"] .ac-titre a'); return [l && l.textContent.trim(), l && l.getAttribute('href')]; }),
+        'D\'ici là : lien vers Préparation une fois le module au menu'));
+      await o.p.click('.ac-decouvrir [data-module="Nutrition"]');
+      await o.p.waitForSelector('.ac-decouvrir', { state: 'detached' });
+      pb.push(egal([], o.erreurs, 'Pour aller plus loin : erreurs JavaScript'));
+      await o.ctx.close();
+      // N2 : depuis la page Préparation, le nom d'une course s'ouvre en modale au-dessus ; l'onglet de la page reste actif
+      {
+        const d = jeuObjectif(db0).db;
+        d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès'];
+        const q = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
+        await q.p.waitForSelector('.ps-plans .ps-course'); await q.p.click('.ps-plans .ps-course');
+        await q.p.waitForSelector('.mc-panneau .pc-titre');
+        pb.push(egal(['Préparation', 1], await q.p.evaluate(() => [document.querySelector('.mrt-tab.is-on').textContent.trim(), document.querySelectorAll('.mc-panneau').length]), 'Préparation : une course s\'ouvre en modale, l\'onglet reste Préparation'));
+        await q.p.click('.mc-panneau .pc-fermer');
+        await q.p.waitForSelector('.mc-panneau', { state: 'detached' });
+        pb.push(egal([0, 'Préparation'], [await q.p.locator('.mc-panneau').count(), (await q.p.textContent('.mrt-tab.is-on')).trim()], 'fermer la course : retour à Préparation, onglet inchangé'));
+        await q.ctx.close();
+      }
+      // Site d'un autre : pas d'invitation
+      const autre = '00000000-0000-0000-0000-00000000000b', partage = jeuObjectif(db0).db;
+      partage.courses = partage.courses.map(c => Object.assign({}, c, { utilisateur: autre }));
+      partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+      partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+      const l = await ouvrir(nav, 'index.html', 1200, partage, { 'mrt-vue': autre }, PARIS);
+      pb.push(egal(0, await l.p.locator('.ac-decouvrir').count(), 'site d\'un autre : pas de « Pour aller plus loin »'));
+      await l.ctx.close();
+    }
     return pb;
   },
   async preferences(nav, db0) {
@@ -527,7 +587,7 @@ const CONTROLES = {
     pb.push(egal([true, true, false, true], await p.evaluate(() => { const g = document.querySelector('.mrt-barre .mrt-gear');
       return [g.getAttribute('href').endsWith('preferences.html'), g.classList.contains('is-on'), !!document.querySelector('.mrt-header'), !!document.querySelector('.mrt-barre')]; }), 'engrenage dans la barre fine, page sans en-tête'));
     pb.push(egal(false, (await menu()).some(t => /Préférences/.test(t)), 'Préférences hors des modules du menu'));
-    pb.push(egal(['Thème', 'Cap', 'Menu', 'En un coup d\'œil', 'Partage', 'Compte'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
+    pb.push(egal(['Thème', 'Objectif principal', 'Menu', 'En un coup d\'œil', 'Partage', 'Compte'], await p.evaluate(() => [...document.querySelectorAll('main h2')].map(h => h.textContent)), 'ordre des blocs'));
     pb.push(egal(['Bleu et orange', 'Vert et rose', 'Violet et turquoise', 'Blanc et orange', 'Noir et orange', 'Automatique · blanc ou noir selon le réglage de l\'appareil'],
       await p.evaluate(() => [...document.querySelectorAll('.pref-theme')].map(l => l.textContent)), 'thèmes : trois en couleurs, blanc, noir, Automatique'));
 
@@ -546,17 +606,26 @@ const CONTROLES = {
     // Menu
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     // Le menu ne montre que les modules construits ; les autres sont sur une ligne, « bientôt ».
-    const construits = ['En un coup d\'œil', 'Objectif & plan', 'Calendrier', 'À surveiller', 'Palmarès'];
+    const construits = ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(5, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les cinq modules construits cochés, En un coup d\'œil compris, sauf Nutrition (à cocher)'));
     pb.push(egal('Bientôt dans le menu : Cette semaine, Profil, Guide.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
+    // Réglage rare : les flèches n'apparaissent qu'après « Réorganiser » (Menu et En un coup d'œil), qui devient « Terminé ».
+    pb.push(egal([0, 0, 'Réorganiser', 'Réorganiser', 0], await p.evaluate(() => [document.querySelectorAll('.pref-fleches').length, document.querySelectorAll('[data-monter]').length,
+      document.querySelector('#bloc-menu .pref-reorg').textContent, document.querySelector('#bloc-accueil .pref-reorg').textContent, document.querySelectorAll('.pref-defaut').length]), 'Préférences : ni flèches ni « Réinitialiser l\'ordre » tant qu\'on ne réorganise pas'));
+    await p.click('#bloc-menu .pref-reorg');
+    pb.push(egal([true, 'Terminé', 'Réorganiser', 1], await p.evaluate(() => [document.querySelectorAll('#bloc-menu .pref-fleches').length === document.querySelectorAll('#bloc-menu .pref-liste li').length,
+      document.querySelector('#bloc-menu .pref-reorg').textContent, document.querySelector('#bloc-accueil .pref-reorg').textContent, document.querySelectorAll('#bloc-menu .pref-defaut').length]), '« Réorganiser » : les flèches du Menu et « Réinitialiser l\'ordre » apparaissent, En un coup d\'œil reste calme'));
+    // Préparation (non cochée) est entre Saison et Calendrier dans la liste : deux clics pour passer devant Saison.
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Calendrier', 'Objectif & plan', 'À surveiller', 'Palmarès'];
+    await p.click('[aria-label="Monter Calendrier"]'); await attendre();
+    const monte = ['En un coup d\'œil', 'Calendrier', 'Saison', 'Courses', 'Palmarès'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
     await p.locator('.pref-modules label', { hasText: 'Calendrier' }).locator('input').uncheck(); await attendre();
     pb.push(egal(false, (await menu()).includes('Calendrier'), 'Calendrier décoché, absent du menu'));
+    await p.click('#bloc-menu .pref-reorg'); // la page rechargée est repartie sans les flèches
     await p.click('#bloc-menu .pref-defaut'); await attendre();
     pb.push(egal(construits, await menu(), 'ordre par défaut rétabli'));
     for (const n of construits.slice(1)) { await p.locator('.pref-modules label', { hasText: n }).locator('input').uncheck(); await attendre(); }
@@ -596,7 +665,7 @@ const CONTROLES = {
     db.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
     ({ p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, db, { 'mrt-vue': autre }));
     const corps = await p.evaluate(() => ['bloc-theme', 'bloc-menu', 'bloc-cap'].map(id => document.querySelector('#' + id + ' .pref-corps').textContent));
-    pb.push(egal(Array(3).fill('Reviens à ton site pour modifier tes réglages.'), corps, 'lecture seule'));
+    pb.push(egal(Array(3).fill('Reviens à ton espace pour modifier tes réglages.'), corps, 'lecture seule'));
     pb.push(egal(true, await p.locator('#form-partage input').isEditable(), 'lecture seule, partage utilisable'));
     await ctx.close();
 
@@ -654,20 +723,20 @@ const CONTROLES = {
       [...document.querySelectorAll('.mrt-stat')].map(s => s.querySelector('.mrt-stat-val').textContent + ' | ' + s.querySelector('.mrt-stat-label').textContent)[3], document.querySelector('.mrt-next').textContent]), 'en-tête (feuille de route en page de démarrage : pas de ligne « prochaine course »)'));
     const [lac, corrida, gorges, groupe, foret, cretes] = k;
     pb.push(egal({ role: 'Préparatoire', compteur: '26j', date: '15 nov. 2026', info: 'Mont-Clair · Trail court',
-      lignes: ['Distance | 24 km · 650 m D+', 'Objectif | 02:45:00', 'Dossard | Inscrit · n° 412'] },
+      lignes: ['Distance | 24 km · 650 m D+', 'Objectif | 02:45:00', 'Inscription | Inscrit · n° 412'] },
       { role: lac.role, compteur: lac.compteur, date: lac.date, info: lac.info, lignes: lac.lignes }, 'Trail du Lac'));
-    pb.push(egal({ role: 'Plaisir', compteur: '54j', lignes: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 1er nov. 2026'] },
+    pb.push(egal({ role: 'Plaisir', compteur: '54j', lignes: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'] },
       { role: corrida.role, compteur: corrida.compteur, lignes: corrida.lignes }, 'Corrida de Noël'));
     pb.push(egal({ role: 'Objectif', cle: true, compteur: '137j', objectif: 'Objectif | 06:30:00' },
       { role: gorges.role, cle: /is-obj/.test(gorges.classes), compteur: gorges.compteur, objectif: gorges.lignes[1] }, 'Trail des Gorges'));
-    pb.push(egal({ opt: true, role: 'Préparatoire • 2 candidats', cands: [
-      { nom: 'Trail des Cimes', date: '30 mai 2027', lignes: ['Distance | 42 km · 2 500 m D+', 'Dossard | Ouvre le 10 janv. 2027'], compteur: false, role: false },
-      { nom: 'Ultra du Plateau · Le 55', date: '26 juin 2027', lignes: ['Distance | 55 km · 2 800 m D+', 'Dossard | Inscription ouverte'], compteur: false, role: false }] },
+    pb.push(egal({ opt: true, role: 'Préparatoire • 2 options', cands: [
+      { nom: 'Trail des Cimes', date: '30 mai 2027', lignes: ['Distance | 42 km · 2 500 m D+', 'Inscription | Ouvre le 10 janv. 2027'], compteur: false, role: false },
+      { nom: 'Ultra du Plateau · Le 55', date: '26 juin 2027', lignes: ['Distance | 55 km · 2 800 m D+', 'Inscription | Inscription ouverte'], compteur: false, role: false }] },
       { opt: /is-opt/.test(groupe.classes), role: groupe.role, cands: groupe.cands }, 'Printemps 2027'));
     pb.push(egal(true, await p.evaluate(() => { const a = document.querySelectorAll('.ob-cand .ob-ins')[1]; return a.tagName === 'A' && a.classList.contains('is-ouvert') && a.target === '_blank' && a.getAttribute('href') === 'https://example.org/plateau/inscription'; }), 'inscription ouverte : lien, en Alerte'));
-    pb.push(egal({ opt: true, role: 'Préparatoire', date: 'juillet 2027', compteur: null, lignes: ['Distance | 30 km · 1 200 m D+', 'Dossard | Ouverture à venir'] },
+    pb.push(egal({ opt: true, role: 'Préparatoire', date: 'juillet 2027', compteur: null, lignes: ['Distance | 30 km · 1 200 m D+', 'Inscription | Ouverture à venir'] },
       { opt: /is-opt/.test(foret.classes), role: foret.role, date: foret.date, compteur: foret.compteur, lignes: foret.lignes }, 'Trail de la Forêt'));
-    pb.push(egal({ obj: true, role: 'Objectif', compteur: '311j', objectif: 'Objectif | Finisher', dossard: 'Dossard | Inscrit · n° 88' },
+    pb.push(egal({ obj: true, role: 'Objectif', compteur: '311j', objectif: 'Objectif | Finisher', dossard: 'Inscription | Inscrit · n° 88' },
       { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
     pb.push(egal(['311', '19 h 00 min 00 s'], await p.evaluate(() => [document.querySelector('.mrt-days').textContent, document.querySelector('.mrt-hms').textContent]), 'en-tête : compte à rebours jusqu\'à l\'heure de départ'));
     // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Accent (un seul accent) ; libellés à 0,7 rem.
@@ -713,7 +782,7 @@ const CONTROLES = {
           vide: t(q('.ob-vide')), titreDoc: document.title,
           fleches: [document.querySelectorAll('.pc-liens-haut a .ob-fleche, .pc-officiel .ob-fleche').length, /↗/.test((q('.pc') || document.body).textContent)],
           lieu: q('.pc-fiche .pc-lieu') ? [t(q('.pc-lieu')), q('.pc-lieu').getAttribute('href'), q('.pc-lieu').target] : null, titreLien: document.querySelectorAll('.pc-titre a').length,
-          descFiche: !!q('.pc-fiche .pc-fiche-bas > .pc-cellule'), prepa: q('#preparation') ? [t(q('#preparation .pc-role .pc-sous-titre')) + ' | ' + t(q('#preparation .pc-role > p:not(.pc-sous-titre)')), !!q('#preparation .pc-role + .cal-lignes .cal-parametrer')] : null,
+          descFiche: !!q('.pc-fiche .pc-fiche-bas > .pc-cellule'), prepa: q('#preparation') ? [t(q('#preparation .pc-role .pc-sous-titre')) + ' | ' + t(q('#preparation .pc-role > p:not(.pc-sous-titre)')), !!q('#preparation .cal-regler')] : null,
           insLien: document.querySelectorAll('.pc-fiche a.ob-ins').length
         };
       });
@@ -722,11 +791,11 @@ const CONTROLES = {
     };
     let [r, err] = await pageCourse(id(3));
     pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Trail long',
-      compteur: '137j 22h 30min 00s', fiche: ['Lieu | Mont-Clair', 'Date / heure | dim. 7 mars 2027 · 7 h 30', 'Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00Sous 6 h 45 dans tous les cas.', 'Dossard | Inscrit · n° 1287'], dossards: 1 },
+      compteur: '137j 22h 30min 00s', fiche: ['Lieu | Mont-Clair', 'Date / heure | dim. 7 mars 2027 · 7 h 30', 'Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00Sous 6 h 45 dans tous les cas.', 'Inscription | Inscrit · n° 1287'], dossards: 1 },
       { modale: r.modale, barre: r.barre, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
     pb.push(egal(['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : À propos de la course, Parcours, Préparation, Logistique en dernier'));
     pb.push(egal(true, r.descFiche, 'page Trail des Gorges, « À propos de la course » dans le cadre de la fiche'));
-    pb.push(egal(['Rôle dans la préparation | Répétition générale du matériel et de la nutrition.', true], r.prepa, 'page Trail des Gorges, Préparation : le rôle, puis « Paramétrer le plan » et le plan'));
+    pb.push(egal(['Rôle dans la préparation | Répétition générale du matériel et de la nutrition.', true], r.prepa, 'page Trail des Gorges, Préparation : le rôle, puis le lien « Régler le plan dans Préparation » et le plan'));
     pb.push(egal([['Site officiel'], true], [r.liens, r.officiel], 'page Trail des Gorges : site officiel en bas à droite de la fiche, sur la ligne d\'« À propos de la course », pas de « S\'inscrire » (inscrit)'));
     pb.push(egal([1, false, 0], [...r.fleches, r.titreLien], 'liens : flèche dessinée, plus de caractère ↗ (emoji sur iPhone), plus de flèche dans le titre'));
     pb.push(egal(['Mont-Clair', 'https://www.openstreetmap.org/search?query=Mont-Clair', '_blank'], r.lieu, 'lieu : lien vers OpenStreetMap, nouvel onglet'));
@@ -734,10 +803,10 @@ const CONTROLES = {
     pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
     pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
     [r] = await pageCourse(id(2));
-    pb.push(egal({ cellules: ['Parcours', 'Préparation'], fiche: ['Lieu | Ville-Haute', 'Date / heure | dim. 13 déc. 2026 · 18 h 30', 'Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Dossard | Ouvre le 1er nov. 2026'], liens: ['Site officiel'] },
+    pb.push(egal({ cellules: ['Parcours', 'Préparation'], fiche: ['Lieu | Ville-Haute', 'Date / heure | dim. 13 déc. 2026 · 18 h 30', 'Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'], liens: ['Site officiel'] },
       { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix ; Parcours pour importer un GPX'));
     [r] = await pageCourse(id(5));
-    pb.push(egal({ liens: ['S\'inscrire', 'Site officiel'], insLien: 0, fiche: ['Lieu | Plaine-Neuve', 'Date / heure | sam. 26 juin 2027', 'Distance | 55 km · 2 800 m D+', 'Dossard | Inscription ouverte'] }, { liens: r.liens, insLien: r.insLien, fiche: r.fiche },
+    pb.push(egal({ liens: ['S\'inscrire', 'Site officiel'], insLien: 0, fiche: ['Lieu | Plaine-Neuve', 'Date / heure | sam. 26 juin 2027', 'Distance | 55 km · 2 800 m D+', 'Inscription | Inscription ouverte'] }, { liens: r.liens, insLien: r.insLien, fiche: r.fiche },
       'page Ultra du Plateau : « S\'inscrire » en tête, la ligne Dossard sans lien'));
     // Jour J : la ligne Résultats en direct ; la veille, rien.
     const jourJ = JSON.parse(JSON.stringify(db));
@@ -748,7 +817,7 @@ const CONTROLES = {
     [r] = await pageCourse(id(1), PARIS, jourJ);
     pb.push(egal(false, r.fiche.some(l => /^Résultats/.test(l)), 'veille du jour J : pas de ligne Résultats'));
     [r] = await pageCourse(id(4));
-    pb.push(egal({ sur: 'Préparatoire · Étape 4 sur 6', groupe: 'Printemps 2027 · autre candidat : Ultra du Plateau · Le 55' }, { sur: r.sur, groupe: r.groupe }, 'page Trail des Cimes'));
+    pb.push(egal({ sur: 'Préparatoire · Étape 4 sur 6', groupe: 'Printemps 2027 · autre option : Ultra du Plateau · Le 55' }, { sur: r.sur, groupe: r.groupe }, 'page Trail des Cimes'));
     [r] = await pageCourse(id(1));
     pb.push(egal(['is-suivante | Corrida de Noël'], r.nav, 'page Trail du Lac, pas de course précédente'));
     [r] = await pageCourse(id(7));
@@ -915,7 +984,7 @@ const CONTROLES = {
     seul.courses.find(c => c.id === id(4)).groupe_options = null;
     ({ p, ctx } = await ouvrir(nav, 'objectif.html', 1200, seul, {}, PARIS));
     k = await cartes(p);
-    pb.push(egal(['Préparatoire • 1 candidat', "6 courses"], [k.find(x => x.nom === 'Printemps 2027').role, await p.evaluate(() => document.querySelectorAll('.mrt-stat-val')[3].textContent)], 'groupe d\'un seul candidat'));
+    pb.push(egal(['Préparatoire • 1 option', "6 courses"], [k.find(x => x.nom === 'Printemps 2027').role, await p.evaluate(() => document.querySelectorAll('.mrt-stat-val')[3].textContent)], 'groupe d\'un seul candidat'));
     await ctx.close();
 
     // Course et parcours trop longs pour une ligne : le parcours passe à la ligne, sans le point.
@@ -1075,7 +1144,7 @@ const CONTROLES = {
     let { p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, d, {}, PARIS);
     await p.click('[data-ob="modifier"]');
     await p.waitForSelector('.mc-panneau .fc-fiche');
-    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], croix: 0, couches: 0, feuilles: 1, blocs: ['Course', 'Place dans le plan', 'Dossard', 'Parcours', 'Préparation', 'Logistique', 'Liens'], dossard: ['dossard', '1287'] },
+    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], croix: 0, couches: 0, feuilles: 1, blocs: ['Course', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique', 'Résultat'], dossard: ['dossard', '1287'] },
       { barre: await barre(p), croix: await p.locator('.pc-fermer').count(), couches: await p.locator('.cal-voile').count(), feuilles: await p.locator('.mc-voile').count(), blocs: await titres(p),
         dossard: await p.evaluate(() => { const e = document.querySelector('#fc-dossard'); return [e.closest('.fc-grille').previousElementSibling.dataset.bloc, e.value]; }) }, 'crayon : édition dans la même feuille'));
     // Libellé du mode en capitales discrètes ; « Supprimer la course » : bouton à contour rouge avec sa poubelle, seul en bas de la fiche.
@@ -1112,7 +1181,7 @@ const CONTROLES = {
     await p.waitForSelector('.mc-panneau .fc-fiche');
     pb.push(egal(['Annuler', 'Enregistrer', 'Ajouter une course'], await barre(p), 'ajouter : feuille en édition'));
     await p.fill('#fc-course', 'Trail des Lacs'); await p.fill('#fc-date', '2027-06-12'); await p.dispatchEvent('#fc-date', 'change');
-    await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', 'trail_court');
+    await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', 'trail_court'); await p.fill('#fc-distance', '30');
     await p.click('.fc-barre .fc-plein');
     await p.waitForFunction(() => document.querySelector('.mc-panneau .pc-titre') && /Trail des Lacs/.test(document.querySelector('.pc-titre').textContent));
     pb.push(egal([1, 0], [await p.locator('.mc-voile').count(), await p.locator('.fc-fiche').count()], 'ajouter : enregistrée, sa consultation'));
@@ -1124,9 +1193,9 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await p.evaluate(() => document.querySelector('#palmares [data-edit]').click());
     await p.waitForSelector('.mc-panneau .fc-fiche');
-    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], blocs: ['Course', 'Place dans le plan', 'Dossard', 'Parcours', 'Préparation', 'Logistique', 'Résultat', 'Montre', 'Liens'],
+    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], blocs: ['Course', 'Résultat', 'Montre', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique'],
       ouverts: ['course', 'resultat'], approx: 0, statut: 0, classements: true },
-      { barre: await barre(p), blocs: await titres(p), ouverts: await p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre[aria-expanded="true"]')].map(b => b.dataset.bloc).filter(b => !['dossard', 'montre', 'liens'].includes(b))),
+      { barre: await barre(p), blocs: await titres(p), ouverts: await p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre[aria-expanded="true"]')].map(b => b.dataset.bloc).filter(b => !['dossard', 'montre'].includes(b))),
         approx: await p.locator('#fc-date_approx').count(), statut: await p.locator('#fc-statut').count(),
         classements: await p.evaluate(() => document.querySelector('#fc-place').closest('.fc-grille').previousElementSibling.dataset.bloc === 'resultat') }, 'Palmarès : fiche unique, course courue'));
     // Mêmes blocs qu'une course à venir ; seuls les champs sans objet pour une course passée sont retirés.
@@ -1205,14 +1274,23 @@ const CONTROLES = {
       await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps, objectif visé et ses précisions, puis place ; catégorie en clair ; Montre sous le Résultat ; ni prix'));
     pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
-    // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; Parcours renseigné, ouvert.
-    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: ['Parcours'], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'RÔLE DANS LA PRÉPARATION Répétition.', 'Train.'], sous: true, plan: 0 },
+    // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; course courue sans tracé : Parcours replié, même avec une stratégie.
+    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'RÔLE DANS LA PRÉPARATION Répétition.', 'Train.'], sous: true, plan: 0 },
       await p.evaluate(() => { const cel = [...document.querySelectorAll('.pc-cellule')], t = e => e.innerText.trim().replace(/\s+/g, ' ');
         const ouv = cel.filter(d => d.open).map(d => d.querySelector('summary').textContent.trim());
         cel.forEach(d => { d.open = true; });
         return { cellules: cel.map(d => d.querySelector('summary').textContent.trim()), ouvertes: ouv, textes: cel.map(d => t(d.querySelector('.pc-corps')).replace(/^Importer un GPX ?/, '')),
           sous: document.querySelector('.pc-textes').getBoundingClientRect().top >= document.querySelector('.pc-resultats').getBoundingClientRect().bottom, plan: document.querySelectorAll('.pc-textes .cal-lignes').length }; }),
-      'consultation : À propos, Parcours, Préparation (rôle, sans plan), Logistique, repliés sous la Montre ; Parcours renseigné ouvert'));
+      'consultation : À propos, Parcours, Préparation (rôle, sans plan), Logistique, repliés sous la Montre ; course courue sans tracé : Parcours replié même avec une stratégie'));
+    // Course courue avec tracé GPX : Parcours ouvert d'emblée (seule la course sans tracé le garde replié)
+    {
+      const g = JSON.parse(JSON.stringify(d)), c = g.courses.find(x => x.id === SEB);
+      c.gpx = c.utilisateur + '/' + c.id + '.gpx'; g.fichiers = { ['traces/' + c.gpx]: GPX };
+      const o = await ouvrir(nav, 'palmares.html', 1200, g, {}, PARIS);
+      await ligneSeb(o.p); await consultation(o.p);
+      pb.push(egal(['Parcours'], await o.p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].filter(x => x.open).map(x => x.querySelector('summary').textContent.trim())), 'course courue avec tracé GPX : Parcours ouvert d\'emblée'));
+      await o.ctx.close();
+    }
     pb.push(egal([true, 'rgb', true], await p.evaluate(() => { const [r, m] = [...document.querySelectorAll('.pc-section')], coul = e => getComputedStyle(e).color;
       return [m.getBoundingClientRect().top >= r.getBoundingClientRect().bottom, coul(m.querySelector('.ob-val')).slice(0, 3), coul(m.querySelector('.ob-val')) !== coul(r.querySelector('.pc-res-ligne .ob-val'))]; }),
       'ordinateur : Montre sous Résultat, valeurs en Texte discret'));
@@ -1341,13 +1419,24 @@ const CONTROLES = {
     pb.push(egal('Ajouter une course', await p.evaluate(() => document.querySelector('[data-ob="ajouter"]').innerText.trim()), 'même libellé que le Palmarès'));
     await p.click('[data-ob="ajouter"]'); await p.waitForSelector('.fc-fiche');
     const blocs = await p.evaluate(() => [...document.querySelectorAll('.fc-bloc')].map(b => b.querySelector('.fc-bloc-titre').textContent.trim() + (b.querySelector('.fc-grille').hidden ? ' (replié)' : '')));
-    pb.push(egal(['Course', 'Place dans le plan', 'Dossard (replié)', 'Parcours (replié)', 'Préparation (replié)', 'Logistique (replié)', 'Liens (replié)'], blocs, 'sept blocs, cinq repliés (ordre de lecture de la page : Dossard, Parcours, Préparation, Logistique)'));
-    pb.push(egal(['Choisis d\'abord la date et le format.', true], await p.evaluate(() => [document.querySelector('.fc-prep-note').textContent, document.querySelector('[data-fc="preparer"]').disabled]), 'nouvelle course : « Paramétrer le plan » grisé, date et format d\'abord'));
+    pb.push(egal(['Course', 'Place dans le plan', 'Inscription (replié)', 'Parcours (replié)', 'Préparation (replié)', 'Logistique (replié)', 'Résultat (replié)'], blocs, 'sept blocs, cinq repliés (ordre de lecture de la page : Dossard, Parcours, Préparation, Logistique, puis Résultat, qui ne porte que « Résultats en direct » avant la course)'));
+    pb.push(egal([['Résultats en direct'], ['course', 'lien']], [await p.evaluate(() => [...document.querySelector('[data-bloc="resultat"]').nextElementSibling.querySelectorAll('.fc-champ > label')].map(l => l.textContent.trim())),
+      await p.evaluate(() => ['description', 'lien'].map(k => document.getElementById('fc-' + k)).map(e => e.closest('.fc-grille').previousElementSibling.dataset.bloc).slice(0, 1).concat('lien'))], 'à venir : « Résultats en direct » dans Résultat ; plus de bloc Liens'));
+    pb.push(egal(true, await p.evaluate(() => document.getElementById('fc-lien').getBoundingClientRect().top >= document.getElementById('fc-description').getBoundingClientRect().bottom && document.getElementById('fc-lien').closest('.fc-grille').previousElementSibling.dataset.bloc === 'course'), '« Site officiel » dans Course, sous la description'));
+    pb.push(egal(['Choisis d\'abord la date et le format.', 0], await p.evaluate(() => [document.querySelector('.fc-prep-note').textContent, document.querySelectorAll('[data-fc="preparer"]').length]), 'nouvelle course : date et format d\'abord, aucun bouton de réglage du plan'));
     pb.push(egal(['Ajouter une course', 'confirmee', 'preparatoire', true], [await p.textContent('#fc-titre'), await lire(p, '#fc-statut'), await lire(p, '#fc-role'), await p.locator('[data-champ="groupe_options"]').isHidden()], 'ajout : titre, statut et rôle proposés, groupe caché'));
     pb.push(egal('ex. 07:30', await p.getAttribute('#fc-heure', 'placeholder'), 'exemple dans l\'heure'));
     // Enregistrer sans rien : champs obligatoires
     await p.click('.fc-plein');
-    pb.push(egal({ course: 'Champ obligatoire.', date: 'Champ obligatoire.', type: 'Choisis un type.', format: 'Champ obligatoire.' }, await erreursChamps(p), 'obligatoires : date, course, type, format'));
+    pb.push(egal({ course: 'Champ obligatoire.', date: 'Champ obligatoire.', type: 'Choisis un type.', format: 'Champ obligatoire.', distance: 'Champ obligatoire.' }, await erreursChamps(p), 'obligatoires : date, course, type, format, distance'));
+    // Étoiles en Accent, légende ; une course à surveiller n'a besoin ni de date ni de distance (étoiles retirées)
+    const etoiles = () => p.evaluate(() => ({ couleur: getComputedStyle(document.querySelector('.fc-oblig')).color !== getComputedStyle(document.querySelector('.fc-champ label')).color,
+      legende: document.querySelectorAll('.fc-legende').length, enExposant: parseFloat(getComputedStyle(document.querySelector('.fc-oblig')).verticalAlign) > 0,
+      visibles: ['course', 'date', 'type', 'format', 'distance'].map(k => !document.querySelector('label[for="fc-' + k + '"] .fc-oblig').hidden) }));
+    pb.push(egal({ couleur: true, legende: 0, enExposant: true, visibles: [true, true, true, true, true] }, await etoiles(), 'étoile en Accent et en exposant, sans légende, sur les cinq champs obligatoires'));
+    await p.selectOption('#fc-statut', 'a_surveiller');
+    pb.push(egal([true, false, true, true, false], (await etoiles()).visibles, 'À surveiller : plus d\'étoile sur la date ni la distance'));
+    await p.selectOption('#fc-statut', 'confirmee'); await p.click('.fc-plein');
     pb.push(egal(0, o.copie.ecritures.length, 'rien d\'écrit tant qu\'une erreur demeure'));
     // Ordre : course, parcours, date (avec « Date approximative »), heure
     pb.push(egal(['course', 'parcours', 'date', 'date_approx', 'heure', 'lieu'], await p.evaluate(() => [...document.querySelectorAll('.fc-grille')[0].querySelectorAll('[data-k]')].slice(0, 6).map(e => e.dataset.k)), 'ordre : course, parcours, date, jour inconnu, heure'));
@@ -1357,12 +1446,12 @@ const CONTROLES = {
     await p.selectOption('#fc-type', 'trail');
     await p.fill('#fc-distance', '28,5');
     await p.fill('#fc-heure', '25h');
-    await poser(p, 'objectif', 'rapide');
+    await deplier(p); await p.selectOption('#fc-objectif_type', 'sub'); await p.fill('#fc-objectif', 'rapide');
     await poser(p, 'lien', 'www.exemple.org');
     await poser(p, 'prix', '-3');
     await p.click('.fc-plein');
     const e1 = await erreursChamps(p);
-    pb.push(egal({ date: 'La date d\'une course à venir ne peut pas être dans le passé.', heure: 'Heure illisible (ex. 07:30).', objectif: 'Format attendu : 02:45:00, Finisher ou Sub 3h',
+    pb.push(egal({ date: 'La date d\'une course à venir ne peut pas être dans le passé.', heure: 'Heure illisible (ex. 07:30).', objectif: 'Durée illisible (ex. 3h, 1h30 ou 45 min).',
       lien: 'Lien attendu : il commence par http:// ou https://.', prix: 'Le nombre doit être positif.' }, { date: e1.date, heure: e1.heure, objectif: e1.objectif, lien: e1.lien, prix: e1.prix }, 'contrôles : date passée, heure, objectif, lien, prix'));
     pb.push(egal([true, true, true], await p.evaluate(() => ['objectif', 'lien', 'prix'].map(k => !document.getElementById('fc-' + k).closest('.fc-grille').hidden)), 'un champ en erreur déplie son bloc'));
     pb.push(egal('trail_court', await lire(p, '#fc-format'), 'trail : format proposé d\'après la distance'));
@@ -1372,7 +1461,7 @@ const CONTROLES = {
     // Précisions : 100 caractères au plus, compteur
     await deplier(p);
     await p.fill('#fc-objectif_precisions', 'y'.repeat(120));
-    pb.push(egal([100, '100 / 100', 'Précisions'], [(await lire(p, '#fc-objectif_precisions')).length, await p.textContent('[data-compte="objectif_precisions"]'),
+    pb.push(egal([100, '100 / 100', 'Précisions sur l\'objectif'], [(await lire(p, '#fc-objectif_precisions')).length, await p.textContent('[data-compte="objectif_precisions"]'),
       await p.evaluate(() => document.getElementById('fc-objectif').closest('.fc-champ').nextElementSibling.querySelector('label').textContent)], 'précisions : sous Objectif, limitées à 100 caractères'));
     // Saisie valide
     await p.fill('#fc-objectif_precisions', 'Partir prudemment.');
@@ -1382,7 +1471,7 @@ const CONTROLES = {
     await p.fill('#fc-parcours', 'La Grande Boucle');
     await p.fill('#fc-lieu', 'Mont-Clair');
     await p.fill('#fc-dplus', '1200');
-    await p.fill('#fc-objectif', 'sub 6h');
+    await p.selectOption('#fc-objectif_type', 'sub'); await p.fill('#fc-objectif', '6h');
     await p.fill('#fc-lien', 'https://example.org/lacs');
     await p.fill('#fc-prix', '45,5');
     await p.check('#fc-inscrit');
@@ -1392,8 +1481,8 @@ const CONTROLES = {
     const w = o.copie.ecritures[0];
     pb.push(egal(['POST', 'courses'], [w.methode, w.table], 'enregistrement : une insertion'));
     pb.push(egal({ etat: 'a_venir', course: 'Trail des Lacs', parcours: 'La Grande Boucle', date: '2027-06-12', date_approx: false, heure: '07:30', lieu: 'Mont-Clair', format: 'trail_court',
-      distance: 28.5, dplus: 1200, dmoins: null, objectif: 'Sub 6h', objectif_precisions: 'Partir prudemment.', description: 'Boucle autour du lac.', statut: 'confirmee', role: 'preparatoire', groupe_options: null,
-      ouverture_inscriptions: null, ouverture_heure: null, ouverture_approx: false, inscrit: true, inscription: null, dossard: '77', prix: 45.5, strategie: null, pourquoi: null, logistique: null, lien: 'https://example.org/lacs', lien_resultats: null, id: w.corps.id }, w.corps, 'enregistrement : champs écrits'));
+      distance: 28.5, dplus: 1200, dmoins: null, objectif: 'Sub 6h', objectif_precisions: 'Partir prudemment.', description: 'Boucle autour du lac.', lien: 'https://example.org/lacs', statut: 'confirmee', role: 'preparatoire', groupe_options: null,
+      ouverture_inscriptions: null, ouverture_heure: null, ouverture_approx: false, inscrit: true, inscription: null, dossard: '77', prix: 45.5, strategie: null, pourquoi: null, logistique: null, lien_resultats: null, id: w.corps.id }, w.corps, 'enregistrement : champs écrits'));
     await ctx.close();
 
     // Nouvelle course : plan réglé avant d'enregistrer ; date approximative : pas de plan
@@ -1401,21 +1490,19 @@ const CONTROLES = {
     await p.click('[data-ob="ajouter"]'); await p.waitForSelector('.fc-fiche');
     await p.fill('#fc-course', 'Trail des Lacs'); await p.fill('#fc-date', '2027-06-12'); await p.dispatchEvent('#fc-date', 'change');
     await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', 'trail_court');
-    pb.push(egal(['Plan de 12 semaines · début : lun. 22 mars 2027 → jour J : sam. 12 juin 2027', false], await p.evaluate(() => [document.querySelector('.fc-prep .cal-plan-dates').textContent, document.querySelector('[data-fc="preparer"]').disabled]), 'nouvelle course : plan tiré de la date et du format saisis'));
+    pb.push(egal(['Plan de 12 semaines · début : lun. 22 mars 2027 → jour J : sam. 12 juin 2027', 0], await p.evaluate(() => [document.querySelector('.fc-prep .cal-plan-dates').textContent, document.querySelectorAll('[data-fc="preparer"]').length]), 'nouvelle course : plan tiré de la date et du format saisis, sans bouton de réglage'));
     await p.check('#fc-date_approx');
-    pb.push(egal(['Plan de 12 semaines · début : lun. 15 mars 2027 → jour J : mar. 1er juin 2027', 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.', false],
-      await p.evaluate(() => [document.querySelector('.fc-prep .cal-plan-dates').textContent, document.querySelector('.fc-prep-note').textContent, document.querySelector('[data-fc="preparer"]').disabled]), 'date approximative : plan prévu pour le début du mois, mentionné'));
+    pb.push(egal(['Plan de 12 semaines · début : lun. 15 mars 2027 → jour J : mar. 1er juin 2027', 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.', 0],
+      await p.evaluate(() => [document.querySelector('.fc-prep .cal-plan-dates').textContent, document.querySelector('.fc-prep-note').textContent, document.querySelectorAll('[data-fc="preparer"]').length]), 'date approximative : plan prévu pour le début du mois, mentionné'));
     await p.uncheck('#fc-date_approx'); await p.fill('#fc-date', '2027-06-12'); await p.dispatchEvent('#fc-date', 'change');
-    await p.click('[data-bloc="preparation"]'); await p.click('[data-fc="preparer"]'); await p.waitForSelector('.cal-preparer');
-    await p.selectOption('.cal-preparer [data-sem="2027-03-22"]', 'developpement');
-    await p.click('.cal-preparer [data-act="enregistrer"]');
     pb.push(egal(0, o.copie.ecritures.length, 'nouvelle course : rien d\'écrit avant « Enregistrer »'));
+    await p.fill('#fc-distance', '30');
     await p.click('.fc-plein');
     await p.waitForSelector('.fc-fiche', { state: 'detached' });
     {
-      const [cw, pw] = o.copie.ecritures;
-      pb.push(egal([['POST', 'courses'], true, null, ['POST', 'plan_semaines'], [{ course: cw.corps.id, lundi: '2027-03-22', phase: 'developpement' }]],
-        [[cw.methode, cw.table], /^[0-9a-f-]{36}$/.test(cw.corps.id), cw.corps.prepa_semaines, [pw.methode, pw.table], pw.corps], 'nouvelle course : course puis phase modifiée, liées par leur identifiant ; durée du format (rien à ranger)'));
+      const cw = o.copie.ecritures[0];
+      pb.push(egal([1, ['POST', 'courses'], true, null], [o.copie.ecritures.length, [cw.methode, cw.table], /^[0-9a-f-]{36}$/.test(cw.corps.id), cw.corps.prepa_semaines],
+        'nouvelle course : une seule écriture, la course ; durée du format (le plan se règle ensuite dans Préparation)'));
     }
     await ctx.close();
 
@@ -1425,7 +1512,7 @@ const CONTROLES = {
     await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
     pb.push(egal('Plan de 12 semaines · début : lun. 12 avr. 2027 → jour J : jeu. 1er juil. 2027', await p.textContent('.fc-prep .cal-plan-dates'), 'formulaire, date approximative : plan au 1er du mois'));
     await p.uncheck('#fc-date_approx'); await p.fill('#fc-date', '2027-07-04'); await p.dispatchEvent('#fc-date', 'change');
-    pb.push(egal(['Plan de 12 semaines · début : lun. 12 avr. 2027 → jour J : dim. 4 juil. 2027', 0], [await p.textContent('.fc-prep .cal-plan-dates'), await p.locator('.fc-prep-note').count()], 'case décochée : plan recalculé sur la date précise, sans mention'));
+    pb.push(egal(['Plan de 12 semaines · début : lun. 12 avr. 2027 → jour J : dim. 4 juil. 2027', 0], [await p.textContent('.fc-prep .cal-plan-dates'), await p.locator('.fc-prep-note', { hasText: 'Date approximative' }).count()], 'case décochée : plan recalculé sur la date précise, sans mention'));
     await p.click('.fc-plein');
     await p.waitForSelector('.fc-fiche', { state: 'detached' });
     pb.push(egal([['PATCH', 'courses'], ['DELETE', 'plan_semaines', '?course=eq.' + id(6)]], o.copie.ecritures.slice(0, 2).map((e, i) => i ? [e.methode, e.table, e.filtres] : [e.methode, e.table]), 'enregistrement : date précise, phases du plan remises aux règles'));
@@ -1465,6 +1552,7 @@ const CONTROLES = {
     pb.push(egal('month', await p.getAttribute('#fc-date', 'type'), 'jour inconnu : la date devient un mois'));
     await p.fill('#fc-date', '2027-10');
     pb.push(egal(true, await p.isDisabled('#fc-heure'), 'mois seul : l\'heure de départ est grisée'));
+    await p.fill('#fc-distance', '42');
     await p.click('.fc-plein');
     await p.waitForSelector('.fc-fiche', { state: 'detached' });
     const w2 = o.copie.ecritures[0].corps;
@@ -1487,36 +1575,25 @@ const CONTROLES = {
     o = await neuve(1200, COURSE(3)); ({ p, ctx } = o);
     await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
     pb.push(egal('Modifier la course', await p.textContent('#fc-titre'), 'modifier : titre'));
-    pb.push(egal(['Dossard', 'Parcours', 'Préparation', 'Logistique', 'Liens'], await p.evaluate(() => [...document.querySelectorAll('.fc-grille')].filter(g => g.hidden).map(g => g.previousElementSibling.textContent)), 'modifier : comme pour une nouvelle course, Course et Place dans le plan ouverts, les autres repliés'));
-    // Bloc Préparation : résumé du plan, frise, « Paramétrer le plan » par-dessus le formulaire ; Échap ne ferme que la fenêtre du plan
-    pb.push(egal(['Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027', 1, 'Paramétrer le plan'], await p.evaluate(() => {
+    pb.push(egal(['Inscription', 'Parcours', 'Préparation', 'Logistique', 'Résultat'], await p.evaluate(() => [...document.querySelectorAll('.fc-grille')].filter(g => g.hidden).map(g => g.previousElementSibling.textContent)), 'modifier : comme pour une nouvelle course, Course et Place dans le plan ouverts, les autres repliés'));
+    // Bloc Préparation : résumé du plan et frise, sans réglage (le plan se règle dans la page Préparation)
+    pb.push(egal(['Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027', 1, 0], await p.evaluate(() => {
       const z = document.querySelector('.fc-prep');
-      return [z.querySelector('.cal-plan-dates').textContent, z.querySelectorAll('.cal-frise').length, z.querySelector('[data-fc="preparer"]').textContent.trim()];
-    }), 'modifier : plan de la course en tête du bloc Préparation'));
+      return [z.querySelector('.cal-plan-dates').textContent, z.querySelectorAll('.cal-frise').length, z.querySelectorAll('button').length];
+    }), 'modifier : plan de la course en tête du bloc Préparation, en lecture'));
     await ouvrirBloc(p, 'preparation');
-    await p.click('[data-fc="preparer"]'); await p.waitForSelector('.cal-preparer');
-    pb.push(egal(true, await p.evaluate(() => { const r = document.querySelector('.cal-preparer').getBoundingClientRect(); return document.elementFromPoint(r.left + r.width / 2, r.top + 10).closest('.cal-preparer') !== null; }), 'Paramétrer le plan : la fenêtre passe devant le formulaire'));
-    await p.keyboard.press('Escape');
-    pb.push(egal([0, 1], [await p.locator('.cal-voile').count(), await p.locator('.fc-fiche').count()], 'Échap : ferme la fenêtre du plan, le formulaire reste ouvert'));
-    // « Valider » : rien n'est écrit ; le résumé suit ; durée et phases s'enregistrent avec la course
-    await ouvrirBloc(p, 'preparation');
-    await p.click('[data-fc="preparer"]'); await p.waitForSelector('.cal-preparer');
-    pb.push(egal('Valider', await p.textContent('.cal-preparer [data-act="enregistrer"]'), 'fenêtre du plan depuis le formulaire : bouton « Valider »'));
-    await p.fill('.cal-preparer [name="duree"]', '12'); await p.press('.cal-preparer [name="duree"]', 'Tab');
-    await p.click('.cal-preparer [data-act="enregistrer"]');
-    pb.push(egal(['Plan de 12 semaines · début : lun. 14 déc. 2026 → jour J : dim. 7 mars 2027', 0], [await p.textContent('.fc-prep .cal-plan-dates'), o.copie.ecritures.length], 'Valider : résumé à 12 semaines, rien d\'écrit avant « Enregistrer »'));
     const rempli = await p.evaluate(() => Object.fromEntries(['date', 'heure', 'course', 'lieu', 'format', 'dplus', 'dmoins', 'role', 'objectif', 'dossard', 'prix', 'logistique', 'lien', 'inscription', 'lien_resultats'].map(k => [k, document.getElementById('fc-' + k).value])));
     pb.push(egal({ date: '2027-03-07', heure: '07:30', course: 'Trail des Gorges', lieu: 'Mont-Clair', format: 'trail_long', dplus: '2100', dmoins: '2100', role: 'objectif', objectif: '06:30:00',
       dossard: '1287', prix: '58', logistique: 'Navette depuis le stade à 6 h 30.', lien: 'https://example.org/gorges', inscription: 'https://example.org/gorges/inscription', lien_resultats: 'https://example.org/gorges/resultats' }, rempli, 'modifier : valeurs de la course'));
     pb.push(egal(true, await p.locator('#fc-inscrit').isChecked(), 'modifier : inscrit coché'));
-    await p.fill('#fc-objectif', 'Sub 6h30');
+    await p.selectOption('#fc-objectif_type', 'sub'); await p.fill('#fc-objectif', '6h30');
     await p.fill('#fc-date', '2027-03-08');
     await p.click('.fc-plein');
     await p.waitForSelector('.fc-fiche', { state: 'detached' });
     const m = o.copie.ecritures[0];
     pb.push(egal(['PATCH', '?id=eq.' + id(3), 'Sub 6h30', '2027-03-08'], [m.methode, m.filtres, m.corps.objectif, m.corps.date], 'modifier : mise à jour de la course'));
     pb.push(egal(true, !m.corps.etat, 'modifier : l\'état n\'est pas touché'));
-    pb.push(egal([12, ['DELETE', 'plan_semaines']], [m.corps.prepa_semaines, o.copie.ecritures.slice(1).map(e => [e.methode, e.table])[0]], 'modifier : durée du plan avec la course, phases remises à plat (aucune modifiée)'));
+    pb.push(egal([false, 1], [m.corps.prepa_semaines !== undefined, o.copie.ecritures.length], 'modifier : une seule écriture, durée et phases du plan non touchées'));
     // Pas de bouton « Retenir » ni « Marquer » sur une confirmée à venir
     pb.push(egal(0, await p.locator('[data-ob="retenir"], [data-ob="marquer"]').count(), 'confirmée à venir : ni Retenir ni Marquer'));
     await ctx.close();
@@ -1551,7 +1628,7 @@ const CONTROLES = {
     o = await neuve(1200, COURSE(1), jour); ({ p, ctx } = o);
     pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'jour de la course : Marquer comme courue'));
     await p.click('[data-ob="marquer"]');
-    pb.push(egal(['Marquer comme courue', ['Course', 'Place dans le plan', 'Dossard', 'Parcours', 'Préparation', 'Logistique', 'Résultat', 'Montre', 'Liens'], 0], [await p.textContent('#fc-titre'),
+    pb.push(egal(['Marquer comme courue', ['Course', 'Résultat', 'Montre', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique'], 0], [await p.textContent('#fc-titre'),
       await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('.fc-supprimer').count()], 'marquer : fiche d\'une course courue, sans Supprimer'));
     pb.push(egal(['2026-10-20', 'Trail du Lac'], [await lire(p, '#fc-date'), await lire(p, '#fc-course')], 'marquer : pré-rempli'));
     await p.fill('#fc-temps', '2:40:00');
@@ -1578,7 +1655,7 @@ const CONTROLES = {
     const panne = JSON.parse(JSON.stringify(db)); panne.panne = true;
     ({ p, ctx } = await ouvrir(nav, PAGE, 1200, panne, {}, PARIS));
     await p.click('[data-ob="ajouter"]'); await p.waitForSelector('.fc-fiche');
-    await p.fill('#fc-course', 'X'); await p.fill('#fc-date', '2027-06-12'); await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', { index: 1 });
+    await p.fill('#fc-course', 'X'); await p.fill('#fc-date', '2027-06-12'); await p.selectOption('#fc-type', 'trail'); await p.selectOption('#fc-format', { index: 1 }); await p.fill('#fc-distance', '30');
     await p.click('.fc-plein');
     await p.waitForSelector('.fc-msg:has-text("Enregistrement impossible")');
     pb.push(egal(1, await p.locator('.fc-fiche').count(), 'panne : le formulaire reste ouvert'));
@@ -1589,15 +1666,15 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, pal));
     await p.click('[data-act="add"]');
     const labels = sel => p.evaluate(s => [...document.querySelector(s).nextElementSibling.querySelectorAll('.fc-champ > label')].map(l => l.textContent.replace(/\s*\*$/, '').trim()), sel);
-    pb.push(egal(['Course', 'Place dans le plan', 'Dossard', 'Parcours', 'Préparation', 'Logistique', 'Résultat', 'Montre', 'Liens'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : blocs de la fiche unique'),
-      egal(['Course', 'Parcours', 'Date', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Objectif', 'Précisions', 'Description'], await labels('[data-bloc="course"]'), 'Palmarès : bloc Course, dans l\'ordre'),
+    pb.push(egal(['Course', 'Résultat', 'Montre', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : blocs de la fiche unique'),
+      egal(['Course', 'Parcours', 'Date', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Objectif', 'Précisions sur l\'objectif', 'Description', 'Site officiel'], await labels('[data-bloc="course"]'), 'Palmarès : bloc Course, dans l\'ordre'),
       egal([['Place au général', 2], ['Effectif du général', 2], ['Catégorie', 3], ['Place en catégorie', 3], ['Effectif de la catégorie', 3], ['Place par sexe', 2], ['Effectif par sexe', 2]],
         await p.evaluate(() => { const g = document.querySelector('[data-bloc="resultat"]').nextElementSibling; g.hidden = false; const l = g.getBoundingClientRect().width;
-          return [...g.children].slice(2).map(e => [e.querySelector(':scope > label').textContent.trim(), Math.round(l / e.getBoundingClientRect().width)]); }),
+          return [...g.children].slice(1, 8).map(e => [e.querySelector(':scope > label').textContent.trim(), Math.round(l / e.getBoundingClientRect().width)]); }),
         'Palmarès : classements dans Résultat, général et sexe sur toute la largeur (deux champs), catégorie à gauche de la place en catégorie (trois champs)'),
       egal(['Temps', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Allure moyenne (par km)', 'FC moyenne (bpm)'], await labels('[data-bloc="montre"]'), 'Palmarès : Montre, temps et distance, D+ et D−, allure et FC'),
       egal(['M0', 'M10', 15], await p.evaluate(() => { const o = [...document.querySelectorAll('#fc-categorie option')].map(x => x.value).filter(Boolean); return [o[4], o[14], o.length]; }), 'Palmarès : catégories FFA (CA, JU, ES, SE, M0 à M10)'),
-      egal(['Temps', 'Non terminée (DNF)', 'Allure moyenne (par km)', 'Place au général', 'Effectif du général', 'Catégorie', 'Place en catégorie', 'Effectif de la catégorie', 'Place par sexe', 'Effectif par sexe'],
+      egal(['Temps', 'DNF', 'Allure moyenne (par km)', 'Place au général', 'Effectif du général', 'Catégorie', 'Place en catégorie', 'Effectif de la catégorie', 'Place par sexe', 'Effectif par sexe', 'Résultats en direct'],
         await labels('[data-bloc="resultat"]'), 'Palmarès : bloc Résultat (résultat puis classements), sans vitesse'),
       egal(0, await p.locator('#fc-vitesse, #fc-montre_vitesse, #fc-statut, #fc-date_approx, #fc-inscrit').count(), 'Palmarès : ni Vitesse, ni Statut, ni date approximative, ni Inscrit'),
       egal('fc-course', await p.evaluate(() => document.activeElement.id), 'Palmarès : curseur dans Course'));
@@ -1607,11 +1684,15 @@ const CONTROLES = {
         description: r('fc-description').top > r('fc-dmoins').bottom }; });
     pb.push(egal({ dossardDansDossard: true, distanceSeule: true, dplusDmoins: true, description: true }, pos, 'Palmarès : dossard dans le bloc Dossard, distance seule, D+ et D− côte à côte, description dessous'));
     await p.fill('#fc-temps', '49:18'); await p.fill('#fc-allure', '4:56');
+    pb.push(egal(true, await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
+      return Math.abs(r('fc-temps').top - r('fc-allure').top) < 2 && r('fc-dnf').left > r('fc-temps').right && r('fc-allure').left > r('fc-dnf').right; }), 'Résultat : Temps, DNF et Allure moyenne sur la même ligne, dans cet ordre'));
     await p.check('#fc-dnf');
     pb.push(egal(['', '', true, true], [await p.inputValue('#fc-temps'), await p.inputValue('#fc-allure'), await p.isDisabled('#fc-temps'), await p.isDisabled('#fc-allure')], 'DNF coché : temps et allure vidés et grisés'));
+    pb.push(egal(false, await p.evaluate(() => !document.querySelector('label[for="fc-temps"] .fc-oblig').hidden), 'DNF coché : l\'étoile du temps disparaît'));
     await p.uncheck('#fc-dnf');
-    await p.fill('#fc-course', 'Course d\'essai DNF'); await p.fill('#fc-date', '2026-10-11'); await p.selectOption('#fc-type', 'route'); await p.selectOption('#fc-format', 'route_10km');
-    await p.fill('#fc-allure', '5:00'); await p.click('.fc-plein');
+    pb.push(egal(true, await p.evaluate(() => { const g = document.querySelector('[data-bloc="resultat"]').nextElementSibling; return Math.abs(document.getElementById('fc-lien_resultats').getBoundingClientRect().width - g.getBoundingClientRect().width) < 2; }), '« Résultats en direct » : toute la largeur du bloc Résultat'));
+    await p.fill('#fc-course', 'Course d\'essai DNF'); await p.fill('#fc-date', '2026-10-11'); await p.selectOption('#fc-type', 'route'); await p.selectOption('#fc-format', 'route_10km'); await p.fill('#fc-distance', '10');
+    await p.fill('#fc-temps', '50:00'); await p.fill('#fc-allure', '5:00'); await p.click('.fc-plein');
     await p.waitForFunction(() => !document.querySelector('.fc-fiche'));
     const ins = pal.ecritures.find(e => e.methode === 'POST' && e.table === 'courses');
     pb.push(egal({ allure: 300, vitesse: 12, etat: 'courue', objectif: null }, ins && { allure: ins.corps.allure, vitesse: ins.corps.vitesse, etat: ins.corps.etat, objectif: ins.corps.objectif }, 'enregistrement : vitesse tirée de l\'allure moyenne (5:00 → 12 km/h), état Courue, objectif vide'));
@@ -1626,15 +1707,16 @@ const CONTROLES = {
         distanceSeule: r('fc-dplus').top > r('fc-distance').bottom, dplusDmoins: Math.abs(r('fc-dplus').top - r('fc-dmoins').top) < 2 && r('fc-dmoins').left > r('fc-dplus').right,
         descriptionDessous: r('fc-description').top > r('fc-dmoins').bottom, exemple: document.getElementById('fc-description').placeholder };
     });
-    pb.push(egal(['Course', 'Parcours', 'Date', 'Date approximative (mois seulement)', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Objectif', 'Précisions', 'Description'], ordre.labels, 'Objectif : ordre du bloc Course'),
+    pb.push(egal(['Course', 'Parcours', 'Date', 'Seul le mois est connu', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Objectif', 'Précisions sur l\'objectif', 'Description', 'Site officiel'], ordre.labels, 'Objectif : ordre du bloc Course'),
       egal([true, true, true, true], [ordre.distanceSeule, ordre.dplusDmoins, ordre.descriptionDessous, /^Texte libre/.test(ordre.exemple)], 'Objectif : distance seule, D+ et D− côte à côte, description dessous avec un exemple de texte libre'));
     await p.click('[data-bloc="dossard"]');
     const dos = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
-      return { ligne1: Math.abs(r('fc-ouverture_inscriptions').top - r('fc-ouverture_heure').top) < 2 && r('fc-ouverture_heure').left > r('fc-ouverture_inscriptions').right
-          && Math.abs(r('fc-ouverture_approx').top - r('fc-inscrit').top) < 2 && r('fc-ouverture_approx').top > r('fc-ouverture_heure').bottom,
+      return { ligne1: Math.abs(r('fc-ouverture_inscriptions').top - r('fc-ouverture_heure').top) < 6 && r('fc-ouverture_heure').left > r('fc-ouverture_inscriptions').right
+          && r('fc-ouverture_approx').left > r('fc-ouverture_heure').right && Math.abs(r('fc-ouverture_approx').top - r('fc-ouverture_inscriptions').top) < r('fc-ouverture_inscriptions').height
+          && r('fc-inscrit').top > r('fc-ouverture_inscriptions').bottom,
         ligne2: Math.abs(r('fc-dossard').top - r('fc-prix').top) < 2 && r('fc-dossard').top > r('fc-ouverture_inscriptions').bottom,
         site: r('fc-inscription').top > r('fc-ouverture_inscriptions').bottom && r('fc-dossard').top > r('fc-inscription').bottom, grise: document.getElementById('fc-dossard').disabled }; });
-    pb.push(egal({ ligne1: true, ligne2: true, site: true, grise: true }, dos, 'Objectif : Dossard (ouverture et heure, puis Mois seulement et Inscrit, puis site d\'inscription, puis numéro et prix) ; numéro grisé tant que non inscrit'));
+    pb.push(egal({ ligne1: true, ligne2: true, site: true, grise: true }, dos, 'Objectif : Dossard (ouverture, heure et « Seul le mois est connu » sur une ligne, puis Inscrit, site d\'inscription, numéro et prix) ; numéro grisé tant que non inscrit'));
     await ouvrirBloc(p, 'dossard');
     await p.check('#fc-inscrit');
     pb.push(egal(false, await p.isDisabled('#fc-dossard'), 'Inscrit coché : le numéro de dossard se saisit'));
@@ -1650,7 +1732,13 @@ const CONTROLES = {
       .filter(el => parseFloat(getComputedStyle(el).fontSize) < 16).map(el => el.id)), 'téléphone : aucun champ sous 16 px (pas de zoom de l\'iPhone)'));
     const ligne = await p.evaluate(() => { const d = document.getElementById('fc-date').getBoundingClientRect(), c = document.getElementById('fc-date_approx').getBoundingClientRect();
       return { memeLigne: Math.abs((d.top + d.bottom) / 2 - (c.top + c.bottom) / 2) < d.height, aDroite: c.left >= d.right }; });
-    pb.push(egal({ memeLigne: true, aDroite: true }, ligne, 'téléphone : « Date approximative » à droite de la date'));
+    pb.push(egal({ memeLigne: true, aDroite: true }, ligne, 'téléphone : « Seul le mois est connu » à droite de la date'));
+    // Téléphone : ouverture des inscriptions sur sa ligne, puis l'heure et la case ensemble dessous ; la liste de l'objectif au-dessus de sa durée
+    await p.evaluate(() => { const g = document.getElementById('fc-ouverture_inscriptions').closest('.fc-grille'); if (g.hidden) document.querySelector('[data-bloc="dossard"]').click(); });
+    const ouv = await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect();
+      return { dateSeule: r('fc-ouverture_heure').top > r('fc-ouverture_inscriptions').bottom, heureEtCase: r('fc-ouverture_approx').left > r('fc-ouverture_heure').right && Math.abs(r('fc-ouverture_approx').top - r('fc-ouverture_heure').top) < r('fc-ouverture_heure').height,
+        rien: document.documentElement.scrollWidth <= innerWidth }; });
+    pb.push(egal({ dateSeule: true, heureEtCase: true, rien: true }, ouv, 'téléphone : ouverture des inscriptions seule, puis l\'heure et « Seul le mois est connu » ensemble ; rien ne dépasse'));
     pb.push(egal(false, await p.evaluate(() => document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth), 'téléphone : le formulaire ne déborde pas'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-formulaire-telephone.png') });
     await ctx.close();
@@ -1673,7 +1761,7 @@ const CONTROLES = {
     pb.push(egal(0, await p.locator('[data-ob]').count(), 'lecture seule : pas de « + »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, COURSE(4), 1200, partage, { 'mrt-vue': autre }, PARIS));
-    pb.push(egal(0, await p.locator('[data-ob]:not([data-ob="fermer"])').count(), 'lecture seule : ni Modifier ni Retenir'));
+    pb.push(egal(0, await p.locator('[data-ob]:not([data-ob="fermer"]):not([data-ob="agenda"])').count(), 'lecture seule : ni Modifier ni Retenir'));
     await ctx.close();
     return pb;
   },
@@ -1724,7 +1812,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#annee', w, db, {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['6 mois', ['Semaine', 'Mois', '3 mois', '6 mois *', 'Année']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], null], [r.vue, r.titre, r.voisins, r.p20], nom + ', menu « Périodicité » sur 6 mois (par défaut), voisines ; Plan éteint : pas de fond de phase'),
+        egal([['6 mois', ['Semaine', 'Mois', '3 mois', '6 mois *', 'Année']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], null], [r.vue, r.titre, r.voisins, r.p20], nom + ', menu « Vue » sur 6 mois (par défaut), voisines ; Plan éteint : pas de fond de phase'),
         egal([tel ? [3, 3] : [6], ['oct. 26', 'nov.', 'déc.', 'janv. 27', 'févr.', 'mars']], [r.blocs, r.mois], nom + ', ' + (tel ? 'deux blocs de trois mois' : 'un bloc de six mois')),
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, 0, false, LEGENDE], [r.nbPhases, r.barres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni fond de phase ni légende des phases'),
@@ -1831,7 +1919,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['Mois', ['Semaine', 'Mois *', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Périodicité » sur Mois, mois en cours et ses voisins, jours de la semaine'),
+        egal([['Mois', ['Semaine', 'Mois *', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
         egal([35, ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['2026-10-20']], [r.nb, r.hors, r.auj], nom + ', cinq semaines, jours des mois voisins atténués, aujourd\'hui'),
         egal([[['2026-10-04', 'Semi de San Sebastián', 'courue']], [['2026-11-01', '◆ Inscriptions · Corrida de Noël']]], [r.courses, r.rdv], nom + ', course courue et rendez-vous clé'),
         egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances à cocher, un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
@@ -1941,7 +2029,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', w, copie(), {}, PARIS);
       const r = await lire(p);
       pb.push(
-        egal([['Semaine', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], true, '↑ Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Périodicité »), barre du haut sur une ligne, lien vers les semaines passées'),
+        egal([['Semaine', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], true, '↑ Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Vue »), barre du haut sur une ligne, lien vers les semaines passées'),
         egal([SEMAINES, 'Semaine du 19 au 25 oct.'], [r.semaines.slice(0, 3), r.courante], nom + ', la semaine en cours d\'abord, puis les suivantes'),
         egal([['19lun.', '20mar.', '21mer.', '22jeu.', '23ven.', '24sam.', '25dim.'], ['2026-10-20']], [r.dates, r.auj], nom + ', numéro et nom de chaque jour, aujourd\'hui mis en avant'),
         egal([[['2026-10-19', 'Renforcement Gainage 30 min', true], ['2026-10-20', 'Course à pied 8×400 m', false], ['2026-10-22', 'Course à pied Footing 45 min', false], ['2026-10-24', 'Course à pied Sortie 1 h 30', false]],
@@ -2031,7 +2119,7 @@ const CONTROLES = {
     return pb;
   },
 
-  // Spécification du Calendrier, § 10 : rubrique Préparation de la page d'une course (plan, frise, séances, « Paramétrer le plan »).
+  // Spécification du Calendrier, § 10 : rubrique Préparation de la page d'une course (plan, frise, séances) ; le plan se règle dans Préparation.
   async calendrierPlan(nav, db0) {
     const pb = [];
     const { db: base, id } = jeuObjectif(db0);
@@ -2074,22 +2162,35 @@ const CONTROLES = {
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal({ date: '2026-11-17', course: GORGES }, (({ date, course }) => ({ date, course }))(d.seances[d.seances.length - 1]), 'séance ajoutée depuis la rubrique : liée à la course'),
       egal(['Course à pied Footing 40 min'], await p.evaluate(() => [...document.querySelectorAll('.cal-prep-lib + .cal-sem .cal-se')].map(e => e.textContent.trim().replace(/\s+/g, ' '))), 'séance affichée dans la semaine mise en avant'));
-    // Préparer : durée de 20 semaines, une semaine en Base, puis recalcul
-    await p.click('#preparation [data-preparer]');
-    await p.fill('.cal-prep [name="duree"]', '20'); await p.dispatchEvent('.cal-prep [name="duree"]', 'change');
-    pb.push(egal('Début : lun. 19 oct. 2026 → jour J : dim. 7 mars 2027 · durée du format : 16 sem.', await p.textContent('.cal-prep .cal-plan-dates'), 'Préparer : 20 semaines, début le 19 octobre'));
-    await p.selectOption('.cal-prep [data-sem="2026-12-07"]', 'base');
-    await p.click('[data-act="enregistrer"]');
-    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    // La rubrique renvoie vers Préparation, seul lieu où le plan se règle (design, § 12) ; ni bouton de réglage ici.
+    pb.push(egal([1, 'preparation.html#plans', 0], await p.evaluate(() => [document.querySelectorAll('#preparation .cal-regler').length, document.querySelector('#preparation .cal-regler').getAttribute('href'), document.querySelectorAll('#preparation [data-preparer]').length]),
+      'rubrique : lien « Régler le plan dans Préparation », aucun bouton de réglage'));
+    // Préparer, depuis la page Préparation : durée de 20 semaines, une semaine en Base, puis recalcul
+    const plans = async (largeur = 1200) => { const o = await ouvrir(nav, 'preparation.html', largeur, d, {}, PARIS); await o.p.waitForSelector('.ps-plans [data-preparer]'); await surDialogue(o.p, () => true); return o; };
+    const regler = async (q, idCourse) => { await q.p.click('.ps-plans [data-preparer="' + idCourse + '"]'); await q.p.waitForSelector('.cal-preparer'); };
+    const fini = async q => { await q.p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause(); };
+    let q = await plans();
+    pb.push(egal(true, await q.p.evaluate(id => !!document.querySelector('.ps-plans [data-preparer="' + id + '"]') && document.querySelector('.ps-plans').closest('.ps-cadre') !== null, GORGES), 'page Préparation : « Plans des courses », une ligne et son bouton par course'));
+    await regler(q, GORGES);
+    await q.p.fill('.cal-prep [name="duree"]', '20'); await q.p.dispatchEvent('.cal-prep [name="duree"]', 'change');
+    pb.push(egal('Début : lun. 19 oct. 2026 → jour J : dim. 7 mars 2027 · durée du format : 16 sem.', await q.p.textContent('.cal-prep .cal-plan-dates'), 'Préparer : 20 semaines, début le 19 octobre'));
+    await q.p.selectOption('.cal-prep [data-sem="2026-12-07"]', 'base');
+    await q.p.click('[data-act="enregistrer"]');
+    await fini(q);
+    await q.ctx.close();
+    await p.reload(); await p.waitForSelector('#preparation .cal-plan-dates');
     pb.push(egal(20, d.courses.find(c => c.id === GORGES).prepa_semaines, 'Préparer : durée de la course écrite'),
       egal([{ course: GORGES, lundi: '2026-12-07', phase: 'base' }], d.plan_semaines.map(x => ({ course: x.course, lundi: x.lundi, phase: x.phase })), 'Préparer : seule la semaine modifiée est rangée'),
       egal('Plan de 20 semaines · début : lun. 19 oct. 2026 → jour J : dim. 7 mars 2027', await p.textContent('#preparation .cal-plan-dates'), 'rubrique : plan de 20 semaines affiché'),
       egal(['Semaine en cours', 'Semaine 1 · du 19 au 25 oct.'], await p.evaluate(() => [document.querySelector('.cal-prep-lib').textContent, document.querySelector('.cal-prep-lib + .cal-sem .cal-sem-titre').textContent]), 'rubrique : la semaine en cours est mise en avant'),
       egal('Base · modifiée', await p.evaluate(() => document.querySelector('.cal-toutes .cal-sem[data-lundi="2026-12-07"] .cal-sem-phase').textContent), 'semaine modifiée repérée'));
-    await p.click('#preparation [data-preparer]');
-    await p.click('[data-act="recalculer"]');
-    await p.click('[data-act="enregistrer"]');
-    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    q = await plans();
+    await regler(q, GORGES);
+    await q.p.click('[data-act="recalculer"]');
+    await q.p.click('[data-act="enregistrer"]');
+    await fini(q);
+    await q.ctx.close();
+    await p.reload(); await p.waitForSelector('#preparation .cal-plan-dates');
     pb.push(egal([], d.plan_semaines, 'Recalculer : plus aucune semaine modifiée'),
       egal('Deload', await p.evaluate(() => document.querySelector('.cal-toutes .cal-sem[data-lundi="2026-12-07"] .cal-sem-phase').textContent), 'Recalculer : la semaine du 7 décembre est de nouveau en Deload'));
     // Téléphone : la frise des 16 semaines (2 rem par semaine) dépasse la largeur et défile de gauche à droite
@@ -2101,16 +2202,21 @@ const CONTROLES = {
       await t.ctx.close();
     }
     // Frise : glisser la première poignée d'une semaine vers la droite
-    await p.click('#preparation [data-preparer]');
-    const poignee = await p.locator('.cal-poignee').first().boundingBox(), frise = await p.locator('.cal-frise.is-edit').boundingBox();
-    pb.push(egal(await p.locator('.cal-frise.is-edit .cal-seg').count() - 1, await p.locator('.cal-poignee').count(), 'Préparer : une poignée entre deux phases'));
-    await p.mouse.move(poignee.x + poignee.width / 2, poignee.y + poignee.height / 2);
-    await p.mouse.down();
-    await p.mouse.move(frise.x + frise.width * 4 / 20 + 2, poignee.y + poignee.height / 2, { steps: 5 });
-    await p.mouse.up();
-    pb.push(egal('base', await p.inputValue('.cal-prep [data-sem="2026-11-09"]'), 'frise : la semaine 4 passe en Base en glissant la limite'));
-    await p.click('[data-act="annuler"]');
-    pb.push(egal([], d.plan_semaines, 'Annuler : rien n\'est rangé'), egal([], erreurs, 'rubrique : erreurs JavaScript'));
+    q = await plans(); await regler(q, GORGES);
+    {
+      const qp = q.p;
+      await qp.fill('.cal-prep [name="duree"]', '20'); await qp.dispatchEvent('.cal-prep [name="duree"]', 'change');
+      const poignee = await qp.locator('.cal-poignee').first().boundingBox(), frise = await qp.locator('.cal-frise.is-edit').boundingBox();
+      pb.push(egal(await qp.locator('.cal-frise.is-edit .cal-seg').count() - 1, await qp.locator('.cal-poignee').count(), 'Préparer : une poignée entre deux phases'));
+      await qp.mouse.move(poignee.x + poignee.width / 2, poignee.y + poignee.height / 2);
+      await qp.mouse.down();
+      await qp.mouse.move(frise.x + frise.width * 4 / 20 + 2, poignee.y + poignee.height / 2, { steps: 5 });
+      await qp.mouse.up();
+      pb.push(egal('base', await qp.inputValue('.cal-prep [data-sem="2026-11-09"]'), 'frise : la semaine 4 passe en Base en glissant la limite'));
+      await qp.click('[data-act="annuler"]');
+      pb.push(egal([], d.plan_semaines, 'Annuler : rien n\'est rangé'), egal([], erreurs, 'rubrique : erreurs JavaScript'), egal([], q.erreurs, 'page Préparation : erreurs JavaScript'));
+    }
+    await q.ctx.close();
     await ctx.close();
 
     // Plan en cours (Trail du Lac), option, course sans durée, sans l'adresse #preparation
@@ -2131,11 +2237,12 @@ const CONTROLES = {
     d.courses.find(c => c.id === id(2)).format = 'tri_s';
     ({ p, ctx } = await ouvertePrep(d, id(2)));
     pb.push(egal(true, (await p.textContent('#preparation .cal-vide')).startsWith('Pas encore de plan'), 'format sans durée : pas de plan'));
-    pb.push(egal(['Paramétrer le plan', false], await p.evaluate(() => { const b = document.querySelector('#preparation [data-preparer]'); return [b.textContent.trim(), b.classList.contains('is-principal')]; }), 'bouton « Paramétrer le plan » : à contour'));
-    await p.click('#preparation [data-preparer]');
-    await p.fill('.cal-prep [name="duree"]', '10'); await p.dispatchEvent('.cal-prep [name="duree"]', 'change');
-    await p.click('[data-act="enregistrer"]');
-    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    pb.push(egal(['Régler le plan dans Préparation →', false], await p.evaluate(() => { const b = document.querySelector('#preparation .cal-regler'); return [b.textContent.trim(), b.classList.contains('is-principal')]; }), 'lien « Régler le plan dans Préparation » : un lien d\'action'));
+    q = await plans(); await regler(q, id(2));
+    await q.p.fill('.cal-prep [name="duree"]', '10'); await q.p.dispatchEvent('.cal-prep [name="duree"]', 'change');
+    await q.p.click('[data-act="enregistrer"]');
+    await fini(q); await q.ctx.close();
+    await p.reload(); await p.waitForSelector('#preparation .cal-plan-dates');
     pb.push(egal(true, (await p.textContent('#preparation .cal-plan-dates')).startsWith('Plan de 10 semaines'), 'durée choisie pour un format sans durée'));
     await ctx.close();
 
@@ -2147,14 +2254,16 @@ const CONTROLES = {
     partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
     partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
     ({ p, ctx } = await ouvertePrep(partage, id(1), 1200, PARIS, { 'mrt-vue': autre }));
-    pb.push(egal([1, 0, 0], [await p.locator('#preparation').count(), await p.locator('[data-preparer]').count(), await p.locator('#preparation [data-ajout], #preparation [data-edit]').count()], 'lecture seule : la rubrique s\'affiche, sans « Préparer » ni saisie'));
+    pb.push(egal([1, 0, 0], [await p.locator('#preparation').count(), await p.locator('[data-preparer], .cal-regler').count(), await p.locator('#preparation [data-ajout], #preparation [data-edit]').count()], 'lecture seule : la rubrique s\'affiche, sans réglage du plan ni saisie'));
     await ctx.close();
     if (CAPTURES) {
       ({ p, ctx } = await ouvertePrep(copie(), id(1)));
       await p.screenshot({ path: path.join(__dirname, 'captures', 'course-preparation.png'), fullPage: true });
-      await p.click('#preparation [data-preparer]');
-      await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-preparer.png') });
       await ctx.close();
+      const o = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
+      await o.p.waitForSelector('.ps-plans [data-preparer]'); await o.p.click('.ps-plans [data-preparer]');
+      await o.p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-preparer.png') });
+      await o.ctx.close();
     }
     return pb;
   },
@@ -2167,15 +2276,16 @@ const CONTROLES = {
     const { db, id } = jeuObjectif(db0);
     const copie = f => { const d = JSON.parse(JSON.stringify(db)); if (f) f(d); return d; };
     const course = (d, n) => d.courses.find(c => c.id === id(n));
-    const lire = p => p.evaluate(() => {
+    const lire = async (p, defaut) => { if (!defaut) await p.click('[data-frise="tout"]'); return p.evaluate(() => {
       const t = s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
-      const ph = l => { const e = document.querySelector('.ps-sem[data-lundi="' + l + '"] .ps-ph'); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
+      const segs = [...document.querySelectorAll('.ps-seg')];
+      const ph = l => { const e = segs.find(x => x.dataset.debut <= l && l <= x.dataset.fin); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
       return {
-        titre: t('.ps-titre'), etat: t('.ps-etat'), vide: t('.ps-vide'),
-        semaines: [...document.querySelectorAll('.ps-sem')].map(e => e.dataset.lundi),
+        titre: t('.ps-titre'), sous: t('.ps-sous'), etat: t('.ps-etat'), runs: [...document.querySelectorAll('.ps-run')].map(e => e.dataset.lundi + ' ' + e.dataset.fin + ' ' + e.querySelector('.ps-run-nom').textContent + ' ' + e.querySelector('.ps-run-dates').textContent), titreBloc: t('.ps-bloc > .ps-libelle'), vide: t('.ps-vide'),
+        semaines: segs.length ? [segs[0].dataset.debut, segs[segs.length - 1].dataset.fin] : [],
         phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
         marques: [...document.querySelectorAll('.ps-marque[href]')].map(a => a.title.split(' · ')[0] + ' ' + [...a.classList].filter(c => c !== 'ps-marque').join(' ')),
-        alertes: [t('.ps-alertes .ps-libelle'), ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
+        alertes: ['Alertes (' + document.querySelectorAll('.ps-alerte').length + ')', ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
         textesAlertes: [...document.querySelectorAll('.ps-alerte')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
         // Bloc en cours : la grille du mois ; ses cases, et les repères du jour écrits dedans.
         bloc: [...document.querySelectorAll('.ps-bloc .cal-m-case')].map(e => e.dataset.jour),
@@ -2183,18 +2293,22 @@ const CONTROLES = {
         plus: document.querySelectorAll('.ps-bloc [data-ajout]').length,
         debordement: document.documentElement.scrollWidth > innerWidth
       };
-    });
+    }); };
     // Le jeu d'essai : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (ancien objectif intermédiaire : un Objectif),
     // Trail des Cimes et Ultra du Plateau (options), Trail des Crêtes (Objectif).
     for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
       const { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', w, copie(), {}, PARIS);
       await p.waitForSelector('.ps-cadre');
-      const r = await lire(p);
+      const r = await lire(p, false);
       pb.push(
-        egal(['Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.)', '2026-10-19', '2027-10-25'], [r.titre, r.semaines[0], r.semaines[r.semaines.length - 1]],
-          nom + ', saison visée ; frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
+        egal(['Trail des Gorges', 'dim. 7 mars 2027 · dans 20 sem.'], [r.titre, r.sous], nom + ', titre court : le nom de la course visée, dessous la date et le temps restant'),
+        ...(w > 600 ? [
+        egal(['2026-10-19', '2027-10-25'], [r.semaines[0], r.semaines[1]], nom + ', frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
         egal(['ph-entretien', 'ph-base', 'ph-base', 'ph-recuperation', 'ph-recuperation', 'ph-entretien', 'ph-entretien', 'ph-base', 'ph-affutage', 'ph-recuperation'], r.phases,
-          nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août'),
+          nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août')] : [
+        egal([true, '2026-10-19', '2027-10-25', 0], [r.runs.length > 5, r.runs[0].split(' ')[0], r.runs[r.runs.length - 1].split(' ')[1], await p.locator('.ps-seg').count()],
+          nom + ', frise en liste verticale (une ligne par phase), de la semaine en cours à la fin de la dernière récupération'),
+        egal('Entretien 19 oct. → 15 nov. · 4 sem.', r.runs[0].split(' ').slice(2).join(' '), nom + ', première ligne : phase, dates, durée')]),
         egal(['Trail du Lac r-preparatoire', 'Corrida de Noël r-plaisir', 'Trail des Gorges r-objectif', 'Trail des Cimes r-preparatoire is-option', 'Ultra du Plateau r-preparatoire is-option', 'Trail de la Forêt r-preparatoire is-option', 'Trail des Crêtes r-objectif'], r.marques,
           nom + ', courses sur la frise, repérées par leur rôle, options en pointillé'),
         egal(['Alertes (0)'], r.alertes, nom + ', pas d\'alerte (25 semaines entre les deux Objectifs, options sans règle)'),
@@ -2203,48 +2317,78 @@ const CONTROLES = {
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preparation-' + nom.replace('é', 'e') + '.png'), fullPage: true });
       await ctx.close();
     }
+    // Frise à deux niveaux : « En cours » par défaut (jusqu'à l'Objectif), « Tout » ; plein écran sur ordinateur seulement ; alertes dans le bloc de la recommandation.
+    {
+      const { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
+      await p.waitForSelector('.ps-cadre');
+      const f = () => p.evaluate(() => { const l = [...document.querySelectorAll('.ps-seg')]; return [l[0].dataset.debut, l[l.length - 1].dataset.fin, document.querySelector('[data-frise][aria-pressed="true"]').textContent, l.map(e => e.textContent).join(',')]; });
+      pb.push(egal(['2026-10-19', '2027-03-01', 'En cours', 'Entretien,Base,Développement'], (await f()).slice(0, 3).concat([(await f())[3].split(',').filter((x, i, t) => t.indexOf(x) === i).filter(x => ['Entretien', 'Base', 'Développement'].includes(x)).join(',')]),
+        'frise : « En cours » par défaut, de la semaine en cours à celle de l\'Objectif, le nom de la phase écrit sur la barre'));
+      pb.push(egal([['Trail du Lac · 15 nov.', 'Corrida de Noël · 13 déc.', 'Trail des Gorges · 7 mars'], ['Objectif', 'Préparatoire', 'Plaisir', 'Base', 'Développement', 'Affûtage', 'Deload', 'Entretien']],
+        await p.evaluate(() => [[...document.querySelectorAll('.ps-marque-nom')].map(e => e.textContent), [...document.querySelectorAll('.ps-legende span')].map(e => e.textContent.replace(/[▲]/g, '').trim())]),
+        'frise « Saison » : nom et date écrits sous chaque ▲ ; légende limitée à ce qui est montré (pas de Récupération)'));
+      await p.click('[data-frise="tout"]');
+      pb.push(egal(['2026-10-19', '2027-10-25', 'Tout'], (await f()).slice(0, 3), 'frise : « Tout » jusqu\'à la fin de la dernière récupération'));
+      pb.push(egal([1, 'data-plein-cible'], [await p.locator('.ps-frise-zone .mrt-plein').count(), await p.evaluate(() => document.querySelector('.ps-frise-zone').hasAttribute('data-plein-cible') ? 'data-plein-cible' : '')], 'frise : le rond « plein écran » sur ordinateur'));
+      await ctx.close();
+      const t = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS);
+      await t.p.waitForSelector('.ps-cadre');
+      pb.push(egal('none', await t.p.evaluate(() => { const b = document.querySelector('.mrt-plein'); return b ? getComputedStyle(b).display : 'none'; }), 'téléphone : pas de plein écran'));
+      // Téléphone, « Saison » : une liste verticale, sans débordement, la course sous sa phase.
+      pb.push(egal([true, false, 'Trail du Lac · 15 nov.'], await t.p.evaluate(() => [document.querySelectorAll('.ps-run').length >= 2, document.documentElement.scrollWidth > innerWidth, (document.querySelector('.ps-run .ps-marque-nom') || {}).textContent || null]),
+        'téléphone, « Saison » : la frise est une liste verticale (une ligne par phase), sans débordement, la course écrite sous sa phase'));
+      await t.ctx.close();
+      const q = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS);
+      await q.p.waitForSelector('.ps-cadre');
+      pb.push(egal([1, 'Recommandation de MyRunTools', 1, 0], await q.p.evaluate(() => [document.querySelectorAll('.ps-bloc .ps-proposition').length, document.querySelector('.ps-bloc .ps-proposition .ps-libelle').textContent, document.querySelectorAll('.ps-bloc .ps-proposition .ps-alerte').length, document.querySelectorAll('section.ps-alertes').length].map((x, i) => i === 3 ? x : x)),
+        'une alerte : dans le bloc « Recommandation de MyRunTools » (pas de section Alertes à part)'));
+      await q.ctx.close();
+      const z = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
+      await z.p.waitForSelector('.ps-cadre');
+      pb.push(egal(0, await z.p.locator('.ps-alerte').count(), 'sans alerte : rien (ni compteur, ni titre « Alertes »)'));
+      await z.ctx.close();
+    }
     // État de la semaine, bloc en cours et repères.
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
     await p.waitForSelector('.ps-cadre');
-    let r = await lire(p);
+    let r = await lire(p, false);
     pb.push(egal([28, '2026-10-19', '2026-11-15', 0], [r.bloc.length, r.bloc[0], r.bloc[27], await p.locator('.ps-bloc .cal-sem').count()], 'bloc en cours : la grille du mois, 28 cases du 19 octobre au 15 novembre'));
-    pb.push(egal(true, /^Cette semaine : Entretien, jusqu'au .*15 nov.* ; la saison commence le .*16 nov/.test(r.etat), 'état de la semaine : Entretien jusqu\'au 15 novembre (' + r.etat + ')'));
+    pb.push(egal([null, null], [r.etat, r.titreBloc], 'plus d\'état de la semaine ni de titre « Bloc en cours »'));
     pb.push(egal([['2026-11-12 Allégé', '2026-11-13 Allégé', '2026-11-14 Allégé'], 28], [r.reperes, r.plus], 'repères dans les cases : allégé du 12 au 14 novembre avant le Trail du Lac ; un « + » par jour'));
     await ctx.close();
     // Récupération et repos de la veille : la semaine du 30 novembre (récupération du Trail du Lac jusqu'au 4 décembre).
     const plusTard = { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-30T10:00:00+01:00') };
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, plusTard));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
+    r = await lire(p, false);
     pb.push(egal([true, false, true, 'ph-base'], [r.reperes.includes('2026-12-04 Récupération'), r.reperes.includes('2026-12-05 Récupération'), r.reperes.includes('2026-12-12 Repos'),
       await p.evaluate(() => [...document.querySelector('.ps-bloc .cal-m-case[data-jour="2026-11-30"]').classList].find(c => c.startsWith('ph-')))],
       'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre (19 jours), repos la veille de la Corrida de Noël, semaine 3 de la saison en base'));
-    pb.push(egal(true, /^Cette semaine : Base, semaine 3 sur 16\./.test(r.etat), 'état : base, semaine 3 sur 16 (' + r.etat + ')'));
     await ctx.close();
     // Ultra du Plateau confirmé : sa récupération (83 km-effort, 52 jours) déborde sur l'affûtage du Trail des Crêtes.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
-    pb.push(egal([['Alertes (1)', 'recup-affutage'], true], [r.alertes, /court jusqu'au .*17 août.* : elle déborde sur l'affûtage de Trail des Crêtes \(dès le .*16 août/.test(r.textesAlertes[0])],
+    r = await lire(p, false);
+    pb.push(egal([['Alertes (1)', 'recup-affutage'], true], [r.alertes, /^Ultra du Plateau : récupération jusqu'au .*17 août.*, sur l'affûtage de Trail des Crêtes$/.test(r.textesAlertes[0])],
       'Ultra du Plateau confirmé : récupération jusqu\'au 17 août, dans l\'affûtage du Trail des Crêtes ; pas d\'alerte de Préparatoire trop proche (9 semaines)'));
     await ctx.close();
     // Trail des Crêtes avancé au 2 mai : Objectifs trop proches (8 semaines) ; la seconde saison part le 8 mars, raccourcie.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 7).date = '2027-05-02'; }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
-    pb.push(egal([['Alertes (1)', 'proches'], true, 'ph-developpement'], [r.alertes, /est à 8 semaines de Trail des Gorges .* passe l'un des deux en Préparatoire\./.test(r.textesAlertes[0]), r.phases[3]],
+    r = await lire(p, false);
+    pb.push(egal([['Alertes (1)', 'proches'], true, 'ph-developpement'], [r.alertes, r.textesAlertes[0] === 'Trail des Gorges et Trail des Crêtes : 8 semaines d\'écart (12 conseillées)', r.phases[3]],
       'Trail des Crêtes au 2 mai : alerte Objectifs trop proches (8 semaines) ; saison raccourcie, le 8 mars en développement'));
     await ctx.close();
     // Trail des Cimes confirmé et avancé au 14 août : Préparatoire trop proche (14 jours avant un ultra-trail), et sa récupération dans l'affûtage.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 4).statut = 'confirmee'; course(d, 4).date = '2027-08-14'; }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
-    pb.push(egal(['Alertes (2)', 'recup-affutage', 'prepa-proche'], r.alertes, 'Trail des Cimes au 14 août : Préparatoire trop proche et récupération dans l\'affûtage'));
+    r = await lire(p, false);
+    pb.push(egal([['Alertes (2)', 'recup-affutage', 'prepa-proche'], 'Trail des Cimes : à 14 jours de Trail des Crêtes (3 semaines conseillées)'], [r.alertes, r.textesAlertes[1]], 'Trail des Cimes au 14 août : Préparatoire trop proche et récupération dans l\'affûtage, en une ligne chacune'));
     await ctx.close();
     // Sans Objectif : un message, pas de frise.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { d.courses.forEach(c => { if (c.role === 'objectif' || c.role === 'objectif_intermediaire') c.role = 'preparatoire'; }); }), {}, PARIS));
     await p.waitForSelector('.ps-cadre');
-    r = await lire(p);
+    r = await lire(p, true);
     pb.push(egal([true, []], [/^Aucun Objectif à venir/.test(r.vide || ''), r.semaines], 'sans Objectif : un message, pas de frise'));
     await ctx.close();
     // Calendrier : la récupération d'un Objectif en rose (semaine du 8 mars), l'Entretien sans fond.
@@ -2295,6 +2439,17 @@ const CONTROLES = {
     let r = await liste(p);
     pb.push(egal([true, ['Indispensable pour proposer tes séances', 'Pour affiner (facultatif)'], '0 sur 5', 5, 9, false, false],
       [r.feuille, r.sections, r.compte, r.aFaire, r.lignes.length, /\*/.test(r.texte), /site partagé/.test(r.texte)], 'liste : feuille d\'une course (croix ronde, pas de bouton « Fermer »), deux sections, « 0 sur 5 », cinq lignes à renseigner, ni astérisque ni mention du site partagé'));
+    // Largeur fixe sur ordinateur : la liste et les neuf questions ont la même largeur ; le contenu glisse (par la droite à l'ouverture, par la gauche au retour).
+    const largeur = () => p.evaluate(() => (r => Math.round(r.width) + 'x' + Math.round(r.height))(document.querySelector('.ps-profil').getBoundingClientRect()));
+    const l0 = await largeur(), largeurs = [], glisses = [];
+    for (const q of ['anciennete', 'volume_tranche', 'sortie_tranche', 'semaine', 'allure', 'seance_max_min', 'terrain', 'renfo_niveau', 'sante']) {
+      await p.click('.ps-profil [data-q="' + q + '"]');
+      glisses.push(await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-avant')));
+      largeurs.push(await largeur());
+      await p.click('.ps-profil [data-q="liste"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    }
+    pb.push(egal([true, true, true], [largeurs.every(x => x === l0), glisses.every(Boolean), await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-retour'))],
+      'profil sur ordinateur : même taille (largeur et hauteur) pour la liste et les neuf questions, glissement vers la droite à l\'ouverture, vers la gauche au retour'));
     // Une question à choix : un toucher enregistre et revient à la liste.
     await p.click('.ps-profil [data-q="anciennete"]');
     pb.push(egal(['Je débute', '1 à 3 ans', '3 à 6 ans', '6 à 10 ans', 'Plus de 10 ans'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil .ps-choix')].map(b => b.childNodes[0].textContent)), 'Je cours depuis : cinq tranches'));
@@ -2307,19 +2462,18 @@ const CONTROLES = {
     await p.click('.ps-profil [data-q="semaine"]');
     const tap = async sel => { await p.click('.ps-profil ' + sel); await pause(); };
     for (const j of [2, 4, 6, 7]) await tap('[data-jc="' + j + '"]');
-    const chiffre = async (nom, v) => { await p.fill('.ps-profil [name="' + nom + '"]', v); await p.dispatchEvent('.ps-profil [name="' + nom + '"]', 'change'); await pause(); };
-    await chiffre('nb_sorties', '8');
-    pb.push(egal(['Un chiffre de 0 à 7.', undefined], [await p.textContent('.ps-profil .ps-msg'), (derniere(d) || {}).nb_sorties], 'nombre de sorties : 8 refusé'));
+    const chiffre = async (nom, v) => { await p.fill('.ps-profil [name="' + nom + '"]', v); await pause(); };
+    const avant = JSON.stringify(derniere(d));
+    await chiffre('nb_sorties', '8'); await p.click('.ps-profil [data-enregistrer]'); await pause();
+    pb.push(egal(['Un chiffre de 0 à 7.', avant], [await p.textContent('.ps-profil .ps-msg'), JSON.stringify(derniere(d))], 'nombre de sorties : 8 refusé, rien d\'enregistré'));
     await chiffre('nb_sorties', '3'); await tap('[data-long="7"]');
     await tap('[data-jc="7"]');
-    const apres = derniere(d) || {};
-    pb.push(egal([[2, 4, 6], 3, null, ''], [apres.jours_course, apres.nb_sorties, apres.jour_long, await p.textContent('.ps-profil .ps-msg')], 'dimanche retiré : sortie longue ramenée à « peu importe »'));
+    pb.push(egal([avant, 'Ma semaine'], [JSON.stringify(derniere(d)), await p.textContent('.ps-profil .fc-libelle')], 'ma semaine : rien d\'enregistré avant « Enregistrer »'));
     await tap('[data-long="6"]'); await tap('[data-jr="2"]'); await tap('[data-jr="4"]'); await chiffre('nb_renfo', '7');
-    pb.push(egal(7, (derniere(d) || {}).nb_renfo, 'renforcements : 7 accepté'));
     await chiffre('nb_renfo', '1');
+    await p.click('.ps-profil [data-enregistrer]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const sem = derniere(d) || {};
-    pb.push(egal([[2, 4, 6], [2, 4], 3, 1, 6], [sem.jours_course, sem.jours_renfo, sem.nb_sorties, sem.nb_renfo, sem.jour_long], 'ma semaine enregistrée à chaque toucher ; course et renforcement le même jour possibles'));
-    await p.click('.ps-profil [data-q="liste"]');
+    pb.push(egal([[2, 4, 6], [2, 4], 3, 1, 6], [sem.jours_course, sem.jours_renfo, sem.nb_sorties, sem.nb_renfo, sem.jour_long], 'ma semaine enregistrée d\'un coup par « Enregistrer », retour à la liste ; sortie longue ramenée à « peu importe » si son jour est retiré ; course et renforcement le même jour possibles'));
     // Repère d'allure : VMA refusée hors bornes, puis un temps sur 10 km.
     await p.click('.ps-profil [data-q="allure"]'); await p.click('.ps-profil [data-type="vma"]');
     await p.fill('.ps-profil [name="valeur"]', '35'); await p.click('.ps-profil .ps-valeur [type="submit"]');
@@ -2440,6 +2594,22 @@ const CONTROLES = {
     pb.push(egal([12, 'ia', 'acceptee', 'acceptee', '3 restantes ce mois-ci', null], [d.seances.length, d.seances[0].origine, d.seances[0].etat, d.propositions[0].statut, r.reste, d.seances.find(x => x.type === 'renfo').distance_km],
       'tout accepter : 12 séances écrites (origine IA), proposition acceptée, 3 restantes ; distance vide pour le renforcement'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
+    await ctx.close();
+
+    // Une seconde acceptation remplace les séances de l'IA non faites du bloc, sans toucher aux séances saisies ni aux faites.
+    d = copie([bonne()], x => x.seances.push(
+      { id: 'ia-a', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Ancien footing', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: false },
+      { id: 'ia-b', utilisateur: moi, date: '2026-10-22', type: 'run', libelle: 'Footing fait', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: true },
+      { id: 'main-c', utilisateur: moi, date: '2026-10-23', type: 'run', libelle: 'Ma séance', duree_min: 30, origine: 'saisie', etat: 'acceptee', faite: false }));
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await pret(p);
+    await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
+    await p.click('[data-ia="tout"]');
+    const question = await repondre(p, true);
+    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
+    pb.push(egal(['1 séance déjà proposée par MyRunTools sur ces semaines sera remplacée (pas celles que tu as saisies, ni les faites).', 14, ['ia-b', 'main-c'], 0],
+      [question, d.seances.length, d.seances.filter(x => !String(x.id).startsWith('nouveau')).map(x => x.id), d.seances.filter(x => x.libelle === 'Ancien footing').length],
+      'seconde acceptation : la séance de l\'IA non faite est remplacée après confirmation ; la séance saisie et la séance faite restent ; 12 nouvelles'));
     await ctx.close();
 
     // Garde-fou : un jour non disponible ; la demande est refaite une fois, avec la correction.
@@ -2659,7 +2829,7 @@ const CONTROLES = {
     // Fond blanc et fond noir (lecture claire ou sombre) : fond, cadres, contrôles du navigateur ; encre fixe sur la couleur
     // d'une course ; phases plus foncées sur fond blanc.
     for (const [theme, fond, cadre, schema] of [['blanc-orange', 'rgb(255, 255, 255)', 'rgb(243, 245, 248)', 'light'], ['noir-orange', 'rgb(0, 0, 0)', 'rgb(18, 18, 18)', 'dark']]) {
-      const d = jeuObjectif(db0).db; // Trail du Lac le 15 novembre : le mois de novembre, case « Phases de prépa » cochée
+      const d = jeuObjectif(db0).db; // Trail du Lac le 15 novembre : le mois de novembre, case « Phases » cochée
       d.preferences[0].theme = theme;
       const { p, ctx } = await ouvrir(nav, 'calendrier.html#mois=2026-11', 1200, d, { 'mrt-calendrier-phases': '1' }, PARIS);
       pb.push(egal({ classe: ['t-' + theme], fond, cadre, schema, encre: 'rgb(11, 18, 32)', retenu: theme }, await p.evaluate(() => ({
@@ -2748,7 +2918,7 @@ const CONTROLES = {
     // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Objectif & plan', 'Calendrier', 'À surveiller', 'Palmarès'], visibles: true }, await p.evaluate(() => {
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès'], visibles: true }, await p.evaluate(() => {
         const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
           visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
@@ -2782,11 +2952,11 @@ const CONTROLES = {
     pb.push(egal([false, 'palmares.html'], [await fiche(p), page(p)], 'crayon du Palmarès, retour : la fiche se ferme, le Palmarès reste'));
     await ctx.close();
 
-    // N5 : Calendrier, menu « Périodicité » (la vue Semaine par défaut), bouton « Plan », « Aujourd'hui » (Calendrier 0.17).
+    // N5 : Calendrier, menu « Vue » (la vue Semaine par défaut), bouton « Plan », « Aujourd'hui » (Calendrier 0.17).
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), {}, PARIS));
     const vues = () => p.evaluate(() => { const b = document.querySelector('[data-menu]'), m = document.querySelector('.cal-menu');
       return [b.textContent.trim(), m.hidden, b.getAttribute('aria-expanded'), [...m.querySelectorAll('a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))]; });
-    pb.push(egal(['Semaine', true, 'false', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'Calendrier : menu « Périodicité » fermé, sur Semaine (vue par défaut)'));
+    pb.push(egal(['Semaine', true, 'false', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'Calendrier : menu « Vue » fermé, sur Semaine (vue par défaut)'));
     await p.click('[data-menu]');
     pb.push(egal(['Semaine', false, 'true', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'un toucher sur son bouton : le menu s\'ouvre'));
     await p.keyboard.press('Escape');
@@ -2833,7 +3003,7 @@ const CONTROLES = {
     await ctx.close();
 
     // D2 à D6 : champs communs (fond Champ, entre Fond et Surface ; coins de 6 px ; Accent au focus) ; fenêtres comme la fiche ; un seul bouton
-    // principal ; libellés à 0,7 rem en Space Mono ; astérisque discret ; une seule croix ; « Toutes les semaines » au chevron.
+    // principal ; libellés à 0,7 rem en Space Mono ; astérisque en Accent ; une seule croix ; « Toutes les semaines » au chevron.
     const champs = q => q.evaluate(() => {
       const t = document.createElement('i'); t.style.backgroundColor = 'var(--champ)'; document.body.append(t);
       const fond = getComputedStyle(t).backgroundColor, page = getComputedStyle(document.body).backgroundColor; t.remove();
@@ -2855,8 +3025,8 @@ const CONTROLES = {
       croix: getComputedStyle(document.querySelector('.pc-fermer .mrt-ico')).width })), 'rubrique Préparation : libellés à 0,7 rem, « Toutes les semaines » au chevron ; croix de la feuille'));
     await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
     pb.push(egal(COMMUN, await champs(p), 'fiche d\'une course : champs communs'));
-    pb.push(egal({ principaux: 1, parametrer: false, oblig: await role(p, '--muted') }, await p.evaluate(() => ({ principaux: document.querySelectorAll('.fc-fiche .mrt-btn.is-principal').length,
-      parametrer: document.querySelector('[data-fc="preparer"]').classList.contains('is-principal'), oblig: getComputedStyle(document.querySelector('.fc-oblig')).color })), 'fiche : un seul bouton principal (Paramétrer à contour), astérisque discret'));
+    pb.push(egal({ principaux: 1, parametrer: false, oblig: await role(p, '--accent') }, await p.evaluate(() => ({ principaux: document.querySelectorAll('.fc-fiche .mrt-btn.is-principal').length,
+      parametrer: !!document.querySelector('[data-fc="preparer"]'), oblig: getComputedStyle(document.querySelector('.fc-oblig')).color })), 'fiche : un seul bouton principal, aucun bouton de réglage du plan, astérisque en Accent'));
     await p.focus('#fc-lieu');
     pb.push(egal(await role(p, '--accent'), await style(p, '#fc-lieu', 'borderTopColor'), 'champ en cours de saisie : bordure en Accent'));
     await p.selectOption('#fc-statut', 'option');
@@ -2865,11 +3035,14 @@ const CONTROLES = {
     await p.selectOption('#fc-groupe_options', '__nouveau__');
     pb.push(egal([false, true], [avantChoix, await nouveau()], 'Option : le champ « Nouveau groupe » n\'apparaît qu\'une fois choisi'));
     await p.selectOption('#fc-statut', 'confirmee');
-    await ouvrirBloc(p, 'preparation');
-    await p.click('[data-fc="preparer"]'); await p.waitForSelector('.cal-preparer');
-    pb.push(egal(COMMUN, await champs(p), 'fenêtre « Paramétrer le plan » : champs communs'));
-    pb.push(egal({ barre: ['Annuler', 'Valider *'], titre: 'uppercase Space Mono', voile: true, libelles: ['11.2px'] }, await fenetre(p), 'fenêtre « Paramétrer le plan » : comme la fiche'));
     await ctx.close();
+    {
+      const q = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
+      await q.p.waitForSelector('.ps-plans [data-preparer]'); await q.p.click('.ps-plans [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
+      pb.push(egal(COMMUN, await champs(q.p), 'fenêtre « Paramétrer le plan » : champs communs'));
+      pb.push(egal({ barre: ['Annuler', 'Enregistrer *'], titre: 'uppercase Space Mono', voile: true, libelles: ['11.2px'] }, await fenetre(q.p), 'fenêtre « Paramétrer le plan » : comme la fiche'));
+      await q.ctx.close();
+    }
     const seances = copie();
     seances.seances = [{ id: 'se-1', utilisateur: seances.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Footing 45 min', faite: false, course: null }];
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines', 1200, seances, {}, PARIS));
@@ -3045,7 +3218,7 @@ const CONTROLES = {
     return pb;
   },
 
-  // Module Courses à surveiller (module-courses-a-surveiller-specification.md, § 8) : vues, cartes, tri, année, ouverture des inscriptions.
+  // Module Courses (module-courses-a-surveiller-specification.md, § 8) : filtres, cartes, tableau, année, ouverture des inscriptions.
   async courses(nav, db0) {
     const { db, id } = jeuObjectif(db0);
     const base = db.courses.find(c => c.id === id(9));
@@ -3068,56 +3241,79 @@ const CONTROLES = {
         lignes: [...c.querySelectorAll('.ob-ligne')].map(l => tx(l.children[0]) + ' | ' + tx(l.children[1])), lien: a ? a.getAttribute('href') : null, cible: a ? a.target : null,
         grise: !!c.querySelector('.cs-site.is-off'), compteur: !!c.querySelector('.ob-cpt'), pt: c.className.replace('ob-carte cs-carte', '').trim() };
     }));
-    const barre = p => p.evaluate(() => ({ vues: [...document.querySelectorAll('[data-vue]')].map(b => b.textContent.replace(/\s+/g, ' ').trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
+    // Filtres : le panneau s'ouvre au premier choix ; « vue » reproduit les anciennes vues (aucun filtre, ou un choix de statuts, ou Ouvertes).
+    const vue = async (p, v) => {
+      if (await p.locator('[data-cs="raz"]').count()) await p.click('[data-cs="raz"]');
+      if (v === 'tout') return;
+      if (await p.locator('#cs-filtres[hidden]').count()) await p.click('[data-cs="filtres"]');
+      if (v === 'ouvertes') await p.click('[data-ouvertes]');
+      else for (const k of { surveiller: ['a_surveiller'], venir: ['confirmee', 'option'], courue: ['courue'] }[v]) await p.click('[data-cat="' + k + '"]');
+    };
+    const barre = p => p.evaluate(() => ({ vues: [...document.querySelectorAll('[data-cat], [data-ouvertes]')].map(b => b.textContent.replace(/\s+/g, ' ').trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       compte: document.querySelectorAll('.cs-carte, .cs-ligne').length + ' courses', groupes: [...document.querySelectorAll('[data-groupe]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')), tris: [...document.querySelectorAll('[data-tri]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       annees: [...document.querySelectorAll('[data-annee]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       reperes: [...document.querySelectorAll('.cs-mois')].map(x => x.textContent) }));
 
-    // Ouverture : la vue À surveiller, avec les compteurs de chaque vue.
+    // Ouverture : toutes les courses, sans filtre, panneau replié ; le bouton Filtres ouvre les statuts avec leurs compteurs.
     let { p, ctx, erreurs } = await neuve(1200);
     let b = await barre(p), k = await cartes(p);
-    pb.push(egal(['À surveiller 3 *', 'Inscriptions ouvertes 1', 'Déjà couru 7', 'À venir 7', 'Tout 17'], b.vues, 'vues et compteurs, À surveiller par défaut'));
-    pb.push(egal([0, 0, [], ['avril 2027', 'septembre 2028', 'Date à définir']], [await p.locator('.cs-compte').count(), await p.locator('[data-groupe], [data-tri]').count(), b.annees, b.reperes], 'À surveiller : pas de texte « n courses », ni regroupement ni tri à choisir, titres de mois'));
-    pb.push(egal(['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], k.map(x => x.nom), 'À surveiller : ordre chronologique, sans date à la fin'));
-    pb.push(egal({ nom: 'Marathon de la Baie', statut: 'À surveiller', date: '11 avr. 2027', info: 'La Baie · Marathon', lignes: ['Distance | 42,195 km', 'Dossard | Ouvre le 3 nov. 2026 à 12 h'], lien: 'https://example.org/baie', cible: '_blank', grise: false, compteur: false, pt: 'is-opt' },
+    pb.push(egal([17, 0, 0, 0, 'false', 'Filtres'], [k.length, await p.locator('.cs-compte').count(), await p.locator('.cs-badge').count(), await p.locator('[data-vue], .cs-vues').count(), await p.getAttribute('[data-cs="filtres"]', 'aria-expanded'), await p.getAttribute('[data-cs="filtres"]', 'aria-label')],
+      'ouverture : les 17 courses, aucun filtre, ni compteur ni pastilles de vue, panneau replié'));
+    pb.push(egal(['Trail du Lac · Le Tour du Lac', 'Semi de San Sebastián'], [k[0].nom, k.find(x => x.statut === 'Courue').nom], 'ouverture : à venir d\'abord, puis les courues'));
+    pb.push(egal(true, await p.locator('#cs-filtres').isHidden(), 'ouverture : panneau de filtres caché'));
+    await p.click('[data-cs="filtres"]');
+    b = await barre(p);
+    pb.push(egal(['Repérée 3', 'Courue 7', 'Ouvertes 1'], b.vues.filter(x => /^(Repérée|Courue|Ouvertes) /.test(x)), 'panneau : statuts et Ouvertes avec leurs compteurs'));
+    pb.push(egal(4, b.vues.filter(x => /^(Confirmée|Option|Repérée|Courue) \d/.test(x)).length, 'panneau : quatre statuts'));
+    await p.click('[data-cs="fermer"]');
+    pb.push(egal(true, await p.evaluate(() => { const h = document.querySelector('#cs-filtres'); return h.hidden || !!h.__deroule; }), 'la flèche replie le panneau en déroulé'));
+    await p.waitForFunction(() => document.querySelector('#cs-filtres').hidden);
+    pb.push(egal([[32, 32], [32, 32], [32, 32], [15, 15]], await p.evaluate(() => [['[data-cs="filtres"]'], ['[data-mode="cartes"]'], ['[data-mode="tableau"]']].map(([s]) => { const r = document.querySelector(s).getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })
+      .concat([[Math.round(document.querySelector('[data-cs="filtres"] svg').getBoundingClientRect().width), Math.round(document.querySelector('[data-mode="cartes"] svg').getBoundingClientRect().width)]])), 'ronds Filtres, Cartes, Tableau : 32 px ; pictos 15 px (comme le Palmarès)'));
+    pb.push(egal(0, await p.locator('.cs-lib', { hasText: /^Vue$/i }).count(), 'pas de libellé « Vue »'));
+    await vue(p, 'surveiller');
+    b = await barre(p); k = await cartes(p);
+    pb.push(egal([0, ['avril 2027', 'septembre 2028', 'Date à définir'], 'Filtres · 1 actif', '3 sur 17 courses'], [await p.locator('[data-groupe], [data-tri]').count(), b.reperes, await p.getAttribute('[data-cs="filtres"]', 'aria-label'), await t(p, '.cs-compte')], 'Repérée : titres de mois, un filtre actif, compte « 3 sur 17 courses »'));
+    pb.push(egal(['Marathon de la Baie', 'Trail des Sommets', 'Ultra des Lacs'], k.map(x => x.nom), 'Repérée : ordre chronologique, sans date à la fin'));
+    pb.push(egal({ nom: 'Marathon de la Baie', statut: 'Repérée', date: '11 avr. 2027', info: 'La Baie · Marathon', lignes: ['Distance | 42,195 km', 'Inscription | Ouvre le 3 nov. 2026 à 12 h'], lien: 'https://example.org/baie', cible: '_blank', grise: false, compteur: false, pt: 'is-opt' },
       k[0], 'carte : statut à la place du rôle, ni compteur ni objectif, dossard avec l\'heure, lien « Site officiel »'));
-    pb.push(egal(['Ouverture : janvier 2027', 'Ouverture à venir'], [k[2].lignes[0].split(' | ')[1] || k[2].lignes[0], k[1].lignes[1].split(' | ')[1]].map(x => x.replace(/^Dossard \| /, '')), 'dossard : mois seul, puis ouverture inconnue'));
+    pb.push(egal(['Ouverture : janvier 2027', 'Ouverture à venir'], [k[2].lignes[0].split(' | ')[1] || k[2].lignes[0], k[1].lignes[1].split(' | ')[1]].map(x => x.replace(/^Inscription \| /, '')), 'dossard : mois seul, puis ouverture inconnue'));
     pb.push(egal([null, true, 'À définir'], [k[2].lien, k[2].grise, k[2].date], 'sans site officiel : lien grisé, sans adresse ; sans date : « À définir »'));
     pb.push(egal([3, 0, 0, 3], await p.evaluate(() => [document.querySelectorAll('.cs-carte .cs-site').length, document.querySelectorAll('.cs-detail').length, document.querySelectorAll('.cs-carte .ob-cpt, .cs-carte .ob-cible').length,
       [...document.querySelectorAll('.cs-carte')].filter(c => getComputedStyle(c).backgroundColor !== 'rgba(0, 0, 0, 0)').length]), 'lien « Site officiel » sur chaque carte ; plus de bouton Détails ; aucun compteur ; un fond sur chaque carte'));
 
     // Inscriptions ouvertes : à venir, pas inscrit, ouverture atteinte.
-    await p.click('[data-vue="ouvertes"]');
+    await vue(p, 'ouvertes');
     k = await cartes(p);
-    pb.push(egal([['Ultra du Plateau · Le 55'], 'Dossard | Inscription ouverte'], [k.map(x => x.nom), k[0].lignes.slice(-1)[0]], 'Inscriptions ouvertes : seulement les courses dont l\'ouverture est atteinte'));
-    await p.click('[data-vue="venir"]');
+    pb.push(egal([['Ultra du Plateau · Le 55'], 'Inscription | Inscription ouverte'], [k.map(x => x.nom), k[0].lignes.slice(-1)[0]], 'Inscriptions ouvertes : seulement les courses dont l\'ouverture est atteinte'));
+    await vue(p, 'venir');
     pb.push(egal(['Trail du Lac · Le Tour du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Trail des Cimes', 'Ultra du Plateau · Le 55', 'Trail de la Forêt', 'Trail des Crêtes'], (await cartes(p)).map(x => x.nom), 'À venir : la feuille de route'));
 
-    // Déjà couru : du plus récent au plus ancien, sans dossard, avec l'année.
-    await p.click('[data-vue="courue"]');
+    // Courues : du plus récent au plus ancien, sans dossard, avec l'année.
+    await vue(p, 'courue');
     k = await cartes(p); b = await barre(p);
-    pb.push(egal(['Semi de San Sebastián', '10 km de Montauban'], k.slice(0, 2).map(x => x.nom), 'Déjà couru : les plus récentes d\'abord'));
-    pb.push(egal([7, 'Courue', 0, 'is-courue'], [k.length, k[0].statut, k.filter(x => x.lignes.some(l => l.startsWith('Dossard'))).length, k[0].pt.split(' ')[0]], 'Déjà couru : statut, sans dossard, pastille atténuée'));
-    pb.push(egal([['Toutes *', '2026', '2025'], '7 courses'], [b.annees, b.compte], 'Déjà couru : pastilles des années, 7 cartes'));
+    pb.push(egal(['Semi de San Sebastián', '10 km de Montauban'], k.slice(0, 2).map(x => x.nom), 'Courues : les plus récentes d\'abord'));
+    pb.push(egal([7, 'Courue', 0, 'is-courue'], [k.length, k[0].statut, k.filter(x => x.lignes.some(l => l.startsWith('Inscription'))).length, k[0].pt.split(' ')[0]], 'Courues : statut, sans dossard, pastille atténuée'));
+    pb.push(egal([['Toutes *', '2028', '2027', '2026', '2025'], '7 courses'], [b.annees, b.compte], 'Courue : année dans le panneau, 7 cartes'));
     await p.click('[data-annee="2025"]');
     pb.push(egal(4, (await cartes(p)).length, 'année 2025 : 4 courses'));
 
     // Tout : ce qui reste à faire, puis les courues.
-    await p.click('[data-vue="tout"]');
+    await vue(p, 'tout');
     await p.click('[data-annee=""]');
     k = await cartes(p);
     pb.push(egal([17, 'Trail du Lac · Le Tour du Lac', 'Semi de San Sebastián'], [k.length, k[0].nom, k.find(x => x.statut === 'Courue').nom], 'Tout : 17 courses, à venir d\'abord puis les courues'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
 
     // Tableau : les colonnes de la veille, une ligne par course, sans regroupement ; choix gardé sur l'appareil.
-    await p.click('[data-vue="surveiller"]');
+    await vue(p, 'surveiller');
     const lignes = () => p.evaluate(() => ({ en: [...document.querySelectorAll('.cs-tableau thead th')].map(x => x.textContent),
       l: [...document.querySelectorAll('.cs-ligne')].map(r => [...r.children].map(x => x.innerText.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim())),
       lien: [...document.querySelectorAll('.cs-ligne .cs-lien-nom')].map(x => x.getAttribute('href')) }));
     pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.getAttribute('aria-label') + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
     await p.click('[data-mode="tableau"]');
     let tb = await lignes();
-    pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des inscriptions'], tb.en, 'tableau : les colonnes de la veille, sans UTMB Index'));
+    pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des inscriptions'], tb.en, 'tableau : les colonnes par défaut'));
     pb.push(egal([0, 0], [await p.locator('.cs-ligne-mois').count(), await p.locator('[data-groupe]').count()], 'tableau : pas de regroupement par mois, pas de choix de regroupement'));
     pb.push(egal([['Marathon de la Baie La Baie', '—', '42,195 km', '11 avr. 2027', 'Ouvre le 3 nov. 2026 à 12 h'], ['Trail des Sommets Haut-Val', '—', '80 km · 5 000 m D+', '10 sept. 2028', 'Ouverture à venir'],
       ['Ultra des Lacs', '—', '—', 'À définir', 'Ouverture : janvier 2027']], tb.l, 'tableau : une ligne par course'));
@@ -3139,51 +3335,81 @@ const CONTROLES = {
     await p.click('[data-col="evenement"]'); await p.click('[data-col="evenement"]');
     o2 = await ordre();
     pb.push(egal(['nnnan', 0], [o2.sens, o2.mois], 'troisième toucher : retour à l\'ordre d\'origine'));
-    pb.push(egal(['https://example.org/baie'], tb.lien, 'tableau : le nom mène au site officiel quand il est renseigné'));
-    await p.click('[data-vue="venir"]');
+    // Colonnes au choix : rond « Colonnes » (tableau seulement), toutes les rubriques d'une page de course, choix gardé sur l'appareil.
+    pb.push(egal([1, 1], [await p.locator('[data-cs="colonnes"]').count(), await p.locator('#cs-colonnes[hidden]').count()], 'tableau : rond « Colonnes », panneau replié'));
+    await p.click('[data-cs="colonnes"]');
+    pb.push(egal([true, true, true, true], [await p.locator('[data-colonne="statut"]').count() === 1, await p.locator('[data-colonne="lieu"]').count() === 1, await p.locator('[data-colonne="strategie"]').count() === 1, await p.locator('[data-colonne="fc_moyenne"]').count() === 1], 'colonnes proposées : statut, lieu, stratégie, FC moyenne…'));
+    pb.push(egal(0, await p.locator('[data-colonne="evenement"]').count(), 'Événement : toujours là, sans case'));
+    await p.click('[data-colonne="lieu"]'); await p.click('[data-colonne="statut"]');
+    tb = await lignes();
+    pb.push(egal(['Événement', 'Course', 'Statut', 'Distance · D+', 'Date', 'Lieu', 'Ouverture des inscriptions'], tb.en, 'colonnes ajoutées : à leur place dans l\'ordre de la page de course'));
+    pb.push(egal(['Repérée', 'Haut-Val'], [tb.l[1][2], tb.l[1][5]], 'colonnes Statut et Lieu : valeurs'));
+    await p.click('[data-col="lieu"]');
+    pb.push(egal('Haut-Val', (await lignes()).l[0][5], 'colonne ajoutée : triable (Haut-Val avant La Baie)'));
+    await p.reload(); await p.waitForSelector('.cs-barre'); await vue(p, 'surveiller');
+    pb.push(egal(['Statut', 'Lieu'], (await lignes()).en.filter(x => ['Statut', 'Lieu'].includes(x)), 'colonnes choisies : gardées après rechargement'));
+    await p.click('[data-cs="colonnes"]'); await p.waitForSelector('#cs-colonnes:not([hidden])');
+    await p.click('[data-colonne="lieu"]'); await p.click('[data-colonne="statut"]');
+    pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des inscriptions'], (await lignes()).en, 'colonnes retirées : retour aux colonnes par défaut'));
+    await vue(p, 'venir');
     pb.push(egal('15 nov. 2026 9 h', (await lignes()).l[0][3], 'tableau : l\'heure de départ sous la date'));
-    await p.click('[data-vue="courue"]');
-    pb.push(egal([7, '—'], [(await lignes()).l.length, (await lignes()).l[0][4]], 'tableau, Déjà couru : une ligne par course, pas de dossard'));
-    await p.click('[data-vue="surveiller"]');
-    await p.click('.cs-lien-nom');
-    pb.push(egal(0, await p.locator('.fc-fiche').count(), 'tableau : le lien du nom n\'ouvre pas la fiche'));
-    await p.locator('.cs-ligne').nth(2).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal('Ultra des Lacs', await p.locator('#fc-course').inputValue(), 'tableau : toucher une ligne ouvre sa fiche'));
-    await p.click('[data-fc="annuler"]'); await pause();
+    await vue(p, 'courue');
+    pb.push(egal([7, '—'], [(await lignes()).l.length, (await lignes()).l[0][4]], 'tableau, Courues : une ligne par course, pas de dossard'));
+    await vue(p, 'surveiller');
+    await p.locator('.cs-ligne').nth(2).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal(['Ultra des Lacs', 0], [await t(p, '.pc-titre'), await p.locator('.fc-fiche').count()], 'tableau : toucher une ligne ouvre la page de la course'));
+    await p.click('[data-ob="fermer"]'); await pause();
     await p.reload(); await p.waitForSelector('.cs-barre');
-    pb.push(egal(3, await p.locator('.cs-ligne').count(), 'tableau : l\'affichage choisi est gardé après rechargement'));
+    pb.push(egal(17, await p.locator('.cs-ligne').count(), 'tableau : l\'affichage choisi est gardé après rechargement (les filtres, eux, repartent à zéro)'));
     await p.click('[data-mode="cartes"]');
-    pb.push(egal([0, 3], [await p.locator('.cs-tableau').count(), await p.locator('.cs-carte').count()], 'retour aux cartes'));
+    pb.push(egal([0, 17], [await p.locator('.cs-tableau').count(), await p.locator('.cs-carte').count()], 'retour aux cartes'));
 
     // Toucher une carte : la fiche de modification (course à venir, sans date, courue) ; le lien « Site officiel » ne l'ouvre pas.
-    await p.click('[data-vue="surveiller"]');
+    await vue(p, 'surveiller');
     await p.click('.cs-site[href]');
     pb.push(egal(0, await p.locator('.fc-fiche').count(), 'le lien « Site officiel » n\'ouvre pas la fiche'));
-    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal(['Marathon de la Baie', 'Modifier la course'], [await p.locator('#fc-course').inputValue(), await t(p, '#fc-titre')], 'toucher la carte : la fiche de modification'));
+    const ouverts = () => p.evaluate(() => ({ ferme: document.querySelectorAll('.mc-panneau details.pc-cellule:not([open]), .mc-panneau details.is-montre:not([open])').length, total: document.querySelectorAll('.mc-panneau details.pc-cellule, .mc-panneau details.is-montre').length }));
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal(['Marathon de la Baie', 0], [await t(p, '.pc-titre'), await p.locator('.fc-fiche').count()], 'toucher la carte : la page de la course, pas la fiche'));
+    let ov = await ouverts();
+    pb.push(egal([0, true], [ov.ferme, ov.total > 0], 'page ouverte depuis Courses : tous les blocs ouverts'));
+    // Rond « Ajouter à l'agenda » à droite de la date : un fichier .ics.
+    const [tel] = await Promise.all([p.waitForEvent('download'), p.click('[data-ob="agenda"]')]);
+    const ics = require('fs').readFileSync(await tel.path(), 'utf8');
+    pb.push(egal([true, true, true], [/SUMMARY:Marathon de la Baie/.test(ics), /DTSTART;VALUE=DATE:20270411/.test(ics), /DTEND;VALUE=DATE:20270412/.test(ics)], 'agenda : un événement d\'une journée à la date de la course'));
+    await p.click('[data-ob="fermer"]'); await pause();
+    await p.locator('.cs-carte').nth(2).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal('Ultra des Lacs', await t(p, '.pc-titre'), 'course sans date : sa page'));
+    await p.click('[data-ob="fermer"]'); await pause();
+    await vue(p, 'courue');
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    ov = await ouverts();
+    pb.push(egal(['Semi de San Sebastián', 0], [await t(p, '.pc-titre'), ov.ferme], 'course courue : sa page, Résultat, Montre et blocs ouverts'));
+    await p.click('[data-ob="fermer"]'); await pause();
+    // Le crayon de la page ouvre la fiche de modification.
+    await vue(p, 'surveiller');
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
+    pb.push(egal(['Marathon de la Baie', 'Modifier la course'], [await p.locator('#fc-course').inputValue(), await t(p, '#fc-titre')], 'crayon : la fiche de modification'));
     await p.click('[data-fc="annuler"]'); await pause();
-    await p.locator('.cs-carte').nth(2).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal(['Ultra des Lacs', ''], [await p.locator('#fc-course').inputValue(), await p.locator('#fc-date').inputValue()], 'course sans date : sa fiche, date vide'));
-    await p.click('[data-fc="annuler"]'); await pause();
-    await p.click('[data-vue="courue"]');
-    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal([true, 'Semi de San Sebastián'], [await p.locator('#fc-temps').count() === 1, await p.locator('#fc-course').inputValue()], 'course courue : la fiche de résultat'));
+    await p.click('[data-ob="fermer"]'); await pause();
     pb.push(egal([], erreurs, 'erreurs JavaScript (fiche)'));
     await ctx.close();
 
-    // Ajouter : le statut À surveiller est préchoisi dans cette vue ; seulement là.
+    // Ajouter : le statut Repérée est préchoisi quand ce statut est seul filtré ; sinon Confirmée.
     let o = await neuve(1200);
+    await vue(o.p, 'surveiller');
     await o.p.click('[data-cs="ajouter"]'); await o.p.waitForSelector('.fc-fiche');
-    pb.push(egal('a_surveiller', await o.p.locator('#fc-statut').inputValue(), '+ Course (À surveiller) : statut préchoisi'));
+    pb.push(egal('a_surveiller', await o.p.locator('#fc-statut').inputValue(), '+ Course (Repérée seule) : statut préchoisi'));
     await o.p.click('[data-fc="annuler"]'); await pause();
-    await o.p.click('[data-vue="venir"]');
+    await vue(o.p, 'venir');
     await o.p.click('[data-cs="ajouter"]'); await o.p.waitForSelector('.fc-fiche');
-    pb.push(egal('confirmee', await o.p.locator('#fc-statut').inputValue(), '+ Course (À venir) : statut Confirmée'));
+    pb.push(egal('confirmee', await o.p.locator('#fc-statut').inputValue(), '+ Course (autres filtres) : statut Confirmée'));
     await o.ctx.close();
 
     // Fiche : heure d'ouverture et mois seul.
-    o = await neuve(1200);
-    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.fc-fiche');
+    o = await neuve(1200); await vue(o.p, 'surveiller');
+    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.mc-panneau .pc-titre'); await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
     await o.p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(x => x.click()));
     pb.push(egal(['2026-11-03', '12:00', false, false], [await o.p.locator('#fc-ouverture_inscriptions').inputValue(), await o.p.locator('#fc-ouverture_heure').inputValue(),
       await o.p.locator('#fc-ouverture_approx').isChecked(), await o.p.locator('#fc-ouverture_heure').isDisabled()], 'fiche : date et heure d\'ouverture relues'));
@@ -3196,8 +3422,8 @@ const CONTROLES = {
     const w = o.copie.ecritures[0].corps;
     pb.push(egal(['PATCH', '2027-02-01', true, null], [o.copie.ecritures[0].methode, w.ouverture_inscriptions, w.ouverture_approx, w.ouverture_heure], 'enregistrement : mois seul rangé au 1er, sans heure'));
     await o.ctx.close();
-    o = await neuve(1200);
-    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.fc-fiche');
+    o = await neuve(1200); await vue(o.p, 'surveiller');
+    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.mc-panneau .pc-titre'); await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
     await o.p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(x => x.click()));
     await o.p.fill('#fc-ouverture_inscriptions', ''); 
     await o.p.fill('#fc-ouverture_heure', '9h');
@@ -3212,24 +3438,24 @@ const CONTROLES = {
     jour.courses.find(c => c.id === id(11)).date = '2027-05-01'; jour.courses.find(c => c.id === id(11)).ouverture_inscriptions = '2026-10-20'; jour.courses.find(c => c.id === id(11)).ouverture_approx = false; jour.courses.find(c => c.id === id(11)).ouverture_heure = '08:00:00';
     o = await neuve(1200, PAGE, jour);
     k = await cartes(o.p);
-    pb.push(egal(['Dossard | Ouvre le 20 oct. 2026 à 14 h', 'Dossard | Inscription ouverte'], [k.find(x => x.nom === 'Marathon de la Baie').lignes.slice(-1)[0], k.find(x => x.nom === 'Ultra des Lacs').lignes.slice(-1)[0]], 'ouverture le jour même : avant l\'heure « Ouvre le… », après « Inscription ouverte »'));
-    await o.p.click('[data-vue="ouvertes"]');
+    pb.push(egal(['Inscription | Ouvre le 20 oct. 2026 à 14 h', 'Inscription | Inscription ouverte'], [k.find(x => x.nom === 'Marathon de la Baie').lignes.slice(-1)[0], k.find(x => x.nom === 'Ultra des Lacs').lignes.slice(-1)[0]], 'ouverture le jour même : avant l\'heure « Ouvre le… », après « Inscription ouverte »'));
+    await vue(o.p, 'ouvertes');
     pb.push(egal(['Ultra des Lacs', 'Ultra du Plateau · Le 55'], (await cartes(o.p)).map(x => x.nom), 'Inscriptions ouvertes : l\'heure d\'ouverture atteinte le jour même compte, pas avant ; par date de course'));
     await o.ctx.close();
 
     // Ordinateur : les cartes d'un même mois côte à côte, étroites ; toutes de la même hauteur (même téléphone).
     const memeMois = JSON.parse(JSON.stringify(db)); memeMois.courses.find(c => c.id === id(9)).date = '2027-04-20';
-    o = await neuve(1200, PAGE, memeMois);
+    o = await neuve(1200, PAGE, memeMois); await vue(o.p, 'surveiller');
     pb.push(egal([true, true], await o.p.evaluate(() => { const [a, b] = [...document.querySelectorAll('.cs-carte')].map(c => c.getBoundingClientRect());
       return [Math.abs(a.top - b.top) < 2 && b.left >= a.right, a.width < 420]; }), 'ordinateur : deux cartes du même mois côte à côte, moins de 420 px de large'));
-    await o.p.click('[data-vue="tout"]');
+    await vue(o.p, 'tout');
     pb.push(egal([1, 1], await o.p.evaluate(() => [new Set([...document.querySelectorAll('.cs-carte')].map(c => Math.round(c.getBoundingClientRect().height))).size, document.querySelectorAll('.cs-mois').length > 3 ? 1 : 0]), 'Tout : toutes les cartes de la même hauteur, regroupées par mois'));
     await o.ctx.close();
 
     // Téléphone : rien ne dépasse, les vues défilent, statut et date sur une ligne.
     o = await neuve(390, PAGE, db, {});
     pb.push(egal({ deborde: false, surLaPage: true }, await o.p.evaluate(() => ({ deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-      surLaPage: document.querySelectorAll('.cs-pastille').length >= 4 })), 'téléphone : rien ne dépasse'));
+      surLaPage: !!document.querySelector('[data-cs="filtres"]') })), 'téléphone : rien ne dépasse, bouton Filtres présent'));
     pb.push(egal([true, true], await o.p.evaluate(() => { const c = document.querySelector('.cs-carte'), r = x => c.querySelector(x).getBoundingClientRect();
       return [Math.abs(r('.ob-role').top - r('.ob-date').top) < 2, r('.ob-nom').top >= r('.ob-role').bottom - 1]; }), 'téléphone : statut et date sur la même ligne, le nom dessous'));
     pb.push(egal(1, await o.p.evaluate(() => new Set([...document.querySelectorAll('.cs-carte')].map(c => c.getBoundingClientRect().left)).size), 'téléphone : une seule colonne'));
@@ -3241,7 +3467,7 @@ const CONTROLES = {
 
     // Adresse : ?vue=courue ouvre la vue demandée ; site partagé : lecture seule, pas de bouton d'ajout.
     o = await neuve(1200, PAGE + '?vue=courue');
-    pb.push(egal('Déjà couru 7 *', (await barre(o.p)).vues[2], '?vue=courue : la vue demandée'));
+    pb.push(egal([7, 'Filtres · 1 actif'], [(await cartes(o.p)).length, await o.p.getAttribute('[data-cs="filtres"]', 'aria-label')], '?vue=courue : préfiltre sur Courue (7 courses)'));
     await o.ctx.close();
     const autre = '00000000-0000-0000-0000-00000000000b';
     const partage = JSON.parse(JSON.stringify(db));
@@ -3249,7 +3475,8 @@ const CONTROLES = {
     partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
     partage.preferences.push({ utilisateur: autre, theme: 'vert-rose', course_cap: null, modules: null, palmares_groupe: false });
     o = await neuve(1200, PAGE, partage, { 'mrt-vue': autre });
-    pb.push(egal([0, 3], [await o.p.locator('[data-cs="ajouter"]').count(), (await cartes(o.p)).length], 'site partagé : lecture seule, sans ajout'));
+    pb.push(egal([0, 18], [await o.p.locator('[data-cs="ajouter"]').count(), (await cartes(o.p)).length], 'site partagé : lecture seule, sans ajout'));
+    await vue(o.p, 'surveiller');
     await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.mc-panneau .pc-titre');
     pb.push(egal(['Marathon de la Baie', 0], [await t(o.p, '.pc-titre'), await o.p.locator('.fc-fiche').count()], 'site partagé : toucher une carte ouvre la page de la course, pas la fiche'));
     await o.ctx.close();
@@ -3420,6 +3647,7 @@ const CONTROLES = {
     await p.selectOption('.pf-panneau [name="activite"]', 'actif');
     await p.click('.pf-panneau [type="submit"]');
     await p.waitForSelector('.pf-panneau', { state: 'detached' });
+    await p.waitForFunction(() => /2 401/.test((document.querySelector('.nu-kcal') || {}).textContent || ''), null, { timeout: 5000 }).catch(() => {});
     pb.push(egal([['PATCH', 'profils', { ...COMPLET, poids: 72.5, activite: 'actif' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'fenêtre : les cinq champs rangés, virgule acceptée'),
       egal('2 401 kcal', await txt(p, '.nu-kcal'), 'besoin recalculé avec 72,5 kg et activité « actif »'));
     // Échec d'écriture : message, fenêtre ouverte.
@@ -3444,7 +3672,7 @@ const CONTROLES = {
     // Nutrition n'est pas dans le menu par défaut ; une fois cochée dans les Préférences, elle a son onglet.
     d = copie(COMPLET); d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, d));
-    pb.push(egal(['En un coup d\'œil', 'Objectif & plan', 'Nutrition'], await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent)), 'Nutrition cochée : onglet dans le menu'));
+    pb.push(egal(['En un coup d\'œil', 'Saison', 'Nutrition'], await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent)), 'Nutrition cochée : onglet dans le menu'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, copie(COMPLET)));
     pb.push(egal(false, (await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent))).includes('Nutrition'), 'menu par défaut : pas d\'onglet Nutrition'));
@@ -3518,12 +3746,13 @@ const CONTROLES = {
     // Carte 1 et jauges au départ.
     let d = base();
     let { p, ctx, erreurs } = await ouvrirN(d);
-    pb.push(egal(['Calculé pour 70 kg · 175 cm · peu actif ›', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
-      egal(['Mardi 20 octobre', true, 0], [norm(await p.locator('.nu-jour-t').textContent()), await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count()], 'sélecteur : le jour, pas de jour suivant, pas de lien « Aujourd\'hui »'),
+    pb.push(egal(['Calculé pour H · 70 kg · 175 cm · peu actif ›', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
+      egal(['Mardi 20 octobre', true, 0], [norm(await p.locator('.nu-jour-t').textContent()), await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count()], 'sélecteur : le jour, pas de jour suivant, pas de rond « » »'),
       egal(['kcal | sous | 350 | Reste 1 767 kcal | Besoin 2 117 kcal', 'p | sous | 6 g | Reste 92 g | Besoin 98–140 g', 'g | sous | 76 g | Reste 189 g | Besoin 265–318 g', 'l | sous | 1 g | Reste 58 g | Besoin 59–82 g'], await jauges(p), 'anneaux : nom, valeur, reste, besoin'),
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
       egal(['Ajouter', 'Ajouter', 0], [norm(await p.locator('.nu-tuile[data-act="activite"] .nu-tuile-v').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"] .nu-tuile-v').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'cases Activité et Repas ; ajout et sport dans leurs feuilles'),
+      egal([true, true, true], await p.evaluate(() => [...document.querySelectorAll('.nu-tuile')].map(t => { const i = t.querySelector('.nu-tuile-ico').getBoundingClientRect(), l = t.querySelector('.nu-tuile-l').getBoundingClientRect(), v = t.querySelector('.nu-tuile-v'); const r = t.getBoundingClientRect(); return i.left >= l.right && i.left >= v.getBoundingClientRect().right && r.right - i.right < 20 && Number(getComputedStyle(v).fontWeight) >= 600; }).concat([document.querySelectorAll('.nu-tuile').length === 2])), 'cases Activité et Repas : le picto tout à droite des deux lignes, « Ajouter » en gras'),
       egal(0, await p.locator('.nu-mention, .nu-macros, .nu-editer').count(), 'page épurée : ni mention, ni fourchettes en texte, ni bouton « Modifier »'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
     await ouvrirRepas(p);
@@ -3533,24 +3762,33 @@ const CONTROLES = {
     pb.push(egal(['Banane · 1 pièce | 90 kcal'], await liste(p), 'Favoris'));
     await p.click('[data-source="recents"]');
     // Banane : deux portions, au repas de l'heure (10 h : midi).
+    pb.push(egal(['Récents', 'Favoris', '+ Aliment libre'], (await p.locator('.nu-sources button').allTextContents()).map(norm), 'sources : Récents, Favoris, Aliment libre'));
     await p.click('.nu-aliment >> nth=0');
     const qte = async () => p.inputValue('.nu-qte');
+    pb.push(egal([0, 0, true, 'Banane · 1 pièce'], [await p.locator('.nu-feuille .nu-sources').count(), await p.locator('.nu-feuille .nu-recherche').count(), await p.locator('.nu-retour').isVisible(), norm(await p.locator('.nu-choix-nom').textContent())],
+      'étape 2 : l\'aliment seul, sans la recherche ni les listes ; « ‹ » proposé'));
+    await p.click('[data-act="retour"]');
+    pb.push(egal([1, 0, false], [await p.locator('.nu-feuille .nu-sources').count(), await p.locator('.nu-choix').count(), await p.locator('.nu-retour').isVisible()], '« ‹ » : retour à la recherche et aux listes'));
+    await p.click('.nu-aliment >> nth=0');
     pb.push(egal(['1', 'midi'], [await qte(), await p.locator('.nu-repas-choix [aria-pressed="true"]').getAttribute('data-repas')], 'choix : une portion, repas d\'après l\'heure'));
     await p.click('[data-act="plus"]'); await p.click('[data-act="plus"]'); await p.click('[data-act="moins"]'); await p.click('[data-act="plus"]');
     pb.push(egal(['2', '2 portions'], [await qte(), norm(await p.locator('.nu-quantite .nu-unite').textContent()).replace(/^/, '2 ')], 'quantité par pas de 0,5'));
+    pb.push(egal(['180 kcal · P 2 g · G 40 g · L 1 g', 'Ajouter · 180 kcal', ['Quantité', 'Repas'], 1], [norm(await p.locator('.nu-apercu').textContent()), norm(await p.locator('.nu-ajouter').textContent()), (await p.locator('.nu-choix-l').allTextContents()).map(norm), await p.locator('.nu-choix-tete .nu-fav').count()],
+      'étape 2 : aperçu de la quantité, total dans le bouton, libellés Quantité et Repas, Favori à côté du nom'));
+    if (CAPTURES) { const vp = p.viewportSize(); await p.setViewportSize({ width: 390, height: 844 }); await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-ajout-etape2.png') }); await p.setViewportSize(vp); }
     await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
     pb.push(egal([['POST', 'repas_lignes', { date: '2026-10-20', repas: 'midi', aliment: ID(1), nom: 'Banane', quantite: 2, kcal: 180, proteines: 2, glucides: 40, lipides: 0.6 }], ['PATCH', 'aliments', ['dernier_usage'], '?id=eq.' + ID(1)]],
       d.ecritures.map(e => e.methode === 'POST' ? [e.methode, e.table, sansId(e)] : [e.methode, e.table, Object.keys(e.corps), e.filtres]), 'Ajouter : la ligne figée et le dernier usage de l\'aliment'),
       egal('kcal | sous | 530 | Reste 1 587 kcal | Besoin 2 117 kcal', (await jauges(p))[0], 'anneau des calories après l\'ajout'),
       egal(['Petit-déj 90 kcal', 'Midi 440 kcal'], await groupes(p), 'journal après l\'ajout'),
-      egal(['Banane ajouté · midi', 1], [norm(await p.locator('.nu-ok').textContent()), await p.locator('.nu-feuille').count()], 'feuille : l\'ajout confirmé, la feuille reste ouverte'));
+      egal([0, 1], [await p.locator('.nu-ok').count(), await p.locator('.nu-feuille').count()], 'feuille : plus de message « ajouté », la feuille reste ouverte'));
     d.ecritures.length = 0;
     await fermerF(p);
     pb.push(egal(0, await p.locator('.nu-journal li .mrt-rond').count(), 'journal : aucun rond au bout des lignes'));
     await p.locator('.nu-ligne:has-text("Banane")').last().click();
     await p.waitForSelector('.nu-modifier');
-    await p.click('.nu-modifier [data-f="supprimer"]');
+    await p.click('.nu-modifier [data-act="supprimer"]');
     pb.push(egal(['Supprimer cette ligne ?', 0], [norm(await p.locator('.mrt-dialogue p').textContent()), d.ecritures.length], 'Supprimer : la question du site, rien d\'écrit avant la réponse'));
     await p.click('.mrt-dialogue [data-r="oui"]');
     await p.waitForFunction(() => document.querySelectorAll('.nu-lignes li').length === 2);
@@ -3564,6 +3802,10 @@ const CONTROLES = {
     pb.push(egal(['La quantité doit être comprise entre 1 et 5 000 g.', 0], [norm(await p.locator('.nu-ajout .nu-msg').textContent()), d.ecritures.length], 'quantité nulle refusée'));
     await p.fill('.nu-qte', '200'); await p.click('[data-act="moins"]');
     pb.push(egal('190', await qte(), '« − » : 10 g de moins'));
+    pb.push(egal('247 kcal · P 5 g · G 53 g · L 1 g', norm(await p.locator('.nu-apercu').textContent()), 'aperçu de 190 g de riz'));
+    await p.fill('.nu-qte', '200');
+    pb.push(egal(['260 kcal · P 5 g · G 56 g · L 1 g', 'Ajouter · 260 kcal'], [norm(await p.locator('.nu-apercu').textContent()), norm(await p.locator('.nu-ajouter').textContent())], 'aperçu à la frappe, sans redessiner'));
+    await p.fill('.nu-qte', '190');
     await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
     pb.push(egal({ date: '2026-10-20', repas: 'midi', aliment: ID(2), nom: 'Riz cuit', quantite: 1.9, kcal: 247, proteines: 5.1, glucides: 53.2, lipides: 0.6 }, sansId(d.ecritures[0]), '190 g de riz : 1,9 fois les valeurs pour 100 g'),
@@ -3632,6 +3874,8 @@ const CONTROLES = {
       pb.push(egal([['Yaourt nature · Marque C | 53 kcal / 100 g'], [{ q: 'yaourt' }], 0], [await p2.evaluate(() => [...document.querySelectorAll('.nu-off .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | '))), appels, ancien.length], 'relais : les produits, sans l\'ancien moteur'));
       await p2.click('.nu-off .nu-aliment >> nth=0');
       pb.push(egal('125', await p2.inputValue('.nu-qte'), 'relais : la portion habituelle du produit'));
+      await p2.click('[data-act="retour"]');
+      pb.push(egal(['yaourt', 1], [await p2.inputValue('.nu-recherche [name="q"]'), await p2.locator('.nu-off .nu-aliment').count()], '« ‹ » : la recherche et ses résultats retrouvés'));
       await p2.fill('.nu-recherche [name="q"]', 'skyr'); await p2.fill('.nu-recherche [name="q"]', 'yaourt'); await p2.press('.nu-recherche [name="q"]', 'Enter');
       await p2.waitForSelector('.nu-off .nu-aliment');
       pb.push(egal(1, appels.length, 'recherche déjà faite : gardée, aucun nouvel appel'));
@@ -3712,7 +3956,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     const ligneS = i => p.locator('.nu-sport-l').nth(i);
     await ouvrirActivite(p);
-    pb.push(egal(['Activité', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
+    pb.push(egal(['Ajouter une activité', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
     pb.push(egal([false, false, true], await p.evaluate(() => { const o = [...document.querySelectorAll('.nu-feuille .nu-sport-l [name="type"] option')].map(x => x.value); return [o.includes('j95'), o.includes('muscu'), o.includes('v2')]; }), 'autres sports : ni course ni renforcement (ils viennent du Calendrier)'));
     await ligneS(0).locator('[name="type"]').selectOption('v2');
     await ligneS(0).locator('[name="heures"]').fill('1');
@@ -3739,11 +3983,13 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     await p.click('.nu-ligne:has-text("Riz cuit")');
     await p.waitForSelector('.nu-modifier');
-    pb.push(egal(['Modifier · Riz cuit', '200', 'midi'], [norm(await p.locator('.nu-modifier .pf-titre').textContent()), await p.inputValue('.nu-modifier .nu-qte'), await p.locator('.nu-modifier [data-r][aria-pressed="true"]').getAttribute('data-r')], 'Modifier : la quantité et le repas de la ligne'));
-    await p.click('.nu-modifier [data-f="annuler"]');
+    pb.push(egal(['Riz cuit', '200', 'midi', true, true], [norm(await p.locator('.nu-modifier .cal-panneau-titre').textContent()), await p.inputValue('.nu-modifier .nu-qte'), await p.inputValue('.nu-modifier select[name="repas"]'),
+      await p.evaluate(() => !!document.querySelector('.cal-voile > .cal-panneau.nu-modifier .cal-barre [data-act="annuler"]')), await p.evaluate(() => !!document.querySelector('.nu-modifier .cal-bas [data-act="supprimer"]'))],
+      'Modifier : fenêtre d\'une séance du Calendrier, titre sans « Modifier », repas en liste'));
+    await p.click('.nu-modifier [data-act="annuler"]');
     pb.push(egal([0, 0], [await p.locator('.nu-modifier').count(), d.ecritures.length], 'Annuler : fenêtre fermée, rien d\'écrit'));
     await p.click('.nu-ligne:has-text("Riz cuit")');
-    await p.fill('.nu-modifier .nu-qte', '100'); await p.click('.nu-modifier [data-r="soir"]');
+    await p.fill('.nu-modifier .nu-qte', '100'); await p.selectOption('.nu-modifier select[name="repas"]', 'soir');
     await p.click('.nu-modifier [type="submit"]');
     await p.waitForSelector('.nu-modifier', { state: 'detached' });
     pb.push(egal([['PATCH', 'repas_lignes', { repas: 'soir', quantite: 1, kcal: 130, proteines: 2.7, glucides: 28, lipides: 0.3 }, '?id=eq.' + ID(4)]], d.ecritures.map(e => [e.methode, e.table, e.corps, e.filtres]), 'Enregistrer : 100 g au soir, valeurs figées à la nouvelle quantité'),
@@ -3754,7 +4000,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     pb.push(egal('2 712 kcal', await kcal(p), 'activités lues dans la base'));
     await p.click('.nu-activites .nu-ligne:has-text("Marche")');
-    await p.click('.nu-modifier [data-f="supprimer"]');
+    await p.click('.nu-modifier [data-act="supprimer"]');
     pb.push(egal('Supprimer cette activité ?', norm(await p.locator('.mrt-dialogue p').textContent()), 'Supprimer une activité : la question du site'));
     await p.click('.mrt-dialogue [data-r="oui"]');
     await p.waitForSelector('.nu-modifier', { state: 'detached' });
@@ -3768,6 +4014,8 @@ const CONTROLES = {
     await p.click('[data-act="veille"]');
     await p.waitForFunction(() => /Lundi 19 octobre/.test(document.querySelector('.nu-jour-t').textContent));
     pb.push(egal([false, 1, 0, 'kcal | sous | 0 | Reste 2 117 kcal | Besoin 2 117 kcal'], [await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count(), await p.locator('.nu-journal li').count(), (await jauges(p))[0]], 'veille : son journal (vide), jour suivant et « Aujourd\'hui » proposés'));
+    pb.push(egal([true, true, 0], await p.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(), j = r('.nu-jour'), t = r('.nu-jour-t'), d = r('[data-act="lendemain"]'), a = r('[data-act="aujourdhui"]');
+      return [a.left >= d.right && Math.abs(a.top - d.top) < 2, Math.abs((t.left + t.right) / 2 - (j.left + j.right) / 2) < 2, document.querySelectorAll('.nu-auj, .mrt-lien[data-act="aujourdhui"]').length]; }), '« » » rond à droite de « › », jour centré, plus de lien « Aujourd\'hui »'));
     await ouvrirRepas(p);
     await p.click('.nu-aliment:has-text("Banane")'); await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
@@ -3802,6 +4050,16 @@ const CONTROLES = {
     await p.click('.nu-feuille [data-act="ajout-seance"]');
     await p.waitForSelector('.cal-voile .cal-seance');
     pb.push(egal(['Ajouter une séance', '2026-10-20', 'run'], [norm(await p.locator('.cal-voile .cal-panneau-titre').textContent()), await p.inputValue('.cal-voile [name="date"]'), await p.inputValue('.cal-voile [name="type"]')], 'Ajouter une séance : la fenêtre du Calendrier, au jour de la page'));
+    {
+      const vp = p.viewportSize();
+      await p.setViewportSize({ width: 390, height: 844 });
+      pb.push(egal([false, true, true, true], await p.evaluate(() => {
+        const pan = document.querySelector('.cal-voile .cal-panneau').getBoundingClientRect(), champs = [...document.querySelectorAll('.cal-voile .cal-champs3 .mrt-champ')].map(c => Math.round(c.getBoundingClientRect().top));
+        return [/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName), pan.width === innerWidth && pan.height === innerHeight, champs.length === 3 && champs.every(t => t === champs[0]), document.activeElement.classList.contains('cal-panneau')];
+      }), 'téléphone : aucun champ pris à l\'ouverture (pas de clavier), fenêtre plein écran, durée, distance et intensité alignées'));
+      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'seance-telephone.png') });
+      await p.setViewportSize(vp);
+    }
     await p.fill('.cal-voile [name="libelle"]', 'Fractionné'); await p.fill('.cal-voile [name="duree"]', '40'); await p.fill('.cal-voile [name="distance"]', '8');
     await p.click('.cal-voile [type="submit"]');
     await p.waitForSelector('.cal-voile', { state: 'detached' });
@@ -3839,17 +4097,17 @@ const CONTROLES = {
     pb.push(egal('2 657 kcal', await kcal(p), 'sans distance, VMA 15 : facile, 65 % de la VMA'));
     await ctx.close();
 
-    // Bloc d'En un coup d'œil : deuxième, quand Nutrition est dans le menu ; bilan, trois jauges simplifiées sur une ligne, bouton « Détail ».
+    // Bloc d'En un coup d'œil : deuxième, quand Nutrition est dans le menu ; bilan, trois jauges simplifiées sur une ligne, lien « Détail → ».
     d = base(); d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));
     await p.waitForSelector('.nu-ac-bilan');
     if (CAPTURES) await p.locator('[data-bloc="nutrition"]').screenshot({ path: path.join(__dirname, 'captures', 'accueil-nutrition.png') });
-    pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]')[1].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position'),
+    pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]')[2].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position (après « Aujourd\'hui » et la prochaine course)'),
       egal(['350 / 2 117 kcal', ['p|sous|6 g|Reste 92 g', 'g|sous|76 g|Reste 189 g', 'l|sous|1 g|Reste 58 g']],
         [norm(await p.locator('.nu-ac-bilan').textContent()), await p.evaluate(() => [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => [j.dataset.jauge, j.dataset.etat, j.querySelector('.nu-anneau-v').textContent, j.querySelector('.nu-jauge-reste').textContent].join('|').replace(/\s+/g, ' ')))], 'Accueil : bilan du jour, puis protéines, glucides, lipides en anneaux avec « Reste »'),
       egal([0, 1], await p.evaluate(() => { const t = [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => Math.round(j.getBoundingClientRect().top)); return [t[2] - t[0], new Set(t).size]; }), 'Accueil : les trois anneaux sur une ligne, téléphone compris'),
       egal(0, await p.locator('[data-bloc="nutrition"] .mrt-pastille').count(), 'Accueil : plus d\'aliments en pastilles'),
-      egal(['Détail', 'nutrition.html', true], await p.evaluate(() => { const a = document.querySelector('[data-bloc="nutrition"] .ac-titre a'); return [a.textContent, a.getAttribute('href'), a.classList.contains('mrt-btn')]; }), 'Accueil : « Détail », bouton commun du site'),
+      egal(['Détail →', 'nutrition.html', false], await p.evaluate(() => { const a = document.querySelector('[data-bloc="nutrition"] .ac-titre a'); return [a.textContent, a.getAttribute('href'), a.classList.contains('mrt-btn')]; }), 'Accueil : « Détail → », lien de titre comme « Feuille de route → »'),
       egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'Accueil : pas de débordement horizontal'));
     await ctx.close();
     d = base();
@@ -3860,6 +4118,13 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));
     pb.push(egal('Complète ton profil sur la page Nutrition.', norm(await p.locator('[data-bloc="nutrition"] .ac-vide').textContent()), 'Accueil : profil incomplet'));
     await ctx.close();
+    // Saisies rapides d'En un coup d'œil : ?ajout=repas ou ?ajout=activite ouvre la feuille d'emblée, l'adresse est nettoyée.
+    for (const [q, sel] of [['repas', '.nu-feuille .nu-source, .nu-feuille .nu-recherche'], ['activite', '.nu-feuille .nu-sport-l']]) {
+      const o = await ouvrir(nav, 'nutrition.html?ajout=' + q, 1200, base(), {}, {});
+      await o.p.waitForSelector('.nu-feuille ' + (q === 'repas' ? '.nu-ajout' : '.nu-sport-l'));
+      pb.push(egal([1, false], [await o.p.locator('.nu-feuille').count(), /ajout=/.test(o.p.url())], '?ajout=' + q + ' : la feuille s\'ouvre aussitôt, adresse nettoyée'));
+      await o.ctx.close();
+    }
     return pb;
   },
   // Repasse d'uniformité (design, § 1 et 3) : tailles de l'échelle, libellés en graisse normale, « 1er », confirmations du site,
@@ -3879,7 +4144,7 @@ const CONTROLES = {
       return [...vu].sort();
     });
     for (const [page, quoi] of [['index.html', 'Accueil'], ['objectif.html', 'Objectif'], ['course.html?id=' + id(3), 'page d\'une course'], ['palmares.html', 'Palmarès'],
-      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'À surveiller'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition']]) {
+      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition']]) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);
         if (page.startsWith('course.html')) await o.p.waitForSelector('.mc-panneau .pc-titre');
@@ -3895,6 +4160,7 @@ const CONTROLES = {
     // Lien d'action et crayon : zone de toucher de 2 rem au moins (marge invisible).
     await o.ctx.close();
     o = await ouvrir(nav, 'preferences.html', 390, db, {}, PARIS, { mobile: true });
+    await o.p.click('#bloc-menu .pref-reorg');
     pb.push(egal(true, await o.p.evaluate(() => { const l = document.querySelector('.pref-defaut'); l.scrollIntoView({ block: 'center' }); const r = l.getBoundingClientRect();
       return document.elementFromPoint(r.left + r.width / 2, r.top - 5) === l && document.elementFromPoint(r.left + r.width / 2, r.bottom + 5) === l; }), 'lien d\'action : zone de toucher débordant de son texte'));
     await o.ctx.close();
@@ -3935,6 +4201,59 @@ const CONTROLES = {
     const tous = [true, true, true, true];
     pb.push(egal({ 'bleu-orange': tous, 'vert-rose': tous, 'violet-turquoise': tous, 'blanc-orange': tous, 'noir-orange': tous }, contrastes,
       'contrastes : Alerte, Texte discret (cadre et case du Calendrier), contour des champs, dans les cinq thèmes'));
+    await o.ctx.close();
+    return pb;
+  },
+  // Repasse de vocabulaire (design, § 12 « Glossaire ») : une notion = un mot. Les anciens mots n'apparaissent plus dans aucun texte
+  // affiché (libellés, boutons, infobulles, champs) ; le nom de l'onglet ouvert est celui du titre de la page.
+  async vocabulaire(nav, db0) {
+    const { db, id } = jeuObjectif(db0);
+    const pb = [];
+    const INTERDITS = [/(Objectif (&|&amp;) plan|Plan (&|&amp;) objectifs)/, /Feuille de route/, /Périodicité/, /Déjà couru/, /Musculation/, /Effacer/, /Rétablir/, /Recalculer/, /Créer/,
+      /[Cc]andidat/, /\bprépa\b/i, /[Pp]lan de saison/, /Saison :/, /\b(mon|ton|son|ta|sa) site\b/i, /\bsite (de|partagé)\b/, /Sauvegarder/, /Éditer/, /Sorties par/, /Renforcements par/,
+      /^Dossard$/i, /^Cap$/, /^Mon profil$/, /^Modifier$/, /Fermer la fiche/];
+    const textes = p => p.evaluate(() => {
+      const out = new Set();
+      document.querySelectorAll('h1,h2,h3,h4,summary,button,a,label,legend,option,th,[aria-label],[title],[placeholder]').forEach(e => {
+        if (e.closest('.leaflet-container')) return;
+        [e.childElementCount ? '' : e.textContent, e.getAttribute('aria-label'), e.getAttribute('title'), e.getAttribute('placeholder')].forEach(t => { t = (t || '').replace(/\s+/g, ' ').trim(); if (t) out.add(t); });
+        if (e.childElementCount && /^(H[1-4]|SUMMARY|BUTTON|A|LABEL|LEGEND|TH)$/.test(e.tagName)) out.add(e.textContent.replace(/\s+/g, ' ').trim());
+      });
+      return [...out];
+    });
+    const interdits = async (p, quoi) => {
+      const trouves = (await textes(p)).filter(t => INTERDITS.some(r => r.test(t)));
+      pb.push(egal([], trouves, quoi + ' : aucun ancien mot dans les textes affichés'));
+    };
+    const PAGES = [['index.html', 'En un coup d\'œil'], ['objectif.html', 'Saison'], ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'],
+      ['courses-a-surveiller.html?vue=tout', 'À surveiller'], ['palmares.html', 'Palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Préparation'],
+      ['nutrition.html', 'Nutrition'], ['course.html?id=' + id(3), 'page d\'une course']];
+    for (const [page, quoi] of PAGES) {
+      for (const w of [1200, 390]) {
+        const o = await ouvrir(nav, page, w, db, {}, PARIS);
+        if (page.startsWith('course.html')) await o.p.waitForSelector('.mc-panneau .pc-titre');
+        await interdits(o.p, quoi + ' (' + w + ' px)');
+        if (w === 1200) {
+          // L'onglet de la page ouverte porte le nom du titre de la page.
+          const [onglet, titre] = await o.p.evaluate(() => [(document.querySelector('.mrt-tab.is-on') || {}).textContent, document.title.split(' · ')[0]]);
+          if (onglet && !page.startsWith('course.html') && !page.startsWith('index')) pb.push(egal(titre, onglet.trim(), quoi + ' : onglet et titre de page identiques'));
+          // Un seul titre de page (h1) : celui de l'onglet, invisible sauf pour les lecteurs d'écran (design, § 3).
+          const h1 = await o.p.evaluate(() => [...document.querySelectorAll('h1')].map(h => h.textContent.trim()));
+          pb.push(egal(1, h1.length, quoi + ' : un seul titre de page (h1)'));
+          if (onglet && !page.startsWith('course.html') && !page.startsWith('index')) pb.push(egal(titre, h1[0], quoi + ' : titre de page et onglet identiques'));
+        }
+        await o.ctx.close();
+      }
+    }
+    // La fiche d'une course (modification) et sa confirmation d'abandon.
+    const o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS);
+    await o.p.waitForSelector('.mc-panneau .pc-titre');
+    await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
+    await interdits(o.p, 'fiche d\'une course');
+    await o.p.fill('#fc-lieu', 'Ailleurs');
+    await o.p.click('.fc-barre [data-fc="annuler"]');
+    await o.p.waitForSelector('.mrt-dialogue');
+    pb.push(egal(['Continuer', 'Abandonner'], await o.p.locator('.mrt-dialogue-boutons button').allTextContents(), 'abandon d\'une saisie : « Continuer » / « Abandonner », jamais deux « Annuler »'));
     await o.ctx.close();
     return pb;
   },

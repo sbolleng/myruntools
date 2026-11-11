@@ -16,7 +16,7 @@
   const F = window.mrtFormat;
   // Trois rôles (spécification Préparation, § 3) ; l'ancien « objectif intermédiaire » compte comme un Objectif.
   const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif', objectif: 'Objectif' };
-  const STATUTS_LIB = { a_surveiller: 'À surveiller', option: 'Option', confirmee: 'Confirmée' };
+  const STATUTS_LIB = { a_surveiller: 'Repérée', option: 'Option', confirmee: 'Confirmée' };
   const UNITE = { j: 'j', h: 'h', m: 'min', s: 's' };
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad = n => String(n).padStart(2, '0');
@@ -135,7 +135,7 @@
     return '<div class="ob-lignes">' +
       (dist ? ligne('Distance', '<span class="ob-val">' + esc(dist) + '</span>') : '') +
       (avecObjectif && c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
-      ligne('Dossard', dossardHtml(c)) + '</div>';
+      ligne('Inscription', dossardHtml(c)) + '</div>';
   }
   const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a></' + balise + '>';
   const info = c => (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '');
@@ -150,7 +150,7 @@
     // Rôle du groupe : celui de ses candidats.
     const roles = [...new Set(e.candidats.map(c => ROLES[c.role]))].join(' · ');
     return '<article class="ob-carte ob-groupe"><h3 class="ob-nom">' + esc(e.groupe) + '</h3>' +
-      '<span class="ob-role">' + roles + ' • ' + n + (n > 1 ? ' candidats' : ' candidat') + '</span><div class="ob-cands">' +
+      '<span class="ob-role">' + roles + ' • ' + n + (n > 1 ? ' options' : ' option') + '</span><div class="ob-cands">' +
       e.candidats.map(c => '<div class="ob-cand">' + titre(c, 'h4') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, false) + '</div>').join('') +
       '</div></article>';
   }
@@ -159,6 +159,25 @@
   const PLUS = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const CRAYON = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
   const rond = (act, texte, icone) => '<button type="button" class="ob-rond mrt-rond" data-ob="' + act + '" aria-label="' + texte + '" title="' + texte + '">' + icone + '</button>';
+  // Agenda : un fichier .ics (iCalendar) que le téléphone ou l'ordinateur ajoute à son agenda ; journée entière sans heure de départ, sinon une heure.
+  const AGENDA = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v10h-11z M2.5 6.5h11 M5.5 2v3 M10.5 2v3 M8 8.5v3.5 M6.25 10.25h3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const sansTiret = d => String(d).replace(/-/g, '');
+  const icsTexte = t => String(t || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  function ajouterAgenda(c) {
+    const jour = c.date, h = c.heure ? String(c.heure).slice(0, 5) : '';
+    const fin = d => { const x = new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)) + 1); return x.getFullYear() + pad(x.getMonth() + 1) + pad(x.getDate()); };
+    const quand = h
+      ? 'DTSTART:' + sansTiret(jour) + 'T' + h.replace(':', '') + '00\r\nDURATION:PT1H'
+      : 'DTSTART;VALUE=DATE:' + sansTiret(jour) + '\r\nDTEND;VALUE=DATE:' + fin(jour);
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MyRunTools//FR', 'BEGIN:VEVENT', 'UID:' + c.id + '@myruntools.fr',
+      'DTSTAMP:' + new Date().toISOString().replace(/[-:]|\.\d+/g, ''), 'SUMMARY:' + icsTexte(window.mrtNomCourse(c)),
+      c.lieu ? 'LOCATION:' + icsTexte(c.lieu) : null, quand, 'END:VEVENT', 'END:VCALENDAR'].filter(Boolean).join('\r\n') + '\r\n';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
+    a.download = 'course.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
   const brancher = (el, actions) => el.querySelectorAll('[data-ob]').forEach(b => b.addEventListener('click', () => { if (actions[b.dataset.ob]) actions[b.dataset.ob](); }));
 
   // Une carte seule, comme sur la feuille de route (bloc Prochaine course de l'Accueil).
@@ -317,7 +336,8 @@
     });
     if (parcoursOuvert === c.id && c.gpx) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
     // Parcours renseigné (tracé GPX ou stratégie) : ouvert d'emblée, à l'ouverture de la course (les autres textes restent repliés).
-    else if ((c.gpx || c.strategie) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
+    // Course courue sans tracé : Parcours reste refermé (le bouton d'import s'y trouve), même avec une stratégie.
+    else if ((c.gpx || (c.strategie && c.etat !== 'courue')) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
     el.dataset.pcOuvert = c.id;
   }
 
@@ -333,10 +353,17 @@
     telephone.addEventListener('change', regler);
   }
 
+  // Ouverte depuis la page Courses (ctx.toutOuvert) : tous les blocs sont ouverts à l'ouverture de la course.
+  function toutOuvrir(el, ctx, premier) {
+    if (!ctx || !ctx.toutOuvert || !premier) return;
+    el.querySelectorAll('details.pc-cellule, details.is-montre').forEach(d => { d.open = true; });
+  }
+
   // ctx : données de préparation (séances, phases : composants/preparation.js), ancre demandée (ctx.ancre) et
   // modale (ctx.modale = { fermer } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
+    const premier = el.dataset.pcId !== id;
     // Même course redessinée (séance ajoutée, plan paramétré, tracé importé) : les textes ouverts le restent.
     const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     // Barre du haut de la modale (modale-course.js) : « Modifier » et la croix, à droite.
@@ -347,7 +374,7 @@
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
     const suite = etapes.flatMap(e => (e.course ? [e.course] : e.candidats));
     let i = suite.findIndex(c => c.id === id);
-    // Hors feuille de route (course à surveiller, sans date ou option passée) : la page s'ouvre sans voisines ni numéro d'étape.
+    // Hors feuille de route (course repérée, sans date ou option passée) : la page s'ouvre sans voisines ni numéro d'étape.
     const horsRoute = i < 0 ? courses.find(x => x.id === id && x.etat === 'a_venir') : null;
     if (horsRoute) { suite.push(horsRoute); i = suite.length - 1; }
     if (i < 0) {
@@ -374,7 +401,7 @@
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
       (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
-      (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
+      (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres options' : 'autre option') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (liensHaut.length ? '<p class="pc-liens-haut">' + liensHaut.join('') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
@@ -384,12 +411,13 @@
       // repliée dans le même cadre, le site officiel à sa droite.
       '<div class="ob-lignes pc-fiche">' +
         (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
-        ligne('Date / heure', '<span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>') +
+        ligne('Date / heure', '<span class="pc-datelig"><span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>' +
+          (c.date && !c.date_approx ? '<button type="button" class="mrt-rond is-petit" data-ob="agenda" aria-label="Ajouter à l\'agenda" title="Ajouter à l\'agenda">' + AGENDA + '</button>' : '') + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>' + precisions(c)) : '') +
-        ligne('Dossard', dossardHtml(c, true)) +
+        ligne('Inscription', dossardHtml(c, true)) +
         (c.description || officiel ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
@@ -397,12 +425,13 @@
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
-    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer, agenda: () => ajouterAgenda(c) }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
       importer: () => el.querySelector('.tr-fichier').click() }));
     replierCellules(el);
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
     el.dataset.pcId = id;
     brancherParcours(el, c, ctx);
+    toutOuvrir(el, ctx, premier);
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
     if (ctx.ancre === '#preparation' && !ctx.ancreFaite) {
@@ -428,6 +457,7 @@
   // ctx.ordre() : identifiants des courses du Palmarès, dans l'ordre du tableau (précédente et suivante).
   window.renderPageCourseCourue = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
+    const premier = el.dataset.pcId !== id;
     const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>';
@@ -491,6 +521,7 @@
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
     el.dataset.pcId = id;
     brancherParcours(el, c, ctx);
+    toutOuvrir(el, ctx, premier);
     couperNoms();
     return c;
   };
@@ -510,10 +541,10 @@
       ajouter: extra => ouvrir(null, Object.assign({ mode: 'a_venir' }, extra)),
       // Modifier : la fiche d'édition directement (cartes de Courses à surveiller) ; une course courue s'ouvre dans sa fiche de résultat.
       modifier: id => { const c = trouver(id); if (c) ouvrir(c, { mode: c.etat === 'courue' ? 'courue' : 'a_venir' }); },
-      // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
+      // Le candidat devient Confirmée et quitte le groupe ; les autres passent Repérée, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);
-        if (!c || !(await window.mrtConfirmer({ texte: 'Retenir cette course ? Les autres candidats de « ' + c.groupe_options + ' » passeront à surveiller.', action: 'Retenir' }))) return;
+        if (!c || !(await window.mrtConfirmer({ texte: 'Retenir cette course ? Les autres options de « ' + c.groupe_options + ' » passeront au statut Repérée.', action: 'Retenir' }))) return;
         const db = window.mrtSupabase.from('courses');
         const autres = await db.update({ statut: 'a_surveiller', groupe_options: null }).eq('groupe_options', c.groupe_options).eq('statut', 'option').neq('id', c.id);
         const lui = autres.error ? autres : await window.mrtSupabase.from('courses').update({ statut: 'confirmee', groupe_options: null }).eq('id', c.id);

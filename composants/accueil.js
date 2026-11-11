@@ -20,13 +20,13 @@
     // La prochaine course confirmée de la feuille de route.
     prochaine: courses => {
       const c = window.mrtCoursesRoute(courses).find(x => x.statut === 'confirmee');
-      return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Feuille de route'],
+      return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Saison'],
         c ? '<div class="ac-carte" data-course="' + esc(c.id) + '"></div>' : vide('Aucune course confirmée à venir.'));
     },
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),
     // Le bilan du jour et l'ajout en une touche (nutrition.js, renderNutritionAccueil).
-    // « Détail » : le bouton commun du site (mrt-btn), vers la page Nutrition.
-    nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a class="mrt-btn nu-ac-detail" href="nutrition.html">Détail</a></h2><div class="nu-accueil"></div></section>',
+    // « Détail → » : le lien de titre commun (comme « Feuille de route → »), vers la page Nutrition.
+    nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a href="nutrition.html">Détail →</a></h2><div class="nu-accueil"></div></section>',
     // Les étapes de la feuille de route jusqu'au cap compris.
     dicila: (courses, prefs) => {
       const cap = window.mrtCap(courses, prefs), etapes = [];
@@ -37,7 +37,7 @@
           : '<span class="mrt-pastille ac-etape is-groupe' + (avecCap ? ' is-cap' : '') + '">' + esc(e.groupe) + '</span>');
         if (avecCap) break;
       }
-      return bloc('dicila', 'D\'ici là', null, etapes.length ? '<div class="ac-etapes">' + etapes.join('<i aria-hidden="true">›</i>') + '</div>' : vide('Aucune course à venir.'));
+      return bloc('dicila', 'D\'ici là', window.mrtModulesAffiches(prefs).some(m => m.nom === 'Préparation') ? ['preparation.html', 'Préparation'] : null, etapes.length ? '<div class="ac-etapes">' + etapes.join('<i aria-hidden="true">›</i>') + '</div>' : vide('Aucune course à venir.'));
     },
     // La dernière course courue ; son nom ouvre son résultat (la page de la course, en modale).
     derniere: courses => {
@@ -50,9 +50,53 @@
     }
   };
 
+  // ----- Aujourd'hui : en tête de page, les séances et la course du jour, puis trois saisies rapides -----
+  const pad = n => String(n).padStart(2, '0');
+  const jourIso = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  function aujourdhui(courses, nutrition, prefs) {
+    if (!nutrition || nutrition.lectureSeule) return '';
+    const jour = jourIso(), P = window.mrtPreparation;
+    const seances = (nutrition.seances || []).filter(x => x.date === jour && x.etat !== 'proposee');
+    const courseDuJour = courses.filter(c => c.etat === 'a_venir' && c.date === jour && !c.date_approx && c.statut !== 'a_surveiller');
+    const lignes = courseDuJour.map(c => '<li class="ac-jour-ligne"><span class="ac-jour-type">Course</span><a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a></li>').concat(seances.map(x =>
+      '<li class="ac-jour-ligne"><label><input type="checkbox" data-faite="' + esc(x.id) + '"' + (x.faite ? ' checked' : '') + '> <span class="ac-jour-type">' + esc((P && P.TYPES && P.TYPES[x.type]) || x.type) + '</span> ' +
+      esc(x.libelle || '') + (x.duree_min ? ' · ' + esc(x.duree_min >= 60 ? Math.floor(x.duree_min / 60) + ' h' + (x.duree_min % 60 ? pad(x.duree_min % 60) : '') : x.duree_min + ' min') : '') + '</label></li>'));
+    const avecNutrition = window.mrtModulesAffiches(prefs).some(m => m.nom === 'Nutrition');
+    const plus = window.mrtIcone.plus;
+    const saisies = (avecNutrition ? '<button type="button" class="mrt-btn" data-rapide="repas">' + plus + 'Ajouter un repas</button>' +
+      '<button type="button" class="mrt-btn" data-rapide="activite">' + plus + 'Ajouter une activité</button>' : '') +
+      '<button type="button" class="mrt-btn" data-rapide="course">' + plus + 'Ajouter une course</button>';
+    return '<section class="ac-bloc ac-aujourdhui" data-bloc="aujourdhui"><h2 class="ac-titre"><span>Aujourd\'hui</span><a href="calendrier.html">Calendrier →</a></h2>' +
+      (lignes.length ? '<ul class="ac-jour">' + lignes.join('') + '</ul>' : vide('Rien de prévu aujourd\'hui.')) +
+      '<div class="ac-rapide">' + saisies + '</div></section>';
+  }
+
   // nutrition : { profil, id, semaines, lectureSeule } pour le bloc Nutrition (page index.html).
+  // Pour aller plus loin : un module à cocher (Préparation, Nutrition) qui n'est pas au menu, avec son bouton « Ajouter au menu » ;
+  // le bloc disparaît quand tous sont au menu, et sur le site d'un autre.
+  const decouvrir = (prefs, lectureSeule) => {
+    if (lectureSeule) return '';
+    const affiches = window.mrtModulesAffiches(prefs).map(m => m.nom);
+    const absents = window.mrtModules.filter(m => m.page && m.defaut === false && !affiches.includes(m.nom));
+    if (!absents.length) return '';
+    return '<section class="ac-bloc ac-decouvrir" data-bloc="decouvrir"><h2 class="ac-titre"><span>Pour aller plus loin</span></h2><ul>' + absents.map(m =>
+      '<li><span class="ac-module"><b>' + esc(m.libelle || m.nom) + '</b><span>' + esc(m.aide || '') + '</span></span>' +
+      '<button type="button" class="mrt-btn" data-module="' + esc(m.nom) + '">Ajouter au menu</button></li>').join('') + '</ul></section>';
+  };
+
+  // nutrition : { ..., lectureSeule, ajouterModule(nom) } ; ajouterModule enregistre le choix et redessine la page.
   window.renderAccueil = function (el, courses, prefs, nutrition) {
-    el.innerHTML = '<div class="ac-grille">' + window.mrtBlocsAffiches(prefs).map(b => BLOCS[b.id](courses, prefs)).join('') + '</div>';
+    el.innerHTML = '<div class="ac-grille">' + aujourdhui(courses, nutrition, prefs) + window.mrtBlocsAffiches(prefs).map(b => BLOCS[b.id](courses, prefs)).join('') + decouvrir(prefs, nutrition && nutrition.lectureSeule) + '</div>';
+    el.querySelectorAll('[data-module]').forEach(b => b.addEventListener('click', () => { b.disabled = true; if (nutrition && nutrition.ajouterModule) nutrition.ajouterModule(b.dataset.module); }));
+    el.querySelectorAll('[data-rapide]').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.rapide;
+      if (k === 'course') { if (nutrition && nutrition.ajouterCourse) nutrition.ajouterCourse(); } else location.href = 'nutrition.html?ajout=' + k;
+    }));
+    el.querySelectorAll('[data-faite]').forEach(c => c.addEventListener('change', async () => {
+      const { error } = await window.mrtSupabase.from('seances').update({ faite: c.checked }).eq('id', c.dataset.faite);
+      if (error) { console.warn(error); c.checked = !c.checked; return; }
+      const x = (nutrition.seances || []).find(y => y.id === c.dataset.faite); if (x) x.faite = c.checked;
+    }));
     const carte = el.querySelector('.ac-carte');
     if (carte) window.renderCarteCourse(carte, courses.find(c => c.id === carte.dataset.course));
     const nu = el.querySelector('.nu-accueil');

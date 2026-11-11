@@ -95,7 +95,7 @@
     voile.className = 'pf-voile';
     voile.innerHTML = '<form class="pf-panneau" role="dialog" aria-modal="true" aria-labelledby="pf-titre" novalidate>' +
       '<div class="pf-barre"><button type="button" class="mrt-btn" data-act="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div>' +
-      '<p class="pf-titre" id="pf-titre">Mon profil</p><p class="pf-msg" role="alert"></p>' + TOUS.map(n => champ(n, opts.profil)).join('') + '</form>';
+      '<p class="pf-titre" id="pf-titre">Mes mesures</p><p class="pf-msg" role="alert"></p>' + TOUS.map(n => champ(n, opts.profil)).join('') + '</form>';
     document.body.appendChild(voile);
     const echap = e => { if (e.key === 'Escape') fermer(); };
     const fermer = () => { voile.remove(); document.removeEventListener('keydown', echap); };

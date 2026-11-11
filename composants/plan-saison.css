@@ -3,41 +3,59 @@
 
 .ps-cadre { padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .ps-titre { font-size: var(--t-nom); font-weight: 600; color: var(--text); }
-.ps-titre small { font-size: var(--t-second); font-weight: 400; color: var(--muted); }
-.ps-etat { margin-top: 0.3rem; font-size: var(--t-second); color: var(--muted); }
+.ps-sous { margin-top: 0.2rem; font-size: var(--t-second); color: var(--muted); }
 .ps-vide { font-size: var(--t-texte); color: var(--muted); }
 .ps-course { color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
 .ps-libelle { margin: 1.4rem 0 0.6rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
-/* ----- Frise : une colonne par semaine, la couleur de sa phase, les courses dessous ; défile sur téléphone ----- */
-.ps-frise-defile { margin-top: 1rem; overflow-x: auto; scrollbar-width: thin; }
-.ps-frise { display: grid; grid-template-columns: repeat(var(--n), minmax(0.9rem, 1fr)); gap: 2px; min-width: calc(var(--n) * 0.9rem); }
-.ps-sem { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
-.ps-mois { height: 1.1rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); color: var(--muted); white-space: nowrap; overflow: visible; }
-.ps-ph { height: 1.4rem; border-radius: 2px; background: var(--case); }
-.ps-ph.ph-base { background: var(--ph-base); }
-.ps-ph.ph-developpement { background: var(--ph-developpement); }
-.ps-ph.ph-affutage { background: var(--ph-affutage); }
-.ps-ph.ph-deload { background: var(--ph-deload); }
-.ps-ph.ph-recuperation { background: var(--ph-recuperation); }
-.ps-marques { display: flex; flex-direction: column; align-items: center; min-height: 1.2rem; }
-.ps-marque { font-size: var(--t-libelle); line-height: 1.2rem; text-decoration: none; color: var(--muted); }
+/* ----- Frise : trois rangées sur une grille d'une colonne par semaine (les dates, les phases en segments, les courses) ; liste verticale sur téléphone ----- */
+.ps-frise-zone { margin-top: 1rem; }
+.ps-frise-barre { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.ps-frise-defile { margin-top: 0.8rem; padding-bottom: 0.4rem; overflow-x: auto; scrollbar-width: thin; }
+.ps-frise { --seg-h: 3rem; display: grid; grid-template-columns: repeat(var(--n), minmax(1.6rem, 1fr)); grid-template-rows: auto var(--seg-h) auto auto; gap: 0 2px; min-width: calc(var(--n) * 1.6rem + (var(--n) - 1) * 2px); }
+.ps-date { grid-row: 1; padding-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); color: var(--muted); white-space: nowrap; overflow: hidden; }
+.ps-seg { grid-row: 2; display: flex; align-items: center; justify-content: center; min-width: 0; padding: 0 0.3rem; overflow: hidden; font-size: var(--t-texte); font-weight: 600; color: var(--bg); white-space: nowrap; text-overflow: ellipsis; background: var(--case); border-radius: 6px; }
+.ps-seg.ph-base { background: var(--ph-base); }
+.ps-seg.ph-developpement { background: var(--ph-developpement); }
+.ps-seg.ph-affutage { background: var(--ph-affutage); }
+.ps-seg.ph-deload { background: var(--ph-deload); }
+.ps-seg.ph-recuperation { background: var(--ph-recuperation); }
+.ps-seg.ph-entretien { color: var(--muted); font-weight: 400; }
+/* Courses : le signe puis le nom et la date, écrits sous la phase ; une rangée sur deux pour ne pas se chevaucher. */
+.ps-marque-c { padding-top: 0.3rem; min-width: 0; overflow: visible; }
+.ps-marque-c.is-fin { text-align: right; }
+.ps-marque-c.is-fin .ps-marque { flex-direction: row-reverse; }
+.ps-bloc { margin-top: 1.4rem; }
+.ps-marque { display: inline-flex; align-items: baseline; gap: 0.3rem; font-size: var(--t-second); line-height: 1.3; text-decoration: none; white-space: nowrap; color: var(--muted); }
+.ps-marque b { font-size: var(--t-texte); font-weight: 400; }
 .ps-marque.r-objectif { color: var(--accent); }
 .ps-marque.r-preparatoire { color: var(--text); }
-.ps-marque.is-option { color: transparent; -webkit-text-stroke: 1px var(--muted); }
-.ps-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.6rem; font-size: var(--t-libelle); color: var(--text); }
+.ps-marque.r-plaisir { color: var(--muted); }
+.ps-marque.is-option b { color: transparent; -webkit-text-stroke: 1px var(--muted); }
+.ps-marque-nom { color: var(--text); }
+.ps-legende { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.8rem; font-size: var(--t-libelle); color: var(--text); }
 .ps-legende span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.ps-legende .ps-marque { gap: 0; }
 .ps-legende .cal-k { display: inline-block; width: 1.1rem; height: 0.75rem; border-radius: 2px; }
+/* Téléphone : une ligne par phase, la courses sous sa phase. */
+.ps-liste { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.8rem 0 0; padding: 0; list-style: none; }
+.ps-run { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.2rem 0.6rem; padding: 0.6rem 0.8rem; background: var(--case); border-radius: 8px; }
+.ps-run .cal-k { width: 0.9rem; height: 0.9rem; border-radius: 3px; }
+.ps-run-nom { font-size: var(--t-texte); font-weight: 600; color: var(--text); }
+.ps-run-dates { font-size: var(--t-second); color: var(--muted); text-align: right; }
+.ps-run .ps-marque { grid-column: 2 / -1; }
+/* Plein écran (ordinateur) : la frise prend la place, plus haute. */
+.ps-frise-zone:fullscreen { display: flex; flex-direction: column; justify-content: center; }
+.ps-frise-zone:fullscreen .ps-frise { --seg-h: 5rem; }
 
-/* ----- Alertes ----- */
-.ps-alertes ul { display: flex; flex-direction: column; gap: 0.35rem; padding: 0; list-style: none; }
-.ps-alerte { padding: 0.5rem 0.7rem; font-size: var(--t-second); color: var(--text); border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 4px 4px 0; }
+/* ----- Alertes : dans le bloc de la recommandation, seulement s'il y en a ----- */
+.ps-alertes { display: flex; flex-direction: column; gap: 0.35rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
+.ps-alerte { padding: 0.45rem 0.7rem; font-size: var(--t-second); color: var(--text); border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 4px 4px 0; }
+.ps-alerte .ps-course { font-weight: 600; }
+.ps-seul { margin-bottom: 1rem; }
 
 @media (hover: hover) {
   .ps-course:hover, .ps-marque:hover { color: var(--accent); }
-}
-@media (max-width: 600px) {
-  .ps-frise { grid-template-columns: repeat(var(--n), 0.9rem); }
 }
 
 /* ----- Profil d'entraînement : bouton et état en tête de page ; fenêtre : une liste groupée, une question par écran ----- */
@@ -62,9 +80,11 @@
 .ps-choix.is-on { font-weight: 600; color: var(--accent); }
 .ps-choix.is-on i { visibility: visible; }
 /* Ma semaine : une question par bloc, ses réponses en pastilles (plusieurs pour les jours). */
-.ps-sem-q { margin-top: 1rem; }
-.ps-sem-q .cal-champ { margin-bottom: 0.45rem; }
-.ps-chiffres { display: grid; grid-template-columns: repeat(2, minmax(0, 12rem)); align-items: end; gap: 0 0.8rem; margin-top: 1rem; }
+.ps-sem-q { padding: 0.8rem 0.9rem; }
+.ps-sem-q + .ps-sem-q { border-top: 1px solid var(--surface); }
+.ps-sem-q .cal-champ { margin-bottom: 0.5rem; }
+.ps-chiffre { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; font-size: var(--t-texte); color: var(--text); }
+.ps-chiffre .mrt-champ { width: 4.5rem; text-align: center; }
 .ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .ps-valeur { margin-top: 1rem; }
 .ps-valeur .mrt-btn { margin-top: 0.2rem; }
@@ -89,3 +109,15 @@
 .cal-v-rep { display: block; font-size: var(--t-micro); color: var(--muted); }
 .cal-v-prop { display: block; min-width: 0; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); line-height: 1.35; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px dashed var(--accent); border-radius: 3px; }
 @media (max-width: 600px) { .ps-prop-liste { display: flex; } }
+/* Plans des courses : une ligne par course, le bouton « Paramétrer le plan » à droite. */
+.ps-plans-liste { display: flex; flex-direction: column; gap: 0.5rem; }
+.ps-plans-liste li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; }
+.ps-plan-nom { font-weight: 600; font-size: var(--t-texte); }
+.ps-plan-info { flex: 1 1 12rem; font-size: var(--t-second); color: var(--muted); }
+/* Téléphone : le nom, puis sa date et son rôle, puis le bouton ; un filet entre deux courses (rien ne se coupe au milieu d'une ligne). */
+@media (max-width: 600px) {
+  .ps-plans-liste li { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
+  .ps-plans-liste li + li { padding-top: 0.6rem; border-top: 1px solid var(--border); }
+  .ps-plans-liste .mrt-btn { margin-top: 0.4rem; }
+  .ps-plan-info { flex: none; }
+}

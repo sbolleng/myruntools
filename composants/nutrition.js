@@ -183,6 +183,11 @@
   function duree(h) { const m = Math.round(h * 60), hh = Math.floor(m / 60), mm = m % 60; return hh ? hh + ' h' + (mm ? ' ' + pad(mm) : '') : mm + ' min'; }
 
 
+  // Pictos des cases Activité et Repas : dessinés en trait fin, comme les icônes du site.
+  const picto = d => '<svg class="nu-tuile-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const PICTO_HALTERE = picto('M3 10v4M6 7.5v9M18 7.5v9M21 10v4M6 12h12');
+  const PICTO_ASSIETTE = picto('M12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9M12 4.5a7.5 7.5 0 1 0 0 15a7.5 7.5 0 1 0 0-15M2.5 4v6.5M1.5 4v3.5h2V4M2.5 10.5v9.5M21.5 4c-1.4 1.4-1.6 4.5-1.6 6.5h1.6v9.5');
+
   // ----- Jauges en anneau -----
   // Sous le minimum : « Reste … » ; entre le minimum et le maximum : « Dans la cible » ; au-delà : « Dépassé de … ».
   const R = 42, C = 2 * Math.PI * R;
@@ -237,7 +242,7 @@
     // ----- Carte du besoin : le jour, le besoin, la phase, le profil du calcul, les jauges, puis Activité et Repas -----
     function htmlProfil() {
       const p = ctx.profil, act = (B.ACTIVITES[p.activite].libelle || '').split(' · ')[0].toLowerCase();
-      return [virgule(Number(p.poids)) + ' kg', p.taille + ' cm', act].join(' · ') + ' ›';
+      return [p.sexe === 'femme' ? 'F' : 'H', virgule(Number(p.poids)) + ' kg', p.taille + ' cm', act].join(' · ') + ' ›';
     }
 
     const ligneSport = s => '<div class="nu-sport-l"><select class="mrt-champ" name="type" aria-label="Sport"><option value="">Sport…</option>' +
@@ -245,15 +250,17 @@
       '<span class="nu-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s && s.heures ? virgule(s.heures) : '') + '">h</span></div>';
     function htmlBesoin() {
       const estAuj = S.jour === aujourdhui;
-      return '<div class="nu-jour"><button type="button" class="mrt-rond" data-act="veille" aria-label="Jour précédent">' + mrtIcone.gauche + '</button>' +
+      // « » » à droite de « › », un autre jour que le jour même ; une cale de même taille à gauche garde le jour centré.
+      const AUJ = '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5L8 8l-4.5 4.5M8.5 3.5L13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      return '<div class="nu-jour"><span class="nu-jour-cale" aria-hidden="true"></span><button type="button" class="mrt-rond" data-act="veille" aria-label="Jour précédent">' + mrtIcone.gauche + '</button>' +
         '<h2 class="nu-jour-t">' + titreJour(S.jour) + '</h2>' +
-        '<button type="button" class="mrt-rond" data-act="lendemain" aria-label="Jour suivant"' + (estAuj ? ' disabled' : '') + '>' + mrtIcone.droite + '</button></div>' +
-        (estAuj ? '' : '<p class="nu-auj"><button type="button" class="mrt-lien" data-act="aujourdhui">Aujourd\'hui</button></p>') +
+        '<button type="button" class="mrt-rond" data-act="lendemain" aria-label="Jour suivant"' + (estAuj ? ' disabled' : '') + '>' + mrtIcone.droite + '</button>' +
+        (estAuj ? '<span class="nu-jour-cale" aria-hidden="true"></span>' : '<button type="button" class="mrt-rond" data-act="aujourdhui" aria-label="Aujourd\'hui" title="Aujourd\'hui">' + AUJ + '</button>') + '</div>' +
         '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal</p><p class="nu-phase"></p>' +
         '<p class="nu-calcule"><button type="button" class="mrt-lien nu-profil-l" data-act="profil">Calculé pour ' + esc(htmlProfil()) + '</button></p>' +
         '<div class="nu-anneaux"></div>' +
-        '<div class="nu-tuiles"><button type="button" class="nu-tuile" data-act="activite"><span class="nu-tuile-l">Activité</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button>' +
-        '<button type="button" class="nu-tuile" data-act="ajout-repas"><span class="nu-tuile-l">Repas</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button></div>' +
+        '<div class="nu-tuiles"><button type="button" class="nu-tuile" data-act="activite">' + PICTO_HALTERE + '<span class="nu-tuile-l">Activité</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button>' +
+        '<button type="button" class="nu-tuile" data-act="ajout-repas">' + PICTO_ASSIETTE + '<span class="nu-tuile-l">Repas</span><span class="nu-tuile-v">' + mrtIcone.plus + 'Ajouter</span></button></div>' +
         '<p class="nu-msg nu-msg-sport" role="alert">' + esc(S.msgSport) + '</p>';
     }
     // Feuille Activité : les séances du jour (celles du Calendrier, sa fenêtre pour les ajouter ou les modifier), puis les autres sports.
@@ -291,20 +298,40 @@
       return '<form class="nu-recherche" role="search"><input class="mrt-champ" type="search" name="q" placeholder="Rechercher un aliment…" aria-label="Rechercher un aliment" value="' + esc(S.recherche.texte) + '" autocomplete="off" enterkeyhint="search">' +
         '<button type="submit" class="mrt-btn">Chercher</button></form><div class="nu-resultats"><div class="nu-mes">' + htmlMes() + '</div><div class="nu-produits">' + htmlProduits() + '</div></div>';
     }
+    // Aperçu de la quantité saisie : calories et macros, comme elles seront figées à l'ajout.
+    function apercu(a, q0) {
+      if (!(q0 > 0)) return null;
+      const k = enGrammes(a) ? q0 / 100 : q0, v = c => Math.round((Number(a[c]) || 0) * k);
+      return { kcal: v('kcal'), p: v('proteines'), g: v('glucides'), l: v('lipides') };
+    }
+    const texteApercu = x => x ? n0(x.kcal) + ' kcal · P ' + x.p + ' g · G ' + x.g + ' g · L ' + x.l + ' g' : '';
+    const texteAjouter = x => 'Ajouter' + (x ? ' · ' + n0(x.kcal) + ' kcal' : '');
+    function majApercu() {
+      const a = choisi(), z = zoneAjout();
+      if (!a || !z || !z.querySelector('.nu-apercu')) return;
+      const x = apercu(a, lireQuantite());
+      z.querySelector('.nu-apercu').textContent = texteApercu(x);
+      z.querySelector('.nu-ajouter').textContent = texteAjouter(x);
+    }
     function htmlChoix() {
       const a = choisi();
       if (!a) return '';
-      const g = enGrammes(a);
-      return '<div class="nu-choix"><p class="nu-choix-nom">' + detail(a) + '</p>' +
+      const g = enGrammes(a), x = apercu(a, S.choix.quantite);
+      return '<div class="nu-choix"><div class="nu-choix-tete"><div><p class="nu-choix-nom">' + detail(a) + '</p><p class="nu-choix-k">' + kcalDe(a) + '</p></div>' +
+        '<button type="button" class="mrt-rond nu-fav" data-act="favori" aria-pressed="' + !!a.favori + '" aria-label="Favori" title="Favori">' + (a.favori ? '★' : '☆') + '</button></div>' +
+        '<p class="nu-choix-l">Quantité</p>' +
         '<div class="nu-quantite"><button type="button" class="mrt-rond" data-act="moins" aria-label="Moins">' + mrtIcone.moins + '</button>' +
         '<span class="nu-unite"><input class="mrt-champ nu-qte" name="quantite" type="text" inputmode="decimal" aria-label="Quantité" value="' + virgule(S.choix.quantite) + '">' + (g ? 'g' : 'portion' + (S.choix.quantite > 1 ? 's' : '')) + '</span>' +
-        '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">' + mrtIcone.plus + '</button>' +
-        '<button type="button" class="mrt-pastille nu-fav" data-act="favori" aria-pressed="' + !!a.favori + '">' + (a.favori ? '★' : '☆') + ' Favori</button></div>' +
+        '<button type="button" class="mrt-rond" data-act="plus" aria-label="Plus">' + mrtIcone.plus + '</button></div>' +
+        '<p class="nu-apercu" aria-live="polite">' + texteApercu(x) + '</p>' +
+        '<p class="nu-choix-l">Repas</p>' +
         '<div class="nu-repas-choix">' + REPAS.map(r => '<button type="button" class="mrt-pastille" data-act="repas" data-repas="' + r[0] + '" aria-pressed="' + (S.repas === r[0]) + '">' + r[1] + '</button>').join('') + '</div>' +
-        '<button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">Ajouter</button></div>';
+        '<button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">' + texteAjouter(x) + '</button></div>';
     }
     function htmlAjout() {
-      const sources = [['favoris', 'Favoris'], ['recents', 'Récents'], ['libre', '+ Aliment libre']];
+      // Étape 2 : l'aliment choisi (quantité, favori, repas, Ajouter) ; « ‹ » ramène à l'étape 1.
+      if (choisi()) return htmlChoix() + '<p class="nu-msg" role="alert">' + esc(S.msg) + '</p>';
+      const sources = [['recents', 'Récents'], ['favoris', 'Favoris'], ['libre', '+ Aliment libre']];
       let corps = '';
       if (S.source === 'libre') {
         corps = '<form class="nu-libre" novalidate>' +
@@ -313,7 +340,7 @@
           '<div class="nu-grille">' + [['kcal', 'Calories (kcal)'], ['proteines', 'Protéines (g)'], ['glucides', 'Glucides (g)'], ['lipides', 'Lipides (g)']].map(c =>
             '<label class="nu-champ"><span class="pf-libelle">' + c[1] + '</span><input class="mrt-champ" name="' + c[0] + '" type="text" inputmode="decimal" autocomplete="off"></label>').join('') + '</div>' +
           '<label class="mrt-pastille nu-favori-case"><input type="checkbox" name="favori">★ Favori</label>' +
-          '<button type="submit" class="mrt-btn is-principal">Créer l\'aliment</button></form>';
+          '<button type="submit" class="mrt-btn is-principal">Ajouter l\'aliment</button></form>';
       } else {
         const liste = S.source === 'favoris' ? favorisDe(S.aliments) : recentsDe(S.aliments).slice(0, 8);
         corps = liste.length ? '<div class="nu-liste">' + liste.map(boutonAliment).join('') + '</div>'
@@ -321,7 +348,7 @@
       }
       return htmlRecherche() +
         '<div class="nu-sources">' + sources.map(s => '<button type="button" class="mrt-pastille" data-act="source" data-source="' + s[0] + '" aria-pressed="' + (S.source === s[0]) + '">' + s[1] + '</button>').join('') + '</div>' +
-        '<div class="nu-source">' + corps + '</div>' + htmlChoix() + '<p class="nu-msg" role="alert">' + esc(S.msg) + '</p><p class="nu-ok" role="status">' + esc(S.ok || '') + '</p>';
+        '<div class="nu-source">' + corps + '</div><p class="nu-msg" role="alert">' + esc(S.msg) + '</p>';
     }
     // ----- Carte 3 : journal du jour -----
     // Journal : les quatre repas, puis l'activité ; chaque ligne se touche pour la modifier ou la supprimer ; un « + » par section.
@@ -360,7 +387,12 @@
       carte('besoin').querySelector('.nu-anneaux').innerHTML = htmlJauges(r);
     }
     const dessinerBesoin = () => { carte('besoin').innerHTML = htmlBesoin(); chiffres(); };
-    const dessinerAjout = () => { const z = zoneAjout(); if (z) z.innerHTML = htmlAjout(); };
+    const dessinerAjout = () => {
+      const z = zoneAjout();
+      if (!z) return;
+      z.innerHTML = htmlAjout();
+      feuille.voile.querySelector('.nu-retour').hidden = !choisi();
+    };
     const dessinerActivite = () => { const z = zoneActivite(); if (z) z.innerHTML = htmlActivite(); };
     const dessinerJournal = () => { carte('journal').innerHTML = htmlJournal(); };
     function tout() { dessinerBesoin(); dessinerAjout(); dessinerActivite(); dessinerJournal(); }
@@ -369,14 +401,16 @@
       const voile = document.createElement('div');
       voile.className = 'mc-voile';
       voile.innerHTML = '<div class="mc-panneau nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
-        '<div class="pc-barre"><button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
-        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : 'Activité') + '</p>' +
+        '<div class="pc-barre"><button type="button" class="mrt-rond nu-retour" data-act="retour" aria-label="Retour à la recherche" title="Retour" hidden>' + mrtIcone.gauche + '</button>' +
+        '<button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
+        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : 'Ajouter une activité') + '</p>' +
         '<div class="' + (type === 'repas' ? 'nu-ajout' : 'nu-activite') + '"></div></div></div>';
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');
       feuille = { type, voile, corps: voile.querySelector(type === 'repas' ? '.nu-ajout' : '.nu-activite') };
       brancher(voile);
       voile.addEventListener('mousedown', e => { if (e.target === voile) fermerFeuille(); });
+      voile.addEventListener('input', e => { if (e.target.classList.contains('nu-qte')) majApercu(); });
       if (type === 'repas') dessinerAjout(); else dessinerActivite();
       voile.querySelector('.mc-panneau').focus();
     }
@@ -386,7 +420,7 @@
       feuille.voile.remove();
       document.documentElement.classList.remove('mc-ouvert');
       feuille = null;
-      S.ok = ''; S.msg = '';
+      S.msg = '';
       chiffres();
     }
     // Échap ferme la feuille (une seule écoute, même quand la page se redessine).
@@ -395,7 +429,7 @@
     document.addEventListener('keydown', window.__nuEchap);
 
     // ----- Actions -----
-    const echec = (err, quoi) => { console.warn('Nutrition : ' + quoi, err); S.msg = ERREUR; S.ok = ''; dessinerAjout(); };
+    const echec = (err, quoi) => { console.warn('Nutrition : ' + quoi, err); S.msg = ERREUR; dessinerAjout(); };
     const refus = m => { S.msg = m; const z = zoneAjout(), n = z && z.querySelector('.nu-msg'); if (n) n.textContent = m; };
     const lireQuantite = () => { const z = zoneAjout(), n = nombre(((z && z.querySelector('.nu-qte')) || {}).value); return Number.isFinite(n) ? n : NaN; };
     async function changerDeJour(jour) {
@@ -433,7 +467,7 @@
       }
       try { S.lignes.push(await ajouterLigne(al, S.jour, S.repas, g ? q0 / 100 : q0)); }
       catch (err) { return echec(err, 'ajout impossible'); }
-      S.choix = null; S.msg = ''; S.ok = al.nom + ' ajouté · ' + NOM_REPAS[S.repas].toLowerCase();
+      S.choix = null; S.msg = '';
       chiffres(); dessinerAjout(); dessinerJournal();
     }
     async function creer(form) {
@@ -454,7 +488,7 @@
       const { error } = await sb().from('aliments').insert(aliment);
       if (error) return refus(ERREUR);
       S.aliments.push(aliment);
-      S.choix = { id: aliment.id, quantite: enGrammes(aliment) ? 100 : 1 }; S.source = aliment.favori ? 'favoris' : 'recents'; S.msg = ''; S.ok = '';
+      S.choix = { id: aliment.id, quantite: enGrammes(aliment) ? 100 : 1 }; S.source = aliment.favori ? 'favoris' : 'recents'; S.msg = '';
       dessinerAjout();
     }
     async function basculerFavori() {
@@ -470,7 +504,7 @@
     }
     const zones = () => {
       const c = zoneAjout();
-      if (!c) return;
+      if (!c || choisi()) return; // étape 2 : la recherche attend le retour
       if (!c.querySelector('.nu-mes')) return dessinerAjout();
       c.querySelector('.nu-mes').innerHTML = htmlMes();
       c.querySelector('.nu-produits').innerHTML = htmlProduits();
@@ -504,53 +538,40 @@
     // ----- Fenêtre « Modifier » d'une ligne du journal (aliment ou activité) -----
     // La fenêtre de saisie du site : « Annuler » à gauche, « Enregistrer » à droite, le titre en libellé, « Supprimer »
     // seul en bas (question du site avant de supprimer).
-    const POUBELLE = '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const POUBELLE = '<svg class="cal-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    // La fenêtre d'une séance du Calendrier (preparation.js) : même taille, mêmes marges, mêmes boutons.
     function fenetreModifier(titre, corps, enregistrer, supprimer, question) {
-      const voile = document.createElement('div');
-      voile.className = 'pf-voile';
-      voile.innerHTML = '<form class="pf-panneau nu-modifier" role="dialog" aria-modal="true" aria-labelledby="nu-modifier-titre" novalidate>' +
-        '<div class="pf-barre"><button type="button" class="mrt-btn" data-f="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div>' +
-        '<p class="pf-titre" id="nu-modifier-titre">' + esc(titre) + '</p><p class="pf-msg" role="alert"></p>' + corps +
-        '<div class="nu-bas"><button type="button" class="mrt-btn is-danger" data-f="supprimer">' + POUBELLE + 'Supprimer</button></div></form>';
-      document.body.appendChild(voile);
-      const form = voile.querySelector('form'), msg = voile.querySelector('.pf-msg');
-      const echap = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue')) fermer(); };
-      const fermer = () => { voile.remove(); document.removeEventListener('keydown', echap); };
-      document.addEventListener('keydown', echap);
-      voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
-      form.addEventListener('click', async e => {
-        const b = e.target.closest('[data-f]');
-        if (!b) return;
-        if (b.dataset.f === 'annuler') fermer();
-        else if (b.dataset.f === 'supprimer') {
-          if (!(await window.mrtConfirmer({ texte: question, action: 'Supprimer', danger: true }))) return;
-          const err = await supprimer();
-          if (err) msg.textContent = err; else fermer();
-        }
+      const v = P.fenetre('<form novalidate>' + P.barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') + P.titreFenetre(esc(titre)) + corps +
+        '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer</button></div></form>', 'nu-modifier');
+      const form = v.querySelector('form'), msg = v.querySelector('.cal-msg');
+      v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+      v.querySelector('[data-act="supprimer"]').addEventListener('click', async () => {
+        if (!(await window.mrtConfirmer({ texte: question, action: 'Supprimer', danger: true }))) return;
+        const err = await supprimer();
+        if (err) msg.textContent = err; else v.fermer();
       });
       form.addEventListener('submit', async e => {
         e.preventDefault();
         const err = await enregistrer(form);
-        if (err) msg.textContent = err; else fermer();
+        if (err) msg.textContent = err; else v.fermer();
       });
       return form;
     }
+    const listeRepas = choisi => '<label class="cal-champ"><span>Repas</span><select class="mrt-champ" name="repas">' + REPAS.map(r => '<option value="' + r[0] + '"' + (r[0] === choisi ? ' selected' : '') + '>' + r[1] + '</option>').join('') + '</select></label>';
     function modifierLigne(id) {
       const l = S.lignes.find(x => x.id === id);
       if (!l) return;
       const a = trouver(l.aliment), g = !!a && enGrammes(a), pasQ = g ? 10 : 0.5;
       const valeur = g ? Math.round(Number(l.quantite) * 100) : Number(l.quantite);
-      let repas = l.repas;
-      const corps = '<div class="nu-quantite"><button type="button" class="mrt-rond" data-q="-1" aria-label="Moins">' + mrtIcone.moins + '</button>' +
+      const corps = '<div class="cal-champ"><span>Quantité</span><div class="nu-quantite"><button type="button" class="mrt-rond" data-q="-1" aria-label="Moins">' + mrtIcone.moins + '</button>' +
         '<span class="nu-unite"><input class="mrt-champ nu-qte" name="quantite" type="text" inputmode="decimal" aria-label="Quantité" value="' + virgule(valeur) + '">' + (g ? 'g' : 'portions') + '</span>' +
-        '<button type="button" class="mrt-rond" data-q="1" aria-label="Plus">' + mrtIcone.plus + '</button></div>' +
-        '<div class="nu-repas-choix">' + REPAS.map(r => '<button type="button" class="mrt-pastille" data-r="' + r[0] + '" aria-pressed="' + (repas === r[0]) + '">' + r[1] + '</button>').join('') + '</div>';
-      const form = fenetreModifier('Modifier · ' + l.nom, corps, async f => {
+        '<button type="button" class="mrt-rond" data-q="1" aria-label="Plus">' + mrtIcone.plus + '</button></div></div>' + listeRepas(l.repas);
+      const form = fenetreModifier(l.nom, corps, async f => {
         const q0 = nombre(f.quantite.value);
         if (!(q0 > 0 && q0 <= (g ? 5000 : 50))) return g ? 'La quantité doit être comprise entre 1 et 5 000 g.' : 'La quantité doit être comprise entre 0,1 et 50 portions.';
         const q = g ? q0 / 100 : q0, k = q / Number(l.quantite);
         // Les valeurs restent celles figées à la saisie, à la nouvelle quantité.
-        const champs = { repas, quantite: Math.round(q * 100) / 100, kcal: arrondi(l.kcal * k), proteines: arrondi(l.proteines * k), glucides: arrondi(l.glucides * k), lipides: arrondi(l.lipides * k) };
+        const champs = { repas: f.repas.value, quantite: Math.round(q * 100) / 100, kcal: arrondi(l.kcal * k), proteines: arrondi(l.proteines * k), glucides: arrondi(l.glucides * k), lipides: arrondi(l.lipides * k) };
         const { error } = await sb().from('repas_lignes').update(champs).eq('id', l.id);
         if (error) { console.warn('Nutrition : ligne non modifiée', error); return ERREUR; }
         Object.assign(l, champs);
@@ -562,16 +583,18 @@
         chiffres(); dessinerJournal();
       }, 'Supprimer cette ligne ?');
       form.addEventListener('click', e => {
-        const q = e.target.closest('[data-q]'), r = e.target.closest('[data-r]');
+        const q = e.target.closest('[data-q]');
         if (q) { const v = nombre(form.quantite.value), base = Number.isFinite(v) ? v : valeur; form.quantite.value = virgule(Math.max(pasQ, Math.round((base + Number(q.dataset.q) * pasQ) / pasQ) * pasQ)); }
-        if (r) { repas = r.dataset.r; form.querySelectorAll('[data-r]').forEach(x => x.setAttribute('aria-pressed', String(x === r))); }
       });
     }
     function modifierSport(i) {
       const x = S.sports[i];
       if (!x) return;
       const ranger = () => { aRanger = { jour: S.jour, sports: S.sports.slice() }; S.lignesSport = S.sports.concat([null]); chiffres(); dessinerJournal(); return enregistrerSport(); };
-      fenetreModifier('Modifier · ' + B.SPORTS[x.type].libelle, ligneSport(x), async f => {
+      const corps = '<label class="cal-champ"><span>Sport</span><select class="mrt-champ" name="type">' +
+        Object.entries(B.SPORTS).filter(y => !y[1].seance || y[0] === x.type).map(y => '<option value="' + y[0] + '"' + (y[0] === x.type ? ' selected' : '') + '>' + esc(y[1].libelle) + '</option>').join('') + '</select></label>' +
+        '<label class="cal-champ"><span>Durée (h)</span><input class="mrt-champ" name="heures" type="text" inputmode="decimal" value="' + virgule(x.heures) + '"></label>';
+      fenetreModifier(B.SPORTS[x.type].libelle, corps, async f => {
         const type = f.querySelector('[name="type"]').value, h = nombre(f.querySelector('[name="heures"]').value);
         if (!B.SPORTS[type]) return 'Choisis le sport.';
         if (!(h > 0 && h <= 24)) return 'La durée doit être comprise entre 0 et 24 heures.';
@@ -626,8 +649,9 @@
       const act = b.dataset.act;
       if (act === 'profil') window.mrtProfilFenetre({ profil: ctx.profil, id: ctx.id, surEnregistre: redessiner });
       else if (act === 'fermer') fermerFeuille();
+      else if (act === 'retour') { S.choix = null; S.msg = ''; dessinerAjout(); }
       else if (act === 'activite') ouvrirFeuille('activite');
-      else if (act === 'ajout-repas') { S.repas = b.dataset.repas || repasDe(new Date()); S.ok = ''; ouvrirFeuille('repas'); }
+      else if (act === 'ajout-repas') { S.repas = b.dataset.repas || repasDe(new Date()); ouvrirFeuille('repas'); }
       else if (act === 'veille') changerDeJour(decaler(S.jour, -1));
       else if (act === 'lendemain') changerDeJour(decaler(S.jour, 1));
       else if (act === 'aujourdhui') changerDeJour(aujourdhui);
@@ -672,6 +696,8 @@
     brancher(el);
     window.addEventListener('pagehide', () => { if (aRanger) enregistrerSport(); });
     tout();
+    // Saisie rapide d'En un coup d'œil : la feuille demandée s'ouvre d'emblée (une seule fois).
+    if (ctx.ouvrir) { const type = ctx.ouvrir; ctx.ouvrir = null; ouvrirFeuille(type); }
   };
 
   // ===================== Le bloc d'En un coup d'œil =====================

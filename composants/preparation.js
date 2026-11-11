@@ -73,7 +73,7 @@
   const tousLesPlans = ctx => ctx.courses.filter(confirmee).map(c => planDe(c, modifsDe(ctx.semaines, c.id))).filter(Boolean);
 
   // Courses affichées dans la fenêtre : confirmées et options à venir (une option passée disparaît),
-  // courues (grisées). Ni à surveiller, ni abandonnées.
+  // courues (grisées). Ni repérées, ni abandonnées.
   function visibles(courses, debut, fin, auj) {
     return courses.filter(c => c.date && c.date >= debut && c.date <= fin && (c.etat === 'courue' ||
       (c.etat === 'a_venir' && (c.statut === 'confirmee' || (c.statut === 'option' && c.date >= auj)))))
@@ -152,7 +152,7 @@
       if (!sx) return;
       if (sx.affutage && r.recupFin >= sx.affutage && c.date < sx.jourJ) alertes.push({ type: 'recup-affutage', course: c, autre: sx.course, fin: r.recupFin, affutage: sx.affutage });
       const mini = Number(sx.course.distance) >= 42 ? 21 : 14;
-      if (r.role === 'preparatoire' && ecartJours(c.date, sx.jourJ) < mini) alertes.push({ type: 'prepa-proche', course: c, autre: sx.course, jours: ecartJours(c.date, sx.jourJ) });
+      if (r.role === 'preparatoire' && ecartJours(c.date, sx.jourJ) < mini) alertes.push({ type: 'prepa-proche', course: c, autre: sx.course, jours: ecartJours(c.date, sx.jourJ), conseillees: mini / 7 });
       if (c.date >= sx.premier && kmEffort(c) > kmEffort(sx.course)) alertes.push({ type: 'plus-longue', course: c, autre: sx.course });
     });
     return { saisons, reperes, alertes, saisonDe };
@@ -233,10 +233,10 @@
 
   // ----- Rubrique « Préparation » de la page d'une course (spécification § 5.2) -----
   function rubrique(ctx, c) {
-    const preparer = ecriture(ctx) ? '<button type="button" class="mrt-btn cal-parametrer" data-preparer="' + esc(c.id) + '">' + REGLAGES + 'Paramétrer le plan</button>' : '';
+    const preparer = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html#plans">Régler le plan dans Préparation →</a>' : '';
     const plan = planDe(c, modifsDe(ctx.semaines, c.id));
     if (!plan) {
-      return '<p class="cal-vide">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.' + (ecriture(ctx) ? ' Paramètre le plan pour en choisir une.' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
+      return '<p class="cal-vide">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.' + (ecriture(ctx) ? ' Règle le plan pour en choisir une.' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
     }
     const lundiAuj = lundiDe(iso(new Date()));
     let w = plan.semaines.find(s => s.lundi === lundiAuj), etiquette = 'Semaine en cours';
@@ -260,7 +260,7 @@
   function fenetre(contenu, classe) {
     const voile = document.createElement('div');
     voile.className = 'cal-voile';
-    voile.innerHTML = '<div class="cal-panneau ' + (classe || '') + '" role="dialog" aria-modal="true" aria-labelledby="cal-titre">' + contenu + '</div>';
+    voile.innerHTML = '<div class="cal-panneau ' + (classe || '') + '" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="cal-titre">' + contenu + '</div>';
     document.body.appendChild(voile);
     const echap = e => { if (e.key === 'Escape') voile.fermer(); };
     voile.fermer = () => { voile.remove(); document.removeEventListener('keydown', echap); };
@@ -284,7 +284,8 @@
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
     if (s) f.type.value = s.type;
     else if (opts.type && TYPES[opts.type]) f.type.value = opts.type; // type proposé par la page qui ouvre la fenêtre (Nutrition)
-    f.libelle.focus();
+    // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
+    v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
     const echec = err => { msg.textContent = 'Enregistrement impossible pour l\'instant.'; console.warn(err); };
     v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
@@ -311,16 +312,14 @@
   }
 
   // Fenêtre « Préparer » (spécification § 5.3) : durée, frise à glisser, tableau semaine par semaine.
-  // brouillon (formulaire d'une course) : { course, duree, modifs, valider(duree, modifs) } ; rien n'est écrit,
-  // « Valider » rend les réglages, enregistrés avec la course.
-  function ouvrirPreparer(ctx, id, brouillon) {
-    const c = brouillon ? brouillon.course : ctx.courses.find(x => x.id === id);
+  // Ouverte depuis la page Préparation seulement (design § 12 : un seul lieu de réglage du plan).
+  function ouvrirPreparer(ctx, id) {
+    const c = ctx.courses.find(x => x.id === id);
     if (!c) return;
-    const draft = brouillon ? { duree: brouillon.duree || c.prepaFormat || 12, modifs: new Map(brouillon.modifs) }
-      : { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
-    const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">' + (brouillon ? 'Valider' : 'Enregistrer') + '</button>') +
+    const draft = { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
+    const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">Enregistrer</button>') +
       titreFenetre('Paramétrer le plan · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
-      '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Recalculer selon les règles</button></div>', 'cal-preparer');
+      '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Revenir aux règles générales</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
     const courant = () => planDe(c, draft.modifs, draft.duree);
 
@@ -367,12 +366,11 @@
 
     v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
     v.querySelector('[data-act="recalculer"]').addEventListener('click', async () => {
-      if (!(await window.mrtConfirmer({ texte: 'Revenir aux règles générales pour toutes les semaines ?', action: 'Recalculer', danger: true }))) return;
+      if (!(await window.mrtConfirmer({ texte: 'Revenir aux règles générales pour toutes les semaines ?', action: 'Revenir aux règles', danger: true }))) return;
       draft.modifs = new Map();
       dessinerPrep();
     });
     v.querySelector('[data-act="enregistrer"]').addEventListener('click', async ev => {
-      if (brouillon) { brouillon.valider(draft.duree, draft.modifs); v.fermer(); return; }
       const btn = ev.currentTarget;
       btn.disabled = true;
       const lignes = courant().semaines.filter(s => s.phase !== s.regle).map(s => ({ course: id, lundi: s.lundi, phase: s.phase }));

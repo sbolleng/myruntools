@@ -74,6 +74,8 @@
     moins: icone('M3.5 8h9'),
     gauche: icone('M10 3.5L5.5 8l4.5 4.5'),
     droite: icone('M6 3.5L10.5 8 6 12.5'),
+    agrandir: icone('M3 6V3h3M13 6V3h-3M3 10v3h3M13 10v3h-3'),
+    reduire: icone('M6 3v3H3M10 3v3h3M6 13v-3H3M10 13v-3h3'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
     bas: icone('M8 3.5v9M4.5 9L8 12.5 11.5 9'),
     // En-tête de colonne triable (mrt-tri) : deux triangles ; celui du sens choisi s'allume.
@@ -81,6 +83,21 @@
     // Chevron des titres repliables : tourné vers la droite quand c'est replié (mrt-chev, en-tete.css).
     chevron: '<svg class="mrt-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
+  // Plein écran (ordinateur) : un rond à mettre dans une zone qui porte data-plein-cible ; la zone prend tout l'écran, Échap ou le même rond en sort.
+  // Le rond est redessiné avec sa zone : il se met dans l'état du moment. Absent sans plein écran (téléphone, navigateur sans la fonction : css).
+  const pleinOn = () => !!document.fullscreenElement;
+  window.mrtPleinEcran = {
+    bouton: () => !document.fullscreenEnabled ? '' : '<button type="button" class="mrt-rond mrt-plein" data-plein aria-label="' + (pleinOn() ? 'Quitter le plein écran' : 'Plein écran') + '" title="' + (pleinOn() ? 'Quitter le plein écran' : 'Plein écran') + '">' + (pleinOn() ? window.mrtIcone.reduire : window.mrtIcone.agrandir) + '</button>'
+  };
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-plein]'), cible = b && b.closest('[data-plein-cible]');
+    if (!cible) return;
+    if (document.fullscreenElement) document.exitFullscreen(); else if (cible.requestFullscreen) cible.requestFullscreen().catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', () => document.querySelectorAll('[data-plein]').forEach(b => {
+    const t = pleinOn() ? 'Quitter le plein écran' : 'Plein écran';
+    b.innerHTML = pleinOn() ? window.mrtIcone.reduire : window.mrtIcone.agrandir; b.setAttribute('aria-label', t); b.title = t;
+  }));
 
   // 'AAAA-MM-JJ' ou 'AAAA-MM' : minuit, heure locale ; jour inconnu = le 1er du mois.
   // heure 'HH:MM' : l'heure de départ, heure locale.
@@ -183,6 +200,10 @@
       haut.classList.add(genre === 'barre' ? 'is-retrecit' : 'is-deploie');
       haut.addEventListener('animationend', () => haut.classList.remove('is-retrecit', 'is-deploie'), { once: true });
     }
+    // Hauteur du menu collant, pour les barres qui se collent juste dessous (Calendrier).
+    const hauteurMenu = () => document.documentElement.style.setProperty('--mrt-nav-h', nav.offsetHeight + 'px');
+    hauteurMenu();
+    window.addEventListener('resize', hauteurMenu);
     // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
     const onTab = nav.querySelector('.is-on'), bar = nav.firstChild;
     if (onTab && onTab.offsetLeft + onTab.offsetWidth > bar.clientWidth) {
@@ -263,18 +284,19 @@
     a.onfinish = () => { el.style.overflow = ''; el.__deroule = null; termine(); };
   };
   // ----- Confirmation (design, § 11) : la question dans un encadré du site, jamais la fenêtre du navigateur -----
-  //   mrtConfirmer({ texte, action, danger, seul }) → promesse : vrai si l'action est choisie.
-  //   « Annuler » à gauche (choisi d'office), l'action à droite (en Alerte si danger) ; seul : un bouton (un avertissement).
+  //   mrtConfirmer({ texte, action, annuler, danger, seul }) → promesse : vrai si l'action est choisie.
+  //   « Annuler » à gauche (choisi d'office ; `annuler` le renomme quand « Annuler » prêterait à confusion : « Continuer » pour abandonner une saisie), l'action à droite (en Alerte si danger) ; seul : un bouton (un avertissement).
   //   Échap ou un toucher à côté : « Annuler », sans rien fermer de ce qui est dessous (fiche, page d'une course).
   window.mrtConfirmer = function (o) {
     return new Promise(fin => {
       const voile = document.createElement('div');
       voile.className = 'mrt-dialogue';
       voile.innerHTML = '<div class="mrt-dialogue-cadre' + (o.danger ? ' is-danger' : '') + '" role="alertdialog" aria-modal="true" aria-labelledby="mrt-dialogue-q">' +
-        '<p id="mrt-dialogue-q"></p><div class="mrt-dialogue-boutons">' + (o.seul ? '' : '<button type="button" class="mrt-btn" data-r="non">Annuler</button>') +
+        '<p id="mrt-dialogue-q"></p><div class="mrt-dialogue-boutons">' + (o.seul ? '' : '<button type="button" class="mrt-btn" data-r="non"></button>') +
         '<button type="button" class="mrt-btn ' + (o.danger ? 'is-danger' : 'is-principal') + '" data-r="oui"></button></div></div>';
       voile.querySelector('p').textContent = o.texte;
       voile.querySelector('[data-r="oui"]').textContent = o.action || 'Confirmer';
+      const non = voile.querySelector('[data-r="non"]'); if (non) non.textContent = o.annuler || 'Annuler';
       const avant = document.activeElement;
       function clavier(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); fermer(false); } }
       function fermer(r) {

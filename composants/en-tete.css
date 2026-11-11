@@ -15,8 +15,8 @@
 /* Tailles du texte (design, § 3) : sept tailles, aucune autre ; un module les reprend, il n'en invente pas.
    Marges intérieures : un cadre de page (pad-cadre) ou une carte (pad-carte). */
 :root { --t-micro: 0.65rem; --t-libelle: 0.7rem; --t-petit: 0.75rem; --t-second: 0.8rem; --t-texte: 0.85rem; --t-nom: 1rem; --t-titre: clamp(1.4rem, 4vw, 2rem);
-  --pad-cadre: 1rem 1.1rem; --pad-carte: 0.85rem 1rem; }
-@media (max-width: 600px) { :root { --pad-cadre: 0.8rem; } }
+  --pad-cadre: 1rem 1.1rem; --pad-cadre-v: 1rem; --pad-cadre-h: 1.1rem; --pad-carte: 0.85rem 1rem; }
+@media (max-width: 600px) { :root { --pad-cadre: 0.8rem; --pad-cadre-v: 0.8rem; --pad-cadre-h: 0.8rem; } }
 :root, .t-bleu-orange { color-scheme: dark; --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --text:#eef3fa; --muted:#8fa8c9; --red:#ef6b6b; }
 .t-vert-rose { color-scheme: dark; --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --text:#EDF2E9; --muted:#A2B4A4; --red:#f2766b; }
 .t-violet-turquoise { color-scheme: dark; --bg:#14101F; --surface:#221A35; --surface2:#2D2347; --border:#40335F; --accent:#2EC4B6; --text:#F1EEF7; --muted:#A49BB8; --red:#E0607E; }
@@ -42,6 +42,8 @@ a { color: var(--text); text-underline-offset: 0.2em; text-decoration-color: var
 @media (hover: none) and (pointer: coarse) {
   input, select, textarea { font-size: 16px !important; }
 }
+/* Texte pour les lecteurs d'écran seulement (titre de page, design § 3) : invisible, mais lu. */
+.mrt-sr { font-size: var(--t-texte); position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 main { max-width: 960px; margin: 0 auto; padding: 2rem; font-size: var(--t-texte); } /* tailles des pages : docs/design.md § 3 */
 .muted { color: var(--muted); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: var(--pad-cadre); margin-bottom: 1rem; }
@@ -319,3 +321,7 @@ body.mrt-public { display: grid; place-items: center; grid-template-rows: 1fr au
 .mrt-pied { max-width: 960px; margin: 0 auto; padding: 0.5rem 2rem 1.5rem; text-align: center; font-size: var(--t-libelle); color: var(--muted); }
 .mrt-pied a { color: var(--muted); }
 @media (hover: hover) { .mrt-pied a:hover { color: var(--text); } }
+
+/* Plein écran (mrtPleinEcran) : ordinateur seulement ; la zone prend l'écran sur le fond du site. */
+@media (max-width: 600px), (hover: none) { .mrt-plein { display: none; } }
+[data-plein-cible]:fullscreen { box-sizing: border-box; padding: 1.5rem 2rem; overflow: auto; background: var(--bg); }

@@ -147,11 +147,16 @@
     return { message: 'Proposition impossible à vérifier, réessaie plus tard.' };
   }
 
+  // Séances de l'IA déjà acceptées, pas encore faites, dans ces semaines : une nouvelle acceptation les remplace (jamais celles saisies à la main, ni les faites).
+  const aRemplacer = (ctx, lundis) => ctx.seances.filter(s => s.origine === 'ia' && !s.faite && lundis.includes(lundiDe(s.date)));
   // Séances retenues : écrites avec leur origine (IA) ; la proposition passe en « acceptée ».
   async function accepter(ctx, prop, lundis) {
     const lignes = seancesDe(prop.reponse).filter(s => lundis.includes(lundiDe(s.date))).map(s => ({
       date: s.date, type: s.type, libelle: String(s.libelle).trim().slice(0, 100), duree_min: s.duree_min,
       distance_km: Number(s.distance_km) > 0 ? Math.round(Number(s.distance_km) * 10) / 10 : null, intensite: s.intensite, origine: 'ia', etat: 'acceptee', course: null }));
+    // Remplacer, pas ajouter : les séances de l'IA non faites de ces semaines partent avant l'écriture des nouvelles.
+    const anciennes = aRemplacer(ctx, lundis).map(s => s.id);
+    if (lignes.length && anciennes.length) { const { error } = await sb().from('seances').delete().in('id', anciennes); if (error) return error; }
     if (lignes.length) { const { error } = await sb().from('seances').insert(lignes); if (error) return error; }
     const { error } = await statut(prop.id, 'acceptee');
     return error || null;
@@ -163,5 +168,5 @@
     ctx.propositions = data || [];
   }
 
-  window.mrtSeancesIA = { PLAFOND, seancesDe, recommandationDe, contexte, gardeFous, restantes, enAttente, proposer, accepter, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
+  window.mrtSeancesIA = { PLAFOND, seancesDe, recommandationDe, contexte, gardeFous, restantes, enAttente, proposer, accepter, aRemplacer, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
 })();

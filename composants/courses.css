@@ -1,26 +1,32 @@
-/* ===== Courses à surveiller (courses.js) · docs/module-courses-a-surveiller-specification.md =====
+/* ===== Courses (courses.js) · docs/module-courses-a-surveiller-specification.md =====
    La carte est celle d'Objectif (objectif.css) : statut et date sur la première ligne, le nom dessous, ni rôle ni compteur.
    Cartes les moins larges possibles, de même hauteur, regroupées par mois et rangées côte à côte quand l'écran le permet (une colonne sur téléphone).
    Rien d'écrit en dur : les rôles de couleur du thème. */
-.cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 1rem; margin-bottom: 1.1rem; }
-.cs-vues { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.cs-vues { flex: 1 1 100%; }
+.cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 0.9rem; margin-bottom: 1.1rem; }
+.cs-barre .ob-ajout { margin-left: auto; }
 .cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
-.cs-outils { display: flex; flex: 1 1 100%; align-items: center; flex-wrap: wrap; gap: 0.5rem 1.4rem; }
-.cs-outils .ob-ajout { margin-left: auto; }
-@media (max-width: 600px) {
-  .cs-vues { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 -1rem; padding: 0 1rem; }
-  .cs-vues::-webkit-scrollbar { display: none; }
-  .cs-pastille { flex: none; white-space: nowrap; }
-}
+/* Filtres : rond commun, comme le Palmarès ; Accent quand un filtre est actif ou le panneau ouvert, avec le nombre de filtres actifs. */
+.cs-filtre { position: relative; }
+.cs-filtre.is-on, .cs-filtre[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.cs-badge { position: absolute; top: -0.3rem; right: -0.35rem; min-width: 1rem; height: 1rem; padding: 0 0.2rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-weight: 700; line-height: 1rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
+.cs-compte { font-size: var(--t-second); color: var(--muted); }
+.cs-raz { font-size: var(--t-second); }
+/* Panneau repliable au-dessus de la liste : un groupe de pastilles par critère ; la flèche le replie. */
+.cs-panneau { display: flex; flex-wrap: wrap; gap: 1rem 2rem; position: relative; margin-bottom: 1.2rem; padding: 1rem 3rem 1rem 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.cs-panneau[hidden] { display: none; }
+.cs-champ { border: 0; margin: 0; padding: 0; min-width: 0; }
+.cs-champ .cs-lib { display: block; padding: 0; margin-bottom: 0.45rem; }
+.cs-choix { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.cs-fermer { position: absolute; top: 0.5rem; right: 0.5rem; }
+@media (max-width: 600px) { .cs-pastille { white-space: nowrap; } }
 
 /* Liste : cartes de 18 rem au moins, autant de colonnes que la largeur en permet. */
 .cs-groupe + .cs-groupe { margin-top: 1.4rem; }
 .cs-mois { margin: 0 0 0.6rem; padding-bottom: 0.3rem; font-weight: 400; border-bottom: 1px solid var(--border); }
 .cs-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 0.8rem; }
 
-/* Carte : fond comme celle d'Objectif ; statut et date en tête, le nom dessous ; pointillé : option et à surveiller ; courue atténuée. */
-.cs-carte { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes" "bas bas"; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto auto 1fr; align-content: start; margin: 0; cursor: pointer; background: var(--surface);
+/* Carte : fond comme celle d'Objectif ; statut et date en tête, le nom dessous ; pointillé : option et repérée ; courue atténuée. */
+.cs-carte { grid-template-areas: "role date" "nom nom" "bas bas" "info info" "lignes lignes"; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto auto 1fr; align-content: start; margin: 0; cursor: pointer; background: var(--surface);
   height: 13rem; overflow: hidden; } /* toutes les cartes ont la même hauteur ; le nom tient sur deux lignes au plus */
 .cs-carte:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cs-carte.is-opt { border-style: dashed; }
@@ -30,16 +36,14 @@
 .cs-carte > .ob-date { grid-area: date; justify-self: end; }
 .cs-carte .ob-nom { margin-top: 0.15rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .cs-carte .ob-info { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cs-carte .ob-ligne { grid-template-columns: 4.6rem minmax(0, 1fr); }
+.cs-carte .ob-ligne { grid-template-columns: 6.2rem minmax(0, 1fr); }
 /* Le lien « Site officiel » reste un lien à part ; grisé quand le site n'est pas renseigné. */
-.cs-bas { grid-area: bas; align-self: end; display: flex; justify-content: flex-end; }
+.cs-bas { grid-area: bas; margin: 0.15rem 0 0.2rem; display: flex; justify-content: flex-start; }
 .cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--t-second); color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
 
-/* Réglages discrets (vue, tri, année) : un libellé, puis les choix en texte ; le choix actif est souligné et en Texte.
-   Les deux ronds de la vue sont ceux du Palmarès (Filtres, Colonnes) : le rond actif est en Accent. */
-.cs-reglage { display: flex; align-items: center; gap: 0.2rem 0.7rem; flex-wrap: wrap; }
+/* Les deux ronds d'affichage (cartes, tableau) sont ceux du Palmarès : le rond actif est en Accent. */
 .cs-lib { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cs-ronds { display: inline-flex; gap: 0.4rem; }
 /* Tableau : colonnes de la veille dans un cadre ; une ligne par course, toucher une ligne ouvre la fiche. */
@@ -56,4 +60,9 @@
 /* Colonnes triables, comme le Palmarès : le titre est un bouton ; la colonne triée est en Accent, son triangle s'allume. */
 .cs-tableau th[aria-sort] { padding: 0; }
 /* En-têtes triables : l'élément commun (mrt-tri, en-tete.css). */
-.cs-rond .ob-ico { width: 1rem; height: 1rem; }
+.cs-ico { width: 0.95rem; height: 0.95rem; flex: none; } /* pictos des ronds : la taille du Palmarès (pv2-ico) */
+
+/* Colonnes au choix : le rond (comme le Palmarès) est en Accent quand le panneau est ouvert ; les textes longs tiennent sur une ligne. */
+.cs-cols-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.cs-long { display: block; max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-tableau td a { color: inherit; text-underline-offset: 0.2em; }

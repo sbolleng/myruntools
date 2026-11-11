@@ -13,7 +13,7 @@
     if (t) h.classList.add('t-' + t);
     h.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
 </script>
-<title>Courses à surveiller · MyRunTools</title>
+<title>Courses · MyRunTools</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
@@ -27,6 +27,7 @@
 </head>
 <body>
 <main>
+  <h1 class="mrt-sr">Courses</h1>
   <div id="courses"></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -42,13 +43,14 @@
 <script src="composants/fiche-course.js?v=__VERSION__"></script>
 <script src="composants/modale-course.js?v=__VERSION__"></script>
 <script>
-  // Toutes les courses de l'utilisateur connecté (ou du site partagé), lues dans la base. Vue de départ : À surveiller ;
-  // l'adresse peut en demander une autre (?vue=courue, venir ou tout).
+  // Toutes les courses de l'utilisateur connecté (ou du site partagé), lues dans la base. Toutes les courses au départ ;
+  // l'adresse peut préfiltrer (?vue=surveiller, venir, courue ou ouvertes ; tout : aucun filtre).
   mrtPage({ courant: 'courses-a-surveiller.html' }).then(page => {
     let courses = page.courses;
     const el = document.getElementById('courses');
     const demandee = new URLSearchParams(location.search).get('vue');
-    const etat = { vue: ['surveiller', 'courue', 'venir', 'tout'].includes(demandee) ? demandee : 'surveiller', tri: 'date', annee: null };
+    const filtres = { surveiller: ['a_surveiller'], venir: ['confirmee', 'option'], courue: ['courue'] }[demandee];
+    const etat = { cats: filtres || [], ouvertes: demandee === 'ouvertes', annee: null, panneau: false };
     // Après un enregistrement ou une suppression : relire et redessiner (en-tête compris).
     const apres = async () => { courses = await page.relire(); dessiner(); };
     const edition = mrtEdition(page, () => courses, apres);

@@ -26,6 +26,7 @@
 </head>
 <body>
 <main>
+  <h1 class="mrt-sr">Nutrition</h1>
   <div id="nutrition"></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -45,7 +46,10 @@
       el.innerHTML = '<p class="nu-vide">Les données de nutrition ne sont pas partagées.</p>';
       return;
     }
-    renderNutrition(el, { profil: page.session.profil || {}, id: page.session.id, courses: page.courses, semaines: (page.plan || {}).semaines || [], seances: (page.plan || {}).seances || [] });
+    // ?ajout=repas ou ?ajout=activite (saisies rapides d'En un coup d'œil) : la feuille d'ajout s'ouvre aussitôt.
+    const ajout = new URLSearchParams(location.search).get('ajout');
+    if (ajout) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* adresse inchangée */ } }
+    mrtAttendre(renderNutrition(el, { ouvrir: ['repas', 'activite'].includes(ajout) ? ajout : null, profil: page.session.profil || {}, id: page.session.id, courses: page.courses, semaines: (page.plan || {}).semaines || [], seances: (page.plan || {}).seances || [] }));
   });
 </script>
 </body>

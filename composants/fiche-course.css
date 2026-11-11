@@ -36,7 +36,15 @@
   text-transform: uppercase;
   color: var(--muted);
 }
-.fc-oblig { color: var(--muted); } /* astérisque discret : l'Accent marque ce qui est actif */
+.fc-oblig { color: var(--accent); font-size: 1.15em; font-weight: 700; line-height: 0; vertical-align: 0.35em; margin-left: -0.3em; } /* champ obligatoire : l'étoile en Accent, en exposant (en haut à droite du mot) */
+.fc-oblig[hidden] { display: none; }
+/* Objectif : la liste, puis la durée à sa droite. */
+.fc-objectif { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 1rem; }
+.fc-objectif .mrt-champ[hidden] { display: none; }
+/* Résultat : le temps, la case DNF et l'allure moyenne sur une ligne. */
+.fc-ligne-res { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 0 1rem; align-items: end; }
+/* Ouverture des inscriptions : date, heure et « Seul le mois est connu » sur une ligne. */
+.fc-ligne-ouv { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0 1rem; align-items: end; }
 .fc-champ { min-width: 0; }
 /* Champs (mrt-champ) : toute la largeur de leur colonne. */
 .fc-champ .mrt-champ { display: block; width: 100%; }
@@ -54,6 +62,11 @@
   .fc-grille-3 { grid-template-columns: minmax(0, 1fr); }
   .fc-grille-3 .fc-moitie, .fc-grille-3 .fc-tiers { grid-column: auto; }
   .fc-grille { grid-template-columns: minmax(0, 1fr); }
+  .fc-ligne-ouv { grid-template-columns: minmax(0, 1fr) auto; }
+  .fc-ligne-ouv > :first-child { grid-column: 1 / -1; }
+  .fc-ligne-res { grid-template-columns: minmax(0, 1fr) auto; }
+  .fc-ligne-res > :last-child { grid-column: 1 / -1; }
+  .fc-objectif { grid-template-columns: minmax(0, 1fr); }
   .fc-champ.fc-seul input { max-width: none; }
 }
 
@@ -70,7 +83,6 @@
 .fc-prep { padding: 0.3rem 0 0.6rem; }
 .fc-prep:empty { display: none; }
 .fc-prep .cal-frise-defile { margin-bottom: 0.7rem; }
-.fc-prep-bas { display: flex; justify-content: flex-end; }
 .fc-prep-note { margin: 0 0 0.6rem; font-size: var(--t-second); color: var(--muted); }
 .fc-ligne-date { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
 .fc-bas { align-self: end; padding-bottom: 1.5rem; }
@@ -89,12 +101,12 @@
 .fc-fiche .fc-msg:empty { display: none; }
 .fc-fiche form > .fc-bloc:first-of-type { border-top: 0; }
 /* Résultat : temps et allure sur une demi-ligne chacun, puis les classements. */
-.fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: span 3; }
+.fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: span 3; }
 .fc-fiche .fc-actions { justify-content: flex-start; margin-top: 1.4rem; }
 /* « Supprimer la course » : seul en bas de la fiche, loin d'« Enregistrer » ; à contour rouge (fc-danger), avec sa poubelle. */
 .fc-ico { width: 0.9rem; height: 0.9rem; flex: none; }
 @media (max-width: 600px) {
-  .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers) { grid-column: auto; }
+  .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: auto; }
 }
 
 /* Tracé GPX : l'état, puis « Importer un GPX » ou « Remplacer » et « Supprimer ». */

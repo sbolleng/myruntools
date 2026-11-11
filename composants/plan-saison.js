@@ -14,16 +14,13 @@
   const nom = c => '<a class="ps-course" href="' + lien(c) + '">' + esc(c.course) + '</a>';
   const semainesEntre = (a, b) => Math.ceil((parse(b) - parse(a)) / (7 * 86400000));
 
-  // Texte d'une alerte (spécification, § 3.4).
+  // Texte d'une alerte (spécification, § 3.4) : une ligne, le nom des courses en gras (CSS), le fait et, entre parenthèses, ce qui est conseillé.
   function texteAlerte(a) {
-    if (a.type === 'proches') return nom(a.course) + ' est à ' + a.semaines + ' semaines de ' + nom(a.autre) + ' (12 au moins conseillées entre deux Objectifs) : passe l\'un des deux en Préparatoire.';
-    if (a.type === 'recup-affutage') return 'La récupération de ' + nom(a.course) + ' court jusqu\'au ' + longue(a.fin) + ' : elle déborde sur l\'affûtage de ' + nom(a.autre) + ' (dès le ' + longue(a.affutage) + ').';
-    if (a.type === 'prepa-proche') return nom(a.course) + ' est à ' + a.jours + ' jours de ' + nom(a.autre) + ' : une Préparatoire se court au moins 3 semaines avant un Objectif de la distance du marathon ou plus, 2 semaines avant un plus court.';
-    return nom(a.course) + ' est plus longue (en km-effort) que ' + nom(a.autre) + ', l\'Objectif de sa saison.';
+    if (a.type === 'proches') return nom(a.autre) + ' et ' + nom(a.course) + ' : ' + a.semaines + ' semaines d\'écart (12 conseillées)';
+    if (a.type === 'recup-affutage') return nom(a.course) + ' : récupération jusqu\'au ' + longue(a.fin) + ', sur l\'affûtage de ' + nom(a.autre);
+    if (a.type === 'prepa-proche') return nom(a.course) + ' : à ' + a.jours + ' jours de ' + nom(a.autre) + ' (' + a.conseillees + ' semaines conseillées)';
+    return nom(a.course) + ' est plus longue que ' + nom(a.autre);
   }
-
-
-
 
   // ----- Profil d'entraînement (spécification, § 5.2) : une liste de lignes ; chaque ligne ouvre une question ;
   // un choix s'enregistre aussitôt et ramène à la liste. -----
@@ -80,7 +77,7 @@
     // La feuille d'une course (modale-course.css) : à la largeur des pages, plein écran sur téléphone ; la croix en haut à droite.
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
-    voile.innerHTML = '<div class="mc-panneau ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
+    voile.innerHTML = '<div class="mc-panneau mc-ecrans ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
@@ -101,21 +98,34 @@
       return true;
     }
     // Barre du haut : « ‹ » (retour à la liste) à gauche dans une question, la croix à droite ; dessous, le titre en libellé.
-    const barre = (titre, retour) => '<div class="pc-barre ps-profil-barre">' +
-      (retour ? '<button type="button" class="mrt-rond" data-q="liste" aria-label="Retour à la liste" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span></span>') +
-      '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
+    // Avec « valider » (Ma semaine), comme les autres fenêtres de saisie du site : « Annuler » à gauche, « Enregistrer » à droite.
+    const barre = (titre, retour, valider) => '<div class="pc-barre ps-profil-barre">' +
+      (valider ? '<button type="button" class="mrt-btn" data-q="liste">Annuler</button><button type="button" class="mrt-btn is-principal" data-enregistrer>Enregistrer</button>' :
+        (retour ? '<button type="button" class="mrt-rond" data-q="liste" aria-label="Retour à la liste" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span></span>') +
+        '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button>') + '</div>' +
       '<p class="fc-libelle" id="ps-titre">' + titre + '</p><p class="ps-msg" role="alert"></p>';
 
+    // Glissement du contenu (ordinateur seulement, voir modale-course.css) : vers une question par la droite, retour à la liste par la gauche.
+    let ecran = 'liste';
+    const glisse = sens => {
+      corps.classList.remove('mc-glisse-avant', 'mc-glisse-retour');
+      void corps.offsetWidth;
+      corps.classList.add('mc-glisse-' + sens);
+    };
+    const versQuestion = () => { if (ecran === 'liste') glisse('avant'); ecran = 'question'; };
     function liste() {
+      if (ecran === 'question') glisse('retour');
+      ecran = 'liste';
       const ls = lignes(pr()), obligatoires = ls.filter(l => l[3]), faites = obligatoires.filter(l => l[2]).length;
       const ligneHtml = l => '<button type="button" class="ps-ligne-q" data-q="' + l[0] + '"><span>' + l[1] + '</span><span class="ps-rep' + (!l[2] && l[3] ? ' is-a-faire' : '') + '">' + (l[2] ? esc(l[2]) : l[3] ? 'À renseigner' : '—') + '</span><i aria-hidden="true">›</i></button>';
-      corps.innerHTML = barre('Mon profil d\'entraînement', false) +
+      corps.innerHTML = barre('Mon profil de coureur', false) +
         '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Indispensable pour proposer tes séances <span class="ps-compte' + (faites === obligatoires.length ? ' is-complet' : '') + '">' + faites + ' sur ' + obligatoires.length + '</span></h2>' +
         '<div class="ps-groupe-l">' + obligatoires.map(ligneHtml).join('') + '</div></section>' +
         '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Pour affiner (facultatif)</h2><div class="ps-groupe-l">' + ls.filter(l => !l[3]).map(ligneHtml).join('') + '</div></section>';
     }
     // Une question à choix : un toucher enregistre et revient à la liste.
     function choix(cle, titre) {
+      versQuestion();
       corps.innerHTML = barre(titre, true) + '<div class="ps-groupe-l">' + ECHELLES[cle].map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (String(pr()[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
       corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', async () => {
@@ -124,41 +134,49 @@
       }));
     }
     // Ma semaine : jours pour courir et pour le renforcement (cumulables), jour de la sortie longue, en pastilles ; nombres de
-    // sorties et de renforcements, un chiffre de 0 à 7 ; chaque changement s'enregistre.
-    function semaine() {
-      const p0 = pr(), jc = joursDe(p0, 'jours_course'), jr = joursDe(p0, 'jours_renfo');
+    // sorties et de renforcements, un chiffre de 0 à 7. Les changements sont gardés dans la feuille ; « Enregistrer » (en haut) les range et revient à la liste, « Annuler » les abandonne.
+    function semaine(brouillon) {
+      versQuestion();
+      const p0 = pr(), b = brouillon || { jc: joursDe(p0, 'jours_course'), jr: joursDe(p0, 'jours_renfo'), jl: p0.jour_long || null, ns: p0.nb_sorties, nr: p0.nb_renfo };
       const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
       const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
-      const chiffre = (nom, lib, v) => '<label class="cal-champ ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
-      corps.innerHTML = barre('Ma semaine', true) +
-        q('Jours possibles pour courir', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
-        '<div class="ps-chiffres">' + chiffre('nb_sorties', 'Sorties par semaine', p0.nb_sorties) + chiffre('nb_renfo', 'Renforcements par semaine', p0.nb_renfo) + '</div>' +
-        q('Jour à privilégier pour la sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe')) +
-        q('Jours possibles pour le renforcement', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join(''));
-      const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, b) => a - b));
-      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(b => b.addEventListener('click', async () => {
-        const d = b.dataset, champs = {};
-        if (d.jc) { champs.jours_course = bascule(jc, Number(d.jc)); if (p0.jour_long && !champs.jours_course.includes(p0.jour_long)) champs.jour_long = null; }
-        if (d.jr) champs.jours_renfo = bascule(jr, Number(d.jr));
-        if (d.long) champs.jour_long = Number(d.long) || null;
-        if (await ranger(champs)) semaine();
+      const chiffre = (nom, lib, v) => '<label class="ps-sem-q ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
+      const section = (titre, html) => '<section class="mrt-section"><h2 class="mrt-section-titre">' + titre + '</h2><div class="ps-groupe-l">' + html + '</div></section>';
+      corps.innerHTML = barre('Ma semaine', true, true) +
+        section('Course',
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, b.jc.includes(i + 1), j)).join('')) +
+          chiffre('nb_sorties', 'Séances par semaine', b.ns) +
+          q('Sortie longue', (b.jc.length ? b.jc.map(n => pastille('data-long', n, b.jl === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !b.jl, 'Peu importe'))) +
+        section('Renforcement',
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, b.jr.includes(i + 1), j)).join('')) +
+          chiffre('nb_renfo', 'Séances par semaine', b.nr));
+      const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, c) => a - c));
+      const lire = () => corps.querySelectorAll('.ps-chiffre input').forEach(x => { const t = x.value.trim(); b[x.name === 'nb_sorties' ? 'ns' : 'nr'] = t === '' ? null : t; });
+      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(btn => btn.addEventListener('click', () => {
+        lire();
+        const d = btn.dataset;
+        if (d.jc) { b.jc = bascule(b.jc, Number(d.jc)); if (b.jl && !b.jc.includes(b.jl)) b.jl = null; }
+        if (d.jr) b.jr = bascule(b.jr, Number(d.jr));
+        if (d.long) b.jl = Number(d.long) || null;
+        semaine(b);
       }));
-      corps.querySelectorAll('.ps-chiffre input').forEach(x => x.addEventListener('change', async () => {
-        const t = x.value.trim();
-        if (t !== '' && !/^[0-7]$/.test(t)) { msg().textContent = 'Un chiffre de 0 à 7.'; x.focus(); return; }
+      corps.querySelector('[data-enregistrer]').addEventListener('click', async () => {
+        lire();
+        if ([b.ns, b.nr].some(t => t !== null && !/^[0-7]$/.test(t))) { msg().textContent = 'Un chiffre de 0 à 7.'; return; }
         msg().textContent = '';
-        await ranger({ [x.name]: t === '' ? null : Number(t) });
-      }));
+        if (await ranger({ jours_course: b.jc, jours_renfo: b.jr, jour_long: b.jl, nb_sorties: b.ns === null ? null : Number(b.ns), nb_renfo: b.nr === null ? null : Number(b.nr) })) liste();
+      });
     }
     // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
     function allure(type) {
+      versQuestion();
       const t = type || pr().allure_type;
       const saisie = t === 'vma' ? ['VMA (km/h)', virgule(pr().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['Temps sur 10 km', enTemps(pr().temps_10km_s), 'ex. 45:30', 'text'] :
         t === 'semi' ? ['Temps sur semi-marathon', enTemps(pr().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
       corps.innerHTML = barre('Repère d\'allure', true) + '<div class="ps-groupe-l">' + ECHELLES.allure_type.map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (t === k ? ' is-on' : '') + '" data-type="' + k + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' +
         (saisie ? '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + saisie[0] + '</span><input class="mrt-champ" name="valeur" inputmode="' + saisie[3] + '" placeholder="' + saisie[2] + '" value="' + esc(saisie[1]) + '"></label>' +
-          '<button type="submit" class="mrt-btn is-principal">Valider</button></form>' : '');
+          '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>' : '');
       corps.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', async () => {
         if (b.dataset.type === 'inconnu') { if (await ranger({ allure_type: 'inconnu' })) liste(); } else allure(b.dataset.type);
       }));
@@ -181,10 +199,11 @@
     }
     // FC max et points fragiles : deux champs facultatifs, « Valider ».
     function sante() {
+      versQuestion();
       corps.innerHTML = barre('FC max et points fragiles', true) + '<form class="ps-valeur" novalidate>' +
         '<label class="cal-champ"><span>FC max</span><input class="mrt-champ" name="fc" inputmode="numeric" placeholder="ex. 185" value="' + esc(pr().fc_max == null ? '' : pr().fc_max) + '"></label>' +
         '<label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(pr().fragiles || '') + '</textarea></label>' +
-        '<button type="submit" class="mrt-btn is-principal">Valider</button></form>';
+        '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>';
       const f = corps.querySelector('form');
       f.addEventListener('submit', async e => {
         e.preventDefault();
@@ -209,13 +228,16 @@
   const ligneSeance = s => '<li>' + P.jourCourt(s.date) + ' · <b>' + (P.TYPES[s.type] || s.type) + '</b> ' + esc(s.libelle) + ' · ' + s.duree_min + ' min' +
     (Number(s.distance_km) > 0 ? ' · ' + virgule(s.distance_km) + ' km' : '') + ' · ' + (P.INTENSITES[s.intensite] || s.intensite) + '</li>';
   // (6) Proposer ; (9) proposition en attente : la recommandation (8), seule, et ses boutons ; ses séances sont dans la grille.
-  function iaHtml(ctx, lundi) {
-    if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return '';
+  function iaHtml(ctx, lundi, alertes) {
+    // Les alertes (seulement s'il y en a) sont dans le bloc de la recommandation ; sans proposition, le bloc ne les porte que seules.
+    const listeAl = alertes && alertes.length ? '<ul class="ps-alertes">' + alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('') + '</ul>' : '';
+    const blocAl = listeAl ? '<section class="ps-proposition ps-seul"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '</section>' : '';
+    if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return blocAl;
     const etat = ctx.ia || {}, manque = manquants(ctx.profil);
-    if (manque.length) return '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
+    if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil de coureur</button></p>';
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
-    if (!prop) return '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
+    if (!prop) return blocAl + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
       (etat.encours ? 'Proposition en cours…' : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + msg;
     const seances = IA().seancesDe(prop.reponse), lundis = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)), choisies = etat.semaines || lundis;
     const choixSem = etat.choix ? '<div class="ps-coches ps-prop-sems">' + lundis.map(l => '<button type="button" class="mrt-pastille" data-coche="' + l + '" aria-pressed="' + choisies.includes(l) + '">Semaine ' + window.mrtFormat.semaine(l) + '</button>').join('') + '</div>' : '';
@@ -224,7 +246,7 @@
       : '<button type="button" class="mrt-btn is-principal" data-ia="tout">Tout accepter</button><button type="button" class="mrt-btn" data-ia="choisir">Choisir semaine par semaine</button>' +
         '<button type="button" class="mrt-btn" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>' + (etat.encours ? 'Proposition en cours…' : 'Refaire') + '</button><button type="button" class="mrt-btn" data-ia="abandonner">Abandonner</button>';
     // Téléphone : la grille ne montre que des repères ; la liste des séances proposées s'ajoute sous la recommandation.
-    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de l\'IA · en attente</h3><p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
+    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '<p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
       '<ul class="ps-prop-liste">' + seances.map(ligneSeance).join('') + '</ul>' + choixSem + '<div class="ps-prop-actions">' + actions + '</div>' + msg + '</section>';
   }
   // Dans une case de la grille : les repères du jour (allégé, repos, récupération) et les séances proposées, en attente.
@@ -237,7 +259,23 @@
         esc(s.libelle) + ' · ' + s.duree_min + ' min</span>').join('');
   }
 
+  // Plans des courses : le seul lieu où l'on règle le plan d'une course (durée, phases) ; une ligne par course à venir qui a un plan.
+  function plansHtml(ctx) {
+    if (ctx.lectureSeule) return '';
+    const cs = ctx.courses.filter(P.aPlan).sort((a, b) => (a.date < b.date ? -1 : 1));
+    if (!cs.length) return '';
+    return '<section class="ps-plans" id="plans"><h2 class="ps-libelle">Plans des courses</h2><ul class="ps-plans-liste">' + cs.map(c => {
+      const plan = P.planDe(c, P.modifsDe(ctx.semaines, c.id));
+      return '<li><span class="ps-plan-nom">' + nom(c) + '</span><span class="ps-plan-info">' + longue(c.date) + ' · ' + ROLE[roleDe(c)] + (c.statut === 'option' ? ' (option)' : '') +
+        (plan ? ' · ' + plan.n + ' sem.' : ' · pas de plan') + '</span>' +
+        '<button type="button" class="mrt-btn cal-parametrer" data-preparer="' + esc(c.id) + '">' + P.REGLAGES + 'Paramétrer le plan</button></li>';
+    }).join('') + '</ul></section>';
+  }
+
   window.renderSaison = function (root, ctx) {
+    // Téléphone : la frise est une liste verticale ; elle se redessine quand l'écran change de classe.
+    const mq = window.matchMedia('(max-width: 600px)');
+    mq.addEventListener('change', () => { if (ctx.friseMaj) ctx.friseMaj(ctx.friseMode || 'saison'); });
     ctx.actualiser = async () => { Object.assign(ctx, await ctx.relire()); dessiner(); };
 
     function dessiner() {
@@ -246,51 +284,77 @@
       // (2) Mon profil et (12) son état : ce qui manque pour proposer des séances.
       const manque = manquants(ctx.profil);
       const profil = ctx.lectureSeule ? '' : '<div class="ps-profil-haut"><span class="ps-profil-etat' + (manque.length ? '' : ' is-complet') + '">' +
-        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil</button></div>';
+        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil de coureur</button></div>';
       if (!prochaine) {
-        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Objectif & plan) pour construire ta saison.</p></div>';
+        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta préparation.</p>' + plansHtml(ctx) + '</div>';
         return;
       }
-      // (1) Saison visée ; (11) état de la semaine.
-      const ici = P.phaseDe(ps, lundi);
+      // (1) Saison visée.
       const dans = semainesEntre(auj, prochaine.jourJ);
-      let etat = '';
-      if (ici && ici.saison) etat = 'Cette semaine : ' + NOM_PHASE[ici.phase] + ', semaine ' + (ici.saison.semaines.findIndex(w => w.lundi === lundi) + 1) + ' sur ' + ici.saison.semaines.length + '.';
-      else if (ici && ici.phase === 'recuperation') { const r = ps.reperes.find(x => x.course === ici.apres); etat = 'Cette semaine : Récupération de ' + nom(ici.apres) + ', jusqu\'au ' + longue(r.recupFin) + '.'; }
-      else if (ici) etat = 'Cette semaine : Entretien, jusqu\'au ' + longue(addDays(prochaine.premier, -1)) + ' ; la saison commence le ' + longue(prochaine.premier) + '.';
-      let h = '<div class="ps-cadre">' + profil + '<h1 class="ps-titre">Saison : vers « ' + nom(prochaine.course) + ' » · ' + longue(prochaine.jourJ) + ' <small>(dans ' + dans + ' sem.)</small></h1>' +
-        '<p class="ps-etat">' + etat + (prochaine.raccourcie ? ' Saison raccourcie : ' + prochaine.semaines.length + ' semaines sur ' + prochaine.plan.n + '.' : '') + '</p>';
+      // Le nom de la course visée en titre ; dessous, petit : la date (l'année seulement si ce n'est pas la présente) et le temps restant.
+      const dateVisee = window.mrtFormat.date(prochaine.jourJ, { semaine: true, annee: parse(prochaine.jourJ).getFullYear() !== new Date().getFullYear() });
+      let h = '<div class="ps-cadre">' + profil + '<h2 class="ps-titre">' + nom(prochaine.course) + '</h2><p class="ps-sous">' + dateVisee + ' · dans ' + dans + ' sem.</p>';
 
-      // (3) Frise : de la semaine en cours à la dernière semaine du plan (dernière saison, ou récupération du dernier Objectif).
+      // (3) Frise, à deux niveaux : « Saison » (jusqu'à l'Objectif, par défaut) ou « Tout » (jusqu'à la fin de la dernière récupération).
       const derniere = ps.saisons[ps.saisons.length - 1], recupDer = ps.reperes.find(r => r.course === derniere.course);
-      const fin = lundiDe(recupDer && recupDer.recupFin > derniere.jourJ ? recupDer.recupFin : derniere.jourJ);
-      const semaines = [];
-      for (let l = lundi; l <= fin; l = addDays(l, 7)) semaines.push(l);
-      const courses = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && c.date >= lundi && c.date <= addDays(fin, 6));
-      let premierMois = false;
-      h += '<div class="ps-frise-defile"><div class="ps-frise" style="--n:' + semaines.length + '">' + semaines.map((l, i) => {
-        const x = P.phaseDe(ps, l), ph = x ? x.phase : 'entretien', d = parse(l);
-        // Nom du mois sur la semaine où il commence ; l'année sur le premier nom affiché et en janvier.
-        const prec = i ? parse(semaines[i - 1]) : null, change = prec && prec.getMonth() !== d.getMonth();
-        const mois = change ? MOIS[d.getMonth()] + (d.getMonth() === 0 || !premierMois ? ' ' + String(d.getFullYear()).slice(2) : '') : '';
-        if (change) premierMois = true;
-        const marques = courses.filter(c => lundiDe(c.date) === l).map(c => {
-          const role = roleDe(c);
-          return '<a class="ps-marque r-' + role + (c.statut === 'option' ? ' is-option' : '') + '" href="' + lien(c) + '" title="' + esc(c.course + ' · ' + longue(c.date) + ' · ' + ROLE[role] + (c.statut === 'option' ? ' (option)' : '')) + '">▲</a>';
+      const finTout = lundiDe(recupDer && recupDer.recupFin > derniere.jourJ ? recupDer.recupFin : derniere.jourJ);
+      const jm = d => d.getDate() + ' ' + MOIS[d.getMonth()];
+      // Nom d'une phase sur un segment de deux semaines, quand le nom entier ne tient pas.
+      const COURT = { developpement: 'Dév.', affutage: 'Aff.', recuperation: 'Récup.', entretien: 'Entr.', deload: 'Del.' };
+      // 9 → 22 nov, ou 28 nov → 6 déc.
+      const plage = (l1, l2) => { const x = parse(l1), y = parse(addDays(l2, 6)); return (x.getMonth() === y.getMonth() ? x.getDate() : jm(x)) + ' → ' + jm(y); };
+      const friseCorps = mode => {
+        const fin = mode === 'tout' ? finTout : lundiDe(prochaine.jourJ);
+        const semaines = [];
+        for (let l = lundi; l <= fin; l = addDays(l, 7)) semaines.push(l);
+        const n = semaines.length;
+        const courses = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && c.date >= lundi && c.date <= addDays(fin, 6));
+        const phases = semaines.map(l => { const x = P.phaseDe(ps, l); return x ? x.phase : 'entretien'; });
+        // Suites de semaines de même phase : un segment chacune [premier index, longueur].
+        const runs = [];
+        for (let i = 0; i < n;) { let j = i; while (j < n && phases[j] === phases[i]) j++; runs.push({ i, len: j - i, ph: phases[i] }); i = j; }
+        const marque = c => { const role = roleDe(c); return '<a class="ps-marque r-' + role + (c.statut === 'option' ? ' is-option' : '') + '" href="' + lien(c) + '" title="' + esc(c.course + ' · ' + longue(c.date) + ' · ' + ROLE[role] + (c.statut === 'option' ? ' (option)' : '')) + '"><b>▲</b><span class="ps-marque-nom">' + esc(c.course) + ' · ' + jm(parse(c.date)) + '</span></a>'; };
+        // Légende : seulement ce que la frise montre.
+        const roles = [...new Set(courses.filter(c => c.statut !== 'option').map(roleDe))], option = courses.some(c => c.statut === 'option');
+        const legende = '<p class="ps-legende">' + ['objectif', 'preparatoire', 'plaisir'].filter(r => roles.includes(r)).map(r => '<span><b class="ps-marque r-' + r + '">▲</b>' + ROLE[r] + '</span>').join('') +
+          (option ? '<span><b class="ps-marque is-option">▲</b>option</span>' : '') +
+          ['base', 'developpement', 'affutage', 'deload', 'recuperation', 'entretien'].filter(k => phases.includes(k)).map(k => '<span><i class="cal-k ph-' + k + '"></i>' + NOM_PHASE[k] + '</span>').join('') + '</p>';
+        // Téléphone : une liste verticale, une ligne par phase (couleur, nom, dates, durée), les courses sous leur phase.
+        if (mq.matches) {
+          return '<ol class="ps-liste">' + runs.map(r => {
+            const l1 = semaines[r.i], l2 = semaines[r.i + r.len - 1], cs = courses.filter(c => c.date >= l1 && c.date <= addDays(l2, 6));
+            return '<li class="ps-run" data-lundi="' + l1 + '" data-fin="' + l2 + '"><i class="cal-k ph-' + r.ph + '"></i><b class="ps-run-nom">' + NOM_PHASE[r.ph] + '</b><span class="ps-run-dates">' + plage(l1, l2) + ' · ' + r.len + ' sem.</span>' +
+              cs.map(marque).join('') + '</li>';
+          }).join('') + '</ol>';
+        }
+        // Ordinateur : trois rangées sur la même grille, une colonne par semaine : les dates, les phases (un segment par suite de semaines), les courses (nom et date écrits).
+        const pas = n <= 12 ? 1 : n <= 26 ? 2 : 4;
+        const dates = semaines.map((l, i) => i % pas ? '' : '<span class="ps-date" style="grid-column:' + (i + 1) + ' / span ' + pas + '">' + jm(parse(l)) + '</span>').join('');
+        const segs = runs.map(r => '<span class="ps-seg ph-' + r.ph + '" data-debut="' + semaines[r.i] + '" data-fin="' + semaines[r.i + r.len - 1] + '" style="grid-column:' + (r.i + 1) + ' / span ' + r.len + '" title="' +
+          esc(NOM_PHASE[r.ph] + ' · ' + plage(semaines[r.i], semaines[r.i + r.len - 1]) + ' · ' + r.len + ' sem.') + '">' + (r.len >= 3 || (r.len === 2 && NOM_PHASE[r.ph].length <= 6) ? NOM_PHASE[r.ph] : r.len === 2 ? COURT[r.ph] : '') + '</span>').join('');
+        // Une course dans les dernières semaines s'écrit vers la gauche (le nom finit sous son signe), pour ne pas sortir de la frise.
+        const marques = courses.map((c, k) => {
+          const i = semaines.indexOf(lundiDe(c.date)), fin = i >= n - 6, debut = fin ? Math.max(1, i + 1 - 7) : i + 1;
+          return '<span class="ps-marque-c' + (fin ? ' is-fin' : '') + '" style="grid-column:' + debut + ' / ' + (fin ? i + 2 : 'span 1') + ';grid-row:' + (3 + k % 2) + '">' + marque(c) + '</span>';
         }).join('');
-        return '<div class="ps-sem" data-lundi="' + l + '"><span class="ps-mois">' + mois + '</span><span class="ps-ph ph-' + ph + '" title="' + esc('Semaine du ' + longue(l) + ' · ' + NOM_PHASE[ph]) + '"></span><span class="ps-marques">' + marques + '</span></div>';
-      }).join('') + '</div></div>';
-      h += '<p class="ps-legende"><span><b class="ps-marque r-objectif">▲</b>Objectif</span><span><b class="ps-marque r-preparatoire">▲</b>Préparatoire</span><span><b class="ps-marque r-plaisir">▲</b>Plaisir</span>' +
-        '<span><b class="ps-marque is-option">▲</b>option</span>' +
-        ['base', 'developpement', 'affutage', 'deload', 'recuperation', 'entretien'].map(k => '<span><i class="cal-k ph-' + k + '"></i>' + NOM_PHASE[k] + '</span>').join('') + '</p>';
+        return '<div class="ps-frise-defile"><div class="ps-frise" style="--n:' + n + '">' + dates + segs + marques + '</div></div>' + legende;
+      };
+      const mode = ctx.friseMode || 'saison';
+      ctx.friseMaj = m => {
+        ctx.friseMode = m;
+        const z = root.querySelector('.ps-frise-zone');
+        if (!z) return;
+        z.querySelector('.ps-frise-corps').innerHTML = friseCorps(m);
+        z.querySelectorAll('[data-frise]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.frise === m)));
+      };
+      h += '<div class="ps-frise-zone" data-plein-cible><div class="ps-frise-barre"><div class="ps-coches">' +
+        [['saison', 'En cours'], ['tout', 'Tout']].map(x => '<button type="button" class="mrt-pastille" data-frise="' + x[0] + '" aria-pressed="' + (mode === x[0]) + '">' + x[1] + '</button>').join('') + '</div>' +
+        window.mrtPleinEcran.bouton() + '</div><div class="ps-frise-corps">' + friseCorps(mode) + '</div></div>';
 
-      // (4) Alertes.
-      h += '<section class="ps-alertes"><h2 class="ps-libelle">Alertes (' + ps.alertes.length + ')</h2>' +
-        (ps.alertes.length ? '<ul>' + ps.alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('') + '</ul>' : '') + '</section>';
-
-      // (5) Bloc en cours : 4 semaines à partir de celle-ci, dans la grille du mois du Calendrier ; dans les cases, les repères (7)
-      // et les séances proposées par l'IA, en attente.
-      h += '<section class="ps-bloc"><h2 class="ps-libelle">Bloc en cours · ' + BLOC + ' semaines à partir du ' + longue(lundi) + '</h2>' + iaHtml(ctx, lundi) +
+      // Le bloc en cours : la recommandation (avec les alertes, s'il y en a) et la grille des 4 semaines à partir de celle-ci, dans la grille
+      // du mois du Calendrier ; dans les cases, les repères et les séances proposées par l'IA, en attente.
+      h += plansHtml(ctx);
+      h += '<section class="ps-bloc">' + iaHtml(ctx, lundi, ps.alertes) +
         '<div class="ps-grille">' + window.mrtGrilleMois(ctx, lundi, addDays(lundi, 7 * BLOC - 1), { ps, plus: j => caseHtml(ctx, ps, j) }) + '</div>';
       root.innerHTML = h + '</section></div>';
     }
@@ -298,7 +362,7 @@
     ctx.redessiner = dessiner;
     ctx.ia = {};
     root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
-    root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); });
+    root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); const f = e.target.closest('[data-frise]'); if (f && ctx.friseMaj) ctx.friseMaj(f.dataset.frise); });
     // Choix semaine par semaine : chaque semaine du bloc en pastille, choisie ou non.
     root.addEventListener('click', e => {
       const c = e.target.closest('[data-coche]');
@@ -324,16 +388,19 @@
       else if (act === 'tout' || act === 'selection') {
         const tous = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i));
         const lundis = act === 'tout' ? tous : (ctx.ia.semaines || tous);
+        const n = IA().aRemplacer(ctx, lundis).length;
+        if (n && !(await window.mrtConfirmer({ texte: n + (n > 1 ? ' séances' : ' séance') + ' déjà proposée' + (n > 1 ? 's' : '') + ' par MyRunTools sur ces semaines ' + (n > 1 ? 'seront remplacées' : 'sera remplacée') + ' (pas celles que tu as saisies, ni les faites).', action: 'Remplacer' }))) return;
         const err = await IA().accepter(ctx, prop, lundis);
         if (err) { console.warn(err); ctx.ia = { message: 'Enregistrement impossible pour l\'instant.' }; dessiner(); return; }
         ctx.ia = {}; await recharger();
       } else if (act === 'abandonner') {
-        if (!(await window.mrtConfirmer({ texte: 'Abandonner cette proposition ? Aucune séance n\'est enregistrée.', action: 'Abandonner' }))) return;
+        if (!(await window.mrtConfirmer({ texte: 'Abandonner cette proposition ? Aucune séance n\'est enregistrée.', action: 'Abandonner', annuler: 'Garder' }))) return;
         await IA().abandonner(prop); ctx.ia = {}; await recharger();
       }
     });
     P.brancher(root, ctx, null);
     dessiner();
+    if (location.hash === '#plans') { const z = root.querySelector('#plans'); if (z) z.scrollIntoView(); }
     // Le profil d'entraînement (une ligne, la sienne : règle par ligne), lu après le premier dessin ; jamais sur le site partagé.
     // Et les propositions de l'IA (plafond du mois, proposition en attente).
     if (!ctx.lectureSeule) Promise.all([window.mrtSupabase.from('profil_entrainement').select('*'), IA() ? IA().lirePropositions(ctx) : null]).then(([{ data, error }]) => {

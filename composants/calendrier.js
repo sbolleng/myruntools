@@ -97,11 +97,11 @@
       const est = x => x[0] === vue && (vue !== 'annee' || Number(x[2]) === periode());
       const nom = VUES.find(est)[1], plan = phasesVisibles();
       return '<div class="cal-haut"><div class="cal-periodicite">' +
-        '<button type="button" class="mrt-btn cal-menu-btn" data-menu aria-expanded="false" aria-controls="cal-menu" aria-label="Périodicité : ' + nom + '">' + nom + CHEVRON + '</button>' +
-        '<nav class="cal-menu" id="cal-menu" aria-label="Périodicité" hidden><span class="cal-libelle">Périodicité</span>' + VUES.map(x =>
+        '<button type="button" class="mrt-btn cal-menu-btn" data-menu aria-expanded="false" aria-controls="cal-menu" aria-label="Vue : ' + nom + '">' + nom + CHEVRON + '</button>' +
+        '<nav class="cal-menu" id="cal-menu" aria-label="Vue" hidden><span class="cal-libelle">Vue</span>' + VUES.map(x =>
           '<a href="#' + x[0] + (x[2] && depart ? '=' + depart : '') + '" data-vue="' + x[0] + '"' + (x[2] ? ' data-periode="' + x[2] + '"' : '') +
           (est(x) ? ' class="is-on" aria-current="true"' : '') + '>' + x[1] + '</a>').join('') + '</nav></div>' +
-        '<div class="cal-options"><button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Phases de prépa">Plan</button>' +
+        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Afficher les phases de la préparation">Phases</button>' +
         '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     };
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
@@ -278,6 +278,7 @@
       const jour = t.closest('[data-jour]');
       if (jour) location.hash = '#semaines=' + lundiDe(jour.dataset.jour);
     });
+    root.setAttribute('data-plein-cible', ''); // plein écran (ordinateur) : tout le Calendrier
     P.brancher(root, ctx, null);
     window.addEventListener('hashchange', () => { if (dessiner()) window.scrollTo(0, 0); });
     if (mobile.addEventListener) mobile.addEventListener('change', () => { if (lireHash().v === 'annee') dessiner(); });

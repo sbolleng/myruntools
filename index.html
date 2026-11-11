@@ -51,8 +51,22 @@
     const el = document.getElementById('accueil');
     let courses = page.courses;
     // Bloc Nutrition : le profil de l'utilisateur connecté ; rien sur un site partagé.
-    const nutrition = { profil: page.session.profil || {}, id: page.session.id, lectureSeule: page.lectureSeule };
+    const nutrition = { profil: page.session.profil || {}, id: page.session.id, lectureSeule: page.lectureSeule, seances: [] };
+    // Ajouter une course : la fiche d'ajout ; après l'enregistrement, la page est relue et redessinée.
+    const edition = mrtEdition(page, () => courses, async () => { courses = await page.relire(); renderAccueil(el, courses, page.preferences(), nutrition); });
+    nutrition.ajouterCourse = () => edition && edition.ajouter();
+    // « Ajouter au menu » (bloc Pour aller plus loin) : enregistre la liste des modules, redessine le menu puis la page.
+    nutrition.ajouterModule = async nom => {
+      const prefs = page.preferences(), modules = mrtModulesAvec(prefs, nom);
+      const { error } = await mrtSupabase.from('preferences').upsert({ utilisateur: page.session.id, modules });
+      if (error) { console.warn(error); renderAccueil(el, courses, prefs, nutrition); return; }
+      Object.assign(prefs, { modules });
+      page.redessiner(prefs);
+      renderAccueil(el, courses, prefs, nutrition);
+    };
     renderAccueil(el, courses, page.preferences(), nutrition);
+    // Les séances du jour arrivent ensuite : le bloc « Aujourd'hui » se redessine avec elles.
+    if (!page.lectureSeule) page.relirePlan().then(p => { nutrition.seances = p.seances || []; renderAccueil(el, courses, page.preferences(), nutrition); }).catch(e => console.warn('Séances illisibles', e));
     // La page d'une course s'ouvre en modale, par-dessus l'Accueil.
     mrtModaleCourse(page, { courses: () => courses, surMaj: liste => { courses = liste; renderAccueil(el, courses, page.preferences(), nutrition); } });
   });

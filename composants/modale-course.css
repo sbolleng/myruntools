@@ -7,6 +7,7 @@ html.mc-ouvert { overflow: hidden; }
   inset: 0;
   z-index: 150;
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* colonne à la largeur du voile : la feuille a toujours la même largeur, quel que soit son contenu */
   place-items: center;
   padding: 1.5rem;
   background: color-mix(in srgb, var(--bg) 75%, transparent);
@@ -37,4 +38,13 @@ html.mc-ouvert { overflow: hidden; }
   .pc-barre { margin: 0 -1rem 0.3rem; padding: 0.75rem 1rem 0.4rem; }
 }
 @keyframes mc-monte { from { transform: translateY(2.5rem); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .mc-panneau { animation: none; } }
+/* Feuille à plusieurs écrans (profil d'entraînement) : sur ordinateur, le contenu glisse, la feuille reste fixe ;
+   un écran qui s'ouvre entre par la droite, le retour ramène l'écran précédent par la gauche. */
+@media (min-width: 601px) {
+  .mc-panneau.mc-ecrans { height: min(40rem, calc(100vh - 3rem)); overflow-x: hidden; } /* taille fixe : ni saut ni recentrage d'un écran à l'autre */
+  .mc-corps.mc-glisse-avant { animation: mc-glisse-avant 0.2s ease-out; }
+  .mc-corps.mc-glisse-retour { animation: mc-glisse-retour 0.2s ease-out; }
+}
+@keyframes mc-glisse-avant { from { transform: translateX(2.5rem); opacity: 0; } }
+@keyframes mc-glisse-retour { from { transform: translateX(-2.5rem); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mc-panneau, .mc-corps { animation: none !important; } }
