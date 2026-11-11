@@ -85,7 +85,10 @@
 .ps-sem-q .cal-champ { margin-bottom: 0.5rem; }
 .ps-chiffre { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; font-size: var(--t-texte); color: var(--text); }
 .ps-chiffre .mrt-champ { width: 4.5rem; text-align: center; }
-.ps-enregistrer { margin-top: 1rem; }
+/* Bouton « Enregistrer » de Ma semaine : collé en bas de la feuille, toujours visible sans défiler. */
+.ps-enregistrer-bas { position: sticky; bottom: 0; z-index: 3; margin: 1rem -2rem -2rem; padding: 0.8rem 2rem 1rem; background: var(--surface); border-top: 1px solid var(--border); }
+.ps-enregistrer-bas .mrt-btn { width: 100%; }
+@media (max-width: 600px) { .ps-enregistrer-bas { margin: 1rem -1rem -1.5rem; padding: 0.8rem 1rem 1rem; } }
 .ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .ps-valeur { margin-top: 1rem; }
 .ps-valeur .mrt-btn { margin-top: 0.2rem; }
