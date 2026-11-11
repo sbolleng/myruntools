@@ -27,7 +27,7 @@ L'adresse `courses-a-surveiller.html?vue=surveiller` (ou `venir`, `courue`, `ouv
 ## 3. Plan de page
 
 ```
-(30) [⚲ Filtres 2]  (25) (▦)(☰)   (31) 7 sur 17 courses   (32) Réinitialiser les filtres      (22) [+ Ajouter une course]
+(25) [Cartes ˅]  (30) (⚲ 2)   (31) 7 sur 17 courses   (32) Réinitialiser les filtres      (22) [+ Ajouter une course]
 ┌ panneau, replié par défaut ─────────────────────────────────────────────────────────────┐
 │ (33) STATUT  [Confirmée 5] [Option 2] [Repérée 3] [Courue 7]      INSCRIPTIONS [Ouvertes 1]   (35) ˄ │
 │ (34) ANNÉE   [Toutes] [2028] [2027] [2026] [2025]                                         │
@@ -58,9 +58,9 @@ Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteu
 | 14 | Site officiel ↗ | | Bas droite | Lien souligné en Texte ; **grisé, sans adresse, quand `lien` n'est pas renseigné** |
 | 17 | Titre de mois | NOVEMBRE 2026, DATE À DÉFINIR | Au-dessus de chaque groupe, en cartes | Libellé, Texte discret, filet dessous |
 | 22 | Ajouter | + Ajouter une course | Haut de page, à droite | Bouton principal ; absent en lecture seule |
-| 25 | Affichage | Deux ronds, sans libellé : grille (cartes) et tableau | Après Filtres | Ronds `mrt-rond` du Palmarès, pictos de la même taille (0,95 rem) ; le rond actif en Accent ; infobulles « Cartes » et « Tableau » ; choix gardé sur l'appareil (`mrt-courses-affichage`), cartes par défaut |
-| 30 | Filtres | Rond à trois traits, badge « 2 » | Haut de page, à gauche | Rond `mrt-rond` du Palmarès ; en Accent, avec le nombre de groupes filtrés, quand un filtre est actif ou le panneau ouvert ; ouvre et ferme le panneau |
-| 31 | Compte | 7 sur 17 courses | Après les ronds d'affichage | Texte discret ; seulement avec un filtre actif |
+| 25 | Affichage | Liste à choix unique : « Cartes » ou « Tableau » (le choix en cours sur le bouton, avec un chevron) | Haut de page, à gauche | Même liste que le menu « Vue » du Calendrier : bouton `mrt-btn`, liste Surface 2, choix en cours en Accent avec un trait à gauche ; se ferme au choix, en touchant ailleurs ou par Échap ; mêmes dimensions (12 rem au moins), même en-tête « Vue » dans la liste (jamais de libellé dans la barre) ; en Accent ; choix gardé sur l'appareil (`mrt-courses-affichage`), cartes par défaut |
+| 30 | Filtres | Rond à trois traits, badge « 2 » | À droite de la liste d'affichage | Rond `mrt-rond` du Palmarès ; en Accent, avec le nombre de groupes filtrés, quand un filtre est actif ou le panneau ouvert ; ouvre et ferme le panneau |
+| 31 | Compte | 7 sur 17 courses | Après le bouton Filtres | Texte discret ; seulement avec un filtre actif |
 | 32 | Réinitialiser | Réinitialiser les filtres | Après le compte | Lien commun (`mrt-lien`) ; seulement avec un filtre actif |
 | 33 | Statut, Inscriptions | Pastilles avec compteurs | Panneau | Pastilles communes (`mrt-pastille`), cumulables dans un groupe ; Libellé en tête de chaque groupe |
 | 34 | Année | Toutes · 2028 · 2027 | Panneau | Pastilles à choix unique ; seulement avec plus d'une année |
@@ -128,7 +128,7 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | Essai | Résultat attendu |
 | --- | --- |
 | Ouverture de la page | 17 courses, à venir d'abord puis les courues ; aucun filtre : pas de badge, de compte ni de lien « Réinitialiser » ; panneau replié ; aucune pastille de vue |
-| Boutons | Les ronds Filtres, Cartes et Tableau font 32 px, comme ceux du Palmarès ; pictos de 15 px |
+| Boutons | Le rond Filtres fait 32 px, comme ceux du Palmarès (picto de 15 px) ; la liste d'affichage « Cartes » est à sa gauche, alignée ; elle s'ouvre sur Cartes et Tableau ; Échap ou un toucher ailleurs la ferme |
 | Panneau | Statuts Confirmée, Option, Repérée 3, Courue 7 ; Ouvertes 1 ; la flèche le replie en déroulé (hauteur et fondu animés, panneau caché à la fin) |
 | Repérée | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; titres avril 2027, septembre 2028, date à définir ; « Filtres · 1 actif », « 3 sur 17 courses » |
 | Carte du Marathon | Fond ; statut « Repérée » et date sur la même ligne, nom dessous ; ni compteur ni objectif ; « Ouvre le 3 nov. 2026 à 12 h » ; lien « Site officiel » dans un nouvel onglet ; Ultra des Lacs : lien grisé sans adresse, date « À définir », « Ouverture : janvier 2027 » ; « INSCRIPTION » ne recouvre pas la pastille |
@@ -140,7 +140,7 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | + Course | Repérée seule filtrée : statut préchoisi Repérée ; sinon Confirmée ; Courue seule : fiche de résultat |
 | Fiche | Date et heure d'ouverture relues ; « Mois seulement » : la date devient un mois, l'heure se vide ; enregistré au 1er du mois, sans heure ; sans date d'ouverture, ni mois seul ni heure |
 | Ouverture le jour même | Avant l'heure : « Ouvre le 20 oct. 2026 à 14 h » ; après : « Inscription ouverte » |
-| Tableau | Choisi par le rond : colonnes Événement, Course, Distance · D+, Date, Ouverture des inscriptions ; sans titres de mois ; une ligne par course (Repérée : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour l'inscription d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement, les filtres repartent à zéro ; tris des colonnes comme au § 3.1 |
+| Tableau | Choisi dans la liste d'affichage : colonnes Événement, Course, Distance · D+, Date, Ouverture des inscriptions ; sans titres de mois ; une ligne par course (Repérée : Marathon de la Baie, Trail des Sommets, Ultra des Lacs) ; l'heure sous la date (« 9 h ») ; « — » pour l'inscription d'une course courue ; le lien du nom n'ouvre pas la fiche, toucher une ligne l'ouvre ; le choix est gardé après rechargement, les filtres repartent à zéro ; tris des colonnes comme au § 3.1 |
 | Ordinateur (1200 px) | Deux cartes du même mois côte à côte, moins de 420 px de large ; toutes les cartes de la même hauteur (aussi sur téléphone) |
 | Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
 | Menu | Onglet « Courses » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |

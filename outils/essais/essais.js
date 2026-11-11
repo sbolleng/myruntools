@@ -3249,6 +3249,7 @@ const CONTROLES = {
       if (v === 'ouvertes') await p.click('[data-ouvertes]');
       else for (const k of { surveiller: ['a_surveiller'], venir: ['confirmee', 'option'], courue: ['courue'] }[v]) await p.click('[data-cat="' + k + '"]');
     };
+    const affiche = async (p, m) => { await p.click('[data-cs="menu"]'); await p.click('#cs-menu [data-mode="' + m + '"]'); };
     const barre = p => p.evaluate(() => ({ vues: [...document.querySelectorAll('[data-cat], [data-ouvertes]')].map(b => b.textContent.replace(/\s+/g, ' ').trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       compte: document.querySelectorAll('.cs-carte, .cs-ligne').length + ' courses', groupes: [...document.querySelectorAll('[data-groupe]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')), tris: [...document.querySelectorAll('[data-tri]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
       annees: [...document.querySelectorAll('[data-annee]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')),
@@ -3268,9 +3269,19 @@ const CONTROLES = {
     await p.click('[data-cs="fermer"]');
     pb.push(egal(true, await p.evaluate(() => { const h = document.querySelector('#cs-filtres'); return h.hidden || !!h.__deroule; }), 'la flèche replie le panneau en déroulé'));
     await p.waitForFunction(() => document.querySelector('#cs-filtres').hidden);
-    pb.push(egal([[32, 32], [32, 32], [32, 32], [15, 15]], await p.evaluate(() => [['[data-cs="filtres"]'], ['[data-mode="cartes"]'], ['[data-mode="tableau"]']].map(([s]) => { const r = document.querySelector(s).getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })
-      .concat([[Math.round(document.querySelector('[data-cs="filtres"] svg').getBoundingClientRect().width), Math.round(document.querySelector('[data-mode="cartes"] svg').getBoundingClientRect().width)]])), 'ronds Filtres, Cartes, Tableau : 32 px ; pictos 15 px (comme le Palmarès)'));
-    pb.push(egal(0, await p.locator('.cs-lib', { hasText: /^Vue$/i }).count(), 'pas de libellé « Vue »'));
+    pb.push(egal([[32, 32], [15]], await p.evaluate(() => { const r = document.querySelector('[data-cs="filtres"]').getBoundingClientRect(), i = document.querySelector('[data-cs="filtres"] svg').getBoundingClientRect(); return [[Math.round(r.width), Math.round(r.height)], [Math.round(i.width)]]; }), 'rond Filtres : 32 px, picto 15 px (comme le Palmarès)'));
+    // Affichage : une liste à choix unique (Cartes ou Tableau), le bouton Filtres à sa droite.
+    pb.push(egal([true, 'Cartes', true], await p.evaluate(() => { const m = document.querySelector('[data-cs="menu"]').getBoundingClientRect(), f = document.querySelector('[data-cs="filtres"]').getBoundingClientRect();
+      return [f.left >= m.right, document.querySelector('[data-cs="menu"]').textContent.trim(), Math.abs((m.top + m.height / 2) - (f.top + f.height / 2)) < 2]; }), 'affichage : liste « Cartes » à gauche, bouton Filtres à sa droite, alignés'));
+    pb.push(egal([true, 'false'], [await p.locator('#cs-menu').isHidden(), await p.getAttribute('[data-cs="menu"]', 'aria-expanded')], 'liste d\'affichage fermée à l\'ouverture'));
+    await p.click('[data-cs="menu"]');
+    pb.push(egal([['Cartes *', 'Tableau'], 'true'], [await p.evaluate(() => [...document.querySelectorAll('#cs-menu [data-mode]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : ''))), await p.getAttribute('[data-cs="menu"]', 'aria-expanded')], 'liste d\'affichage : Cartes (choisi) et Tableau'));
+    pb.push(egal([true, 'Vue'], await p.evaluate(() => [document.querySelector('#cs-menu').getBoundingClientRect().width >= 190, document.querySelector('#cs-menu .cs-lib').textContent]), 'liste d\'affichage : 12 rem au moins, en-tête « Vue », comme le Calendrier'));
+    await p.keyboard.press('Escape');
+    pb.push(egal(true, await p.locator('#cs-menu').isHidden(), 'Échap ferme la liste'));
+    await p.click('[data-cs="menu"]'); await p.click('h1, body', { position: { x: 5, y: 600 } });
+    pb.push(egal(true, await p.locator('#cs-menu').isHidden(), 'un toucher ailleurs ferme la liste'));
+    pb.push(egal(0, await p.locator('.cs-barre > .cs-lib, .cs-barre > .cs-reglage').count(), 'pas de libellé « Vue » dans la barre (seulement en tête de la liste)'));
     await vue(p, 'surveiller');
     b = await barre(p); k = await cartes(p);
     pb.push(egal([0, ['avril 2027', 'septembre 2028', 'Date à définir'], 'Filtres · 1 actif', '3 sur 17 courses'], [await p.locator('[data-groupe], [data-tri]').count(), b.reperes, await p.getAttribute('[data-cs="filtres"]', 'aria-label'), await t(p, '.cs-compte')], 'Repérée : titres de mois, un filtre actif, compte « 3 sur 17 courses »'));
@@ -3310,8 +3321,8 @@ const CONTROLES = {
     const lignes = () => p.evaluate(() => ({ en: [...document.querySelectorAll('.cs-tableau thead th')].map(x => x.textContent),
       l: [...document.querySelectorAll('.cs-ligne')].map(r => [...r.children].map(x => x.innerText.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim())),
       lien: [...document.querySelectorAll('.cs-ligne .cs-lien-nom')].map(x => x.getAttribute('href')) }));
-    pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.getAttribute('aria-label') + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
-    await p.click('[data-mode="tableau"]');
+    pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
+    await affiche(p, 'tableau');
     let tb = await lignes();
     pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des inscriptions'], tb.en, 'tableau : les colonnes par défaut'));
     pb.push(egal([0, 0], [await p.locator('.cs-ligne-mois').count(), await p.locator('[data-groupe]').count()], 'tableau : pas de regroupement par mois, pas de choix de regroupement'));
@@ -3361,7 +3372,7 @@ const CONTROLES = {
     await p.click('[data-ob="fermer"]'); await pause();
     await p.reload(); await p.waitForSelector('.cs-barre');
     pb.push(egal(17, await p.locator('.cs-ligne').count(), 'tableau : l\'affichage choisi est gardé après rechargement (les filtres, eux, repartent à zéro)'));
-    await p.click('[data-mode="cartes"]');
+    await affiche(p, 'cartes');
     pb.push(egal([0, 17], [await p.locator('.cs-tableau').count(), await p.locator('.cs-carte').count()], 'retour aux cartes'));
 
     // Toucher une carte : la fiche de modification (course à venir, sans date, courue) ; le lien « Site officiel » ne l'ouvre pas.
@@ -3460,7 +3471,7 @@ const CONTROLES = {
       return [Math.abs(r('.ob-role').top - r('.ob-date').top) < 2, r('.ob-nom').top >= r('.ob-role').bottom - 1]; }), 'téléphone : statut et date sur la même ligne, le nom dessous'));
     pb.push(egal(1, await o.p.evaluate(() => new Set([...document.querySelectorAll('.cs-carte')].map(c => c.getBoundingClientRect().left)).size), 'téléphone : une seule colonne'));
     pb.push(egal(1, await o.p.evaluate(() => new Set([...document.querySelectorAll('.cs-carte')].map(c => Math.round(c.getBoundingClientRect().height))).size), 'téléphone : toutes les cartes de la même hauteur'));
-    await o.p.click('[data-mode="tableau"]');
+    await affiche(o.p, 'tableau');
     pb.push(egal(false, await o.p.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), 'téléphone, tableau : rien ne dépasse de la page (le tableau défile dans son cadre)'));
     pb.push(egal([], o.erreurs, 'téléphone : erreurs JavaScript'));
     await o.ctx.close();
@@ -4211,7 +4222,9 @@ const CONTROLES = {
     const pb = [];
     const INTERDITS = [/(Objectif (&|&amp;) plan|Plan (&|&amp;) objectifs)/, /Feuille de route/, /Périodicité/, /Déjà couru/, /Musculation/, /Effacer/, /Rétablir/, /Recalculer/, /Créer/,
       /[Cc]andidat/, /\bprépa\b/i, /[Pp]lan de saison/, /Saison :/, /\b(mon|ton|son|ta|sa) site\b/i, /\bsite (de|partagé)\b/, /Sauvegarder/, /Éditer/, /Sorties par/, /Renforcements par/,
-      /^Dossard$/i, /^Cap$/, /^Mon profil$/, /^Modifier$/, /Fermer la fiche/];
+      /^Dossard$/i, /^Cap$/, /^Mon profil$/, /^Modifier$/, /Fermer la fiche/,
+      // Courses (glossaire) : le statut s'appelle « Repérée », les vues « À surveiller » et « À venir » n'existent plus.
+      /À surveiller/, /Courses à surveiller/, /^À venir( \d+)?$/];
     const textes = p => p.evaluate(() => {
       const out = new Set();
       document.querySelectorAll('h1,h2,h3,h4,summary,button,a,label,legend,option,th,[aria-label],[title],[placeholder]').forEach(e => {

@@ -4,6 +4,7 @@
    Rien d'écrit en dur : les rôles de couleur du thème. */
 .cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 0.9rem; margin-bottom: 1.1rem; }
 .cs-barre .ob-ajout { margin-left: auto; }
+.cs-barre { position: relative; z-index: 2; } /* la liste d'affichage passe au-dessus du panneau */
 .cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
 /* Filtres : rond commun, comme le Palmarès ; Accent quand un filtre est actif ou le panneau ouvert, avec le nombre de filtres actifs. */
 .cs-filtre { position: relative; }
@@ -43,9 +44,20 @@
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
 
-/* Les deux ronds d'affichage (cartes, tableau) sont ceux du Palmarès : le rond actif est en Accent. */
+/* Affichage : une liste à choix unique, comme le menu « Vue » du Calendrier (bouton avec chevron, liste Surface 2, le choix en cours en Accent). */
+.cs-affichage { position: relative; }
+.cs-menu-chev { width: 0.75rem; height: 0.75rem; transition: transform 0.15s; }
+.cs-menu-btn[aria-expanded="true"] .cs-menu-chev { transform: rotate(180deg); }
+.cs-menu { position: absolute; top: calc(100% + 0.4rem); left: 0; z-index: 30; display: flex; flex-direction: column; min-width: 12rem; padding: 0.45rem 0;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.cs-menu[hidden] { display: none; }
+.cs-menu .cs-lib { padding: 0.35rem 1.1rem 0.45rem; } /* l'en-tête « Vue » du menu du Calendrier */
+.cs-menu button { position: relative; padding: 0.55rem 1.1rem; font: inherit; font-size: var(--t-texte); text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
+.cs-menu button[aria-pressed="true"] { font-weight: 600; color: var(--accent); }
+.cs-menu button[aria-pressed="true"]::before { content: ''; position: absolute; top: 0.4rem; bottom: 0.4rem; left: 0.45rem; width: 3px; border-radius: 2px; background: var(--accent); }
+.cs-menu button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (hover: hover) { .cs-menu button:hover { background: var(--case); } }
 .cs-lib { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.cs-ronds { display: inline-flex; gap: 0.4rem; }
 /* Tableau : colonnes de la veille dans un cadre ; une ligne par course, toucher une ligne ouvre la fiche. */
 .cs-tableau { padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .cs-tableau table { min-width: 44rem; }
