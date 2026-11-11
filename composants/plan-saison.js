@@ -98,9 +98,11 @@
       return true;
     }
     // Barre du haut : « ‹ » (retour à la liste) à gauche dans une question, la croix à droite ; dessous, le titre en libellé.
-    const barre = (titre, retour) => '<div class="pc-barre ps-profil-barre">' +
-      (retour ? '<button type="button" class="mrt-rond" data-q="liste" aria-label="Retour à la liste" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span></span>') +
-      '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
+    // Avec « valider » (Ma semaine), comme les autres fenêtres de saisie du site : « Annuler » à gauche, « Enregistrer » à droite.
+    const barre = (titre, retour, valider) => '<div class="pc-barre ps-profil-barre">' +
+      (valider ? '<button type="button" class="mrt-btn" data-q="liste">Annuler</button><button type="button" class="mrt-btn is-principal" data-enregistrer>Enregistrer</button>' :
+        (retour ? '<button type="button" class="mrt-rond" data-q="liste" aria-label="Retour à la liste" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span></span>') +
+        '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button>') + '</div>' +
       '<p class="fc-libelle" id="ps-titre">' + titre + '</p><p class="ps-msg" role="alert"></p>';
 
     // Glissement du contenu (ordinateur seulement, voir modale-course.css) : vers une question par la droite, retour à la liste par la gauche.
@@ -132,7 +134,7 @@
       }));
     }
     // Ma semaine : jours pour courir et pour le renforcement (cumulables), jour de la sortie longue, en pastilles ; nombres de
-    // sorties et de renforcements, un chiffre de 0 à 7. Les changements sont gardés dans la feuille ; « Enregistrer » les range et revient à la liste.
+    // sorties et de renforcements, un chiffre de 0 à 7. Les changements sont gardés dans la feuille ; « Enregistrer » (en haut) les range et revient à la liste, « Annuler » les abandonne.
     function semaine(brouillon) {
       versQuestion();
       const p0 = pr(), b = brouillon || { jc: joursDe(p0, 'jours_course'), jr: joursDe(p0, 'jours_renfo'), jl: p0.jour_long || null, ns: p0.nb_sorties, nr: p0.nb_renfo };
@@ -140,15 +142,14 @@
       const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
       const chiffre = (nom, lib, v) => '<label class="ps-sem-q ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
       const section = (titre, html) => '<section class="mrt-section"><h2 class="mrt-section-titre">' + titre + '</h2><div class="ps-groupe-l">' + html + '</div></section>';
-      corps.innerHTML = barre('Ma semaine', true) +
+      corps.innerHTML = barre('Ma semaine', true, true) +
         section('Course',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, b.jc.includes(i + 1), j)).join('')) +
           chiffre('nb_sorties', 'Séances par semaine', b.ns) +
           q('Sortie longue', (b.jc.length ? b.jc.map(n => pastille('data-long', n, b.jl === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !b.jl, 'Peu importe'))) +
         section('Renforcement',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, b.jr.includes(i + 1), j)).join('')) +
-          chiffre('nb_renfo', 'Séances par semaine', b.nr)) +
-        '<div class="ps-enregistrer-bas"><button type="button" class="mrt-btn is-principal" data-enregistrer>Enregistrer</button></div>';
+          chiffre('nb_renfo', 'Séances par semaine', b.nr));
       const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, c) => a - c));
       const lire = () => corps.querySelectorAll('.ps-chiffre input').forEach(x => { const t = x.value.trim(); b[x.name === 'nb_sorties' ? 'ns' : 'nr'] = t === '' ? null : t; });
       corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(btn => btn.addEventListener('click', () => {
