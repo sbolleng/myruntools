@@ -280,12 +280,11 @@
   let parcoursOuvert = null;
   // Parcours (n° 25), à venir comme courue : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ;
   // sans GPX, « Importer un GPX » (28), sauf en lecture seule.
-  // Course courue sans tracé : pas de bouton d'import, la ligne n'apparaît pas.
-  function parcoursHtml(c, edition, courue) {
+  function parcoursHtml(c, edition) {
     const T = window.mrtTrace;
     const trace = !T ? '' : c.gpx
       ? '<div class="tr-zone"></div>'
-      : edition && !courue ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
+      : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
         '<div class="tr-choix-zone" hidden></div><p class="tr-erreur" aria-live="polite"></p>' : '';
     return cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie"><p class="pc-sous-titre">Stratégie de course</p>' + texte(c.strategie) + '</div>' : ''), 'parcours');
   }
@@ -470,7 +469,7 @@
     const infos = [[dateLongue(c, true), heureTxt(c), c.lieu], [c.formatLibelle, c.dossard ? 'Dossard ' + c.dossard : ''], [km(c.distance), c.dplus != null ? nombre(c.dplus) + ' m D+' : '']].map(l => l.filter(Boolean).join(' · ')).filter(Boolean);
     // Sous le Résultat et la Montre, tout ce qui a été saisi, replié, dans un seul cadre comme pour une course à venir :
     // À propos, Parcours (carte, stratégie), Préparation (son rôle ; pas de plan : il n'est pas rangé), Logistique.
-    const bas = cellule('À propos de la course', texte(c.description)) + parcoursHtml(c, edition, true) +
+    const bas = cellule('À propos de la course', texte(c.description)) + parcoursHtml(c, edition) +
       cellule('Préparation', c.pourquoi ? '<div class="pc-role"><p class="pc-sous-titre">Rôle dans la préparation</p>' + texte(c.pourquoi) + '</div>' : '', 'preparation') +
       cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre +
