@@ -4171,7 +4171,9 @@ const CONTROLES = {
     const pb = [];
     const INTERDITS = [/(Objectif (&|&amp;) plan|Plan (&|&amp;) objectifs)/, /Feuille de route/, /Périodicité/, /Déjà couru/, /Musculation/, /Effacer/, /Rétablir/, /Recalculer/, /Créer/,
       /[Cc]andidat/, /\bprépa\b/i, /[Pp]lan de saison/, /Saison :/, /\b(mon|ton|son|ta|sa) site\b/i, /\bsite (de|partagé)\b/, /Sauvegarder/, /Éditer/, /Sorties par/, /Renforcements par/,
-      /^Dossard$/i, /^Cap$/, /^Mon profil$/, /^Modifier$/, /Fermer la fiche/];
+      /^Dossard$/i, /^Cap$/, /^Mon profil$/, /^Modifier$/, /Fermer la fiche/,
+      // Courses (glossaire) : le statut s'appelle « Repérée », les vues « À surveiller » et « À venir » n'existent plus.
+      /À surveiller/, /Courses à surveiller/, /^À venir( \d+)?$/];
     const textes = p => p.evaluate(() => {
       const out = new Set();
       document.querySelectorAll('h1,h2,h3,h4,summary,button,a,label,legend,option,th,[aria-label],[title],[placeholder]').forEach(e => {
