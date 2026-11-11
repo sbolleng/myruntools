@@ -136,7 +136,7 @@
   // Catégories d'âge de la Fédération française d'athlétisme (saison du 1er septembre au 31 août).
   const CATEGORIES = [['CA', 'Cadet (CA)'], ['JU', 'Junior (JU)'], ['ES', 'Espoir (ES)'], ['SE', 'Senior (SE)']]
     .concat(Array.from({ length: 11 }, (_, i) => ['M' + i, 'Master ' + i + ' (M' + i + ', ' + (35 + 5 * i) + (i < 10 ? '-' + (39 + 5 * i) : ' et plus') + ' ans)']));
-  const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'À surveiller']];
+  const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'Repérée']];
   const APPROX = 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.';
   const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
   const NOUVEAU = '__nouveau__';
@@ -168,7 +168,7 @@
   //                Préparation (lecture) ; il se règle dans la page Préparation (« Paramétrer le plan », composants/preparation.js)
   window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer, preparation, dans, fin, defauts }) {
     const existe = !!(course && course.id);
-    const c = Object.assign({}, defauts, course || {}); // defauts : valeurs d'une nouvelle course (ex. statut À surveiller)
+    const c = Object.assign({}, defauts, course || {}); // defauts : valeurs d'une nouvelle course (ex. statut Repérée)
     mode = mode || 'courue';
     const venir = mode === 'a_venir';
     const CHAMPS = TOUS.filter(f => !(venir ? COURUE_SEUL : VENIR_SEUL).has(f[0]));
@@ -420,7 +420,7 @@
       d.value = '';
       if (avec) { d.placeholder = AIDE_OBJECTIF[t]; d.focus(); } else erreur('objectif', '');
     });
-    // Étoiles : une course à surveiller n'a pas besoin de date ni de distance ; une course DNF, pas de temps.
+    // Étoiles : une course repérée n'a pas besoin de date ni de distance ; une course DNF, pas de temps.
     function majOblig() {
       const facultatif = k => (venir ? (k === 'date' || k === 'distance') && val('statut').value === 'a_surveiller' : k === 'temps' && val('dnf').checked);
       ['date', 'distance', 'temps'].forEach(k => { const e = racine.querySelector('label[for="fc-' + k + '"] .fc-oblig'); if (e) e.hidden = facultatif(k); });

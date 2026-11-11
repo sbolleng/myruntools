@@ -223,7 +223,7 @@ Chacun ajoute, modifie et supprime ses courses à venir dans la page, sans autre
 | --- | --- | --- |
 | « + Ajouter une course » (« + Course » sur téléphone) | Bouton principal, le même que celui du Palmarès, en haut à droite de la saison, au-dessus de la première carte | Ouvre un formulaire vide ; statut Confirmée et rôle Préparatoire proposés |
 | « Modifier » | Page d'une course, crayon de la barre du haut | Bascule la feuille en édition, fiche remplie (§ 3.8) |
-| « Retenir cette course » | Page d'une option d'un groupe d'options | Après confirmation, l'option passe en Confirmée et quitte le groupe ; les autres options passent À surveiller et quittent la saison, sans être supprimés |
+| « Retenir cette course » | Page d'une option d'un groupe d'options | Après confirmation, l'option passe en Confirmée et quitte le groupe ; les autres options passent Repérée et quittent la saison, sans être supprimés |
 | « Marquer comme courue » | Page d'une course Confirmée, à partir du jour de la course | Bascule la feuille en édition, fiche d'une course courue, pré-remplie de ce que la course connaît ; à l'enregistrement, la course passe à l'état Courue, quitte la saison et rejoint le Palmarès |
 
 Site partagé en lecture seule : aucun de ces boutons.
@@ -233,14 +233,14 @@ Site partagé en lecture seule : aucun de ces boutons.
 | Bloc | Champs |
 | --- | --- |
 | Course | Course et parcours ; date, ou mois seul (case « Seul le mois est connu » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ (vidée et grisée tant qu'il n'y a pas de date exacte : sans date, ou en mois seul) ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; **objectif**, choisi dans une liste (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), la durée n'apparaissant que pour les deux derniers ; **précisions sur l'objectif** (100 caractères au plus) ; description (1 000 caractères au plus), puis **site officiel** (sous la description, comme dans la consultation où il rejoint « À propos de la course »), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
-| Place dans le plan | Statut (Confirmée, Option, À surveiller) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
+| Place dans le plan | Statut (Confirmée, Option, Repérée) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
 | Préparation | En tête, le plan de préparation, comme sur la page de la course (§ 3.4) : durée et dates (39), frise des phases (40), en lecture ; le plan se règle dans la page Préparation (note 41 : « Le plan se règle dans Préparation, une fois la course enregistrée. »). Seulement pour une course Confirmée ou Option ; calculé sur la date, le format et le statut saisis, il suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) remplace 39, 40 et 41 : « Choisis d'abord la date et le format. ». Date approximative : le plan vise le 1er du mois, avec sous 39 la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. » ; case décochée, le plan se recalcule sur la date précise, selon les règles (Calendrier, § 5.1). Date précise changée : les phases réglées à la main suivent la course, au même numéro de semaine. Le réglage (Calendrier, § 5.3) n'est plus dans le formulaire : « Enregistrer » range la course ; ses phases réglées suivent la date. Même comportement pour une nouvelle course et une course existante. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Logistique | Logistique |
 | Inscription | Date d'ouverture des inscriptions, heure d'ouverture et case « Seul le mois est connu » **sur une seule ligne** (sur téléphone : la date seule, puis l'heure et la case ensemble) ; case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Résultat | Avant la course : « Résultats en direct » seul (lien à ouvrir le jour de la course). Voir § 3.8 |
 
 - **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Paramétrer le plan » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
-- **Obligatoires** marqués d'une étoile en Accent, en exposant (en haut à droite du libellé), sans légende : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course À surveiller peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « DNF » est cochée. Décidé le 10 nov. 2026.
+- **Obligatoires** marqués d'une étoile en Accent, en exposant (en haut à droite du libellé), sans légende : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course Repérée peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « DNF » est cochée. Décidé le 10 nov. 2026.
 - **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 3h, 1h30 ou 45 min » (Moins de…), « ex. 02:45:00 » (Temps précis), « ex. Partir prudemment, sous 4 h dans tous les cas », « ex. https://… ».
 - **Objectif normé** : une liste à choix unique (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), puis la durée si le choix en demande une ; rangé comme avant : « Finisher », « Sub 3h » / « Sub 1h30 » / « Sub 45 min », ou un temps `hh:mm:ss`. Tout le reste (intention, fourchette, contexte) va dans **Précisions sur l'objectif** (nom décidé le 10 nov. 2026).
 - **Contrôles de saisie** :
@@ -266,7 +266,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 | Fermer | La croix, Échap, un toucher à côté, le retour du téléphone | Pas de croix : « Annuler » revient à la consultation (ou ferme, pour un ajout) ; s'il y a eu une saisie, « Abandonner les modifications ? » d'abord. Échap, un toucher à côté et le retour du navigateur ou du téléphone font comme « Annuler », aussi pour la fiche ouverte seule (« Ajouter une course », crayon d'une ligne du Palmarès) : on ne quitte jamais la page |
 | Forme | Ordinateur : fenêtre au gabarit des pages (896 px de contenu) ; téléphone : plein écran, qui monte du bas (§ 3.4) | La même : on bascule dans la même feuille, sans nouvelle couche |
 
-- **Le crayon (C5)** bascule la feuille en édition ; **Enregistrer (F25)** range la course et rebascule en consultation, mise à jour. Une course qui quitte la saison (courue, à surveiller, supprimée) ferme la feuille.
+- **Le crayon (C5)** bascule la feuille en édition ; **Enregistrer (F25)** range la course et rebascule en consultation, mise à jour. Une course qui quitte la saison (courue, repérée, supprimée) ferme la feuille.
 - **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la saison, sinon la feuille se ferme (course courue ajoutée au Palmarès).
 - **Toucher une ligne du Palmarès** : la feuille en consultation d'une course courue (ci-dessous). **Crayon d'une ligne** : la feuille directement en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
@@ -405,7 +405,7 @@ Cette liste vit dans Supabase, une par utilisateur ; elle ne contient ni réserv
 Il montre la montée en difficulté jusqu'à l'objectif : chaque course est placée selon sa date et son **km-effort**, la mesure normée de la [spécification générale](specification-generale.md) (§ 12 bis : distance + D+/100, sans le D−). Un graphique fonctionnel : axes gradués, chiffres lisibles, aucune décoration.
 
 - **Place** : en haut de la page Objectif, au-dessus de la saison, dans son cadre ; titre repliable « Évolution de l’effort » (déroulé commun), **toujours fermé à l'ouverture de la page** : l'ouvrir ne se retient pas, il est refermé à chaque chargement. Même dessin que le graphique de progression du Palmarès (§ 12 de sa spécification).
-- **Courses montrées** : celles de la saison (étapes, options d'un groupe, objectif), de la date du jour à la dernière. Ni courues, ni abandonnées, ni à surveiller. Une course sans distance n'a pas de point ; elle reste dans le tableau des chiffres, avec « — ».
+- **Courses montrées** : celles de la saison (étapes, options d'un groupe, objectif), de la date du jour à la dernière. Ni courues, ni abandonnées, ni repérée. Une course sans distance n'a pas de point ; elle reste dans le tableau des chiffres, avec « — ».
 - **Période** : règle commune à tous les comptes : de la date du jour jusqu'à la dernière course du plan (une date au mois seul compte jusqu'à la fin du mois). Pas de trait « aujourd'hui » : il serait sur le bord gauche.
 - **Signes** : trois, en Accent : un **point plein** pour une course de préparation, un **point à contour** (centre Surface) pour une course en option, un **losange** pour un objectif (principal ou intermédiaire, sans distinction). Une légende (17) les nomme. Pas de trait de période : une date au mois seul place le point au milieu du mois.
 - **Pas d'étiquettes** sur le graphique (illisibles) : le nom est dans la bulle.
@@ -519,7 +519,7 @@ Pour les courses labellisées : catégorie et index UTMB, affichés dans le titr
 - [x] Course à choisir : une liste dans l'étape, une ligne par option ; chacune ouvre sa page. Le comparatif viendra du graphique de difficulté (décidé le 23 oct. 2026).
 - [x] Détail d'une course : une page dédiée par course plutôt qu'une étape dépliée ou une fenêtre ; icône ↗ pour le site officiel (décidé le 23 oct. 2026).
 - [x] Inscriptions fermées (ou complet) sans être inscrit : pas de cinquième état, pas de champ de plus (décidé le 28 oct. 2026).
-- [x] Groupe d'options : créé dans le formulaire ; option retenue depuis sa page, les autres passent À surveiller ; rôles différents listés ; une seule option reste un groupe (décidé le 24 oct. 2026).
+- [x] Groupe d'options : créé dans le formulaire ; option retenue depuis sa page, les autres passent Repérée ; rôles différents listés ; une seule option reste un groupe (décidé le 24 oct. 2026).
 - [x] Choix de la course de l'en-tête (cap) : dans les Préférences et depuis la page d'une course, pas depuis la saison (décidé le 28 oct. 2026 ; à construire).
 
 ## 10. Contrôles
@@ -536,15 +536,15 @@ Jeu d'essai, données fictives, à la date du 20 octobre 2026 à 10 h, heure de 
 | 6 | Trail de la Forêt | juillet 2027 (mois seul) | Bois-Joli · Trail court | 30 km, 1 200 m | Option, Préparatoire, À venir | — | — | Pas inscrit, ouverture inconnue |
 | 7 | Trail des Crêtes | 28 août 2027, 5 h | Mont-Clair · Ultra-trail | 60 km, 3 500 m | Confirmée, Objectif, À venir | — | Finisher | Inscrit, n° 88 |
 | 8 | Cross des Collines | 6 déc. 2026 | Ville-Haute · Trail découverte | 12 km, 300 m | Confirmée, Préparatoire, Abandonnée | — | — | — |
-| 9 | Trail des Sommets | 10 sept. 2028 | Haut-Val · Ultra-trail | 80 km, 5 000 m | À surveiller | — | — | — |
+| 9 | Trail des Sommets | 10 sept. 2028 | Haut-Val · Ultra-trail | 80 km, 5 000 m | Repérée | — | — | — |
 | 10 | Semi de San Sebastián | 4 oct. 2026 | Semi-marathon | 21,1 km | Confirmée, Préparatoire, Courue | — | — | — |
 
 Trail des Gorges a aussi : rôle dans la préparation « Répétition générale du matériel et de la nutrition. », stratégie « Partir prudemment jusqu'au premier ravitaillement. », logistique « Navette depuis le stade à 6 h 30. », description « Boucle par les crêtes et les gorges. », site officiel, site d'inscription et résultats en direct. Corrida de Noël n'a que son site officiel.
 
 Résultats attendus, saison :
 
-- Six étapes, dans cet ordre : Trail du Lac, Corrida de Noël, Trail des Gorges, Printemps 2027, Trail de la Forêt, Trail des Crêtes. Ni Cross des Collines (abandonnée), ni Trail des Sommets (à surveiller), ni Semi de San Sebastián (courue).
-- En-tête : « Cap sur Trail des Crêtes » (et non Trail des Sommets, à surveiller) ; « 5 courses » D'ici là ; « prochaine course · Trail du Lac · J-26 ».
+- Six étapes, dans cet ordre : Trail du Lac, Corrida de Noël, Trail des Gorges, Printemps 2027, Trail de la Forêt, Trail des Crêtes. Ni Cross des Collines (abandonnée), ni Trail des Sommets (repérée), ni Semi de San Sebastián (courue).
+- En-tête : « Cap sur Trail des Crêtes » (et non Trail des Sommets, repérée) ; « 5 courses » D'ici là ; « prochaine course · Trail du Lac · J-26 ».
 - Trail du Lac : rôle PRÉPARATOIRE ; compteur `26 j` (une heure de plus avec le passage à l'heure d'hiver, le 25 octobre) ; « Trail du Lac · Le Tour du Lac », sans lien vers le site officiel ; date 15 NOV. 2026 ; « Mont-Clair · Trail court » ; DISTANCE 24 km · 650 m D+ ; OBJECTIF 02:45:00 ; INSCRIPTION ● Inscrit · n° 412.
 - Corrida de Noël : rôle PLAISIR ; compteur `54 j` ; DISTANCE 10 km · 40 m D+ ; OBJECTIF Sub 45 min ; INSCRIPTION ○ Ouvre le 1er nov. 2026.
 - Trail des Gorges : rôle OBJECTIF INTERMÉDIAIRE en Accent, pastille pleine en Accent ; compteur `137 j` ; OBJECTIF 06:30:00.
@@ -612,7 +612,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - Trail des Gorges avec sa semaine 5 (14 décembre) réglée en Deload, date passée au 14 mars 2027 : « Plan de 16 semaines · début : lun. 23 nov. 2026 … » ; « Enregistrer » : la semaine réglée devient celle du 21 décembre, toujours la semaine 5.
 - Page Trail des Gorges, « Modifier » : le bloc Préparation commence par « Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 », et la frise, sans bouton de réglage. « Enregistrer » : une seule écriture, la durée et les phases du plan ne sont pas touchées.
 - Supprimer Corrida de Noël, confirmation acceptée : elle disparaît ; l'en-tête affiche « 4 courses ».
-- Page Trail des Cimes, « Retenir cette course », confirmation acceptée : Trail des Cimes devient une étape Confirmée au 30 mai 2027 ; Ultra du Plateau quitte la saison (À surveiller) ; la carte Printemps 2027 disparaît ; l'en-tête affiche « 5 courses ».
+- Page Trail des Cimes, « Retenir cette course », confirmation acceptée : Trail des Cimes devient une étape Confirmée au 30 mai 2027 ; Ultra du Plateau quitte la saison (Repérée) ; la carte Printemps 2027 disparaît ; l'en-tête affiche « 5 courses ».
 - Page Trail du Lac le 20 octobre 2026 : pas de « Marquer comme courue ». Le 15 novembre 2026 à 14 h : le bouton est là ; il bascule la feuille en édition, fiche d'une course courue remplie (15 novembre 2026, Trail du Lac, Le Tour du Lac, Trail, Trail court, 24 km, 650 m, Préparatoire) ; temps `24110` : à l'enregistrement, Trail du Lac quitte la saison et rejoint le Palmarès, avec un temps de 2 h 41 min 10 s.
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir cette course », ni « Marquer comme courue ».
 - Téléphone : le formulaire occupe tout l'écran et défile, sans déborder sur les côtés.
@@ -620,17 +620,17 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 Résultats attendus, formulaire en détail (écritures relues par le banc d'essai) :
 
 - Sur la saison, un bouton « + Ajouter une course » en haut à droite, au-dessus de la première carte ; il ouvre « Ajouter une course » : sept blocs, Course et Place dans le plan ouverts, les cinq autres repliés ; statut Confirmée, rôle Préparatoire, groupe d'options caché.
-- Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course, Format et Distance, « Choisis un type. » sous Type ; rien n'est écrit. Les cinq libellés portent une étoile en Accent, en exposant ; statut « À surveiller » : l'étoile de la date et de la distance disparaît. Course courue : « Champ obligatoire. » sous Temps, sauf « DNF » cochée (étoile retirée).
+- Enregistrer sans rien saisir : « Champ obligatoire. » sous Date, Course, Format et Distance, « Choisis un type. » sous Type ; rien n'est écrit. Les cinq libellés portent une étoile en Accent, en exposant ; statut « Repérée » : l'étoile de la date et de la distance disparaît. Course courue : « Champ obligatoire. » sous Temps, sauf « DNF » cochée (étoile retirée).
 - Date au 1er janvier 2026 : « La date d'une course à venir ne peut pas être dans le passé. » ; heure `25h` : « Heure illisible (ex. 07:30). » ; objectif « Moins de… » avec `rapide` : « Durée illisible (ex. 3h, 1h30 ou 45 min). » ; lien `www.exemple.org` : « Lien attendu : il commence par http:// ou https://. » ; prix −3 : « Le nombre doit être positif. » ; le bloc d'un champ en erreur se déplie.
 - Objectif : `2:45:00`, `2h45` et `24500` sont rangés `02:45:00` ; `finisher` devient `Finisher` ; `sub 3h`, `Sub 1h30`, `sub1h5`, `SUB 45 min` et `sub 45` deviennent `Sub 3h`, `Sub 1h30`, `Sub 1h05`, `Sub 45 min` et `Sub 45 min`. Heure : `07:30`, `7h30`, `730` et `0730` donnent `07:30` ; `7h` donne `07:00`.
 - Trail, distance 28,5 : format Trail court proposé. Description : compteur « 0 / 1 000 ».
 - Saisie complète valide : une course est créée à l'état À venir, statut Confirmée, rôle Préparatoire, avec les valeurs saisies.
 - Statut Option : le groupe d'options apparaît, avec « Printemps 2027 » et « Nouveau groupe… » ; un nouveau groupe sans nom : « Écris le nom du groupe. ».
 - Case « Seul le mois est connu » cochée : la date devient un mois ; `2027-10` est rangé au 1er octobre 2027, sans heure, date approximative.
-- Statut À surveiller : une course s'enregistre sans date.
+- Statut Repérée : une course s'enregistre sans date.
 - Page de Trail des Gorges, « Modifier » : formulaire rempli (objectif 06:30:00, heure 07:30, D− 2 100…), tous les blocs ouverts ; objectif `Sub 6h30` et date du 8 mars 2027 mis à jour sur la ligne de la course, sans toucher à son état ; ni « Retenir » ni « Marquer comme courue ».
 - « Supprimer » : « Supprimer cette course ? Cette action est définitive. » ; Annuler n'écrit rien ; confirmer efface la ligne et ramène à la saison.
-- Page de Trail des Cimes (option d'un groupe), « Retenir cette course » : après confirmation, Ultra du Plateau passe À surveiller et quitte le groupe, Trail des Cimes devient Confirmée, hors groupe.
+- Page de Trail des Cimes (option d'un groupe), « Retenir cette course » : après confirmation, Ultra du Plateau passe Repérée et quitte le groupe, Trail des Cimes devient Confirmée, hors groupe.
 - Panne d'enregistrement : « Enregistrement impossible pour l'instant. », la fiche reste ouverte.
 - Téléphone : la fiche ne déborde pas.
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir ».

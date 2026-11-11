@@ -84,7 +84,7 @@ Retirés en 0.18 : les pastilles des vues (1), la case « Phases » (23) et la d
 ### 3.2 Règles
 
 - **Période** : 3, 6 ou 12 mois, choisie dans le menu « Vue » (6 par défaut, retenue sur l'appareil : `mrt-calendrier-mois`), du 1er du premier mois au dernier jour du dernier ; à partir du mois en cours, ou du mois de l'adresse. Flèches : une période plus tôt ou plus tard ; « Aujourd'hui » ramène au mois en cours. Blocs : six mois par bloc sur ordinateur (un bloc en 3 et 6 mois, deux en 12), trois sur téléphone.
-- **Courses** : confirmées et options à venir (une option dont la date est passée disparaît), courues de la période ; ni « À surveiller », ni abandonnées. La case de la course est remplie de la couleur de sa famille : pleine pour une course confirmée (statut Confirmée), atténuée et cadrée pour une option (statut Option), Texte discret pour une course courue ; son nom y est écrit, coupé s'il ne tient pas. Route ou trail : le type de la course, déduit de son format ; tout ce qui n'est pas trail est dans la famille route.
+- **Courses** : confirmées et options à venir (une option dont la date est passée disparaît), courues de la période ; ni « Repérée », ni abandonnées. La case de la course est remplie de la couleur de sa famille : pleine pour une course confirmée (statut Confirmée), atténuée et cadrée pour une option (statut Option), Texte discret pour une course courue ; son nom y est écrit, coupé s'il ne tient pas. Route ou trail : le type de la course, déduit de son format ; tout ce qui n'est pas trail est dans la famille route.
 - **Séances** (Année) : dans la case du jour, le type de chaque séance en toutes lettres (« Course à pied · Renforcement », un type une seule fois), atténué et barré quand toutes sont faites ; la case d'une course garde son nom ; infobulle : le type et le libellé de chaque séance. Ni case à cocher ni « + » ici : un toucher ouvre la vue Semaine du jour.
 - **Phase d'un jour** (Plan) : celle de sa semaine dans le plan de préparation (§ 2), phases modifiées à la main comprises ; fond de la couleur de la phase et liseré (7) ; une semaine en Entretien ou sans plan garde le fond ordinaire ; une case de course garde sa couleur, le liseré en plus. Pas de barres : les prépas qui se chevauchent ne sont pas montrées séparément (retiré le 6 novembre 2026, sur demande). Format sans durée de prépa : pas de plan.
 - **Jours** : chaque mois a sa colonne de jours, l'initiale et le numéro (« L 19 ») ; ses cases sont jointives et d'un même fond, jour passé compris ; samedi et dimanche ont un fond plus marqué ; un filet sous chaque dimanche ferme la semaine ; aujourd'hui : case cerclée, numéro dans un rond Accent ; l'onglet du mois en cours est en Accent.
@@ -139,7 +139,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
 
 - **Mois** : du lundi de la semaine du 1er au dimanche de la semaine du dernier jour ; flèches : le mois précédent ou suivant ; « Aujourd'hui » : le mois en cours.
 - **Jours** : cases jointives, séparées d'un filet, d'un même fond pour toutes, passé et mois voisins compris (seuls le numéro d'un jour passé et le contenu d'un jour voisin sont atténués) ; aujourd'hui : son numéro dans un rond Accent.
-- **Contenu d'un jour** : les courses (confirmées, options à venir, courues ; pas « À surveiller » ni abandonnées), les rendez-vous clés (§ 4.4), les séances avec leur case « faite », le « + ».
+- **Contenu d'un jour** : les courses (confirmées, options à venir, courues ; pas « Repérée » ni abandonnées), les rendez-vous clés (§ 4.4), les séances avec leur case « faite », le « + ».
 - **Toucher** : une course ou un rendez-vous clé ouvre la page de la course ; une séance, sa fenêtre ; sa case, « faite » ; le « + », la fenêtre d'ajout ; ailleurs dans la case, la vue Semaine de ce jour.
 - **Phases** (Plan) : fond de la phase de la semaine (§ 2), le même pour tous ses jours, passés et voisins compris, filet de la couleur pleine en haut ; une semaine sans plan garde le fond ordinaire.
 
@@ -227,7 +227,7 @@ La rubrique est le premier texte de la page de la course, juste sous la fiche, d
 
 | N° | Élément | Contenu | Règle |
 | --- | --- | --- | --- |
-| 1 | Titre repliable | « Préparation » | Course à venir (confirmée ou option) avec une date seulement ; absente d'une course courue, abandonnée ou à surveiller |
+| 1 | Titre repliable | « Préparation » | Course à venir (confirmée ou option) avec une date seulement ; absente d'une course courue, abandonnée ou repérée |
 | 2 | Lien « Régler le plan dans Préparation → » | Lien d'action vers la page Préparation, bloc « Plans des courses » (`preparation.html#plans`), où se trouve le réglage (§ 5.3) | Absent en lecture seule |
 | 3 | Durée et dates | « Plan de 16 semaines · début … → jour J … » | |
 | 4 | Frise des phases | Cases côte à côte, largeur proportionnelle aux semaines | Lecture seule ici ; à glisser dans « Paramétrer le plan » (page Préparation) |
@@ -337,7 +337,7 @@ Jeu d'essai, données fictives, au mardi 20 octobre 2026 à 10 h, heure de Paris
 Résultats attendus, vue Année (`calendrier.html#annee`) :
 
 - Menu « Vue » sur « 6 mois » (choix : Semaine, Mois, 3 mois, 6 mois, Année) ; « Octobre 2026 – mars 2027 », voisines « avr.–sept. 26 » et « avr.–sept. 27 » ; un bloc de six mois (téléphone : deux de trois) ; mois « oct. 26 » … « janv. 27 » … « mars ».
-- Courses dans leur case : Semi de San Sebastián (courue), Trail du Lac, Corrida de Noël (route), Trail des Gorges ; ni Cross des Collines (abandonnée), ni Trail des Sommets (à surveiller), ni l'option passée du 10 octobre ; aujourd'hui (20 octobre) cerclé, « M 20 » dans un rond.
+- Courses dans leur case : Semi de San Sebastián (courue), Trail du Lac, Corrida de Noël (route), Trail des Gorges ; ni Cross des Collines (abandonnée), ni Trail des Sommets (repérée), ni l'option passée du 10 octobre ; aujourd'hui (20 octobre) cerclé, « M 20 » dans un rond.
 - Jours d'octobre : « J 1 », « S 3 » et « D 4 » (samedi et dimanche marqués, filet sous le dimanche), « L 5 » ; onglet « oct. 26 » en Accent ; un jour passé (jeudi 15) a le fond d'un jour à venir (jeudi 22), un samedi un fond plus marqué.
 - Bouton « Plan » éteint : ni fond de phase ni légende des phases ; légende « Route confirmée, option », « Trail confirmée, option », courue, aujourd'hui.
 - Séances d'essai (Renforcement le 19, cochée ; Course à pied et Renforcement le 20) : « Renforcement » barré le 19, « Course à pied · Renforcement » le 20, rien le 21 ; infobulle du 20 : les deux séances avec leur libellé.
@@ -398,7 +398,7 @@ Résultats attendus, rubrique Préparation de la page d'une course :
 - Frise : une poignée entre deux phases ; glisser la première d'une semaine vers la droite met la semaine 4 en Base dans le tableau.
 - Ajouter une séance depuis la rubrique : elle est liée à la course (`course` renseignée) ; la rubrique reste ouverte (les textes ouverts de la page le restent quand elle se redessine).
 - Course de format sans durée (Corrida de Noël en Triathlon S) : « Pas encore de plan… » et le lien vers Préparation ; durée 10 réglée dans Préparation : « Plan de 10 semaines ».
-- Course courue, abandonnée ou à surveiller : pas de rubrique Préparation.
+- Course courue, abandonnée ou repérée : pas de rubrique Préparation.
 - Page ouverte sans `#preparation` : pas de défilement ; avec `#preparation` : la rubrique s'ouvre, même repliée.
 - Site partagé en lecture seule : la rubrique s'affiche, sans lien de réglage, ni « + », ni modification de séance.
 - Téléphone : la rubrique ne déborde pas.

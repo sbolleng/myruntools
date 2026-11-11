@@ -78,7 +78,7 @@ Jeu d'essai, à la date du 20 octobre 2026 : thème Bleu et orange, aucun choix 
 | Trail du Lac | 15 nov. 2026 | Confirmée | À venir |
 | Course A | 10 janv. 2027 | Option | À venir |
 | Trail des Crêtes | 1er août 2029 | Confirmée | À venir |
-| Course B | 10 mars 2027 | À surveiller | À venir |
+| Course B | 10 mars 2027 | Repérée | À venir |
 | Course C | 4 oct. 2026 | Confirmée | Courue |
 
 Résultats attendus :
