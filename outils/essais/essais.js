@@ -445,7 +445,8 @@ const CONTROLES = {
     // Par défaut : l'Accueil est la page de démarrage, avec le grand en-tête ; blocs par défaut.
     let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 1200, db, {}, PARIS);
     pb.push(egal([true, 'En un coup d\'œil'], [await p.evaluate(() => !!document.querySelector('.mrt-header')), await p.getAttribute('.mrt-tab.is-on', 'aria-label')], 'En un coup d\'œil : grand en-tête, onglet actif'));
-    pb.push(egal(['prochaine', 'dicila', 'derniere', 'decouvrir'], await blocs(p), 'Accueil : blocs par défaut, Dernière course comprise, aucun bloc « bientôt » (vide), puis « Pour aller plus loin » tant que Préparation ou Nutrition manque au menu'));
+    pb.push(egal(['aujourdhui', 'prochaine', 'dicila', 'derniere', 'decouvrir'], await blocs(p), 'Accueil : « Aujourd\'hui » en tête, puis les blocs par défaut, Dernière course comprise, aucun bloc « bientôt » (vide), puis « Pour aller plus loin » tant que Préparation ou Nutrition manque au menu'));
+    pb.push(egal(['course'], await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), 'Aujourd\'hui : sans Nutrition au menu, seule la saisie rapide « Ajouter une course »'));
     pb.push(egal('Trail du Lac · Le Tour du Lac', (await p.textContent('[data-bloc="prochaine"] .ob-nom a')).replace(/[  ]/g, ' ').trim(), 'prochaine course : la carte de la feuille de route'));
     const etapes = await p.evaluate(() => [...document.querySelectorAll('.ac-etape')].map(e => e.textContent + (e.classList.contains('is-cap') ? ' (cap)' : '')));
     pb.push(egal('Trail des Crêtes (cap)', etapes[etapes.length - 1], 'd\'ici là : jusqu\'au cap compris, en Accent'));
@@ -454,8 +455,22 @@ const CONTROLES = {
     // Blocs choisis dans les Préférences : ordre et Dernière course.
     const choix = JSON.parse(JSON.stringify(db)); choix.preferences[0].accueil_blocs = ['derniere', 'prochaine'];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, choix, {}, PARIS));
-    pb.push(egal(['derniere', 'prochaine', 'decouvrir'], await blocs(p), 'blocs choisis, dans l\'ordre choisi (« Pour aller plus loin » toujours en dernier)'));
+    pb.push(egal(['aujourdhui', 'derniere', 'prochaine', 'decouvrir'], await blocs(p), 'blocs choisis, dans l\'ordre choisi (« Pour aller plus loin » toujours en dernier)'));
     pb.push(egal(true, /Course.+Date.+Temps\s*\d{2}:\d{2}:\d{2}/.test(await p.textContent('[data-bloc="derniere"]')), 'dernière course : nom, date, temps en hh:mm:ss'));
+    await ctx.close();
+    // Aujourd'hui : les séances du jour (20 octobre 2026), la case « faite », trois saisies rapides avec Nutrition au menu.
+    const jourJ = JSON.parse(JSON.stringify(db)); jourJ.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
+    jourJ.seances = [['se-a', '2026-10-20', 'run', '8×400 m', false], ['se-b', '2026-10-21', 'run', 'Footing 45 min', false]].map(([i, date, type, libelle, faite]) => ({ id: i, utilisateur: jourJ.profils[0].id, date, type, libelle, faite, course: null }));
+    jourJ.ecritures = [];
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, jourJ, {}, PARIS));
+    await p.waitForSelector('.ac-jour-ligne');
+    pb.push(egal([['Course à pied 8×400 m'], ['repas', 'activite', 'course'], 'aujourdhui'], [await p.evaluate(() => [...document.querySelectorAll('.ac-jour-ligne')].map(l => l.textContent.replace(/\s+/g, ' ').trim())),
+      await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), (await blocs(p))[0]], 'Aujourd\'hui : la séance du jour seulement, trois saisies rapides, bloc en tête'));
+    await p.check('[data-faite="se-a"]'); await p.waitForTimeout(300);
+    pb.push(egal(true, jourJ.ecritures.length > 0 && jourJ.ecritures[0].corps && jourJ.ecritures[0].corps.faite === true, 'Aujourd\'hui : la case « faite » est rangée'));
+    await p.click('[data-rapide="course"]'); await p.waitForSelector('.fc-fiche');
+    pb.push(egal('Ajouter une course', await p.textContent('#fc-titre'), 'Aujourd\'hui : « Ajouter une course » ouvre la fiche d\'ajout'));
+    await p.click('[data-fc="annuler"]');
     await ctx.close();
     // Page de démarrage : la feuille de route. En arrivant sur l'Accueil, on y est renvoyé ; elle seule a le grand en-tête.
     const dem = JSON.parse(JSON.stringify(db)); dem.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès'];
@@ -1178,7 +1193,7 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'palmares.html', 1200, d, {}, PARIS));
     await p.evaluate(() => document.querySelector('#palmares [data-edit]').click());
     await p.waitForSelector('.mc-panneau .fc-fiche');
-    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], blocs: ['Course', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique', 'Résultat', 'Montre'],
+    pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], blocs: ['Course', 'Résultat', 'Montre', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique'],
       ouverts: ['course', 'resultat'], approx: 0, statut: 0, classements: true },
       { barre: await barre(p), blocs: await titres(p), ouverts: await p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre[aria-expanded="true"]')].map(b => b.dataset.bloc).filter(b => !['dossard', 'montre'].includes(b))),
         approx: await p.locator('#fc-date_approx').count(), statut: await p.locator('#fc-statut').count(),
@@ -1613,7 +1628,7 @@ const CONTROLES = {
     o = await neuve(1200, COURSE(1), jour); ({ p, ctx } = o);
     pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'jour de la course : Marquer comme courue'));
     await p.click('[data-ob="marquer"]');
-    pb.push(egal(['Marquer comme courue', ['Course', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique', 'Résultat', 'Montre'], 0], [await p.textContent('#fc-titre'),
+    pb.push(egal(['Marquer comme courue', ['Course', 'Résultat', 'Montre', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique'], 0], [await p.textContent('#fc-titre'),
       await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('.fc-supprimer').count()], 'marquer : fiche d\'une course courue, sans Supprimer'));
     pb.push(egal(['2026-10-20', 'Trail du Lac'], [await lire(p, '#fc-date'), await lire(p, '#fc-course')], 'marquer : pré-rempli'));
     await p.fill('#fc-temps', '2:40:00');
@@ -1651,7 +1666,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'palmares.html', 1200, pal));
     await p.click('[data-act="add"]');
     const labels = sel => p.evaluate(s => [...document.querySelector(s).nextElementSibling.querySelectorAll('.fc-champ > label')].map(l => l.textContent.replace(/\s*\*$/, '').trim()), sel);
-    pb.push(egal(['Course', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique', 'Résultat', 'Montre'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : blocs de la fiche unique'),
+    pb.push(egal(['Course', 'Résultat', 'Montre', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique'], (await p.locator('.fc-bloc-titre').allTextContents()).map(x => x.trim()), 'Palmarès : blocs de la fiche unique'),
       egal(['Course', 'Parcours', 'Date', 'Heure de départ', 'Lieu', 'Type', 'Format', 'Distance (km)', 'D+ (m)', 'D− (m)', 'Objectif', 'Précisions sur l\'objectif', 'Description', 'Site officiel'], await labels('[data-bloc="course"]'), 'Palmarès : bloc Course, dans l\'ordre'),
       egal([['Place au général', 2], ['Effectif du général', 2], ['Catégorie', 3], ['Place en catégorie', 3], ['Effectif de la catégorie', 3], ['Place par sexe', 2], ['Effectif par sexe', 2]],
         await p.evaluate(() => { const g = document.querySelector('[data-bloc="resultat"]').nextElementSibling; g.hidden = false; const l = g.getBoundingClientRect().width;
@@ -1746,7 +1761,7 @@ const CONTROLES = {
     pb.push(egal(0, await p.locator('[data-ob]').count(), 'lecture seule : pas de « + »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, COURSE(4), 1200, partage, { 'mrt-vue': autre }, PARIS));
-    pb.push(egal(0, await p.locator('[data-ob]:not([data-ob="fermer"])').count(), 'lecture seule : ni Modifier ni Retenir'));
+    pb.push(egal(0, await p.locator('[data-ob]:not([data-ob="fermer"]):not([data-ob="agenda"])').count(), 'lecture seule : ni Modifier ni Retenir'));
     await ctx.close();
     return pb;
   },
@@ -3309,7 +3324,7 @@ const CONTROLES = {
     pb.push(egal([0, 'Cartes *'], [await p.locator('.cs-tableau').count(), (await p.evaluate(() => [...document.querySelectorAll('[data-mode]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')))).shift()], 'affichage par défaut : les cartes'));
     await affiche(p, 'tableau');
     let tb = await lignes();
-    pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des inscriptions'], tb.en, 'tableau : les colonnes de la veille, sans UTMB Index'));
+    pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des inscriptions'], tb.en, 'tableau : les colonnes par défaut'));
     pb.push(egal([0, 0], [await p.locator('.cs-ligne-mois').count(), await p.locator('[data-groupe]').count()], 'tableau : pas de regroupement par mois, pas de choix de regroupement'));
     pb.push(egal([['Marathon de la Baie La Baie', '—', '42,195 km', '11 avr. 2027', 'Ouvre le 3 nov. 2026 à 12 h'], ['Trail des Sommets Haut-Val', '—', '80 km · 5 000 m D+', '10 sept. 2028', 'Ouverture à venir'],
       ['Ultra des Lacs', '—', '—', 'À définir', 'Ouverture : janvier 2027']], tb.l, 'tableau : une ligne par course'));
@@ -3331,17 +3346,30 @@ const CONTROLES = {
     await p.click('[data-col="evenement"]'); await p.click('[data-col="evenement"]');
     o2 = await ordre();
     pb.push(egal(['nnnan', 0], [o2.sens, o2.mois], 'troisième toucher : retour à l\'ordre d\'origine'));
-    pb.push(egal(['https://example.org/baie'], tb.lien, 'tableau : le nom mène au site officiel quand il est renseigné'));
+    // Colonnes au choix : rond « Colonnes » (tableau seulement), toutes les rubriques d'une page de course, choix gardé sur l'appareil.
+    pb.push(egal([1, 1], [await p.locator('[data-cs="colonnes"]').count(), await p.locator('#cs-colonnes[hidden]').count()], 'tableau : rond « Colonnes », panneau replié'));
+    await p.click('[data-cs="colonnes"]');
+    pb.push(egal([true, true, true, true], [await p.locator('[data-colonne="statut"]').count() === 1, await p.locator('[data-colonne="lieu"]').count() === 1, await p.locator('[data-colonne="strategie"]').count() === 1, await p.locator('[data-colonne="fc_moyenne"]').count() === 1], 'colonnes proposées : statut, lieu, stratégie, FC moyenne…'));
+    pb.push(egal(0, await p.locator('[data-colonne="evenement"]').count(), 'Événement : toujours là, sans case'));
+    await p.click('[data-colonne="lieu"]'); await p.click('[data-colonne="statut"]');
+    tb = await lignes();
+    pb.push(egal(['Événement', 'Course', 'Statut', 'Distance · D+', 'Date', 'Lieu', 'Ouverture des inscriptions'], tb.en, 'colonnes ajoutées : à leur place dans l\'ordre de la page de course'));
+    pb.push(egal(['Repérée', 'Haut-Val'], [tb.l[1][2], tb.l[1][5]], 'colonnes Statut et Lieu : valeurs'));
+    await p.click('[data-col="lieu"]');
+    pb.push(egal('Haut-Val', (await lignes()).l[0][5], 'colonne ajoutée : triable (Haut-Val avant La Baie)'));
+    await p.reload(); await p.waitForSelector('.cs-barre'); await vue(p, 'surveiller');
+    pb.push(egal(['Statut', 'Lieu'], (await lignes()).en.filter(x => ['Statut', 'Lieu'].includes(x)), 'colonnes choisies : gardées après rechargement'));
+    await p.click('[data-cs="colonnes"]'); await p.waitForSelector('#cs-colonnes:not([hidden])');
+    await p.click('[data-colonne="lieu"]'); await p.click('[data-colonne="statut"]');
+    pb.push(egal(['Événement', 'Course', 'Distance · D+', 'Date', 'Ouverture des inscriptions'], (await lignes()).en, 'colonnes retirées : retour aux colonnes par défaut'));
     await vue(p, 'venir');
     pb.push(egal('15 nov. 2026 9 h', (await lignes()).l[0][3], 'tableau : l\'heure de départ sous la date'));
     await vue(p, 'courue');
     pb.push(egal([7, '—'], [(await lignes()).l.length, (await lignes()).l[0][4]], 'tableau, Courues : une ligne par course, pas de dossard'));
     await vue(p, 'surveiller');
-    await p.click('.cs-lien-nom');
-    pb.push(egal(0, await p.locator('.fc-fiche').count(), 'tableau : le lien du nom n\'ouvre pas la fiche'));
-    await p.locator('.cs-ligne').nth(2).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal('Ultra des Lacs', await p.locator('#fc-course').inputValue(), 'tableau : toucher une ligne ouvre sa fiche'));
-    await p.click('[data-fc="annuler"]'); await pause();
+    await p.locator('.cs-ligne').nth(2).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal(['Ultra des Lacs', 0], [await t(p, '.pc-titre'), await p.locator('.fc-fiche').count()], 'tableau : toucher une ligne ouvre la page de la course'));
+    await p.click('[data-ob="fermer"]'); await pause();
     await p.reload(); await p.waitForSelector('.cs-barre');
     pb.push(egal(17, await p.locator('.cs-ligne').count(), 'tableau : l\'affichage choisi est gardé après rechargement (les filtres, eux, repartent à zéro)'));
     await affiche(p, 'cartes');
@@ -3351,15 +3379,31 @@ const CONTROLES = {
     await vue(p, 'surveiller');
     await p.click('.cs-site[href]');
     pb.push(egal(0, await p.locator('.fc-fiche').count(), 'le lien « Site officiel » n\'ouvre pas la fiche'));
-    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal(['Marathon de la Baie', 'Modifier la course'], [await p.locator('#fc-course').inputValue(), await t(p, '#fc-titre')], 'toucher la carte : la fiche de modification'));
-    await p.click('[data-fc="annuler"]'); await pause();
-    await p.locator('.cs-carte').nth(2).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal(['Ultra des Lacs', ''], [await p.locator('#fc-course').inputValue(), await p.locator('#fc-date').inputValue()], 'course sans date : sa fiche, date vide'));
-    await p.click('[data-fc="annuler"]'); await pause();
+    const ouverts = () => p.evaluate(() => ({ ferme: document.querySelectorAll('.mc-panneau details.pc-cellule:not([open]), .mc-panneau details.is-montre:not([open])').length, total: document.querySelectorAll('.mc-panneau details.pc-cellule, .mc-panneau details.is-montre').length }));
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal(['Marathon de la Baie', 0], [await t(p, '.pc-titre'), await p.locator('.fc-fiche').count()], 'toucher la carte : la page de la course, pas la fiche'));
+    let ov = await ouverts();
+    pb.push(egal([0, true], [ov.ferme, ov.total > 0], 'page ouverte depuis Courses : tous les blocs ouverts'));
+    // Rond « Ajouter à l'agenda » à droite de la date : un fichier .ics.
+    const [tel] = await Promise.all([p.waitForEvent('download'), p.click('[data-ob="agenda"]')]);
+    const ics = require('fs').readFileSync(await tel.path(), 'utf8');
+    pb.push(egal([true, true, true], [/SUMMARY:Marathon de la Baie/.test(ics), /DTSTART;VALUE=DATE:20270411/.test(ics), /DTEND;VALUE=DATE:20270412/.test(ics)], 'agenda : un événement d\'une journée à la date de la course'));
+    await p.click('[data-ob="fermer"]'); await pause();
+    await p.locator('.cs-carte').nth(2).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    pb.push(egal('Ultra des Lacs', await t(p, '.pc-titre'), 'course sans date : sa page'));
+    await p.click('[data-ob="fermer"]'); await pause();
     await vue(p, 'courue');
-    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.fc-fiche');
-    pb.push(egal([true, 'Semi de San Sebastián'], [await p.locator('#fc-temps').count() === 1, await p.locator('#fc-course').inputValue()], 'course courue : la fiche de résultat'));
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    ov = await ouverts();
+    pb.push(egal(['Semi de San Sebastián', 0], [await t(p, '.pc-titre'), ov.ferme], 'course courue : sa page, Résultat, Montre et blocs ouverts'));
+    await p.click('[data-ob="fermer"]'); await pause();
+    // Le crayon de la page ouvre la fiche de modification.
+    await vue(p, 'surveiller');
+    await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
+    await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
+    pb.push(egal(['Marathon de la Baie', 'Modifier la course'], [await p.locator('#fc-course').inputValue(), await t(p, '#fc-titre')], 'crayon : la fiche de modification'));
+    await p.click('[data-fc="annuler"]'); await pause();
+    await p.click('[data-ob="fermer"]'); await pause();
     pb.push(egal([], erreurs, 'erreurs JavaScript (fiche)'));
     await ctx.close();
 
@@ -3376,7 +3420,7 @@ const CONTROLES = {
 
     // Fiche : heure d'ouverture et mois seul.
     o = await neuve(1200); await vue(o.p, 'surveiller');
-    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.fc-fiche');
+    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.mc-panneau .pc-titre'); await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
     await o.p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(x => x.click()));
     pb.push(egal(['2026-11-03', '12:00', false, false], [await o.p.locator('#fc-ouverture_inscriptions').inputValue(), await o.p.locator('#fc-ouverture_heure').inputValue(),
       await o.p.locator('#fc-ouverture_approx').isChecked(), await o.p.locator('#fc-ouverture_heure').isDisabled()], 'fiche : date et heure d\'ouverture relues'));
@@ -3390,7 +3434,7 @@ const CONTROLES = {
     pb.push(egal(['PATCH', '2027-02-01', true, null], [o.copie.ecritures[0].methode, w.ouverture_inscriptions, w.ouverture_approx, w.ouverture_heure], 'enregistrement : mois seul rangé au 1er, sans heure'));
     await o.ctx.close();
     o = await neuve(1200); await vue(o.p, 'surveiller');
-    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.fc-fiche');
+    await o.p.locator('.cs-carte').nth(0).click(); await o.p.waitForSelector('.mc-panneau .pc-titre'); await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
     await o.p.evaluate(() => document.querySelectorAll('.fc-bloc-titre[aria-expanded="false"]').forEach(x => x.click()));
     await o.p.fill('#fc-ouverture_inscriptions', ''); 
     await o.p.fill('#fc-ouverture_heure', '9h');
@@ -4096,7 +4140,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));
     await p.waitForSelector('.nu-ac-bilan');
     if (CAPTURES) await p.locator('[data-bloc="nutrition"]').screenshot({ path: path.join(__dirname, 'captures', 'accueil-nutrition.png') });
-    pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]')[1].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position'),
+    pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]')[2].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position (après « Aujourd\'hui » et la prochaine course)'),
       egal(['350 / 2 117 kcal', ['p|sous|6 g|Reste 92 g', 'g|sous|76 g|Reste 189 g', 'l|sous|1 g|Reste 58 g']],
         [norm(await p.locator('.nu-ac-bilan').textContent()), await p.evaluate(() => [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => [j.dataset.jauge, j.dataset.etat, j.querySelector('.nu-anneau-v').textContent, j.querySelector('.nu-jauge-reste').textContent].join('|').replace(/\s+/g, ' ')))], 'Accueil : bilan du jour, puis protéines, glucides, lipides en anneaux avec « Reste »'),
       egal([0, 1], await p.evaluate(() => { const t = [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => Math.round(j.getBoundingClientRect().top)); return [t[2] - t[0], new Set(t).size]; }), 'Accueil : les trois anneaux sur une ligne, téléphone compris'),
@@ -4112,6 +4156,13 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));
     pb.push(egal('Complète ton profil sur la page Nutrition.', norm(await p.locator('[data-bloc="nutrition"] .ac-vide').textContent()), 'Accueil : profil incomplet'));
     await ctx.close();
+    // Saisies rapides d'En un coup d'œil : ?ajout=repas ou ?ajout=activite ouvre la feuille d'emblée, l'adresse est nettoyée.
+    for (const [q, sel] of [['repas', '.nu-feuille .nu-source, .nu-feuille .nu-recherche'], ['activite', '.nu-feuille .nu-sport-l']]) {
+      const o = await ouvrir(nav, 'nutrition.html?ajout=' + q, 1200, base(), {}, {});
+      await o.p.waitForSelector('.nu-feuille ' + (q === 'repas' ? '.nu-ajout' : '.nu-sport-l'));
+      pb.push(egal([1, false], [await o.p.locator('.nu-feuille').count(), /ajout=/.test(o.p.url())], '?ajout=' + q + ' : la feuille s\'ouvre aussitôt, adresse nettoyée'));
+      await o.ctx.close();
+    }
     return pb;
   },
   // Repasse d'uniformité (design, § 1 et 3) : tailles de l'échelle, libellés en graisse normale, « 1er », confirmations du site,

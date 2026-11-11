@@ -27,7 +27,7 @@
 .cs-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 0.8rem; }
 
 /* Carte : fond comme celle d'Objectif ; statut et date en tête, le nom dessous ; pointillé : option et repérée ; courue atténuée. */
-.cs-carte { grid-template-areas: "role date" "nom nom" "info info" "lignes lignes" "bas bas"; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto auto 1fr; align-content: start; margin: 0; cursor: pointer; background: var(--surface);
+.cs-carte { grid-template-areas: "role date" "nom nom" "bas bas" "info info" "lignes lignes"; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto auto 1fr; align-content: start; margin: 0; cursor: pointer; background: var(--surface);
   height: 13rem; overflow: hidden; } /* toutes les cartes ont la même hauteur ; le nom tient sur deux lignes au plus */
 .cs-carte:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cs-carte.is-opt { border-style: dashed; }
@@ -39,7 +39,7 @@
 .cs-carte .ob-info { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cs-carte .ob-ligne { grid-template-columns: 6.2rem minmax(0, 1fr); }
 /* Le lien « Site officiel » reste un lien à part ; grisé quand le site n'est pas renseigné. */
-.cs-bas { grid-area: bas; align-self: end; display: flex; justify-content: flex-end; }
+.cs-bas { grid-area: bas; margin: 0.15rem 0 0.2rem; display: flex; justify-content: flex-start; }
 .cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--t-second); color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
@@ -73,3 +73,8 @@
 .cs-tableau th[aria-sort] { padding: 0; }
 /* En-têtes triables : l'élément commun (mrt-tri, en-tete.css). */
 .cs-ico { width: 0.95rem; height: 0.95rem; flex: none; } /* pictos des ronds : la taille du Palmarès (pv2-ico) */
+
+/* Colonnes au choix : le rond (comme le Palmarès) est en Accent quand le panneau est ouvert ; les textes longs tiennent sur une ligne. */
+.cs-cols-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.cs-long { display: block; max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-tableau td a { color: inherit; text-underline-offset: 0.2em; }

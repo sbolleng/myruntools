@@ -174,7 +174,13 @@
     const CHAMPS = TOUS.filter(f => !(venir ? COURUE_SEUL : VENIR_SEUL).has(f[0]));
     // Une course qui n'a qu'une vitesse : son allure moyenne en est tirée, pour ne rien perdre en l'enregistrant.
     if (!venir) VITESSES.forEach(([a, v]) => { if (c[a] == null && Number(c[v]) > 0) c[a] = Math.round(3600 / Number(c[v])); });
-    const BLOCS = BLOCS_TOUS.filter(([b]) => CHAMPS.some(f => f[3] === b));
+    // Course courue : Résultat (ouvert) et Montre (fermée) juste après Course, avant Place dans le plan.
+    const ORDRE_COURUE = ['course', 'resultat', 'montre'];
+    const BLOCS = BLOCS_TOUS.filter(([b]) => CHAMPS.some(f => f[3] === b)).sort((x, y) => {
+      if (venir) return 0;
+      const r = b => (ORDRE_COURUE.includes(b[0]) ? ORDRE_COURUE.indexOf(b[0]) : ORDRE_COURUE.length);
+      return r(x) - r(y);
+    });
     const sousDe = type => references.sous.filter(s => s.type === type);
     const typeDe = sc => { const s = references.sous.find(x => x.id === sc); return s ? s.type : ''; };
 
