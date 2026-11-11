@@ -3251,7 +3251,11 @@ const CONTROLES = {
     pb.push(egal(['Repérée 3', 'Courue 7', 'Ouvertes 1'], b.vues.filter(x => /^(Repérée|Courue|Ouvertes) /.test(x)), 'panneau : statuts et Ouvertes avec leurs compteurs'));
     pb.push(egal(4, b.vues.filter(x => /^(Confirmée|Option|Repérée|Courue) \d/.test(x)).length, 'panneau : quatre statuts'));
     await p.click('[data-cs="fermer"]');
-    pb.push(egal(true, await p.locator('#cs-filtres').isHidden(), 'la flèche replie le panneau'));
+    pb.push(egal(true, await p.evaluate(() => { const h = document.querySelector('#cs-filtres'); return h.hidden || !!h.__deroule; }), 'la flèche replie le panneau en déroulé'));
+    await p.waitForFunction(() => document.querySelector('#cs-filtres').hidden);
+    pb.push(egal([[32, 32], [32, 32], [32, 32], [15, 15]], await p.evaluate(() => [['[data-cs="filtres"]'], ['[data-mode="cartes"]'], ['[data-mode="tableau"]']].map(([s]) => { const r = document.querySelector(s).getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })
+      .concat([[Math.round(document.querySelector('[data-cs="filtres"] svg').getBoundingClientRect().width), Math.round(document.querySelector('[data-mode="cartes"] svg').getBoundingClientRect().width)]])), 'ronds Filtres, Cartes, Tableau : 32 px ; pictos 15 px (comme le Palmarès)'));
+    pb.push(egal(0, await p.locator('.cs-lib', { hasText: /^Vue$/i }).count(), 'pas de libellé « Vue »'));
     await vue(p, 'surveiller');
     b = await barre(p); k = await cartes(p);
     pb.push(egal([0, ['avril 2027', 'septembre 2028', 'Date à définir'], 'Filtres · 1 actif', '3 sur 17 courses'], [await p.locator('[data-groupe], [data-tri]').count(), b.reperes, await p.getAttribute('[data-cs="filtres"]', 'aria-label'), await t(p, '.cs-compte')], 'Repérée : titres de mois, un filtre actif, compte « 3 sur 17 courses »'));
