@@ -2196,10 +2196,11 @@ const CONTROLES = {
     const course = (d, n) => d.courses.find(c => c.id === id(n));
     const lire = async (p, defaut) => { if (!defaut) await p.click('[data-frise="tout"]'); return p.evaluate(() => {
       const t = s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
-      const ph = l => { const e = document.querySelector('.ps-sem[data-lundi="' + l + '"] .ps-ph'); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
+      const segs = [...document.querySelectorAll('.ps-seg')];
+      const ph = l => { const e = segs.find(x => x.dataset.debut <= l && l <= x.dataset.fin); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
       return {
-        titre: t('.ps-titre'), etat: t('.ps-etat'), titreBloc: t('.ps-bloc > .ps-libelle'), vide: t('.ps-vide'),
-        semaines: [...document.querySelectorAll('.ps-sem')].map(e => e.dataset.lundi),
+        titre: t('.ps-titre'), sous: t('.ps-sous'), etat: t('.ps-etat'), runs: [...document.querySelectorAll('.ps-run')].map(e => e.dataset.lundi + ' ' + e.dataset.fin + ' ' + e.querySelector('.ps-run-nom').textContent + ' ' + e.querySelector('.ps-run-dates').textContent), titreBloc: t('.ps-bloc > .ps-libelle'), vide: t('.ps-vide'),
+        semaines: segs.length ? [segs[0].dataset.debut, segs[segs.length - 1].dataset.fin] : [],
         phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
         marques: [...document.querySelectorAll('.ps-marque[href]')].map(a => a.title.split(' · ')[0] + ' ' + [...a.classList].filter(c => c !== 'ps-marque').join(' ')),
         alertes: ['Alertes (' + document.querySelectorAll('.ps-alerte').length + ')', ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
@@ -2218,10 +2219,14 @@ const CONTROLES = {
       await p.waitForSelector('.ps-cadre');
       const r = await lire(p, false);
       pb.push(
-        egal(['Saison : vers « Trail des Gorges » · dim. 7 mars 2027 (dans 20 sem.)', '2026-10-19', '2027-10-25'], [r.titre, r.semaines[0], r.semaines[r.semaines.length - 1]],
-          nom + ', saison visée ; frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
+        egal(['Trail des Gorges', 'dim. 7 mars 2027 · dans 20 sem.'], [r.titre, r.sous], nom + ', titre court : le nom de la course visée, dessous la date et le temps restant'),
+        ...(w > 600 ? [
+        egal(['2026-10-19', '2027-10-25'], [r.semaines[0], r.semaines[1]], nom + ', frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
         egal(['ph-entretien', 'ph-base', 'ph-base', 'ph-recuperation', 'ph-recuperation', 'ph-entretien', 'ph-entretien', 'ph-base', 'ph-affutage', 'ph-recuperation'], r.phases,
-          nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août'),
+          nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août')] : [
+        egal([true, '2026-10-19', '2027-10-25', 0], [r.runs.length > 5, r.runs[0].split(' ')[0], r.runs[r.runs.length - 1].split(' ')[1], await p.locator('.ps-seg').count()],
+          nom + ', frise en liste verticale (une ligne par phase), de la semaine en cours à la fin de la dernière récupération'),
+        egal('Entretien 19 oct. → 15 nov. · 4 sem.', r.runs[0].split(' ').slice(2).join(' '), nom + ', première ligne : phase, dates, durée')]),
         egal(['Trail du Lac r-preparatoire', 'Corrida de Noël r-plaisir', 'Trail des Gorges r-objectif', 'Trail des Cimes r-preparatoire is-option', 'Ultra du Plateau r-preparatoire is-option', 'Trail de la Forêt r-preparatoire is-option', 'Trail des Crêtes r-objectif'], r.marques,
           nom + ', courses sur la frise, repérées par leur rôle, options en pointillé'),
         egal(['Alertes (0)'], r.alertes, nom + ', pas d\'alerte (25 semaines entre les deux Objectifs, options sans règle)'),
@@ -2234,9 +2239,12 @@ const CONTROLES = {
     {
       const { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
       await p.waitForSelector('.ps-cadre');
-      const f = () => p.evaluate(() => { const l = [...document.querySelectorAll('.ps-sem')].map(e => e.dataset.lundi); return [l[0], l[l.length - 1], document.querySelector('[data-frise][aria-pressed="true"]').textContent, [...document.querySelectorAll('.ps-ph-nom')].map(e => e.textContent).join(',')]; });
+      const f = () => p.evaluate(() => { const l = [...document.querySelectorAll('.ps-seg')]; return [l[0].dataset.debut, l[l.length - 1].dataset.fin, document.querySelector('[data-frise][aria-pressed="true"]').textContent, l.map(e => e.textContent).join(',')]; });
       pb.push(egal(['2026-10-19', '2027-03-01', 'Saison', 'Entretien,Base,Développement'], (await f()).slice(0, 3).concat([(await f())[3].split(',').filter((x, i, t) => t.indexOf(x) === i).filter(x => ['Entretien', 'Base', 'Développement'].includes(x)).join(',')]),
         'frise : « Saison » par défaut, de la semaine en cours à celle de l\'Objectif, le nom de la phase écrit sur la barre'));
+      pb.push(egal([['Trail du Lac · 15 nov.', 'Corrida de Noël · 13 déc.', 'Trail des Gorges · 7 mars'], ['Objectif', 'Préparatoire', 'Plaisir', 'Base', 'Développement', 'Affûtage', 'Deload', 'Entretien']],
+        await p.evaluate(() => [[...document.querySelectorAll('.ps-marque-nom')].map(e => e.textContent), [...document.querySelectorAll('.ps-legende span')].map(e => e.textContent.replace(/[▲]/g, '').trim())]),
+        'frise « Saison » : nom et date écrits sous chaque ▲ ; légende limitée à ce qui est montré (pas de Récupération)'));
       await p.click('[data-frise="tout"]');
       pb.push(egal(['2026-10-19', '2027-10-25', 'Tout'], (await f()).slice(0, 3), 'frise : « Tout » jusqu\'à la fin de la dernière récupération'));
       pb.push(egal([1, 'data-plein-cible'], [await p.locator('.ps-frise-zone .mrt-plein').count(), await p.evaluate(() => document.querySelector('.ps-frise-zone').hasAttribute('data-plein-cible') ? 'data-plein-cible' : '')], 'frise : le rond « plein écran » sur ordinateur'));
@@ -2244,8 +2252,9 @@ const CONTROLES = {
       const t = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS);
       await t.p.waitForSelector('.ps-cadre');
       pb.push(egal('none', await t.p.evaluate(() => { const b = document.querySelector('.mrt-plein'); return b ? getComputedStyle(b).display : 'none'; }), 'téléphone : pas de plein écran'));
-      // Téléphone, « Saison » : la frise remplit la largeur et les noms de phase restent dans leur barre.
-      pb.push(egal(true, await t.p.evaluate(() => { const f = document.querySelector('.ps-frise').getBoundingClientRect(), g = [...document.querySelectorAll('.ps-sem .ps-ph')].pop().getBoundingClientRect(); return [...document.querySelectorAll('.ps-ph-nom')].every(e => { const r = e.getBoundingClientRect(); return r.left >= f.left - 1 && r.right <= f.right + 1; }) && Math.abs(g.right - f.right) < 2; }), 'téléphone, « Saison » : la frise remplit la largeur, les noms de phase restent dans la frise'));
+      // Téléphone, « Saison » : une liste verticale, sans débordement, la course sous sa phase.
+      pb.push(egal([true, false, 'Trail du Lac · 15 nov.'], await t.p.evaluate(() => [document.querySelectorAll('.ps-run').length >= 2, document.documentElement.scrollWidth > innerWidth, (document.querySelector('.ps-run .ps-marque-nom') || {}).textContent || null]),
+        'téléphone, « Saison » : la frise est une liste verticale (une ligne par phase), sans débordement, la course écrite sous sa phase'));
       await t.ctx.close();
       const q = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS);
       await q.p.waitForSelector('.ps-cadre');
