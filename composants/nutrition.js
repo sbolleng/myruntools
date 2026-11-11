@@ -336,11 +336,11 @@
       let corps = '';
       if (S.source === 'libre') {
         corps = '<form class="nu-libre" id="nu-libre" novalidate>' +
-          '<label class="nu-champ"><span class="pf-libelle">Nom</span><input class="mrt-champ" name="nom" maxlength="100" autocomplete="off"></label>' +
+          '<div class="nu-champ"><label class="pf-libelle" for="nu-libre-nom">Nom</label><div class="nu-nom-fav"><input class="mrt-champ" id="nu-libre-nom" name="nom" maxlength="100" autocomplete="off">' +
+          '<label class="mrt-rond nu-fav nu-favori-case" title="Favori"><input type="checkbox" name="favori" class="mrt-sr" aria-label="Favori"><span class="nu-etoile-v" aria-hidden="true">☆</span><span class="nu-etoile-p" aria-hidden="true">★</span></label></div></div>' +
           '<label class="nu-champ"><span class="pf-libelle">Portion</span><input class="mrt-champ" name="portion" maxlength="50" placeholder="1 pièce, 100 g…" autocomplete="off"></label>' +
           '<div class="nu-grille">' + [['kcal', 'Calories (kcal)'], ['proteines', 'Protéines (g)'], ['glucides', 'Glucides (g)'], ['lipides', 'Lipides (g)']].map(c =>
             '<label class="nu-champ"><span class="pf-libelle">' + c[1] + '</span><input class="mrt-champ" name="' + c[0] + '" type="text" inputmode="decimal" autocomplete="off"></label>').join('') + '</div>' +
-          '<label class="mrt-pastille nu-favori-case"><input type="checkbox" name="favori">★ Favori</label>' +
           '</form>';
       } else {
         const liste = S.source === 'favoris' ? favorisDe(S.aliments) : recentsDe(S.aliments).slice(0, 8);
@@ -380,6 +380,7 @@
     // Feuilles « Repas » (ajouter un aliment) et « Activité » : la feuille d'une course (modale-course.css), plein écran sur
     // téléphone, la croix en haut à droite ; la page reste dessous, à jour.
     let feuille = null;
+    const ZONE = { repas: 'ajout', activite: 'activite', modifier: 'modif' };
     const zoneAjout = () => (feuille && feuille.type === 'repas' ? feuille.corps : null);
     const zoneActivite = () => (feuille && feuille.type === 'activite' ? feuille.corps : null);
     function chiffres() {
@@ -437,15 +438,15 @@
       voile.innerHTML = '<div class="mc-panneau mc-ecrans mc-etroit nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
         '<div class="pc-barre"><button type="button" class="mrt-rond nu-retour" data-act="retour" aria-label="Retour" title="Retour" hidden>' + mrtIcone.gauche + '</button>' +
         '<button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
-        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : 'Ajouter une activité') + '</p>' +
-        '<div class="mc-ecran ' + (type === 'repas' ? 'nu-ajout' : 'nu-activite') + '"></div></div></div>';
+        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : type === 'activite' ? 'Ajouter une activité' : '') + '</p>' +
+        '<div class="mc-ecran nu-' + ZONE[type] + '"></div></div></div>';
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');
-      feuille = { type, voile, corps: voile.querySelector(type === 'repas' ? '.nu-ajout' : '.nu-activite') };
+      feuille = { type, voile, corps: voile.querySelector('.nu-' + ZONE[type]) };
       brancher(voile);
       voile.addEventListener('mousedown', e => { if (e.target === voile) fermerFeuille(); });
       voile.addEventListener('input', e => { if (e.target.classList.contains('nu-qte')) majApercu(); });
-      if (type === 'repas') dessinerAjout(); else dessinerActivite();
+      if (type === 'repas') dessinerAjout(); else if (type === 'activite') dessinerActivite();
       voile.querySelector('.mc-panneau').focus();
     }
     function fermerFeuille() {
@@ -574,23 +575,28 @@
     // seul en bas (question du site avant de supprimer).
     const POUBELLE = '<svg class="cal-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     // La fenêtre d'une séance du Calendrier (preparation.js) : même taille, mêmes marges, mêmes boutons.
+    // Modifier une ligne du journal : la feuille de saisie rapide (titre = la ligne, « Supprimer » en fin, « Enregistrer » collé en bas).
     function fenetreModifier(titre, corps, enregistrer, supprimer, question) {
-      const v = P.fenetre('<form novalidate>' + P.barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') + P.titreFenetre(esc(titre)) + corps +
-        '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer</button></div></form>', 'nu-modifier');
-      const form = v.querySelector('form'), msg = v.querySelector('.cal-msg');
-      v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
-      v.querySelector('[data-act="supprimer"]').addEventListener('click', async () => {
+      ouvrirFeuille('modifier');
+      feuille.voile.querySelector('#nu-feuille-titre').textContent = titre;
+      const z = feuille.corps;
+      z.innerHTML = '<form class="cal-ecran nu-modifier" novalidate><p class="cal-msg" role="alert"></p>' + corps +
+        '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer</button></div>' +
+        '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form>';
+      const form = z.querySelector('form'), msg = z.querySelector('.cal-msg');
+      z.querySelector('[data-act="supprimer"]').addEventListener('click', async () => {
         if (!(await window.mrtConfirmer({ texte: question, action: 'Supprimer', danger: true }))) return;
         const err = await supprimer();
-        if (err) msg.textContent = err; else v.fermer();
+        if (err) msg.textContent = err; else fermerFeuille();
       });
       form.addEventListener('submit', async e => {
-        e.preventDefault();
+        e.preventDefault(); e.stopPropagation();
         const err = await enregistrer(form);
-        if (err) msg.textContent = err; else v.fermer();
+        if (err) msg.textContent = err; else fermerFeuille();
       });
       return form;
     }
+
     const listeRepas = choisi => '<label class="cal-champ"><span>Repas</span><select class="mrt-champ" name="repas">' + REPAS.map(r => '<option value="' + r[0] + '"' + (r[0] === choisi ? ' selected' : '') + '>' + r[1] + '</option>').join('') + '</select></label>';
     function modifierLigne(id) {
       const l = S.lignes.find(x => x.id === id);

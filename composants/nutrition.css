@@ -46,7 +46,13 @@
 .nu-champ { display: block; margin-bottom: 0.7rem; }
 .nu-champ .mrt-champ { display: block; width: 100%; }
 .nu-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 0 0.7rem; }
-.nu-favori-case { margin-bottom: 0.8rem; }
+.nu-nom-fav { display: flex; align-items: center; gap: 0.6rem; }
+.nu-nom-fav .mrt-champ { flex: 1; min-width: 0; }
+.nu-favori-case { cursor: pointer; }
+.nu-favori-case .nu-etoile-p, .nu-favori-case:has(:checked) .nu-etoile-v { display: none; }
+.nu-favori-case:has(:checked) .nu-etoile-p { display: inline; }
+.nu-favori-case:has(:checked) { color: var(--accent); border-color: var(--accent); }
+.nu-favori-case:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 .nu-choix { padding-top: 0.8rem; border-top: 1px solid var(--border); }
 .nu-choix-nom { margin: 0 0 0.6rem; font-weight: 500; }
 .nu-quantite { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem; }
