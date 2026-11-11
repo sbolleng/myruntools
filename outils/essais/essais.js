@@ -3771,6 +3771,8 @@ const CONTROLES = {
     pb.push(egal(['Ajouter un aliment', ['Banane · 1 pièce | 90 kcal', 'Riz cuit | 130 kcal / 100 g']], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await liste(p)], 'feuille Repas : titre, Récents sans l\'aliment jamais utilisé'));
     await p.click('[data-source="favoris"]');
     pb.push(egal(['Banane · 1 pièce | 90 kcal'], await liste(p), 'Favoris'));
+    pb.push(egal(true, await p.evaluate(() => document.querySelector('.nu-feuille .nu-recherche').getBoundingClientRect().height < 80), 'Favoris : la recherche garde sa hauteur (liste courte)'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-favoris.png') });
     await p.click('[data-source="recents"]');
     // Banane : deux portions, au repas de l'heure (10 h : midi).
     pb.push(egal(['Récents', 'Favoris', '+ Aliment libre'], (await p.locator('.nu-sources button').allTextContents()).map(norm), 'sources : Récents, Favoris, Aliment libre'));
@@ -3922,7 +3924,10 @@ const CONTROLES = {
     await p.click('.nu-feuille [form="nu-libre"]');
     pb.push(egal(['Indique les calories pour une portion.', 'Pain', 0], [norm(await p.locator('.nu-ajout .nu-msg').textContent()), await p.inputValue('.nu-libre [name="nom"]'), d.ecritures.length], 'aliment libre : calories manquantes, saisie gardée, rien d\'écrit'));
     await p.fill('.nu-libre [name="kcal"]', '80'); await p.fill('.nu-libre [name="proteines"]', '3,5'); await p.fill('.nu-libre [name="glucides"]', '15');
+    pb.push(egal(true, await p.evaluate(() => { const n = document.querySelector('.nu-libre [name="nom"]').getBoundingClientRect(), f = document.querySelector('.nu-favori-case').getBoundingClientRect(); return f.left >= n.right && Math.abs((f.top + f.bottom) / 2 - (n.top + n.bottom) / 2) < 3; }), 'aliment libre : l\'étoile Favori à droite du nom'));
     await p.click('.nu-favori-case');
+    pb.push(egal(['★', true], [norm(await p.locator('.nu-favori-case').innerText()), await p.isChecked('.nu-libre [name="favori"]')], 'étoile touchée : pleine, cochée'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-libre.png') });
     await p.click('.nu-feuille [form="nu-libre"]');
     await p.waitForFunction(() => /Pain/.test((document.querySelector('.nu-choix-nom') || {}).textContent || ''));
     pb.push(egal([['POST', 'aliments', { nom: 'Pain', portion: '1 tranche', favori: true, dernier_usage: null, kcal: 80, proteines: 3.5, glucides: 15, lipides: 0 }]], d.ecritures.map(e => [e.methode, e.table, sansId(e)]), 'aliment libre : créé avec ses valeurs'),
@@ -4006,14 +4011,14 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrirN(d));
     await p.click('.nu-ligne:has-text("Riz cuit")');
     await p.waitForSelector('.nu-modifier');
-    pb.push(egal(['Riz cuit', '200', 'midi', true, true], [norm(await p.locator('.nu-modifier .cal-panneau-titre').textContent()), await p.inputValue('.nu-modifier .nu-qte'), await p.inputValue('.nu-modifier select[name="repas"]'),
-      await p.evaluate(() => !!document.querySelector('.cal-voile > .cal-panneau.nu-modifier .cal-barre [data-act="annuler"]')), await p.evaluate(() => !!document.querySelector('.nu-modifier .cal-bas [data-act="supprimer"]'))],
-      'Modifier : fenêtre d\'une séance du Calendrier, titre sans « Modifier », repas en liste'));
-    await p.click('.nu-modifier [data-act="annuler"]');
-    pb.push(egal([0, 0], [await p.locator('.nu-modifier').count(), d.ecritures.length], 'Annuler : fenêtre fermée, rien d\'écrit'));
+    pb.push(egal(['Riz cuit', '200', 'midi', true, true, 0], [norm(await p.locator('#nu-feuille-titre').textContent()), await p.inputValue('.nu-modifier .nu-qte'), await p.inputValue('.nu-modifier select[name="repas"]'),
+      await p.evaluate(() => !!document.querySelector('.mc-panneau.mc-etroit.nu-feuille .nu-modifier .mc-pied [type="submit"]')), await p.evaluate(() => !!document.querySelector('.nu-modifier .cal-bas [data-act="supprimer"]')), await p.locator('.cal-voile').count()],
+      'Modifier : la feuille de saisie rapide (titre = la ligne, « Enregistrer » collé en bas), repas en liste'));
+    await p.click('.nu-feuille [data-act="fermer"]');
+    pb.push(egal([0, 0], [await p.locator('.nu-modifier').count(), d.ecritures.length], 'croix : feuille fermée, rien d\'écrit'));
     await p.click('.nu-ligne:has-text("Riz cuit")');
     await p.fill('.nu-modifier .nu-qte', '100'); await p.selectOption('.nu-modifier select[name="repas"]', 'soir');
-    await p.click('.nu-modifier [type="submit"]');
+    await p.click('.nu-modifier .mc-pied [type="submit"]');
     await p.waitForSelector('.nu-modifier', { state: 'detached' });
     pb.push(egal([['PATCH', 'repas_lignes', { repas: 'soir', quantite: 1, kcal: 130, proteines: 2.7, glucides: 28, lipides: 0.3 }, '?id=eq.' + ID(4)]], d.ecritures.map(e => [e.methode, e.table, e.corps, e.filtres]), 'Enregistrer : 100 g au soir, valeurs figées à la nouvelle quantité'),
       egal(['Petit-déj 90 kcal', 'Soir 130 kcal'], await groupes(p), 'journal : la ligne passée au soir'));

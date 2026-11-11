@@ -53,7 +53,7 @@ html.mc-ouvert { overflow: hidden; }
 .mc-panneau.mc-etroit { max-width: 30rem; }
 .mc-etroit .mc-corps { display: flex; flex-direction: column; min-height: 100%; }
 .mc-etroit .mc-ecran { display: flex; flex-direction: column; flex: 1 0 auto; }
-.mc-etroit .mc-ecran > form { display: flex; flex-direction: column; flex: 1 0 auto; }
+.mc-etroit .mc-ecran > form.cal-ecran { display: flex; flex-direction: column; flex: 1 0 auto; } /* un écran qui est un formulaire (séance, Modifier) ; pas la recherche */
 .mc-pied { position: sticky; bottom: 0; z-index: 2; margin: auto -2rem -2rem; padding: 0.9rem 2rem 1.2rem; background: var(--surface); border-top: 1px solid var(--border); }
 .mc-pied .mrt-btn { width: 100%; min-height: 2.75rem; }
 .mc-pied-place { margin-top: 1.5rem; } /* écart avant le pied, quand le contenu le touche */
