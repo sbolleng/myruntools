@@ -200,6 +200,10 @@
       haut.classList.add(genre === 'barre' ? 'is-retrecit' : 'is-deploie');
       haut.addEventListener('animationend', () => haut.classList.remove('is-retrecit', 'is-deploie'), { once: true });
     }
+    // Hauteur du menu collant, pour les barres qui se collent juste dessous (Calendrier).
+    const hauteurMenu = () => document.documentElement.style.setProperty('--mrt-nav-h', nav.offsetHeight + 'px');
+    hauteurMenu();
+    window.addEventListener('resize', hauteurMenu);
     // Sur téléphone, l'onglet de la page ouverte est ramené dans la barre visible.
     const onTab = nav.querySelector('.is-on'), bar = nav.firstChild;
     if (onTab && onTab.offsetLeft + onTab.offsetWidth > bar.clientWidth) {
