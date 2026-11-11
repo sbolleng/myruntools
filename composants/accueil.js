@@ -37,7 +37,7 @@
           : '<span class="mrt-pastille ac-etape is-groupe' + (avecCap ? ' is-cap' : '') + '">' + esc(e.groupe) + '</span>');
         if (avecCap) break;
       }
-      return bloc('dicila', 'D\'ici là', null, etapes.length ? '<div class="ac-etapes">' + etapes.join('<i aria-hidden="true">›</i>') + '</div>' : vide('Aucune course à venir.'));
+      return bloc('dicila', 'D\'ici là', window.mrtModulesAffiches(prefs).some(m => m.nom === 'Préparation') ? ['preparation.html', 'Préparation'] : null, etapes.length ? '<div class="ac-etapes">' + etapes.join('<i aria-hidden="true">›</i>') + '</div>' : vide('Aucune course à venir.'));
     },
     // La dernière course courue ; son nom ouvre son résultat (la page de la course, en modale).
     derniere: courses => {
