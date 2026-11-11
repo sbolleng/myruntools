@@ -30,7 +30,7 @@
 .cs-carte > .ob-date { grid-area: date; justify-self: end; }
 .cs-carte .ob-nom { margin-top: 0.15rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .cs-carte .ob-info { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cs-carte .ob-ligne { grid-template-columns: 4.6rem minmax(0, 1fr); }
+.cs-carte .ob-ligne { grid-template-columns: 6.2rem minmax(0, 1fr); }
 /* Le lien « Site officiel » reste un lien à part ; grisé quand le site n'est pas renseigné. */
 .cs-bas { grid-area: bas; align-self: end; display: flex; justify-content: flex-end; }
 .cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--t-second); color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
