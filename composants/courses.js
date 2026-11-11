@@ -102,7 +102,7 @@
     // Affichage : une liste à choix unique (Cartes ou Tableau), comme le menu « Vue » du Calendrier ; le bouton Filtres est à sa droite.
     const nomAffichage = AFFICHAGES.find(x => x[0] === etat.mode)[1];
     const affichage = '<div class="cs-affichage"><button type="button" class="mrt-btn cs-menu-btn" data-cs="menu" aria-expanded="false" aria-controls="cs-menu" aria-label="Affichage : ' + nomAffichage + '">' + nomAffichage + CHEVRON + '</button>' +
-      '<nav class="cs-menu" id="cs-menu" aria-label="Affichage" hidden>' + AFFICHAGES.map(([k, lib]) =>
+      '<nav class="cs-menu" id="cs-menu" aria-label="Vue" hidden><span class="cs-lib">Vue</span>' + AFFICHAGES.map(([k, lib]) =>
         '<button type="button" data-mode="' + k + '" aria-pressed="' + (etat.mode === k) + '">' + lib + '</button>').join('') + '</nav></div>';
     const haut = '<div class="cs-barre">' + affichage +
       '<button type="button" class="mrt-rond cs-filtre' + (actifs ? ' is-on' : '') + '" data-cs="filtres" aria-expanded="' + !!etat.panneau + '" aria-controls="cs-filtres" aria-label="' + libFiltres + '" title="Filtres">' +
