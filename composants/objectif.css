@@ -200,3 +200,7 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
   .ob-carte.a-mini > .ob-mini { display: block; grid-area: carte; align-self: end; justify-self: end; width: 11.5rem; height: 5.6rem; overflow: hidden; pointer-events: none;
     background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; }
 }
+
+/* Date / heure d'une course à venir : le rond « Ajouter à l'agenda » à droite de la date. */
+.pc-datelig { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.pc-datelig .mrt-rond .ob-ico { width: 0.95rem; height: 0.95rem; }

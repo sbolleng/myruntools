@@ -159,6 +159,25 @@
   const PLUS = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const CRAYON = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
   const rond = (act, texte, icone) => '<button type="button" class="ob-rond mrt-rond" data-ob="' + act + '" aria-label="' + texte + '" title="' + texte + '">' + icone + '</button>';
+  // Agenda : un fichier .ics (iCalendar) que le téléphone ou l'ordinateur ajoute à son agenda ; journée entière sans heure de départ, sinon une heure.
+  const AGENDA = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v10h-11z M2.5 6.5h11 M5.5 2v3 M10.5 2v3 M8 8.5v3.5 M6.25 10.25h3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const sansTiret = d => String(d).replace(/-/g, '');
+  const icsTexte = t => String(t || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  function ajouterAgenda(c) {
+    const jour = c.date, h = c.heure ? String(c.heure).slice(0, 5) : '';
+    const fin = d => { const x = new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)) + 1); return x.getFullYear() + pad(x.getMonth() + 1) + pad(x.getDate()); };
+    const quand = h
+      ? 'DTSTART:' + sansTiret(jour) + 'T' + h.replace(':', '') + '00\r\nDURATION:PT1H'
+      : 'DTSTART;VALUE=DATE:' + sansTiret(jour) + '\r\nDTEND;VALUE=DATE:' + fin(jour);
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MyRunTools//FR', 'BEGIN:VEVENT', 'UID:' + c.id + '@myruntools.fr',
+      'DTSTAMP:' + new Date().toISOString().replace(/[-:]|\.\d+/g, ''), 'SUMMARY:' + icsTexte(window.mrtNomCourse(c)),
+      c.lieu ? 'LOCATION:' + icsTexte(c.lieu) : null, quand, 'END:VEVENT', 'END:VCALENDAR'].filter(Boolean).join('\r\n') + '\r\n';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
+    a.download = 'course.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
   const brancher = (el, actions) => el.querySelectorAll('[data-ob]').forEach(b => b.addEventListener('click', () => { if (actions[b.dataset.ob]) actions[b.dataset.ob](); }));
 
   // Une carte seule, comme sur la feuille de route (bloc Prochaine course de l'Accueil).
@@ -334,10 +353,17 @@
     telephone.addEventListener('change', regler);
   }
 
+  // Ouverte depuis la page Courses (ctx.toutOuvert) : tous les blocs sont ouverts à l'ouverture de la course.
+  function toutOuvrir(el, ctx, premier) {
+    if (!ctx || !ctx.toutOuvert || !premier) return;
+    el.querySelectorAll('details.pc-cellule, details.is-montre').forEach(d => { d.open = true; });
+  }
+
   // ctx : données de préparation (séances, phases : composants/preparation.js), ancre demandée (ctx.ancre) et
   // modale (ctx.modale = { fermer } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
+    const premier = el.dataset.pcId !== id;
     // Même course redessinée (séance ajoutée, plan paramétré, tracé importé) : les textes ouverts le restent.
     const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     // Barre du haut de la modale (modale-course.js) : « Modifier » et la croix, à droite.
@@ -385,7 +411,8 @@
       // repliée dans le même cadre, le site officiel à sa droite.
       '<div class="ob-lignes pc-fiche">' +
         (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
-        ligne('Date / heure', '<span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>') +
+        ligne('Date / heure', '<span class="pc-datelig"><span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>' +
+          (c.date && !c.date_approx ? '<button type="button" class="mrt-rond is-petit" data-ob="agenda" aria-label="Ajouter à l\'agenda" title="Ajouter à l\'agenda">' + AGENDA + '</button>' : '') + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
@@ -398,12 +425,13 @@
         (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
         (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
-    brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
+    brancher(el, Object.assign({ fermer: ctx.modale.fermer, agenda: () => ajouterAgenda(c) }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
       importer: () => el.querySelector('.tr-fichier').click() }));
     replierCellules(el);
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
     el.dataset.pcId = id;
     brancherParcours(el, c, ctx);
+    toutOuvrir(el, ctx, premier);
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
     if (ctx.ancre === '#preparation' && !ctx.ancreFaite) {
@@ -429,6 +457,7 @@
   // ctx.ordre() : identifiants des courses du Palmarès, dans l'ordre du tableau (précédente et suivante).
   window.renderPageCourseCourue = function (el, courses, id, edition, ctx) {
     el.classList.add('pc');
+    const premier = el.dataset.pcId !== id;
     const ouverts = el.dataset.pcId === id ? [...el.querySelectorAll('.pc-cellule[open] > summary')].map(s => s.textContent.trim()) : [];
     const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>';
@@ -492,6 +521,7 @@
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
     el.dataset.pcId = id;
     brancherParcours(el, c, ctx);
+    toutOuvrir(el, ctx, premier);
     couperNoms();
     return c;
   };

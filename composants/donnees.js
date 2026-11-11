@@ -266,8 +266,10 @@
     };
     dessiner(prefs);
     if (proprietaire) bandeau(proprietaire.prenom);
-    // La page s'affiche une fois que la suite de la page (then) a dessiné son contenu.
-    setTimeout(window.mrtAfficher, 0);
+    // La page s'affiche une fois que la suite de la page (then) a dessiné son contenu ; une page dont le contenu se lit ensuite
+    // (Nutrition) le déclare par mrtAttendre(promesse) : elle s'affiche alors avec son fondu, comme les autres (filet : 6 s).
+    window.mrtAttendre = promesse => { window.__mrtAttente = promesse; };
+    setTimeout(() => Promise.resolve(window.__mrtAttente).then(window.mrtAfficher, window.mrtAfficher), 0);
     return {
       session, courses, qui, plan, relirePlan: lirePlan, lectureSeule: !!proprietaire, proprietaire, preferences: () => prefsCourantes || {},
       // Relit les courses et redessine l'en-tête (cap, compte à rebours) avec elles.

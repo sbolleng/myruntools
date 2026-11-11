@@ -105,6 +105,7 @@
       if (o.siPresente && !opts.courue && !window.mrtCoursesRoute(opts.courses()).some(x => x.id === i)) return;
       if (voile) {
         // Déjà ouverte (précédente, suivante, autre candidate) : l'entrée d'historique est remplacée, pas ajoutée.
+        if (ctx && o.toutOuvert != null) ctx.toutOuvert = !!o.toutOuvert;
         if (ctx && i !== id) { if (poussee) historique('replaceState', i, ancre); afficher(i, ancre); }
         return;
       }
@@ -127,7 +128,7 @@
       const plan = await page.relirePlan();
       if (!voile) return; // fermée pendant la lecture
       ctx = { courses: opts.courses(), seances: plan.seances, semaines: plan.semaines, lectureSeule: page.lectureSeule, modale: { fermer }, ordre: opts.ordre,
-        feminin: opts.feminin != null ? opts.feminin : feminin() };
+        feminin: opts.feminin != null ? opts.feminin : feminin(), toutOuvert: !!o.toutOuvert };
       ctx.relire = async () => {
         const [courses, p] = await Promise.all([page.relire(), page.relirePlan()]);
         return { courses, seances: p.seances, semaines: p.semaines };

@@ -696,6 +696,8 @@
     brancher(el);
     window.addEventListener('pagehide', () => { if (aRanger) enregistrerSport(); });
     tout();
+    // Saisie rapide d'En un coup d'œil : la feuille demandée s'ouvre d'emblée (une seule fois).
+    if (ctx.ouvrir) { const type = ctx.ouvrir; ctx.ouvrir = null; ouvrirFeuille(type); }
   };
 
   // ===================== Le bloc d'En un coup d'œil =====================
