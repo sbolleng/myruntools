@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.34 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.35 · 11 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -144,6 +144,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Nutrition | Bilan du jour (mangé / besoin) et ajout en une touche des favoris et récents ([Nutrition](module-nutrition-specification.md), § 4.7) ; seulement quand le module Nutrition est au menu | Affiché |
 | D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent | Affiché |
 | Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Affiché |
+| Pour aller plus loin | Une ligne par module « à cocher » absent du menu (Préparation, Nutrition) : son nom, une phrase d'aide et le bouton « Ajouter au menu », qui l'ajoute à sa place du menu (liste enregistrée dans les Préférences) et redessine le menu ; la ligne disparaît, puis tout le bloc quand les deux sont au menu. Sur toute la largeur, toujours en dernier, ni choisi ni rangé dans les Préférences ; absent d'un site partagé | Affiché tant qu'un module manque |
 
 ## 6. Thèmes
 
@@ -318,7 +319,7 @@ Résultats attendus :
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
 - Chargement d'une page (accueil, Palmarès, Préférences, saison, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
-- En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac, compte à rebours en jours), D'ici là jusqu'au Trail des Crêtes en Accent, Dernière course ; aucun bloc « bientôt » ; pas de ligne « prochaine course » dans l'en-tête.
+- En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac, compte à rebours en jours), D'ici là jusqu'au Trail des Crêtes en Accent, Dernière course, puis Pour aller plus loin (Préparation et Nutrition, « Ajouter au menu » : l'onglet apparaît, la ligne disparaît) ; aucun bloc « bientôt » ; pas de ligne « prochaine course » dans l'en-tête.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
 - Menu par défaut : En un coup d'œil, Saison, Calendrier, Courses (module Courses à surveiller), Palmarès (pas d'onglet pour Cette semaine, Profil, Guide ; Nutrition est construit mais se coche dans les Préférences : six onglets ne tiennent pas à 375 px) ; à 375 et 390 px de large, les cinq onglets tiennent dans l'écran, sur toutes les pages.
 - L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.

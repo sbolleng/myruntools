@@ -109,3 +109,8 @@
 .cal-v-rep { display: block; font-size: var(--t-micro); color: var(--muted); }
 .cal-v-prop { display: block; min-width: 0; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); line-height: 1.35; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px dashed var(--accent); border-radius: 3px; }
 @media (max-width: 600px) { .ps-prop-liste { display: flex; } }
+/* Plans des courses : une ligne par course, le bouton « Paramétrer le plan » à droite. */
+.ps-plans-liste { display: flex; flex-direction: column; gap: 0.5rem; }
+.ps-plans-liste li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; }
+.ps-plan-nom { font-weight: 600; font-size: var(--t-texte); }
+.ps-plan-info { flex: 1 1 12rem; font-size: var(--t-second); color: var(--muted); }

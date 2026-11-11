@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 1.11 · 11 novembre 2026 · [Retour au sommaire](README.md) · Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
+Version 1.2 · 11 novembre 2026 · [Retour au sommaire](README.md) · Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -78,7 +78,7 @@ Le plan signale ces conflits, sans rien bloquer ; chacun mène à la course conc
 
 ## 5. Page Préparation
 
-Une page à part, `preparation.html`. Son onglet se coche dans les Préférences, comme Nutrition : le menu par défaut garde cinq onglets, qui tiennent sur un téléphone.
+Une page à part, `preparation.html`. Son onglet se coche dans les Préférences, comme Nutrition : le menu par défaut garde cinq onglets, qui tiennent sur un téléphone. Tant qu'elle n'est pas au menu, la page En un coup d'œil la propose dans le bloc « Pour aller plus loin » (bouton « Ajouter au menu », [spécification générale](specification-generale.md), § 6).
 
 ### 5.1 Plan de page
 
@@ -88,7 +88,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 (12) Profil à compléter…  (2) [Mon profil de coureur]
 (1) Trail des Gorges
     dim. 7 mars 2027 · dans 20 sem.
-(3) [Saison] [Tout]                                                                                          (13) [⤢]
+(3) [En cours] [Tout]                                                                                          (13) [⤢]
     19 oct.   2 nov.   16 nov.   30 nov.   14 déc.   28 déc.   …   22 févr.
     [Entretien   ][Base      ][▒][Base    ][▒][▒][Développement][▒][Dév.][Aff.]
           ▲ Lac · 15 nov.                                        Gorges · 7 mars ▲
@@ -106,6 +106,9 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
             ┆Footing · 45 min┆    ┆Seuil…┆          ┆Sortie longue┆    +
      …  (4 semaines ; jeu. 12 à sam. 14 nov. : « Allégé »)
 (10) ▸ Blocs suivants · ▸ Historique des propositions
+(14) PLANS DES COURSES
+     Trail des Gorges · dim. 7 mars 2027 · Objectif · 16 sem.      [⚙ Paramétrer le plan]
+     Trail du Lac · dim. 15 nov. 2026 · Préparatoire · 12 sem.       [⚙ Paramétrer le plan]
 ```
 
 | N° | Élément | Contenu |
@@ -115,13 +118,14 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 | 2 | Mon profil de coureur | Bouton à contour, en haut à droite : la fenêtre du profil de coureur (§ 5.2) ; aussi quand aucun Objectif n'est à venir ; absent du site partagé |
 | 12 | État du profil | À gauche du bouton : « Profil à compléter : … » (les champs obligatoires qui manquent) ou « Profil complet. » |
 | 13 | Plein écran | Sur ordinateur seulement : un rond « agrandir » à droite des pastilles de la frise ; la frise prend tout l'écran (4,5 rem de haut), Échap ou le même rond pour sortir ; le Calendrier a le même rond dans sa barre du haut (§ Calendrier) |
-| 3 | Frise de saison | Deux niveaux, au choix par deux pastilles : **Saison** (par défaut ; de la semaine en cours à celle de l'Objectif visé) et **Tout** (jusqu'à la fin de la récupération du dernier Objectif). **Ordinateur** : trois rangées sur une grille d'une colonne par semaine (1,6 rem au moins) : les **dates** (le lundi, une semaine sur deux ou quatre si ça serre), les **phases** en un segment par suite de semaines de même phase (3 rem de haut, coins arrondis, nom écrit dedans ; deux semaines : nom abrégé si besoin ; une semaine : sans nom), les **courses** (▲ puis le nom et la date écrits dessous, repérées par leur rôle, options en pointillé ; celles des dernières semaines s'écrivent vers la gauche) ; légende limitée à ce que la frise montre. **Téléphone** : une liste verticale, une ligne par phase (couleur, nom, dates « 9 → 22 nov », durée), les courses sous leur phase. Chaque course mène à sa page |
+| 3 | Frise de saison | Deux niveaux, au choix par deux pastilles : **En cours** (par défaut ; de la semaine en cours à celle de l'Objectif visé) et **Tout** (jusqu'à la fin de la récupération du dernier Objectif). **Ordinateur** : trois rangées sur une grille d'une colonne par semaine (1,6 rem au moins) : les **dates** (le lundi, une semaine sur deux ou quatre si ça serre), les **phases** en un segment par suite de semaines de même phase (3 rem de haut, coins arrondis, nom écrit dedans ; deux semaines : nom abrégé si besoin ; une semaine : sans nom), les **courses** (▲ puis le nom et la date écrits dessous, repérées par leur rôle, options en pointillé ; celles des dernières semaines s'écrivent vers la gauche) ; légende limitée à ce que la frise montre. **Téléphone** : une liste verticale, une ligne par phase (couleur, nom, dates « 9 → 22 nov », durée), les courses sous leur phase. Chaque course mène à sa page |
 | 4 | Alertes | **Dans le bloc de la recommandation (9), seulement s'il y en a** (ni compteur, ni titre à part) : une ligne chacune, le nom des courses en gras, chacune menant à sa course (§ 3.4) : « Gorges et Crêtes : 8 semaines d'écart (12 conseillées) » ; « Lac : récupération jusqu'au ven. 4 déc. 2026, sur l'affûtage de Gorges » ; « Cimes : à 14 jours de Crêtes (3 semaines conseillées) » ; « Plateau est plus longue que Gorges » |
 | 5 | *(supprimé)* | Le titre « Bloc en cours » n'est plus affiché ; le bloc reste de 4 semaines à partir du lundi de la semaine en cours (l'unité de génération). |
 | 6 | Proposer les séances | Appel à l'IA (§ 6) ; le nombre de propositions restantes ce mois-ci ; absent tant que le profil manque d'un champ obligatoire, avec le lien « Compléter mon profil » |
 | 7 | Grille du bloc | La mise en page du Mois du Calendrier (vue Mois, mêmes cases, fond de la phase, courses, séances, « + ») sur les 4 semaines du bloc ; dans la case d'un jour, son repère en petit (« Allégé », « Repos », « Récupération ») et les séances proposées en attente (contour Accent en pointillé, détail au survol) |
 | 8 | Recommandation | Un seul bloc de texte de l'IA pour l'ensemble du bloc, trois phrases au plus ; aucun commentaire par semaine |
 | 9 | Recommandation de MyRunTools | Le cadre, titré « Recommandation de MyRunTools » (aucun état dans le titre), porte les alertes (4) puis le texte (8), en attente, à part des séances enregistrées : tout accepter, choisir semaine par semaine (les semaines en pastilles), refaire (une proposition de plus), abandonner ; sur téléphone, la liste des séances proposées s'y ajoute (la grille n'y montre que des points) |
+| 14 | Plans des courses | Sous le bloc des séances : une ligne par course à venir (confirmée ou option) qui a une date : son nom (lien vers sa page), sa date, son rôle, la durée de son plan (« pas de plan » si son format n'en a pas) et le bouton « Paramétrer le plan » (fenêtre du Calendrier, § 5.3). **Seul lieu de réglage du plan** : la page d'une course et son formulaire n'ont plus que le résumé du plan et un lien « Régler le plan dans Préparation → » (`preparation.html#plans`). Aussi affiché quand aucun Objectif n'est à venir ; absent du site partagé |
 | 10 | Suite | Les blocs suivants (phases et courses, sans séances tant qu'ils ne sont pas proposés) ; l'historique des propositions (date, bloc, acceptée ou non) |
 
 Téléphone : même ordre ; la frise défile de gauche à droite ; la grille est celle du Mois sur téléphone.

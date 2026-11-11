@@ -233,10 +233,10 @@
 
   // ----- Rubrique « Préparation » de la page d'une course (spécification § 5.2) -----
   function rubrique(ctx, c) {
-    const preparer = ecriture(ctx) ? '<button type="button" class="mrt-btn cal-parametrer" data-preparer="' + esc(c.id) + '">' + REGLAGES + 'Paramétrer le plan</button>' : '';
+    const preparer = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html#plans">Régler le plan dans Préparation →</a>' : '';
     const plan = planDe(c, modifsDe(ctx.semaines, c.id));
     if (!plan) {
-      return '<p class="cal-vide">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.' + (ecriture(ctx) ? ' Paramètre le plan pour en choisir une.' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
+      return '<p class="cal-vide">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.' + (ecriture(ctx) ? ' Règle le plan pour en choisir une.' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
     }
     const lundiAuj = lundiDe(iso(new Date()));
     let w = plan.semaines.find(s => s.lundi === lundiAuj), etiquette = 'Semaine en cours';
@@ -312,14 +312,12 @@
   }
 
   // Fenêtre « Préparer » (spécification § 5.3) : durée, frise à glisser, tableau semaine par semaine.
-  // brouillon (formulaire d'une course) : { course, duree, modifs, valider(duree, modifs) } ; rien n'est écrit,
-  // « Valider » rend les réglages, enregistrés avec la course.
-  function ouvrirPreparer(ctx, id, brouillon) {
-    const c = brouillon ? brouillon.course : ctx.courses.find(x => x.id === id);
+  // Ouverte depuis la page Préparation seulement (design § 12 : un seul lieu de réglage du plan).
+  function ouvrirPreparer(ctx, id) {
+    const c = ctx.courses.find(x => x.id === id);
     if (!c) return;
-    const draft = brouillon ? { duree: brouillon.duree || c.prepaFormat || 12, modifs: new Map(brouillon.modifs) }
-      : { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
-    const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">' + (brouillon ? 'Valider' : 'Enregistrer') + '</button>') +
+    const draft = { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
+    const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">Enregistrer</button>') +
       titreFenetre('Paramétrer le plan · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
       '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Revenir aux règles générales</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
@@ -373,7 +371,6 @@
       dessinerPrep();
     });
     v.querySelector('[data-act="enregistrer"]').addEventListener('click', async ev => {
-      if (brouillon) { brouillon.valider(draft.duree, draft.modifs); v.fermer(); return; }
       const btn = ev.currentTarget;
       btn.disabled = true;
       const lignes = courant().semaines.filter(s => s.phase !== s.regle).map(s => ({ course: id, lundi: s.lundi, phase: s.phase }));

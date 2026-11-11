@@ -52,6 +52,15 @@
     let courses = page.courses;
     // Bloc Nutrition : le profil de l'utilisateur connecté ; rien sur un site partagé.
     const nutrition = { profil: page.session.profil || {}, id: page.session.id, lectureSeule: page.lectureSeule };
+    // « Ajouter au menu » (bloc Pour aller plus loin) : enregistre la liste des modules, redessine le menu puis la page.
+    nutrition.ajouterModule = async nom => {
+      const prefs = page.preferences(), modules = mrtModulesAvec(prefs, nom);
+      const { error } = await mrtSupabase.from('preferences').upsert({ utilisateur: page.session.id, modules });
+      if (error) { console.warn(error); renderAccueil(el, courses, prefs, nutrition); return; }
+      Object.assign(prefs, { modules });
+      page.redessiner(prefs);
+      renderAccueil(el, courses, prefs, nutrition);
+    };
     renderAccueil(el, courses, page.preferences(), nutrition);
     // La page d'une course s'ouvre en modale, par-dessus l'Accueil.
     mrtModaleCourse(page, { courses: () => courses, surMaj: liste => { courses = liste; renderAccueil(el, courses, page.preferences(), nutrition); } });

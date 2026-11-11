@@ -51,8 +51,22 @@
   };
 
   // nutrition : { profil, id, semaines, lectureSeule } pour le bloc Nutrition (page index.html).
+  // Pour aller plus loin : un module à cocher (Préparation, Nutrition) qui n'est pas au menu, avec son bouton « Ajouter au menu » ;
+  // le bloc disparaît quand tous sont au menu, et sur le site d'un autre.
+  const decouvrir = (prefs, lectureSeule) => {
+    if (lectureSeule) return '';
+    const affiches = window.mrtModulesAffiches(prefs).map(m => m.nom);
+    const absents = window.mrtModules.filter(m => m.page && m.defaut === false && !affiches.includes(m.nom));
+    if (!absents.length) return '';
+    return '<section class="ac-bloc ac-decouvrir" data-bloc="decouvrir"><h2 class="ac-titre"><span>Pour aller plus loin</span></h2><ul>' + absents.map(m =>
+      '<li><span class="ac-module"><b>' + esc(m.libelle || m.nom) + '</b><span>' + esc(m.aide || '') + '</span></span>' +
+      '<button type="button" class="mrt-btn" data-module="' + esc(m.nom) + '">Ajouter au menu</button></li>').join('') + '</ul></section>';
+  };
+
+  // nutrition : { ..., lectureSeule, ajouterModule(nom) } ; ajouterModule enregistre le choix et redessine la page.
   window.renderAccueil = function (el, courses, prefs, nutrition) {
-    el.innerHTML = '<div class="ac-grille">' + window.mrtBlocsAffiches(prefs).map(b => BLOCS[b.id](courses, prefs)).join('') + '</div>';
+    el.innerHTML = '<div class="ac-grille">' + window.mrtBlocsAffiches(prefs).map(b => BLOCS[b.id](courses, prefs)).join('') + decouvrir(prefs, nutrition && nutrition.lectureSeule) + '</div>';
+    el.querySelectorAll('[data-module]').forEach(b => b.addEventListener('click', () => { b.disabled = true; if (nutrition && nutrition.ajouterModule) nutrition.ajouterModule(b.dataset.module); }));
     const carte = el.querySelector('.ac-carte');
     if (carte) window.renderCarteCourse(carte, courses.find(c => c.id === carte.dataset.course));
     const nu = el.querySelector('.nu-accueil');

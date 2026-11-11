@@ -13,9 +13,9 @@
     { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
     { nom: 'Cette semaine' },
     { nom: 'Objectif', libelle: 'Saison', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
-    { nom: 'Préparation', page: 'preparation.html', defaut: false }, // à cocher dans les Préférences, comme Nutrition
+    { nom: 'Préparation', page: 'preparation.html', defaut: false, aide: 'Ton plan de préparation, ses phases et les séances proposées.' }, // à cocher dans les Préférences, comme Nutrition
     { nom: 'Calendrier', page: 'calendrier.html' },
-    { nom: 'Nutrition', page: 'nutrition.html', defaut: false }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
+    { nom: 'Nutrition', page: 'nutrition.html', defaut: false, aide: 'Ton besoin du jour et ton journal des repas.' }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
     { nom: 'Courses à surveiller', libelle: 'Courses', page: 'courses-a-surveiller.html' },
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil' },
@@ -45,6 +45,17 @@
   const modulesAffiches = prefs => (prefs && prefs.modules && prefs.modules.length
     ? prefs.modules.map(n => MODULES.find(m => m.nom === n)).filter(Boolean) : MODULES.filter(m => m.defaut !== false)).filter(m => m.page);
   window.mrtModulesAffiches = modulesAffiches;
+  // Liste à enregistrer (preferences.modules) pour ajouter un module au menu : à sa place du catalogue, derrière le dernier module
+  // précédent déjà affiché ; les modules « bientôt » restent en fin de liste, comme dans les Préférences.
+  window.mrtModulesAvec = (prefs, nom) => {
+    const noms = modulesAffiches(prefs).map(m => m.nom);
+    if (noms.includes(nom)) return noms.concat(MODULES.filter(m => !m.page).map(m => m.nom));
+    const i = MODULES.findIndex(m => m.nom === nom);
+    const avant = MODULES.slice(0, i).map(m => m.nom).filter(n => noms.includes(n));
+    const pos = avant.length ? noms.indexOf(avant[avant.length - 1]) + 1 : 0;
+    noms.splice(pos, 0, nom);
+    return noms.concat(MODULES.filter(m => !m.page).map(m => m.nom));
+  };
   // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête :
   // le premier module construit du menu (par défaut En un coup d'œil).
   window.mrtDemarrage = prefs => {
