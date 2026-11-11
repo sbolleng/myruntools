@@ -71,7 +71,7 @@
 .ob-nom a::after { content: ''; position: absolute; inset: 0; border-radius: 8px; }
 .ob-info { grid-area: info; }
 .ob-lignes { grid-area: lignes; display: grid; gap: 0.3rem; }
-.ob-ligne { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: baseline; }
+.ob-ligne { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr); align-items: baseline; }
 
 /* Groupe d'options : une carte, un bloc par candidat. */
 .ob-groupe { grid-template-areas: "nom nom" "role role" "cands cands"; }
@@ -164,7 +164,7 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
   .ob-cand > .ob-nom { margin-top: 0.9rem; }
   .ob-cpt { gap: 0.2rem; }
   .ob-cpt-case { padding: 0 0.3rem; }
-  .ob-ligne { grid-template-columns: 5rem minmax(0, 1fr); }
+  .ob-ligne { grid-template-columns: 6rem minmax(0, 1fr); }
 }
 
 /* Survols : seulement avec une souris (docs/design.md, § 1). */
