@@ -148,7 +148,7 @@
         section('Renforcement',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, b.jr.includes(i + 1), j)).join('')) +
           chiffre('nb_renfo', 'Séances par semaine', b.nr)) +
-        '<button type="button" class="mrt-btn is-principal ps-enregistrer" data-enregistrer>Enregistrer</button>';
+        '<div class="ps-enregistrer-bas"><button type="button" class="mrt-btn is-principal" data-enregistrer>Enregistrer</button></div>';
       const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, c) => a - c));
       const lire = () => corps.querySelectorAll('.ps-chiffre input').forEach(x => { const t = x.value.trim(); b[x.name === 'nb_sorties' ? 'ns' : 'nr'] = t === '' ? null : t; });
       corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(btn => btn.addEventListener('click', () => {
