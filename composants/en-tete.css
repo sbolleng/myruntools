@@ -15,8 +15,8 @@
 /* Tailles du texte (design, § 3) : sept tailles, aucune autre ; un module les reprend, il n'en invente pas.
    Marges intérieures : un cadre de page (pad-cadre) ou une carte (pad-carte). */
 :root { --t-micro: 0.65rem; --t-libelle: 0.7rem; --t-petit: 0.75rem; --t-second: 0.8rem; --t-texte: 0.85rem; --t-nom: 1rem; --t-titre: clamp(1.4rem, 4vw, 2rem);
-  --pad-cadre: 1rem 1.1rem; --pad-carte: 0.85rem 1rem; }
-@media (max-width: 600px) { :root { --pad-cadre: 0.8rem; } }
+  --pad-cadre: 1rem 1.1rem; --pad-cadre-v: 1rem; --pad-cadre-h: 1.1rem; --pad-carte: 0.85rem 1rem; }
+@media (max-width: 600px) { :root { --pad-cadre: 0.8rem; --pad-cadre-v: 0.8rem; --pad-cadre-h: 0.8rem; } }
 :root, .t-bleu-orange { color-scheme: dark; --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --text:#eef3fa; --muted:#8fa8c9; --red:#ef6b6b; }
 .t-vert-rose { color-scheme: dark; --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --text:#EDF2E9; --muted:#A2B4A4; --red:#f2766b; }
 .t-violet-turquoise { color-scheme: dark; --bg:#14101F; --surface:#221A35; --surface2:#2D2347; --border:#40335F; --accent:#2EC4B6; --text:#F1EEF7; --muted:#A49BB8; --red:#E0607E; }

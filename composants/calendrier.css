@@ -8,6 +8,10 @@
 
 /* ----- Barre du haut : le menu « Périodicité » à gauche ; le bouton « Plan » et « Aujourd'hui » à droite ----- */
 .cal-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.7rem 1.2rem; }
+/* Barre collante, comme le menu : elle reste sous lui quand on fait défiler les semaines (marges négatives : elle couvre le bord du cadre). */
+.cal-haut { position: sticky; top: var(--mrt-nav-h, 3rem); z-index: 50; margin: calc(var(--pad-cadre-v, 1rem) * -1) calc(var(--pad-cadre-h, 1.1rem) * -1) 0;
+  padding: var(--pad-cadre-v, 1rem) var(--pad-cadre-h, 1.1rem) 0.7rem; background: var(--surface); border-radius: 8px 8px 0 0; }
+[data-plein-cible]:fullscreen .cal-haut { top: 0; }
 .cal-options { display: inline-flex; align-items: center; gap: 0.6rem; margin-left: auto; }
 .cal-periodicite { position: relative; }
 .cal-menu-chev { width: 0.75rem; height: 0.75rem; transition: transform 0.15s; }
