@@ -135,7 +135,7 @@
     return '<div class="ob-lignes">' +
       (dist ? ligne('Distance', '<span class="ob-val">' + esc(dist) + '</span>') : '') +
       (avecObjectif && c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>') : '') +
-      ligne('Dossard', dossardHtml(c)) + '</div>';
+      ligne('Inscription', dossardHtml(c)) + '</div>';
   }
   const titre = (c, balise) => '<' + balise + ' class="ob-nom"><a href="' + pageCourse(c) + '">' + nomHtml(c) + '</a></' + balise + '>';
   const info = c => (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '');
@@ -150,7 +150,7 @@
     // Rôle du groupe : celui de ses candidats.
     const roles = [...new Set(e.candidats.map(c => ROLES[c.role]))].join(' · ');
     return '<article class="ob-carte ob-groupe"><h3 class="ob-nom">' + esc(e.groupe) + '</h3>' +
-      '<span class="ob-role">' + roles + ' • ' + n + (n > 1 ? ' candidats' : ' candidat') + '</span><div class="ob-cands">' +
+      '<span class="ob-role">' + roles + ' • ' + n + (n > 1 ? ' options' : ' option') + '</span><div class="ob-cands">' +
       e.candidats.map(c => '<div class="ob-cand">' + titre(c, 'h4') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, false) + '</div>').join('') +
       '</div></article>';
   }
@@ -374,7 +374,7 @@
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
       (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
-      (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres candidats' : 'autre candidat') + ' : ' +
+      (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres options' : 'autre option') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (liensHaut.length ? '<p class="pc-liens-haut">' + liensHaut.join('') + '</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
@@ -389,7 +389,7 @@
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>' + precisions(c)) : '') +
-        ligne('Dossard', dossardHtml(c, true)) +
+        ligne('Inscription', dossardHtml(c, true)) +
         (c.description || officiel ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
@@ -513,7 +513,7 @@
       // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);
-        if (!c || !(await window.mrtConfirmer({ texte: 'Retenir cette course ? Les autres candidats de « ' + c.groupe_options + ' » passeront à surveiller.', action: 'Retenir' }))) return;
+        if (!c || !(await window.mrtConfirmer({ texte: 'Retenir cette course ? Les autres options de « ' + c.groupe_options + ' » passeront à surveiller.', action: 'Retenir' }))) return;
         const db = window.mrtSupabase.from('courses');
         const autres = await db.update({ statut: 'a_surveiller', groupe_options: null }).eq('groupe_options', c.groupe_options).eq('statut', 'option').neq('id', c.id);
         const lui = autres.error ? autres : await window.mrtSupabase.from('courses').update({ statut: 'confirmee', groupe_options: null }).eq('id', c.id);

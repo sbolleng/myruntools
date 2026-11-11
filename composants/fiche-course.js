@@ -127,7 +127,7 @@
   // ni statut, ni groupe d'options, ni inscription à venir, ni date approximative (ni plan : il n'est pas rangé, il se
   // recalculerait) ; une course à venir, ni résultat ni montre. Le tracé GPX et la stratégie (Parcours) sont partout.
   const VENIR_SEUL = new Set(['date_approx', 'statut', 'groupe_options', 'ouverture_inscriptions', 'ouverture_approx', 'ouverture_heure', 'inscrit', 'inscription']);
-  const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['dossard', 'Dossard'], ['parcours', 'Parcours'],
+  const BLOCS_TOUS = [['course', 'Course'], ['plan', 'Place dans le plan'], ['dossard', 'Inscription'], ['parcours', 'Parcours'],
     ['preparation', 'Préparation'], ['logistique', 'Logistique'], ['resultat', 'Résultat'], ['montre', 'Montre']];
   // Le lien des résultats en direct sert avant la course : il est le seul champ de Résultat d'une course à venir.
   const COURUE_SEUL = new Set(TOUS.filter(f => (f[3] === 'resultat' && f[0] !== 'lien_resultats') || f[3] === 'montre').map(f => f[0]));
@@ -305,7 +305,7 @@
     const etat = () => JSON.stringify([...racine.querySelectorAll('[data-k]')].map(e => (e.type === 'checkbox' ? e.checked : e.value))) + (reglage ? JSON.stringify(reglage) : '') +
       (gpx.fichier ? 'gpx:' + gpx.fichier.name : gpx.supprimer ? 'gpx:-' : '');
     // Confirmation du site (en-tete.js, mrtConfirmer), comme toutes les questions.
-    const ABANDON = { texte: 'Abandonner les modifications ?', action: 'Abandonner', danger: true };
+    const ABANDON = { texte: 'Abandonner les modifications ?', action: 'Abandonner', annuler: 'Continuer', danger: true };
     async function annuler() {
       if (etat() !== depart && !(await window.mrtConfirmer(ABANDON))) return;
       terminer('annule');

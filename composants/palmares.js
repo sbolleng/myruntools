@@ -249,7 +249,7 @@
         '<button type="button" class="pv2-rond mrt-rond pv2-toggle" data-act="group" aria-pressed="false" aria-label="Grouper par type" title="Grouper par type">' + LAYERS + '</button>' +
         '<button type="button" class="pv2-rond mrt-rond pv2-cols-btn" data-act="cols" aria-expanded="false" aria-controls="' + uid + '-cols" aria-label="Ajouter ou retirer des colonnes" title="Ajouter ou retirer des colonnes">' + COLONNES + '</button>' +
         '<span class="pv2-count" aria-live="polite" hidden></span>' +
-        '<button type="button" class="pv2-clear mrt-lien" data-act="clear" hidden>Effacer les filtres</button>' +
+        '<button type="button" class="pv2-clear mrt-lien" data-act="clear" hidden>Réinitialiser les filtres</button>' +
         (cfg.editable ? '<button type="button" class="pv2-add mrt-btn is-principal" data-act="add" title="Ajouter une course">' + PLUS + '<span class="pv2-add-long">Ajouter une course</span><span class="pv2-add-court">Course</span></button>' : '') +
       '</div>' +
       '<div class="pv2-panel" id="' + uid + '-filters" hidden></div>' +
@@ -324,7 +324,7 @@
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
         const cls = c.kind === 'text' ? ' class="pv2-t"' : c.kind === 'choice' ? '' : ' class="pv2-n"';
         return '<td' + cls + '>' + fmtCell(c, r.v[c.key], r) + rec + '</td>';
-      }).join('') + '<td class="pv2-pad">' + (cfg.editable && r.id ? '<button type="button" class="pv2-edit" data-edit="' + esc(r.id) + '" aria-label="Modifier" title="Modifier">' + PENCIL + '</button>' : '') + '</td></tr>';
+      }).join('') + '<td class="pv2-pad">' + (cfg.editable && r.id ? '<button type="button" class="pv2-edit" data-edit="' + esc(r.id) + '" aria-label="Modifier la course" title="Modifier la course">' + PENCIL + '</button>' : '') + '</td></tr>';
       let body;
       if (!list.length) body = '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">Aucune course ne correspond aux filtres.</td></tr>';
       else if (!state.group) body = list.map(line).join('');

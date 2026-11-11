@@ -7,7 +7,7 @@
 (function () {
   const { MOIS_LONG } = window.mrtFormat;
   const { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, FLECHE, PLUS, STATUTS_LIB } = window.mrtCartes;
-    const VUES = [['surveiller', 'À surveiller'], ['ouvertes', 'Inscriptions ouvertes'], ['courue', 'Déjà couru'], ['venir', 'À venir'], ['tout', 'Tout']];
+    const VUES = [['surveiller', 'À surveiller'], ['ouvertes', 'Inscriptions ouvertes'], ['courue', 'Courues'], ['venir', 'À venir'], ['tout', 'Tout']];
   const VIDE = { surveiller: 'Aucune course à surveiller.', ouvertes: 'Aucune inscription ouverte pour l\'instant.', courue: 'Aucune course courue.', venir: 'Aucune course à venir.', tout: 'Aucune course.' };
 
   // Les courses de chaque vue (une course dans une seule vue ; les abandonnées nulle part). Dates et statuts : docs, § 4.
@@ -38,7 +38,7 @@
       '<h3 class="ob-nom">' + nomHtml(c) + '</h3>' +
       (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '') +
       '<div class="ob-lignes">' + (dist ? ligne('Distance', '<span class="ob-val">' + esc(dist) + '</span>') : '') +
-        (c.etat === 'courue' ? '' : ligne('Dossard', dossardHtml(c, true))) + '</div>' +
+        (c.etat === 'courue' ? '' : ligne('Inscription', dossardHtml(c, true))) + '</div>' +
       '<p class="cs-bas">' + (site
         ? '<a class="cs-site" href="' + esc(site) + '" target="_blank" rel="noopener">Site officiel ' + FLECHE + '</a>'
         : '<span class="cs-site is-off" aria-disabled="true">Site officiel ' + FLECHE + '</span>') + '</p></article>';

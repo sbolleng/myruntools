@@ -280,18 +280,19 @@
     a.onfinish = () => { el.style.overflow = ''; el.__deroule = null; termine(); };
   };
   // ----- Confirmation (design, § 11) : la question dans un encadré du site, jamais la fenêtre du navigateur -----
-  //   mrtConfirmer({ texte, action, danger, seul }) → promesse : vrai si l'action est choisie.
-  //   « Annuler » à gauche (choisi d'office), l'action à droite (en Alerte si danger) ; seul : un bouton (un avertissement).
+  //   mrtConfirmer({ texte, action, annuler, danger, seul }) → promesse : vrai si l'action est choisie.
+  //   « Annuler » à gauche (choisi d'office ; `annuler` le renomme quand « Annuler » prêterait à confusion : « Continuer » pour abandonner une saisie), l'action à droite (en Alerte si danger) ; seul : un bouton (un avertissement).
   //   Échap ou un toucher à côté : « Annuler », sans rien fermer de ce qui est dessous (fiche, page d'une course).
   window.mrtConfirmer = function (o) {
     return new Promise(fin => {
       const voile = document.createElement('div');
       voile.className = 'mrt-dialogue';
       voile.innerHTML = '<div class="mrt-dialogue-cadre' + (o.danger ? ' is-danger' : '') + '" role="alertdialog" aria-modal="true" aria-labelledby="mrt-dialogue-q">' +
-        '<p id="mrt-dialogue-q"></p><div class="mrt-dialogue-boutons">' + (o.seul ? '' : '<button type="button" class="mrt-btn" data-r="non">Annuler</button>') +
+        '<p id="mrt-dialogue-q"></p><div class="mrt-dialogue-boutons">' + (o.seul ? '' : '<button type="button" class="mrt-btn" data-r="non"></button>') +
         '<button type="button" class="mrt-btn ' + (o.danger ? 'is-danger' : 'is-principal') + '" data-r="oui"></button></div></div>';
       voile.querySelector('p').textContent = o.texte;
       voile.querySelector('[data-r="oui"]').textContent = o.action || 'Confirmer';
+      const non = voile.querySelector('[data-r="non"]'); if (non) non.textContent = o.annuler || 'Annuler';
       const avant = document.activeElement;
       function clavier(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); fermer(false); } }
       function fermer(r) {

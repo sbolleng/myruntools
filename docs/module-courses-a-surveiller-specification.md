@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.8 · 6 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.81 · 11 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Rôle
 
@@ -16,8 +16,8 @@ Un sélecteur en pastilles à choix unique, en haut de la page, avec le nombre d
 | --- | --- | --- |
 | **À surveiller** (par défaut) | Statut À surveiller, état À venir, avec ou sans date | Date croissante, sans date à la fin |
 | **Inscriptions ouvertes** | À venir (toute statut), pas encore inscrit, dont l'ouverture des inscriptions est atteinte (date et heure) : ce qu'il y a à faire maintenant | Date croissante, sans date à la fin |
-| **Déjà couru** | État Courue (celles du Palmarès) | Les plus récentes d'abord |
-| **À venir** | Option ou Confirmée à venir : la feuille de route d'Objectif ([§ 3.3](module-objectif-specification.md)) | Date croissante |
+| **Courues** | État Courue (celles du Palmarès) | Les plus récentes d'abord |
+| **À venir** | Option ou Confirmée à venir : la saison d'Objectif ([§ 3.3](module-objectif-specification.md)) | Date croissante |
 | **Tout** | À surveiller et À venir (date croissante, sans date à la fin), puis les courues (les plus récentes d'abord) | |
 
 Une course est dans une seule vue, sauf dans Inscriptions ouvertes, qui reprend celles de À surveiller, À venir et Tout dont l'ouverture est atteinte. L'adresse `courses-a-surveiller.html?vue=courue` (ou `venir`, `tout`) ouvre une autre vue ; sans paramètre, À surveiller.
@@ -25,7 +25,7 @@ Une course est dans une seule vue, sauf dans Inscriptions ouvertes, qui reprend 
 ## 3. Plan de page
 
 ```
-(20) [ À surveiller 12 ] [ Inscriptions ouvertes 2 ] [ Déjà couru 9 ] [ À venir 6 ] [ Tout 27 ]
+(20) [ À surveiller 12 ] [ Inscriptions ouvertes 2 ] [ Courues 9 ] [ À venir 6 ] [ Tout 27 ]
 (25) VUE (▦)(☰)   (24) ANNÉE  Toutes · 2026 · 2025   (22) [+ Ajouter une course]
 
 ┌────────────────────────────┐ ┌────────────────────────────┐ ┌──────────────────
@@ -33,7 +33,7 @@ Une course est dans une seule vue, sauf dans Inscriptions ouvertes, qui reprend 
 │ (6) Trail du Lac · Le Tour…│ │ (6) Marathon de la Baie    │ │
 │ (8) Mont-Clair · Trail court│ │ (8) La Baie · Marathon     │ │
 │ DISTANCE  24 km · 650 m D+ │ │ DISTANCE  42,195 km        │ │
-│ (11) DOSSARD (12)● (13) Ins│ │ (11) DOSSARD ○ Ouvre le 3 nov. │ │
+│ (11) INSCRIPTION (12)● (13) Ins│ │ (11) INSCRIPTION ○ Ouvre le 3 nov. │ │
 │              (14) Site off.│ │              (14) Site off.│ │
 └────────────────────────────┘ └────────────────────────────┘ └──────────────────
 ```
@@ -47,13 +47,13 @@ Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteu
 | 6 | Course · Parcours | Trail du Lac · Le Tour du Lac | Ligne 2, sous le statut | Nom |
 | 8 | Lieu · format | Mont-Clair · Trail court | Ligne 3 | Texte, Texte discret |
 | — | Distance | 24 km · 650 m D+ | Ligne 4 | Comme Objectif |
-| 11–13 | Dossard | ● Ouvre le 10 janv. 2027 à 12 h | Ligne 5 | Comme Objectif ([§ 3.5](module-objectif-specification.md)) ; absent pour une course courue ; jamais un lien ici |
+| 11–13 | Inscription | ● Ouvre le 10 janv. 2027 à 12 h | Ligne 5 | Comme Objectif ([§ 3.5](module-objectif-specification.md)) ; absent pour une course courue ; jamais un lien ici |
 | 14 | Site officiel ↗ | | Bas droite | Lien souligné en Texte ; **grisé, sans adresse, quand `lien` n'est pas renseigné** |
 | 17 | Titre de mois | NOVEMBRE 2026, DATE À DÉFINIR | Au-dessus de chaque groupe, en cartes | Libellé, Texte discret, filet dessous |
 | 20 | Sélection | À surveiller 12 | Haut de page | Pastilles communes (`mrt-pastille`), choix unique, compteur de la vue ; seule rangée de pastilles de la page |
 | 22 | Ajouter | + Ajouter une course | Sous les vues, à droite | Bouton principal ; absent en lecture seule |
 | 25 | Vue | Libellé VUE, puis deux ronds : grille (cartes) et tableau | Sous la sélection, après le compte | Ronds `mrt-rond` du Palmarès ; le rond actif en Accent ; infobulles « Cartes » et « Tableau » ; choix gardé sur l'appareil (`mrt-courses-affichage`), cartes par défaut |
-| 24 | Année | Libellé ANNÉE, puis Toutes · 2026 · 2025 | Après le tri | Même style que le tri ; seulement pour Déjà couru et Tout, avec plus d'une année |
+| 24 | Année | Libellé ANNÉE, puis Toutes · 2026 · 2025 | Après le tri | Même style que le tri ; seulement pour Courues et Tout, avec plus d'une année |
 
 Numéros repris d'Objectif ([§ 3.1](module-objectif-specification.md)) pour les éléments communs ; ni rôle, ni objectif, ni compteur. Retirés par rapport à la version 0.1 : le trait et les pastilles du chemin (1, 2) et le rond Détails (15).
 
@@ -71,7 +71,7 @@ Au choix (25), les mêmes courses, les mêmes vues, le même tri et le même fil
 
 Toucher une ligne ouvre la fiche de modification (la page de la course en lecture seule) ; le lien du nom n'ouvre pas la fiche.
 
-**Colonnes triables, comme le Palmarès** : en tableau, chaque titre de colonne est un bouton avec le double triangle du Palmarès. Premier toucher : croissant ; deuxième : décroissant ; troisième : retour à l'ordre d'origine (date croissante, ou décroissante pour Déjà couru). La colonne triée est en Accent. Tri par Événement et Course : alphabétique ; Distance : numérique ; Date : chronologique ; Ouverture : les inscriptions déjà ouvertes d'abord, puis les plus proches, les inscrits puis les courues à la fin. Une valeur vide passe toujours en dernier. 
+**Colonnes triables, comme le Palmarès** : en tableau, chaque titre de colonne est un bouton avec le double triangle du Palmarès. Premier toucher : croissant ; deuxième : décroissant ; troisième : retour à l'ordre d'origine (date croissante, ou décroissante pour Courues). La colonne triée est en Accent. Tri par Événement et Course : alphabétique ; Distance : numérique ; Date : chronologique ; Ouverture : les inscriptions déjà ouvertes d'abord, puis les plus proches, les inscrits puis les courues à la fin. Une valeur vide passe toujours en dernier. 
 
 ## 4. La carte
 
@@ -116,12 +116,12 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 
 | Essai | Résultat attendu |
 | --- | --- |
-| Ouverture de la page | Vue À surveiller ; pastilles : À surveiller 3, Inscriptions ouvertes 1, Déjà couru 7, À venir 7, Tout 17 ; aucun texte « n courses » ; ni choix de tri ni choix de regroupement en cartes ; titres de mois |
+| Ouverture de la page | Vue À surveiller ; pastilles : À surveiller 3, Inscriptions ouvertes 1, Courues 7, À venir 7, Tout 17 ; aucun texte « n courses » ; ni choix de tri ni choix de regroupement en cartes ; titres de mois |
 | Inscriptions ouvertes | Seulement Ultra du Plateau (ouverture le 1er sept. 2026) ; le jour même, une ouverture à 08 h est comptée à 10 h, une ouverture à 14 h pas encore |
 | À surveiller | Marathon de la Baie, Trail des Sommets, Ultra des Lacs ; titres avril 2027, septembre 2028, date à définir |
 | Carte du Marathon | Fond ; statut « À surveiller » et date sur la même ligne, nom dessous ; ni compteur ni objectif ; « Ouvre le 3 nov. 2026 à 12 h » ; lien « Site officiel » dans un nouvel onglet ; Ultra des Lacs : lien grisé sans adresse, date « À définir », « Ouverture : janvier 2027 » |
 | À venir | Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Cimes, Ultra du Plateau, Trail de la Forêt, Trail des Crêtes |
-| Déjà couru | 7 courses, la plus récente d'abord, sans ligne Dossard, pastille atténuée ; années Toutes, 2026, 2025 ; 2025 : 4 courses, pas de tri |
+| Courues | 7 courses, la plus récente d'abord, sans ligne Inscription, pastille atténuée ; années Toutes, 2026, 2025 ; 2025 : 4 courses, pas de tri |
 | Tout | 17 courses, les courues à la fin |
 | Toucher une carte | La fiche de modification s'ouvre (à surveiller, sans date, courue : fiche de résultat) ; le lien « Site officiel » ne l'ouvre pas |
 | + Course | Dans À surveiller : statut préchoisi ; dans À venir : Confirmée |
@@ -131,5 +131,5 @@ Données fictives du banc d'essai (groupe `courses`), 20 octobre 2026, 10 h. Cou
 | Ordinateur (1200 px) | Deux cartes du même mois côte à côte, moins de 420 px de large ; toutes les cartes de la même hauteur (aussi sur téléphone) |
 | Téléphone (390 px) | Rien ne dépasse ; une colonne ; statut et date sur la même ligne, le nom dessous |
 | Menu | Onglet « Courses » après Calendrier ; les cinq onglets tiennent à 375 et 390 px |
-| `?vue=courue` | La vue Déjà couru |
+| `?vue=courue` | La vue Courues |
 | Site partagé | Lecture seule, pas de bouton d'ajout ; toucher une carte ouvre la page de la course, pas la fiche |

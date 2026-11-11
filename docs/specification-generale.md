@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.33 · 8 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.34 · 11 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -29,7 +29,7 @@ Chaque page suit le même gabarit, de haut en bas :
 2. **Menu** (§ 5), sur toutes les pages.
 3. **Contenu du module**.
 
-L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur la page de démarrage (Palmarès, Préférences, page d'une course…), une barre fine remplace l'en-tête : « Cap sur » et le nom du cap (vers l'Accueil), et l'engrenage ; l'en-tête complet n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
+L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur la page de démarrage (Palmarès, Préférences, page d'une course…), une barre fine remplace l'en-tête : « Cap sur » et le nom du cap (vers En un coup d'œil), et l'engrenage ; l'en-tête complet n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
 
 **Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu. Connexion par **adresse e-mail et mot de passe** (décidé le 30 oct. 2026 ; plus de lien magique, pas de second facteur). Les comptes sont créés à la main : aucune inscription.
 
@@ -105,7 +105,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 - **Distance** : kilomètres, virgule décimale, espace avant l'unité, autant de décimales que la distance officielle (« 60 km », « 42,195 km »). Dénivelé, s'il est connu : « / », puis les mètres avec une espace pour les milliers, puis « D+ » (« 60 km / 3 500 m D+ »).
 - **Compte à rebours** : les jours en grand, puis « 18 h 59 min 58 s » (les unités des cartes).
-- **Prochaine course** : absente quand la page de démarrage la montre déjà (Accueil avec son bloc Prochaine course, feuille de route) : un seul compte à rebours pour une même course.
+- **Prochaine course** : absente quand la page de démarrage la montre déjà (En un coup d'œil avec son bloc Prochaine course, saison) : un seul compte à rebours pour une même course.
 - **Date** : jour, mois en toutes lettres, année (« 30 août 2029 »). Date approximative (seul le mois est connu) : mois et année seulement (« août 2029 »).
 - **D'ici là** : nombre suivi de « course » ou « courses » (« 1 course », « 12 courses »).
 - **J-n** : nombre de jours calendaires jusqu'à la prochaine course.
@@ -125,7 +125,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 ## 5. Menu
 
-- **En un coup d'œil** (l'ancien Accueil) : un module comme les autres, le premier par défaut ; il se masque et se déplace. Son onglet s'écrit « En un coup d' » suivi d'un picto d'œil.
+- **En un coup d'œil** (l'ancien « Accueil ») : un module comme les autres, le premier par défaut ; il se masque et se déplace. Son onglet s'écrit « En un coup d' » suivi d'un picto d'œil.
 
 - Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur et déjà construit, dans l'ordre qu'il a choisi (§ 8). Un module « bientôt » n'a pas d'onglet : il reste dans les Préférences et entre dans le menu une fois construit. L'onglet de la page ouverte est mis en avant.
 - Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené. Elle reste visible en haut de l'écran quand on fait défiler la page.
@@ -139,10 +139,10 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 | Bloc | Contenu | Par défaut |
 | --- | --- | --- |
-| Prochaine course | La carte de la prochaine course confirmée, comme sur la feuille de route ; lien vers la feuille de route | Affiché |
+| Prochaine course | La carte de la prochaine course confirmée, comme sur la saison ; lien vers la saison | Affiché |
 | Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt : jamais affiché avant d'être construit | — |
 | Nutrition | Bilan du jour (mangé / besoin) et ajout en une touche des favoris et récents ([Nutrition](module-nutrition-specification.md), § 4.7) ; seulement quand le module Nutrition est au menu | Affiché |
-| D'ici là | Les étapes de la feuille de route jusqu'au cap compris, le cap en Accent | Affiché |
+| D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent | Affiché |
 | Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Affiché |
 
 ## 6. Thèmes
@@ -156,9 +156,9 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 | Module | Rôle | Jalon |
 | --- | --- | --- |
-| Plan & objectifs | Feuille de route jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Plan & objectifs » (le nom rangé dans les préférences reste « Objectif ») | 1 |
-| Calendrier | Saison en trois vues : semaine (par défaut), mois et année, au menu « Périodicité » ; bouton « Plan » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
-| Préparation | Plan de saison : une saison par Objectif, les autres courses insérées selon leur rôle (Préparatoire, Plaisir), récupération et alertes ; séances proposées par une IA à venir ([spécification](module-preparation-specification.md)) ; à cocher dans les Préférences | 1 |
+| Saison | Saison jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Saison » (le nom rangé dans les préférences reste « Objectif ») | 1 |
+| Calendrier | Saison en trois vues : semaine (par défaut), mois et année, au menu « Vue » ; bouton « Plan » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
+| Préparation | Plan de préparation : une saison par Objectif, les autres courses insérées selon leur rôle (Préparatoire, Plaisir), récupération et alertes ; séances proposées par une IA à venir ([spécification](module-preparation-specification.md)) ; à cocher dans les Préférences | 1 |
 | Nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
 | Courses à surveiller | Toutes les courses en cartes (à surveiller, courues, à venir) : dates, ouverture des inscriptions avec heure ([spécification](module-courses-a-surveiller-specification.md)) ; dans le menu par défaut, après Calendrier ; index UTMB plus tard | 2 |
 | Guide | Articles et fiches pratiques, publics ou privés | 2 |
@@ -179,8 +179,8 @@ Page ouverte par l'engrenage de l'en-tête ou de la barre fine ; elle n'est pas 
 | --- | --- |
 | Thème | Couleurs du site (§ 6) |
 | Modules | Modules affichés dans le menu, et leur ordre |
-| Partage | Personnes avec qui je partage mon site, en lecture seule ; sites partagés avec moi (§ 9) |
-| Cap | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) ; par défaut la plus lointaine |
+| Partage | Personnes avec qui je partage mon espace, en lecture seule ; sites partagés avec moi (§ 9) |
+| Objectif principal | Course affichée dans le titre de l'en-tête, choisie parmi celles de la page Objectif (choix aussi possible depuis la page Objectif) ; par défaut la plus lointaine |
 | Compte | Nom, adresse de connexion, déconnexion |
 
 Changement de mot de passe : dans le bloc Compte (spécification des Préférences, § 6).
@@ -191,16 +191,16 @@ Un utilisateur peut montrer son site à un autre, par exemple pour avoir son avi
 
 **Partager** (Préférences, bloc « Partage ») :
 
-- « Partager mon site avec » : l'e-mail d'un compte existant, puis « Partager ». Adresse sans compte : « Aucun compte avec cette adresse ».
+- « Partager mon espace avec » : l'e-mail d'un compte existant, puis « Partager ». Adresse sans compte : « Aucun compte avec cette adresse ».
 - Dessous, les personnes avec qui je partage, chacune avec « Retirer ».
 
 **Voir un site partagé** (même bloc) :
 
-- « Sites partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son site ».
-- Dans ce mode, sur toutes les pages, un bandeau sous le menu : « Lecture seule · site de Prénom », avec « Revenir à mon site ».
+- « Sites partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son espace ».
+- Dans ce mode, sur toutes les pages, un bandeau sous le menu : « Lecture seule · espace de Prénom », avec « Revenir à mon espace ».
 - On voit son en-tête (cap, D'ici là, prochaine course), son menu, son thème et ses modules ; rien ne s'y ajoute, ne s'y modifie ni ne s'y supprime. Son thème s'applique sur toutes les pages, à la place de celui du visiteur, y compris en passant d'une page à l'autre.
-- Pas d'engrenage (Préférences) dans l'en-tête ni dans la barre fine : on en sort par « Revenir à mon site ».
-- Le mode est retenu sur l'appareil jusqu'à « Revenir à mon site ». Si l'accord est retiré, le site partagé disparaît de la liste et l'on revient à son propre site.
+- Pas d'engrenage (Préférences) dans l'en-tête ni dans la barre fine : on en sort par « Revenir à mon espace ».
+- Le mode est retenu sur l'appareil jusqu'à « Revenir à mon espace ». Si l'accord est retiré, le site partagé disparaît de la liste et l'on revient à son propre site.
 
 **Ce qui est partagé** : les courses et leurs circuits, les préférences (thème, menu, cap) et, du profil, seulement le prénom, le nom et le sexe. Jamais les données de santé (poids, taille, pointure, fréquences cardiaques, VMA, VO2 max, date de naissance) ni l'équipement.
 
@@ -295,7 +295,7 @@ Résultats attendus :
 - Indicateurs, dans l'ordre : « 60 km / 3 500 m D+ » Distance, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
-- Ligne sous le compteur, l'Accueil sans son bloc Prochaine course : « prochaine course · Trail du Lac · J-26 » ; avec le bloc : pas de ligne.
+- Ligne sous le compteur, la page En un coup d'œil sans son bloc Prochaine course : « prochaine course · Trail du Lac · J-26 » ; avec le bloc : pas de ligne.
 - Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; sur ordinateur, compte à rebours et prochaine course alignés à droite, leur bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, alignés à gauche, le nombre de jours et les heures sur une ligne.
 - Même objectif sans D+ (42,195 km) : Distance affiche « 42,195 km » seul ; l'en-tête garde 4 indicateurs.
 - Date connue au jour près (30 août 2029) : Date affiche « 30 août 2029 », le compteur vise le 30 août.
@@ -305,7 +305,7 @@ Résultats attendus :
 - Blanc et orange : fond blanc, cadres `#f3f5f8`, contrôles du navigateur en clair ; le nom d'une course pleine en Encre ; Développement en `#946200`. Noir et orange : fond noir, cadres `#121212`.
 - Automatique : appareil en mode sombre, Noir et orange ; passé en mode clair, Blanc et orange, sans recharger ; la page suivante s'affiche d'emblée dans le bon thème.
 - L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
-- Par défaut, l'en-tête figure sur En un coup d'œil seulement ; la feuille de route, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
+- Par défaut, l'en-tête figure sur En un coup d'œil seulement ; la saison, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
 - Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
 - Page de connexion : ni en-tête ni menu ; adresse, mot de passe, œil, « Mot de passe oublié ? ».
@@ -313,17 +313,17 @@ Résultats attendus :
 - « Mot de passe oublié ? » : même réponse pour une adresse connue et pour une inconnue ; champ vide : « Saisis ton adresse e-mail ».
 - Nouveau mot de passe : 13 caractères refusés, deux saisies différentes refusées, 14 caractères identiques acceptés ; enregistré, connecté sur l'accueil ; lien périmé : « Lien expiré : demande-en un nouveau. ».
 - L'œil affiche puis masque le mot de passe.
-- A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son site » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · site de A ».
+- A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son espace » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · espace de A ».
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
-- Chargement d'une page (accueil, Palmarès, Préférences, feuille de route, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
+- Chargement d'une page (accueil, Palmarès, Préférences, saison, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
 - En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac, compte à rebours en jours), D'ici là jusqu'au Trail des Crêtes en Accent, Dernière course ; aucun bloc « bientôt » ; pas de ligne « prochaine course » dans l'en-tête.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
-- Menu par défaut : En un coup d'œil, Plan & objectifs, Calendrier, Courses (module Courses à surveiller), Palmarès (pas d'onglet pour Cette semaine, Profil, Guide ; Nutrition est construit mais se coche dans les Préférences : six onglets ne tiennent pas à 375 px) ; à 375 et 390 px de large, les cinq onglets tiennent dans l'écran, sur toutes les pages.
+- Menu par défaut : En un coup d'œil, Saison, Calendrier, Courses (module Courses à surveiller), Palmarès (pas d'onglet pour Cette semaine, Profil, Guide ; Nutrition est construit mais se coche dans les Préférences : six onglets ne tiennent pas à 375 px) ; à 375 et 390 px de large, les cinq onglets tiennent dans l'écran, sur toutes les pages.
 - L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.
 - Retour du navigateur sur une fiche ouverte seule (« Ajouter une course ») : la fiche se ferme, la page reste ; après une saisie, « Abandonner les modifications ? » d'abord.
-- Objectif en tête du menu : ouvrir le site mène à la feuille de route, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
+- Objectif en tête du menu : ouvrir le site mène à la saison, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
 - En un coup d'œil masqué dans le menu (Cette semaine, Objectif, Palmarès) : ouvrir le site mène à Objectif, avec le grand en-tête ; le nom de l'application y mène aussi.
 - Mentions légales : la page s'ouvre sans être connecté ; aucun nom de personne ; contact, hébergeurs, crédits ; « Retour » mène à la connexion sans session, à l'accueil avec.
 - Pied de page « Mentions légales » en bas de chaque page, connexion comprise ; il ouvre la page des mentions.

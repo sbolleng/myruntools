@@ -116,7 +116,7 @@
       ecran = 'liste';
       const ls = lignes(pr()), obligatoires = ls.filter(l => l[3]), faites = obligatoires.filter(l => l[2]).length;
       const ligneHtml = l => '<button type="button" class="ps-ligne-q" data-q="' + l[0] + '"><span>' + l[1] + '</span><span class="ps-rep' + (!l[2] && l[3] ? ' is-a-faire' : '') + '">' + (l[2] ? esc(l[2]) : l[3] ? 'À renseigner' : '—') + '</span><i aria-hidden="true">›</i></button>';
-      corps.innerHTML = barre('Mon profil d\'entraînement', false) +
+      corps.innerHTML = barre('Mon profil de coureur', false) +
         '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Indispensable pour proposer tes séances <span class="ps-compte' + (faites === obligatoires.length ? ' is-complet' : '') + '">' + faites + ' sur ' + obligatoires.length + '</span></h2>' +
         '<div class="ps-groupe-l">' + obligatoires.map(ligneHtml).join('') + '</div></section>' +
         '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Pour affiner (facultatif)</h2><div class="ps-groupe-l">' + ls.filter(l => !l[3]).map(ligneHtml).join('') + '</div></section>';
@@ -143,7 +143,7 @@
       corps.innerHTML = barre('Ma semaine', true) +
         section('Course',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
-          chiffre('nb_sorties', 'Sorties par semaine', p0.nb_sorties) +
+          chiffre('nb_sorties', 'Séances par semaine', p0.nb_sorties) +
           q('Sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe'))) +
         section('Renforcement',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join('')) +
@@ -172,7 +172,7 @@
       corps.innerHTML = barre('Repère d\'allure', true) + '<div class="ps-groupe-l">' + ECHELLES.allure_type.map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (t === k ? ' is-on' : '') + '" data-type="' + k + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' +
         (saisie ? '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + saisie[0] + '</span><input class="mrt-champ" name="valeur" inputmode="' + saisie[3] + '" placeholder="' + saisie[2] + '" value="' + esc(saisie[1]) + '"></label>' +
-          '<button type="submit" class="mrt-btn is-principal">Valider</button></form>' : '');
+          '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>' : '');
       corps.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', async () => {
         if (b.dataset.type === 'inconnu') { if (await ranger({ allure_type: 'inconnu' })) liste(); } else allure(b.dataset.type);
       }));
@@ -199,7 +199,7 @@
       corps.innerHTML = barre('FC max et points fragiles', true) + '<form class="ps-valeur" novalidate>' +
         '<label class="cal-champ"><span>FC max</span><input class="mrt-champ" name="fc" inputmode="numeric" placeholder="ex. 185" value="' + esc(pr().fc_max == null ? '' : pr().fc_max) + '"></label>' +
         '<label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(pr().fragiles || '') + '</textarea></label>' +
-        '<button type="submit" class="mrt-btn is-principal">Valider</button></form>';
+        '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>';
       const f = corps.querySelector('form');
       f.addEventListener('submit', async e => {
         e.preventDefault();
@@ -230,7 +230,7 @@
     const blocAl = listeAl ? '<section class="ps-proposition ps-seul"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '</section>' : '';
     if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return blocAl;
     const etat = ctx.ia || {}, manque = manquants(ctx.profil);
-    if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
+    if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil de coureur</button></p>';
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
     if (!prop) return blocAl + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
@@ -267,9 +267,9 @@
       // (2) Mon profil et (12) son état : ce qui manque pour proposer des séances.
       const manque = manquants(ctx.profil);
       const profil = ctx.lectureSeule ? '' : '<div class="ps-profil-haut"><span class="ps-profil-etat' + (manque.length ? '' : ' is-complet') + '">' +
-        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil</button></div>';
+        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil de coureur</button></div>';
       if (!prochaine) {
-        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Plan & objectifs) pour construire ta saison.</p></div>';
+        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta préparation.</p></div>';
         return;
       }
       // (1) Saison visée.
@@ -331,7 +331,7 @@
         z.querySelectorAll('[data-frise]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.frise === m)));
       };
       h += '<div class="ps-frise-zone" data-plein-cible><div class="ps-frise-barre"><div class="ps-coches">' +
-        [['saison', 'Saison'], ['tout', 'Tout']].map(x => '<button type="button" class="mrt-pastille" data-frise="' + x[0] + '" aria-pressed="' + (mode === x[0]) + '">' + x[1] + '</button>').join('') + '</div>' +
+        [['saison', 'En cours'], ['tout', 'Tout']].map(x => '<button type="button" class="mrt-pastille" data-frise="' + x[0] + '" aria-pressed="' + (mode === x[0]) + '">' + x[1] + '</button>').join('') + '</div>' +
         window.mrtPleinEcran.bouton() + '</div><div class="ps-frise-corps">' + friseCorps(mode) + '</div></div>';
 
       // Le bloc en cours : la recommandation (avec les alertes, s'il y en a) et la grille des 4 semaines à partir de celle-ci, dans la grille
@@ -376,7 +376,7 @@
         if (err) { console.warn(err); ctx.ia = { message: 'Enregistrement impossible pour l\'instant.' }; dessiner(); return; }
         ctx.ia = {}; await recharger();
       } else if (act === 'abandonner') {
-        if (!(await window.mrtConfirmer({ texte: 'Abandonner cette proposition ? Aucune séance n\'est enregistrée.', action: 'Abandonner' }))) return;
+        if (!(await window.mrtConfirmer({ texte: 'Abandonner cette proposition ? Aucune séance n\'est enregistrée.', action: 'Abandonner', annuler: 'Garder' }))) return;
         await IA().abandonner(prop); ctx.ia = {}; await recharger();
       }
     });
