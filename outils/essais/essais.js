@@ -3609,7 +3609,7 @@ const CONTROLES = {
     let d = base();
     let { p, ctx, erreurs } = await ouvrirN(d);
     pb.push(egal(['Calculé pour H · 70 kg · 175 cm · peu actif ›', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
-      egal(['Mardi 20 octobre', true, 0], [norm(await p.locator('.nu-jour-t').textContent()), await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count()], 'sélecteur : le jour, pas de jour suivant, pas de lien « Aujourd\'hui »'),
+      egal(['Mardi 20 octobre', true, 0], [norm(await p.locator('.nu-jour-t').textContent()), await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count()], 'sélecteur : le jour, pas de jour suivant, pas de rond « » »'),
       egal(['kcal | sous | 350 | Reste 1 767 kcal | Besoin 2 117 kcal', 'p | sous | 6 g | Reste 92 g | Besoin 98–140 g', 'g | sous | 76 g | Reste 189 g | Besoin 265–318 g', 'l | sous | 1 g | Reste 58 g | Besoin 59–82 g'], await jauges(p), 'anneaux : nom, valeur, reste, besoin'),
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
@@ -3876,6 +3876,8 @@ const CONTROLES = {
     await p.click('[data-act="veille"]');
     await p.waitForFunction(() => /Lundi 19 octobre/.test(document.querySelector('.nu-jour-t').textContent));
     pb.push(egal([false, 1, 0, 'kcal | sous | 0 | Reste 2 117 kcal | Besoin 2 117 kcal'], [await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count(), await p.locator('.nu-journal li').count(), (await jauges(p))[0]], 'veille : son journal (vide), jour suivant et « Aujourd\'hui » proposés'));
+    pb.push(egal([true, true, 0], await p.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(), j = r('.nu-jour'), t = r('.nu-jour-t'), d = r('[data-act="lendemain"]'), a = r('[data-act="aujourdhui"]');
+      return [a.left >= d.right && Math.abs(a.top - d.top) < 2, Math.abs((t.left + t.right) / 2 - (j.left + j.right) / 2) < 2, document.querySelectorAll('.nu-auj, .mrt-lien[data-act="aujourdhui"]').length]; }), '« » » rond à droite de « › », jour centré, plus de lien « Aujourd\'hui »'));
     await ouvrirRepas(p);
     await p.click('.nu-aliment:has-text("Banane")'); await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
