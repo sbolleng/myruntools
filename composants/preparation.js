@@ -73,7 +73,7 @@
   const tousLesPlans = ctx => ctx.courses.filter(confirmee).map(c => planDe(c, modifsDe(ctx.semaines, c.id))).filter(Boolean);
 
   // Courses affichées dans la fenêtre : confirmées et options à venir (une option passée disparaît),
-  // courues (grisées). Ni à surveiller, ni abandonnées.
+  // courues (grisées). Ni repérées, ni abandonnées.
   function visibles(courses, debut, fin, auj) {
     return courses.filter(c => c.date && c.date >= debut && c.date <= fin && (c.etat === 'courue' ||
       (c.etat === 'a_venir' && (c.statut === 'confirmee' || (c.statut === 'option' && c.date >= auj)))))

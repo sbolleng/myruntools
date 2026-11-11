@@ -1,26 +1,22 @@
-// ===== Courses à surveiller : toutes les courses de l'utilisateur, en cartes, du plus proche au plus lointain =====
+// ===== Courses : toutes les courses de l'utilisateur, en cartes ou en tableau, derrière un bouton Filtres =====
 //
 // Décrit par docs/module-courses-a-surveiller-specification.md ; style : composants/courses.css (et objectif.css, dont la
 // carte est reprise). Cartes d'Objectif sans rôle, objectif ni compteur, rangées en colonnes (une sur téléphone).
-//   renderCourses(el, courses, edition, etat)   la barre (sélection, vue, année) et la liste ; etat : { vue, mode, annee, col, dir }, modifié sur place
-//   mrtVuesCourses(courses)                     les courses de chaque vue : { surveiller, venir, courue, tout }
+//   renderCourses(el, courses, edition, etat)   la barre (filtres, affichage) et la liste ; etat : { cats, ouvertes, annee, panneau, mode, col, dir }, modifié sur place
 (function () {
   const { MOIS_LONG } = window.mrtFormat;
   const { esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, FLECHE, PLUS, STATUTS_LIB } = window.mrtCartes;
-    const VUES = [['surveiller', 'À surveiller'], ['ouvertes', 'Inscriptions ouvertes'], ['courue', 'Courues'], ['venir', 'À venir'], ['tout', 'Tout']];
-  const VIDE = { surveiller: 'Aucune course à surveiller.', ouvertes: 'Aucune inscription ouverte pour l\'instant.', courue: 'Aucune course courue.', venir: 'Aucune course à venir.', tout: 'Aucune course.' };
+  // Les statuts de la page (une course courue n'a plus que « Courue »), dans l'ordre du filtre.
+  const CATS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', STATUTS_LIB.a_surveiller], ['courue', 'Courue']];
 
-  // Les courses de chaque vue (une course dans une seule vue ; les abandonnées nulle part). Dates et statuts : docs, § 4.
+  // Toutes les courses sauf les abandonnées : ce qui reste à venir du plus proche au plus lointain (sans date à la fin), puis les courues, les plus récentes d'abord.
   const croissant = (a, b) => (!a.date ? (b.date ? 1 : 0) : !b.date ? -1 : a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
-  window.mrtVuesCourses = function (courses) {
-    const surveiller = courses.filter(c => c.etat === 'a_venir' && c.statut === 'a_surveiller').sort(croissant);
-    const venir = window.mrtCoursesRoute(courses);
-    const courue = courses.filter(c => c.etat === 'courue').sort((a, b) => croissant(b, a));
-    // Tout : ce qui reste à venir (à surveiller et à venir) du plus proche au plus lointain, puis les courues, les plus récentes d'abord.
-    // Inscriptions ouvertes : à venir, pas encore inscrit, ouverture atteinte (date et heure), quel que soit le statut.
-    const ouvertes = courses.filter(c => c.etat === 'a_venir' && window.mrtCartes.dossardEtat(c) === 'ouvert').sort(croissant);
-    return { surveiller, ouvertes, venir, courue, tout: surveiller.concat(venir).sort(croissant).concat(courue) };
-  };
+  const categorie = c => (c.etat === 'courue' ? 'courue' : c.statut);
+  const toutes = courses => courses.filter(c => c.etat === 'a_venir').sort(croissant).concat(courses.filter(c => c.etat === 'courue').sort((a, b) => croissant(b, a)));
+  // Filtres : au choix dans un même groupe (statut), ET entre groupes. « Ouvertes » : à venir, pas inscrit, ouverture atteinte (date et heure).
+  const passe = (c, etat) => (!etat.cats.length || etat.cats.includes(categorie(c))) &&
+    (!etat.ouvertes || (c.etat === 'a_venir' && window.mrtCartes.dossardEtat(c) === 'ouvert')) &&
+    (!etat.annee || (c.date && c.date.slice(0, 4) === etat.annee));
 
   // Tri par ouverture des inscriptions : les plus proches d'abord, puis les dates inconnues ; les inscrits à la fin.
   const cleOuverture = c => (c.etat === 'courue' ? '99' : c.inscrit ? '9' : c.ouverture_inscriptions ? '0' + c.ouverture_inscriptions + (c.ouverture_heure || '') : '5');
@@ -59,6 +55,8 @@
   // Pictos des deux affichages : une grille de cartes, un tableau ; et le double triangle des colonnes triables (comme le Palmarès).
   const GRILLE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5v4.5h-4.5z M9 2.5h4.5v4.5h-4.5z M2.5 9h4.5v4.5h-4.5z M9 9h4.5v4.5h-4.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const TABLE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v9h-11z M2.5 7h11 M2.5 10h11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  const FILTRE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M4.75 8h6.5M7 11.5h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const REDUIRE = '<svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const TRI = window.mrtIcone.tri; // en-tête triable commun (mrt-tri), comme le Palmarès
   const COLONNES = [['evenement', 'Événement'], ['course', 'Course'], ['distance', 'Distance · D+'], ['date', 'Date'], ['ouverture', 'Ouverture des inscriptions']];
   // Valeur de tri de chaque colonne (une valeur vide passe toujours en dernier).
@@ -69,13 +67,14 @@
 
   window.renderCourses = function (el, courses, edition, etat) {
     if (!etat.mode) etat.mode = lireMode();
-    const vues = window.mrtVuesCourses(courses);
-    if (!vues[etat.vue]) etat.vue = 'surveiller';
-    // Année : seulement pour les vues qui montrent des courues, et s'il y en a plus d'une.
-    const anneesDe = l => [...new Set(l.filter(c => c.date).map(c => c.date.slice(0, 4)))].sort().reverse();
-    const annees = etat.vue === 'courue' || etat.vue === 'tout' ? anneesDe(vues[etat.vue]) : [];
+    if (!etat.cats) etat.cats = [];
+    const tous = toutes(courses);
+    // Année : un filtre du panneau, s'il y a plus d'une année.
+    const annees = [...new Set(tous.filter(c => c.date).map(c => c.date.slice(0, 4)))].sort().reverse();
     if (!annees.includes(etat.annee)) etat.annee = null;
-    let liste = vues[etat.vue].filter(c => !etat.annee || (c.date && c.date.slice(0, 4) === etat.annee));
+    let liste = tous.filter(c => passe(c, etat));
+    const actifs = (etat.cats.length ? 1 : 0) + (etat.ouvertes ? 1 : 0) + (etat.annee ? 1 : 0);
+    const seulesCourues = etat.cats.length === 1 && etat.cats[0] === 'courue';
     const tab = etat.mode === 'tableau';
     // Cartes : toujours par date, regroupées par mois ; tableau : les colonnes se trient (premier toucher croissant, deuxième décroissant, troisième : ordre d'origine).
     const col = tab ? etat.col : null;
@@ -92,16 +91,25 @@
     const parMois = !tab;
 
     const pastille = (attr, cle, texte, on) => '<button type="button" class="mrt-pastille cs-pastille' + (on ? ' is-on' : '') + '" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
-    // Réglages discrets : un libellé, puis les choix en texte (le choix actif souligné).
-    const choix = (attr, cle, texte, on) => '<button type="button" class="mrt-choix" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
     const reglage = (libelle, html) => '<div class="cs-reglage"><span class="cs-lib">' + libelle + '</span>' + html + '</div>';
     const rond = (cle, texte, picto) => '<button type="button" class="mrt-rond cs-rond" data-mode="' + cle + '" aria-pressed="' + (etat.mode === cle) + '" aria-label="' + texte + '" title="' + texte + '">' + picto + '</button>';
-    const haut = '<div class="cs-barre"><div class="cs-vues" role="group" aria-label="Sélection">' +
-      VUES.map(([k, lib]) => pastille('vue', k, lib + ' <span class="cs-n">' + vues[k].length + '</span>', k === etat.vue)).join('') + '</div>' +
-      '<div class="cs-outils">' +
-        reglage('Vue', '<span class="cs-ronds" role="group" aria-label="Affichage">' + rond('cartes', 'Cartes', GRILLE) + rond('tableau', 'Tableau', TABLE) + '</span>') +
-        (annees.length > 1 ? reglage('Année', choix('annee', '', 'Toutes', !etat.annee) + annees.map(a => choix('annee', a, a, a === etat.annee)).join('')) : '') +
-        (edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-cs="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div></div>';
+    const nbCat = k => tous.filter(c => categorie(c) === k).length;
+    const libFiltres = actifs ? 'Filtres · ' + actifs + ' actif' + (actifs > 1 ? 's' : '') : 'Filtres';
+    const champ = (legende, html) => '<fieldset class="cs-champ"><legend class="cs-lib">' + legende + '</legend><div class="cs-choix">' + html + '</div></fieldset>';
+    const panneau = '<div class="cs-panneau" id="cs-filtres"' + (etat.panneau ? '' : ' hidden') + '>' +
+      '<button type="button" class="mrt-rond cs-fermer" data-cs="fermer" aria-label="Réduire les filtres" title="Réduire">' + REDUIRE + '</button>' +
+      champ('Statut', CATS.map(([k, lib]) => pastille('cat', k, lib + ' <span class="cs-n">' + nbCat(k) + '</span>', etat.cats.includes(k))).join('')) +
+      champ('Inscriptions', pastille('ouvertes', '1', 'Ouvertes <span class="cs-n">' + tous.filter(c => passe(c, { cats: [], ouvertes: true })).length + '</span>', !!etat.ouvertes)) +
+      (annees.length > 1 ? champ('Année', pastille('annee', '', 'Toutes', !etat.annee) + annees.map(a => pastille('annee', a, a, a === etat.annee)).join('')) : '') + '</div>';
+    const haut = '<div class="cs-barre">' +
+      '<button type="button" class="mrt-rond cs-filtre' + (actifs ? ' is-on' : '') + '" data-cs="filtres" aria-expanded="' + !!etat.panneau + '" aria-controls="cs-filtres" aria-label="' + libFiltres + '" title="Filtres">' +
+        FILTRE + (actifs ? '<span class="cs-badge">' + actifs + '</span>' : '') + '</button>' +
+      reglage('Vue', '<span class="cs-ronds" role="group" aria-label="Affichage">' + rond('cartes', 'Cartes', GRILLE) + rond('tableau', 'Tableau', TABLE) + '</span>') +
+      (actifs ? '<span class="cs-compte" aria-live="polite">' + liste.length + ' sur ' + tous.length + ' course' + (tous.length > 1 ? 's' : '') + '</span>' +
+        '<button type="button" class="mrt-lien cs-raz" data-cs="raz">Réinitialiser les filtres</button>' : '') +
+      (edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-cs="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div>' + panneau;
+
+    const redessiner = () => window.renderCourses(el, courses, edition, etat);
 
     // Regroupées par mois (tri par date) : un titre, puis les cartes du mois côte à côte ; « Date à définir » en dernier.
     const groupes = [];
@@ -115,22 +123,26 @@
       '<div class="cs-grille">' + g.cartes.map(carte).join('') + '</div></section>').join('');
     // Tableau : les mêmes groupes (titres de mois en lignes), dans un cadre ; il défile sur le côté s'il est plus large que l'écran.
     const tableau = '<div class="cs-tableau"><div class="table-scroll"><table><thead><tr>' + COLONNES.map(([k, lib]) => {
-        const actif = col ? col === k : k === 'date', sens = col ? etat.dir : etat.vue === 'courue' ? 'desc' : 'asc';
+        const actif = col ? col === k : k === 'date', sens = col ? etat.dir : seulesCourues ? 'desc' : 'asc';
         return '<th aria-sort="' + (actif ? (sens === 'desc' ? 'descending' : 'ascending') : 'none') + '"><button type="button" class="mrt-tri" data-col="' + k + '">' + lib + TRI + '</button></th>';
       }).join('') + '</tr></thead><tbody>' +
       liste.map(ligneTableau).join('') + '</tbody></table></div></div>';
-    el.innerHTML = haut + (liste.length ? (etat.mode === 'tableau' ? tableau : '<div class="cs-liste">' + html + '</div>') : '<p class="ob-vide cs-vide">' + VIDE[etat.vue] + '</p>');
+    el.innerHTML = haut + (liste.length ? (etat.mode === 'tableau' ? tableau : '<div class="cs-liste">' + html + '</div>') : '<p class="ob-vide cs-vide">' + (actifs ? 'Aucune course ne correspond aux filtres.' : 'Aucune course.') + '</p>');
     couperNoms();
 
-    const redessiner = () => window.renderCourses(el, courses, edition, etat);
-    el.querySelectorAll('[data-vue]').forEach(b => b.addEventListener('click', () => { etat.vue = b.dataset.vue; if (etat.onVue) etat.onVue(etat.vue); redessiner(); }));
+    const sur = (sel, f) => el.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => f(b)));
+    sur('[data-cs="filtres"]', () => { etat.panneau = !etat.panneau; redessiner(); });
+    sur('[data-cs="fermer"]', () => { etat.panneau = false; redessiner(); });
+    sur('[data-cs="raz"]', () => { etat.cats = []; etat.ouvertes = false; etat.annee = null; redessiner(); });
+    sur('[data-cat]', b => { const k = b.dataset.cat; etat.cats = etat.cats.includes(k) ? etat.cats.filter(x => x !== k) : etat.cats.concat(k); redessiner(); });
+    sur('[data-ouvertes]', () => { etat.ouvertes = !etat.ouvertes; redessiner(); });
     el.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { etat.mode = b.dataset.mode; ecrireMode(etat.mode); redessiner(); }));
     el.querySelectorAll('[data-col]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.col;
       if (etat.col !== k) { etat.col = k; etat.dir = 'asc'; } else if (etat.dir === 'asc') etat.dir = 'desc'; else etat.col = null;
       redessiner();
     }));
-    el.querySelectorAll('[data-annee]').forEach(b => b.addEventListener('click', () => { etat.annee = b.dataset.annee || null; redessiner(); }));
+    sur('[data-annee]', b => { etat.annee = b.dataset.annee || null; redessiner(); });
     // Toucher une carte (hors lien « Site officiel ») : la fiche de modification ; en lecture seule, la page de la course.
     const ouvrir = id => (edition ? edition.modifier(id) : window.mrtOuvrirCourse(id));
     el.querySelectorAll('.cs-carte, .cs-ligne').forEach(k => {
@@ -138,6 +150,6 @@
       k.addEventListener('keydown', e => { if (e.target === k && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); ouvrir(k.dataset.id); } });
     });
     const ajout = el.querySelector('[data-cs="ajouter"]');
-    if (ajout) ajout.addEventListener('click', () => edition.ajouter(etat.vue === 'courue' ? { mode: 'courue' } : etat.vue === 'surveiller' ? { defauts: { statut: 'a_surveiller' } } : undefined));
+    if (ajout) ajout.addEventListener('click', () => edition.ajouter(seulesCourues ? { mode: 'courue' } : etat.cats.length === 1 && etat.cats[0] === 'a_surveiller' ? { defauts: { statut: 'a_surveiller' } } : undefined));
   };
 })();

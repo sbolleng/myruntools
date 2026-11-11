@@ -6,7 +6,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 
 ## 1. Principes
 
-- **Une seule liste de courses par utilisateur.** Une course passe d'un module à l'autre (Courses à surveiller, Objectif, Palmarès) en changeant de statut ou d'état : c'est la même ligne, sans double saisie.
+- **Une seule liste de courses par utilisateur.** Une course passe d'un module à l'autre (Courses, Objectif, Palmarès) en changeant de statut ou d'état : c'est la même ligne, sans double saisie.
 - **Chaque ligne appartient à un utilisateur.** Une règle par ligne garantit que chacun ne lit et n'écrit que ses propres données (§ 8).
 - **On range ce qui est saisi, on calcule le reste à l'affichage** : records 🥇, allure ou vitesse manquante, km-effort, comptes à rebours, « D'ici là ».
 - **Unités fixes** : distances en kilomètres, dénivelés en mètres, durées en secondes, vitesses en km/h, dates sans fuseau (heure locale de la course).
@@ -109,14 +109,14 @@ Trois réglages indépendants décrivent la place d'une course dans le plan.
 
 | Réglage | Valeurs | Effet |
 | --- | --- | --- |
-| **Statut** | À surveiller · Option · Confirmée | À surveiller : module Courses à surveiller (qui montre aussi toutes les autres). Option et Confirmée : page Objectif. |
+| **Statut** | Repérée · Option · Confirmée | Repérée : module Courses (qui montre aussi toutes les autres) ; libellé « Repérée », valeur stockée `a_surveiller`. Option et Confirmée : page Objectif. |
 | **Rôle** | Objectif · Préparatoire · Plaisir | Rendu de l'étape et place dans le plan de préparation ([Préparation](module-preparation-specification.md), § 3) ; une ou plusieurs courses peuvent avoir le rôle Objectif. La valeur `objectif_intermediaire` reste dans le type, mais n'est plus employée (évolution 023 : ses courses passent en Objectif). |
 | **État** | À venir · Abandonnée · Courue | Courue : Palmarès. Abandonnée : affichée nulle part, gardée pour mémoire. |
 
 - **Options** : plusieurs courses au statut Option qui partagent le même `groupe_options` (« Automne 2027 ») sont des options pour un même créneau ; la page Objectif les montre ensemble. Une Option sans groupe est une option isolée. Choisir une option la passe en Confirmée.
 - Une course ne passe à Courue que si elle est Confirmée.
 - Une course lointaine dont seul le mois est connu reste Confirmée, avec `date_approx` (date rangée au 1er du mois).
-- Une course sans date (souvent À surveiller) s'affiche « À définir ».
+- Une course sans date (souvent Repérée) s'affiche « À définir ».
 
 ### 4.2 Suivi en course
 
@@ -217,7 +217,7 @@ Le besoin du jour et les cibles se calculent (§ 7), ils ne sont pas rangés.
 
 ### Listes fermées (gravées dans la base)
 
-Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, deload) et type de séance (run, renfo) : le fonctionnement en dépend (Courue envoie au Palmarès, À surveiller dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
+Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, deload) et type de séance (run, renfo) : le fonctionnement en dépend (Courue envoie au Palmarès, Repérée dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
 
 ## 7. Ce qui est calculé, jamais rangé
 
@@ -261,7 +261,7 @@ Résultats attendus :
 - Une valeur de statut, de rôle ou d'état inconnue est refusée ; une description de plus de 1 000 caractères aussi.
 - Un format inconnu est refusé ; une course sans nom de course aussi ; un utilisateur ne peut pas modifier les listes de référence.
 - A rattache une course au circuit UTMB, catégorie 20K, 1 stone : B ne voit pas ce rattachement ; supprimer la course le supprime.
-- Une course sans date (À surveiller) est acceptée ; elle s'affiche « À définir ».
+- Une course sans date (Repérée) est acceptée ; elle s'affiche « À définir ».
 - A partage avec B : B lit les courses, circuits et préférences de A, et son prénom, nom et sexe, mais ni son poids ni sa VMA ; B ne peut rien modifier chez A ; A retire le partage, B ne lit plus rien.
 - Calendrier : A a une course de format Trail long (16 semaines par défaut). Sa durée propre à 20 semaines remplace celle du format ; vidée, le format reprend. Un format sans durée : pas de plan.
 - A modifie la phase d'une semaine : une ligne dans `plan_semaines` ; B ne la voit pas. Un jour qui n'est pas un lundi est refusé, une phase inconnue aussi. Supprimer la course supprime ces lignes.

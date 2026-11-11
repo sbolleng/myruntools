@@ -251,9 +251,9 @@ Les boutons du site, à reprendre tels quels (feuille de style partagée, `compo
 | Fermer | `mrt-rond is-fermer` | Rond avec « × » de 1,2 rem, la même croix partout | Fermer une feuille |
 | Réduire | `mrt-rond` | Rond avec un chevron vers le haut | Replier un panneau (filtres, colonnes du Palmarès) |
 | Lien d'action | `mrt-lien` | Souligné, Texte discret, 0,8 rem, sans cadre ; `is-danger` en Alerte | Se déconnecter, Mot de passe oublié ?, Retour à la connexion, Réinitialiser l'ordre, Réinitialiser les filtres, Revenir aux règles générales, Retirer |
-| Pastille | `mrt-pastille` | Arrondie, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond | Vues du Calendrier et d'À surveiller, filtres, tri et colonnes du Palmarès, étapes « D'ici là » |
-| Réglage discret | `mrt-choix` | Choix en texte, 0,8 rem, Texte discret ; le choisi en Texte, souligné d'Accent | Année d'À surveiller, durée de l'Année (3, 6, 12 mois) |
-| En-tête triable | `mrt-tri` | Libellé de colonne et deux triangles ; la colonne triée en Accent | Palmarès, tableau d'À surveiller |
+| Pastille | `mrt-pastille` | Arrondie, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond | Vues du Calendrier, filtres de Courses et du Palmarès, filtres, tri et colonnes du Palmarès, étapes « D'ici là » |
+| Réglage discret | `mrt-choix` | Choix en texte, 0,8 rem, Texte discret ; le choisi en Texte, souligné d'Accent | Durée de l'Année (3, 6, 12 mois) |
+| En-tête triable | `mrt-tri` | Libellé de colonne et deux triangles ; la colonne triée en Accent | Palmarès, tableau de Courses |
 | Confirmation | `mrtConfirmer` | Encadré (Surface, contour Alerte pour une action dangereuse) sur le voile : question, « Annuler », action | Supprimer la course ou la séance, Abandonner les modifications, Retenir cette course, Revenir aux règles générales |
 
 ## 12. Glossaire
@@ -268,7 +268,8 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Module qui construit le plan | **Préparation** (page, rubrique d'une course) ; le plan se règle **dans la page Préparation seulement** (« Plans des courses ») ; « plan » dans « Paramétrer le plan » et « Place dans le plan » ; la frise de la page bascule entre **En cours** et **Tout** | plan de saison, prépa, Saison (pour la frise) |
 | Phases affichées au Calendrier | bouton **Phases** | Plan (bouton), Phases de prépa |
 | Choix du Calendrier (Semaine, Mois, Année…) | menu **Vue** | Périodicité |
-| Module de toutes les courses (vues À surveiller, Inscriptions ouvertes, Courues, À venir, Tout) | **Courses** (menu et titre) ; « À surveiller » reste la vue par défaut et le statut | Courses à surveiller |
+| Module de toutes les courses | **Courses** (menu et titre) ; toutes les courses au départ, resserrées par le bouton **Filtres** | Courses à surveiller, vues À surveiller / À venir |
+| Statut d'une course pas encore décidée | **Repérée** (valeur stockée `a_surveiller`) | À surveiller, candidate |
 | Courses déjà courues | vue et pastille **Courues** ; module **Palmarès** | Déjà couru |
 | Page d'accueil du site | **En un coup d'œil** | Accueil |
 | Une course d'un groupe d'options | **option** | candidat, candidate |

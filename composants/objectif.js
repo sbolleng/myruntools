@@ -16,7 +16,7 @@
   const F = window.mrtFormat;
   // Trois rôles (spécification Préparation, § 3) ; l'ancien « objectif intermédiaire » compte comme un Objectif.
   const ROLES = { preparatoire: 'Préparatoire', plaisir: 'Plaisir', objectif_intermediaire: 'Objectif', objectif: 'Objectif' };
-  const STATUTS_LIB = { a_surveiller: 'À surveiller', option: 'Option', confirmee: 'Confirmée' };
+  const STATUTS_LIB = { a_surveiller: 'Repérée', option: 'Option', confirmee: 'Confirmée' };
   const UNITE = { j: 'j', h: 'h', m: 'min', s: 's' };
   const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad = n => String(n).padStart(2, '0');
@@ -348,7 +348,7 @@
     // Ordre de la feuille de route, candidats d'un groupe compris, un par un.
     const suite = etapes.flatMap(e => (e.course ? [e.course] : e.candidats));
     let i = suite.findIndex(c => c.id === id);
-    // Hors feuille de route (course à surveiller, sans date ou option passée) : la page s'ouvre sans voisines ni numéro d'étape.
+    // Hors feuille de route (course repérée, sans date ou option passée) : la page s'ouvre sans voisines ni numéro d'étape.
     const horsRoute = i < 0 ? courses.find(x => x.id === id && x.etat === 'a_venir') : null;
     if (horsRoute) { suite.push(horsRoute); i = suite.length - 1; }
     if (i < 0) {
@@ -511,10 +511,10 @@
       ajouter: extra => ouvrir(null, Object.assign({ mode: 'a_venir' }, extra)),
       // Modifier : la fiche d'édition directement (cartes de Courses à surveiller) ; une course courue s'ouvre dans sa fiche de résultat.
       modifier: id => { const c = trouver(id); if (c) ouvrir(c, { mode: c.etat === 'courue' ? 'courue' : 'a_venir' }); },
-      // Le candidat devient Confirmée et quitte le groupe ; les autres passent À surveiller, sans être supprimés.
+      // Le candidat devient Confirmée et quitte le groupe ; les autres passent Repérée, sans être supprimés.
       retenir: async id => {
         const c = trouver(id);
-        if (!c || !(await window.mrtConfirmer({ texte: 'Retenir cette course ? Les autres options de « ' + c.groupe_options + ' » passeront à surveiller.', action: 'Retenir' }))) return;
+        if (!c || !(await window.mrtConfirmer({ texte: 'Retenir cette course ? Les autres options de « ' + c.groupe_options + ' » passeront au statut Repérée.', action: 'Retenir' }))) return;
         const db = window.mrtSupabase.from('courses');
         const autres = await db.update({ statut: 'a_surveiller', groupe_options: null }).eq('groupe_options', c.groupe_options).eq('statut', 'option').neq('id', c.id);
         const lui = autres.error ? autres : await window.mrtSupabase.from('courses').update({ statut: 'confirmee', groupe_options: null }).eq('id', c.id);
