@@ -91,7 +91,7 @@
 .nu-tuile-ico { grid-column: 2; grid-row: 1 / 3; width: 1.6rem; height: 1.6rem; color: var(--accent); } /* le picto, tout à droite des deux lignes (Repas, + Ajouter) */
 .nu-tuile-l, .nu-tuile-v { grid-column: 1; }
 .nu-tuile-l { font-size: var(--t-texte); font-weight: 600; color: var(--text); }
-.nu-tuile-v { display: flex; align-items: center; gap: 0.35rem; max-width: 100%; font-size: var(--t-second); font-weight: 600; color: var(--accent); }
+.nu-tuile-v { display: inline-flex; align-items: center; justify-self: start; gap: 0.45rem; max-width: 100%; margin-top: 0.2rem; padding: 0.5rem 1.1rem; font-size: var(--t-second); font-weight: 600; line-height: 1.3; color: var(--bg); background: var(--accent); border: 1px solid var(--accent); border-radius: 20px; } /* « + Ajouter » : même pastille que « + Ajouter une course » (mrt-btn is-principal) */
 .nu-msg-sport { text-align: center; }
 .nu-seances { margin: 0 0 0.7rem; font-size: var(--t-second); color: var(--muted); }
 .nu-seances .mrt-lien { margin-left: 0.3rem; }
