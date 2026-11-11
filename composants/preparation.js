@@ -269,34 +269,44 @@
     return voile;
   }
 
+  // Fenêtre d'une séance ; avec opts.dans (un élément), un écran d'une feuille (Nutrition) : ni barre ni titre (ceux de la
+  // feuille), « Enregistrer » collé en bas (mc-pied) ; opts.apres() est appelé après un enregistrement ou une suppression.
   function ouvrirSeance(ctx, opts) {
-    const s = opts.seance;
-    const v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
-      titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') +
-      '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
+    const s = opts.seance, dans = opts.dans;
+    const champs = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
       '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type">' + Object.keys(TYPES).map(k => '<option value="' + k + '">' + TYPES[k] + '</option>').join('') + '</select></label>' +
       '<label class="cal-champ"><span>Libellé</span><input class="mrt-champ" name="libelle" maxlength="100" placeholder="ex. Footing 45 min" value="' + esc(s ? s.libelle : '') + '"></label>' +
       // Facultatifs : durée, distance, intensité (spécification Préparation, § 7).
       '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
       '<label class="cal-champ"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
       '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label></div>' +
-      (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '') + '</form>', 'cal-seance');
+      (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
+    let v;
+    if (dans) {
+      dans.innerHTML = '<form class="cal-seance cal-ecran" novalidate><p class="cal-msg" role="alert"></p>' + champs +
+        '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form>';
+      v = { querySelector: q => dans.querySelector(q), fermer: () => opts.apres && opts.apres() };
+    } else {
+      v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
+        titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
+    }
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
     if (s) f.type.value = s.type;
     else if (opts.type && TYPES[opts.type]) f.type.value = opts.type; // type proposé par la page qui ouvre la fenêtre (Nutrition)
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
-    v.querySelector('.cal-panneau').focus({ preventScroll: true });
+    if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
     const echec = err => { msg.textContent = 'Enregistrement impossible pour l\'instant.'; console.warn(err); };
-    v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
-    if (s) v.querySelector('[data-act="supprimer"]').addEventListener('click', async () => {
+    if (!dans) v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+    if (s) v.querySelector('[data-act="supprimer"]').addEventListener('click', async e => {
+      e.stopPropagation();
       if (!(await window.mrtConfirmer({ texte: 'Supprimer cette séance ?', action: 'Supprimer', danger: true }))) return;
       const { error } = await sb.from('seances').delete().eq('id', s.id);
       if (error) return echec(error);
       v.fermer(); ctx.actualiser();
     });
     f.addEventListener('submit', async e => {
-      e.preventDefault();
+      e.preventDefault(); e.stopPropagation();
       const libelle = f.libelle.value.trim(), date = f.date.value;
       if (!date) return void (msg.textContent = 'Choisis une date.');
       if (!libelle) return void (msg.textContent = 'Écris le libellé de la séance.');

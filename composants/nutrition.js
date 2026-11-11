@@ -326,21 +326,22 @@
         '<p class="nu-apercu" aria-live="polite">' + texteApercu(x) + '</p>' +
         '<p class="nu-choix-l">Repas</p>' +
         '<div class="nu-repas-choix">' + REPAS.map(r => '<button type="button" class="mrt-pastille" data-act="repas" data-repas="' + r[0] + '" aria-pressed="' + (S.repas === r[0]) + '">' + r[1] + '</button>').join('') + '</div>' +
-        '<button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">' + texteAjouter(x) + '</button></div>';
+        '</div><p class="nu-msg" role="alert">' + esc(S.msg) + '</p>' +
+        '<div class="mc-pied"><button type="button" class="mrt-btn is-principal nu-ajouter" data-act="ajouter">' + texteAjouter(x) + '</button></div>';
     }
     function htmlAjout() {
       // Étape 2 : l'aliment choisi (quantité, favori, repas, Ajouter) ; « ‹ » ramène à l'étape 1.
-      if (choisi()) return htmlChoix() + '<p class="nu-msg" role="alert">' + esc(S.msg) + '</p>';
+      if (choisi()) return htmlChoix();
       const sources = [['recents', 'Récents'], ['favoris', 'Favoris'], ['libre', '+ Aliment libre']];
       let corps = '';
       if (S.source === 'libre') {
-        corps = '<form class="nu-libre" novalidate>' +
+        corps = '<form class="nu-libre" id="nu-libre" novalidate>' +
           '<label class="nu-champ"><span class="pf-libelle">Nom</span><input class="mrt-champ" name="nom" maxlength="100" autocomplete="off"></label>' +
           '<label class="nu-champ"><span class="pf-libelle">Portion</span><input class="mrt-champ" name="portion" maxlength="50" placeholder="1 pièce, 100 g…" autocomplete="off"></label>' +
           '<div class="nu-grille">' + [['kcal', 'Calories (kcal)'], ['proteines', 'Protéines (g)'], ['glucides', 'Glucides (g)'], ['lipides', 'Lipides (g)']].map(c =>
             '<label class="nu-champ"><span class="pf-libelle">' + c[1] + '</span><input class="mrt-champ" name="' + c[0] + '" type="text" inputmode="decimal" autocomplete="off"></label>').join('') + '</div>' +
           '<label class="mrt-pastille nu-favori-case"><input type="checkbox" name="favori">★ Favori</label>' +
-          '<button type="submit" class="mrt-btn is-principal">Ajouter l\'aliment</button></form>';
+          '</form>';
       } else {
         const liste = S.source === 'favoris' ? favorisDe(S.aliments) : recentsDe(S.aliments).slice(0, 8);
         corps = liste.length ? '<div class="nu-liste">' + liste.map(boutonAliment).join('') + '</div>'
@@ -348,7 +349,8 @@
       }
       return htmlRecherche() +
         '<div class="nu-sources">' + sources.map(s => '<button type="button" class="mrt-pastille" data-act="source" data-source="' + s[0] + '" aria-pressed="' + (S.source === s[0]) + '">' + s[1] + '</button>').join('') + '</div>' +
-        '<div class="nu-source">' + corps + '</div><p class="nu-msg" role="alert">' + esc(S.msg) + '</p>';
+        '<div class="nu-source">' + corps + '</div><p class="nu-msg" role="alert">' + esc(S.msg) + '</p>' +
+        (S.source === 'libre' ? '<div class="mc-pied"><button type="submit" form="nu-libre" class="mrt-btn is-principal">Ajouter l\'aliment</button></div>' : '');
     }
     // ----- Carte 3 : journal du jour -----
     // Journal : les quatre repas, puis l'activité ; chaque ligne se touche pour la modifier ou la supprimer ; un « + » par section.
@@ -387,24 +389,56 @@
       carte('besoin').querySelector('.nu-anneaux').innerHTML = htmlJauges(r);
     }
     const dessinerBesoin = () => { carte('besoin').innerHTML = htmlBesoin(); chiffres(); };
+    // Glissement d'un écran à l'autre de la feuille (ordinateur seulement, modale-course.css).
+    const glisser = sens => {
+      const c = feuille && feuille.voile.querySelector('.mc-corps');
+      if (!c) return;
+      c.classList.remove('mc-glisse-avant', 'mc-glisse-retour'); void c.offsetWidth; c.classList.add('mc-glisse-' + sens);
+      feuille.voile.querySelector('.mc-panneau').scrollTop = 0;
+    };
+    const barreFeuille = (titre, retour) => {
+      feuille.voile.querySelector('#nu-feuille-titre').textContent = titre;
+      feuille.voile.querySelector('.nu-retour').hidden = !retour;
+    };
     const dessinerAjout = () => {
       const z = zoneAjout();
       if (!z) return;
+      const etape = choisi() ? 2 : 1;
+      if (feuille.etape && feuille.etape !== etape) glisser(etape === 2 ? 'avant' : 'retour');
+      feuille.etape = etape;
       z.innerHTML = htmlAjout();
-      feuille.voile.querySelector('.nu-retour').hidden = !choisi();
+      barreFeuille('Ajouter un aliment', etape === 2);
     };
-    const dessinerActivite = () => { const z = zoneActivite(); if (z) z.innerHTML = htmlActivite(); };
+    // Feuille Activité : la liste (séances, autres sports), ou l'écran d'une séance (celui du Calendrier, dans la feuille).
+    const dessinerActivite = () => {
+      const z = zoneActivite();
+      if (!z || feuille.seance) return;
+      z.innerHTML = htmlActivite();
+      barreFeuille('Ajouter une activité', false);
+    };
+    function ecranSeance(opts) {
+      if (!feuille || feuille.type !== 'activite') ouvrirFeuille('activite'); else glisser('avant');
+      feuille.seance = opts;
+      barreFeuille(opts.seance ? 'Modifier la séance' : 'Ajouter une séance', true);
+      P.ouvrirSeance(calendrier, Object.assign({ dans: zoneActivite(), apres: () => retourActivite() }, opts));
+    }
+    function retourActivite() {
+      if (!feuille || !feuille.seance) return;
+      feuille.seance = null;
+      glisser('retour');
+      dessinerActivite();
+    }
     const dessinerJournal = () => { carte('journal').innerHTML = htmlJournal(); };
     function tout() { dessinerBesoin(); dessinerAjout(); dessinerActivite(); dessinerJournal(); }
     function ouvrirFeuille(type) {
       fermerFeuille();
       const voile = document.createElement('div');
       voile.className = 'mc-voile';
-      voile.innerHTML = '<div class="mc-panneau nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
-        '<div class="pc-barre"><button type="button" class="mrt-rond nu-retour" data-act="retour" aria-label="Retour à la recherche" title="Retour" hidden>' + mrtIcone.gauche + '</button>' +
+      voile.innerHTML = '<div class="mc-panneau mc-ecrans mc-etroit nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
+        '<div class="pc-barre"><button type="button" class="mrt-rond nu-retour" data-act="retour" aria-label="Retour" title="Retour" hidden>' + mrtIcone.gauche + '</button>' +
         '<button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
         '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : 'Ajouter une activité') + '</p>' +
-        '<div class="' + (type === 'repas' ? 'nu-ajout' : 'nu-activite') + '"></div></div></div>';
+        '<div class="mc-ecran ' + (type === 'repas' ? 'nu-ajout' : 'nu-activite') + '"></div></div></div>';
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');
       feuille = { type, voile, corps: voile.querySelector(type === 'repas' ? '.nu-ajout' : '.nu-activite') };
@@ -649,14 +683,14 @@
       const act = b.dataset.act;
       if (act === 'profil') window.mrtProfilFenetre({ profil: ctx.profil, id: ctx.id, surEnregistre: redessiner });
       else if (act === 'fermer') fermerFeuille();
-      else if (act === 'retour') { S.choix = null; S.msg = ''; dessinerAjout(); }
+      else if (act === 'retour') { if (feuille && feuille.type === 'activite') retourActivite(); else { S.choix = null; S.msg = ''; dessinerAjout(); } }
       else if (act === 'activite') ouvrirFeuille('activite');
       else if (act === 'ajout-repas') { S.repas = b.dataset.repas || repasDe(new Date()); ouvrirFeuille('repas'); }
       else if (act === 'veille') changerDeJour(decaler(S.jour, -1));
       else if (act === 'lendemain') changerDeJour(decaler(S.jour, 1));
       else if (act === 'aujourdhui') changerDeJour(aujourdhui);
-      else if (act === 'ajout-seance') P.ouvrirSeance(calendrier, { date: S.jour, type: 'run' });
-      else if (act === 'seance') { const x = S.seances.find(y => y.id === b.dataset.id); if (x) P.ouvrirSeance(calendrier, { seance: x }); }
+      else if (act === 'ajout-seance') ecranSeance({ date: S.jour, type: 'run' });
+      else if (act === 'seance') { const x = S.seances.find(y => y.id === b.dataset.id); if (x) ecranSeance({ seance: x }); }
       else if (act === 'source') { S.source = b.dataset.source; S.msg = ''; dessinerAjout(); }
       else if (act === 'choisir') { const a = trouver(b.dataset.id); S.choix = { id: a.id, quantite: enGrammes(a) ? 100 : 1 }; S.msg = ''; dessinerAjout(); }
       else if (act === 'resultat') {

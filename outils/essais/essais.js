@@ -3743,6 +3743,18 @@ const CONTROLES = {
     pb.push(egal(['180 kcal · P 2 g · G 40 g · L 1 g', 'Ajouter · 180 kcal', ['Quantité', 'Repas'], 1], [norm(await p.locator('.nu-apercu').textContent()), norm(await p.locator('.nu-ajouter').textContent()), (await p.locator('.nu-choix-l').allTextContents()).map(norm), await p.locator('.nu-choix-tete .nu-fav').count()],
       'étape 2 : aperçu de la quantité, total dans le bouton, libellés Quantité et Repas, Favori à côté du nom'));
     if (CAPTURES) { const vp = p.viewportSize(); await p.setViewportSize({ width: 390, height: 844 }); await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-ajout-etape2.png') }); await p.setViewportSize(vp); }
+    {
+      const vp = p.viewportSize();
+      await p.setViewportSize({ width: 1280, height: 800 });
+      const mesure = () => p.evaluate(() => { const f = document.querySelector('.nu-feuille').getBoundingClientRect(), b = document.querySelector('.nu-feuille .mc-pied'); return [Math.round(f.width), Math.round(f.height), !!b && Math.abs(b.getBoundingClientRect().bottom - f.bottom) < 2]; });
+      const e2 = await mesure();
+      if (CAPTURES) { await p.waitForTimeout(400); await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-ajout-ordinateur.png') }); }
+      await p.click('[data-act="retour"]');
+      const e1 = await mesure();
+      pb.push(egal([[480, 640, true], [480, 640, false]], [e2, e1], 'ordinateur : feuille de 30 rem sur 40 rem aux deux étapes ; « Ajouter » collé en bas de l\'étape 2'));
+      await p.click('.nu-aliment >> nth=0'); await p.fill('.nu-qte', '2');
+      await p.setViewportSize(vp);
+    }
     await p.click('[data-act="ajouter"]');
     await p.waitForSelector('.nu-choix', { state: 'detached' });
     pb.push(egal([['POST', 'repas_lignes', { date: '2026-10-20', repas: 'midi', aliment: ID(1), nom: 'Banane', quantite: 2, kcal: 180, proteines: 2, glucides: 40, lipides: 0.6 }], ['PATCH', 'aliments', ['dernier_usage'], '?id=eq.' + ID(1)]],
@@ -3860,14 +3872,14 @@ const CONTROLES = {
     // Aliment libre : contrôles, puis création.
     d.ecritures.length = 0;
     await p.click('[data-source="libre"]');
-    await p.click('.nu-libre [type="submit"]');
+    await p.click('.nu-feuille [form="nu-libre"]');
     pb.push(egal('Écris le nom de l\'aliment.', norm(await p.locator('.nu-ajout .nu-msg').textContent()), 'aliment libre : nom manquant'));
     await p.fill('.nu-libre [name="nom"]', 'Pain'); await p.fill('.nu-libre [name="portion"]', '1 tranche');
-    await p.click('.nu-libre [type="submit"]');
+    await p.click('.nu-feuille [form="nu-libre"]');
     pb.push(egal(['Indique les calories pour une portion.', 'Pain', 0], [norm(await p.locator('.nu-ajout .nu-msg').textContent()), await p.inputValue('.nu-libre [name="nom"]'), d.ecritures.length], 'aliment libre : calories manquantes, saisie gardée, rien d\'écrit'));
     await p.fill('.nu-libre [name="kcal"]', '80'); await p.fill('.nu-libre [name="proteines"]', '3,5'); await p.fill('.nu-libre [name="glucides"]', '15');
     await p.click('.nu-favori-case');
-    await p.click('.nu-libre [type="submit"]');
+    await p.click('.nu-feuille [form="nu-libre"]');
     await p.waitForFunction(() => /Pain/.test((document.querySelector('.nu-choix-nom') || {}).textContent || ''));
     pb.push(egal([['POST', 'aliments', { nom: 'Pain', portion: '1 tranche', favori: true, dernier_usage: null, kcal: 80, proteines: 3.5, glucides: 15, lipides: 0 }]], d.ecritures.map(e => [e.methode, e.table, sansId(e)]), 'aliment libre : créé avec ses valeurs'),
       egal('Pain · 1 tranche', norm(await p.locator('.nu-choix-nom').textContent()), 'aliment libre : prêt à ajouter'));
@@ -4012,38 +4024,53 @@ const CONTROLES = {
     pb.push(egal(['2 959 kcal', ['Footing · Course à pied · 1 h · 10 km', 'Gainage · Renforcement · 30 min']], [await kcal(p), await activites()], 'séances du jour : comptées (ACSM : 10 km en 1 h ; renforcement 3 MET), sans la proposition de l\'IA'));
     await ouvrirActivite(p);
     pb.push(egal([['Footing · Course à pied · 1 h · 10 km', 'Gainage · Renforcement · 30 min'], 1], [await p.locator('.nu-feuille .nu-seances-f .nu-ligne-nom').allTextContents().then(l => l.map(norm)), await p.locator('.nu-feuille [data-act="ajout-seance"]').count()], 'feuille Activité : les séances, « Ajouter une séance », puis les autres sports'));
-    // Ajouter une séance : la fenêtre du Calendrier, au jour de la page.
+    // Ajouter une séance : un écran de la feuille Activité (champs de la fenêtre du Calendrier), au jour de la page.
     d.ecritures.length = 0;
     await p.click('.nu-feuille [data-act="ajout-seance"]');
-    await p.waitForSelector('.cal-voile .cal-seance');
-    pb.push(egal(['Ajouter une séance', '2026-10-20', 'run'], [norm(await p.locator('.cal-voile .cal-panneau-titre').textContent()), await p.inputValue('.cal-voile [name="date"]'), await p.inputValue('.cal-voile [name="type"]')], 'Ajouter une séance : la fenêtre du Calendrier, au jour de la page'));
+    await p.waitForSelector('.nu-feuille .cal-seance');
+    pb.push(egal(['Ajouter une séance', true, '2026-10-20', 'run', 0, 1], [norm(await p.locator('#nu-feuille-titre').textContent()), await p.locator('.nu-feuille .nu-retour').isVisible(), await p.inputValue('.nu-feuille [name="date"]'), await p.inputValue('.nu-feuille [name="type"]'), await p.locator('.cal-voile').count(), await p.locator('.mc-voile').count()],
+      'Ajouter une séance : un écran de la feuille (« ‹ » pour revenir), au jour de la page, sans fenêtre par-dessus'));
+    // Même largeur et même hauteur d'un écran à l'autre ; le bouton qui valide en bas de la feuille.
+    const cadre = () => p.evaluate(() => { const r = document.querySelector('.nu-feuille').getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
+    const pied = () => p.evaluate(() => { const f = document.querySelector('.nu-feuille').getBoundingClientRect(), b = document.querySelector('.nu-feuille .mc-pied'); return !!b && Math.abs(b.getBoundingClientRect().bottom - f.bottom) < 2; });
+    const vp0 = p.viewportSize();
+    await p.setViewportSize({ width: 1280, height: 800 });
+    const tailleSeance = await cadre();
+    pb.push(egal([480, 640, true], [tailleSeance[0], tailleSeance[1], await pied()], 'ordinateur : feuille de 30 rem sur 40 rem, « Enregistrer » collé en bas'));
+    await p.click('[data-act="retour"]');
+    pb.push(egal([tailleSeance, 'Ajouter une activité', false], [await cadre(), norm(await p.locator('#nu-feuille-titre').textContent()), await p.locator('.nu-feuille .nu-retour').isVisible()], '« ‹ » : retour à la liste, feuille de la même taille'));
+    await p.setViewportSize(vp0);
+    await p.click('.nu-feuille [data-act="ajout-seance"]');
     {
       const vp = p.viewportSize();
       await p.setViewportSize({ width: 390, height: 844 });
       pb.push(egal([false, true, true, true], await p.evaluate(() => {
-        const pan = document.querySelector('.cal-voile .cal-panneau').getBoundingClientRect(), champs = [...document.querySelectorAll('.cal-voile .cal-champs3 .mrt-champ')].map(c => Math.round(c.getBoundingClientRect().top));
-        return [/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName), pan.width === innerWidth && pan.height === innerHeight, champs.length === 3 && champs.every(t => t === champs[0]), document.activeElement.classList.contains('cal-panneau')];
-      }), 'téléphone : aucun champ pris à l\'ouverture (pas de clavier), fenêtre plein écran, durée, distance et intensité alignées'));
+        const pan = document.querySelector('.nu-feuille').getBoundingClientRect(), champs = [...document.querySelectorAll('.nu-feuille .cal-champs3 .mrt-champ')].map(c => Math.round(c.getBoundingClientRect().top));
+        const b = document.querySelector('.nu-feuille .mc-pied').getBoundingClientRect();
+        return [/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName), pan.width === innerWidth && pan.height === innerHeight, champs.length === 3 && champs.every(t => t === champs[0]), Math.abs(b.bottom - innerHeight) < 2];
+      }), 'téléphone : aucun champ pris (pas de clavier), feuille plein écran, durée, distance et intensité alignées, « Enregistrer » en bas de l\'écran'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'seance-telephone.png') });
       await p.setViewportSize(vp);
     }
-    await p.fill('.cal-voile [name="libelle"]', 'Fractionné'); await p.fill('.cal-voile [name="duree"]', '40'); await p.fill('.cal-voile [name="distance"]', '8');
-    await p.click('.cal-voile [type="submit"]');
-    await p.waitForSelector('.cal-voile', { state: 'detached' });
+    await p.fill('.nu-feuille [name="libelle"]', 'Fractionné'); await p.fill('.nu-feuille [name="duree"]', '40'); await p.fill('.nu-feuille [name="distance"]', '8');
+    await p.click('.nu-feuille .mc-pied [type="submit"]');
+    await p.waitForSelector('.nu-feuille .cal-seance', { state: 'detached' });
     await p.waitForFunction(() => /3\s539/.test(document.querySelector('.nu-kcal').textContent));
-    pb.push(egal([['POST', 'seances', { course: null, date: '2026-10-20', type: 'run', libelle: 'Fractionné', duree_min: 40, distance_km: 8, intensite: null }], '3 539 kcal'],
-      [[d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].corps], await kcal(p)], 'séance ajoutée : rangée dans le Calendrier, besoin recalculé (8 km en 40 min)'));
+    await p.waitForFunction(() => /Fractionné/.test(document.querySelector('.nu-feuille .nu-seances-f').textContent));
+    pb.push(egal([['POST', 'seances', { course: null, date: '2026-10-20', type: 'run', libelle: 'Fractionné', duree_min: 40, distance_km: 8, intensite: null }], '3 539 kcal', 'Ajouter une activité'],
+      [[d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].corps], await kcal(p), norm(await p.locator('#nu-feuille-titre').textContent())], 'séance ajoutée : rangée dans le Calendrier, besoin recalculé (8 km en 40 min), retour à la liste de la feuille'));
     await fermerF(p);
-    // Toucher une séance du journal : la fenêtre du Calendrier, Supprimer avec la question du site.
+    // Toucher une séance du journal : la feuille Activité s'ouvre sur cette séance ; Supprimer avec la question du site.
     d.ecritures.length = 0;
     await p.click('.nu-activites .nu-ligne:has-text("Gainage")');
-    await p.waitForSelector('.cal-voile .cal-seance');
-    pb.push(egal('Modifier la séance', norm(await p.locator('.cal-voile .cal-panneau-titre').textContent()), 'toucher une séance : « Modifier la séance » du Calendrier'));
-    await p.click('.cal-voile [data-act="supprimer"]');
+    await p.waitForSelector('.nu-feuille .cal-seance');
+    pb.push(egal(['Modifier la séance', 'Gainage'], [norm(await p.locator('#nu-feuille-titre').textContent()), await p.inputValue('.nu-feuille [name="libelle"]')], 'toucher une séance : « Modifier la séance », dans la feuille'));
+    await p.click('.nu-feuille [data-act="supprimer"]');
     await p.click('.mrt-dialogue [data-r="oui"]');
-    await p.waitForSelector('.cal-voile', { state: 'detached' });
+    await p.waitForSelector('.nu-feuille .cal-seance', { state: 'detached' });
     await p.waitForFunction(() => !/Gainage/.test(document.querySelector('.nu-activites').textContent));
     pb.push(egal(['DELETE', 'seances', '?id=eq.' + ID(7)], [d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].filtres], 'séance supprimée dans le Calendrier depuis Nutrition'));
+    await fermerF(p);
     // La veille : une séance non faite ne compte pas ; cochée « faite », elle compte.
     await p.click('[data-act="veille"]');
     await p.waitForFunction(() => /Lundi 19 octobre/.test(document.querySelector('.nu-jour-t').textContent));
