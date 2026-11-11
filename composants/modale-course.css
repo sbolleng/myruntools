@@ -47,4 +47,17 @@ html.mc-ouvert { overflow: hidden; }
 }
 @keyframes mc-glisse-avant { from { transform: translateX(2.5rem); opacity: 0; } }
 @keyframes mc-glisse-retour { from { transform: translateX(-2.5rem); opacity: 0; } }
+/* Feuille de saisie rapide (Nutrition : ajouter un aliment, une activité, une séance) : étroite sur ordinateur (30 rem,
+   la largeur d'une fenêtre de saisie), à écrans (taille fixe, contenu qui glisse) ; le bouton qui valide est collé en
+   bas de la feuille (mc-pied), à portée du pouce. Le contenu est une colonne : le pied descend en bas même quand l'écran est court. */
+.mc-panneau.mc-etroit { max-width: 30rem; }
+.mc-etroit .mc-corps { display: flex; flex-direction: column; min-height: 100%; }
+.mc-etroit .mc-ecran { display: flex; flex-direction: column; flex: 1 0 auto; }
+.mc-etroit .mc-ecran > form { display: flex; flex-direction: column; flex: 1 0 auto; }
+.mc-pied { position: sticky; bottom: 0; z-index: 2; margin: auto -2rem -2rem; padding: 0.9rem 2rem 1.2rem; background: var(--surface); border-top: 1px solid var(--border); }
+.mc-pied .mrt-btn { width: 100%; min-height: 2.75rem; }
+.mc-pied-place { margin-top: 1.5rem; } /* écart avant le pied, quand le contenu le touche */
+@media (max-width: 600px) {
+  .mc-pied { margin: auto -1rem -1.5rem; padding: 0.8rem 1rem calc(1rem + env(safe-area-inset-bottom)); }
+}
 @media (prefers-reduced-motion: reduce) { .mc-panneau, .mc-corps { animation: none !important; } }
