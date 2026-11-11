@@ -317,7 +317,8 @@
     });
     if (parcoursOuvert === c.id && c.gpx) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
     // Parcours renseigné (tracé GPX ou stratégie) : ouvert d'emblée, à l'ouverture de la course (les autres textes restent repliés).
-    else if ((c.gpx || c.strategie) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
+    // Course courue sans tracé : Parcours reste refermé (le bouton d'import s'y trouve), même avec une stratégie.
+    else if ((c.gpx || (c.strategie && c.etat !== 'courue')) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
     el.dataset.pcOuvert = c.id;
   }
 
