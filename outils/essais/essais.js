@@ -2438,19 +2438,18 @@ const CONTROLES = {
     await p.click('.ps-profil [data-q="semaine"]');
     const tap = async sel => { await p.click('.ps-profil ' + sel); await pause(); };
     for (const j of [2, 4, 6, 7]) await tap('[data-jc="' + j + '"]');
-    const chiffre = async (nom, v) => { await p.fill('.ps-profil [name="' + nom + '"]', v); await p.dispatchEvent('.ps-profil [name="' + nom + '"]', 'change'); await pause(); };
-    await chiffre('nb_sorties', '8');
-    pb.push(egal(['Un chiffre de 0 à 7.', undefined], [await p.textContent('.ps-profil .ps-msg'), (derniere(d) || {}).nb_sorties], 'nombre de sorties : 8 refusé'));
+    const chiffre = async (nom, v) => { await p.fill('.ps-profil [name="' + nom + '"]', v); await pause(); };
+    const avant = JSON.stringify(derniere(d));
+    await chiffre('nb_sorties', '8'); await p.click('.ps-profil [data-enregistrer]'); await pause();
+    pb.push(egal(['Un chiffre de 0 à 7.', avant], [await p.textContent('.ps-profil .ps-msg'), JSON.stringify(derniere(d))], 'nombre de sorties : 8 refusé, rien d\'enregistré'));
     await chiffre('nb_sorties', '3'); await tap('[data-long="7"]');
     await tap('[data-jc="7"]');
-    const apres = derniere(d) || {};
-    pb.push(egal([[2, 4, 6], 3, null, ''], [apres.jours_course, apres.nb_sorties, apres.jour_long, await p.textContent('.ps-profil .ps-msg')], 'dimanche retiré : sortie longue ramenée à « peu importe »'));
+    pb.push(egal([avant, 'Ma semaine'], [JSON.stringify(derniere(d)), await p.textContent('.ps-profil .fc-libelle')], 'ma semaine : rien d\'enregistré avant « Enregistrer »'));
     await tap('[data-long="6"]'); await tap('[data-jr="2"]'); await tap('[data-jr="4"]'); await chiffre('nb_renfo', '7');
-    pb.push(egal(7, (derniere(d) || {}).nb_renfo, 'renforcements : 7 accepté'));
     await chiffre('nb_renfo', '1');
+    await p.click('.ps-profil [data-enregistrer]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const sem = derniere(d) || {};
-    pb.push(egal([[2, 4, 6], [2, 4], 3, 1, 6], [sem.jours_course, sem.jours_renfo, sem.nb_sorties, sem.nb_renfo, sem.jour_long], 'ma semaine enregistrée à chaque toucher ; course et renforcement le même jour possibles'));
-    await p.click('.ps-profil [data-q="liste"]');
+    pb.push(egal([[2, 4, 6], [2, 4], 3, 1, 6], [sem.jours_course, sem.jours_renfo, sem.nb_sorties, sem.nb_renfo, sem.jour_long], 'ma semaine enregistrée d\'un coup par « Enregistrer », retour à la liste ; sortie longue ramenée à « peu importe » si son jour est retiré ; course et renforcement le même jour possibles'));
     // Repère d'allure : VMA refusée hors bornes, puis un temps sur 10 km.
     await p.click('.ps-profil [data-q="allure"]'); await p.click('.ps-profil [data-type="vma"]');
     await p.fill('.ps-profil [name="valeur"]', '35'); await p.click('.ps-profil .ps-valeur [type="submit"]');

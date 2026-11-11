@@ -176,7 +176,7 @@ Dans la feuille d'une course (§ 5.3). Une liste de questions courtes, une par l
 | Niveau en renforcement | Débutant · Intermédiaire · Confirmé · Expert | Non |
 | FC max et points fragiles | FC max (100 à 230), points fragiles (300 caractères), « Valider » | Non |
 
-Plan de « Ma semaine » : deux sections à titre commun, chacune dans un cadre (fond des lignes du profil, coins de 8 px, filet entre deux questions, 0,9 rem de marge intérieure) ; **Course** : jours possibles (pastilles), sorties par semaine (libellé à gauche, champ étroit à droite), sortie longue (pastilles des jours possibles et « Peu importe ») ; **Renforcement** : jours possibles (pastilles), séances par semaine (même ligne que les sorties).
+Plan de « Ma semaine » : deux sections à titre commun, chacune dans un cadre (fond des lignes du profil, coins de 8 px, filet entre deux questions, 0,9 rem de marge intérieure) ; **Course** : jours possibles (pastilles), sorties par semaine (libellé à gauche, champ étroit à droite), sortie longue (pastilles des jours possibles et « Peu importe ») ; **Renforcement** : jours possibles (pastilles), séances par semaine (même ligne que les sorties) ; en bas, un bouton « Enregistrer » range tous les changements et revient à la liste (la flèche « ‹ » abandonne les changements).
 
 Ma semaine dit aussi ce que l'IA respecte : au plus le nombre de sorties et de renforcements prévus, chacun seulement ses jours possibles. Hors du profil : les autres sports (tant que les séances ne sont que course et renforcement) et l'accès à une piste.
 
@@ -283,7 +283,7 @@ Résultats attendus, profil :
 - Profil vide : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. » ; la liste : « Indispensable pour proposer tes séances » (« 0 sur 5 », cinq « À renseigner ») et « Pour affiner (facultatif) », 9 lignes ; ni astérisque ni phrase sur le site partagé.
 - « Je cours depuis » : cinq tranches ; « 3 à 6 ans » s'enregistre aussitôt, retour à la liste, « 1 sur 5 ».
 - La fenêtre est la feuille d'une course : croix ronde, aucun bouton « Fermer ». Sur ordinateur : même taille pour la liste et les neuf questions, glissement vers la droite à l'ouverture d'une question, vers la gauche au retour.
-- Ma semaine : jours pour courir mardi, jeudi, samedi, dimanche ; « 8 » sorties refusé (« Un chiffre de 0 à 7. ») ; 3 sorties, sortie longue le dimanche, puis le dimanche retiré : sortie longue « peu importe » ; sortie longue le samedi, renforcement mardi et jeudi ; 7 renforcements acceptés, puis 1 : enregistrés à chaque changement.
+- Ma semaine : jours pour courir mardi, jeudi, samedi, dimanche ; « 8 » sorties refusé (« Un chiffre de 0 à 7. ») ; 3 sorties, sortie longue le dimanche, puis le dimanche retiré : sortie longue « peu importe » ; sortie longue le samedi, renforcement mardi et jeudi ; 7 renforcements, puis 1 ; rien n'est enregistré avant le bouton « Enregistrer » (en bas), qui range tout et revient à la liste ; « 8 » refusé, rien d'enregistré.
 - Repère d'allure : VMA à 35 refusée (« La VMA doit être comprise entre 8 et 30 km/h. ») ; 10 km en 45:30 : 2 730 secondes. Puis « 5 sur 5 », résumés « 10 km en 45:30 », « 3 sorties, 1 renforcement », « Aucune idée ».
 - Facultatif : 1 h 30, Vallonné ; FC max à 250 refusée, 186 acceptée. Sur la page : « Profil complet. ».
 - Séance : distance à 0 refusée ; 45 min, 8,5 km, Facile enregistrés.
