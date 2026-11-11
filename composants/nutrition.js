@@ -766,5 +766,5 @@
       '<div class="nu-ac-anneaux">' + anneau('p', 'Protéines', r.proteines) + anneau('g', 'Glucides', r.glucides) + anneau('l', 'Lipides', r.lipides) + '</div>';
   };
 
-  window.mrtNutrition = { phaseDuJour, chercherChezMoi, repasDe, activiteDuJour };
+  window.mrtNutrition = { phaseDuJour, chercherChezMoi, repasDe, activiteDuJour, PICTO_HALTERE, PICTO_ASSIETTE };
 })();

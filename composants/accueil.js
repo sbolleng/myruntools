@@ -63,9 +63,11 @@
       esc(x.libelle || '') + (x.duree_min ? ' · ' + esc(x.duree_min >= 60 ? Math.floor(x.duree_min / 60) + ' h' + (x.duree_min % 60 ? pad(x.duree_min % 60) : '') : x.duree_min + ' min') : '') + '</label></li>'));
     const avecNutrition = window.mrtModulesAffiches(prefs).some(m => m.nom === 'Nutrition');
     const plus = window.mrtIcone.plus;
-    const saisies = (avecNutrition ? '<button type="button" class="mrt-btn" data-rapide="repas">' + plus + 'Ajouter un repas</button>' +
-      '<button type="button" class="mrt-btn" data-rapide="activite">' + plus + 'Ajouter une activité</button>' : '') +
-      '<button type="button" class="mrt-btn" data-rapide="course">' + plus + 'Ajouter une course</button>';
+    // Comme les boutons « Activité » et « Repas » de la page Nutrition : bouton principal (Accent), « + », libellé et picto.
+    const N = window.mrtNutrition || {};
+    const saisies = (avecNutrition ? '<button type="button" class="mrt-btn is-principal" data-rapide="repas">' + plus + 'Ajouter un repas' + (N.PICTO_ASSIETTE || '') + '</button>' +
+      '<button type="button" class="mrt-btn is-principal" data-rapide="activite">' + plus + 'Ajouter une activité' + (N.PICTO_HALTERE || '') + '</button>' : '') +
+      '<button type="button" class="mrt-btn is-principal" data-rapide="course">' + plus + 'Ajouter une course</button>';
     return '<section class="ac-bloc ac-aujourdhui" data-bloc="aujourdhui"><h2 class="ac-titre"><span>Aujourd\'hui</span><a href="calendrier.html">Calendrier →</a></h2>' +
       (lignes.length ? '<ul class="ac-jour">' + lignes.join('') + '</ul>' : vide('Rien de prévu aujourd\'hui.')) +
       '<div class="ac-rapide">' + saisies + '</div></section>';
