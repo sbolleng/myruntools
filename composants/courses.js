@@ -52,10 +52,10 @@
       '<td>' + dateCourte(c) + (c.heure && !c.date_approx ? '<br><span class="cs-sous">' + heureTxt(c.heure) + '</span>' : '') + '</td>' +
       '<td>' + (c.etat === 'courue' ? '<span class="cs-sous">—</span>' : dossardHtml(c, true)) + '</td></tr>';
   }
-  // Pictos des deux affichages : une grille de cartes, un tableau ; et le double triangle des colonnes triables (comme le Palmarès).
-  const GRILLE = '<svg class="cs-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5v4.5h-4.5z M9 2.5h4.5v4.5h-4.5z M2.5 9h4.5v4.5h-4.5z M9 9h4.5v4.5h-4.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
-  const TABLE = '<svg class="cs-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v9h-11z M2.5 7h11 M2.5 10h11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  // Pictos : le filtre (trois traits), le chevron du panneau et celui du menu d'affichage ; le double triangle des colonnes triables (comme le Palmarès).
   const FILTRE = '<svg class="cs-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M4.75 8h6.5M7 11.5h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const CHEVRON = '<svg class="cs-menu-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const AFFICHAGES = [['cartes', 'Cartes'], ['tableau', 'Tableau']];
   const REDUIRE = '<svg class="cs-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const TRI = window.mrtIcone.tri; // en-tête triable commun (mrt-tri), comme le Palmarès
   const COLONNES = [['evenement', 'Événement'], ['course', 'Course'], ['distance', 'Distance · D+'], ['date', 'Date'], ['ouverture', 'Ouverture des inscriptions']];
@@ -91,7 +91,6 @@
     const parMois = !tab;
 
     const pastille = (attr, cle, texte, on) => '<button type="button" class="mrt-pastille cs-pastille' + (on ? ' is-on' : '') + '" data-' + attr + '="' + cle + '" aria-pressed="' + on + '">' + texte + '</button>';
-    const rond = (cle, texte, picto) => '<button type="button" class="mrt-rond cs-rond" data-mode="' + cle + '" aria-pressed="' + (etat.mode === cle) + '" aria-label="' + texte + '" title="' + texte + '">' + picto + '</button>';
     const nbCat = k => tous.filter(c => categorie(c) === k).length;
     const libFiltres = actifs ? 'Filtres · ' + actifs + ' actif' + (actifs > 1 ? 's' : '') : 'Filtres';
     const champ = (legende, html) => '<fieldset class="cs-champ"><legend class="cs-lib">' + legende + '</legend><div class="cs-choix">' + html + '</div></fieldset>';
@@ -100,10 +99,14 @@
       champ('Statut', CATS.map(([k, lib]) => pastille('cat', k, lib + ' <span class="cs-n">' + nbCat(k) + '</span>', etat.cats.includes(k))).join('')) +
       champ('Inscriptions', pastille('ouvertes', '1', 'Ouvertes <span class="cs-n">' + tous.filter(c => passe(c, { cats: [], ouvertes: true })).length + '</span>', !!etat.ouvertes)) +
       (annees.length > 1 ? champ('Année', pastille('annee', '', 'Toutes', !etat.annee) + annees.map(a => pastille('annee', a, a, a === etat.annee)).join('')) : '') + '</div>';
-    const haut = '<div class="cs-barre">' +
+    // Affichage : une liste à choix unique (Cartes ou Tableau), comme le menu « Vue » du Calendrier ; le bouton Filtres est à sa droite.
+    const nomAffichage = AFFICHAGES.find(x => x[0] === etat.mode)[1];
+    const affichage = '<div class="cs-affichage"><button type="button" class="mrt-btn cs-menu-btn" data-cs="menu" aria-expanded="false" aria-controls="cs-menu" aria-label="Affichage : ' + nomAffichage + '">' + nomAffichage + CHEVRON + '</button>' +
+      '<nav class="cs-menu" id="cs-menu" aria-label="Affichage" hidden>' + AFFICHAGES.map(([k, lib]) =>
+        '<button type="button" data-mode="' + k + '" aria-pressed="' + (etat.mode === k) + '">' + lib + '</button>').join('') + '</nav></div>';
+    const haut = '<div class="cs-barre">' + affichage +
       '<button type="button" class="mrt-rond cs-filtre' + (actifs ? ' is-on' : '') + '" data-cs="filtres" aria-expanded="' + !!etat.panneau + '" aria-controls="cs-filtres" aria-label="' + libFiltres + '" title="Filtres">' +
         FILTRE + (actifs ? '<span class="cs-badge">' + actifs + '</span>' : '') + '</button>' +
-      '<span class="cs-ronds" role="group" aria-label="Affichage">' + rond('cartes', 'Cartes', GRILLE) + rond('tableau', 'Tableau', TABLE) + '</span>' +
       (actifs ? '<span class="cs-compte" aria-live="polite">' + liste.length + ' sur ' + tous.length + ' course' + (tous.length > 1 ? 's' : '') + '</span>' +
         '<button type="button" class="mrt-lien cs-raz" data-cs="raz">Réinitialiser les filtres</button>' : '') +
       (edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-cs="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div>' + panneau;
@@ -134,6 +137,15 @@
     const panneauEl = el.querySelector('#cs-filtres'), boutonFiltres = el.querySelector('[data-cs="filtres"]');
     const regler = ouvrir => { etat.panneau = ouvrir; window.mrtDeroule(panneauEl, ouvrir); boutonFiltres.setAttribute('aria-expanded', String(ouvrir)); };
     sur('[data-cs="filtres"]', () => regler(!etat.panneau));
+    // Menu d'affichage : un toucher sur son bouton l'ouvre ou le ferme ; il se ferme au choix, en touchant ailleurs, par Échap.
+    const menu = el.querySelector('#cs-menu'), boutonMenu = el.querySelector('[data-cs="menu"]');
+    const ouvrirMenu = ouvert => { menu.hidden = !ouvert; boutonMenu.setAttribute('aria-expanded', String(ouvert)); };
+    boutonMenu.addEventListener('click', e => { ouvrirMenu(menu.hidden); if (!menu.hidden && e.detail === 0) menu.querySelector('[aria-pressed="true"]').focus(); });
+    if (!el.__menuFerme) {
+      el.__menuFerme = true;
+      document.addEventListener('click', e => { const m = el.querySelector('#cs-menu'); if (m && !e.target.closest('.cs-affichage') && !m.hidden) { m.hidden = true; el.querySelector('[data-cs="menu"]').setAttribute('aria-expanded', 'false'); } });
+      document.addEventListener('keydown', e => { const m = el.querySelector('#cs-menu'); if (e.key === 'Escape' && m && !m.hidden) { m.hidden = true; const b = el.querySelector('[data-cs="menu"]'); b.setAttribute('aria-expanded', 'false'); b.focus(); } });
+    }
     sur('[data-cs="fermer"]', () => regler(false));
     sur('[data-cs="raz"]', () => { etat.cats = []; etat.ouvertes = false; etat.annee = null; redessiner(); });
     sur('[data-cat]', b => { const k = b.dataset.cat; etat.cats = etat.cats.includes(k) ? etat.cats.filter(x => x !== k) : etat.cats.concat(k); redessiner(); });
