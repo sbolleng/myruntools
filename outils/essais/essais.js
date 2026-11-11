@@ -3912,6 +3912,16 @@ const CONTROLES = {
     await p.click('.nu-feuille [data-act="ajout-seance"]');
     await p.waitForSelector('.cal-voile .cal-seance');
     pb.push(egal(['Ajouter une séance', '2026-10-20', 'run'], [norm(await p.locator('.cal-voile .cal-panneau-titre').textContent()), await p.inputValue('.cal-voile [name="date"]'), await p.inputValue('.cal-voile [name="type"]')], 'Ajouter une séance : la fenêtre du Calendrier, au jour de la page'));
+    {
+      const vp = p.viewportSize();
+      await p.setViewportSize({ width: 390, height: 844 });
+      pb.push(egal([false, true, true, true], await p.evaluate(() => {
+        const pan = document.querySelector('.cal-voile .cal-panneau').getBoundingClientRect(), champs = [...document.querySelectorAll('.cal-voile .cal-champs3 .mrt-champ')].map(c => Math.round(c.getBoundingClientRect().top));
+        return [/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName), pan.width === innerWidth && pan.height === innerHeight, champs.length === 3 && champs.every(t => t === champs[0]), document.activeElement.classList.contains('cal-panneau')];
+      }), 'téléphone : aucun champ pris à l\'ouverture (pas de clavier), fenêtre plein écran, durée, distance et intensité alignées'));
+      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'seance-telephone.png') });
+      await p.setViewportSize(vp);
+    }
     await p.fill('.cal-voile [name="libelle"]', 'Fractionné'); await p.fill('.cal-voile [name="duree"]', '40'); await p.fill('.cal-voile [name="distance"]', '8');
     await p.click('.cal-voile [type="submit"]');
     await p.waitForSelector('.cal-voile', { state: 'detached' });
