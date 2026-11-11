@@ -3261,11 +3261,12 @@ const CONTROLES = {
     pb.push(egal([true, 'false'], [await p.locator('#cs-menu').isHidden(), await p.getAttribute('[data-cs="menu"]', 'aria-expanded')], 'liste d\'affichage fermée à l\'ouverture'));
     await p.click('[data-cs="menu"]');
     pb.push(egal([['Cartes *', 'Tableau'], 'true'], [await p.evaluate(() => [...document.querySelectorAll('#cs-menu [data-mode]')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? ' *' : ''))), await p.getAttribute('[data-cs="menu"]', 'aria-expanded')], 'liste d\'affichage : Cartes (choisi) et Tableau'));
+    pb.push(egal([true, 'Vue'], await p.evaluate(() => [document.querySelector('#cs-menu').getBoundingClientRect().width >= 190, document.querySelector('#cs-menu .cs-lib').textContent]), 'liste d\'affichage : 12 rem au moins, en-tête « Vue », comme le Calendrier'));
     await p.keyboard.press('Escape');
     pb.push(egal(true, await p.locator('#cs-menu').isHidden(), 'Échap ferme la liste'));
     await p.click('[data-cs="menu"]'); await p.click('h1, body', { position: { x: 5, y: 600 } });
     pb.push(egal(true, await p.locator('#cs-menu').isHidden(), 'un toucher ailleurs ferme la liste'));
-    pb.push(egal(0, await p.locator('.cs-lib', { hasText: /^Vue$/i }).count(), 'pas de libellé « Vue »'));
+    pb.push(egal(0, await p.locator('.cs-barre > .cs-lib, .cs-barre > .cs-reglage').count(), 'pas de libellé « Vue » dans la barre (seulement en tête de la liste)'));
     await vue(p, 'surveiller');
     b = await barre(p); k = await cartes(p);
     pb.push(egal([0, ['avril 2027', 'septembre 2028', 'Date à définir'], 'Filtres · 1 actif', '3 sur 17 courses'], [await p.locator('[data-groupe], [data-tri]').count(), b.reperes, await p.getAttribute('[data-cs="filtres"]', 'aria-label'), await t(p, '.cs-compte')], 'Repérée : titres de mois, un filtre actif, compte « 3 sur 17 courses »'));

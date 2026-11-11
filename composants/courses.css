@@ -48,9 +48,10 @@
 .cs-affichage { position: relative; }
 .cs-menu-chev { width: 0.75rem; height: 0.75rem; transition: transform 0.15s; }
 .cs-menu-btn[aria-expanded="true"] .cs-menu-chev { transform: rotate(180deg); }
-.cs-menu { position: absolute; top: calc(100% + 0.4rem); left: 0; z-index: 30; display: flex; flex-direction: column; min-width: 9rem; padding: 0.45rem 0;
+.cs-menu { position: absolute; top: calc(100% + 0.4rem); left: 0; z-index: 30; display: flex; flex-direction: column; min-width: 12rem; padding: 0.45rem 0;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 .cs-menu[hidden] { display: none; }
+.cs-menu .cs-lib { padding: 0.35rem 1.1rem 0.45rem; } /* l'en-tête « Vue » du menu du Calendrier */
 .cs-menu button { position: relative; padding: 0.55rem 1.1rem; font: inherit; font-size: var(--t-texte); text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
 .cs-menu button[aria-pressed="true"] { font-weight: 600; color: var(--accent); }
 .cs-menu button[aria-pressed="true"]::before { content: ''; position: absolute; top: 0.4rem; bottom: 0.4rem; left: 0.45rem; width: 3px; border-radius: 2px; background: var(--accent); }
