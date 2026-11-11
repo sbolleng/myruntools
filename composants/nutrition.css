@@ -86,8 +86,9 @@
 .nu-calcule .mrt-lien { font-size: var(--t-second); }
 .nu-anneaux { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .nu-tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-.nu-tuile { min-width: 0; padding: 0.6rem 1rem; font-size: var(--t-texte); } /* bouton commun Accent (« + Ajouter une course »), un peu plus grand, picto en plus */
-.nu-tuile-ico { flex: none; width: 1.4rem; height: 1.4rem; margin-left: 0.15rem; } /* le picto, à droite du libellé, dans la couleur du texte du bouton */
+.nu-tuile { min-width: 0; padding: 0.3rem 1rem; font-size: var(--t-nom); } /* bouton commun Accent (« + Ajouter une course »), picto en plus : marges serrées, contenu plus gros */
+.nu-tuile > .mrt-ico { width: 1.1rem; height: 1.1rem; }
+.nu-tuile-ico { flex: none; width: 1.5rem; height: 1.5rem; margin-left: 0.15rem; } /* le picto, à droite du libellé, dans la couleur du texte du bouton */
 .nu-tuile-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nu-msg-sport { text-align: center; }
 .nu-seances { margin: 0 0 0.7rem; font-size: var(--t-second); color: var(--muted); }
