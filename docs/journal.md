@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 11 nov. 2026 | Nutrition : boutons Activité et Repas resserrés | Moins hauts (marges de 0,3 rem) et mieux remplis : texte en taille Nom (1 rem), « + » de 1,1 rem, picto de 1,5 rem. Spécification 1.43. |
 | 11 nov. 2026 | Nutrition : boutons Activité et Repas | Les deux cases (« Activité · + Ajouter », « Repas · + Ajouter ») deviennent le bouton « + Ajouter une course » (Accent plein), un peu plus grand : « + Activité » avec l'haltère, « + Repas » avec l'assiette, picto à droite du libellé. Spécification 1.42. |
 | 11 nov. 2026 | Courses : affichage en liste, Filtres à droite | Le libellé « Vue » et les deux ronds Cartes/Tableau sont remplacés par une liste à choix unique (comme le menu « Vue » du Calendrier) avec le bouton Filtres à sa droite ; ronds à la taille du Palmarès (32 px, pictos de 15 px) ; le panneau de filtres s'ouvre et se ferme en déroulé commun. |
 | 11 nov. 2026 | Contrôle visuel D3, six pages en quatre thèmes | Saison, Calendrier, Préparation, Courses, Palmarès et Préférences vues dans Vert et rose, Violet et turquoise, Blanc et orange, Noir et orange : cohérents. Seul défaut : sur les cartes de la page Courses, « Inscription » était coupé par le point d'état (colonne de libellés de 4,6 à 6,2 rem). Nutrition non vue (pas de jeu de captures). Pas traité : en-tête « Allure moyenne » du Palmarès tronqué à 1 200 px (défilement du tableau), cartes de Courses alignées à gauche. |
