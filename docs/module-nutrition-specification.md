@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.41 · 11 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 1.42 · 11 novembre 2026 · [Retour au sommaire](README.md) · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -92,8 +92,8 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 33 | Retour à aujourd'hui | Rond « » » | À droite de « › », sur un autre jour seulement (une cale à gauche garde le jour centré) | `mrt-rond` |
 | 34 | Séances du Calendrier | « Au calendrier : Gainage 30 min · Footing 1 h 15 · Reprendre » | Sous le 23, s'il y a des séances ce jour-là | Texte discret, `mrt-lien` |
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
-| 45 | Case Activité | « ACTIVITÉ · + Ajouter » (toujours, comme la case Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Case sur le fond des champs, coins de 8 px, libellé en capitales, valeur en Texte ; ouvre la feuille Activité |
-| 46 | Case Repas | « REPAS · + Ajouter » | À droite du 45 | Même case ; ouvre la feuille d'ajout, repas d'après l'heure |
+| 45 | Bouton Activité | « + Activité » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Le bouton « + Ajouter une course » (`mrt-btn is-principal`), un peu plus grand, picto à droite du libellé ; ouvre la feuille Activité |
+| 46 | Bouton Repas | « + Repas » et l'assiette | À droite du 45 | Même bouton ; ouvre la feuille d'ajout, repas d'après l'heure |
 | 47 | Feuilles | « Ajouter un aliment », « Ajouter une activité » | Par-dessus la page | La feuille d'une course (`mc-voile`, `mc-panneau`), croix ronde, titre en libellé ; jamais de bouton « Fermer » |
 | 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la feuille Activité |
 | 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
@@ -143,7 +143,7 @@ Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tar
 - **Quantité** (15) : en grammes pour un aliment donné pour 100 g (pas de 10 g, de 1 à 5 000 g), en portions pour les autres (pas de 0,5, de 0,1 à 50) ; le champ se saisit aussi au clavier. Hors bornes : message, rien n'est écrit.
 - **Ajout rapide** (14 à 16) : Récents (les 8 derniers aliments utilisés), Favoris, « + Aliment libre » (nom, portion, calories obligatoires ; protéines, glucides, lipides à 0 si vides ; case Favori ; « Ajouter l'aliment »). Repas proposé d'après l'heure (avant 10 h petit-déj, avant 15 h midi, avant 18 h encas, sinon soir), changé en un toucher.
 - **Ajout en deux étapes** (47) : étape 1, la recherche et les listes (Récents, Favoris, Aliment libre) ; toucher un aliment ouvre l'étape 2 à la place, en blocs aérés : nom et calories, avec le Favori en rond étoile à droite (Accent quand il est coché) ; sous le libellé « Quantité », −, champ et + (ronds de taille commune), puis l'aperçu de la quantité saisie (« 180 kcal · P 2 g · G 40 g · L 1 g »), recalculé à chaque toucher ou frappe ; sous le libellé « Repas », les quatre pastilles ; « Ajouter · 180 kcal », le total dans le bouton ; un rond « ‹ » en haut à gauche revient à l'étape 1, recherche et résultats gardés ; après « Ajouter », retour à l'étape 1.
-- **Cases Activité et Repas** (45, 46) : fond Accent léger (12 %), contour Accent, picto en trait tout à droite (haltère, assiette et couverts) à gauche des deux lignes, libellé en Texte au-dessus de « + Ajouter » en Accent, 600.
+- **Boutons Activité et Repas** (45, 46) : le bouton « + Ajouter une course » (Accent plein, coins ronds), texte à la taille Texte, « + » à gauche, picto en trait à droite du libellé (haltère, assiette et couverts), dans la couleur du texte du bouton.
 - **Ajout** (47) : la feuille s'ouvre par la case Repas (repas d'après l'heure) ou par le « + » d'un repas du journal (48, ce repas d'office) ; elle reste ouverte après « Ajouter » (aucun message de confirmation), les jauges et le journal se mettent à jour dessous ; la croix, Échap ou un toucher à côté la ferment.
 - **Journal** (17, 18, 49, 50) : les quatre repas toujours affichés, puis l'activité du jour, chacun avec son « + » et, pour un repas qui a des lignes, son total ; une ligne par aliment (« Riz cuit · 190 g », « Banane · 2 portions »). Toucher une ligne ouvre « Modifier » (51) : la quantité (en grammes ou en portions, comme à l'ajout) et le repas d'un aliment, dont les valeurs figées sont recalculées à la nouvelle quantité ; le sport et la durée d'une activité ; « Supprimer » demande « Supprimer cette ligne ? ».
 - **Écritures** : « Ajouter » range la ligne (valeurs figées) puis le dernier usage de l'aliment ; en cas d'échec : « Enregistrement impossible pour l'instant. », rien n'est ajouté.
@@ -272,7 +272,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Relais en service, frappe « yaourt fr » | Aucun appel avant la pause ; après une demi-seconde, un appel ({ q : « yaourt fr » }) ; le champ reste en place |
 | Moteur de secours, « yaourt na » (réponse : « NA · Borges », « Yaourt nature · Marque F ») | Seul « Yaourt nature · Marque F » reste |
 | Relais absent, ancien moteur saturé deux fois | Deux appels à l'ancien moteur, puis « Open Food Facts est saturé, réessaie dans un instant. » |
-| Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; cases « Activité · Aucune » et « Repas · Ajouter » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
+| Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; boutons « + Activité » et « + Repas » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
 | Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : la feuille reste ouverte, sans message |
 | Journal vide ; « + » du soir | Les quatre repas, chacun avec son « + » ; la feuille d'ajout s'ouvre |
 | Feuille Activité : 1 h de jogging et 0,5 h de marche, puis la croix | « Activité · Mardi 20 octobre » ; case « 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche » ; rien n'est réécrit à la fermeture quand rien n'a changé |
