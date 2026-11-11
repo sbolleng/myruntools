@@ -255,6 +255,19 @@
         esc(s.libelle) + ' · ' + s.duree_min + ' min</span>').join('');
   }
 
+  // Plans des courses : le seul lieu où l'on règle le plan d'une course (durée, phases) ; une ligne par course à venir qui a un plan.
+  function plansHtml(ctx) {
+    if (ctx.lectureSeule) return '';
+    const cs = ctx.courses.filter(P.aPlan).sort((a, b) => (a.date < b.date ? -1 : 1));
+    if (!cs.length) return '';
+    return '<section class="ps-plans" id="plans"><h2 class="ps-libelle">Plans des courses</h2><ul class="ps-plans-liste">' + cs.map(c => {
+      const plan = P.planDe(c, P.modifsDe(ctx.semaines, c.id));
+      return '<li><span class="ps-plan-nom">' + nom(c) + '</span><span class="ps-plan-info">' + longue(c.date) + ' · ' + ROLE[roleDe(c)] + (c.statut === 'option' ? ' (option)' : '') +
+        (plan ? ' · ' + plan.n + ' sem.' : ' · pas de plan') + '</span>' +
+        '<button type="button" class="mrt-btn cal-parametrer" data-preparer="' + esc(c.id) + '">' + P.REGLAGES + 'Paramétrer le plan</button></li>';
+    }).join('') + '</ul></section>';
+  }
+
   window.renderSaison = function (root, ctx) {
     // Téléphone : la frise est une liste verticale ; elle se redessine quand l'écran change de classe.
     const mq = window.matchMedia('(max-width: 600px)');
@@ -269,7 +282,7 @@
       const profil = ctx.lectureSeule ? '' : '<div class="ps-profil-haut"><span class="ps-profil-etat' + (manque.length ? '' : ' is-complet') + '">' +
         (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil de coureur</button></div>';
       if (!prochaine) {
-        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta préparation.</p></div>';
+        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta préparation.</p>' + plansHtml(ctx) + '</div>';
         return;
       }
       // (1) Saison visée.
@@ -336,6 +349,7 @@
 
       // Le bloc en cours : la recommandation (avec les alertes, s'il y en a) et la grille des 4 semaines à partir de celle-ci, dans la grille
       // du mois du Calendrier ; dans les cases, les repères et les séances proposées par l'IA, en attente.
+      h += plansHtml(ctx);
       h += '<section class="ps-bloc">' + iaHtml(ctx, lundi, ps.alertes) +
         '<div class="ps-grille">' + window.mrtGrilleMois(ctx, lundi, addDays(lundi, 7 * BLOC - 1), { ps, plus: j => caseHtml(ctx, ps, j) }) + '</div>';
       root.innerHTML = h + '</section></div>';
@@ -382,6 +396,7 @@
     });
     P.brancher(root, ctx, null);
     dessiner();
+    if (location.hash === '#plans') { const z = root.querySelector('#plans'); if (z) z.scrollIntoView(); }
     // Le profil d'entraînement (une ligne, la sienne : règle par ligne), lu après le premier dessin ; jamais sur le site partagé.
     // Et les propositions de l'IA (plafond du mois, proposition en attente).
     if (!ctx.lectureSeule) Promise.all([window.mrtSupabase.from('profil_entrainement').select('*'), IA() ? IA().lirePropositions(ctx) : null]).then(([{ data, error }]) => {

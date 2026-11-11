@@ -1,6 +1,6 @@
 # Design
 
-Version 0.49 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.50 · 11 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -137,8 +137,8 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - **Nombres** : virgule décimale (« 24,4 »).
 - **Blocs** : titre repliable (§ 1 et § 3) : chevron à gauche, Space Grotesk 600, 0,85 rem, Texte, casse normale ; Accent au survol.
 - **Champs** : le champ commun (§ 1), libellé au-dessus en petites capitales, exemple en Texte discret dans le champ vide ; deux colonnes sur ordinateur, une sur téléphone ; la date seule sur sa ligne.
-- **Boutons** (§ 1) : « Enregistrer » bouton principal (Accent plein), le seul de la fiche ; « Annuler » et « Paramétrer le plan » à contour ; « Supprimer la course » bouton à contour en Alerte, avec une poubelle, seul en bas de la fiche (plein Alerte au survol).
-- **Fenêtres** (séance, Paramétrer le plan) : présentées comme la fiche (§ 1), au-dessus d'elle ou de la page.
+- **Boutons** (§ 1) : « Enregistrer » bouton principal (Accent plein), le seul de la fiche ; « Annuler » à contour ; « Supprimer la course » bouton à contour en Alerte, avec une poubelle, seul en bas de la fiche (plein Alerte au survol).
+- **Fenêtres** (séance, Paramétrer le plan) : présentées comme la fiche (§ 1), au-dessus de la page ; « Paramétrer le plan » s'ouvre depuis la page Préparation seulement.
 - **Retour du navigateur ou du téléphone** : comme « Annuler », pour toute fiche, ouverte dans la feuille d'une course ou seule (« Ajouter une course », crayon du Palmarès).
 - **Message d'erreur** : 0,75 rem, couleur Alerte, sous le champ concerné.
 - **Bandeau de lecture seule** : sous le menu, sur toute la largeur, fond Surface 2, texte 0,75 rem ; « Revenir à mon espace » en lien souligné.
@@ -169,6 +169,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - Blocs dans un cadre (Surface, Bordure, coins de 8 px, marges 1 rem × 1,15 rem), deux colonnes sur ordinateur (écart 1 rem), une sur téléphone.
 - Titre de bloc : le titre de cadre commun (0,85 rem, 600, Texte) ; à droite, un lien « … → » en 0,75 rem, Texte discret.
 - Un bloc « bientôt » n'est jamais affiché sur la page (annoncé sur une ligne dans les Préférences) ; Dernière course : les libellés des cartes (Space Mono, capitales).
+- **Pour aller plus loin** : un bloc sur toute la largeur, toujours en dernier ; titre de cadre commun, une ligne par module absent du menu (nom en 0,85 rem Texte, phrase d'aide en 0,8 rem Texte discret, sous le nom), bouton à contour « Ajouter au menu » à droite (sous le texte sur téléphone). Il disparaît quand plus rien ne manque.
 - Prochaine course : la carte de la saison, sans son propre cadre (compte à rebours en jours). D'ici là : la pastille commune par étape, le cap en Accent (texte et contour, sans fond).
 - **Passage** grand en-tête ↔ barre fine : 0,45 s, ease-out ; la barre part de la hauteur de l'en-tête (5 rem de marge haute et basse), le nom du cap grossi 1,8 fois et en Accent, et se réduit ; l'en-tête part de la hauteur de la barre et se déplie. Aucun passage si l'utilisateur a demandé à réduire les animations.
 - **Sans page blanche** : pendant la visite, l'en-tête et le menu de la page précédente sont gardés ; la page suivante les dessine aussitôt (le passage commence tout de suite), seul le contenu attend la base, puis arrive en fondu (0,2 s).
@@ -219,8 +220,8 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 - **Séance** : case à cocher en Accent, type en Space Mono 0,65 rem capitales Texte discret, sur sa ligne, jamais coupé au milieu d'un mot (« … » s'il ne tient pas), libellé en 0,72 rem ; barrée et en Texte discret quand elle est faite. Bouton « + » rond au bout de la ligne. Course du jour : pastille aux quatre couleurs ; rendez-vous clé : « ◆ » et texte en 0,68 rem.
 - **Frise** des phases : cases de la couleur de la phase, côte à côte, largeur proportionnelle à leur nombre de semaines ; poignées de 8 px en Texte, curseur de redimensionnement.
 - **Rubrique** : premier texte de la liste des textes d'une course (même cadre, même titre repliable) ; légende « Semaine en cours » en Space Mono 0,7 rem capitales, Texte discret ; « Toutes les semaines » : titre repliable en 0,8 rem, Texte discret, chevron du site à gauche.
-- **Bouton « Paramétrer le plan »** : bouton à contour, icône de curseurs de 0,9 rem (un seul bouton principal par écran).
-- **Fenêtres** (séance, Paramétrer le plan) : comme la fiche (§ 1 et 6) : voile de la feuille d'une course (Fond à 75 %), panneau Surface avec cadre, 30 rem (44 rem pour Paramétrer le plan) ; barre du haut fixe, « Annuler » à gauche, « Enregistrer » ou « Valider » à droite ; titre en libellé (Space Mono 0,75 rem, capitales, Texte discret) ; libellés de champ à 0,7 rem, champs communs (à 16 px sur écran tactile) ; « Supprimer la séance » (à contour Alerte, poubelle) ou « Revenir aux règles générales » (lien) seul en bas.
+- **Bouton « Paramétrer le plan »** : bouton à contour, icône de curseurs de 0,9 rem (un seul bouton principal par écran) ; une ligne par course dans « Plans des courses » de la page Préparation, seul lieu de réglage. La page d'une course n'a que le lien d'action « Régler le plan dans Préparation → ».
+- **Fenêtres** (séance, Paramétrer le plan) : comme la fiche (§ 1 et 6) : voile de la feuille d'une course (Fond à 75 %), panneau Surface avec cadre, 30 rem (44 rem pour Paramétrer le plan) ; barre du haut fixe, « Annuler » à gauche, « Enregistrer » à droite ; titre en libellé (Space Mono 0,75 rem, capitales, Texte discret) ; libellés de champ à 0,7 rem, champs communs (à 16 px sur écran tactile) ; « Supprimer la séance » (à contour Alerte, poubelle) ou « Revenir aux règles générales » (lien) seul en bas.
 
 
 **Page Préparation** (spécification Préparation, § 5)
@@ -262,7 +263,7 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Page des courses à venir (menu, titre, lien d'En un coup d'œil) | **Saison** (fichier `objectif.html`, clé « Objectif ») | Objectif & plan, Plan & objectifs, Feuille de route |
 | Course choisie pour l'en-tête | **Objectif principal** (Préférences) ; l'en-tête garde la formule « Cap sur … » | « Cap » seul, comme étiquette |
 | Rôle d'une course | **Objectif**, Préparatoire, Plaisir | |
-| Module qui construit le plan | **Préparation** (page, rubrique d'une course) ; « plan » dans « Paramétrer le plan » et « Place dans le plan » ; la frise de la page bascule entre **En cours** et **Tout** | plan de saison, prépa, Saison (pour la frise) |
+| Module qui construit le plan | **Préparation** (page, rubrique d'une course) ; le plan se règle **dans la page Préparation seulement** (« Plans des courses ») ; « plan » dans « Paramétrer le plan » et « Place dans le plan » ; la frise de la page bascule entre **En cours** et **Tout** | plan de saison, prépa, Saison (pour la frise) |
 | Phases affichées au Calendrier | bouton **Phases** | Plan (bouton), Phases de prépa |
 | Choix du Calendrier (Semaine, Mois, Année…) | menu **Vue** | Périodicité |
 | Module de toutes les courses (vues À surveiller, Inscriptions ouvertes, Courues, À venir, Tout) | **Courses** (menu et titre) ; « À surveiller » reste la vue par défaut et le statut | Courses à surveiller |
@@ -275,7 +276,7 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Fenêtre de mesures de Nutrition (âge, poids…) | **Mes mesures** | Mon profil |
 | Fenêtre du plan (ancienneté, volume…) | **Mon profil de coureur** | profil d'entraînement, Mon profil |
 | Compte d'un autre utilisateur | **espace** (« Voir son espace », « Revenir à mon espace ») | site de, mon site, son site |
-| Enregistrer une saisie en base | **Enregistrer** ; **Valider** seulement pour un brouillon pas encore rangé (course neuve, fenêtre du plan) | Sauvegarder, Valider pour une saisie rangée |
+| Enregistrer une saisie en base | **Enregistrer** ; **Valider** seulement pour un brouillon pas encore rangé (aujourd'hui aucun écran : le formulaire d'une course neuve n'ouvre plus la fenêtre du plan) | Sauvegarder, Valider pour une saisie rangée |
 | Supprimer | **Supprimer** une donnée (course, séance, aliment) ; **Retirer** une personne ou un élément d'une liste | Effacer |
 | Remettre à zéro | **Réinitialiser** (filtres, ordre) ; **Revenir aux règles générales** (plan) | Effacer les filtres, Rétablir, Recalculer |
 | Ajouter | **Ajouter** (course, séance, aliment) | Créer |

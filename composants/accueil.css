@@ -17,6 +17,12 @@
 .ac-etapes i { font-style: normal; color: var(--muted); }
 /* Dernière course : libellé à gauche, valeur à droite. */
 .ac-lignes { font-size: var(--t-second); } /* lignes des cartes (ob-ligne, ob-lib) */
+/* Pour aller plus loin : sur toute la largeur ; une ligne par module (nom et aide à gauche, bouton à droite). */
+.ac-decouvrir { grid-column: 1 / -1; }
+.ac-decouvrir ul { display: flex; flex-direction: column; gap: 0.7rem; }
+.ac-decouvrir li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
+.ac-module { display: flex; flex-direction: column; gap: 0.1rem; font-size: var(--t-texte); }
+.ac-module span { font-size: var(--t-second); color: var(--muted); }
 @media (max-width: 600px) {
   .ac-grille { grid-template-columns: minmax(0, 1fr); }
 }
