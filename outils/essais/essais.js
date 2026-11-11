@@ -1259,14 +1259,23 @@ const CONTROLES = {
       await fiche(p), 'consultation : dossard, distance et D+ sous le titre ; temps, objectif visé et ses précisions, puis place ; catégorie en clair ; Montre sous le Résultat ; ni prix'));
     pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
-    // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; Parcours renseigné, ouvert.
-    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: ['Parcours'], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'RÔLE DANS LA PRÉPARATION Répétition.', 'Train.'], sous: true, plan: 0 },
+    // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; course courue sans tracé : Parcours replié, même avec une stratégie.
+    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'RÔLE DANS LA PRÉPARATION Répétition.', 'Train.'], sous: true, plan: 0 },
       await p.evaluate(() => { const cel = [...document.querySelectorAll('.pc-cellule')], t = e => e.innerText.trim().replace(/\s+/g, ' ');
         const ouv = cel.filter(d => d.open).map(d => d.querySelector('summary').textContent.trim());
         cel.forEach(d => { d.open = true; });
         return { cellules: cel.map(d => d.querySelector('summary').textContent.trim()), ouvertes: ouv, textes: cel.map(d => t(d.querySelector('.pc-corps')).replace(/^Importer un GPX ?/, '')),
           sous: document.querySelector('.pc-textes').getBoundingClientRect().top >= document.querySelector('.pc-resultats').getBoundingClientRect().bottom, plan: document.querySelectorAll('.pc-textes .cal-lignes').length }; }),
-      'consultation : À propos, Parcours, Préparation (rôle, sans plan), Logistique, repliés sous la Montre ; Parcours renseigné ouvert'));
+      'consultation : À propos, Parcours, Préparation (rôle, sans plan), Logistique, repliés sous la Montre ; course courue sans tracé : Parcours replié même avec une stratégie'));
+    // Course courue avec tracé GPX : Parcours ouvert d'emblée (seule la course sans tracé le garde replié)
+    {
+      const g = JSON.parse(JSON.stringify(d)), c = g.courses.find(x => x.id === SEB);
+      c.gpx = c.utilisateur + '/' + c.id + '.gpx'; g.fichiers = { ['traces/' + c.gpx]: GPX };
+      const o = await ouvrir(nav, 'palmares.html', 1200, g, {}, PARIS);
+      await ligneSeb(o.p); await consultation(o.p);
+      pb.push(egal(['Parcours'], await o.p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].filter(x => x.open).map(x => x.querySelector('summary').textContent.trim())), 'course courue avec tracé GPX : Parcours ouvert d\'emblée'));
+      await o.ctx.close();
+    }
     pb.push(egal([true, 'rgb', true], await p.evaluate(() => { const [r, m] = [...document.querySelectorAll('.pc-section')], coul = e => getComputedStyle(e).color;
       return [m.getBoundingClientRect().top >= r.getBoundingClientRect().bottom, coul(m.querySelector('.ob-val')).slice(0, 3), coul(m.querySelector('.ob-val')) !== coul(r.querySelector('.pc-res-ligne .ob-val'))]; }),
       'ordinateur : Montre sous Résultat, valeurs en Texte discret'));
