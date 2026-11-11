@@ -289,7 +289,7 @@
       const dans = semainesEntre(auj, prochaine.jourJ);
       // Le nom de la course visée en titre ; dessous, petit : la date (l'année seulement si ce n'est pas la présente) et le temps restant.
       const dateVisee = window.mrtFormat.date(prochaine.jourJ, { semaine: true, annee: parse(prochaine.jourJ).getFullYear() !== new Date().getFullYear() });
-      let h = '<div class="ps-cadre">' + profil + '<h1 class="ps-titre">' + nom(prochaine.course) + '</h1><p class="ps-sous">' + dateVisee + ' · dans ' + dans + ' sem.</p>';
+      let h = '<div class="ps-cadre">' + profil + '<h2 class="ps-titre">' + nom(prochaine.course) + '</h2><p class="ps-sous">' + dateVisee + ' · dans ' + dans + ' sem.</p>';
 
       // (3) Frise, à deux niveaux : « Saison » (jusqu'à l'Objectif, par défaut) ou « Tout » (jusqu'à la fin de la dernière récupération).
       const derniere = ps.saisons[ps.saisons.length - 1], recupDer = ps.reperes.find(r => r.course === derniere.course);

@@ -51,7 +51,7 @@
   .pref-modules input, .pref-blocs input { accent-color: var(--accent); margin: 0; }
   .pref-bientot { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
   .pref-fleches { display: flex; gap: 0.3rem; }
-  .pref-defaut { margin-top: 0.6rem; }
+  .pref-outils { display: flex; flex-wrap: wrap; gap: 0.2rem 1.4rem; margin-top: 0.6rem; }
   .pref-fixe { font-size: var(--t-libelle); color: var(--muted); }
   /* Changer le mot de passe : trois champs l'un sous l'autre. */
   #mdp-ouvrir { margin-top: 0.7rem; }
@@ -67,6 +67,7 @@
 </head>
 <body>
 <main>
+  <h1 class="mrt-sr">Préférences</h1>
   <div class="card pref-cadre">
   <section class="mrt-section" id="bloc-theme">
     <h2 class="mrt-section-titre">Thème</h2>
@@ -201,13 +202,13 @@
       return choisis.map(nom => ({ nom, affiche: true }))
         .concat(construits.filter(m => !choisis.includes(m.nom)).map(m => ({ nom: m.nom, affiche: false })));
     };
-    let liste = depuisPrefs();
+    let liste = depuisPrefs(), reorgMenu = false;
     function dessinerMenu() {
       // Au moins un module reste affiché ; le premier coché s'ouvre en arrivant sur le site (rien à choisir, seulement à rappeler).
       const nbAffiches = liste.filter(m => m.affiche).length, premier = liste.find(m => m.affiche);
-      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher et range-les avec les flèches ; le premier s\'ouvre en arrivant sur le site.</p>' +
+      blocMenu.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les modules à afficher (« Réorganiser » change leur ordre) ; le premier s\'ouvre en arrivant sur le site.</p>' +
         listeOrdonnee(liste.map(m => ({ nom: libelle(m.nom), affiche: m.affiche, ouverture: m === premier, seul: m.affiche && nbAffiches === 1 })), 'pref-modules',
-          aVenir.length ? 'Bientôt dans le menu : ' + aVenir.map(libelle).join(', ') + '.' : '');
+          aVenir.length ? 'Bientôt dans le menu : ' + aVenir.map(libelle).join(', ') + '.' : '', reorgMenu);
     }
     function changerMenu(nouvelle, valeur) {
       const avant = liste;
@@ -224,6 +225,7 @@
     blocMenu.addEventListener('click', e => {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.classList.contains('pref-reorg')) { reorgMenu = !reorgMenu; return dessinerMenu(); }
       if (b.classList.contains('pref-defaut')) return changerMenu(parDefaut(), null);
       const i = Number(b.dataset.monter != null ? b.dataset.monter : b.dataset.descendre), j = b.dataset.monter != null ? i - 1 : i + 1;
       const nouvelle = liste.slice();
@@ -253,13 +255,16 @@
   });
 
   // Liste ordonnée : une case « affiché » et deux flèches dessinées par ligne (Menu, En un coup d'œil), puis la ligne « bientôt ».
-  function listeOrdonnee(liste, classe, bientot) {
-    return '<ul class="pref-liste ' + classe + '">' + liste.map((m, i) =>
+  // reorg : les flèches et « Réinitialiser l'ordre » n'apparaissent qu'après « Réorganiser » (réglage rare, cases à cocher d'abord).
+  function listeOrdonnee(liste, classe, bientot, reorg) {
+    return '<ul class="pref-liste ' + classe + (reorg ? ' is-reorg' : '') + '">' + liste.map((m, i) =>
       '<li><label><input type="checkbox" data-i="' + i + '"' + (m.affiche ? ' checked' : '') + (m.seul ? ' disabled title="Au moins un module reste affiché"' : '') + '>' + esc(m.nom) +
       (m.ouverture ? ' <span class="pref-fixe pref-ouverture">à l\'ouverture</span>' : '') + '</label>' +
-      '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>' + mrtIcone.haut + '</button>' +
-      '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>' + mrtIcone.bas + '</button></span></li>').join('') +
-      '</ul>' + (bientot ? '<p class="pref-bientot">' + esc(bientot) + '</p>' : '') + '<button type="button" class="pref-lien mrt-lien pref-defaut">Réinitialiser l\'ordre</button>';
+      (reorg ? '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>' + mrtIcone.haut + '</button>' +
+      '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>' + mrtIcone.bas + '</button></span>' : '') + '</li>').join('') +
+      '</ul>' + (bientot ? '<p class="pref-bientot">' + esc(bientot) + '</p>' : '') +
+      '<div class="pref-outils"><button type="button" class="pref-lien mrt-lien pref-reorg" aria-pressed="' + !!reorg + '">' + (reorg ? 'Terminé' : 'Réorganiser') + '</button>' +
+      (reorg ? '<button type="button" class="pref-lien mrt-lien pref-defaut">Réinitialiser l\'ordre</button>' : '') + '</div>';
   }
 
   // Blocs de la page En un coup d'œil (spécification des Préférences, § 4 bis) ; la page de démarrage se choisit dans le Menu.
@@ -275,10 +280,10 @@
       return choisis.map(id => ({ id, nom: construits.find(b => b.id === id).nom, affiche: true }))
         .concat(construits.filter(b => !choisis.includes(b.id)).map(b => ({ id: b.id, nom: b.nom, affiche: false })));
     };
-    let liste = depuisPrefs();
+    let liste = depuisPrefs(), reorg = false;
     const dessiner = () => {
-      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les blocs à afficher et range-les avec les flèches.</p>' +
-        listeOrdonnee(liste, 'pref-blocs', aVenir.length ? 'Bientôt : ' + aVenir.map(b => b.nom).join(', ') + '.' : '');
+      blocAcc.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Coche les blocs à afficher (« Réorganiser » change leur ordre).</p>' +
+        listeOrdonnee(liste, 'pref-blocs', aVenir.length ? 'Bientôt : ' + aVenir.map(b => b.nom).join(', ') + '.' : '', reorg);
     };
     const changer = (nouvelle, valeur) => {
       const avant = liste;
@@ -294,6 +299,7 @@
     blocAcc.addEventListener('click', e => {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.classList.contains('pref-reorg')) { reorg = !reorg; return dessiner(); }
       if (b.classList.contains('pref-defaut')) return changer(parDefaut(), null);
       const i = Number(b.dataset.monter != null ? b.dataset.monter : b.dataset.descendre), j = b.dataset.monter != null ? i - 1 : i + 1;
       const nouvelle = liste.slice();

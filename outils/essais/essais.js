@@ -595,6 +595,12 @@ const CONTROLES = {
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(5, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les cinq modules construits cochés, En un coup d\'œil compris, sauf Nutrition (à cocher)'));
     pb.push(egal('Bientôt dans le menu : Cette semaine, Profil, Guide.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
+    // Réglage rare : les flèches n'apparaissent qu'après « Réorganiser » (Menu et En un coup d'œil), qui devient « Terminé ».
+    pb.push(egal([0, 0, 'Réorganiser', 'Réorganiser', 0], await p.evaluate(() => [document.querySelectorAll('.pref-fleches').length, document.querySelectorAll('[data-monter]').length,
+      document.querySelector('#bloc-menu .pref-reorg').textContent, document.querySelector('#bloc-accueil .pref-reorg').textContent, document.querySelectorAll('.pref-defaut').length]), 'Préférences : ni flèches ni « Réinitialiser l\'ordre » tant qu\'on ne réorganise pas'));
+    await p.click('#bloc-menu .pref-reorg');
+    pb.push(egal([true, 'Terminé', 'Réorganiser', 1], await p.evaluate(() => [document.querySelectorAll('#bloc-menu .pref-fleches').length === document.querySelectorAll('#bloc-menu .pref-liste li').length,
+      document.querySelector('#bloc-menu .pref-reorg').textContent, document.querySelector('#bloc-accueil .pref-reorg').textContent, document.querySelectorAll('#bloc-menu .pref-defaut').length]), '« Réorganiser » : les flèches du Menu et « Réinitialiser l\'ordre » apparaissent, En un coup d\'œil reste calme'));
     // Préparation (non cochée) est entre Saison et Calendrier dans la liste : deux clics pour passer devant Saison.
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
@@ -604,6 +610,7 @@ const CONTROLES = {
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
     await p.locator('.pref-modules label', { hasText: 'Calendrier' }).locator('input').uncheck(); await attendre();
     pb.push(egal(false, (await menu()).includes('Calendrier'), 'Calendrier décoché, absent du menu'));
+    await p.click('#bloc-menu .pref-reorg'); // la page rechargée est repartie sans les flèches
     await p.click('#bloc-menu .pref-defaut'); await attendre();
     pb.push(egal(construits, await menu(), 'ordre par défaut rétabli'));
     for (const n of construits.slice(1)) { await p.locator('.pref-modules label', { hasText: n }).locator('input').uncheck(); await attendre(); }
@@ -4069,6 +4076,7 @@ const CONTROLES = {
     // Lien d'action et crayon : zone de toucher de 2 rem au moins (marge invisible).
     await o.ctx.close();
     o = await ouvrir(nav, 'preferences.html', 390, db, {}, PARIS, { mobile: true });
+    await o.p.click('#bloc-menu .pref-reorg');
     pb.push(egal(true, await o.p.evaluate(() => { const l = document.querySelector('.pref-defaut'); l.scrollIntoView({ block: 'center' }); const r = l.getBoundingClientRect();
       return document.elementFromPoint(r.left + r.width / 2, r.top - 5) === l && document.elementFromPoint(r.left + r.width / 2, r.bottom + 5) === l; }), 'lien d\'action : zone de toucher débordant de son texte'));
     await o.ctx.close();
@@ -4145,6 +4153,10 @@ const CONTROLES = {
           // L'onglet de la page ouverte porte le nom du titre de la page.
           const [onglet, titre] = await o.p.evaluate(() => [(document.querySelector('.mrt-tab.is-on') || {}).textContent, document.title.split(' · ')[0]]);
           if (onglet && !page.startsWith('course.html') && !page.startsWith('index')) pb.push(egal(titre, onglet.trim(), quoi + ' : onglet et titre de page identiques'));
+          // Un seul titre de page (h1) : celui de l'onglet, invisible sauf pour les lecteurs d'écran (design, § 3).
+          const h1 = await o.p.evaluate(() => [...document.querySelectorAll('h1')].map(h => h.textContent.trim()));
+          pb.push(egal(1, h1.length, quoi + ' : un seul titre de page (h1)'));
+          if (onglet && !page.startsWith('course.html') && !page.startsWith('index')) pb.push(egal(titre, h1[0], quoi + ' : titre de page et onglet identiques'));
         }
         await o.ctx.close();
       }
