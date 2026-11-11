@@ -132,36 +132,39 @@
       }));
     }
     // Ma semaine : jours pour courir et pour le renforcement (cumulables), jour de la sortie longue, en pastilles ; nombres de
-    // sorties et de renforcements, un chiffre de 0 à 7 ; chaque changement s'enregistre.
-    function semaine() {
+    // sorties et de renforcements, un chiffre de 0 à 7. Les changements sont gardés dans la feuille ; « Enregistrer » les range et revient à la liste.
+    function semaine(brouillon) {
       versQuestion();
-      const p0 = pr(), jc = joursDe(p0, 'jours_course'), jr = joursDe(p0, 'jours_renfo');
+      const p0 = pr(), b = brouillon || { jc: joursDe(p0, 'jours_course'), jr: joursDe(p0, 'jours_renfo'), jl: p0.jour_long || null, ns: p0.nb_sorties, nr: p0.nb_renfo };
       const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
       const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
       const chiffre = (nom, lib, v) => '<label class="ps-sem-q ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
       const section = (titre, html) => '<section class="mrt-section"><h2 class="mrt-section-titre">' + titre + '</h2><div class="ps-groupe-l">' + html + '</div></section>';
       corps.innerHTML = barre('Ma semaine', true) +
         section('Course',
-          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, jc.includes(i + 1), j)).join('')) +
-          chiffre('nb_sorties', 'Séances par semaine', p0.nb_sorties) +
-          q('Sortie longue', (jc.length ? jc.map(n => pastille('data-long', n, p0.jour_long === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !p0.jour_long, 'Peu importe'))) +
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, b.jc.includes(i + 1), j)).join('')) +
+          chiffre('nb_sorties', 'Séances par semaine', b.ns) +
+          q('Sortie longue', (b.jc.length ? b.jc.map(n => pastille('data-long', n, b.jl === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !b.jl, 'Peu importe'))) +
         section('Renforcement',
-          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, jr.includes(i + 1), j)).join('')) +
-          chiffre('nb_renfo', 'Séances par semaine', p0.nb_renfo));
-      const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, b) => a - b));
-      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(b => b.addEventListener('click', async () => {
-        const d = b.dataset, champs = {};
-        if (d.jc) { champs.jours_course = bascule(jc, Number(d.jc)); if (p0.jour_long && !champs.jours_course.includes(p0.jour_long)) champs.jour_long = null; }
-        if (d.jr) champs.jours_renfo = bascule(jr, Number(d.jr));
-        if (d.long) champs.jour_long = Number(d.long) || null;
-        if (await ranger(champs)) semaine();
+          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, b.jr.includes(i + 1), j)).join('')) +
+          chiffre('nb_renfo', 'Séances par semaine', b.nr)) +
+        '<button type="button" class="mrt-btn is-principal ps-enregistrer" data-enregistrer>Enregistrer</button>';
+      const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, c) => a - c));
+      const lire = () => corps.querySelectorAll('.ps-chiffre input').forEach(x => { const t = x.value.trim(); b[x.name === 'nb_sorties' ? 'ns' : 'nr'] = t === '' ? null : t; });
+      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(btn => btn.addEventListener('click', () => {
+        lire();
+        const d = btn.dataset;
+        if (d.jc) { b.jc = bascule(b.jc, Number(d.jc)); if (b.jl && !b.jc.includes(b.jl)) b.jl = null; }
+        if (d.jr) b.jr = bascule(b.jr, Number(d.jr));
+        if (d.long) b.jl = Number(d.long) || null;
+        semaine(b);
       }));
-      corps.querySelectorAll('.ps-chiffre input').forEach(x => x.addEventListener('change', async () => {
-        const t = x.value.trim();
-        if (t !== '' && !/^[0-7]$/.test(t)) { msg().textContent = 'Un chiffre de 0 à 7.'; x.focus(); return; }
+      corps.querySelector('[data-enregistrer]').addEventListener('click', async () => {
+        lire();
+        if ([b.ns, b.nr].some(t => t !== null && !/^[0-7]$/.test(t))) { msg().textContent = 'Un chiffre de 0 à 7.'; return; }
         msg().textContent = '';
-        await ranger({ [x.name]: t === '' ? null : Number(t) });
-      }));
+        if (await ranger({ jours_course: b.jc, jours_renfo: b.jr, jour_long: b.jl, nb_sorties: b.ns === null ? null : Number(b.ns), nb_renfo: b.nr === null ? null : Number(b.nr) })) liste();
+      });
     }
     // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
     function allure(type) {

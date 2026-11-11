@@ -85,6 +85,7 @@
 .ps-sem-q .cal-champ { margin-bottom: 0.5rem; }
 .ps-chiffre { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; font-size: var(--t-texte); color: var(--text); }
 .ps-chiffre .mrt-champ { width: 4.5rem; text-align: center; }
+.ps-enregistrer { margin-top: 1rem; }
 .ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .ps-valeur { margin-top: 1rem; }
 .ps-valeur .mrt-btn { margin-top: 0.2rem; }
