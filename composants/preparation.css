@@ -78,7 +78,7 @@
 .cal-champ span { display: block; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .cal-champ .mrt-champ { display: block; width: 100%; }
 /* Durée, distance, intensité d'une séance : trois champs côte à côte. */
-.cal-champs3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 0.6rem; }
+.cal-champs3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 0.6rem; align-items: end; } /* un libellé sur deux lignes (« Distance (km) ») ne décale pas son champ */
 .cal-duree .mrt-champ { width: 6rem; }
 .cal-msg { margin: 0 0 0.6rem; font-size: var(--t-petit); color: var(--red); }
 .cal-msg:empty { display: none; }
@@ -115,3 +115,13 @@
   .cal-plus { top: 50%; bottom: auto; transform: translateY(-50%); }
   .cal-tab { grid-template-columns: 1fr; }
 }
+
+/* Téléphone : les fenêtres de saisie prennent tout l'écran, comme les feuilles du site (mc-panneau). */
+.cal-panneau:focus { outline: none; }
+@media (max-width: 600px) {
+  .cal-voile { padding: 0; align-items: stretch; background: var(--bg); }
+  .cal-panneau, .cal-panneau.cal-preparer { max-width: none; max-height: none; height: 100%; padding: 0 1rem 1.5rem; border: 0; border-radius: 0; animation: cal-monte 0.22s ease-out; }
+  .cal-barre { margin: 0 -1rem; padding: 0.75rem 1rem 0.4rem; }
+}
+@keyframes cal-monte { from { transform: translateY(2.5rem); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cal-panneau { animation: none !important; } }

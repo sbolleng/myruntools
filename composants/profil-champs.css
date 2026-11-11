@@ -13,3 +13,10 @@
 .pf-voile { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; padding: 1rem; background: color-mix(in srgb, var(--bg) 75%, transparent); }
 .pf-panneau { width: 100%; max-width: 26rem; max-height: calc(100vh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 0 1.2rem 1.2rem; font-size: var(--t-texte); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pf-barre { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin: 0 -1.2rem; padding: 1.2rem 1.2rem 0.4rem; background: var(--surface); }
+
+/* Téléphone : la fenêtre du profil prend tout l'écran, comme les feuilles et les fenêtres de saisie du site. */
+@media (max-width: 600px) {
+  .pf-voile { padding: 0; align-items: stretch; background: var(--bg); }
+  .pf-panneau { max-width: none; max-height: none; height: 100%; padding: 0 1rem 1.5rem; border: 0; border-radius: 0; }
+  .pf-barre { margin: 0 -1rem; padding: 0.75rem 1rem 0.4rem; }
+}

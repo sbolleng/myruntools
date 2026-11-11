@@ -260,7 +260,7 @@
   function fenetre(contenu, classe) {
     const voile = document.createElement('div');
     voile.className = 'cal-voile';
-    voile.innerHTML = '<div class="cal-panneau ' + (classe || '') + '" role="dialog" aria-modal="true" aria-labelledby="cal-titre">' + contenu + '</div>';
+    voile.innerHTML = '<div class="cal-panneau ' + (classe || '') + '" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="cal-titre">' + contenu + '</div>';
     document.body.appendChild(voile);
     const echap = e => { if (e.key === 'Escape') voile.fermer(); };
     voile.fermer = () => { voile.remove(); document.removeEventListener('keydown', echap); };
@@ -284,7 +284,8 @@
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
     if (s) f.type.value = s.type;
     else if (opts.type && TYPES[opts.type]) f.type.value = opts.type; // type proposé par la page qui ouvre la fenêtre (Nutrition)
-    f.libelle.focus();
+    // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
+    v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
     const echec = err => { msg.textContent = 'Enregistrement impossible pour l\'instant.'; console.warn(err); };
     v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
