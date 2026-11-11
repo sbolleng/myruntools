@@ -114,3 +114,10 @@
 .ps-plans-liste li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; }
 .ps-plan-nom { font-weight: 600; font-size: var(--t-texte); }
 .ps-plan-info { flex: 1 1 12rem; font-size: var(--t-second); color: var(--muted); }
+/* Téléphone : le nom, puis sa date et son rôle, puis le bouton ; un filet entre deux courses (rien ne se coupe au milieu d'une ligne). */
+@media (max-width: 600px) {
+  .ps-plans-liste li { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
+  .ps-plans-liste li + li { padding-top: 0.6rem; border-top: 1px solid var(--border); }
+  .ps-plans-liste .mrt-btn { margin-top: 0.4rem; }
+  .ps-plan-info { flex: none; }
+}
