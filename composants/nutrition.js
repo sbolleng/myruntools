@@ -340,7 +340,7 @@
           '<div class="nu-grille">' + [['kcal', 'Calories (kcal)'], ['proteines', 'Protéines (g)'], ['glucides', 'Glucides (g)'], ['lipides', 'Lipides (g)']].map(c =>
             '<label class="nu-champ"><span class="pf-libelle">' + c[1] + '</span><input class="mrt-champ" name="' + c[0] + '" type="text" inputmode="decimal" autocomplete="off"></label>').join('') + '</div>' +
           '<label class="mrt-pastille nu-favori-case"><input type="checkbox" name="favori">★ Favori</label>' +
-          '<button type="submit" class="mrt-btn is-principal">Créer l\'aliment</button></form>';
+          '<button type="submit" class="mrt-btn is-principal">Ajouter l\'aliment</button></form>';
       } else {
         const liste = S.source === 'favoris' ? favorisDe(S.aliments) : recentsDe(S.aliments).slice(0, 8);
         corps = liste.length ? '<div class="nu-liste">' + liste.map(boutonAliment).join('') + '</div>'

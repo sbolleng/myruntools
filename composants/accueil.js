@@ -20,7 +20,7 @@
     // La prochaine course confirmée de la feuille de route.
     prochaine: courses => {
       const c = window.mrtCoursesRoute(courses).find(x => x.statut === 'confirmee');
-      return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Feuille de route'],
+      return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Saison'],
         c ? '<div class="ac-carte" data-course="' + esc(c.id) + '"></div>' : vide('Aucune course confirmée à venir.'));
     },
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),

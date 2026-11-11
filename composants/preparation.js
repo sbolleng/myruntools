@@ -320,7 +320,7 @@
       : { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
     const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">' + (brouillon ? 'Valider' : 'Enregistrer') + '</button>') +
       titreFenetre('Paramétrer le plan · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
-      '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Recalculer selon les règles</button></div>', 'cal-preparer');
+      '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Revenir aux règles générales</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
     const courant = () => planDe(c, draft.modifs, draft.duree);
 
@@ -367,7 +367,7 @@
 
     v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
     v.querySelector('[data-act="recalculer"]').addEventListener('click', async () => {
-      if (!(await window.mrtConfirmer({ texte: 'Revenir aux règles générales pour toutes les semaines ?', action: 'Recalculer', danger: true }))) return;
+      if (!(await window.mrtConfirmer({ texte: 'Revenir aux règles générales pour toutes les semaines ?', action: 'Revenir aux règles', danger: true }))) return;
       draft.modifs = new Map();
       dessinerPrep();
     });

@@ -1,17 +1,17 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.13 · 6 novembre 2026 · [Retour au sommaire](README.md)
+Version 1.14 · 11 novembre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
-La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, cap de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage (en-tête, ou barre fine), qui passe en Accent tant que la page est ouverte, comme l'onglet d'un module ; elle a la barre fine à la place de l'en-tête et n'est pas un module du menu.
+La page Préférences rassemble les réglages du site de l'utilisateur connecté : thème, modules du menu, objectif principal de l'en-tête, partage, compte. Elle s'ouvre par l'engrenage (en-tête, ou barre fine), qui passe en Accent tant que la page est ouverte, comme l'onglet d'un module ; elle a la barre fine à la place de l'en-tête et n'est pas un module du menu.
 
 - **Ce qu'elle ne contient pas** : les données du coureur (Profil) et son équipement (Matériel), pour qu'une donnée ne se saisisse qu'à un seul endroit.
 - **Hors périmètre** : la présentation visuelle (document de design).
 
 ## 2. Organisation
 
-Une section par réglage, de la plus utilisée à la moins utilisée : **Thème**, **Cap**, **Menu**, **En un coup d'œil**, **Partage**, **Compte** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
+Une section par réglage, de la plus utilisée à la moins utilisée : **Thème**, **Objectif principal**, **Menu**, **En un coup d'œil**, **Partage**, **Compte** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
 - **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de la page de démarrage et dans la barre fine.
@@ -28,7 +28,7 @@ Une section par réglage, de la plus utilisée à la moins utilisée : **Thème*
 
 - Texte d'aide : « Coche les blocs à afficher et range-les avec les flèches. »
 - Les blocs construits, chacun avec une case « affiché » et deux flèches dessinées, comme le Menu ; les blocs pas encore construits sur une ligne, « Bientôt : Pense-bête. », sans case ni flèches (gardés à la fin de la liste enregistrée : ils apparaîtront une fois construits ; jamais de bloc vide sur la page).
-- Par défaut : Prochaine course, D'ici là, Dernière course affichés. « Rétablir l'ordre par défaut » y revient.
+- Par défaut : Prochaine course, D'ici là, Dernière course affichés. « Réinitialiser l'ordre » y revient.
 
 ## 4. Menu
 
@@ -41,32 +41,32 @@ Une section par réglage, de la plus utilisée à la moins utilisée : **Thème*
 - Les modules pas encore construits sont sur une ligne, « Bientôt dans le menu : Cette semaine, Profil, Guide. », sans case ni flèches : ils restent à la fin de la liste enregistrée et entrent dans le menu, à la fin, une fois construits (depuis le 6 nov. 2026 ; avant, ils se cochaient et se rangaient, grisés). (Avant le 30 octobre 2026, ils s'affichaient grisés dans le menu : sur téléphone, ils repoussaient les vrais onglets hors de l'écran.)
 - **Au moins un module construit** reste affiché : sa case ne peut pas être décochée.
 - Par défaut (rien d'enregistré) : tous les modules construits, dans l'ordre du catalogue, sauf ceux marqués « à cocher » (Nutrition : le menu par défaut garde cinq onglets, qui tiennent à 375 px) ; ils s'ajoutent en les cochant.
-- **Rétablir l'ordre par défaut** : un lien remet tous les modules, dans l'ordre du catalogue.
+- **Réinitialiser l'ordre** : un lien remet tous les modules, dans l'ordre du catalogue.
 
-## 5. Cap
+## 5. Objectif principal
 
-- Le cap est la course affichée dans le titre de l'en-tête (« Cap sur … »).
+- L'objectif principal est la course affichée dans le titre de l'en-tête (« Cap sur … »).
 - Une liste déroulante propose :
   - en tête, **« Par défaut : la plus lointaine »**, suivie du nom de cette course entre parenthèses ;
   - puis les courses à venir de la page Objectif (statut Option ou Confirmée, date à partir d'aujourd'hui), de la plus proche à la plus lointaine, sous la forme « Nom · date ».
 - Choisir une course l'enregistre comme cap ; choisir « Par défaut » efface le choix.
 - Si la course choisie devient courue ou abandonnée, ou si sa date est passée, l'en-tête revient au cap par défaut, et la liste affiche « Par défaut ».
 - Aucune course à venir : la liste est remplacée par « Aucune course à venir. »
-- Le choix pourra aussi se faire depuis la page d'une course (pas depuis la feuille de route) : c'est le même réglage.
+- Le choix pourra aussi se faire depuis la page d'une course (pas depuis la saison) : c'est le même réglage.
 
 ## 6. Partage et Compte
 
 - **Partage** : décrit dans la spécification générale (§ 9).
 - **Compte** : prénom et nom, adresse de connexion, « Changer le mot de passe », lien « Se déconnecter ».
-- **Changer le mot de passe** : un bouton à contour déplie trois champs, « Mot de passe actuel », « Nouveau mot de passe » et « Confirmation », avec l'œil de la page de connexion et les mêmes règles (14 caractères au moins, deux saisies identiques). L'ancien mot de passe est vérifié avant tout changement ; un échec affiche « Mot de passe actuel incorrect. » sans rien modifier. Enregistré : « Mot de passe modifié. », les champs se referment, les autres appareils sont déconnectés et un e-mail d'alerte est envoyé. Utilisable aussi quand on regarde le site d'un autre : c'est toujours le compte de l'utilisateur connecté.
+- **Changer le mot de passe** : un bouton à contour déplie trois champs, « Mot de passe actuel », « Nouveau mot de passe » et « Confirmation », avec l'œil de la page de connexion et les mêmes règles (14 caractères au moins, deux saisies identiques). L'ancien mot de passe est vérifié avant tout changement ; un échec affiche « Mot de passe actuel incorrect. » sans rien modifier. Enregistré : « Mot de passe modifié. », les champs se referment, les autres appareils sont déconnectés et un e-mail d'alerte est envoyé. Utilisable aussi quand on regarde l'espace d'un autre : c'est toujours le compte de l'utilisateur connecté.
 
 ## 7. Site partagé en lecture seule
 
-Quand l'utilisateur regarde le site d'un autre (bandeau « Lecture seule ») :
+Quand l'utilisateur regarde l'espace d'un autre (bandeau « Lecture seule ») :
 
 - l'engrenage n'est plus affiché ; la page reste accessible par son adresse ;
 
-- les blocs Thème, Menu et Cap ne sont pas modifiables ; à leur place : « Reviens à ton site pour modifier tes réglages. » ;
+- les blocs Thème, Menu et Objectif principal ne sont pas modifiables ; à leur place : « Reviens à ton espace pour modifier tes réglages. » ;
 - les blocs Partage et Compte restent les siens et fonctionnent normalement.
 
 ## 8. Contrôles
@@ -85,21 +85,21 @@ Résultats attendus :
 
 - L'engrenage ouvre la page ; elle a la barre fine (« Cap sur … » et l'engrenage), pas l'en-tête ; elle ne figure pas dans le menu.
 - Sans connexion, la page renvoie vers la connexion sans rien afficher.
-- Les blocs se suivent dans cet ordre : Compte, Cap, Thème, Menu, Page d'accueil, Partage ; aucun thème ne porte de mention.
+- Les blocs se suivent dans cet ordre : Compte, Objectif principal, Thème, Menu, Page d'accueil, Partage ; aucun thème ne porte de mention.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
 - Page ouverte avec `?t=violet-turquoise` : sans effet, la page reste en vert et rose.
 - Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés, « · bientôt » ; le menu de la page n'a que les modules construits : En un coup d'œil, Objectif, Calendrier, Courses à surveiller, Palmarès.
 - Monter Calendrier d'un rang : le menu de la page change aussitôt (Calendrier avant Objectif) ; recharger : l'ordre est conservé.
-- Décocher Calendrier : il disparaît du menu ; « Rétablir l'ordre par défaut » le fait revenir à sa place.
+- Décocher Calendrier : il disparaît du menu ; « Réinitialiser l'ordre » le fait revenir à sa place.
 - Décocher tous les modules sauf un : la dernière case ne peut pas être décochée ; cocher Guide (bientôt) : il n'entre pas dans le menu, et la case d'En un coup d'œil reste non décochable.
 - L'engrenage est en Accent sur cette page, en Texte discret ailleurs.
-- Cap : la liste propose « Par défaut : la plus lointaine (Trail des Crêtes) », puis Trail du Lac, Course A, Trail des Crêtes, dans cet ordre ; ni Course B (à surveiller) ni Course C (courue).
+- Objectif principal : la liste propose « Par défaut : la plus lointaine (Trail des Crêtes) », puis Trail du Lac, Course A, Trail des Crêtes, dans cet ordre ; ni Course B (à surveiller) ni Course C (courue).
 - Choisir Trail du Lac : l'en-tête d'En un coup d'œil affiche « Cap sur Trail du Lac » ; revenir aux Préférences : Trail du Lac est toujours choisi.
 - Marquer Trail du Lac comme abandonnée : l'en-tête revient à Trail des Crêtes, la liste affiche « Par défaut ».
 - Choisir « Par défaut » : l'en-tête affiche Trail des Crêtes.
 - Échec d'enregistrement (base injoignable) : « Enregistrement impossible pour l'instant », le réglage revient à sa valeur précédente.
 - Changer le mot de passe : actuel erroné → « Mot de passe actuel incorrect. » ; nouveau de 13 caractères refusé ; confirmation différente refusée ; 14 caractères identiques acceptés → « Mot de passe modifié. ».
-- Site partagé en lecture seule : Thème, Menu et Cap affichent « Reviens à ton site pour modifier tes réglages. » ; Partage et Compte restent utilisables.
+- Site partagé en lecture seule : Thème, Menu et Objectif principal affichent « Reviens à ton espace pour modifier tes réglages. » ; Partage et Compte restent utilisables.
 - Téléphone : la page tient dans la largeur de l'écran, sans défilement horizontal.
 - Menu : pas de choix de page de démarrage ; « à l'ouverture » sur la ligne En un coup d'œil ; le décocher : la mention passe sur Objectif.
 - En un coup d'œil, sous le Menu : texte d'aide « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. » ; cinq blocs, Pense-bête « · bientôt », Nutrition construit (affiché quand le module est au menu) ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.

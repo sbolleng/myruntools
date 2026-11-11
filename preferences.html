@@ -74,7 +74,7 @@
     <p class="pref-msg" aria-live="polite"></p>
   </section>
   <section class="mrt-section" id="bloc-cap">
-    <h2 class="mrt-section-titre">Cap</h2>
+    <h2 class="mrt-section-titre">Objectif principal</h2>
     <div class="pref-corps"></div>
     <p class="pref-msg" aria-live="polite"></p>
   </section>
@@ -90,8 +90,8 @@
   </section>
   <section class="mrt-section" id="partage">
     <h2 class="mrt-section-titre">Partage</h2>
-    <p class="pref-intro">Donne à un autre compte l'accès en lecture seule à ton site (courses et réglages, jamais les données de santé), retirable à tout moment.</p>
-    <div class="pref-legende">Partager mon site avec</div>
+    <p class="pref-intro">Donne à un autre compte l'accès en lecture seule à ton espace (courses et réglages, jamais les données de santé), retirable à tout moment.</p>
+    <div class="pref-legende">Partager mon espace avec</div>
     <form class="pref-ligne" id="form-partage">
       <input class="mrt-champ" type="email" id="partage-email" required autocomplete="off" placeholder="adresse e-mail de son compte" aria-label="Adresse e-mail">
       <button class="pref-btn mrt-btn is-principal" type="submit">Partager</button>
@@ -150,7 +150,7 @@
     afficherPartages(page);
     const blocs = ['bloc-theme', 'bloc-menu', 'bloc-cap', 'bloc-accueil'].map(id => document.getElementById(id));
     if (page.lectureSeule) {
-      blocs.forEach(b => { b.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Reviens à ton site pour modifier tes réglages.</p>'; });
+      blocs.forEach(b => { b.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Reviens à ton espace pour modifier tes réglages.</p>'; });
       return;
     }
     const prefs = Object.assign({}, page.session.preferences);
@@ -191,7 +191,7 @@
     // ----- Menu : les modules construits, dans l'ordre choisi, puis les autres ; les modules « bientôt » sur une ligne,
     // sans case ni flèches : ils entreront à la fin du menu une fois construits (ils restent dans la liste enregistrée).
     const blocMenu = blocs[1];
-    // Libellé affiché d'un module (« Plan & objectifs ») ; la clé rangée reste son nom.
+    // Libellé affiché d'un module (« Saison ») ; la clé rangée reste son nom.
     const libelle = n => ((mrtModules.find(m => m.nom === n) || {}).libelle || n);
     const construits = mrtModules.filter(m => m.page), aVenir = mrtModules.filter(m => !m.page).map(m => m.nom);
     const parDefaut = () => construits.map(m => ({ nom: m.nom, affiche: m.defaut !== false })); // un module « à cocher » (Nutrition) reste décoché
@@ -240,8 +240,8 @@
     } else {
       const plusLointaine = candidates[candidates.length - 1];
       const capActuel = () => (candidates.some(c => c.id === prefs.course_cap) ? prefs.course_cap : '');
-      blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Course affichée dans le titre de l\'en-tête.</p>' +
-        '<select class="mrt-champ pref-select" aria-label="Cap"><option value="">Par défaut : la plus lointaine (' + esc(mrtNomCourse(plusLointaine)) + ')</option>' +
+      blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Course affichée dans l\'en-tête (« Cap sur … »).</p>' +
+        '<select class="mrt-champ pref-select" aria-label="Objectif principal"><option value="">Par défaut : la plus lointaine (' + esc(mrtNomCourse(plusLointaine)) + ')</option>' +
         candidates.map(c => '<option value="' + esc(c.id) + '">' + esc(mrtNomCourse(c)) + ' · ' + esc(dateCourte(c)) + '</option>').join('') + '</select>';
       const select = blocCap.querySelector('select');
       select.value = capActuel();
@@ -259,7 +259,7 @@
       (m.ouverture ? ' <span class="pref-fixe pref-ouverture">à l\'ouverture</span>' : '') + '</label>' +
       '<span class="pref-fleches"><button type="button" class="pref-rond mrt-rond" data-monter="' + i + '" aria-label="Monter ' + esc(m.nom) + '"' + (i === 0 ? ' disabled' : '') + '>' + mrtIcone.haut + '</button>' +
       '<button type="button" class="pref-rond mrt-rond" data-descendre="' + i + '" aria-label="Descendre ' + esc(m.nom) + '"' + (i === liste.length - 1 ? ' disabled' : '') + '>' + mrtIcone.bas + '</button></span></li>').join('') +
-      '</ul>' + (bientot ? '<p class="pref-bientot">' + esc(bientot) + '</p>' : '') + '<button type="button" class="pref-lien mrt-lien pref-defaut">Rétablir l\'ordre par défaut</button>';
+      '</ul>' + (bientot ? '<p class="pref-bientot">' + esc(bientot) + '</p>' : '') + '<button type="button" class="pref-lien mrt-lien pref-defaut">Réinitialiser l\'ordre</button>';
   }
 
   // Blocs de la page En un coup d'œil (spécification des Préférences, § 4 bis) ; la page de démarrage se choisit dans le Menu.
@@ -317,14 +317,14 @@
       });
       ul1.appendChild(li);
     });
-    ul2.innerHTML = (avec.data || []).length ? '' : '<li class="pref-vide">Aucun site partagé avec toi.</li>';
+    ul2.innerHTML = (avec.data || []).length ? '' : '<li class="pref-vide">Aucun espace partagé avec toi.</li>';
     (avec.data || []).forEach(p => {
       const li = document.createElement('li');
       const regarde = page && page.proprietaire && page.proprietaire.id === p.id;
       li.innerHTML = '<span></span><button class="pref-lien mrt-lien" type="button"></button>';
       li.querySelector('span').textContent = nomComplet(p);
       const b = li.querySelector('button');
-      b.textContent = regarde ? 'Revenir à mon site' : 'Voir son site';
+      b.textContent = regarde ? 'Revenir à mon espace' : 'Voir son espace';
       b.addEventListener('click', () => (regarde ? mrtRevenir() : mrtVoirSite(p.id)));
       ul2.appendChild(li);
     });

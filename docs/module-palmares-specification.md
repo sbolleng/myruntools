@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.33 · 10 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.34 · 11 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
 
 ## 1. Objet
 
@@ -143,7 +143,7 @@ Chacun ajoute, modifie et supprime ses courses courues dans la page, sans autre 
 - **Ajouter** : un bouton principal « + Ajouter une course » (« + Course » sur téléphone), tout à droite au-dessus du tableau, ouvre la fiche vide.
 - **Consulter** : toucher une ligne (ou cliquer dessus) ouvre la consultation de la course courue, avec le résultat en tête ([spécification d'Objectif](module-objectif-specification.md), § 3.8) ; le crayon de la feuille passe en édition.
 - **Modifier** : un crayon, au bout de la ligne, apparaît au survol de la ligne et ouvre directement la fiche, remplie. Sur un écran tactile, sans survol, le crayon reste visible au bout de la ligne.
-- **Fiche** : la fiche d'une course, commune avec Objectif ([spécification d'Objectif](module-objectif-specification.md), § 3.8), dans la feuille d'une course (barre « Annuler · Enregistrer », le mode en libellé dessous ; plein écran sur téléphone). Mêmes blocs, dans le même ordre, pour une course courue et une course à venir : Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Dossard (numéro, prix), Résultat, Montre, Liens. Course et Résultat sont ouverts, les blocs de la préparation repliés ; Dossard, Montre et Liens ouverts quand ils ont une valeur. Le curseur est dans le champ Course.
+- **Fiche** : la fiche d'une course, commune avec Objectif ([spécification d'Objectif](module-objectif-specification.md), § 3.8), dans la feuille d'une course (barre « Annuler · Enregistrer », le mode en libellé dessous ; plein écran sur téléphone). Mêmes blocs, dans le même ordre, pour une course courue et une course à venir : Course, Place dans le plan (rôle seul), Préparation (sans plan), Logistique, Inscription (numéro, prix), Résultat, Montre, Liens. Course et Résultat sont ouverts, les blocs de la préparation repliés ; Inscription, Montre et Liens ouverts quand ils ont une valeur. Le curseur est dans le champ Course.
 
 | Bloc (propre à une course courue) | Champs |
 | --- | --- |

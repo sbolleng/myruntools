@@ -12,7 +12,7 @@
   const MODULES = [
     { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
     { nom: 'Cette semaine' },
-    { nom: 'Objectif', libelle: 'Plan & objectifs', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
+    { nom: 'Objectif', libelle: 'Saison', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
     { nom: 'Préparation', page: 'preparation.html', defaut: false }, // à cocher dans les Préférences, comme Nutrition
     { nom: 'Calendrier', page: 'calendrier.html' },
     { nom: 'Nutrition', page: 'nutrition.html', defaut: false }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
@@ -172,7 +172,7 @@
   function bandeau(prenom) {
     const div = document.createElement('div');
     div.className = 'mrt-bandeau';
-    div.innerHTML = '<span>Lecture seule · site de <b></b></span><a href="#">Revenir à mon site</a>';
+    div.innerHTML = '<span>Lecture seule · espace de <b></b></span><a href="#">Revenir à mon espace</a>';
     div.querySelector('b').textContent = prenom || '—';
     div.querySelector('a').addEventListener('click', e => { e.preventDefault(); window.mrtRevenir(); });
     const nav = document.querySelector('.mrt-nav');

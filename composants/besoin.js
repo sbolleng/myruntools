@@ -26,7 +26,7 @@
     jm: { libelle: 'Jogging / marche', met: 6, seance: true },
     m: { libelle: 'Marche', met: 3 },
     m55: { libelle: 'Marche (+5,5 km/h)', met: 4 },
-    muscu: { libelle: 'Musculation', met: 3, seance: true },
+    muscu: { libelle: 'Renforcement', met: 3, seance: true },
     crossfit: { libelle: 'Crossfit', met: 9 },
     v1: { libelle: 'Vélo (promenade)', met: 5 },
     v2: { libelle: 'Vélo (19 à 22 km/h)', met: 7 },
