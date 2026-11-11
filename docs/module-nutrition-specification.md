@@ -54,8 +54,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ (32)        (‹)   Lundi 9 novembre   (›)                │  centré
-│ (33)              Aujourd'hui                           │  sur un autre jour seulement
+│ (32)        (‹)   Lundi 9 novembre   (›) (33)(»)        │  centré ; 33 sur un autre jour seulement
 │ (5)              1 701  kcal                            │  centré, Accent, 1,5 rem
 │ (22)          Phase · Entretien                         │  discret
 │ (21) Calculé pour F · 59 kg · 163 cm · sédentaire ›     │  lien d'action : la fenêtre du profil
@@ -90,7 +89,7 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | N° | Nom | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
 | 32 | Sélecteur de jour | « (‹) Vendredi 6 novembre (›) » | Sous le titre de la carte 1 | `mrt-rond` et flèches dessinées ; pas de jour après aujourd'hui |
-| 33 | Retour à aujourd'hui | « Aujourd'hui » | À droite du 32, sur un autre jour seulement | `mrt-lien` |
+| 33 | Retour à aujourd'hui | Rond « » » | À droite de « › », sur un autre jour seulement (une cale à gauche garde le jour centré) | `mrt-rond` |
 | 34 | Séances du Calendrier | « Au calendrier : Gainage 30 min · Footing 1 h 15 · Reprendre » | Sous le 23, s'il y a des séances ce jour-là | Texte discret, `mrt-lien` |
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
 | 45 | Case Activité | « ACTIVITÉ · + Ajouter » (toujours, comme la case Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Case sur le fond des champs, coins de 8 px, libellé en capitales, valeur en Texte ; ouvre la feuille Activité |
@@ -261,7 +260,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Aucun aliment ni ligne | Feuille d'ajout : « + Aliment libre » d'office ; « Aucun favori. » ; « Aucun aliment récent. » |
 | Sport : une ligne vide ; jogging à 9,5 km/h, 1 h | Une 2e ligne apparaît ; « 2 817 kcal aujourd'hui » ; anneau 350, Reste 2 467 kcal ; rien d'écrit dans la base |
 | Sport : marche 30 h, puis 0,5 h ; rechargement ; jogging retiré | 30 h ignorées ; 2 922 kcal, trois lignes ; retenu après rechargement ; 2 222 kcal |
-| Sélecteur : aujourd'hui (20 oct.), puis (‹) | Pas de jour suivant ni de lien « Aujourd'hui » ; « Lundi 19 octobre » : journal vide, calories 0, Reste 2 117 kcal, (›) et « Aujourd'hui » proposés ; banane ajoutée : ligne du 19 octobre ; « Aujourd'hui » : retour au journal du 20 |
+| Sélecteur : aujourd'hui (20 oct.), puis (‹) | Pas de jour suivant ni de rond « » » ; « Lundi 19 octobre » : journal vide, calories 0, Reste 2 117 kcal, (›) et « » » proposés ; banane ajoutée : ligne du 19 octobre ; « » » : retour au journal du 20 |
 | Sport 1 h de jogging, puis 0,5 h de marche | Rangé dans la base : effacement du sport du 20 octobre puis la ligne (j95, 1 h) ; puis les deux sports ; relus après rechargement |
 | Recherche « oeufs » | « Mes aliments » : « Œuf · 1 pièce · 140 kcal » ; recherche « riz » : « Riz cuit » au-dessus des produits |
 | Séances du 20 octobre : Renfo « Gainage 30 min », Run « Footing 1 h 15 » | « Au calendrier : Gainage 30 min · Footing 1 h 15 Reprendre » ; « Reprendre » : musculation 0,5 h (comptée : 2 222 kcal), footing 1,25 h sans allure (non compté) ; seule la musculation est rangée |

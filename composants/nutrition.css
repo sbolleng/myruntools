@@ -79,7 +79,7 @@
 /* Carte du besoin : le jour et le besoin au centre, la phase et le profil du calcul en discret, les jauges, puis deux cases */
 .nu-jour { display: flex; align-items: center; justify-content: center; gap: 0.8rem; }
 .nu-jour-t { margin: 0; min-width: 0; font-size: var(--t-texte); font-weight: 400; color: var(--text); text-align: center; }
-.nu-auj { margin: 0.2rem 0 0; text-align: center; }
+.nu-jour-cale { flex: none; width: 2rem; height: 2rem; } /* place du rond « » » : le jour reste centré */
 .nu-besoin .nu-kcal { justify-content: center; margin: 0.5rem 0 0.2rem; }
 .nu-besoin .nu-phase { margin: 0; text-align: center; font-size: var(--t-second); color: var(--muted); }
 .nu-calcule { margin: 0.2rem 0 0; text-align: center; }

@@ -250,10 +250,12 @@
       '<span class="nu-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s && s.heures ? virgule(s.heures) : '') + '">h</span></div>';
     function htmlBesoin() {
       const estAuj = S.jour === aujourdhui;
-      return '<div class="nu-jour"><button type="button" class="mrt-rond" data-act="veille" aria-label="Jour précédent">' + mrtIcone.gauche + '</button>' +
+      // « » » à droite de « › », un autre jour que le jour même ; une cale de même taille à gauche garde le jour centré.
+      const AUJ = '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5L8 8l-4.5 4.5M8.5 3.5L13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      return '<div class="nu-jour"><span class="nu-jour-cale" aria-hidden="true"></span><button type="button" class="mrt-rond" data-act="veille" aria-label="Jour précédent">' + mrtIcone.gauche + '</button>' +
         '<h2 class="nu-jour-t">' + titreJour(S.jour) + '</h2>' +
-        '<button type="button" class="mrt-rond" data-act="lendemain" aria-label="Jour suivant"' + (estAuj ? ' disabled' : '') + '>' + mrtIcone.droite + '</button></div>' +
-        (estAuj ? '' : '<p class="nu-auj"><button type="button" class="mrt-lien" data-act="aujourdhui">Aujourd\'hui</button></p>') +
+        '<button type="button" class="mrt-rond" data-act="lendemain" aria-label="Jour suivant"' + (estAuj ? ' disabled' : '') + '>' + mrtIcone.droite + '</button>' +
+        (estAuj ? '<span class="nu-jour-cale" aria-hidden="true"></span>' : '<button type="button" class="mrt-rond" data-act="aujourdhui" aria-label="Aujourd\'hui" title="Aujourd\'hui">' + AUJ + '</button>') + '</div>' +
         '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal</p><p class="nu-phase"></p>' +
         '<p class="nu-calcule"><button type="button" class="mrt-lien nu-profil-l" data-act="profil">Calculé pour ' + esc(htmlProfil()) + '</button></p>' +
         '<div class="nu-anneaux"></div>' +
