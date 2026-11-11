@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.14 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 1.15 · 11 novembre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -26,18 +26,18 @@ Une section par réglage, de la plus utilisée à la moins utilisée : **Thème*
 
 ## 4 bis. En un coup d'œil
 
-- Texte d'aide : « Coche les blocs à afficher et range-les avec les flèches. »
-- Les blocs construits, chacun avec une case « affiché » et deux flèches dessinées, comme le Menu ; les blocs pas encore construits sur une ligne, « Bientôt : Pense-bête. », sans case ni flèches (gardés à la fin de la liste enregistrée : ils apparaîtront une fois construits ; jamais de bloc vide sur la page).
+- Texte d'aide : « Coche les blocs à afficher (« Réorganiser » change leur ordre). »
+- Les blocs construits, chacun avec une case « affiché » ; les deux flèches dessinées n'apparaissent qu'après « Réorganiser » (qui devient « Terminé »), comme le Menu ; les blocs pas encore construits sur une ligne, « Bientôt : Pense-bête. », sans case ni flèches (gardés à la fin de la liste enregistrée : ils apparaîtront une fois construits ; jamais de bloc vide sur la page).
 - Par défaut : Prochaine course, D'ici là, Dernière course affichés. « Réinitialiser l'ordre » y revient.
 
 ## 4. Menu
 
-- Texte d'aide : « Coche les modules à afficher et range-les avec les flèches ; le premier s'ouvre en arrivant sur le site. »
+- Texte d'aide : « Coche les modules à afficher (« Réorganiser » change leur ordre) ; le premier s'ouvre en arrivant sur le site. »
 - **Page de démarrage** : le premier module construit et affiché s'ouvre en arrivant sur le site, avec le grand en-tête (spécification générale, § 5 bis). Rien à choisir : la ligne de ce module porte la mention « à l'ouverture », et le texte d'aide le rappelle.
 - **En un coup d'œil** est un module comme les autres : premier par défaut, il se décoche et se déplace.
 
 - La liste reprend tous les modules du menu (catalogue, spécification générale § 7), dans l'ordre actuel du menu de l'utilisateur, puis ceux qu'il n'affiche pas.
-- Chaque module construit a une case « affiché » et deux flèches dessinées pour le monter ou le descendre d'un rang.
+- Chaque module construit a une case « affiché ». Réglage rare, l'ordre se change après « Réorganiser » (lien sous la liste, qui devient « Terminé ») : chaque ligne reçoit alors deux flèches dessinées pour la monter ou la descendre d'un rang, et « Réinitialiser l'ordre » apparaît. Sans cela, la liste reste de simples cases à cocher.
 - Les modules pas encore construits sont sur une ligne, « Bientôt dans le menu : Cette semaine, Profil, Guide. », sans case ni flèches : ils restent à la fin de la liste enregistrée et entrent dans le menu, à la fin, une fois construits (depuis le 6 nov. 2026 ; avant, ils se cochaient et se rangaient, grisés). (Avant le 30 octobre 2026, ils s'affichaient grisés dans le menu : sur téléphone, ils repoussaient les vrais onglets hors de l'écran.)
 - **Au moins un module construit** reste affiché : sa case ne peut pas être décochée.
 - Par défaut (rien d'enregistré) : tous les modules construits, dans l'ordre du catalogue, sauf ceux marqués « à cocher » (Nutrition : le menu par défaut garde cinq onglets, qui tiennent à 375 px) ; ils s'ajoutent en les cochant.
@@ -102,4 +102,4 @@ Résultats attendus :
 - Site partagé en lecture seule : Thème, Menu et Objectif principal affichent « Reviens à ton espace pour modifier tes réglages. » ; Partage et Compte restent utilisables.
 - Téléphone : la page tient dans la largeur de l'écran, sans défilement horizontal.
 - Menu : pas de choix de page de démarrage ; « à l'ouverture » sur la ligne En un coup d'œil ; le décocher : la mention passe sur Objectif.
-- En un coup d'œil, sous le Menu : texte d'aide « Coche les blocs à afficher sur la page En un coup d'œil et ordonne-les avec les flèches. » ; cinq blocs, Pense-bête « · bientôt », Nutrition construit (affiché quand le module est au menu) ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.
+- En un coup d'œil, sous le Menu : texte d'aide « Coche les blocs à afficher sur la page En un coup d'œil (« Réorganiser » change leur ordre). » ; cinq blocs, Pense-bête « · bientôt », Nutrition construit (affiché quand le module est au menu) ; cocher Dernière course : « Enregistré », elle s'ajoute en fin d'Accueil.

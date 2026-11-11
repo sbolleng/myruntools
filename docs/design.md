@@ -1,6 +1,6 @@
 # Design
 
-Version 0.50 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.51 · 11 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -80,6 +80,8 @@ Taille de base du texte : 19 px sur ordinateur, 17 px sur téléphone.
 | Boutons | 0,8 rem | Space Grotesk 600, casse normale |
 | Messages (« Enregistré », erreurs) | 0,75 rem | Texte discret, ou Alerte |
 | Libellé (donnée, champ, colonne, sous-titre dans un bloc, en-tête compris) | 0,7 rem | Space Mono, capitales, espacement 0,1 em, Texte discret ; le mode d'une fiche et le titre d'une fenêtre à 0,75 rem |
+
+**Titre de page** : chaque page a un seul `<h1>`, du nom de son onglet, invisible à l'œil mais lu par les lecteurs d'écran (classe commune `mrt-sr`, taille de l'échelle) ; En un coup d'œil a le sien dans le grand en-tête, Préparation le nom de l'Objectif visé en `<h2>` visible. Aucun titre visible en plus : l'onglet actif suffit.
 
 Le contenu des pages (`main`) est à 0,85 rem par défaut, dans la feuille de style commune : un texte sans taille précisée n'est jamais à la taille de base.
 
