@@ -202,5 +202,5 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 }
 
 /* Date / heure d'une course à venir : le rond « Ajouter à l'agenda » à droite de la date. */
-.pc-datelig { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.pc-datelig { display: flex; align-items: center; justify-content: flex-start; gap: 0.6rem; } /* le rond juste à droite de la date */
 .pc-datelig .mrt-rond .ob-ico { width: 0.95rem; height: 0.95rem; }
