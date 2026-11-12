@@ -446,7 +446,7 @@ const CONTROLES = {
     let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 1200, db, {}, PARIS);
     pb.push(egal([true, 'En un coup d\'œil'], [await p.evaluate(() => !!document.querySelector('.mrt-header')), await p.getAttribute('.mrt-tab.is-on', 'aria-label')], 'En un coup d\'œil : grand en-tête, onglet actif'));
     pb.push(egal(['aujourdhui', 'prochaine', 'dicila', 'derniere', 'decouvrir'], await blocs(p), 'Accueil : « Aujourd\'hui » en tête, puis les blocs par défaut, Dernière course comprise, aucun bloc « bientôt » (vide), puis « Pour aller plus loin » tant que Préparation ou Nutrition manque au menu'));
-    pb.push(egal(['course'], await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), 'Aujourd\'hui : sans Nutrition au menu, seule la saisie rapide « Ajouter une course »'));
+    pb.push(egal([], await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), 'Aujourd\'hui : sans Nutrition au menu, aucune saisie rapide'));
     pb.push(egal('Trail du Lac · Le Tour du Lac', (await p.textContent('[data-bloc="prochaine"] .ob-nom a')).replace(/[  ]/g, ' ').trim(), 'prochaine course : la carte de la feuille de route'));
     const etapes = await p.evaluate(() => [...document.querySelectorAll('.ac-etape')].map(e => e.textContent + (e.classList.contains('is-cap') ? ' (cap)' : '')));
     pb.push(egal('Trail des Crêtes (cap)', etapes[etapes.length - 1], 'd\'ici là : jusqu\'au cap compris, en Accent'));
@@ -458,19 +458,16 @@ const CONTROLES = {
     pb.push(egal(['aujourdhui', 'derniere', 'prochaine', 'decouvrir'], await blocs(p), 'blocs choisis, dans l\'ordre choisi (« Pour aller plus loin » toujours en dernier)'));
     pb.push(egal(true, /Course.+Date.+Temps\s*\d{2}:\d{2}:\d{2}/.test(await p.textContent('[data-bloc="derniere"]')), 'dernière course : nom, date, temps en hh:mm:ss'));
     await ctx.close();
-    // Aujourd'hui : les séances du jour (20 octobre 2026), la case « faite », trois saisies rapides avec Nutrition au menu.
+    // Aujourd'hui : les séances du jour (20 octobre 2026), la case « faite », deux saisies rapides (repas, activité) avec Nutrition au menu.
     const jourJ = JSON.parse(JSON.stringify(db)); jourJ.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
     jourJ.seances = [['se-a', '2026-10-20', 'run', '8×400 m', false], ['se-b', '2026-10-21', 'run', 'Footing 45 min', false]].map(([i, date, type, libelle, faite]) => ({ id: i, utilisateur: jourJ.profils[0].id, date, type, libelle, faite, course: null }));
     jourJ.ecritures = [];
     ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, jourJ, {}, PARIS));
     await p.waitForSelector('.ac-jour-ligne');
-    pb.push(egal([['Course à pied 8×400 m'], ['repas', 'activite', 'course'], 'aujourdhui'], [await p.evaluate(() => [...document.querySelectorAll('.ac-jour-ligne')].map(l => l.textContent.replace(/\s+/g, ' ').trim())),
-      await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), (await blocs(p))[0]], 'Aujourd\'hui : la séance du jour seulement, trois saisies rapides, bloc en tête'));
+    pb.push(egal([['Course à pied 8×400 m'], ['repas', 'activite'], 'aujourdhui'], [await p.evaluate(() => [...document.querySelectorAll('.ac-jour-ligne')].map(l => l.textContent.replace(/\s+/g, ' ').trim())),
+      await p.evaluate(() => [...document.querySelectorAll('.ac-aujourdhui [data-rapide]')].map(b => b.dataset.rapide)), (await blocs(p))[0]], 'Aujourd\'hui : la séance du jour seulement, deux saisies rapides, bloc en tête'));
     await p.check('[data-faite="se-a"]'); await p.waitForTimeout(300);
     pb.push(egal(true, jourJ.ecritures.length > 0 && jourJ.ecritures[0].corps && jourJ.ecritures[0].corps.faite === true, 'Aujourd\'hui : la case « faite » est rangée'));
-    await p.click('[data-rapide="course"]'); await p.waitForSelector('.fc-fiche');
-    pb.push(egal('Ajouter une course', await p.textContent('#fc-titre'), 'Aujourd\'hui : « Ajouter une course » ouvre la fiche d\'ajout'));
-    await p.click('[data-fc="annuler"]');
     await ctx.close();
     // Page de démarrage : la feuille de route. En arrivant sur l'Accueil, on y est renvoyé ; elle seule a le grand en-tête.
     const dem = JSON.parse(JSON.stringify(db)); dem.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès'];

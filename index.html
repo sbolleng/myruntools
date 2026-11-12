@@ -52,9 +52,6 @@
     let courses = page.courses;
     // Bloc Nutrition : le profil de l'utilisateur connecté ; rien sur un site partagé.
     const nutrition = { profil: page.session.profil || {}, id: page.session.id, lectureSeule: page.lectureSeule, seances: [] };
-    // Ajouter une course : la fiche d'ajout ; après l'enregistrement, la page est relue et redessinée.
-    const edition = mrtEdition(page, () => courses, async () => { courses = await page.relire(); renderAccueil(el, courses, page.preferences(), nutrition); });
-    nutrition.ajouterCourse = () => edition && edition.ajouter();
     // « Ajouter au menu » (bloc Pour aller plus loin) : enregistre la liste des modules, redessine le menu puis la page.
     nutrition.ajouterModule = async nom => {
       const prefs = page.preferences(), modules = mrtModulesAvec(prefs, nom);
