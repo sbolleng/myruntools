@@ -1,0 +1,89 @@
+/* ===== Guide (guide.html) : un article de lecture =====
+   docs/module-guide-specification.md ; design commun : docs/design.md (cadres, sections, déroulés, échelle, thèmes).
+   Mise en page seulement : tailles de l'échelle, couleurs des rôles et des phases (preparation.css), aucune police ni couleur propre. */
+
+.gd-tete { margin-bottom: 1rem; }
+.gd-titre { font-size: var(--t-titre); font-weight: 700; line-height: 1.15; color: var(--accent); }
+.gd-chapeau { max-width: 42rem; margin-top: 0.7rem; font-size: var(--t-texte); line-height: 1.6; color: var(--muted); }
+.gd-sommaire { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-top: 0.9rem; }
+
+/* Une partie : un cadre ; ses sections séparées par un filet (mrt-section). */
+.gd-partie { scroll-margin-top: 1rem; }
+.gd-num, .gd-lib { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.gd-partie-titre { margin-top: 0.2rem; font-size: var(--t-nom); font-weight: 600; line-height: 1.4; color: var(--text); }
+.gd-inter { margin-bottom: 0.5rem; font-size: var(--t-texte); font-weight: 600; line-height: 1.4; color: var(--text); }
+.gd-partie p, .gd-partie li { max-width: 42rem; line-height: 1.6; }
+.gd-partie p + p, .gd-partie p + ul, .gd-partie ul + p, .gd-partie .gd-schema + p, .gd-partie .gd-tableau + p { margin-top: 0.6rem; }
+.gd-partie ul { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+.gd-partie li + li { margin-top: 0.3rem; }
+.gd-partie strong { font-weight: 600; }
+.gd-partie sup { font-size: var(--t-micro); line-height: 0; }
+.gd-note { font-size: var(--t-second); color: var(--muted); }
+
+/* Exemple chiffré : un encadré à gauche d'un filet Accent (pas de cadre dans un cadre). */
+.gd-exemple { max-width: 42rem; margin-top: 0.8rem; padding: 0.2rem 0 0.2rem 0.9rem; border-left: 3px solid var(--accent); }
+.gd-exemple .gd-lib { display: block; margin-bottom: 0.3rem; }
+.gd-calcul { font-family: 'Space Mono', monospace; font-size: var(--t-second); line-height: 1.7; color: var(--text); }
+.gd-calcul b { font-weight: 700; color: var(--accent); }
+
+/* Tableaux : ceux du site ; ils défilent dans leur zone s'ils ne tiennent pas. */
+.gd-tableau { max-width: 100%; margin-top: 0.8rem; overflow-x: auto; }
+.gd-tableau td { padding: 0.5rem 0.75rem; vertical-align: top; line-height: 1.45; border-bottom: 1px solid var(--border); }
+.gd-tableau tr:last-child td { border-bottom: 0; }
+.gd-tableau td:first-child { font-weight: 600; }
+@media (max-width: 600px) { .gd-tableau th, .gd-tableau td { padding-left: 0.4rem; padding-right: 0.4rem; } }
+
+/* ----- Schémas ----- */
+.gd-schema { margin-top: 0.9rem; }
+.gd-schema figcaption { margin-top: 0.45rem; font-size: var(--t-second); line-height: 1.5; color: var(--muted); }
+/* Frise des phases : une case par semaine, la couleur de sa phase (Entretien : la couleur des jours, comme dans Mon plan). */
+.gd-frise { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 2px; }
+.gd-sem { display: flex; align-items: flex-end; justify-content: center; height: 2.2rem; padding-bottom: 0.15rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); color: var(--bg); background: var(--case); border-radius: 4px; }
+.gd-sem.ph-base { background: var(--ph-base); }
+.gd-sem.ph-developpement { background: var(--ph-developpement); }
+.gd-sem.ph-affutage { background: var(--ph-affutage); }
+.gd-sem.ph-deload { background: var(--ph-deload); }
+.gd-sem.ph-recuperation { background: var(--ph-recuperation); }
+.gd-sem.ph-entretien { color: var(--muted); }
+.gd-sem.is-course { box-shadow: inset 0 0 0 2px var(--text); }
+.gd-legende { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; margin-top: 0.5rem; font-size: var(--t-second); color: var(--text); }
+.gd-legende span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.gd-legende i { width: 1.1rem; height: 0.75rem; background: var(--case); border-radius: 3px; }
+.gd-legende i.ph-base { background: var(--ph-base); }
+.gd-legende i.ph-developpement { background: var(--ph-developpement); }
+.gd-legende i.ph-affutage { background: var(--ph-affutage); }
+.gd-legende i.ph-deload { background: var(--ph-deload); }
+.gd-legende i.ph-recuperation { background: var(--ph-recuperation); }
+
+/* Jauges : une barre par ligne, le libellé au-dessus ; la plage (de … à …) en Accent léger après la part sûre en Accent plein. */
+.gd-jauges { display: grid; gap: 0.7rem; max-width: 42rem; }
+.gd-jauge-t { display: flex; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.25rem; font-size: var(--t-second); color: var(--text); }
+.gd-jauge-t span:last-child { font-family: 'Space Mono', monospace; color: var(--muted); white-space: nowrap; }
+.gd-barre { display: flex; height: 0.7rem; overflow: hidden; background: var(--case); border-radius: 999px; }
+.gd-barre > span { width: var(--l); }
+.gd-plein { background: var(--accent); }
+.gd-plage { background: color-mix(in srgb, var(--accent) 35%, var(--case)); }
+.gd-discret { background: var(--muted); }
+/* Besoin du jour empilé : trois parts côte à côte, plus haute. */
+.gd-barre.is-empile { height: 1.6rem; gap: 2px; background: none; border-radius: 6px; }
+.gd-barre.is-empile > span { display: flex; align-items: center; justify-content: center; min-width: 0; overflow: hidden; font-family: 'Space Mono', monospace; font-size: var(--t-micro); white-space: nowrap; color: var(--bg); }
+.gd-barre.is-empile > .gd-plage { color: var(--text); }
+/* Jours de récupération : un carré par jour. */
+.gd-jours { display: flex; flex-wrap: wrap; gap: 3px; max-width: 42rem; }
+.gd-jours i { width: 0.6rem; height: 0.6rem; background: var(--ph-recuperation); border-radius: 2px; }
+.gd-jours-t { margin: 0.6rem 0 0.3rem; font-size: var(--t-second); color: var(--text); }
+.gd-jours-t:first-child { margin-top: 0; }
+
+/* Déroulés : le titre repliable commun, chevron à gauche. */
+.gd-partie details.mrt-deroule { margin-top: 0.8rem; }
+.gd-partie details.mrt-deroule > summary { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0; font-size: var(--t-texte); font-weight: 600; color: var(--text); list-style: none; cursor: pointer; }
+.gd-partie details.mrt-deroule > summary::-webkit-details-marker { display: none; }
+@media (hover: hover) { .gd-partie details.mrt-deroule > summary:hover { color: var(--accent); } }
+
+/* Sources : une liste de liens, la nature de chacune en Texte discret. */
+.gd-sources { list-style: none; padding-left: 0 !important; }
+.gd-sources li { display: flex; flex-wrap: wrap; gap: 0 0.5rem; }
+.gd-sources .gd-note { flex-basis: 100%; }
+.gd-legende i.gd-discret { background: var(--muted); }
+.gd-legende i.gd-plage { background: color-mix(in srgb, var(--accent) 35%, var(--case)); }
+.gd-legende i.gd-plein { background: var(--accent); }

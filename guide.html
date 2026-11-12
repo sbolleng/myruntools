@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<script>
+  // Masquée jusqu'à ce qu'elle soit prête (voir objectif.html).
+  (function () { var c = null, t = null, h = document.documentElement; try { c = sessionStorage.getItem('mrt-entete'); t = localStorage.getItem('mrt-theme'); } catch (e) {}
+    if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noir-orange' : 'blanc-orange';
+    if (t) h.classList.add('t-' + t);
+    h.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
+</script>
+<title>Guide · MyRunTools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/preparation.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/guide.css?v=__VERSION__">
+</head>
+<body>
+<main>
+  <h1 class="mrt-sr">Guide</h1>
+
+  <header class="card gd-tete">
+    <h2 class="gd-titre">Du plan à l'assiette</h2>
+    <p class="gd-chapeau">Comment MyRunTools bâtit une saison de course, place chaque course dans le plan, propose des séances, puis traduit tout cela en calories et en macros. Des règles simples, publiées, et des exemples chiffrés pour les voir à l'œuvre.</p>
+    <nav class="gd-sommaire" aria-label="Sommaire">
+      <a class="mrt-lien" href="#saison">1. Préparer une saison</a>
+      <a class="mrt-lien" href="#nutrition">2. Bien manger pour courir</a>
+      <a class="mrt-lien" href="#sources">3. Nos sources et leurs limites</a>
+    </nav>
+  </header>
+
+  <!-- ===== 1. Préparer une saison ===== -->
+  <article class="card gd-partie" id="saison" aria-labelledby="saison-t">
+    <section class="mrt-section">
+      <p class="gd-num">Partie 1</p>
+      <h2 class="gd-partie-titre" id="saison-t">Préparer une saison</h2>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Une saison plutôt qu'une course</h3>
+      <p>Une course se prépare rarement seule. Avant le grand rendez-vous de l'année, il y a souvent un 10 km pour se tester, un trail plus court pour répéter, une course entre amis pour le plaisir. Un plan par course ferait se chevaucher des préparations qui s'ignorent. MyRunTools construit donc <strong>un seul plan pour toute la saison</strong> : il se cale sur les Objectifs, et les autres courses s'y insèrent selon leur rôle.</p>
+      <p>Le plan se monte en trois couches, de la plus solide à la plus souple :</p>
+      <div class="gd-tableau">
+        <table>
+          <thead><tr><th>Couche</th><th>Qui la calcule</th><th>Ce qu'elle contient</th></tr></thead>
+          <tbody>
+            <tr><td>1. Trame</td><td>Des règles fixes</td><td>La phase de chaque semaine, saison après saison</td></tr>
+            <tr><td>2. Courses</td><td>Des règles selon le rôle</td><td>Mini-affûtage, repos, récupération, alertes</td></tr>
+            <tr><td>3. Séances</td><td>L'IA, puis le coureur, qui valide</td><td>Les séances de quatre semaines et une recommandation</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Une <strong>saison</strong> va du premier jour de la préparation d'un Objectif au jour de la course. Plusieurs Objectifs dans l'année font plusieurs saisons, qui se suivent. Entre deux saisons viennent la récupération de l'Objectif couru, puis des semaines d'<strong>Entretien</strong> jusqu'à la saison suivante ; avant le premier Objectif, les semaines sont aussi en Entretien.</p>
+      <figure class="gd-schema">
+        <div class="gd-frise" style="--n:27" role="img" aria-label="Frise d'une saison : 3 semaines d'Entretien, 16 semaines de préparation jusqu'à l'Objectif, environ 6 semaines de Récupération, puis l'Entretien">
+          <span class="gd-sem ph-entretien"></span><span class="gd-sem ph-entretien"></span><span class="gd-sem ph-entretien"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-deload"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-deload"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-deload"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-affutage"></span><span class="gd-sem ph-affutage is-course"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-entretien"></span><span class="gd-sem ph-entretien"></span>
+        </div>
+        <div class="gd-legende" aria-hidden="true"><span><i></i>Entretien</span><span><i class="ph-base"></i>Base</span><span><i class="ph-developpement"></i>Développement</span><span><i class="ph-deload"></i>Deload</span><span><i class="ph-affutage"></i>Affûtage</span><span><i class="ph-recuperation"></i>Récupération</span></div>
+        <figcaption>Une saison de 16 semaines vers un trail long, une case par semaine ; la case cerclée porte l'Objectif. Après la course (66 km-effort), 41 jours de Récupération, soit environ six semaines, puis l'Entretien.</figcaption>
+      </figure>
+      <details class="mrt-deroule">
+        <summary><svg class="mrt-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Durée de la préparation, format par format</summary>
+        <div>
+          <p>La durée dépend du format de l'Objectif. Ces valeurs viennent de plans d'entraînement publiés, pour un coureur qui court déjà régulièrement ; dans une fourchette, la plus prudente est retenue. Chaque Objectif peut avoir sa propre durée, réglée dans Mon plan.</p>
+          <div class="gd-tableau">
+            <table>
+              <thead><tr><th>Format</th><th>Semaines</th></tr></thead>
+              <tbody>
+                <tr><td>5 km, 10 km</td><td>8</td></tr>
+                <tr><td>20 km, semi-marathon</td><td>10</td></tr>
+                <tr><td>Trail court</td><td>12</td></tr>
+                <tr><td>Marathon, 100 km, trail long, ultra-trail</td><td>16</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="gd-note">Sans valeur publiée trouvée (trail découverte, course en heure, marche, fast hiking, triathlon), le format n'a pas de durée par défaut : elle se choisit dans Mon plan.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Trois rôles, trois traitements</h3>
+      <p>Les entraîneurs classent les courses en trois niveaux, A, B et C, selon l'affûtage qu'elles reçoivent. Chaque course de MyRunTools reçoit l'un des trois rôles qui leur correspondent :</p>
+      <div class="gd-tableau">
+        <table>
+          <thead><tr><th>Rôle</th><th>Niveau</th><th>Dans le plan</th></tr></thead>
+          <tbody>
+            <tr><td>Objectif</td><td>A</td><td>Façonne la trame : la saison, ses phases, un affûtage complet</td></tr>
+            <tr><td>Préparatoire</td><td>B</td><td>Trois jours allégés avant, puis une récupération ; compte comme la séance de qualité de sa semaine</td></tr>
+            <tr><td>Plaisir</td><td>C</td><td>Pas d'affûtage : repos la veille, récupération après</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Un repos, des jours allégés ou une récupération ne changent pas la phase de la semaine : ils s'appliquent aux seuls jours concernés. Une course en <strong>option</strong> apparaît dans la frise, mais aucune règle ne la touche tant qu'elle n'est pas confirmée ; à la confirmation, le plan se recalcule.</p>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Les phases, semaine après semaine</h3>
+      <p>La trame d'une saison suit trois règles, appliquées dans cet ordre :</p>
+      <ul>
+        <li><strong>Affûtage</strong> : les deux dernières semaines, celle de la course comprise ;</li>
+        <li><strong>Deload</strong> : une semaine sur quatre (la 4<sup>e</sup>, la 8<sup>e</sup>, la 12<sup>e</sup>…), une semaine allégée ;</li>
+        <li><strong>Base</strong> puis <strong>Développement</strong> : les semaines restantes se partagent par moitié, la première moitié (arrondie à l'inférieur) en Base, le reste en Développement.</li>
+      </ul>
+      <figure class="gd-schema">
+        <div class="gd-frise" style="--n:16" role="img" aria-label="Saison de 16 semaines : semaines 1 à 3 en Base, 4 en Deload, 5 et 6 en Base, 7 en Développement, 8 en Deload, 9 à 11 en Développement, 12 en Deload, 13 et 14 en Développement, 15 et 16 en Affûtage">
+          <span class="gd-sem ph-base">1</span><span class="gd-sem ph-base">2</span><span class="gd-sem ph-base">3</span><span class="gd-sem ph-deload">4</span><span class="gd-sem ph-base">5</span><span class="gd-sem ph-base">6</span><span class="gd-sem ph-developpement">7</span><span class="gd-sem ph-deload">8</span><span class="gd-sem ph-developpement">9</span><span class="gd-sem ph-developpement">10</span><span class="gd-sem ph-developpement">11</span><span class="gd-sem ph-deload">12</span><span class="gd-sem ph-developpement">13</span><span class="gd-sem ph-developpement">14</span><span class="gd-sem ph-affutage">15</span><span class="gd-sem ph-affutage is-course">16</span>
+        </div>
+        <div class="gd-legende" aria-hidden="true"><span><i class="ph-base"></i>Base</span><span><i class="ph-developpement"></i>Développement</span><span><i class="ph-deload"></i>Deload</span><span><i class="ph-affutage"></i>Affûtage</span></div>
+        <figcaption>16 semaines : 2 d'affûtage, 3 de deload ; restent 11 semaines, 5 en Base, 6 en Développement. Avec 10 semaines : Base ×3, Deload, Développement ×3, Deload, Affûtage ×2.</figcaption>
+      </figure>
+      <p>Hors saison, deux phases de plus : <strong>Récupération</strong>, après un Objectif, et <strong>Entretien</strong>, jusqu'à la saison suivante. Les phases restent réglables à la main, sur l'Objectif, par le rond « Régler les phases » de Mon plan.</p>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">L'affûtage : lever le pied sans s'arrêter</h3>
+      <p>Les deux dernières semaines d'un Objectif, le <strong>volume baisse progressivement de 41 à 60 %</strong>, tandis que l'intensité et la fréquence des séances restent les mêmes. C'est la règle la mieux établie du plan : elle vient d'une méta-analyse de 2007, confirmée en 2023 pour les sports d'endurance (un affûtage de 21 jours au plus).</p>
+      <figure class="gd-schema">
+        <div class="gd-jauges">
+          <div>
+            <div class="gd-jauge-t"><span>Volume moyen des 3 semaines d'avant</span><span>100 %</span></div>
+            <div class="gd-barre"><span class="gd-discret" style="--l:100%"></span></div>
+          </div>
+          <div>
+            <div class="gd-jauge-t"><span>Volume d'une semaine d'affûtage</span><span>40 à 59 %</span></div>
+            <div class="gd-barre"><span class="gd-plein" style="--l:40%"></span><span class="gd-plage" style="--l:19%"></span></div>
+          </div>
+        </div>
+        <figcaption>Le garde-fou vérifié sur les séances proposées : 40 à 59 % de la moyenne des trois semaines d'avant, soit une réduction de 41 à 60 %. Exemple : après trois semaines de 5 h en moyenne, une semaine d'affûtage de 2 h à 2 h 57.</figcaption>
+      </figure>
+      <p>Une Préparatoire reçoit un <strong>mini-affûtage</strong> : les trois jours qui la précèdent sont allégés. Une Plaisir n'en a pas : seulement le repos la veille.</p>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">La récupération : un jour par mile</h3>
+      <p>Après une course, quel que soit son rôle, vient une récupération : <strong>un jour sans séance intense par mile couru</strong> (1,609 km), arrondi au jour le plus proche. Pendant ces jours, séances faciles seulement : ni fractionné, ni allure course, ni sortie longue, quelle que soit la phase de la semaine.</p>
+      <p>Un kilomètre de montagne ne vaut pas un kilomètre de plat. La distance se compte donc en <strong>km-effort</strong> : la distance plus le dénivelé positif divisé par 100. 1 000 m de D+ ajoutent ainsi 10 km-effort.</p>
+      <div class="gd-exemple">
+        <span class="gd-lib">Exemples</span>
+        <p class="gd-calcul">10 km sur route, 40 m D+<br>10 + 40 ÷ 100 = 10,4 km-effort<br>10,4 ÷ 1,609 = 6,46 → <b>6 jours</b></p>
+        <p class="gd-calcul">Trail de 45 km, 2 100 m D+<br>45 + 2 100 ÷ 100 = 66 km-effort<br>66 ÷ 1,609 = 41,02 → <b>41 jours</b></p>
+      </div>
+      <figure class="gd-schema">
+        <p class="gd-jours-t">10 km sur route · 6 jours</p>
+        <div class="gd-jours" role="img" aria-label="6 jours de récupération"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <p class="gd-jours-t">Trail de 45 km et 2 100 m D+ · 41 jours</p>
+        <div class="gd-jours" role="img" aria-label="41 jours de récupération"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <figcaption>Un carré par jour de récupération.</figcaption>
+      </figure>
+      <p>Après un Objectif, la récupération ouvre l'inter-saison : ses semaines s'affichent en Récupération.</p>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Quelle course avant l'Objectif ?</h3>
+      <p>Chaque course à venir qui n'est pas un Objectif reçoit un <strong>avis</strong>, par rapport à l'Objectif de sa saison (ou au suivant). Une option est jugée comme si elle était confirmée : c'est justement ce qui aide à décider.</p>
+      <div class="gd-tableau">
+        <table>
+          <thead><tr><th>Avis</th><th>Quand</th></tr></thead>
+          <tbody>
+            <tr><td>Conseillée</td><td>Une Préparatoire dans la fenêtre conseillée, sans alerte</td></tr>
+            <tr><td>Possible</td><td>Une Plaisir sans alerte, ou une Préparatoire hors de la fenêtre, sans alerte</td></tr>
+            <tr><td>Déconseillée</td><td>Une alerte la touche</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Chaque avis donne sa raison et cite ses sources. Quand une Préparatoire est Déconseillée parce qu'elle tombe trop près de l'Objectif, le rôle Plaisir ferait tomber l'alerte : Mon plan propose alors « Passer en Plaisir ».</p>
+      <p>Pour l'Objectif visé, Mon plan indique aussi la <strong>Préparatoire conseillée</strong> : environ la moitié de l'Objectif, ou un peu plus, sans en être trop proche. Elle reprend les courses Repérées qui tombent dans la fenêtre, à confirmer d'un toucher. MyRunTools n'invente jamais une course : il propose un type de course et une fenêtre.</p>
+      <details class="mrt-deroule">
+        <summary><svg class="mrt-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>La Préparatoire conseillée, Objectif par Objectif</summary>
+        <div>
+          <div class="gd-tableau">
+            <table>
+              <thead><tr><th>Objectif</th><th>Préparatoire</th><th>Fenêtre</th></tr></thead>
+              <tbody>
+                <tr><td>Route, du semi au marathon exclu</td><td>Un 10 km ou un 15 km</td><td>3 à 6 semaines avant</td></tr>
+                <tr><td>Route, marathon et plus</td><td>Un semi-marathon (ou un 30 km)</td><td>4 à 6 semaines avant</td></tr>
+                <tr><td>Trail, 42 à 59 km</td><td>Un trail de 21 à 30 km, sur un terrain proche</td><td>4 à 6 semaines avant</td></tr>
+                <tr><td>Trail, 60 à 129 km</td><td>Un trail d'environ 50 km, sur un terrain proche</td><td>4 à 8 semaines avant</td></tr>
+                <tr><td>Trail, 130 km ou plus</td><td>Un trail d'environ 80 km, sur un terrain proche</td><td>4 à 8 semaines avant</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="gd-note">La fenêtre se compte en semaines entières : « 8 semaines avant » est dans « 4 à 8 ». La distance est celle de la course, pas des km-effort. Pour un Objectif plus court (route sous 21 km, trail sous 42 km), pas de conseil.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Les alertes</h3>
+      <p>Le plan signale quatre conflits, sans jamais rien bloquer ; chaque alerte mène à la course concernée.</p>
+      <div class="gd-tableau">
+        <table>
+          <thead><tr><th>Alerte</th><th>Quand</th></tr></thead>
+          <tbody>
+            <tr><td>Objectifs trop proches</td><td>Moins de 12 semaines entre deux Objectifs ; suggestion : passer l'un des deux en Préparatoire</td></tr>
+            <tr><td>Récupération dans un affûtage</td><td>La récupération d'une Préparatoire ou d'une Plaisir finit pendant l'affûtage d'un Objectif</td></tr>
+            <tr><td>Préparatoire trop proche</td><td>Moins de 3 semaines avant un Objectif de 42 km ou plus, moins de 2 semaines avant un Objectif plus court</td></tr>
+            <tr><td>Course plus longue que l'Objectif</td><td>Une Préparatoire ou une Plaisir de plus de km-effort que l'Objectif de sa saison</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Si deux Objectifs trop proches sont gardés, la seconde saison commence juste après la première course, raccourcie d'autant : elle garde son affûtage, puis ses deloads et son développement ; la Base est réduite en premier.</p>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Ce que fait l'IA, et ce qu'elle ne fait pas</h3>
+      <p>L'IA (Claude, d'Anthropic) n'intervient qu'à la dernière couche : elle <strong>propose des séances</strong>, quatre semaines à la fois, à l'intérieur de la trame. Elle ne touche <strong>jamais aux phases ni aux règles</strong>.</p>
+      <ul>
+        <li><strong>Ce qu'elle reçoit</strong> : la trame des quatre semaines (phases, jours allégés, de repos et de récupération), les courses avec leur format, leur distance, leur D+ et leur rôle, Mon profil, les séances des quatre semaines passées, faites ou non. Ni nom, ni adresse, ni nom de course.</li>
+        <li><strong>Ce qu'elle rend</strong> : une recommandation de trois phrases au plus et la liste des séances (date, type, libellé, durée, distance, intensité).</li>
+        <li><strong>Ce que vérifient les règles</strong>, avant tout affichage : les dates, les jours possibles de Ma semaine, le nombre de séances prévu, les durées maximales d'une séance et de la semaine, les séances faciles pendant une récupération, rien un jour de course ni la veille d'une Plaisir, le volume des semaines d'affûtage. Une proposition qui ne passe pas est renvoyée à l'IA avec les règles manquées, une fois ; si elle échoue encore, un message le dit, rien n'est enregistré ni décompté.</li>
+        <li><strong>Ce qui est enregistré</strong> : rien, sans accord. La proposition reste en attente, à part : « Tout accepter », « Choisir semaine par semaine », « Refaire » ou « Abandonner ».</li>
+      </ul>
+      <p class="gd-note">Quatre propositions par mois et par coureur. Pour l'instant, la proposition de séances est réservée aux comptes pilotes.</p>
+    </section>
+  </article>
+
+  <!-- ===== 2. Bien manger pour courir ===== -->
+  <article class="card gd-partie" id="nutrition" aria-labelledby="nutrition-t">
+    <section class="mrt-section">
+      <p class="gd-num">Partie 2</p>
+      <h2 class="gd-partie-titre" id="nutrition-t">Bien manger pour courir</h2>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Le besoin du jour</h3>
+      <p>Le besoin du jour additionne deux choses : ce que le corps dépense pour vivre et bouger hors sport, et ce que coûtent les séances du jour. Aucune intelligence artificielle ici : une formule publiée, appliquée aux données de Mon profil.</p>
+      <ul>
+        <li><strong>Métabolisme de base</strong> (formule de Black et al.) : coefficient × poids<sup>0,48</sup> × taille en m<sup>0,5</sup> × âge<sup>−0,13</sup> × (1 000 ÷ 4,1855), avec un coefficient de 1,083 pour un homme, 0,963 pour une femme.</li>
+        <li><strong>Activité hors sport</strong> : le métabolisme de base est multiplié par 1,2 (sédentaire, majoritairement assis), 1,3 (peu actif, bureau avec déplacements), 1,45 (actif, majoritairement debout) ou 1,6 (très actif, en mouvement toute la journée).</li>
+        <li><strong>Séances du jour</strong> : MET × poids × heures, pour chaque séance.</li>
+      </ul>
+      <div class="gd-exemple">
+        <span class="gd-lib">Exemple : homme, 40 ans, 70 kg, 175 cm, peu actif</span>
+        <p class="gd-calcul">Métabolisme de base : 1 628 kcal<br>Jour de repos : 1 628 × 1,3 = <b>2 117 kcal</b></p>
+      </div>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Ce que coûte une séance</h3>
+      <p>Les séances viennent du Calendrier. Leur dépense suit une échelle normée, la même pour tous. Pour la course à pied, c'est l'<strong>équation de course de l'ACSM</strong> (American College of Sports Medicine) : MET = (0,2 × vitesse en m/min + 3,5) ÷ 3,5.</p>
+      <ul>
+        <li>La vitesse est celle de la séance, distance ÷ durée ;</li>
+        <li>sans distance, une part de la VMA selon l'intensité : 65 % pour une séance facile, 75 % modérée, 85 % intense ;</li>
+        <li>sans VMA, 9,5 km/h.</li>
+      </ul>
+      <p>Le Renforcement compte 3 MET. Une séance sans durée ne compte pas. Les séances du jour comptent, faites ou non ; un jour passé, seulement les séances faites ; une proposition de l'IA en attente, jamais. Les autres sports (vélo, natation, marche, crossfit) se notent à part, avec leur MET : de 5 à 10 pour le vélo selon l'allure, 6 à 9 pour la natation, 3 ou 4 pour la marche, 9 pour le crossfit.</p>
+      <div class="gd-exemple">
+        <span class="gd-lib">Exemple : la même personne, 1 h de course à pied, 10 km</span>
+        <p class="gd-calcul">Vitesse : 10 km/h = 166,7 m/min<br>MET : (0,2 × 166,7 + 3,5) ÷ 3,5 = 10,52<br>Séance : 10,52 × 70 kg × 1 h = 737 kcal<br>Besoin du jour : 2 117 + 737 = <b>2 854 kcal</b></p>
+      </div>
+      <figure class="gd-schema">
+        <div class="gd-barre is-empile" role="img" aria-label="Besoin du jour de 2 854 kcal : métabolisme de base 1 628, activité hors sport 489, séance 737">
+          <span class="gd-discret" style="--l:57%">1 628</span><span class="gd-plage" style="--l:17%">489</span><span class="gd-plein" style="--l:26%">737</span>
+        </div>
+        <div class="gd-legende" aria-hidden="true"><span><i class="gd-discret"></i>Métabolisme de base</span><span><i class="gd-plage"></i>Activité hors sport</span><span><i class="gd-plein"></i>Séance</span></div>
+        <figcaption>2 854 kcal, en trois parts. Une séance de Renforcement de 45 min ajouterait 3 × 70 × 0,75 = 158 kcal.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Protéines, glucides, lipides</h3>
+      <p>Les <strong>protéines</strong> se comptent au poids : 1,4 à 2 g par kg. Les <strong>glucides</strong> et les <strong>lipides</strong> se comptent en part des calories, selon la phase de Nutrition ; un gramme de glucide apporte 4 kcal, un gramme de lipide 9 kcal.</p>
+      <p>La phase se déduit seule de la prochaine course confirmée : <strong>Entraînement</strong> tous les jours ; <strong>Carbo-loading</strong> trois et deux jours avant (J-3 et J-2) ; <strong>Veille de course</strong> la veille (J-1). Ces phases changent la répartition, jamais le total de calories. Les phases du plan (Base, Développement, Affûtage…) ne changent rien au calcul.</p>
+      <figure class="gd-schema">
+        <div class="gd-jauges">
+          <div>
+            <div class="gd-jauge-t"><span>Entraînement · glucides</span><span>50 à 60 %</span></div>
+            <div class="gd-barre"><span class="gd-plein" style="--l:50%"></span><span class="gd-plage" style="--l:10%"></span></div>
+          </div>
+          <div>
+            <div class="gd-jauge-t"><span>Carbo-loading · glucides</span><span>65 à 75 %</span></div>
+            <div class="gd-barre"><span class="gd-plein" style="--l:65%"></span><span class="gd-plage" style="--l:10%"></span></div>
+          </div>
+          <div>
+            <div class="gd-jauge-t"><span>Veille de course · glucides</span><span>55 à 65 %</span></div>
+            <div class="gd-barre"><span class="gd-plein" style="--l:55%"></span><span class="gd-plage" style="--l:10%"></span></div>
+          </div>
+          <div>
+            <div class="gd-jauge-t"><span>Entraînement · lipides</span><span>25 à 35 %</span></div>
+            <div class="gd-barre"><span class="gd-plein" style="--l:25%"></span><span class="gd-plage" style="--l:10%"></span></div>
+          </div>
+          <div>
+            <div class="gd-jauge-t"><span>Carbo-loading et Veille de course · lipides</span><span>15 à 25 %</span></div>
+            <div class="gd-barre"><span class="gd-plein" style="--l:15%"></span><span class="gd-plage" style="--l:10%"></span></div>
+          </div>
+        </div>
+        <figcaption>Part des calories du jour : en plein, le minimum ; en clair, la marge jusqu'au maximum.</figcaption>
+      </figure>
+      <div class="gd-exemple">
+        <span class="gd-lib">Exemple : le jour de repos à 2 117 kcal</span>
+        <p class="gd-calcul">Protéines : 70 × 1,4 à 70 × 2 = <b>98 à 140 g</b>, toutes phases<br>Entraînement : glucides 265 à 318 g · lipides 59 à 82 g<br>Carbo-loading : glucides <b>344 à 397 g</b> · lipides 35 à 59 g<br>Veille de course : glucides 291 à 344 g · lipides 35 à 59 g</p>
+      </div>
+      <p>Les jauges de la page Nutrition comparent ensuite le mangé au besoin : sous le minimum, ce qui reste ; entre les deux bornes, « Dans la cible » ; au-delà, le dépassement. Pour les calories, la cible va du besoin à 110 % du besoin.</p>
+      <p class="gd-note">Ces chiffres sont des repères, pas un avis médical. Ils ne remplacent ni un médecin ni un diététicien.</p>
+    </section>
+  </article>
+
+  <!-- ===== 3. Nos sources et leurs limites ===== -->
+  <article class="card gd-partie" id="sources" aria-labelledby="sources-t">
+    <section class="mrt-section">
+      <p class="gd-num">Partie 3</p>
+      <h2 class="gd-partie-titre" id="sources-t">Nos sources et leurs limites</h2>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Ce qui s'appuie sur des études, et ce qui vient du terrain</h3>
+      <p>Seul l'<strong>affûtage</strong> repose sur des études scientifiques. Les autres valeurs du plan (mini-affûtage, place d'une Préparatoire, récupération, espacement des Objectifs, durée de la préparation) viennent de <strong>sites d'entraîneurs</strong> et de plans publiés : ce sont des usages, pas toujours des études. Ce sont des points de départ, à ajuster à l'usage.</p>
+      <ul>
+        <li>Le <strong>km-effort</strong> appliqué à la récupération est une proposition de MyRunTools : aucune règle publiée n'a été trouvée.</li>
+        <li>Les <strong>durées de préparation</strong> visent un coureur qui court déjà régulièrement ; quand une source donne une fourchette, la valeur la plus prudente est retenue.</li>
+        <li>La <strong>progression du volume</strong> d'une semaine à l'autre n'a pas de garde-fou chiffré : la règle courante des 10 % n'est pas établie.</li>
+        <li>En nutrition, la formule de Black et al., les niveaux d'activité et les MET sont des références générales ; les parts de glucides et de lipides et les grammes de protéines par kilo sont des repères courants de la nutrition du sportif. Une relecture par un professionnel n'a pas encore eu lieu.</li>
+      </ul>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Préparer une saison</h3>
+      <ul class="gd-sources">
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/17762369/" target="_blank" rel="noopener">Méta-analyse de Bosquet, 2007</a><span class="gd-note">Étude · affûtage de 2 semaines, volume réduit de 41 à 60 %</span></li>
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/37163550/" target="_blank" rel="noopener">Méta-analyse de 2023 sur l'endurance</a><span class="gd-note">Étude · affûtage de 21 jours au plus</span></li>
+        <li><a href="https://roadmancycling.com/answers/planning-a-b-c-races" target="_blank" rel="noopener">Roadman Cycling</a> · <a href="https://www.active.com/triathlon/articles/how-triathletes-taper-for-an-a-race?page=3" target="_blank" rel="noopener">Active.com</a><span class="gd-note">Entraîneurs · courses A, B et C ; mini-affûtage de 2 à 3 jours (3 retenus)</span></li>
+        <li><a href="https://marathonhandbook.com/tune-up-race/" target="_blank" rel="noopener">Marathon Handbook</a> · <a href="https://lauranorrisrunning.com/tune-up-races/" target="_blank" rel="noopener">Laura Norris</a><span class="gd-note">Entraîneurs · place et distance d'une Préparatoire</span></li>
+        <li><a href="https://www.trainingplan.dev/blog/posts/post-race-recovery" target="_blank" rel="noopener">Trainingplan.dev</a> · <a href="https://marathonhandbook.com/how-many-days-to-take-off-after-a-half-marathon/" target="_blank" rel="noopener">Marathon Handbook</a><span class="gd-note">Entraîneurs · un jour de récupération par mile</span></li>
+        <li><a href="https://blog.coachparry.com/how-many-marathons-should-you-run-in-a-year-the-truth/" target="_blank" rel="noopener">Coach Parry</a> · <a href="https://trainright.com/how-many-ultramarathons-should-your-race/" target="_blank" rel="noopener">CTS Trainright</a><span class="gd-note">Entraîneurs · 12 semaines entre deux Objectifs ; une à deux grandes courses par an (un à trois ultras)</span></li>
+      </ul>
+      <details class="mrt-deroule">
+        <summary><svg class="mrt-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Durées de préparation : les plans publiés</summary>
+        <ul class="gd-sources">
+          <li><a href="https://www.salomon.com/fr-fr/sg/a/5k-training-plan" target="_blank" rel="noopener">Salomon</a> · <a href="https://www.brooksrunning.com/fr_ca/blog/training-workouts/training-for-a-5k-plan.html" target="_blank" rel="noopener">Brooks</a><span class="gd-note">5 km : 8 semaines, pour débutants</span></li>
+          <li><a href="https://www.salomon.com/fr-be/sg/a/how-to-train-for-a-half-marathon" target="_blank" rel="noopener">Salomon</a> · <a href="https://www.campus.coach/blog/combien-de-temps-dure-un-programme-d-entrainement-pour-un-semi-marathon" target="_blank" rel="noopener">Campus Coach</a><span class="gd-note">10 km : 8 semaines ; 6 au minimum</span></li>
+          <li><a href="https://assets01.sdd1.ch/assets/lbwp-cdn/mobilesport/files/1720621599/mobilesport-running--plan-de-10-semaines-preparation-du-semi-marathon.pdf" target="_blank" rel="noopener">MobileSport</a> · <a href="https://www.campus.coach/blog/preparation-pour-semi-marathon" target="_blank" rel="noopener">Campus Coach</a><span class="gd-note">Semi-marathon : 8 à 10 semaines ; le 20 km, estimé entre le 10 km et le semi</span></li>
+          <li><a href="https://www.brooksrunning.com/fr_lu/blog/training-workouts/how-long-does-it-take-to-train-for-a-marathon.html" target="_blank" rel="noopener">Brooks</a> · <a href="https://coros.com/fr/stories/coros-coaches/c/how-mnay-weeks-do-you-need-to-train-for-a-marathon" target="_blank" rel="noopener">COROS</a><span class="gd-note">Marathon : 16 à 20 semaines le plus souvent ; 12 pour un coureur confirmé</span></li>
+          <li><a href="https://raidlight.com/en/blogs/conseils-guides-plans-entrainement/plan-dentra-nement-de-12-semaines-pour-un-trail-court" target="_blank" rel="noopener">Raidlight, trail court</a><span class="gd-note">Trail court : 12 semaines pour 14 à 30 km</span></li>
+          <li><a href="https://www.campus.coach/blog/trail-de-80-km-plan-d-entrainement" target="_blank" rel="noopener">Campus Coach, trail de 80 km</a><span class="gd-note">Trail long : 12 à 20 semaines (16 estimées)</span></li>
+          <li><a href="https://raidlight.com/en/blogs/conseils-guides-plans-entrainement/plan-dentrainement-de-12-semaines-pour-un-ultra-trail" target="_blank" rel="noopener">Raidlight, ultra-trail</a> · <a href="https://www.campus.coach/blog/bases-plan-entrainement-trail-100-km" target="_blank" rel="noopener">Campus Coach, trail de 100 km</a><span class="gd-note">Ultra-trail et 100 km : 12 à 16 semaines</span></li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="mrt-section">
+      <h3 class="gd-inter">Bien manger pour courir</h3>
+      <ul class="gd-sources">
+        <li><span>Black et al.</span><span class="gd-note">Formule du métabolisme de base</span></li>
+        <li><span>American College of Sports Medicine (ACSM)</span><span class="gd-note">Équation de course : la dépense d'une séance de course à pied</span></li>
+      </ul>
+    </section>
+  </article>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script src="composants/donnees.js?v=__VERSION__"></script>
+<script>
+  // Guide : un article de lecture (spécification Guide). Hors du menu : accessible par son adresse seulement, connexion requise.
+  mrtPage({ courant: 'guide.html' });
+</script>
+</body>
+</html>
