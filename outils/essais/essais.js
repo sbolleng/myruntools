@@ -4251,13 +4251,17 @@ const CONTROLES = {
     pb.push(egal(true, await o.p.evaluate(() => { const l = document.querySelector('.pref-defaut'); l.scrollIntoView({ block: 'center' }); const r = l.getBoundingClientRect();
       return document.elementFromPoint(r.left + r.width / 2, r.top - 5) === l && document.elementFromPoint(r.left + r.width / 2, r.bottom + 5) === l; }), 'lien d\'action : zone de toucher débordant de son texte'));
     await o.ctx.close();
-    // « 1er » dans la préparation ; « + » d'une séance : le petit rond commun, dessiné ; aucune fenêtre du navigateur.
-    o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS);
-    await o.p.waitForSelector('.mc-panneau .pc-titre');
+    // « 1er » dans Mon plan (Trail de la Forêt, 1er juillet) ; « + » d'une séance : le petit rond commun, dessiné ; aucune fenêtre du navigateur.
+    o = await ouvrir(nav, 'preparation.html', 1200, db, {}, PARIS);
+    await o.p.waitForSelector('.ps-courses');
     const natif = []; o.p.on('dialog', d => { natif.push(d.message()); d.dismiss(); });
-    pb.push(egal([true, false, true], await o.p.evaluate(() => { const t = document.querySelector('#preparation').textContent;
+    pb.push(egal([true, false, true], await o.p.evaluate(() => { const t = document.querySelector('.ps-courses').textContent;
       return [/\b1er\b/.test(t), /\b1 (janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déc)/.test(t), [...document.querySelectorAll('.cal-plus')].every(b => b.classList.contains('mrt-rond') && b.classList.contains('is-petit') && !!b.querySelector('svg'))]; }),
       'préparation : « 1er », jamais « 1 » ; « + » en petit rond commun dessiné'));
+    await o.ctx.close();
+    o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS);
+    await o.p.waitForSelector('.mc-panneau .pc-titre');
+    o.p.on('dialog', d => { natif.push(d.message()); d.dismiss(); });
     pb.push(egal([true, true], await o.p.evaluate(() => [!!document.querySelector('.pc-fermer svg.mrt-ico'), document.querySelector('.pc-fermer').textContent.trim() === '']), 'croix dessinée, sans caractère tapé'));
     await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
     await o.p.fill('#fc-lieu', 'Ailleurs');
