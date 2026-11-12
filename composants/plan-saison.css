@@ -109,15 +109,18 @@
 .cal-v-rep { display: block; font-size: var(--t-micro); color: var(--muted); }
 .cal-v-prop { display: block; min-width: 0; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); line-height: 1.35; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px dashed var(--accent); border-radius: 3px; }
 @media (max-width: 600px) { .ps-prop-liste { display: flex; } }
-/* Plans des courses : une ligne par course, le bouton « Paramétrer le plan » à droite. */
-.ps-plans-liste { display: flex; flex-direction: column; gap: 0.5rem; }
-.ps-plans-liste li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; }
-.ps-plan-nom { font-weight: 600; font-size: var(--t-texte); }
-.ps-plan-info { flex: 1 1 12rem; font-size: var(--t-second); color: var(--muted); }
-/* Téléphone : le nom, puis sa date et son rôle, puis le bouton ; un filet entre deux courses (rien ne se coupe au milieu d'une ligne). */
-@media (max-width: 600px) {
-  .ps-plans-liste li { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
-  .ps-plans-liste li + li { padding-top: 0.6rem; border-top: 1px solid var(--border); }
-  .ps-plans-liste .mrt-btn { margin-top: 0.4rem; }
-  .ps-plan-info { flex: none; }
-}
+/* (15) Courses du plan : une ligne par course (nom, date et rôle, rond « Régler les phases » d'un Objectif), l'avis dessous ; un filet entre deux. */
+.ps-courses-liste { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.ps-c { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; padding: 0.6rem 0; }
+.ps-c + .ps-c { border-top: 1px solid var(--border); }
+.ps-c-haut { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.8rem; width: 100%; }
+.ps-c-nom { font-size: var(--t-nom); font-weight: 600; }
+.ps-c-info { flex: 1 1 12rem; font-size: var(--t-second); color: var(--muted); }
+.ps-c .pr-avis { margin: 0; }
+/* (16) Préparatoire conseillée : cadre en pointillé Accent, comme une séance proposée ; « + Ajouter une course » à droite. */
+.ps-suggestion { margin-top: 1rem; padding: 0.8rem 1rem; border: 1px dashed var(--accent); border-radius: 8px; font-size: var(--t-texte); color: var(--text); }
+.ps-sg-sous { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
+.ps-sg-liste { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.3rem 0 0; padding: 0; list-style: none; }
+.ps-sg-liste li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem 0.8rem; }
+.ps-sg-pied { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; margin-top: 0.7rem; }
+.ps-frise-ronds { display: inline-flex; align-items: center; gap: 0.4rem; }

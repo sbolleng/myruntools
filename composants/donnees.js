@@ -13,7 +13,7 @@
     { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
     { nom: 'Cette semaine' },
     { nom: 'Objectif', libelle: 'Saison', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
-    { nom: 'Préparation', page: 'preparation.html', defaut: false, aide: 'Ton plan de préparation, ses phases et les séances proposées.' }, // à cocher dans les Préférences, comme Nutrition
+    { nom: 'Préparation', libelle: 'Mon plan', page: 'preparation.html', defaut: false, aide: 'Ta saison, ses phases, tes courses et les séances proposées.' }, // à cocher dans les Préférences, comme Nutrition ; nom : la clé rangée dans les préférences
     { nom: 'Calendrier', page: 'calendrier.html' },
     { nom: 'Nutrition', page: 'nutrition.html', defaut: false, aide: 'Ton besoin du jour et ton journal des repas.' }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
     { nom: 'Courses à surveiller', libelle: 'Courses', page: 'courses-a-surveiller.html' },

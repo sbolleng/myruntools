@@ -78,6 +78,10 @@
     reduire: icone('M6 3v3H3M10 3v3h3M6 13v-3H3M10 13v-3h3'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
     bas: icone('M8 3.5v9M4.5 9L8 12.5 11.5 9'),
+    // Avis sur une course (Mon plan) : conseillée, possible, déconseillée.
+    valide: icone('M3.5 8.5l3 3 6-7'),
+    attention: icone('M8 2.5L14 13H2zM8 6.5v3M8 11.2v.1'),
+    interdit: icone('M8 2.5a5.5 5.5 0 1 1 0 11a5.5 5.5 0 1 1 0-11zM4.2 4.2l7.6 7.6'),
     // En-tête de colonne triable (mrt-tri) : deux triangles ; celui du sens choisi s'allume.
     tri: '<svg class="mrt-tri-ico" viewBox="0 0 10 14" aria-hidden="true"><path class="mrt-tri-haut" d="M5 1l4 5H1z"/><path class="mrt-tri-bas" d="M5 13L1 8h8z"/></svg>',
     // Chevron des titres repliables : tourné vers la droite quand c'est replié (mrt-chev, en-tete.css).

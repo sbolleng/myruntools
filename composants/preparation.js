@@ -231,25 +231,113 @@
       '<b>' + NOM_PHASE[g.phase] + '</b><small>' + (g.fin - g.debut + 1) + ' sem.</small></span>').join('') + '</div></div>';
   }
 
-  // ----- Rubrique « Préparation » de la page d'une course (spécification § 5.2) -----
-  function rubrique(ctx, c) {
-    const preparer = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html#plans">Régler le plan dans Préparation →</a>' : '';
-    const plan = planDe(c, modifsDe(ctx.semaines, c.id));
-    if (!plan) {
-      return '<p class="cal-vide">Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.' + (ecriture(ctx) ? ' Règle le plan pour en choisir une.' : '') + '</p>' + (preparer ? '<p>' + preparer + '</p>' : '');
+  // ----- Avis sur une course et préparatoire conseillée (spécification Préparation, § 3.5) -----
+  // Sources (usages d'entraîneurs, pas des études) : une course de la moitié de l'Objectif environ, quelques semaines avant.
+  const SRC = {
+    norris: ['Laura Norris', 'https://lauranorrisrunning.com/tune-up-races/'],
+    rc: ['RunnersConnect', 'https://runnersconnect.net/?p=25480'],
+    mh: ['Marathon Handbook', 'https://marathonhandbook.com/tune-up-race/'],
+    irf: ['iRunFar', 'https://irunfar.com/how-to-choose-a-tune-up-race'],
+    irf100: ['iRunFar', 'https://www.irunfar.com/your-ultra-training-bag-of-tricks-using-races-to-prepare-for-your-goal-event'],
+    ultra: ['UltraRunning', 'https://www.ultrarunning.com/featured/races-as-training-runs/'],
+    recup: ['Trainingplan.dev', 'https://www.trainingplan.dev/blog/posts/post-race-recovery'],
+    bosquet: ['Bosquet, 2007', 'https://pubmed.ncbi.nlm.nih.gov/17762369/'],
+    parry: ['Coach Parry', 'https://blog.coachparry.com/how-many-marathons-should-you-run-in-a-year-the-truth/']
+  };
+  // Préparatoire conseillée avant un Objectif : sa distance et sa fenêtre (semaines avant le jour J) ; null : aucune source.
+  function fenetreConseillee(o) {
+    const d = Number(o.distance) || 0;
+    if (famille(o) === 'trail') {
+      if (d >= 130) return { texte: 'un trail de 80 à 100 km, sur un terrain proche', min: 5, max: 12, sources: [SRC.irf100] };
+      if (d >= 60) return { texte: 'un trail d\'environ 50 km, sur un terrain proche', min: 4, max: 6, sources: [SRC.irf, SRC.ultra] };
+      if (d >= 42) return { texte: 'un trail de 21 à 42 km, sur un terrain proche', min: 4, max: 6, sources: [SRC.irf, SRC.norris] };
+      return null;
     }
-    const lundiAuj = lundiDe(iso(new Date()));
-    let w = plan.semaines.find(s => s.lundi === lundiAuj), etiquette = 'Semaine en cours';
-    if (!w && lundiAuj < plan.premier) { w = plan.semaines[0]; etiquette = 'Première semaine'; }
-    else if (!w) { w = plan.semaines[plan.n - 1]; etiquette = 'Dernière semaine'; }
-    const plans = tousLesPlans(ctx);
-    const bloc = x => semaineHtml(ctx, x.lundi, { phase: x.phase, numero: x.n, modifiee: x.modifiee, liens: false,
-      autres: confirmee(c) ? plans.filter(p => p.course.id !== c.id && x.lundi >= p.premier && x.lundi <= lundiDe(p.jourJ)) : [] });
-    return '<div class="cal-prep-haut"><p class="cal-plan-dates">Plan de ' + plan.n + ' semaines · début : ' + longue(plan.premier) + ' → jour J : ' + longue(c.date) + '</p>' + preparer + '</div>' +
-      (c.date_approx ? '<p class="cal-vide">Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.</p>' : '') +
-      frise(plan, false) +
-      '<p class="cal-prep-lib">' + etiquette + '</p>' + bloc(w) +
-      '<details class="cal-toutes"><summary>' + CHEVRON + 'Toutes les semaines (' + plan.n + ')</summary><div class="cal-sem-liste">' + plan.semaines.map(bloc).join('') + '</div></details>';
+    if (d >= 42) return { texte: 'un semi-marathon', min: 4, max: 6, sources: [SRC.mh, SRC.rc] };
+    if (d >= 21) return { texte: 'un 10 km ou un 15 km', min: 3, max: 6, sources: [SRC.norris, SRC.rc] };
+    return null;
+  }
+  const SOURCES_ALERTE = { 'recup-affutage': [SRC.recup, SRC.bosquet], 'prepa-proche': [SRC.mh, SRC.norris], 'plus-longue': [], proches: [SRC.parry] };
+  // Texte d'une alerte (§ 3.4) : une ligne, le fait et, entre parenthèses, ce qui est conseillé ; nom(c) écrit le nom d'une course.
+  function texteAlerte(a, nom) {
+    if (a.type === 'proches') return nom(a.autre) + ' et ' + nom(a.course) + ' : ' + a.semaines + ' semaines d\'écart (12 conseillées)';
+    if (a.type === 'recup-affutage') return nom(a.course) + ' : récupération jusqu\'au ' + longue(a.fin) + ', sur l\'affûtage de ' + nom(a.autre);
+    if (a.type === 'prepa-proche') return nom(a.course) + ' : à ' + a.jours + ' jours de ' + nom(a.autre) + ' (' + a.conseillees + ' semaines conseillées)';
+    return nom(a.course) + ' est plus longue que ' + nom(a.autre);
+  }
+  // Une option est jugée comme si elle était confirmée : c'est ce qui aide à décider.
+  const avecCourse = (ctx, c) => Object.assign({}, ctx, { courses: ctx.courses.filter(x => x.id !== c.id).concat([Object.assign({}, c, { statut: 'confirmee' })]) });
+  const aJuger = c => !!c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option');
+  // Avis sur une course à venir qui n'est pas un Objectif : conseillee, possible ou deconseillee (null : hors saison),
+  // par rapport à l'Objectif de sa saison (ou au suivant) ; plaisirAide : passer en Plaisir ferait tomber ses alertes.
+  function avisCourse(ctx, c) {
+    if (!aJuger(c) || roleDe(c) === 'objectif') return null;
+    const alertesDe = cc => planSaison(avecCourse(ctx, cc)).alertes.filter(a => a.course.id === c.id && a.type !== 'proches');
+    const ps = planSaison(avecCourse(ctx, c)), sx = ps.saisons.find(x => x.jourJ >= c.date);
+    if (!sx) return { niveau: null };
+    const role = roleDe(c), alertes = alertesDe(c), ecart = ecartJours(c.date, sx.jourJ), f = fenetreConseillee(sx.course);
+    const r = { niveau: 'possible', role, objectif: sx.course, semaines: Math.floor(ecart / 7), fenetre: f, alerte: alertes[0] || null, jours: joursRecup(c) };
+    if (alertes.length) {
+      r.niveau = 'deconseillee';
+      r.plaisirAide = role === 'preparatoire' && !alertesDe(Object.assign({}, c, { role: 'plaisir' })).length;
+    } else if (role === 'preparatoire' && f && ecart >= f.min * 7 && ecart <= f.max * 7) r.niveau = 'conseillee';
+    return r;
+  }
+  const NIVEAUX = { conseillee: 'Conseillée', possible: 'Possible', deconseillee: 'Déconseillée' };
+  const PICTO_AVIS = { conseillee: 'valide', possible: 'attention', deconseillee: 'interdit' };
+  // Raison d'un avis (HTML) et ses sources ; nom(c) écrit le nom d'une course.
+  function raisonAvis(av, nom) {
+    if (av.niveau === 'deconseillee') return { html: texteAlerte(av.alerte, nom), sources: SOURCES_ALERTE[av.alerte.type] || [] };
+    if (av.role === 'plaisir') return { html: 'Sans affûtage ; récupération finie avant l\'affûtage de ' + nom(av.objectif), sources: [SRC.recup] };
+    const avant = av.semaines + ' semaines avant ' + nom(av.objectif);
+    if (!av.fenetre) return { html: avant + ' (aucune fenêtre conseillée pour cet Objectif)', sources: [] };
+    return { html: avant + (av.niveau === 'conseillee' ? ' : dans la fenêtre conseillée (' : ' (conseillé : ') + av.fenetre.min + ' à ' + av.fenetre.max + ' semaines)', sources: av.fenetre.sources };
+  }
+  const sourcesHtml = s => (s.length ? '<span class="pr-sources">Sources : ' + s.map(([n, u]) => '<a class="mrt-lien" href="' + u + '" target="_blank" rel="noopener">' + esc(n) + '</a>').join(', ') + '</span>' : '');
+  // L'avis en une ligne : picto et niveau, raison, sources.
+  function avisHtml(av, nom) {
+    if (!av || !av.niveau) return '';
+    const r = raisonAvis(av, nom);
+    return '<p class="pr-avis is-' + av.niveau + '"><span class="pr-avis-n">' + window.mrtIcone[PICTO_AVIS[av.niveau]] + NIVEAUX[av.niveau] + '</span>' +
+      '<span class="pr-avis-r">' + r.html + '</span>' + sourcesHtml(r.sources) + '</p>';
+  }
+  // Préparatoire conseillée pour un Objectif : sa fenêtre (à partir d'aujourd'hui) et les courses repérées qui y tombent ;
+  // null quand l'Objectif n'a pas de fenêtre, qu'elle est passée, ou qu'une Préparatoire conseillée y est déjà.
+  function suggestion(ctx, o) {
+    const f = fenetreConseillee(o), auj = iso(new Date());
+    if (!f) return null;
+    const debut = addDays(o.date, -7 * f.max), fin = addDays(o.date, -7 * f.min);
+    if (fin < auj) return null;
+    if (ctx.courses.some(c => aJuger(c) && roleDe(c) === 'preparatoire' && (avisCourse(ctx, c) || {}).niveau === 'conseillee' && (avisCourse(ctx, c).objectif || {}).id === o.id)) return null;
+    const d = debut < auj ? auj : debut;
+    return { fenetre: f, debut: d, fin, reperees: ctx.courses.filter(c => c.statut === 'a_surveiller' && c.etat === 'a_venir' && c.date && c.date >= d && c.date <= fin).sort((a, b) => (a.date < b.date ? -1 : 1)) };
+  }
+
+  // ----- Rubrique « Préparation » de la page d'une course : sa place dans la saison (spécification Préparation, § 5.4) -----
+  // Le plan se règle dans Mon plan ; ici, une ligne (rôle, place, jours allégés ou repos, récupération), l'avis, le lien.
+  const nomSimple = c => '<b>' + esc(c.course) + '</b>';
+  function placeHtml(ctx, c) {
+    const role = roleDe(c), conf = avecCourse(ctx, c), ps = planSaison(conf);
+    const ROLES = { objectif: 'Objectif', preparatoire: 'Préparatoire', plaisir: 'Plaisir' };
+    const tete = (ROLES[role] || 'Sans rôle') + (c.statut === 'option' ? ' (option)' : '');
+    if (role === 'objectif') {
+      const sx = ps.saisons.find(x => x.course.id === c.id);
+      if (!sx) return '<p class="cal-plan-dates">' + tete + ' · pas encore de plan : ce format n\'a pas de durée de préparation par défaut.</p>';
+      return '<p class="cal-plan-dates">' + tete + ' · saison de ' + sx.semaines.length + ' semaines' + (sx.raccourcie ? ' (raccourcie)' : '') + ', du ' + longue(sx.premier) + ' au ' + longue(sx.jourJ) + '</p>' +
+        frise({ semaines: sx.semaines }, false);
+    }
+    const w = phaseDe(ps, lundiDe(c.date));
+    const place = !w ? 'hors saison' : w.saison ? 'semaine ' + w.n + ' sur ' + w.saison.semaines.length + ' de la saison de ' + nomSimple(w.saison.course)
+      : w.phase === 'recuperation' ? 'en Récupération après ' + nomSimple(w.apres) : 'en Entretien, avant la saison de ' + nomSimple(w.vers.course);
+    const j = joursRecup(c);
+    const recup = j ? ', ' + j + (j > 1 ? ' jours' : ' jour') + ' de récupération' : '';
+    const reperes = role === 'preparatoire' ? '3 jours allégés avant' + recup : role === 'plaisir' ? 'repos la veille' + recup : '';
+    return '<p class="cal-plan-dates">' + [tete, place, reperes].filter(Boolean).join(' · ') + '</p>' + avisHtml(avisCourse(ctx, c), nomSimple);
+  }
+  function rubrique(ctx, c) {
+    const voir = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html#courses">Voir dans Mon plan →</a>' : '';
+    return '<div class="cal-prep-haut">' + placeHtml(ctx, c) + voir + '</div>' +
+      (c.date_approx ? '<p class="cal-vide">Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.</p>' : '');
   }
 
   // ----- Fenêtres : séance, « Paramétrer le plan » -----
@@ -412,5 +500,6 @@
   }
 
   window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    ouvrirSeance, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES };
+    ouvrirSeance, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
+    fenetreConseillee, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();
