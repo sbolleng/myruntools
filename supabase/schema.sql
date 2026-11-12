@@ -217,6 +217,7 @@ create table propositions (
   jetons_entree integer not null default 0,
   jetons_sortie integer not null default 0,
   statut        text not null default 'brute' check (statut in ('brute', 'invalide', 'echec', 'acceptee', 'abandonnee')),
+  motif         text not null default 'proposer' check (motif in ('proposer', 'refaire', 'readaptation')), -- évolution 035
   reponse       jsonb
 );
 create index propositions_utilisateur_cree on propositions (utilisateur, cree);

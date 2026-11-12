@@ -231,7 +231,7 @@
     const P = window.mrtPreparation;
     const texteSeance = x => [x.libelle, P.TYPES[x.type], x.duree_min ? duree(x.duree_min / 60) : '', x.distance_km ? virgule(Number(x.distance_km)) + ' km' : ''].filter(Boolean).filter((v, i, t) => t.indexOf(v) === i).join(' · ');
     // La fenêtre de séance du Calendrier, ouverte depuis Nutrition ; après un enregistrement, les séances sont relues.
-    const calendrier = { get seances() { return S.seances; }, actualiser: async () => {
+    const calendrier = { get seances() { return S.seances; }, courses: ctx.courses, semaines: ctx.semaines, id: ctx.id, actualiser: async () => {
       try { S.seances = (await window.mrtLirePlan(ctx.id)).seances; } catch (err) { console.warn('Nutrition : séances illisibles', err); }
       chiffres(); dessinerJournal(); dessinerActivite();
     } };

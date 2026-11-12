@@ -94,3 +94,11 @@
 .ps-sg-liste li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem 0.8rem; }
 .ps-sg-pied { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; margin-top: 0.7rem; }
 .ps-frise-ronds { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+/* (10) Historique des propositions : déroulé commun, une ligne par proposition. */
+.ps-historique { margin-top: 0.8rem; font-size: var(--t-second); color: var(--muted); }
+.ps-historique > summary { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+.ps-hist-liste { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.5rem 0 0; padding: 0; list-style: none; }
+.ps-hist-liste li { display: grid; grid-template-columns: 1fr auto auto; gap: 0.8rem; color: var(--text); }
+.ps-hist-statut { color: var(--muted); }
+.ps-hist-statut.s-acceptee { color: var(--accent); }

@@ -2622,16 +2622,20 @@ const CONTROLES = {
     await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit'); await p.click('.cal-seance [data-groupe="fatigue"] [data-val="3"]');
     await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
     pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur-ou').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
+    // Le commentaire relance une réadaptation (lot 6b) : son message, accepté ; puis le conseil d'un déplacement, refusé.
+    let question = null, reponse = true;
+    await surDialogue(p, q => { question = q; return reponse; });
     d.ecritures = [];
     await p.click('.cal-seance button[type="submit"]'); await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    for (let k = 0; k < 20 && !question; k++) await pause();
+    await p.waitForFunction(() => !document.querySelector('.mrt-dialogue')).catch(() => {});
     const ecrit = () => d.ecritures.filter(x => x.table === 'seances' && x.methode === 'PATCH').map(x => x.corps);
     pb.push(egal({ faite: true, ressenti: 7, douleur: 'legere', douleur_ou: 'genou droit', fatigue: 3, commentaire: 'Dur sur la fin', date_prevue: null },
       (c => c && { faite: c.faite, ressenti: c.ressenti, douleur: c.douleur, douleur_ou: c.douleur_ou, fatigue: c.fatigue, commentaire: c.commentaire, date_prevue: c.date_prevue })(ecrit()[0]), 'retour enregistré avec la séance'));
     await p.waitForSelector('[data-drag="se-r"] .cal-v-com');
     pb.push(egal(1, await p.locator('[data-drag="se-r"] .cal-v-com').count(), 'vue : picto du commentaire'));
     // Déplacer par la fenêtre vers la veille d'une Plaisir (sam. 12 déc.) : le conseil ; « Revenir au jour d'avant » remet la séance.
-    let question = null;
-    await surDialogue(p, q => { question = q; return false; });
+    question = null; reponse = false;
     d.ecritures = [];
     await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance');
     await p.fill('.cal-seance [name="date"]', '2026-12-12'); await p.click('.cal-seance button[type="submit"]');
@@ -2692,7 +2696,7 @@ const CONTROLES = {
         const r = reponses[Math.min(d.appels.length - 1, reponses.length - 1)];
         if (r.status) return r;
         const id = 'prop-' + d.appels.length;
-        d.propositions.push({ id, utilisateur: moi, cree: '2026-10-20T10:00:00Z', bloc: corps.bloc, essai: corps.essai, statut: 'brute', reponse: r });
+        d.propositions.push({ id, utilisateur: moi, cree: '2026-10-20T10:00:00Z', bloc: corps.bloc, essai: corps.essai, statut: 'brute', motif: corps.motif || 'proposer', reponse: r });
         return { status: 200, body: { id, reponse: r } };
       };
       if (f) f(d);
@@ -2830,6 +2834,44 @@ const CONTROLES = {
     await p.waitForSelector('.ps-cadre');
     pb.push(egal(0, await p.locator('[data-ia], .ps-ia-aide, .ps-proposition').count(), 'lecture seule : rien de l\'IA'));
     await ctx.close();
+    // Lot 6b : un commentaire sur une séance relance aussitôt une réadaptation (hors plafond), avec les retours et la blessure en cours.
+    {
+      const d6 = copie([bonne()], x => {
+        x.seances = [
+          { id: 'se-p', utilisateur: moi, date: '2026-10-13', date_prevue: '2026-10-12', type: 'run', libelle: 'Seuil', faite: true, ressenti: 8, douleur: 'legere', douleur_ou: 'mollet', fatigue: 4, commentaire: 'Dur', duree_min: 50, distance_km: 9, intensite: 'intense', origine: 'saisie', etat: 'acceptee', course: null },
+          { id: 'se-a', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Footing', faite: false, duree_min: 45, distance_km: 8, intensite: 'facile', origine: 'saisie', etat: 'acceptee', course: null }];
+        x.profil_entrainement[0].blessure = 'tendinite'; x.profil_entrainement[0].blessure_debut = '2026-10-10';
+      });
+      const q = await ouvrir(nav, 'preparation.html', 1200, d6, {}, PARIS);
+      await pret(q.p);
+      await q.p.click('[data-edit="se-a"]'); await q.p.waitForSelector('.cal-seance');
+      await q.p.fill('.cal-seance [name="commentaire"]', 'Pas disponible jeudi');
+      await q.p.click('.cal-seance button[type="submit"]');
+      await q.p.waitForSelector('.ps-reco');
+      const ap = d6.appels[d6.appels.length - 1] || {}, cx = ap.contexte || {};
+      pb.push(egal(['readaptation', '2026-10-19', [{ date: '2026-10-20', type: 'run', libelle: 'Footing', commentaire: 'Pas disponible jeudi' }], { description: 'tendinite', depuis: '2026-10-10' }],
+        [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'commentaire : réadaptation relancée aussitôt, commentaire à venir et blessure envoyés'));
+      pb.push(egal({ ressenti_sur_10: 8, douleur: 'légère (mollet)', fatigue_sur_5: 4, commentaire: 'Dur', deplacee_du: '2026-10-12' }, (h => h && { ressenti_sur_10: h.ressenti_sur_10, douleur: h.douleur, fatigue_sur_5: h.fatigue_sur_5, commentaire: h.commentaire, deplacee_du: h.deplacee_du })((cx.historique || []).find(x => x.date === '2026-10-13')),
+        'séances passées : ressenti, douleur, fatigue, commentaire et jour d\'origine envoyés'));
+      pb.push(egal([4, 'Historique des propositions (1)', 'Réadaptation', 'En attente'], await q.p.evaluate(() => {
+        const li = document.querySelector('.ps-historique li');
+        return [window.mrtSeancesIA.restantes(document.getElementById('saison').__ctx), document.querySelector('.ps-historique summary').textContent.trim(), li && li.children[1].textContent, li && li.children[2].textContent]; }),
+        'réadaptation hors plafond (4 restantes) ; historique : une ligne, motif et statut'));
+      pb.push(egal([], q.erreurs, 'réadaptation : erreurs JavaScript'));
+      await q.ctx.close();
+      // Calendrier : la même relance, puis un message (la proposition attend dans Mon plan).
+      const d7 = copie([bonne()], x => { x.seances = [{ id: 'se-a', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Footing', faite: false, origine: 'saisie', etat: 'acceptee', course: null }]; });
+      const c = await ouvrir(nav, 'calendrier.html', 1200, d7, {}, PARIS);
+      let message = null;
+      await surDialogue(c.p, t => { message = t; return true; });
+      await c.p.click('[data-edit="se-a"]'); await c.p.waitForSelector('.cal-seance');
+      await c.p.fill('.cal-seance [name="commentaire"]', 'Genou sensible');
+      await c.p.click('.cal-seance button[type="submit"]');
+      await c.p.waitForFunction(() => window.__mrtFini === undefined, null, { timeout: 100 }).catch(() => {});
+      for (let k = 0; k < 20 && !message; k++) await pause();
+      pb.push(egal(['readaptation', 'Commentaire pris en compte : une nouvelle proposition de MyRunTools attend dans Mon plan.'], [(d7.appels[0] || {}).motif, message], 'Calendrier : commentaire, réadaptation, message'));
+      await c.ctx.close();
+    }
     return pb;
   },
 
