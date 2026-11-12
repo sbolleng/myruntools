@@ -164,8 +164,8 @@
   //   groupes  noms des groupes d'options existants (mode à venir)
   //   marquer  vrai : la course existante passe à l'état Courue à l'enregistrement
   //   defauts  valeurs préremplies d'une nouvelle course (ex. { statut: 'a_surveiller' })
-  //   preparation  { semaines } (mode à venir) : phases modifiées à la main ; le plan de la course s'affiche en tête du bloc
-  //                Préparation (lecture) ; il se règle dans la page Préparation (« Paramétrer le plan », composants/preparation.js)
+  //   preparation  { semaines, courses } (mode à venir) : phases modifiées à la main et autres courses ; la place de la course
+  //                dans la saison s'affiche en tête du bloc Préparation (lecture) ; les phases se règlent dans Mon plan
   window.mrtFicheCourse = function ({ course, references, apres, mode, groupes, marquer, preparation, dans, fin, defauts }) {
     const existe = !!(course && course.id);
     const c = Object.assign({}, defauts, course || {}); // defauts : valeurs d'une nouvelle course (ex. statut Repérée)
@@ -378,7 +378,7 @@
     }
 
     // ----- Plan de préparation (mode à venir) -----
-    // Tiré de la date, du format et du statut saisis ; le plan se règle ensuite dans Préparation (design § 12).
+    // Tiré de la date, du format, du rôle et du statut saisis ; les phases se règlent ensuite dans Mon plan (design § 12).
     const P = window.mrtPreparation;
     const avecPlan = () => !!preparation && !!P && ['confirmee', 'option'].includes(val('statut').value);
     function virtuelle() {
@@ -386,7 +386,9 @@
       const prepaFormat = s && s.prepa_semaines != null ? s.prepa_semaines : null;
       // Date approximative : le plan vise le début du mois.
       const d = val('date').value, date = val('date_approx').checked ? (/^\d{4}-\d{2}$/.test(d) ? d + '-01' : '') : d;
+      const n = k => { const x = P.nombre(val(k).value); return Number.isNaN(x) ? null : x; };
       return { id: c.id, course: val('course').value.trim() || 'nouvelle course', date, format: fmt, statut: val('statut').value, etat: 'a_venir',
+        role: val('role').value || null, type: val('type').value, distance: n('distance'), dplus: n('dplus'),
         prepaFormat, prepaSemaines: c.prepa_semaines != null ? c.prepa_semaines : prepaFormat };
     }
     // Phases réglées à la main : rangées par semaine du calendrier, avec la date de course sur laquelle elles ont été réglées (base).
@@ -407,15 +409,14 @@
       if (!avecPlan()) { z.innerHTML = ''; return; }
       const v = virtuelle(), note = t => '<p class="fc-prep-note">' + t + '</p>';
       const attente = !v.date || !v.format ? 'Choisis d\'abord la date et le format.' : '';
-      const plan = attente ? null : P.planDe(v, modifs());
-      z.innerHTML = (attente ? note(attente)
-        : plan ? '<p class="cal-plan-dates">Plan de ' + plan.n + ' semaines · début : ' + P.longue(plan.premier) + ' → jour J : ' + P.longue(v.date) + '</p>' +
-          (val('date_approx').checked ? note(APPROX) : '') + P.frise(plan, false)
-        : note('Pas encore de plan : ce format n\'a pas de durée de préparation par défaut.')) +
-        (attente ? '' : note('Le plan se règle dans Préparation, une fois la course enregistrée.'));
+      // Sa place dans la saison, avec les autres courses (celles de la page) et les phases réglées, comme la page de la course.
+      const ctxPlan = { courses: (preparation.courses || []).filter(x => x.id !== v.id).concat([v]), semaines: [...modifs()].map(([lundi, phase]) => ({ course: v.id, lundi, phase }))
+        .concat((preparation.semaines || []).filter(x => x.course !== v.id)) };
+      z.innerHTML = attente ? note(attente)
+        : P.placeHtml(ctxPlan, v) + (val('date_approx').checked ? note(APPROX) : '') + note('Les phases se règlent dans Mon plan, une fois la course enregistrée.');
     }
     if (preparation) {
-      racine.addEventListener('change', e => { if (['date', 'date_approx', 'type', 'format', 'distance', 'statut'].includes(e.target.dataset.k)) majPrep(); });
+      racine.addEventListener('change', e => { if (['date', 'date_approx', 'type', 'format', 'distance', 'dplus', 'statut', 'role'].includes(e.target.dataset.k)) majPrep(); });
       majPrep();
     }
 
@@ -657,7 +658,7 @@
         const sb = window.mrtSupabase;
         let r = existe ? await sb.from('plan_semaines').delete().eq('course', id) : {};
         if (!r.error && lignes.length) r = await sb.from('plan_semaines').insert(lignes);
-        if (r.error) { console.warn(r.error); await window.mrtConfirmer({ texte: 'Course enregistrée, mais pas les phases du plan : réessaie depuis Préparation.', action: 'Fermer', seul: true }); }
+        if (r.error) { console.warn(r.error); await window.mrtConfirmer({ texte: 'Course enregistrée, mais pas les phases du plan : réessaie depuis Mon plan.', action: 'Fermer', seul: true }); }
       }
       if ((gpx.fichier || (gpx.supprimer && c.gpx)) && window.mrtTrace) {
         const cc = Object.assign({}, c, { id });

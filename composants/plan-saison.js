@@ -1,7 +1,8 @@
-// ===== Préparation : le plan de saison =====
+// ===== Mon plan : le plan de saison =====
 //
-// docs/module-preparation-specification.md, § 2 à 5. renderSaison(élément, ctx) dessine la page Préparation : la saison visée,
-// l'état de la semaine, la frise de toutes les semaines à venir avec les courses, les alertes et le bloc de 4 semaines en cours.
+// docs/module-preparation-specification.md, § 2 à 5. renderSaison(élément, ctx) dessine la page Mon plan : la saison visée,
+// la frise des semaines à venir avec les courses, les alertes, le bloc de 4 semaines en cours, les courses du plan et leur avis,
+// la préparatoire conseillée. Un seul plan : les phases se règlent sur l'Objectif de la saison (rond « Régler les phases »).
 // Le calcul (saisons, repères, alertes, phases) est dans preparation.js (planSaison, phaseDe, reperesDuJour), partagé avec
 // le Calendrier ; les séances (case « faite », « + », fenêtre) aussi.
 //   ctx.courses, ctx.seances, ctx.semaines, ctx.lectureSeule, ctx.relire() : voir preparation.js.
@@ -14,13 +15,8 @@
   const nom = c => '<a class="ps-course" href="' + lien(c) + '">' + esc(c.course) + '</a>';
   const semainesEntre = (a, b) => Math.ceil((parse(b) - parse(a)) / (7 * 86400000));
 
-  // Texte d'une alerte (spécification, § 3.4) : une ligne, le nom des courses en gras (CSS), le fait et, entre parenthèses, ce qui est conseillé.
-  function texteAlerte(a) {
-    if (a.type === 'proches') return nom(a.autre) + ' et ' + nom(a.course) + ' : ' + a.semaines + ' semaines d\'écart (12 conseillées)';
-    if (a.type === 'recup-affutage') return nom(a.course) + ' : récupération jusqu\'au ' + longue(a.fin) + ', sur l\'affûtage de ' + nom(a.autre);
-    if (a.type === 'prepa-proche') return nom(a.course) + ' : à ' + a.jours + ' jours de ' + nom(a.autre) + ' (' + a.conseillees + ' semaines conseillées)';
-    return nom(a.course) + ' est plus longue que ' + nom(a.autre);
-  }
+  // Texte d'une alerte (spécification, § 3.4) : celui de preparation.js, le nom des courses en lien (gras : CSS).
+  const texteAlerte = a => P.texteAlerte(a, nom);
 
   // ----- Profil d'entraînement (spécification, § 5.2) : une liste de lignes ; chaque ligne ouvre une question ;
   // un choix s'enregistre aussitôt et ramène à la liste. -----
@@ -259,17 +255,27 @@
         esc(s.libelle) + ' · ' + s.duree_min + ' min</span>').join('');
   }
 
-  // Plans des courses : le seul lieu où l'on règle le plan d'une course (durée, phases) ; une ligne par course à venir qui a un plan.
-  function plansHtml(ctx) {
-    if (ctx.lectureSeule) return '';
+  // (15) Courses du plan : une ligne par course à venir (confirmée ou option) qui a une date : nom, date, rôle, avis (§ 3.5) ;
+  // un Objectif a son rond « Régler les phases » (17) ; une Déconseillée que le rôle Plaisir tirerait d'affaire, « Passer en Plaisir ».
+  function coursesHtml(ctx) {
     const cs = ctx.courses.filter(P.aPlan).sort((a, b) => (a.date < b.date ? -1 : 1));
     if (!cs.length) return '';
-    return '<section class="ps-plans" id="plans"><h2 class="ps-libelle">Plans des courses</h2><ul class="ps-plans-liste">' + cs.map(c => {
-      const plan = P.planDe(c, P.modifsDe(ctx.semaines, c.id));
-      return '<li><span class="ps-plan-nom">' + nom(c) + '</span><span class="ps-plan-info">' + longue(c.date) + ' · ' + ROLE[roleDe(c)] + (c.statut === 'option' ? ' (option)' : '') +
-        (plan ? ' · ' + plan.n + ' sem.' : ' · pas de plan') + '</span>' +
-        '<button type="button" class="mrt-btn cal-parametrer" data-preparer="' + esc(c.id) + '">' + P.REGLAGES + 'Paramétrer le plan</button></li>';
+    return '<section class="ps-courses" id="courses"><h2 class="ps-libelle">Courses du plan</h2><ul class="ps-courses-liste">' + cs.map(c => {
+      const role = roleDe(c), av = P.avisCourse(ctx, c);
+      const regler = role === 'objectif' && !ctx.lectureSeule ? '<button type="button" class="mrt-rond" data-preparer="' + esc(c.id) + '" aria-label="Régler les phases de ' + esc(c.course) + '" title="Régler les phases">' + P.REGLAGES + '</button>' : '';
+      const plaisir = av && av.plaisirAide && !ctx.lectureSeule ? '<button type="button" class="mrt-btn" data-plaisir="' + esc(c.id) + '">Passer en Plaisir</button>' : '';
+      return '<li class="ps-c' + (av && av.niveau ? ' is-' + av.niveau : '') + '"><div class="ps-c-haut"><span class="ps-c-nom">' + nom(c) + '</span><span class="ps-c-info">' + longue(c.date) + ' · ' + ROLE[role] +
+        (c.statut === 'option' ? ' (option)' : '') + '</span>' + regler + '</div>' + P.avisHtml(av, nom) + plaisir + '</li>';
     }).join('') + '</ul></section>';
+  }
+  // (16) Préparatoire conseillée pour l'Objectif visé : sa fenêtre, les courses repérées qui y tombent (« Confirmer »), « + Ajouter une course ».
+  function suggestionHtml(ctx, o) {
+    const sg = ctx.lectureSeule ? null : P.suggestion(ctx, o);
+    if (!sg) return '';
+    return '<section class="ps-suggestion"><p class="ps-sg-texte"><b>Préparatoire conseillée</b> avant ' + nom(o) + ' : ' + sg.fenetre.texte + ', du ' + longue(sg.debut) + ' au ' + longue(sg.fin) + '.</p>' +
+      (sg.reperees.length ? '<p class="ps-sg-sous">Dans tes courses repérées :</p><ul class="ps-sg-liste">' + sg.reperees.map(c => '<li><span>' + nom(c) + ' · ' + longue(c.date) + '</span>' +
+        '<button type="button" class="mrt-btn" data-confirmer="' + esc(c.id) + '">Confirmer</button></li>').join('') + '</ul>' : '') +
+      '<p class="ps-sg-pied">' + P.sourcesHtml(sg.fenetre.sources) + (ctx.edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-ajouter title="Ajouter une course"><svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</p></section>';
   }
 
   window.renderSaison = function (root, ctx) {
@@ -286,7 +292,7 @@
       const profil = ctx.lectureSeule ? '' : '<div class="ps-profil-haut"><span class="ps-profil-etat' + (manque.length ? '' : ' is-complet') + '">' +
         (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil de coureur</button></div>';
       if (!prochaine) {
-        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta préparation.</p>' + plansHtml(ctx) + '</div>';
+        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta saison.</p>' + coursesHtml(ctx) + '</div>';
         return;
       }
       // (1) Saison visée.
@@ -349,20 +355,31 @@
       };
       h += '<div class="ps-frise-zone" data-plein-cible><div class="ps-frise-barre"><div class="ps-coches">' +
         [['saison', 'En cours'], ['tout', 'Tout']].map(x => '<button type="button" class="mrt-pastille" data-frise="' + x[0] + '" aria-pressed="' + (mode === x[0]) + '">' + x[1] + '</button>').join('') + '</div>' +
-        window.mrtPleinEcran.bouton() + '</div><div class="ps-frise-corps">' + friseCorps(mode) + '</div></div>';
+        '<span class="ps-frise-ronds">' + (ctx.lectureSeule ? '' : '<button type="button" class="mrt-rond" data-preparer="' + esc(prochaine.course.id) + '" aria-label="Régler les phases" title="Régler les phases">' + P.REGLAGES + '</button>') + window.mrtPleinEcran.bouton() + '</span></div><div class="ps-frise-corps">' + friseCorps(mode) + '</div></div>';
 
       // Le bloc en cours : la recommandation (avec les alertes, s'il y en a) et la grille des 4 semaines à partir de celle-ci, dans la grille
       // du mois du Calendrier ; dans les cases, les repères et les séances proposées par l'IA, en attente.
-      h += plansHtml(ctx);
       h += '<section class="ps-bloc">' + iaHtml(ctx, lundi, ps.alertes) +
         '<div class="ps-grille">' + window.mrtGrilleMois(ctx, lundi, addDays(lundi, 7 * BLOC - 1), { ps, plus: j => caseHtml(ctx, ps, j) }) + '</div>';
-      root.innerHTML = h + '</section></div>';
+      root.innerHTML = h + '</section>' + coursesHtml(ctx) + suggestionHtml(ctx, prochaine.course) + '</div>';
     }
 
     ctx.redessiner = dessiner;
     ctx.ia = {};
     root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
     root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); const f = e.target.closest('[data-frise]'); if (f && ctx.friseMaj) ctx.friseMaj(f.dataset.frise); });
+    // Passer en Plaisir (une Déconseillée), confirmer une course repérée en Préparatoire, ajouter une course (la fiche du site).
+    root.addEventListener('click', async e => {
+      const pl = e.target.closest('[data-plaisir]'), cf = e.target.closest('[data-confirmer]'), aj = e.target.closest('[data-ajouter]');
+      if (aj && ctx.edition) return ctx.edition.ajouter({ defauts: { statut: 'confirmee', role: 'preparatoire' } });
+      const idc = pl ? pl.dataset.plaisir : cf ? cf.dataset.confirmer : null, c = idc && ctx.courses.find(x => x.id === idc);
+      if (!c) return;
+      const texte = pl ? 'Passer ' + c.course + ' en Plaisir ? Elle se courra sans affûtage, avec un repos la veille.' : 'Confirmer ' + c.course + ' comme Préparatoire ?';
+      if (!(await window.mrtConfirmer({ texte, action: pl ? 'Passer en Plaisir' : 'Confirmer' }))) return;
+      const { error } = await window.mrtSupabase.from('courses').update(pl ? { role: 'plaisir' } : { statut: 'confirmee', role: 'preparatoire' }).eq('id', c.id);
+      if (error) { console.warn(error); await window.mrtConfirmer({ texte: 'Enregistrement impossible pour l\'instant.', action: 'Fermer', seul: true }); return; }
+      await ctx.actualiser();
+    });
     // Choix semaine par semaine : chaque semaine du bloc en pastille, choisie ou non.
     root.addEventListener('click', e => {
       const c = e.target.closest('[data-coche]');
@@ -400,7 +417,7 @@
     });
     P.brancher(root, ctx, null);
     dessiner();
-    if (location.hash === '#plans') { const z = root.querySelector('#plans'); if (z) z.scrollIntoView(); }
+    if (location.hash === '#courses' || location.hash === '#plans') { const z = root.querySelector('#courses'); if (z) z.scrollIntoView(); }
     // Le profil d'entraînement (une ligne, la sienne : règle par ligne), lu après le premier dessin ; jamais sur le site partagé.
     // Et les propositions de l'IA (plafond du mois, proposition en attente).
     if (!ctx.lectureSeule) Promise.all([window.mrtSupabase.from('profil_entrainement').select('*'), IA() ? IA().lirePropositions(ctx) : null]).then(([{ data, error }]) => {

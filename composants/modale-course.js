@@ -70,7 +70,7 @@
       corps.replaceChildren(el);
       panneau.scrollTop = 0;
       saisie = window.mrtFicheCourse(Object.assign({ course: c, references, groupes, dans: el,
-        preparation: extra.mode === 'a_venir' ? { semaines: ctx.semaines } : null,
+        preparation: extra.mode === 'a_venir' ? { semaines: ctx.semaines, courses: ctx.courses } : null,
         fin: async r => {
           saisie = null;
           if (!ctx) return;

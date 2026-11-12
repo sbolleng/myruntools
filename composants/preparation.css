@@ -125,3 +125,13 @@
 }
 @keyframes cal-monte { from { transform: translateY(2.5rem); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .cal-panneau { animation: none !important; } }
+
+/* ----- Avis sur une course (Mon plan, page d'une course, fiche) : picto et niveau, raison, sources ----- */
+.pr-avis { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 0.4rem 0 0; font-size: var(--t-second); color: var(--text); }
+.pr-avis-n { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 600; white-space: nowrap; }
+.pr-avis-n .mrt-ico { align-self: center; }
+.pr-avis.is-conseillee .pr-avis-n { color: var(--accent); }
+.pr-avis.is-possible .pr-avis-n { color: var(--muted); }
+.pr-avis.is-deconseillee .pr-avis-n { color: var(--red); }
+.pr-avis-r { color: var(--text); }
+.pr-sources { font-size: var(--t-petit); color: var(--muted); }

@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 1.2 · 11 novembre 2026 · [Retour au sommaire](README.md) · Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
+Version 1.3 · 12 novembre 2026 · [Retour au sommaire](README.md) · **Un seul plan** : la page s'appelle « Mon plan » ; plus de plan par course ni de bloc « Plans des courses » ; les phases se règlent sur l'Objectif de la saison (rond « Régler les phases ») ; « Courses du plan » avec l'avis de chaque course (Conseillée, Possible, Déconseillée, sources) et « Passer en Plaisir » ; préparatoire conseillée avant l'Objectif visé (§ 3.5) ; la page d'une course et sa fiche montrent sa place dans la saison (§ 5.4) · Avant (1.2) : Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -14,7 +14,8 @@ La Préparation construit **un seul plan pour toute la saison**, au lieu d'un pl
 
 - **Jamais d'IA pour les phases ni pour les règles** : elle propose seulement les séances, à l'intérieur de la trame, et les règles vérifient chaque proposition avant de l'afficher.
 - **Rien n'est enregistré sans l'accord de l'utilisateur.**
-- **Le Calendrier lit cette trame** : la règle « la course confirmée la plus proche impose sa phase » ([Calendrier](module-calendrier-specification.md), § 2) a disparu. Plus tard, la rubrique Préparation de la page d'une course montrera la place de la course dans la saison (pour l'instant, elle garde le plan propre à la course).
+- **Le Calendrier lit cette trame** : la règle « la course confirmée la plus proche impose sa phase » ([Calendrier](module-calendrier-specification.md), § 2) a disparu.
+- **Un seul plan, une seule page** (12 novembre 2026) : la page **Mon plan** (`preparation.html`) est le seul endroit où le plan se lit en entier et se règle. Une course n'a plus de plan à elle : la rubrique Préparation de sa page et sa fiche montrent sa **place dans la saison** (§ 5.4). Les phases réglées à la main ne valent que pour un Objectif, dont elles règlent la saison.
 - **Hors périmètre** : l'import des séances depuis une montre ou une application ; le suivi de la charge (fatigue, forme) ; l'apparence détaillée ([design](design.md)).
 
 ## 2. Saisons
@@ -69,6 +70,33 @@ Le plan signale ces conflits, sans rien bloquer ; chacun mène à la course conc
 | Préparatoire trop proche | Moins de 3 semaines avant un Objectif de la distance du marathon ou plus, moins de 2 semaines avant un Objectif plus court (§ 3.2) |
 | Course plus longue que l'Objectif | Une Préparatoire ou une Plaisir de plus de km-effort que l'Objectif de sa saison |
 
+### 3.5 Avis sur une course et préparatoire conseillée
+
+Chaque course à venir qui n'est pas un Objectif reçoit un **avis**, par rapport à l'Objectif de sa saison (ou au suivant). Une option est jugée comme si elle était confirmée : c'est ce qui aide à décider.
+
+| Avis | Condition | Raison affichée |
+|---|---|---|
+| **Conseillée** | Préparatoire, dans la fenêtre conseillée (tableau ci-dessous), sans alerte | « 5 semaines avant Gorges : dans la fenêtre conseillée (4 à 6 semaines) » |
+| **Possible** | Plaisir sans alerte, ou Préparatoire hors fenêtre sans alerte | « Sans affûtage ; récupération finie avant l'affûtage de Gorges » ; « 16 semaines avant Gorges (conseillé : 4 à 6 semaines) » |
+| **Déconseillée** | Une alerte du § 3.4 la touche | Le texte de l'alerte |
+
+- Chaque avis cite ses **sources** (liens), celles du § 3.2 ou du tableau ci-dessous.
+- **Passer en Plaisir** : proposé pour une Préparatoire Déconseillée **seulement si le rôle Plaisir fait tomber ses alertes** (une Préparatoire trop proche) ; une récupération dans un affûtage reste la même en Plaisir : pas de bouton.
+- Une course sans Objectif après elle n'a pas d'avis.
+
+**Préparatoire conseillée** : environ la moitié de l'Objectif, quelques semaines avant (usages d'entraîneurs, pas des études ; sources lues dans des extraits de recherche, à vérifier sur les pages entières) :
+
+| Objectif | Préparatoire conseillée | Fenêtre | Sources |
+|---|---|---|---|
+| Route, du semi au marathon exclu (21 à 42 km) | Un 10 km ou un 15 km | 3 à 6 semaines avant | [Laura Norris](https://lauranorrisrunning.com/tune-up-races/), [RunnersConnect](https://runnersconnect.net/?p=25480) |
+| Route, marathon et plus (42 km ou plus) | Un semi-marathon | 4 à 6 semaines avant | [Marathon Handbook](https://marathonhandbook.com/tune-up-race/), [RunnersConnect](https://runnersconnect.net/?p=25480) |
+| Trail de 42 à 59 km | Un trail de 21 à 42 km, sur un terrain proche | 4 à 6 semaines avant | [iRunFar](https://irunfar.com/how-to-choose-a-tune-up-race), [Laura Norris](https://lauranorrisrunning.com/tune-up-races/) |
+| Trail de 60 à 129 km | Un trail d'environ 50 km, sur un terrain proche | 4 à 6 semaines avant | [iRunFar](https://irunfar.com/how-to-choose-a-tune-up-race), [UltraRunning](https://www.ultrarunning.com/featured/races-as-training-runs/) |
+| Trail de 130 km ou plus | Un trail de 80 à 100 km, sur un terrain proche | 5 à 12 semaines avant | [iRunFar](https://www.irunfar.com/your-ultra-training-bag-of-tricks-using-races-to-prepare-for-your-goal-event) |
+| Plus court (route sous 21 km, trail sous 42 km) | Aucune source trouvée : pas de conseil | | |
+
+La distance est celle de la course (les sources parlent en kilomètres réels, pas en km-effort). Sur la page Mon plan, la préparatoire conseillée de l'Objectif visé s'affiche tant que sa fenêtre n'est pas passée et qu'aucune Préparatoire Conseillée n'y est déjà ; elle reprend les courses **Repérées** qui tombent dans la fenêtre, à confirmer d'un toucher. MyRunTools n'invente jamais une course : il propose un type de course et une fenêtre.
+
 ## 4. Trame
 
 - **Phases d'une saison** : les règles du [Calendrier](module-calendrier-specification.md), § 5.1, appliquées à la saison de l'Objectif : affûtage sur les 2 dernières semaines, deload toutes les 4 semaines, le reste réparti entre base et développement. Les phases modifiées à la main restent possibles (« Paramétrer le plan », sur l'Objectif).
@@ -76,9 +104,9 @@ Le plan signale ces conflits, sans rien bloquer ; chacun mène à la course conc
 - **Phases hors saison** : **Récupération** (§ 3.3) et **Entretien** ; deux phases nouvelles, à côté de Base, Développement, Affûtage et Deload. Récupération a sa couleur (fond, liseré, légende du Calendrier) ; Entretien n'en a pas : pas de fond au Calendrier, nommée seulement dans la frise et les semaines de la page. Après le dernier Objectif et sa récupération, plus de phase.
 - **Insertion des courses** : un mini-affûtage, un repos la veille ou une récupération ne changent pas la phase de la semaine ; ils s'appliquent aux jours concernés, et l'IA en tient compte (§ 6).
 
-## 5. Page Préparation
+## 5. Page Mon plan
 
-Une page à part, `preparation.html`. Son onglet se coche dans les Préférences, comme Nutrition : le menu par défaut garde cinq onglets, qui tiennent sur un téléphone. Tant qu'elle n'est pas au menu, la page En un coup d'œil la propose dans le bloc « Pour aller plus loin » (bouton « Ajouter au menu », [spécification générale](specification-generale.md), § 6).
+Une page à part, `preparation.html`, titrée et nommée au menu **Mon plan** (clé des préférences : « Préparation »). Son onglet se coche dans les Préférences, comme Nutrition : le menu par défaut garde cinq onglets, qui tiennent sur un téléphone. Tant qu'elle n'est pas au menu, la page En un coup d'œil la propose dans le bloc « Pour aller plus loin » (bouton « Ajouter au menu », [spécification générale](specification-generale.md), § 6).
 
 ### 5.1 Plan de page
 
@@ -88,7 +116,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 (12) Profil à compléter…  (2) [Mon profil de coureur]
 (1) Trail des Gorges
     dim. 7 mars 2027 · dans 20 sem.
-(3) [En cours] [Tout]                                                                                          (13) [⤢]
+(3) [En cours] [Tout]                                                                                    (17) [⚙] (13) [⤢]
     19 oct.   2 nov.   16 nov.   30 nov.   14 déc.   28 déc.   …   22 févr.
     [Entretien   ][Base      ][▒][Base    ][▒][▒][Développement][▒][Dév.][Aff.]
           ▲ Lac · 15 nov.                                        Gorges · 7 mars ▲
@@ -105,10 +133,20 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
      19     20              21    22           23    24               25
             ┆Footing · 45 min┆    ┆Seuil…┆          ┆Sortie longue┆    +
      …  (4 semaines ; jeu. 12 à sam. 14 nov. : « Allégé »)
+(15) COURSES DU PLAN
+     Trail du Lac        dim. 15 nov. 2026 · Préparatoire
+       ⚠ Possible  16 semaines avant Trail des Gorges (conseillé : 4 à 6 semaines)  Sources : iRunFar, Laura Norris
+     Corrida de Noël     dim. 13 déc. 2026 · Plaisir
+       ⚠ Possible  Sans affûtage ; récupération finie avant l'affûtage de Trail des Gorges  Sources : …
+     Trail des Gorges    dim. 7 mars 2027 · Objectif                                   [⚙]
+     Ultra du Plateau    sam. 26 juin 2027 · Préparatoire (option)
+       ⛔ Déconseillée  Ultra du Plateau : récupération jusqu'au mar. 17 août 2027, sur l'affûtage de Trail des Crêtes
+     …                   (« Passer en Plaisir » sous une Déconseillée que le rôle Plaisir tirerait d'affaire)
+(16) ┆ Préparatoire conseillée avant Trail des Gorges : un trail de 21 à 42 km, sur un terrain proche, ┆
+     ┆ du dim. 24 janv. 2027 au dim. 7 févr. 2027.                                                    ┆
+     ┆ Dans tes courses repérées : …                                              [Confirmer]          ┆
+     ┆ Sources : iRunFar, Laura Norris                                     [+ Ajouter une course]      ┆
 (10) ▸ Blocs suivants · ▸ Historique des propositions
-(14) PLANS DES COURSES
-     Trail des Gorges · dim. 7 mars 2027 · Objectif · 16 sem.      [⚙ Paramétrer le plan]
-     Trail du Lac · dim. 15 nov. 2026 · Préparatoire · 12 sem.       [⚙ Paramétrer le plan]
 ```
 
 | N° | Élément | Contenu |
@@ -125,12 +163,15 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 | 7 | Grille du bloc | La mise en page du Mois du Calendrier (vue Mois, mêmes cases, fond de la phase, courses, séances, « + ») sur les 4 semaines du bloc ; dans la case d'un jour, son repère en petit (« Allégé », « Repos », « Récupération ») et les séances proposées en attente (contour Accent en pointillé, détail au survol) |
 | 8 | Recommandation | Un seul bloc de texte de l'IA pour l'ensemble du bloc, trois phrases au plus ; aucun commentaire par semaine |
 | 9 | Recommandation de MyRunTools | Le cadre, titré « Recommandation de MyRunTools » (aucun état dans le titre), porte les alertes (4) puis le texte (8), en attente, à part des séances enregistrées : tout accepter, choisir semaine par semaine (les semaines en pastilles), refaire (une proposition de plus), abandonner ; sur téléphone, la liste des séances proposées s'y ajoute (la grille n'y montre que des points) |
-| 14 | Plans des courses | Sous le bloc des séances : une ligne par course à venir (confirmée ou option) qui a une date : son nom (lien vers sa page), sa date, son rôle, la durée de son plan (« pas de plan » si son format n'en a pas) et le bouton « Paramétrer le plan » (fenêtre du Calendrier, § 5.3). **Seul lieu de réglage du plan** : la page d'une course et son formulaire n'ont plus que le résumé du plan et un lien « Régler le plan dans Préparation → » (`preparation.html#plans`). Aussi affiché quand aucun Objectif n'est à venir ; absent du site partagé |
+| 14 | *(supprimé le 12 nov. 2026)* | « Plans des courses » : une course n'a plus de plan à elle (§ 1) ; remplacé par 15 et 17. |
+| 15 | Courses du plan | Sous la grille du bloc, titre en libellé : une ligne par course à venir (confirmée ou option) qui a une date, dans l'ordre des dates : nom (lien vers sa page, 1 rem, 600), date et rôle (0,8 rem, Texte discret ; « (option) ») ; dessous, l'avis (§ 3.5) : picto commun et niveau (Accent, Texte discret ou Alerte, 0,8 rem, 600), raison (0,8 rem, Texte), « Sources : … » (0,75 rem, Texte discret, liens) ; un Objectif : pas d'avis, le rond « Régler les phases » (17) ; une Déconseillée que le rôle Plaisir tirerait d'affaire : « Passer en Plaisir » (`mrt-btn`, confirmation du site). Ancre `#courses` (le lien de la page d'une course). Aussi affiché quand aucun Objectif n'est à venir ; sur le site partagé, sans bouton |
+| 16 | Préparatoire conseillée | Sous 15, pour l'Objectif visé (1), selon le § 3.5 : cadre en pointillé Accent (comme une séance proposée) ; « **Préparatoire conseillée** avant Gorges : un trail de 21 à 42 km, sur un terrain proche, du … au … » ; les courses Repérées de la fenêtre avec « Confirmer » (Confirmée, Préparatoire) ; les sources ; « + Ajouter une course » (le bouton de la page Saison, « + Course » sur téléphone ; la fiche du site, Confirmée et Préparatoire). Absent sur le site partagé |
+| 17 | Régler les phases | Rond commun (`mrt-rond`, icône de curseurs) à gauche du plein écran (13), et sur chaque Objectif de 15 : la fenêtre « Paramétrer le plan » de l'Objectif (durée de sa saison, phases semaine par semaine, § 5.3) ; absent du site partagé |
 | 10 | Suite | Les blocs suivants (phases et courses, sans séances tant qu'ils ne sont pas proposés) ; l'historique des propositions (date, bloc, acceptée ou non) |
 
 Téléphone : même ordre ; la frise défile de gauche à droite ; la grille est celle du Mois sur téléphone.
 
-Lot 1 : éléments 1, 3, 4, 7 (puis 5 et 11, supprimés) ; lot 2 : le profil (2) et son état (12) ; lot 3 : la proposition de séances (6, 8, 9) ; la suite (10) au lot 4.
+Lot 1 : éléments 1, 3, 4, 7 (puis 5 et 11, supprimés) ; lot 2 : le profil (2) et son état (12) ; lot 3 : la proposition de séances (6, 8, 9) ; un seul plan (14 supprimé, 15, 16, 17) le 12 novembre 2026 ; la suite (10) au lot 5.
 
 ### 5.2 Profil d'entraînement
 
@@ -192,6 +233,15 @@ Toute fenêtre ou feuille du module (profil, et les suivantes) reprend la feuill
 - Échap ou un clic sur le voile ferme ;
 - sur ordinateur, la feuille à plusieurs écrans (le profil) garde la même taille d'un écran à l'autre (40 rem de haut au plus) ; le contenu glisse en 0,2 s, par la droite quand une question s'ouvre, par la gauche au retour ; pas de glissement sur téléphone ni si l'appareil demande moins de mouvement.
 
+### 5.4 Une course dans la saison (page d'une course, fiche)
+
+La rubrique Préparation de la page d'une course ([Objectif](module-objectif-specification.md), § 3.4, C24) et le bloc Préparation de sa fiche (F39 à F42) montrent sa **place dans la saison**, en lecture, au lieu d'un plan propre à la course :
+
+- **Objectif** : « Objectif · saison de 16 semaines, du lun. 16 nov. 2026 au dim. 7 mars 2027 » (« (raccourcie) » si elle l'est), puis la frise des phases de sa saison ; sans durée de format : « Objectif · pas encore de plan : ce format n'a pas de durée de préparation par défaut. » (une durée se choisit dans Mon plan, rond 17).
+- **Préparatoire, Plaisir** : une ligne, « Préparatoire · semaine 9 sur 16 de la saison de Gorges · 3 jours allégés avant, 19 jours de récupération » (hors saison : « en Entretien, avant la saison de … » ou « en Récupération après … » ; Plaisir : « repos la veille ») ; puis l'avis (§ 3.5) ; une option : « (option) », jugée comme si elle était confirmée.
+- Puis le lien d'action **« Voir dans Mon plan → »** (`preparation.html#courses`), absent en lecture seule ; la mention de la date approximative reste. Plus de semaines ni de séances dans la rubrique : elles sont dans Mon plan et le Calendrier.
+- Dans la fiche, la place se recalcule à chaque changement de date, de format, de distance, de D+, de statut ou de rôle ; dessous : « Les phases se règlent dans Mon plan, une fois la course enregistrée. ».
+
 ## 6. Séances proposées par l'IA
 
 - **Unité** : un bloc de 4 semaines. Proposer la saison entière d'un coup collerait moins à ce qui est vraiment fait, et chaque appel coûterait plus.
@@ -232,7 +282,9 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 1. **Trame de saison et règles de combinaison, sans IA**. **Construit** (8 novembre 2026) : calcul dans `composants/preparation.js` (`planSaison`, `phaseDe`, `reperesDuJour`), page `preparation.html` et composant `composants/plan-saison.js` ; rôles fusionnés (évolution `023-roles-objectif.sql`, à coller dans l'éditeur SQL) ; le Calendrier et Nutrition lisent la phase du plan de préparation. Reste pour plus tard : la rubrique Préparation de la page d'une course dans la saison.
 2. **Profil d'entraînement et séances enrichies**. **Construit** (8 novembre 2026) : évolution `024-profil-entrainement.sql` (à coller dans l'éditeur SQL), fenêtre « Mon profil » et état du profil sur la page Préparation ; durée, distance et intensité facultatives dans la fenêtre d'une séance ([Calendrier](module-calendrier-specification.md), § 4.4). Leur affichage dans les vues viendra avec les séances proposées (lot 3).
 3. **Fonction côté serveur et proposition d'un bloc**. **Construit** (9 novembre 2026), réservé aux pilotes : fonction `supabase/functions/proposer-seances/index.ts` (à créer dans le tableau de bord de Supabase, avec ses secrets `ANTHROPIC_API_KEY` et `PILOTES`), évolution `025-propositions.sql`, composant `composants/seances-ia.js` (contexte, garde-fous, essais) et affichage dans `plan-saison.js`. Ouverture à tous : après la mention de l'envoi à l'IA dans la politique de confidentialité (lot RGPD).
-4. **Réajustement et historique des propositions.**
+4. **Un seul plan** (12 novembre 2026, construit) : page « Mon plan », courses du plan et leur avis, préparatoire conseillée, place d'une course dans la saison (§ 3.5, 5.1, 5.4) ; sans évolution de la base.
+5. **Profil du coureur** (page « Mon profil », un onglet de plus : mesures, niveau, ma semaine, santé, connexions ; temps de référence saisi ou tiré du Palmarès).
+6. **Adaptation** : déplacer une séance (libre, avec un conseil), la commenter (la réadaptation se relance aussitôt), ressenti après séance (échelle de 1 à 10), réajustement et historique des propositions.
 
 ## 9. Questions ouvertes
 
@@ -244,6 +296,8 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 - [x] **Phases Récupération et Entretien** : Récupération en rose, Entretien sans fond (retenu le 8 novembre 2026, [design](design.md), § 10).
 - [x] **Place dans le menu** : à cocher dans les Préférences, comme Nutrition (retenu le 8 novembre 2026).
 - [ ] **Progression du volume** d'une semaine à l'autre : pas de garde-fou chiffré tant qu'aucune source solide n'est trouvée (la règle des 10 % courante n'est pas établie).
+- [x] **Un seul plan** : page « Mon plan », phases réglées sur l'Objectif, avis des courses, préparatoire conseillée, « Passer en Plaisir » (retenu le 12 novembre 2026).
+- [ ] **Sources de la préparatoire conseillée** : lues dans des extraits de recherche ; à vérifier sur les pages entières (copier-coller proposé).
 - [ ] **Saison raccourcie** : faut-il une durée minimale sous laquelle la seconde saison n'a pas de base du tout ?
 
 ## 10. Contrôles
@@ -278,6 +332,17 @@ Résultats attendus, page et profil :
 - Au 30 novembre : « Récupération » dans la case du ven. 4 décembre (pas le 5), « Repos » dans celle du sam. 12 décembre ; la case du 30 novembre au fond de la Base.
 - Calendrier, mars 2027 : affûtage le 2 mars, Récupération le 9, d'une autre couleur.
 - Sans Objectif à venir : le message, pas de frise. Site partagé en lecture seule : la saison s'affiche, sans « + ».
+Résultats attendus, un seul plan (§ 3.5 et 5.4) :
+
+- Courses du plan, dans l'ordre : Trail du Lac (Possible : 16 semaines avant Trail des Gorges, conseillé 4 à 6), Corrida de Noël (Possible), Trail des Gorges (Objectif, rond « Régler les phases »), Trail des Cimes (Possible, 12 semaines avant Trail des Crêtes), Ultra du Plateau (Déconseillée : récupération jusqu'au mar. 17 août 2027, sur l'affûtage de Trail des Crêtes ; sources Trainingplan.dev et Bosquet ; pas de « Passer en Plaisir »), Trail de la Forêt (Possible), Trail des Crêtes (Objectif) ; ordre de la page : le bloc, les courses du plan, la préparatoire conseillée.
+- Préparatoire conseillée : « avant Trail des Gorges : un trail de 21 à 42 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027. », sources iRunFar et Laura Norris, aucune course repérée, « + Ajouter une course » (fiche : Confirmée, Préparatoire ; « + Course » sur téléphone).
+- Une course repérée le dim. 31 janvier 2027 : proposée avec « Confirmer » ; confirmée, elle passe Préparatoire et Conseillée (« 5 semaines avant Trail des Gorges : dans la fenêtre conseillée (4 à 6 semaines) ») ; la préparatoire conseillée disparaît.
+- La Corrida de Noël en Préparatoire le lun. 15 février 2027 : Déconseillée (« à 20 jours de Trail des Gorges (3 semaines conseillées) »), « Passer en Plaisir » ; après confirmation : rôle Plaisir écrit, Possible.
+- Rond « Régler les phases » sur la frise (Trail des Gorges) et sur chaque Objectif des courses du plan, jamais sur une autre course ; 20 semaines et une semaine en Base : durée écrite sur l'Objectif, seule la semaine modifiée rangée ; « Revenir aux règles générales » : plus rien de rangé.
+- Page du Trail des Gorges : « Objectif · saison de 16 semaines, du lun. 16 nov. 2026 au dim. 7 mars 2027 », la frise de sa saison, « Voir dans Mon plan → » ; ni semaines ni réglage. Trail du Lac : « Préparatoire · en Entretien, avant la saison de Trail des Gorges · 3 jours allégés avant, 19 jours de récupération », Possible. Corrida de Noël : « Plaisir · semaine 4 sur 16 de la saison de Trail des Gorges · repos la veille, 6 jours de récupération ». Trail des Cimes : « Préparatoire (option) · semaine 3 sur 16 de la saison de Trail des Crêtes · 3 jours allégés avant, 42 jours de récupération ». Format sans durée : « pas encore de plan » ; 10 semaines choisies dans Mon plan : saison de 10 semaines.
+- Fiche d'une course neuve (Trail, Trail court, sam. 12 juin 2027) : « Préparatoire · semaine 5 sur 16 de la saison de Trail des Crêtes · 3 jours allégés avant ».
+- Onglet, titre de page et lien d'En un coup d'œil : « Mon plan ».
+
 Résultats attendus, profil :
 
 - Profil vide : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. » ; la liste : « Indispensable pour proposer tes séances » (« 0 sur 5 », cinq « À renseigner ») et « Pour affiner (facultatif) », 9 lignes ; ni astérisque ni phrase sur le site partagé.

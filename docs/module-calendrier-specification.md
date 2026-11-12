@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.25 · 11 novembre 2026 · [Retour au sommaire](README.md) · Rond « plein écran » (ordinateur) dans la barre du haut · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de préparation du [module Préparation](module-preparation-specification.md)
+Version 0.26 · 12 novembre 2026 · [Retour au sommaire](README.md) · Un seul plan : la rubrique d'une course montre sa place dans la saison (Préparation, § 5.4), « Paramétrer le plan » s'ouvre depuis Mon plan, sur un Objectif seulement · Avant : Rond « plein écran » (ordinateur) dans la barre du haut · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de préparation du [module Préparation](module-preparation-specification.md)
 
 ## 1. Rôle
 
@@ -212,35 +212,13 @@ Exemple, plan de 10 semaines : Base ×3, Deload, Développement ×3, Deload, Aff
 
 **Récupération après la course** (facultative, réglée course par course, décochée par défaut) : une semaine Deload de plus, la semaine qui suit celle du jour J. Elle n'entre pas dans la durée du plan (« 16 semaines » reste 16), apparaît à la suite de la frise et de la liste des semaines, et se modifie comme les autres semaines.
 
-### 5.2 Plan de page
+### 5.2 Rubrique Préparation d'une course
 
-```
-(1) ⌄ Préparation                        Régler le plan dans Préparation → (2)
-    (3) Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027
-    (4) frise : [Base ▓▓▓ | Del | Base ▓▓ | Dév | … | Affûtage ▓▓]
-    (5) SEMAINE EN COURS · Semaine 9 · Développement
-        lun. 19 │ mar. 20 │ …   séances, rendez-vous clés, jour J
-    (6) ▸ Toutes les semaines (16)
-```
-
-La rubrique est le premier texte de la page de la course, juste sous la fiche, dans le même cadre que les autres textes ; elle est ouverte par défaut. Une semaine tient sur une ligne par jour, à toute largeur. **Frise sur téléphone** : chaque semaine garde 2 rem au moins ; quand la frise ne tient pas dans la largeur, elle défile de gauche à droite (balayage horizontal). Sur téléphone, comme les autres textes, elle se replie sous son titre.
-
-| N° | Élément | Contenu | Règle |
-| --- | --- | --- | --- |
-| 1 | Titre repliable | « Préparation » | Course à venir (confirmée ou option) avec une date seulement ; absente d'une course courue, abandonnée ou repérée |
-| 2 | Lien « Régler le plan dans Préparation → » | Lien d'action vers la page Préparation, bloc « Plans des courses » (`preparation.html#plans`), où se trouve le réglage (§ 5.3) | Absent en lecture seule |
-| 3 | Durée et dates | « Plan de 16 semaines · début … → jour J … » | |
-| 4 | Frise des phases | Cases côte à côte, largeur proportionnelle aux semaines | Lecture seule ici ; à glisser dans « Paramétrer le plan » (page Préparation) |
-| 5 | Semaine mise en avant | Sa phase, ses sept jours, ses séances (case « faite », « + »), rendez-vous clés, jour J | « Semaine en cours » ; avant le début du plan, « Première semaine » ; après le jour J (course non marquée courue), « Dernière semaine » |
-| 6 | Toutes les semaines | Liste dépliable, une semaine par bloc comme (5) | Repliée par défaut |
-
-Course sans durée de prépa (format sans valeur) : la rubrique affiche « Pas encore de plan : ce format n'a pas de durée de préparation par défaut. Règle le plan pour en choisir une. » et le lien (2).
-
-Un lien d'ancre mène à la rubrique : `course.html?id=…#preparation`. Une séance ajoutée depuis cette rubrique est liée à la course.
+Depuis le 12 novembre 2026, une course n'a plus de plan à elle : la rubrique Préparation de sa page montre sa **place dans la saison** ([Préparation](module-preparation-specification.md), § 5.4), avec le lien « Voir dans Mon plan → ». L'ancien plan de page (durée, frise, semaine mise en avant, « Toutes les semaines ») est retiré ; les séances s'ajoutent dans Mon plan ou le Calendrier.
 
 ### 5.3 Fenêtre « Paramétrer le plan »
 
-Le bouton « Paramétrer le plan » de la page Préparation (bloc « Plans des courses », une ligne par course à venir qui a une date) ouvre le réglage complet du plan. C'est le seul lieu de réglage : la rubrique d'une course et le formulaire d'une course n'en ont plus (décidé le 11 novembre 2026), ils renvoient vers la page Préparation.
+Le rond « Régler les phases » de la page Mon plan (sur la frise, pour l'Objectif visé, et sur chaque Objectif de « Courses du plan ») ouvre le réglage complet de la saison de cet Objectif ([Préparation](module-preparation-specification.md), § 5.1, n° 17). C'est le seul lieu de réglage : la rubrique d'une course et le formulaire d'une course n'en ont pas, ils renvoient vers Mon plan. Seul un Objectif se règle (décidé le 12 novembre 2026).
 
 | N° | Élément | Rôle |
 | --- | --- | --- |
@@ -253,7 +231,7 @@ Le bouton « Paramétrer le plan » de la page Préparation (bloc « Plans des c
 
 Le bouton « Paramétrer le plan » ouvre une fenêtre, présentée comme la fiche d'une course : « Annuler » à gauche et « Enregistrer » à droite en haut, le titre en libellé, « Revenir aux règles générales » seul en bas ; « Revenir aux règles générales » (après confirmation) et les changements ne comptent qu'une fois « Enregistrer » pressé, « Annuler » ne range rien. Pour une course sans durée de prépa, la rubrique propose le même bouton, pour en choisir une. Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Paramétrer le plan », ni saisie.
 
-Dans le formulaire d'une course, le bloc Préparation montre le plan calculé sur la date et le format saisis, en lecture, avec la note « Le plan se règle dans Préparation, une fois la course enregistrée. » ; les phases réglées suivent la date quand elle change (Objectif, § 3.7).
+Dans le formulaire d'une course, le bloc Préparation montre sa place dans la saison, calculée sur ce qui est saisi, en lecture, avec la note « Les phases se règlent dans Mon plan, une fois la course enregistrée. » ; les phases réglées d'un Objectif suivent la date quand elle change (Objectif, § 3.7).
 
 ### 5.4 Durées de prépa par défaut (validées, ajustables)
 
@@ -378,7 +356,7 @@ Résultats attendus, plan d'une course :
 - Trail du Lac : 12 semaines, du 24 août au 15 novembre : Base ×3, Deload, Base, Développement ×2, Deload, Développement ×2, Affûtage ×2.
 - Corrida de Noël : 8 semaines, du 19 octobre au 13 décembre : Base ×2, Développement, Deload, Développement ×2, Affûtage ×2.
 - Trail des Crêtes : 16 semaines, du 10 mai au 28 août : même enchaînement que Trail des Gorges.
-- Depuis la page Préparation (bloc « Plans des courses »), « Paramétrer le plan » sur Trail des Gorges, durée portée à 20 semaines : début du plan le 19 octobre ; les phases se recalculent. Mettre la semaine du 7 décembre en Base : seule cette semaine change ; « Revenir aux règles générales » (confirmé) la remet en Deload.
+- Depuis la page Mon plan (rond « Régler les phases »), sur Trail des Gorges, durée portée à 20 semaines : début du plan le 19 octobre ; les phases se recalculent. Mettre la semaine du 7 décembre en Base : seule cette semaine change ; « Revenir aux règles générales » (confirmé) la remet en Deload.
 - Site partagé en lecture seule : le plan s'affiche, sans lien de réglage ni saisie de séance.
 - Adresse d'une course inconnue, d'un autre utilisateur ou sans date : « Course introuvable. » et un lien de retour.
 
