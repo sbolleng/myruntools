@@ -3,13 +3,12 @@
 // Les champs du profil dont la calculatrice du besoin a besoin (sexe, naissance, poids, taille, activité hors
 // sport) : docs/module-nutrition-specification.md, § 2 et 4.5. Un seul formulaire, deux usages :
 //   mrtProfilEncart(el, { profil, id, surEnregistre })    encart du premier usage : les seuls champs qui manquent
-//   mrtProfilFenetre({ profil, id, surEnregistre })       fenêtre « Modifier mon profil » : les cinq champs
+// Ensuite, les mesures se modifient dans Mon profil (composants/profil.js), la page ou sa feuille.
 // Les valeurs sont rangées dans `profils` (règles par ligne : chacun écrit sa ligne seulement).
 // À charger après composants/besoin.js ; surEnregistre(profil) reçoit le profil mis à jour.
 (function () {
   const LIBELLES = { sexe: 'Sexe', naissance: 'Date de naissance', poids: 'Poids', taille: 'Taille', activite: 'Activité hors sport' };
-  const TOUS = ['sexe', 'naissance', 'poids', 'taille', 'activite'];
-  const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const nombre = t => parseFloat(String(t).trim().replace(',', '.'));
 
   function champ(nom, profil) {
@@ -90,18 +89,4 @@
     brancher(el.querySelector('form'), champs, opts, opts.surEnregistre);
   };
 
-  window.mrtProfilFenetre = function (opts) {
-    const voile = document.createElement('div');
-    voile.className = 'pf-voile';
-    voile.innerHTML = '<form class="pf-panneau" role="dialog" aria-modal="true" aria-labelledby="pf-titre" novalidate>' +
-      '<div class="pf-barre"><button type="button" class="mrt-btn" data-act="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div>' +
-      '<p class="pf-titre" id="pf-titre">Mes mesures</p><p class="pf-msg" role="alert"></p>' + TOUS.map(n => champ(n, opts.profil)).join('') + '</form>';
-    document.body.appendChild(voile);
-    const echap = e => { if (e.key === 'Escape') fermer(); };
-    const fermer = () => { voile.remove(); document.removeEventListener('keydown', echap); };
-    document.addEventListener('keydown', echap);
-    voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
-    voile.querySelector('[data-act="annuler"]').addEventListener('click', fermer);
-    brancher(voile.querySelector('form'), TOUS, opts, profil => { fermer(); opts.surEnregistre(profil); });
-  };
 })();

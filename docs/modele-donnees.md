@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.22 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.23 · 12 novembre 2026 · `profils.vma` et `profils.fc_max` supprimées (évolution 033) : une seule VMA et une seule FC max, dans `profil_entrainement` · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -42,8 +42,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `sexe` | Femme, homme, ou non précisé (sert au « 1re ») | Non |
 | `naissance` | Date de naissance | Non |
 | `poids`, `taille`, `pointure` | kg, cm, pointure | Non |
-| `fc_repos`, `fc_max` | Fréquences cardiaques de repos et maximale, en bpm | Non |
-| `vma` | Vitesse maximale aérobie, en km/h | Non |
+| `fc_repos` | Fréquence cardiaque de repos, en bpm (Mon profil, Santé) | Non |
 | `vo2max` | VO2 max, en ml/kg/min | Non |
 | `activite` | Niveau d'activité hors sport : sédentaire, peu actif, actif, très actif (Nutrition ; évolution 019) | Non |
 

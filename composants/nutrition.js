@@ -72,9 +72,8 @@
     if (error) throw error;
     return data || [];
   }
-  // VMA pour la vitesse d'une course sans distance : celle du profil, sinon celle du profil d'entraînement (Préparation).
+  // VMA pour la vitesse d'une course sans distance : celle de Mon profil (rangée avec le niveau, `profil_entrainement`).
   async function lireVma(id, profil) {
-    if (Number(profil && profil.vma) > 0) return Number(profil.vma);
     try { const { data } = await sb().from('profil_entrainement').select('vma').eq('utilisateur', id).maybeSingle(); return data && Number(data.vma) > 0 ? Number(data.vma) : null; }
     catch (e) { return null; }
   }
@@ -687,7 +686,8 @@
       const b = e.target.closest('[data-act]');
       if (!b || !e.currentTarget.contains(b) || b.disabled) return;
       const act = b.dataset.act;
-      if (act === 'profil') window.mrtProfilFenetre({ profil: ctx.profil, id: ctx.id, surEnregistre: redessiner });
+      // Mon profil : la feuille commune (composants/profil.js) ; ses mesures servent au calcul.
+      if (act === 'profil') window.mrtProfil.feuille({ etat: { id: ctx.id, mesures: ctx.profil, courses: ctx.courses }, surMaj: e => redessiner(e.mesures) });
       else if (act === 'fermer') fermerFeuille();
       else if (act === 'retour') { if (feuille && feuille.type === 'activite') retourActivite(); else { S.choix = null; S.msg = ''; dessinerAjout(); } }
       else if (act === 'activite') ouvrirFeuille('activite');

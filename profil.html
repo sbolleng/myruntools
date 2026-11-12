@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<script>
+  // Masquée jusqu'à ce qu'elle soit prête (voir objectif.html).
+  (function () { var c = null, t = null, h = document.documentElement; try { c = sessionStorage.getItem('mrt-entete'); t = localStorage.getItem('mrt-theme'); } catch (e) {}
+    if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noir-orange' : 'blanc-orange';
+    if (t) h.classList.add('t-' + t);
+    h.classList.add(c ? 'mrt-attente-contenu' : 'mrt-attente'); })();
+</script>
+<title>Mon profil · MyRunTools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/preparation.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/profil.css?v=__VERSION__">
+</head>
+<body>
+<main>
+  <h1 class="mrt-sr">Mon profil</h1>
+  <div id="profil"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script src="composants/donnees.js?v=__VERSION__"></script>
+<script src="composants/besoin.js?v=__VERSION__"></script>
+<script src="composants/profil.js?v=__VERSION__"></script>
+<script>
+  // Mon profil : tout ce qui décrit le coureur (spécification Profil). Site partagé en lecture seule : le profil n'est pas partagé.
+  mrtPage({ courant: 'profil.html' }).then(page => {
+    mrtAttendre(mrtProfil.page(document.getElementById('profil'), { id: page.session.id, mesures: page.session.profil || {}, courses: page.courses, lectureSeule: page.lectureSeule }));
+  });
+</script>
+</body>
+</html>

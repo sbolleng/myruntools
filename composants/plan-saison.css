@@ -58,38 +58,8 @@
   .ps-course:hover, .ps-marque:hover { color: var(--accent); }
 }
 
-/* ----- Profil d'entraînement : bouton et état en tête de page ; fenêtre : une liste groupée, une question par écran ----- */
+/* Profil : bouton et état en tête de page ; la feuille et sa liste : profil.css. */
 .ps-profil-haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.4rem 0.8rem; margin-bottom: 0.8rem; }
-.ps-profil-etat { font-size: var(--t-second); color: var(--muted); }
-.ps-profil-etat.is-complet { color: var(--text); }
-/* La feuille est celle d'une course (modale-course.css) : barre du haut avec « ‹ » à gauche et la croix à droite, titre en libellé. */
-.ps-profil-barre { justify-content: space-between; }
-.ps-msg { min-height: 1.2em; margin: 0 0 0.4rem; font-size: var(--t-petit); color: var(--red); }
-.ps-section-t { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; }
-.ps-compte { flex: none; font-size: var(--t-second); font-weight: 400; white-space: nowrap; color: var(--accent); }
-.ps-compte.is-complet { color: var(--muted); }
-.ps-groupe-l { display: flex; flex-direction: column; background: var(--case); border-radius: 8px; overflow: hidden; }
-.ps-ligne-q, .ps-choix { display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 2.9rem; padding: 0.55rem 0.9rem; font: inherit; font-size: var(--t-texte); text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
-.ps-ligne-q + .ps-ligne-q, .ps-choix + .ps-choix { border-top: 1px solid var(--surface); }
-.ps-ligne-q > span:first-child { flex: 1; min-width: 0; }
-.ps-rep { max-width: 55%; overflow: hidden; color: var(--muted); text-align: right; white-space: nowrap; text-overflow: ellipsis; }
-.ps-rep.is-a-faire { color: var(--accent); }
-.ps-ligne-q i, .ps-choix i { flex: none; font-style: normal; color: var(--muted); }
-.ps-choix { justify-content: space-between; }
-.ps-choix i { visibility: hidden; color: var(--accent); }
-.ps-choix.is-on { font-weight: 600; color: var(--accent); }
-.ps-choix.is-on i { visibility: visible; }
-/* Ma semaine : une question par bloc, ses réponses en pastilles (plusieurs pour les jours). */
-.ps-sem-q { padding: 0.8rem 0.9rem; }
-.ps-sem-q + .ps-sem-q { border-top: 1px solid var(--surface); }
-.ps-sem-q .cal-champ { margin-bottom: 0.5rem; }
-.ps-chiffre { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; font-size: var(--t-texte); color: var(--text); }
-.ps-chiffre .mrt-champ { width: 4.5rem; text-align: center; }
-.ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-.ps-valeur { margin-top: 1rem; }
-.ps-valeur .mrt-btn { margin-top: 0.2rem; }
-.ps-profil textarea { resize: vertical; }
-@media (hover: hover) { .ps-ligne-q:hover, .ps-choix:hover { background: color-mix(in srgb, var(--text) 5%, transparent); } }
 
 /* ----- Séances proposées par l'IA : le bouton et ce qui reste ce mois-ci ; la recommandation en attente et ses boutons ;
    les séances proposées dans la grille ----- */

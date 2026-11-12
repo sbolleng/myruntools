@@ -153,7 +153,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 9).
 |---|---|---|
 | 1 | Titre de saison | Sur deux lignes : le **nom** de la course visée (lien vers sa page), puis, petit et discret, sa date (l'année seulement si ce n'est pas l'année en cours) et le temps restant : « dim. 7 mars 2027 · dans 20 sem. » ; sans Objectif à venir, à la place de la page : « Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta saison. » |
 | 11 | *(supprimé)* | L'état de la semaine (phase, semaine n sur N) n'est plus affiché : la frise et le fond des cases le disent. |
-| 2 | Mon profil de coureur | Bouton à contour, en haut à droite : la fenêtre du profil de coureur (§ 5.2) ; aussi quand aucun Objectif n'est à venir ; absent du site partagé |
+| 2 | Mon profil | Bouton à contour, en haut à droite : la feuille Mon profil ([Mon profil](module-profil-specification.md), § 2 ; depuis le 12 nov. 2026 : mesures, niveau, semaine, santé) ; aussi quand aucun Objectif n'est à venir ; absent du site partagé |
 | 12 | État du profil | À gauche du bouton : « Profil à compléter : … » (les champs obligatoires qui manquent) ou « Profil complet. » |
 | 13 | Plein écran | Sur ordinateur seulement : un rond « agrandir » à droite des pastilles de la frise ; la frise prend tout l'écran (4,5 rem de haut), Échap ou le même rond pour sortir ; le Calendrier a le même rond dans sa barre du haut (§ Calendrier) |
 | 3 | Frise de saison | Deux niveaux, au choix par deux pastilles : **En cours** (par défaut ; de la semaine en cours à celle de l'Objectif visé) et **Tout** (jusqu'à la fin de la récupération du dernier Objectif). **Ordinateur** : trois rangées sur une grille d'une colonne par semaine (1,6 rem au moins) : les **dates** (le lundi, une semaine sur deux ou quatre si ça serre), les **phases** en un segment par suite de semaines de même phase (3 rem de haut, coins arrondis, nom écrit dedans ; deux semaines : nom abrégé si besoin ; une semaine : sans nom), les **courses** (▲ puis le nom et la date écrits dessous, repérées par leur rôle, options en pointillé ; celles des dernières semaines s'écrivent vers la gauche) ; légende limitée à ce que la frise montre. **Téléphone** : une liste verticale, une ligne par phase (couleur, nom, dates « 9 → 22 nov », durée), les courses sous leur phase. Chaque course mène à sa page |
@@ -174,6 +174,8 @@ Téléphone : même ordre ; la frise défile de gauche à droite ; la grille est
 Lot 1 : éléments 1, 3, 4, 7 (puis 5 et 11, supprimés) ; lot 2 : le profil (2) et son état (12) ; lot 3 : la proposition de séances (6, 8, 9) ; un seul plan (14 supprimé, 15, 16, 17) le 12 novembre 2026 ; la suite (10) au lot 5.
 
 ### 5.2 Profil d'entraînement
+
+Depuis le 12 novembre 2026, ces questions font partie de [Mon profil](module-profil-specification.md) (sections Mon niveau, Ma semaine, Santé) : le bouton « Mon profil » ouvre la feuille commune, avec aussi les mesures. Ce qui suit reste la règle de chaque question.
 
 Dans la feuille d'une course (§ 5.3). Une liste de questions courtes, une par ligne ; chaque ligne ouvre un écran avec une seule question. Un choix s'enregistre aussitôt et ramène à la liste : pas de bouton « Enregistrer ». Des tranches plutôt que des nombres, sauf pour le repère d'allure, qui doit rester précis. Aucune phrase d'aide.
 
