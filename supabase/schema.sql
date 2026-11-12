@@ -196,6 +196,12 @@ create table seances (
   intensite   seance_intensite,
   origine     seance_origine not null default 'saisie',
   etat        seance_etat not null default 'acceptee',
+  ressenti    smallint check (ressenti between 1 and 10),          -- effort perçu, une fois faite
+  douleur     text check (douleur in ('aucune', 'legere', 'forte')),
+  douleur_ou  text check (char_length(douleur_ou) <= 100),
+  fatigue     smallint check (fatigue between 1 and 5),
+  commentaire text check (char_length(commentaire) <= 300),
+  date_prevue date,                                                -- jour d'origine d'une séance déplacée
   foreign key (utilisateur, course) references courses (utilisateur, id) on delete set null (course)
 );
 create index seances_utilisateur_date on seances (utilisateur, date);
@@ -234,6 +240,8 @@ create table profil_entrainement (
   renfo              smallint check (renfo between 0 and 3),
   moyens             text[] check (moyens <@ array['tapis', 'velo', 'piscine']),
   fragiles           text check (char_length(fragiles) <= 300),
+  blessure           text check (char_length(blessure) <= 300),   -- blessure en cours (Mon profil, Santé)
+  blessure_debut     date,
   maj                timestamptz not null default now(),
   -- Évolution 026 : tranches et semaine type (les colonnes annees … moyens au-dessus ne sont plus employées par le site).
   anciennete     text check (anciennete in ('debut', '1-3', '3-6', '6-10', '10+')),

@@ -358,6 +358,88 @@
 
   // Fenêtre d'une séance ; avec opts.dans (un élément), un écran d'une feuille (Nutrition) : ni barre ni titre (ceux de la
   // feuille), « Enregistrer » collé en bas (mc-pied) ; opts.apres() est appelé après un enregistrement ou une suppression.
+  // ----- Retour sur une séance (spécification Préparation, § 5.5) : faite, ressenti, douleur, fatigue, commentaire -----
+  // Ressenti : effort perçu de 1 (très facile) à 10 (maximal), une fois la séance faite ; douleur : aucune, légère, forte (et où) ;
+  // fatigue du jour : 1 à 5 ; commentaire : 300 caractères au plus, avant comme après la séance.
+  const DOULEURS = { aucune: 'Aucune', legere: 'Légère', forte: 'Forte' };
+  const pastilles = (nom, valeurs, choisie) => '<div class="ps-coches cal-pastilles" data-groupe="' + nom + '">' + valeurs.map(([v, lib]) =>
+    '<button type="button" class="mrt-pastille" data-val="' + v + '" aria-pressed="' + (String(choisie) === String(v)) + '">' + lib + '</button>').join('') + '</div>';
+  function retourHtml(s) {
+    const x = s || {}, faite = !!x.faite, dou = x.douleur || '';
+    return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
+      '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' +
+        '<div class="cal-champ"><span>Ressenti (effort perçu, de 1 à 10)</span>' + pastilles('ressenti', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => [n, n]), x.ressenti) + '</div>' +
+        '<div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', Object.entries(DOULEURS), dou) + '</div>' +
+        '<label class="cal-champ cal-douleur-ou"' + (dou === 'legere' || dou === 'forte' ? '' : ' hidden') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>' +
+        '<div class="cal-champ"><span>Fatigue du jour (de 1 à 5)</span>' + pastilles('fatigue', [1, 2, 3, 4, 5].map(n => [n, n]), x.fatigue) + '</div>' +
+      '</div>' +
+      '<label class="cal-champ"><span>Commentaire</span><textarea class="mrt-champ" name="commentaire" maxlength="300" rows="2" placeholder="ex. genou sensible, pas disponible jeudi">' + esc(x.commentaire || '') + '</textarea><small class="cal-compteur">' + (x.commentaire || '').length + '/300</small></label></section>';
+  }
+  // Branche les pastilles (une seule choisie par groupe, un second toucher la retire), la case « faite » et le compteur.
+  function brancherRetour(f) {
+    const choix = {};
+    f.querySelectorAll('[data-groupe]').forEach(g => { const on = g.querySelector('[aria-pressed="true"]'); choix[g.dataset.groupe] = on ? on.dataset.val : null; });
+    f.addEventListener('click', e => {
+      const b = e.target.closest('[data-groupe] [data-val]');
+      if (!b) return;
+      const g = b.closest('[data-groupe]').dataset.groupe, deja = choix[g] === b.dataset.val;
+      choix[g] = deja ? null : b.dataset.val;
+      b.closest('[data-groupe]').querySelectorAll('[data-val]').forEach(x => x.setAttribute('aria-pressed', String(!deja && x === b)));
+      if (g === 'douleur') f.querySelector('.cal-douleur-ou').hidden = !['legere', 'forte'].includes(choix.douleur);
+    });
+    f.faite.addEventListener('change', () => { f.querySelector('.cal-si-faite').hidden = !f.faite.checked; });
+    f.commentaire.addEventListener('input', () => { f.querySelector('.cal-compteur').textContent = f.commentaire.value.length + '/300'; });
+    return () => {
+      const faite = f.faite.checked, n = k => (choix[k] == null ? null : Number(choix[k]));
+      return { faite, ressenti: faite ? n('ressenti') : null, douleur: faite ? choix.douleur : null,
+        douleur_ou: faite && ['legere', 'forte'].includes(choix.douleur) ? (f.douleur_ou.value.trim() || null) : null,
+        fatigue: faite ? n('fatigue') : null, commentaire: f.commentaire.value.trim() || null };
+    };
+  }
+
+  // ----- Déplacer une séance : libre, avec un conseil quand une règle n'est pas respectée (spécification Préparation, § 5.5) -----
+  // Les règles sont celles des garde-fous de l'IA (§ 6) : jour de course, veille d'une Plaisir, récupération (séance facile
+  // seulement), jour non prévu dans Mon profil, plus de séances dans la semaine que prévu. Rend la liste des conseils.
+  async function conseils(ctx, se) {
+    const j = se.date, out = [], ps = planSaison(Object.assign({ courses: [], semaines: [] }, ctx));
+    let pr = ctx.profil;
+    if (pr === undefined) {
+      try { const { data } = await window.mrtSupabase.from('profil_entrainement').select('*'); pr = (data && data[0]) || null; } catch (e) { pr = null; }
+    }
+    pr = pr || {};
+    if ((ctx.courses || []).some(c => c.date === j && c.etat === 'a_venir' && c.statut === 'confirmee')) out.push('c\'est un jour de course');
+    const reps = reperesDuJour(ps, j);
+    if (reps.some(r => r.type === 'repos')) out.push('c\'est la veille d\'une course Plaisir : repos conseillé');
+    if (reps.some(r => r.type === 'recup') && se.intensite !== 'facile') out.push('c\'est un jour de récupération : séance facile seulement');
+    const jour = (parse(j).getDay() + 6) % 7 + 1, liste = k => (Array.isArray(pr[k]) ? pr[k].map(Number) : []);
+    if (se.type === 'run' && liste('jours_course').length && !liste('jours_course').includes(jour)) out.push('ce jour n\'est pas prévu pour courir (Mon profil)');
+    if (se.type === 'renfo' && liste('jours_renfo').length && !liste('jours_renfo').includes(jour)) out.push('ce jour n\'est pas prévu pour le renforcement (Mon profil)');
+    const max = se.type === 'run' ? pr.nb_sorties : pr.nb_renfo;
+    const n = (ctx.seances || []).filter(x => x.id !== se.id && x.type === se.type && lundiDe(x.date) === lundiDe(j)).length + 1;
+    if (max != null && n > max) out.push(n + (se.type === 'run' ? ' séances de course' : ' renforcements') + ' cette semaine pour ' + max + ' prévu' + (max > 1 ? 's' : ''));
+    return out;
+  }
+  // Après un déplacement (fenêtre ou glisser) : les conseils, s'il y en a ; « Revenir au jour d'avant » remet la séance où elle était.
+  async function conseiller(ctx, se, avant) {
+    const cs = await conseils(ctx, se);
+    if (!cs.length) return;
+    const garder = await window.mrtConfirmer({ texte: 'Conseil : ' + cs.join(' ; ') + '.', action: 'Garder ce jour', annuler: 'Revenir au jour d\'avant' });
+    if (garder) return;
+    const { error } = await window.mrtSupabase.from('seances').update({ date: avant.date, date_prevue: avant.date_prevue || null }).eq('id', se.id);
+    if (error) console.warn(error);
+  }
+  // Le jour d'origine reste celui d'avant le premier déplacement ; revenu à ce jour, la séance n'est plus « déplacée ».
+  const datePrevue = (s, jour) => { const o = s.date_prevue || s.date; return o === jour ? null : o; };
+  async function deplacer(ctx, id, jour) {
+    const s = ctx.seances.find(x => x.id === id);
+    if (!s || s.date === jour || ctx.lectureSeule) return;
+    const { error } = await window.mrtSupabase.from('seances').update({ date: jour, date_prevue: datePrevue(s, jour) }).eq('id', id);
+    if (error) { console.warn(error); return; }
+    await conseiller(ctx, Object.assign({}, s, { date: jour }), s);
+    ctx.actualiser();
+  }
+
   function ouvrirSeance(ctx, opts) {
     const s = opts.seance, dans = opts.dans;
     const champs = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
@@ -367,6 +449,7 @@
       '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
       '<label class="cal-champ"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
       '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label></div>' +
+      retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
     if (dans) {
@@ -377,7 +460,7 @@
       v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
         titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
     }
-    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg');
+    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f);
     if (s) f.type.value = s.type;
     else if (opts.type && TYPES[opts.type]) f.type.value = opts.type; // type proposé par la page qui ouvre la fenêtre (Nutrition)
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
@@ -400,11 +483,14 @@
       const duree = nombre(f.duree.value), distance = nombre(f.distance.value);
       if (duree !== null && !(Number.isInteger(duree) && duree >= 1 && duree <= 1440)) return void (msg.textContent = 'La durée doit être un nombre de minutes entre 1 et 1 440.');
       if (distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
-      const champs = { date, type: f.type.value, libelle, duree_min: duree, distance_km: distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null };
+      const champs = Object.assign({ date, type: f.type.value, libelle, duree_min: duree, distance_km: distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null }, retour(),
+        s ? { date_prevue: date === s.date ? (s.date_prevue || null) : datePrevue(s, date) } : {});
       const { error } = s ? await sb.from('seances').update(champs).eq('id', s.id)
         : await sb.from('seances').insert(Object.assign({ course: opts.course || null }, champs));
       if (error) return echec(error);
-      v.fermer(); ctx.actualiser();
+      v.fermer();
+      if (s && date !== s.date) await conseiller(ctx, Object.assign({}, s, champs), s);
+      ctx.actualiser();
     });
   }
 
@@ -483,6 +569,16 @@
   // Événements d'une zone qui contient des semaines : « + », séance à modifier, « Préparer », case « faite ».
   // courseId : course liée aux séances ajoutées (page d'une course), sinon aucune.
   function brancher(root, ctx, courseId) {
+    // Glisser une séance d'une case à l'autre (ordinateur ; sur téléphone, la date de la fenêtre).
+    if (!ctx.lectureSeule) {
+      let glisse = null;
+      const cible = e => e.target.closest && e.target.closest('[data-jour], [data-jour-ligne]');
+      const nettoyer = () => root.querySelectorAll('.is-cible').forEach(x => x.classList.remove('is-cible'));
+      root.addEventListener('dragstart', e => { const d = e.target.closest && e.target.closest('[data-drag]'); if (!d) return; glisse = d.dataset.drag; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', glisse); });
+      root.addEventListener('dragover', e => { const c = cible(e); if (!c || !glisse) return; e.preventDefault(); if (!c.classList.contains('is-cible')) { nettoyer(); c.classList.add('is-cible'); } });
+      root.addEventListener('dragend', () => { glisse = null; nettoyer(); });
+      root.addEventListener('drop', e => { const c = cible(e); if (!c || !glisse) return; e.preventDefault(); const id = glisse; glisse = null; nettoyer(); deplacer(ctx, id, c.dataset.jour || c.dataset.jourLigne); });
+    }
     root.addEventListener('click', e => {
       const ajout = e.target.closest('[data-ajout]'), edit = e.target.closest('[data-edit]'), prep = e.target.closest('[data-preparer]');
       if (ajout) ouvrirSeance(ctx, { date: ajout.dataset.ajout, course: courseId || null });
@@ -499,6 +595,6 @@
   }
 
   window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    ouvrirSeance, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
+    ouvrirSeance, deplacer, conseils, DOULEURS, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();

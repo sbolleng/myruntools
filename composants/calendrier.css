@@ -62,6 +62,14 @@
 .cal-v-se-txt { min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
 .cal-v-se-txt b { font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .cal-v-se.faite .cal-v-se-txt span { color: var(--muted); text-decoration: line-through; }
+/* Durée et distance sous le libellé ; point de l'intensité devant le type ; picto du commentaire ; case visée pendant un glisser. */
+.cal-v-det { margin-left: 0.3rem; font-size: var(--t-micro); color: var(--muted); }
+.cal-v-int { display: inline-block; width: 0.45rem; height: 0.45rem; margin-right: 0.25rem; vertical-align: 0.05em; border-radius: 50%; background: var(--muted); }
+.cal-v-int.i-moderee { background: var(--ph-developpement); }
+.cal-v-int.i-intense { background: var(--red); }
+.cal-v-com { display: inline-block; width: 0.75rem; height: 0.75rem; margin-left: 0.25rem; vertical-align: -0.1em; color: var(--muted); }
+.cal-v-se[draggable="true"] { cursor: grab; }
+.is-cible { outline: 2px dashed var(--accent); outline-offset: -2px; }
 /* « + » : le petit rond commun (mrt-rond is-petit), posé au coin de la case ou au bout de la ligne ; contour et icône en Accent, plein au survol. */
 .mrt-rond.cal-v-plus { position: absolute; color: var(--accent); border-color: var(--accent); }
 
@@ -129,6 +137,7 @@
 .cal-m-case .cal-v-se { align-items: flex-start; }
 .cal-m-case .cal-v-se input { margin-top: 0.1rem; }
 .cal-m-case .cal-v-se-txt b, .cal-m-case .cal-v-se-txt span { display: block; overflow: hidden; text-overflow: ellipsis; }
+.cal-m-case .cal-v-det { display: block; margin-left: 0; }
 .cal-m-points { display: none; }
 
 /* ----- Semaine : un jour par ligne, une semaine après l'autre (spécification § 4.3 et 4.4) ----- */

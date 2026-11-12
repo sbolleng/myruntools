@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.1 · 12 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.2 · 12 novembre 2026 · [Retour au sommaire](README.md) · Santé : blessure en cours
 
 ## 1. Rôle
 
@@ -9,7 +9,7 @@ Une seule page rassemble tout ce qui décrit le coureur : ses mesures, son nivea
 - La page **Mon profil** (`profil.html`) est au menu par défaut (sixième onglet, après Palmarès ; clé des préférences « Profil »).
 - La **feuille Mon profil** reprend la même liste, au-dessus d'une autre page : le bouton « Mon profil » de Mon plan et le lien « Calculé pour … » de Nutrition l'ouvrent, pour compléter sans changer de page.
 - L'encart du premier usage de Nutrition (les seules mesures qui manquent au calcul) reste : il range les mêmes données.
-- **Hors périmètre** (lot de l'adaptation, avec la mention RGPD) : blessure en cours, ressenti, douleur, fatigue. Connexions (Strava, import d'un fichier) : avec l'import ; pas de section vide d'ici là.
+- Ressenti, douleur et fatigue se notent sur chaque séance ([Préparation](module-preparation-specification.md), § 5.5). Connexions (Strava, import d'un fichier) : avec l'import ; pas de section vide d'ici là.
 
 ## 2. Plan de page
 
@@ -64,6 +64,7 @@ Site partagé en lecture seule : « Le profil n'est pas partagé. »
 | Santé | FC max | 100 à 230 bpm | — | `profil_entrainement.fc_max` |
 | Santé | FC de repos | 30 à 120 bpm | — | `profils.fc_repos` |
 | Santé | Points fragiles | Texte, 300 caractères au plus | — | `profil_entrainement.fragiles` |
+| Santé | Blessure en cours | Texte (300 caractères) et date de début (pas dans le futur) ; « Plus de blessure » l'efface | — | `profil_entrainement.blessure`, `blessure_debut` (évolution 034) |
 
 **Une seule VMA, une seule FC max** : celles de `profil_entrainement` ; les colonnes en double de `profils` sont supprimées (évolution 033, qui reprend leurs valeurs quand elles manquent). Nutrition lit la VMA de Mon profil.
 

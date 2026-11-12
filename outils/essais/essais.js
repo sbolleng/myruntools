@@ -2488,8 +2488,8 @@ const CONTROLES = {
     pb.push(egal(['Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', 'Mon profil'], [await etat(p), (await p.textContent('[data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
     await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     let r = await liste(p);
-    pb.push(egal([true, ['Moi 1 sur 5', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 9, 18, false],
-      [r.feuille, await sections(p), await p.textContent('.ps-profil .fc-libelle'), r.aFaire, r.lignes.length, /\*/.test(r.texte)], 'feuille Mon profil : feuille d\'une course (croix ronde), quatre sections et leur compte, neuf lignes à renseigner, 18 lignes, ni astérisque'));
+    pb.push(egal([true, ['Moi 1 sur 5', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 9, 19, false],
+      [r.feuille, await sections(p), await p.textContent('.ps-profil .fc-libelle'), r.aFaire, r.lignes.length, /\*/.test(r.texte)], 'feuille Mon profil : feuille d\'une course (croix ronde), quatre sections et leur compte, neuf lignes à renseigner, 19 lignes, ni astérisque'));
     pb.push(egal(['Sexe | Homme', 'Pointure | —', 'Course | À renseigner', 'FC de repos | —'], [ligne(r, 'Sexe'), ligne(r, 'Pointure'), ligne(r, 'Course'), ligne(r, 'FC de repos')], 'feuille : mesures lues dans le profil, facultatifs en « — »'));
     pb.push(egal('Dans ton Palmarès : Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026Reprendre', await p.evaluate(() => document.querySelector('.ps-profil .mp-palmares').textContent),
       'repère du Palmarès : la dernière course de 10 km ou semi de moins de 12 mois, avec « Reprendre »'));
@@ -2549,6 +2549,13 @@ const CONTROLES = {
     await p.fill('.ps-profil [name="valeur"]', '186'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await valeur('fc_repos', '52');
     await valeur('fragiles', 'tendon d\'Achille gauche');
+    // Blessure en cours : texte et date de début (pas dans le futur) ; « Plus de blessure » l'efface.
+    await p.click('.ps-profil [data-q="blessure"]'); await p.fill('.ps-profil [name="blessure"]', 'entorse de la cheville droite'); await p.fill('.ps-profil [name="debut"]', '2026-12-01'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await pause();
+    pb.push(egal('La date de début ne peut pas être dans le futur.', await p.textContent('.ps-profil .ps-msg'), 'blessure : début dans le futur refusé'));
+    await p.fill('.ps-profil [name="debut"]', '2026-10-12'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    pb.push(egal(['Blessure en cours | entorse de la cheville droite, depuis le 12 oct.', { blessure: 'entorse de la cheville droite', blessure_debut: '2026-10-12' }], [ligne(await liste(p), 'Blessure en cours'), (c => c && { blessure: c.blessure, blessure_debut: c.blessure_debut })(derniere(d))], 'blessure en cours enregistrée avec le niveau'));
+    await p.click('.ps-profil [data-q="blessure"]'); await p.click('.ps-profil [data-guerie]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    pb.push(egal(['Blessure en cours | —', null], [ligne(await liste(p), 'Blessure en cours'), (derniere(d) || {}).blessure], '« Plus de blessure » : effacée'));
     // Moi : naissance, poids (virgule), taille, activité ; pointure en demi-pointures.
     await valeur('naissance', '2031-01-01', false);
     pb.push(egal('Cette date de naissance n\'est pas possible.', await p.textContent('.ps-profil .ps-msg'), 'naissance impossible refusée'));
@@ -2601,6 +2608,41 @@ const CONTROLES = {
     const s = d.seances[d.seances.length - 1];
     pb.push(egal({ libelle: 'Footing', duree_min: 45, distance_km: 8.5, intensite: 'facile' }, s && { libelle: s.libelle, duree_min: s.duree_min, distance_km: s.distance_km, intensite: s.intensite },
       'séance : durée, distance (virgule acceptée) et intensité enregistrées'));
+    await ctx.close();
+    // Retour sur une séance (lot 6a) : faite, ressenti, douleur (et où), fatigue, commentaire ; durée et distance dans la vue, picto du commentaire.
+    d = copie(x => { x.seances = [{ id: 'se-r', utilisateur: x.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Seuil', faite: false, course: null, duree_min: 60, distance_km: 11, intensite: 'intense', origine: 'saisie', etat: 'acceptee' }]; });
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', 1200, d, {}, PARIS));
+    await p.waitForSelector('[data-drag="se-r"]');
+    pb.push(egal(['Course à pied Seuil1 h · 11 km', 1, 0], await p.evaluate(() => { const e = document.querySelector('[data-drag="se-r"]'); return [e.textContent.replace(/\s+/g, ' ').trim(), e.querySelectorAll('.cal-v-int.i-intense').length, e.querySelectorAll('.cal-v-com').length]; }),
+      'vue : durée sous le libellé, point de l\'intensité, pas de picto sans commentaire'));
+    await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance .cal-retour');
+    pb.push(egal([true, 'Retour sur la séance'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.textContent('.cal-retour .mrt-section-titre')], 'fenêtre : « Retour sur la séance », ressenti caché tant qu\'elle n\'est pas faite'));
+    await p.check('.cal-seance [name="faite"]');
+    await p.click('.cal-seance [data-groupe="ressenti"] [data-val="7"]'); await p.click('.cal-seance [data-groupe="douleur"] [data-val="legere"]');
+    await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit'); await p.click('.cal-seance [data-groupe="fatigue"] [data-val="3"]');
+    await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
+    pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur-ou').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
+    d.ecritures = [];
+    await p.click('.cal-seance button[type="submit"]'); await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    const ecrit = () => d.ecritures.filter(x => x.table === 'seances' && x.methode === 'PATCH').map(x => x.corps);
+    pb.push(egal({ faite: true, ressenti: 7, douleur: 'legere', douleur_ou: 'genou droit', fatigue: 3, commentaire: 'Dur sur la fin', date_prevue: null },
+      (c => c && { faite: c.faite, ressenti: c.ressenti, douleur: c.douleur, douleur_ou: c.douleur_ou, fatigue: c.fatigue, commentaire: c.commentaire, date_prevue: c.date_prevue })(ecrit()[0]), 'retour enregistré avec la séance'));
+    await p.waitForSelector('[data-drag="se-r"] .cal-v-com');
+    pb.push(egal(1, await p.locator('[data-drag="se-r"] .cal-v-com').count(), 'vue : picto du commentaire'));
+    // Déplacer par la fenêtre vers la veille d'une Plaisir (sam. 12 déc.) : le conseil ; « Revenir au jour d'avant » remet la séance.
+    let question = null;
+    await surDialogue(p, q => { question = q; return false; });
+    d.ecritures = [];
+    await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance');
+    await p.fill('.cal-seance [name="date"]', '2026-12-12'); await p.click('.cal-seance button[type="submit"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause(); await pause();
+    pb.push(egal(['Conseil : c\'est la veille d\'une course Plaisir : repos conseillé.', [{ date: '2026-12-12', date_prevue: '2026-10-21' }, { date: '2026-10-21', date_prevue: null }]],
+      [question, ecrit().map(c => ({ date: c.date, date_prevue: c.date_prevue }))], 'déplacement contraire à une règle : conseil, puis « Revenir au jour d\'avant »'));
+    // Glisser la séance au vendredi 23 (aucune règle enfreinte) : déplacée, jour d'origine gardé, pas de conseil.
+    question = null; d.ecritures = [];
+    await p.dragAndDrop('[data-drag="se-r"]', '[data-jour-ligne="2026-10-23"]'); await pause(); await pause();
+    pb.push(egal([null, [{ date: '2026-10-23', date_prevue: '2026-10-21' }]], [question, ecrit().map(c => ({ date: c.date, date_prevue: c.date_prevue }))], 'glisser : séance déplacée, jour d\'origine gardé, pas de conseil'));
+    pb.push(egal([], erreurs, 'retour sur une séance : erreurs JavaScript'));
     await ctx.close();
     // Site partagé : ni bouton ni état du profil.
     const autre = '00000000-0000-0000-0000-00000000000b';
@@ -4284,7 +4326,7 @@ const CONTROLES = {
     await p.waitForSelector('.nu-feuille .cal-seance', { state: 'detached' });
     await p.waitForFunction(() => /3\s539/.test(document.querySelector('.nu-kcal').textContent));
     await p.waitForFunction(() => /Fractionné/.test(document.querySelector('.nu-feuille .nu-seances-f').textContent));
-    pb.push(egal([['POST', 'seances', { course: null, date: '2026-10-20', type: 'run', libelle: 'Fractionné', duree_min: 40, distance_km: 8, intensite: null }], '3 539 kcal', 'Ajouter une activité'],
+    pb.push(egal([['POST', 'seances', { course: null, date: '2026-10-20', type: 'run', libelle: 'Fractionné', duree_min: 40, distance_km: 8, intensite: null, faite: false, ressenti: null, douleur: null, douleur_ou: null, fatigue: null, commentaire: null }], '3 539 kcal', 'Ajouter une activité'],
       [[d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].corps], await kcal(p), norm(await p.locator('#nu-feuille-titre').textContent())], 'séance ajoutée : rangée dans le Calendrier, besoin recalculé (8 km en 40 min), retour à la liste de la feuille'));
     await fermerF(p);
     // Toucher une séance du journal : la feuille Activité s'ouvre sur cette séance ; Supprimer avec la question du site.
