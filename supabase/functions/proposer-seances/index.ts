@@ -4,7 +4,8 @@
 // sans leur nom, profil, séances passées) ; la fonction vérifie l'utilisateur connecté, la liste des pilotes et le plafond,
 // demande les séances à Claude dans un format imposé, range l'appel dans la table « propositions » et rend la réponse.
 // Les garde-fous (jours, durées, récupération, affûtage) sont vérifiés par le site, qui refait une fois la demande (essai 2).
-//   POST { bloc: 'AAAA-MM-JJ', essai: 1 | 2, contexte: {…}, corrections?: ['…'] }
+//   POST { bloc: 'AAAA-MM-JJ', essai: 1 | 2, motif?: 'proposer' | 'refaire' | 'readaptation', contexte: {…}, corrections?: ['…'] }
+//   Une réadaptation (relancée par un commentaire sur une séance) ne compte pas dans le plafond.
 //     → 200 { id, reponse: { recommandation, seances: [{ date, type, libelle, duree_min, distance_km, intensite }] } }
 //     → 401 (pas connecté), 403 { code: 'reserve' } (pas pilote), 429 { code: 'plafond', prochaine }, 502 { code: 'ia' | 'refus' }
 // Réglages (secrets de la fonction, dans le tableau de bord de Supabase ; jamais dans le dépôt) :
@@ -62,6 +63,7 @@ Règles impératives :
 - Respecte le nombre de séances de renforcement par semaine du profil ; la sortie longue le jour prévu par le profil.
 - Pars du volume récent du coureur et progresse prudemment.
 - distance_km : 0 pour une séance de renforcement.
+Retours du coureur (ils priment sur le plan prévu) : pour chaque séance passée, le contexte peut donner le ressenti (effort perçu de 1 à 10), la douleur (aucune, légère, forte, et où), la fatigue du jour (1 à 5), un commentaire et le jour d'origine si elle a été déplacée ; les séances à venir peuvent porter un commentaire (une contrainte, une envie) ; le profil peut donner une blessure en cours. Adapte le bloc en conséquence, toujours dans les règles impératives ; en cas de douleur forte ou de blessure en cours, reste sur des séances faciles et dis-le dans la recommandation, sans avis médical.
 Rends une recommandation pour l'ensemble du bloc (trois phrases au plus, sans détailler chaque séance), puis toutes les séances du bloc, dans l'ordre des dates.`;
 
 Deno.serve(async req => {
@@ -78,15 +80,17 @@ Deno.serve(async req => {
   let corps;
   try { corps = await req.json(); } catch (e) { return repondre(400, { message: 'corps illisible' }); }
   const essai = corps.essai === 2 ? 2 : 1;
+  const motif = ['refaire', 'readaptation'].includes(corps.motif) ? corps.motif : 'proposer';
   if (!/^\d{4}-\d\d-\d\d$/.test(String(corps.bloc || '')) || !corps.contexte) return repondre(400, { message: 'bloc ou contexte manquant' });
 
   // Plafond du mois civil.
   const now = new Date(), debut = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
   const prochaine = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
-  const { data: mois, error: e1 } = await sb.from('propositions').select('essai, statut').gte('cree', debut);
+  const { data: mois, error: e1 } = await sb.from('propositions').select('essai, statut, motif').gte('cree', debut);
   if (e1) return repondre(500, { message: e1.message });
-  const comptees = mois.filter(x => x.essai === 1 && x.statut !== 'echec').length, reprises = mois.filter(x => x.essai === 2).length;
-  if ((essai === 1 && comptees >= PLAFOND) || (essai === 2 && reprises >= PLAFOND)) return repondre(429, { code: 'plafond', prochaine });
+  const horsReadaptation = mois.filter(x => x.motif !== 'readaptation');
+  const comptees = horsReadaptation.filter(x => x.essai === 1 && x.statut !== 'echec').length, reprises = horsReadaptation.filter(x => x.essai === 2).length;
+  if (motif !== 'readaptation' && ((essai === 1 && comptees >= PLAFOND) || (essai === 2 && reprises >= PLAFOND))) return repondre(429, { code: 'plafond', prochaine });
 
   // Appel à Claude : format imposé ; repli côté serveur si le modèle décline (fallbacks « default »).
   const modele = Deno.env.get('MODELE') || 'claude-sonnet-5-5';
@@ -114,7 +118,7 @@ Deno.serve(async req => {
   try { reponse = JSON.parse(texte); } catch (e) { return repondre(502, { code: 'ia', message: 'réponse illisible' }); }
 
   const { data: ligne, error: e2 } = await sb.from('propositions').insert({
-    bloc: corps.bloc, essai, modele: String(rep.model || modele).slice(0, 60),
+    bloc: corps.bloc, essai, motif, modele: String(rep.model || modele).slice(0, 60),
     jetons_entree: (rep.usage && rep.usage.input_tokens) || 0, jetons_sortie: (rep.usage && rep.usage.output_tokens) || 0, reponse
   }).select('id').single();
   if (e2) return repondre(500, { message: e2.message });

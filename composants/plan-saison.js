@@ -39,7 +39,7 @@
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
     if (!prop) return blocAl + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
-      (etat.encours ? 'Proposition en cours…' : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + msg;
+      (etat.encours ? (etat.readaptation ? 'Réadaptation en cours…' : 'Proposition en cours…') : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + msg;
     const seances = IA().seancesDe(prop.reponse), lundis = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)), choisies = etat.semaines || lundis;
     const choixSem = etat.choix ? '<div class="ps-coches ps-prop-sems">' + lundis.map(l => '<button type="button" class="mrt-pastille" data-coche="' + l + '" aria-pressed="' + choisies.includes(l) + '">Semaine ' + window.mrtFormat.semaine(l) + '</button>').join('') + '</div>' : '';
     const actions = etat.choix
@@ -81,6 +81,14 @@
       (sg.reperees.length ? '<p class="ps-sg-sous">Dans tes courses repérées :</p><ul class="ps-sg-liste">' + sg.reperees.map(c => '<li><span>' + nom(c) + ' · ' + longue(c.date) + '</span>' +
         '<button type="button" class="mrt-btn" data-confirmer="' + esc(c.id) + '">Confirmer</button></li>').join('') + '</ul>' : '') +
       '<p class="ps-sg-pied">' + P.sourcesHtml(sg.fenetre.sources) + (ctx.edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-ajouter title="Ajouter une course"><svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</p></section>';
+  }
+
+  // (10) Historique des propositions : replié, une ligne par proposition (date, bloc, motif, statut), la plus récente en haut.
+  function historiqueHtml(ctx) {
+    const h = ctx.lectureSeule || !IA() ? [] : IA().historique(ctx);
+    if (!h.length) return '';
+    return '<details class="ps-historique mrt-deroule"><summary>' + window.mrtIcone.chevron + 'Historique des propositions (' + h.length + ')</summary><ul class="ps-hist-liste">' + h.map(x =>
+      '<li><span>' + window.mrtFormat.date(String(x.cree).slice(0, 10), { annee: false }) + ' · bloc du ' + window.mrtFormat.date(x.bloc, { annee: false }) + '</span><span>' + (IA().MOTIFS[x.motif] || 'Proposer') + '</span><span class="ps-hist-statut s-' + x.statut + '">' + (IA().STATUTS[x.statut] || x.statut) + '</span></li>').join('') + '</ul></details>';
   }
 
   window.renderSaison = function (root, ctx) {
@@ -166,10 +174,18 @@
       // du mois du Calendrier ; dans les cases, les repères et les séances proposées par l'IA, en attente.
       h += '<section class="ps-bloc">' + iaHtml(ctx, lundi, ps.alertes) +
         '<div class="ps-grille">' + window.mrtGrilleMois(ctx, lundi, addDays(lundi, 7 * BLOC - 1), { ps, plus: j => caseHtml(ctx, ps, j) }) + '</div>';
-      root.innerHTML = h + '</section>' + coursesHtml(ctx) + suggestionHtml(ctx, prochaine.course) + '</div>';
+      root.innerHTML = h + historiqueHtml(ctx) + '</section>' + coursesHtml(ctx) + suggestionHtml(ctx, prochaine.course) + '</div>';
     }
 
     ctx.redessiner = dessiner;
+    // Un commentaire sur une séance (fenêtre d'une séance) : la réadaptation se suit dans le bloc de la recommandation.
+    ctx.surCommentaire = async () => {
+      if (!IA()) return;
+      ctx.ia = { encours: true, readaptation: true }; dessiner();
+      const r = await IA().readapter(ctx);
+      await IA().lirePropositions(ctx);
+      ctx.ia = { message: r.reserve ? null : r.message || null }; dessiner();
+    };
     ctx.ia = {};
     root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
     root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); const f = e.target.closest('[data-frise]'); if (f && ctx.friseMaj) ctx.friseMaj(f.dataset.frise); });
@@ -203,7 +219,7 @@
         if (act === 'refaire' && !(await window.mrtConfirmer({ texte: 'Refaire la proposition ? Elle compte pour une (' + IA().restantes(ctx) + ' restantes ce mois-ci).', action: 'Refaire' }))) return;
         ctx.ia = { encours: true }; dessiner();
         if (act === 'refaire' && prop) await IA().abandonner(prop);
-        const r = await IA().proposer(ctx, lundi);
+        const r = await IA().proposer(ctx, lundi, act);
         await IA().lirePropositions(ctx);
         ctx.ia = { message: r.message || null }; dessiner();
       } else if (act === 'choisir' || act === 'sans-choix') { ctx.ia = { choix: act === 'choisir' }; dessiner(); }

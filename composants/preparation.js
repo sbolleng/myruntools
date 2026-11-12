@@ -431,6 +431,14 @@
   }
   // Le jour d'origine reste celui d'avant le premier déplacement ; revenu à ce jour, la séance n'est plus « déplacée ».
   const datePrevue = (s, jour) => { const o = s.date_prevue || s.date; return o === jour ? null : o; };
+  // Réadaptation après un commentaire : sur Mon plan, la page la suit (ctx.surCommentaire) ; ailleurs, un message à la fin.
+  async function relancer(ctx) {
+    if (ctx.lectureSeule || !window.mrtSeancesIA) return;
+    if (ctx.surCommentaire) return ctx.surCommentaire();
+    const r = await window.mrtSeancesIA.readapter(ctx);
+    if (r.reserve) return;
+    await window.mrtConfirmer({ texte: r.message || 'Commentaire pris en compte : une nouvelle proposition de MyRunTools attend dans Mon plan.', action: 'Fermer', seul: true });
+  }
   async function deplacer(ctx, id, jour) {
     const s = ctx.seances.find(x => x.id === id);
     if (!s || s.date === jour || ctx.lectureSeule) return;
@@ -490,7 +498,9 @@
       if (error) return echec(error);
       v.fermer();
       if (s && date !== s.date) await conseiller(ctx, Object.assign({}, s, champs), s);
-      ctx.actualiser();
+      await ctx.actualiser();
+      // Un commentaire nouveau ou changé relance aussitôt la réadaptation par l'IA (lot 6b).
+      if (champs.commentaire && champs.commentaire !== ((s && s.commentaire) || null)) relancer(ctx);
     });
   }
 
