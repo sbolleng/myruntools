@@ -235,26 +235,25 @@
   // Sources (usages d'entraîneurs, pas des études) : une course de la moitié de l'Objectif environ, quelques semaines avant.
   const SRC = {
     norris: ['Laura Norris', 'https://lauranorrisrunning.com/tune-up-races/'],
-    rc: ['RunnersConnect', 'https://runnersconnect.net/?p=25480'],
     mh: ['Marathon Handbook', 'https://marathonhandbook.com/tune-up-race/'],
-    irf: ['iRunFar', 'https://irunfar.com/how-to-choose-a-tune-up-race'],
-    irf100: ['iRunFar', 'https://www.irunfar.com/your-ultra-training-bag-of-tricks-using-races-to-prepare-for-your-goal-event'],
-    ultra: ['UltraRunning', 'https://www.ultrarunning.com/featured/races-as-training-runs/'],
     recup: ['Trainingplan.dev', 'https://www.trainingplan.dev/blog/posts/post-race-recovery'],
     bosquet: ['Bosquet, 2007', 'https://pubmed.ncbi.nlm.nih.gov/17762369/'],
     parry: ['Coach Parry', 'https://blog.coachparry.com/how-many-marathons-should-you-run-in-a-year-the-truth/']
   };
   // Préparatoire conseillée avant un Objectif : sa distance et sa fenêtre (semaines avant le jour J) ; null : aucune source.
+  // Vérifié sur les pages entières (12 nov. 2026) : la moitié de l'Objectif environ, ou un peu plus (Marathon Handbook) ;
+  // semi : 10 ou 15 km, 3 à 6 semaines avant ; marathon : semi, 4 à 6 semaines (Marathon Handbook ; 4 à 8 chez Laura Norris) ;
+  // ultra : par exemple un 50 km avant un 100 km, 4 à 8 semaines avant (Laura Norris).
   function fenetreConseillee(o) {
     const d = Number(o.distance) || 0;
     if (famille(o) === 'trail') {
-      if (d >= 130) return { texte: 'un trail de 80 à 100 km, sur un terrain proche', min: 5, max: 12, sources: [SRC.irf100] };
-      if (d >= 60) return { texte: 'un trail d\'environ 50 km, sur un terrain proche', min: 4, max: 6, sources: [SRC.irf, SRC.ultra] };
-      if (d >= 42) return { texte: 'un trail de 21 à 42 km, sur un terrain proche', min: 4, max: 6, sources: [SRC.irf, SRC.norris] };
+      if (d >= 130) return { texte: 'un trail d\'environ 80 km, sur un terrain proche', min: 4, max: 8, sources: [SRC.mh, SRC.norris] };
+      if (d >= 60) return { texte: 'un trail d\'environ 50 km, sur un terrain proche', min: 4, max: 8, sources: [SRC.norris, SRC.mh] };
+      if (d >= 42) return { texte: 'un trail de 21 à 30 km, sur un terrain proche', min: 4, max: 6, sources: [SRC.mh, SRC.norris] };
       return null;
     }
-    if (d >= 42) return { texte: 'un semi-marathon', min: 4, max: 6, sources: [SRC.mh, SRC.rc] };
-    if (d >= 21) return { texte: 'un 10 km ou un 15 km', min: 3, max: 6, sources: [SRC.norris, SRC.rc] };
+    if (d >= 42) return { texte: 'un semi-marathon', min: 4, max: 6, sources: [SRC.mh, SRC.norris] };
+    if (d >= 21) return { texte: 'un 10 km ou un 15 km', min: 3, max: 6, sources: [SRC.norris, SRC.mh] };
     return null;
   }
   const SOURCES_ALERTE = { 'recup-affutage': [SRC.recup, SRC.bosquet], 'prepa-proche': [SRC.mh, SRC.norris], 'plus-longue': [], proches: [SRC.parry] };
@@ -280,7 +279,7 @@
     if (alertes.length) {
       r.niveau = 'deconseillee';
       r.plaisirAide = role === 'preparatoire' && !alertesDe(Object.assign({}, c, { role: 'plaisir' })).length;
-    } else if (role === 'preparatoire' && f && ecart >= f.min * 7 && ecart <= f.max * 7) r.niveau = 'conseillee';
+    } else if (role === 'preparatoire' && f && r.semaines >= f.min && r.semaines <= f.max) r.niveau = 'conseillee'; // en semaines entières, comme elles s'affichent
     return r;
   }
   const NIVEAUX = { conseillee: 'Conseillée', possible: 'Possible', deconseillee: 'Déconseillée' };

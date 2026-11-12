@@ -2155,14 +2155,14 @@ const CONTROLES = {
     // Une Préparatoire avant la saison, une Plaisir dans la saison, une option (jugée comme si elle était confirmée).
     ({ p, ctx } = await ouvertePrep(copie(), id(1)));
     pb.push(egal({ ligne: 'Préparatoire · en Entretien, avant la saison de Trail des Gorges · 3 jours allégés avant, 19 jours de récupération', avis: 'Possible', raison: '16 semaines avant Trail des Gorges (conseillé : 4 à 6 semaines)',
-      sources: 'Sources : iRunFar, Laura Norris', lien: ['Voir dans Mon plan → preparation.html#courses'], reglage: 0, semaines: 0 }, await place(p), 'Trail du Lac : Préparatoire hors fenêtre, Possible, avec ses sources'));
+      sources: 'Sources : Marathon Handbook, Laura Norris', lien: ['Voir dans Mon plan → preparation.html#courses'], reglage: 0, semaines: 0 }, await place(p), 'Trail du Lac : Préparatoire hors fenêtre, Possible, avec ses sources'));
     await ctx.close();
     ({ p, ctx } = await ouvertePrep(copie(), id(2)));
     pb.push(egal(['Plaisir · semaine 4 sur 16 de la saison de Trail des Gorges · repos la veille, 6 jours de récupération', 'Possible', 'Sans affûtage ; récupération finie avant l\'affûtage de Trail des Gorges'],
       Object.values(await place(p)).slice(0, 3), 'Corrida de Noël : Plaisir dans la saison, Possible'));
     await ctx.close();
     ({ p, ctx } = await ouvertePrep(copie(), id(4)));
-    pb.push(egal(['Préparatoire (option) · semaine 3 sur 16 de la saison de Trail des Crêtes · 3 jours allégés avant, 42 jours de récupération', 'Possible', '12 semaines avant Trail des Crêtes (conseillé : 4 à 6 semaines)'],
+    pb.push(egal(['Préparatoire (option) · semaine 3 sur 16 de la saison de Trail des Crêtes · 3 jours allégés avant, 42 jours de récupération', 'Possible', '12 semaines avant Trail des Crêtes (conseillé : 4 à 8 semaines)'],
       Object.values(await place(p)).slice(0, 3), 'Trail des Cimes (option) : jugée comme si elle était confirmée'));
     await ctx.close();
     ({ p, ctx } = await ouvertePrep(copie(), id(5)));
@@ -2402,9 +2402,9 @@ const CONTROLES = {
       let q = await ouvrir(nav, 'preparation.html', 1200, d1, {}, PARIS);
       await q.p.waitForSelector('.ps-courses');
       let c = await lireC(q.p);
-      pb.push(egal([['Trail du Lac', 'Possible', 0], ['Corrida de Noël', 'Possible', 0], ['Trail des Gorges', null, 0], ['Trail des Cimes', 'Possible', 0], ['Ultra du Plateau', 'Déconseillée', 0], ['Trail de la Forêt', 'Possible', 0], ['Trail des Crêtes', null, 0]], c.lignes,
+      pb.push(egal([['Trail du Lac', 'Possible', 0], ['Corrida de Noël', 'Possible', 0], ['Trail des Gorges', null, 0], ['Trail des Cimes', 'Possible', 0], ['Ultra du Plateau', 'Déconseillée', 0], ['Trail de la Forêt', 'Conseillée', 0], ['Trail des Crêtes', null, 0]], c.lignes,
         'Courses du plan : toutes les courses à venir, dans l\'ordre ; avis des courses qui ne sont pas un Objectif (options jugées comme confirmées) ; pas de « Passer en Plaisir » qui n\'aiderait pas'));
-      pb.push(egal(['Préparatoire conseillée avant Trail des Gorges : un trail de 21 à 42 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027.', 'Sources : iRunFar, Laura Norris', [], 1],
+      pb.push(egal(['Préparatoire conseillée avant Trail des Gorges : un trail de 21 à 30 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027.', 'Sources : Marathon Handbook, Laura Norris', [], 1],
         [c.sg, c.sgSources, c.reperees, c.ajouter], 'préparatoire conseillée : distance, terrain et fenêtre, sources ; aucune course repérée ; « + Ajouter une course »'));
       pb.push(egal(['ps-bloc', 'ps-courses', 'ps-suggestion'], c.ordre, 'Mon plan : le bloc, puis les courses du plan, puis la préparatoire conseillée'));
       await q.p.click('[data-ajouter]'); await q.p.waitForSelector('.fc-fiche');
