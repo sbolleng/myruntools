@@ -135,3 +135,11 @@
 .pr-avis.is-deconseillee .pr-avis-n { color: var(--red); }
 .pr-avis-r { color: var(--text); }
 .pr-sources { font-size: var(--t-petit); color: var(--muted); }
+
+/* ----- Retour sur une séance (fenêtre d'une séance) : faite, ressenti, douleur, fatigue, commentaire ----- */
+.cal-retour { margin-top: 0.4rem; }
+.cal-faite { display: inline-flex; align-items: center; gap: 0.45rem; margin-bottom: 0.6rem; font-size: var(--t-texte); color: var(--text); cursor: pointer; }
+.cal-faite input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
+.cal-pastilles { margin-top: 0.3rem; }
+.cal-pastilles .mrt-pastille { min-width: 2.2rem; justify-content: center; }
+.cal-compteur { display: block; margin-top: 0.2rem; font-size: var(--t-micro); color: var(--muted); text-align: right; }

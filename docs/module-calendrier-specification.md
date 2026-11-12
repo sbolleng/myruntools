@@ -182,6 +182,9 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 
 ### 4.4 Vue Semaine : règles
 
+Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Retour sur la séance » (faite, ressenti, douleur, fatigue, commentaire) et le déplacement avec un conseil ([Préparation](module-preparation-specification.md), § 5.5) ; durée et distance sous le libellé dans les vues, glisser une séance sur ordinateur.
+
+
 - **Liste** : la semaine en cours (ou celle de l'adresse) en tête, puis les suivantes ; trois au départ, deux de plus chaque fois que le bas de la liste approche de l'écran. Pas de flèches.
 - **Semaines passées** : le lien en ajoute quatre au-dessus à chaque toucher, sans que la semaine regardée ne bouge à l'écran. « Aujourd'hui » ramène à la semaine en cours et aux deux suivantes.
 - **Jours** : une ligne par jour, un même fond pour tous (passé compris ; seul le numéro d'un jour passé est atténué) ; pas de total de séances, pas de nom de phase.

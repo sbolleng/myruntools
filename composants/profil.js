@@ -83,7 +83,8 @@
     ['sante', 'Santé', [
       ['fc_max', 'FC max', (m, e) => unite('fc_max', e.fc_max), false, 'nombre'],
       ['fc_repos', 'FC de repos', m => unite('fc_repos', m.fc_repos), false, 'nombre'],
-      ['fragiles', 'Points fragiles', (m, e) => e.fragiles || null, false, 'texte']]]
+      ['fragiles', 'Points fragiles', (m, e) => e.fragiles || null, false, 'texte'],
+      ['blessure', 'Blessure en cours', (m, e) => (e.blessure ? e.blessure + (e.blessure_debut ? ', depuis le ' + window.mrtFormat.date(e.blessure_debut, { annee: false }) : '') : null), false, 'blessure']]]
   ];
   const LIGNES = SECTIONS.flatMap(s => s[2]);
   const ligneDe = cle => LIGNES.find(l => l[0] === cle);
@@ -277,9 +278,28 @@
         });
       }
     }
+    // Blessure en cours : où et quoi, depuis quand ; « Plus de blessure » l'efface (données de santé : visibles de l'utilisateur seul).
+    function blessure() {
+      versQuestion();
+      corps.innerHTML = barre('Blessure en cours', true) + '<form class="ps-valeur" novalidate>' +
+        '<label class="cal-champ"><span>Blessure</span><textarea class="mrt-champ" name="blessure" maxlength="300" rows="2" placeholder="ex. entorse de la cheville droite">' + esc(e().blessure || '') + '</textarea></label>' +
+        '<label class="cal-champ"><span>Depuis le</span><input class="mrt-champ" type="date" name="debut" value="' + esc(e().blessure_debut || '') + '"></label>' +
+        '<button type="submit" class="mrt-btn is-principal">Enregistrer</button>' + (e().blessure ? ' <button type="button" class="mrt-btn" data-guerie>Plus de blessure</button>' : '') + '</form>';
+      const f = corps.querySelector('form');
+      f.addEventListener('submit', ev => {
+        ev.preventDefault();
+        const t = f.blessure.value.trim(), d = f.debut.value || null;
+        if (!t) return void (msg().textContent = 'Décris la blessure, ou touche « Plus de blessure ».');
+        if (d && d > iso(new Date())) return void (msg().textContent = 'La date de début ne peut pas être dans le futur.');
+        garder('entrainement', { blessure: t, blessure_debut: d });
+      });
+      const g = corps.querySelector('[data-guerie]');
+      if (g) g.addEventListener('click', () => garder('entrainement', { blessure: null, blessure_debut: null }));
+    }
     function question(k) {
       const l = ligneDe(k);
       if (!l) return;
+      if (l[4] === 'blessure') return blessure();
       if (l[4] === 'semaine') semaine(); else if (l[4] === 'allure') allure(); else if (l[4] === 'choix') choix(k, l[1]); else champ(k, l[1], l[4]);
     }
     corps.addEventListener('click', ev => {

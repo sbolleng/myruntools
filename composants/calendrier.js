@@ -43,9 +43,15 @@
     // Course, rendez-vous clé (ouverture des inscriptions), séance (case « faite », libellé qui ouvre sa fenêtre), « + ».
     const courseHtml = c => '<a class="cal-v-course ' + couleur(c) + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + esc(c.nom) + '</a>';
     const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ ' + (court ? 'Inscriptions' : 'Ouverture des inscriptions') + ' · ' + esc(c.course) + '</a>';
-    const seanceHtml = s => '<span class="cal-v-se' + (s.faite ? ' faite' : '') + '"><input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') +
+    // La séance : glissable (ordinateur), son type, son libellé, puis durée et distance ; un point à la couleur de son intensité ;
+    // un picto quand elle a un commentaire (jamais sur le site partagé : le retour sur une séance n'est pas partagé).
+    const detail = s => [s.duree_min ? (s.duree_min >= 60 ? Math.floor(s.duree_min / 60) + ' h' + (s.duree_min % 60 ? String(s.duree_min % 60).padStart(2, '0') : '') : s.duree_min + ' min') : '',
+      Number(s.distance_km) > 0 ? String(s.distance_km).replace('.', ',') + ' km' : ''].filter(Boolean).join(' · ');
+    const COMMENTAIRE = '<svg class="cal-v-com" viewBox="0 0 16 16" aria-label="Commentaire" role="img"><path d="M3 3.5h10v7H7l-3 2.5v-2.5H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+    const seanceHtml = s => '<span class="cal-v-se' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + '><input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') +
       ' aria-label="Faite">' + (!ctx.lectureSeule ? '<button type="button" class="cal-v-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-v-se-txt">') +
-      '<b>' + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
+      '<b>' + (s.intensite ? '<i class="cal-v-int i-' + s.intensite + '" title="' + (P.INTENSITES[s.intensite] || '') + '"></i>' : '') + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' +
+      (detail(s) ? '<small class="cal-v-det">' + detail(s) + '</small>' : '') + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
     const plusHtml = jour => (!ctx.lectureSeule ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
     return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml };
   }

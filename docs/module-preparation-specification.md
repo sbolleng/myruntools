@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 1.31 · 12 novembre 2026 · [Retour au sommaire](README.md) · Sources de la préparatoire conseillée vérifiées : Marathon Handbook et Laura Norris seulement ; trail de 21 à 30 km avant 42 à 59 km ; ultras 4 à 8 semaines ; fenêtre en semaines entières · **Un seul plan** : la page s'appelle « Mon plan » ; plus de plan par course ni de bloc « Plans des courses » ; les phases se règlent sur l'Objectif de la saison (rond « Régler les phases ») ; « Courses du plan » avec l'avis de chaque course (Conseillée, Possible, Déconseillée, sources) et « Passer en Plaisir » ; préparatoire conseillée avant l'Objectif visé (§ 3.5) ; la page d'une course et sa fiche montrent sa place dans la saison (§ 5.4) · Avant (1.2) : Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
+Version 1.4 · 12 novembre 2026 · [Retour au sommaire](README.md) · Lot 6a : retour sur une séance (faite, ressenti, douleur, fatigue, commentaire), déplacer librement avec un conseil, durée et distance dans les vues (§ 5.5) · Sources de la préparatoire conseillée vérifiées : Marathon Handbook et Laura Norris seulement ; trail de 21 à 30 km avant 42 à 59 km ; ultras 4 à 8 semaines ; fenêtre en semaines entières · **Un seul plan** : la page s'appelle « Mon plan » ; plus de plan par course ni de bloc « Plans des courses » ; les phases se règlent sur l'Objectif de la saison (rond « Régler les phases ») ; « Courses du plan » avec l'avis de chaque course (Conseillée, Possible, Déconseillée, sources) et « Passer en Plaisir » ; préparatoire conseillée avant l'Objectif visé (§ 3.5) ; la page d'une course et sa fiche montrent sa place dans la saison (§ 5.4) · Avant (1.2) : Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -246,6 +246,25 @@ La rubrique Préparation de la page d'une course ([Objectif](module-objectif-spe
 - Puis le lien d'action **« Voir dans Mon plan → »** (`preparation.html#courses`), absent en lecture seule ; la mention de la date approximative reste. Plus de semaines ni de séances dans la rubrique : elles sont dans Mon plan et le Calendrier.
 - Dans la fiche, la place se recalcule à chaque changement de date, de format, de distance, de D+, de statut ou de rôle ; dessous : « Les phases se règlent dans Mon plan, une fois la course enregistrée. ».
 
+### 5.5 Une séance : la déplacer, la commenter, son retour (lot 6a)
+
+**Fenêtre d'une séance** ([Calendrier](module-calendrier-specification.md), § 4.4), sous les champs : une section « Retour sur la séance » :
+
+```
+(7) ☑ Faite
+(8) Ressenti (effort perçu, de 1 à 10)  (1)(2)…(10)      seulement une fois faite
+(11) Douleur  (Aucune)(Légère)(Forte)   (12) Où [genou droit]   « Où » pour Légère ou Forte
+(13) Fatigue du jour (de 1 à 5)  (1)…(5)
+(9) Commentaire [Dur sur la fin]   14/300                 avant comme après la séance
+```
+
+- Une pastille par groupe ; un second toucher la retire ; décocher « Faite » efface ressenti, douleur et fatigue.
+- **Ressenti** : effort perçu de 1 (très facile) à 10 (maximal). L'échelle détaillée (libellé de chaque niveau) sera donnée plus tard.
+- **Déplacer** : librement, par la date de la fenêtre ou en glissant la séance d'une case à l'autre (ordinateur : Mois, Semaine, grille de Mon plan). Le jour d'origine est gardé (`date_prevue`), effacé si la séance y revient.
+- **Conseil** (10) : après un déplacement qui enfreint une règle des garde-fous (§ 6 : jour de course ; veille d'une Plaisir ; jour de récupération, séance facile seulement ; jour non prévu dans Mon profil ; plus de séances dans la semaine que prévu), la confirmation du site : « Conseil : c'est la veille d'une course Plaisir : repos conseillé. », « Garder ce jour » ou « Revenir au jour d'avant ». Le déplacement est fait d'abord : rien n'est bloqué.
+- **Vues** : sous le libellé, durée et distance (« 1 h · 11 km ») ; devant le type, un point à la couleur de l'intensité (facile, modérée, intense) ; un picto quand la séance a un commentaire. Le retour sur une séance n'est jamais montré sur le site partagé.
+- **Données de santé** : ressenti, douleur, fatigue, commentaire et blessure en cours ([Mon profil](module-profil-specification.md)) ; la page des mentions dit ce qui est recueilli, pourquoi, qui y accède et ce qui est envoyé à l'IA.
+
 ## 6. Séances proposées par l'IA
 
 - **Unité** : un bloc de 4 semaines. Proposer la saison entière d'un coup collerait moins à ce qui est vraiment fait, et chaque appel coûterait plus.
@@ -288,7 +307,7 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 3. **Fonction côté serveur et proposition d'un bloc**. **Construit** (9 novembre 2026), réservé aux pilotes : fonction `supabase/functions/proposer-seances/index.ts` (à créer dans le tableau de bord de Supabase, avec ses secrets `ANTHROPIC_API_KEY` et `PILOTES`), évolution `025-propositions.sql`, composant `composants/seances-ia.js` (contexte, garde-fous, essais) et affichage dans `plan-saison.js`. Ouverture à tous : après la mention de l'envoi à l'IA dans la politique de confidentialité (lot RGPD).
 4. **Un seul plan** (12 novembre 2026, construit) : page « Mon plan », courses du plan et leur avis, préparatoire conseillée, place d'une course dans la saison (§ 3.5, 5.1, 5.4) ; sans évolution de la base.
 5. **Profil du coureur** (page « Mon profil », un onglet de plus : mesures, niveau, ma semaine, santé, connexions ; temps de référence saisi ou tiré du Palmarès).
-6. **Adaptation** : déplacer une séance (libre, avec un conseil), la commenter (la réadaptation se relance aussitôt), ressenti après séance (échelle de 1 à 10), réajustement et historique des propositions.
+6. **Adaptation**. 6a **construit** (12 novembre 2026) : retour sur une séance, déplacer avec un conseil, détail dans les vues (§ 5.5), blessure en cours dans Mon profil, mention des données de santé ; évolution `034-retour-seance.sql`. 6b : la réadaptation (un commentaire relance aussitôt une proposition, sans compter dans le plafond ; l'IA reçoit commentaires, ressentis, déplacements et blessure ; fonction `proposer-seances` à recoller) et l'historique des propositions (date, bloc, motif, statut).
 
 ## 9. Questions ouvertes
 
