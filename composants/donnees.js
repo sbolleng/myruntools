@@ -19,7 +19,7 @@
     { nom: 'Courses à surveiller', libelle: 'Courses', page: 'courses-a-surveiller.html' },
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil', libelle: 'Mon profil', page: 'profil.html' }, // tout ce qui décrit le coureur ; au menu par défaut (sixième onglet)
-    { nom: 'Guide' }
+    { nom: 'Guide', adresse: 'guide.html' } // article de lecture, hors du menu : accessible par son adresse seulement (pas de « page », qui le mettrait au menu)
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif
   window.mrtModules = MODULES;

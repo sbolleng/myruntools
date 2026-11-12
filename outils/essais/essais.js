@@ -4259,6 +4259,55 @@ const CONTROLES = {
     }
     return pb;
   },
+  // Guide (module-guide-specification.md, § 4) : l'article de lecture, hors du menu, connexion requise.
+  async guide(nav, db0) {
+    const pb = [];
+    // Même avec « Guide » dans le menu enregistré, aucun onglet : le module n'a pas de page de menu.
+    const db = JSON.parse(JSON.stringify(db0)); db.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Calendrier', 'Palmarès', 'Guide'];
+    for (const w of [1200, 375]) {
+      const { p, ctx, erreurs } = await ouvrir(nav, 'guide.html', w, db, {}, PARIS);
+      const r = await p.evaluate(() => {
+        const h1 = [...document.querySelectorAll('h1')];
+        return {
+          masquee: document.documentElement.classList.contains('mrt-attente'),
+          titre: document.title, robots: (document.querySelector('meta[name="robots"]') || {}).content,
+          h1: h1.map(h => h.textContent.trim()), h1Invisible: h1.every(h => h.classList.contains('mrt-sr') && h.getBoundingClientRect().width <= 1),
+          visible: (document.querySelector('.gd-titre') || {}).textContent,
+          parties: [...document.querySelectorAll('.gd-partie-titre')].map(h => h.textContent.trim()),
+          menu: !!document.querySelector('.mrt-nav'), onglet: [...document.querySelectorAll('.mrt-tab')].filter(t => /guide/i.test(t.textContent + (t.getAttribute('href') || ''))).length,
+          ongletActif: document.querySelectorAll('.mrt-tab.is-on').length,
+          frises: [...document.querySelectorAll('.gd-frise')].map(f => f.children.length), jours: [...document.querySelectorAll('.gd-jours')].map(f => f.children.length),
+          deroules: document.querySelectorAll('.gd-partie details.mrt-deroule').length, ouverts: document.querySelectorAll('.gd-partie details[open]').length,
+          tuVous: /(?<![\p{L}-])(tu|toi|ton|ta|tes|vous|votre|vos)(?![\p{L}-])/iu.test(document.querySelector('main').textContent),
+          sources: [...document.querySelectorAll('#sources a[href^="http"]')].every(a => a.target === '_blank' && /noopener/.test(a.rel)),
+          debordement: document.documentElement.scrollWidth > innerWidth
+        };
+      });
+      pb.push(egal({ masquee: false, titre: 'Guide · MyRunTools', robots: 'noindex', h1: ['Guide'], h1Invisible: true, visible: 'Du plan à l\'assiette',
+        parties: ['Préparer une saison', 'Bien manger pour courir', 'Nos sources et leurs limites'], menu: true, onglet: 0, ongletActif: 0,
+        frises: [27, 16], jours: [6, 41], deroules: 3, ouverts: 0, tuVous: false, sources: true, debordement: false }, r, 'guide (' + w + ' px)'));
+      pb.push(egal([], erreurs, 'guide (' + w + ' px) : erreurs JavaScript'));
+      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'guide-' + w + '.png'), fullPage: true });
+      if (w === 375) {
+        // Un déroulé ouvert (tableau de la Préparatoire conseillée) : rien ne dépasse non plus.
+        await p.locator('.gd-partie details.mrt-deroule > summary').nth(1).click();
+        await p.clock.runFor(600);
+        pb.push(egal([true, false], await p.evaluate(() => [document.querySelectorAll('.gd-partie details.mrt-deroule')[1].open, document.documentElement.scrollWidth > innerWidth]),
+          'guide (375 px) : déroulé ouvert, sans débordement'));
+      }
+      await ctx.close();
+    }
+    // Sans session : renvoi vers la connexion.
+    const ctx = await nav.newContext();
+    await ctx.route('https://cdn.jsdelivr.net/**', r => r.fulfill({ body: LIB, contentType: 'application/javascript' }));
+    await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ body: '', contentType: 'text/css' }));
+    await simulerBase(ctx, db0);
+    const p = await ctx.newPage();
+    await p.goto(RACINE + 'guide.html');
+    pb.push(egal(true, await p.waitForURL(/connexion\.html/, { timeout: 5000 }).then(() => true, () => false), 'guide sans session : renvoi vers la connexion'));
+    await ctx.close();
+    return pb;
+  },
   // Repasse d'uniformité (design, § 1 et 3) : tailles de l'échelle, libellés en graisse normale, « 1er », confirmations du site,
   // zones de toucher, contrastes de l'Alerte et du Texte discret, espaces insécables.
   async uniformite(nav, db0) {
@@ -4270,13 +4319,13 @@ const CONTROLES = {
       const vu = new Set();
       document.querySelectorAll('main *, .mc-panneau *, .mrt-barre *, .mrt-nav *').forEach(e => {
         if (!e.getClientRects().length || ![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
-        if (e.closest('.mrt-header, .pc-titre, .pc-grand, .nu-kcal-val, .connexion h1, .ml h1, .leaflet-container')) return;
+        if (e.closest('.mrt-header, .pc-titre, .pc-grand, .nu-kcal-val, .gd-titre, .connexion h1, .ml h1, .leaflet-container')) return;
         vu.add(getComputedStyle(e).fontSize);
       });
       return [...vu].sort();
     });
     for (const [page, quoi] of [['index.html', 'Accueil'], ['objectif.html', 'Objectif'], ['course.html?id=' + id(3), 'page d\'une course'], ['palmares.html', 'Palmarès'],
-      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition']]) {
+      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition'], ['guide.html', 'Guide']]) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);
         if (page.startsWith('course.html')) await o.p.waitForSelector('.mc-panneau .pc-titre');
@@ -4365,7 +4414,7 @@ const CONTROLES = {
     };
     const PAGES = [['index.html', 'En un coup d\'œil'], ['objectif.html', 'Saison'], ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'],
       ['courses-a-surveiller.html?vue=tout', 'À surveiller'], ['palmares.html', 'Palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Mon plan'], ['profil.html', 'Mon profil'],
-      ['nutrition.html', 'Nutrition'], ['course.html?id=' + id(3), 'page d\'une course']];
+      ['nutrition.html', 'Nutrition'], ['guide.html', 'Guide'], ['course.html?id=' + id(3), 'page d\'une course']];
     for (const [page, quoi] of PAGES) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);
@@ -4398,7 +4447,7 @@ const CONTROLES = {
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))
-      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'calendrier.html', 'course.html?id=00000000-0000-0000-0001-000000000020', 'courses-a-surveiller.html', 'nutrition.html', 'profil.html'])
+      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'calendrier.html', 'course.html?id=00000000-0000-0000-0001-000000000020', 'courses-a-surveiller.html', 'nutrition.html', 'profil.html', 'guide.html'])
         pb.push(...await sansSaut(nav, db, page, w, page.replace(/\.html.*/, '') + ' ' + nom));
     return pb;
   }

@@ -52,6 +52,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 1.41, construit (reste Ciqual) |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Vue » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.25, construit |
 | [Mon profil](module-profil-specification.md) | Tout ce qui décrit le coureur, en une page et une feuille commune : Moi, Mon niveau, Ma semaine, Santé ; repère d'allure tiré du Palmarès | Version 0.1, construit |
+| [Guide](module-guide-specification.md) | Article de lecture, hors du menu : comment MyRunTools construit un plan de préparation et calcule la nutrition ; sources et limites | Version 0.1, construit |
 | [Module Préparation](module-preparation-specification.md) | Un plan de préparation qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 1.3, lots 1 à 4 construits (lot 3 réservé aux pilotes ; lot 4 : un seul plan, page « Mon plan ») |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
