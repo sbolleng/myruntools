@@ -3718,7 +3718,7 @@ const CONTROLES = {
     pb.push(egal([['PATCH', 'profils', { naissance: '1986-03-15', poids: 70, taille: 175, activite: 'peu' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'enregistrement : seuls les champs de l\'encart'),
       egal(0, await p.locator('.pf-encart').count(), 'encart disparu une fois le profil complet'),
       egal('2 117 kcal', await txt(p, '.nu-kcal'), 'profil A : besoin du jour'),
-      egal('Phase · Entretien', await txt(p, '.nu-phase'), 'hors saison (avant le premier Objectif) : Entretien'),
+      egal('Phase · Entraînement', await txt(p, '.nu-phase'), 'hors saison : Entraînement (la phase du plan n\'est pas affichée)'),
       egal(['Besoin 2 117 kcal', 'Besoin 98–140 g', 'Besoin 265–318 g', 'Besoin 59–82 g'], await p.locator('.nu-jauge-besoin').allTextContents().then(l => l.map(x => x.replace(/\s+/g, ' ').trim())), 'besoin du jour sous chaque jauge'),
       egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement horizontal'),
       egal([], erreurs, 'erreurs JavaScript'));
@@ -3760,7 +3760,7 @@ const CONTROLES = {
 
     // Phase d'après la course cap (choisie dans les préférences) : J-12, J-2, J-1, puis une course lointaine.
     // Phase : celle du plan de saison (spécification Préparation, § 4) ; Carbo-loading de J-3 à J-2 et Veille à J-1 avant la course confirmée la plus proche.
-    for (const [date, attendu] of [['2026-11-01', 'Phase · Affûtage'], ['2026-10-22', 'Phase · Carbo-loading'], ['2026-10-21', 'Phase · Veille de course'], ['2026-12-20', 'Phase · Deload']]) {
+    for (const [date, attendu] of [['2026-11-01', 'Phase · Entraînement'], ['2026-10-22', 'Phase · Carbo-loading'], ['2026-10-21', 'Phase · Veille de course'], ['2026-12-20', 'Phase · Entraînement']]) {
       d = copie(COMPLET);
       const lac = d.courses.find(c => c.course === 'Trail du Lac');
       lac.date = date; lac.prepa_semaines = 12; lac.role = 'objectif'; d.preferences[0].course_cap = lac.id; // un Objectif : sa saison donne la phase
@@ -3846,7 +3846,7 @@ const CONTROLES = {
     // Carte 1 et jauges au départ.
     let d = base();
     let { p, ctx, erreurs } = await ouvrirN(d);
-    pb.push(egal(['Calculé pour H · 70 kg · 175 cm · peu actif ›', 'Phase · Développement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase du plan, besoin'),
+    pb.push(egal(['Calculé pour H · 70 kg · 175 cm · peu actif ›', 'Phase · Entraînement', '2 117 kcal'], [norm(await p.locator('.nu-profil-l').textContent()), norm(await p.locator('.nu-phase').textContent()), await kcal(p)], 'carte du besoin : profil en lecture, phase de Nutrition, besoin'),
       egal(['Mardi 20 octobre', true, 0], [norm(await p.locator('.nu-jour-t').textContent()), await p.locator('[data-act="lendemain"]').isDisabled(), await p.locator('[data-act="aujourdhui"]').count()], 'sélecteur : le jour, pas de jour suivant, pas de rond « » »'),
       egal(['kcal | sous | 350 | Reste 1 767 kcal | Besoin 2 117 kcal', 'p | sous | 6 g | Reste 92 g | Besoin 98–140 g', 'g | sous | 76 g | Reste 189 g | Besoin 265–318 g', 'l | sous | 1 g | Reste 58 g | Besoin 59–82 g'], await jauges(p), 'anneaux : nom, valeur, reste, besoin'),
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
