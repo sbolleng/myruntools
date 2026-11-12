@@ -501,3 +501,22 @@ create policy "traces : les miennes" on storage.objects for all to authenticated
 create policy "traces : partagées avec moi" on storage.objects for select to authenticated
   using (bucket_id = 'traces' and exists (select 1 from public.partages p
     where p.proprietaire::text = (storage.foldername(name))[1] and p.invite = (select auth.uid())));
+
+-- ===== Nouveau compte : profil et préférences créés par la base (évolution 015) =====
+create function public.creer_profil_nouveau_compte() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  insert into public.profils (id, prenom, nom)
+  values (
+    new.id,
+    left(coalesce(trim(new.raw_user_meta_data ->> 'prenom'), ''), 60),
+    left(coalesce(trim(new.raw_user_meta_data ->> 'nom'), ''), 60)
+  )
+  on conflict (id) do nothing;
+  insert into public.preferences (utilisateur) values (new.id)
+  on conflict (utilisateur) do nothing;
+  return new;
+end $$;
+revoke execute on function public.creer_profil_nouveau_compte() from public, anon, authenticated;
+create trigger nouveau_compte after insert on auth.users
+  for each row execute function public.creer_profil_nouveau_compte();
