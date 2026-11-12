@@ -3009,7 +3009,7 @@ const CONTROLES = {
     // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès'], visibles: true }, await p.evaluate(() => {
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil'], visibles: true }, await p.evaluate(() => {
         const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
           visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
@@ -4222,7 +4222,7 @@ const CONTROLES = {
     await p.waitForFunction(() => /Dimanche 18 octobre/.test(document.querySelector('.nu-jour-t').textContent));
     pb.push(egal('2 645 kcal', await kcal(p), 'sans distance ni VMA : 9,5 km/h'));
     await ctx.close();
-    d = base(); d.seances = SEANCES(); d.profils[0].vma = 15;
+    d = base(); d.seances = SEANCES(); d.profil_entrainement = [{ utilisateur: d.profils[0].id, vma: 15 }]; // la VMA de Mon profil
     ({ p, ctx } = await ouvrirN(d));
     await p.click('[data-act="veille"]'); await p.waitForFunction(() => /Lundi/.test(document.querySelector('.nu-jour-t').textContent));
     await p.click('[data-act="veille"]'); await p.waitForFunction(() => /Dimanche 18 octobre/.test(document.querySelector('.nu-jour-t').textContent));
