@@ -66,11 +66,10 @@
     // Comme les boutons « Activité » et « Repas » de la page Nutrition : bouton principal (Accent), « + », libellé et picto.
     const N = window.mrtNutrition || {};
     const saisies = (avecNutrition ? '<button type="button" class="mrt-btn is-principal" data-rapide="repas">' + plus + 'Ajouter un repas' + (N.PICTO_ASSIETTE || '') + '</button>' +
-      '<button type="button" class="mrt-btn is-principal" data-rapide="activite">' + plus + 'Ajouter une activité' + (N.PICTO_HALTERE || '') + '</button>' : '') +
-      '<button type="button" class="mrt-btn is-principal" data-rapide="course">' + plus + 'Ajouter une course</button>';
+      '<button type="button" class="mrt-btn is-principal" data-rapide="activite">' + plus + 'Ajouter une activité' + (N.PICTO_HALTERE || '') + '</button>' : '');
     return '<section class="ac-bloc ac-aujourdhui" data-bloc="aujourdhui"><h2 class="ac-titre"><span>Aujourd\'hui</span><a href="calendrier.html">Calendrier →</a></h2>' +
       (lignes.length ? '<ul class="ac-jour">' + lignes.join('') + '</ul>' : vide('Rien de prévu aujourd\'hui.')) +
-      '<div class="ac-rapide">' + saisies + '</div></section>';
+      (saisies ? '<div class="ac-rapide">' + saisies + '</div>' : '') + '</section>';
   }
 
   // nutrition : { profil, id, semaines, lectureSeule } pour le bloc Nutrition (page index.html).
@@ -92,7 +91,7 @@
     el.querySelectorAll('[data-module]').forEach(b => b.addEventListener('click', () => { b.disabled = true; if (nutrition && nutrition.ajouterModule) nutrition.ajouterModule(b.dataset.module); }));
     el.querySelectorAll('[data-rapide]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.rapide;
-      if (k === 'course') { if (nutrition && nutrition.ajouterCourse) nutrition.ajouterCourse(); } else location.href = 'nutrition.html?ajout=' + k;
+      location.href = 'nutrition.html?ajout=' + k;
     }));
     el.querySelectorAll('[data-faite]').forEach(c => c.addEventListener('change', async () => {
       const { error } = await window.mrtSupabase.from('seances').update({ faite: c.checked }).eq('id', c.dataset.faite);
