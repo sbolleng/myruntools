@@ -2622,16 +2622,20 @@ const CONTROLES = {
     await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit'); await p.click('.cal-seance [data-groupe="fatigue"] [data-val="3"]');
     await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
     pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur-ou').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
+    // Le commentaire relance une réadaptation (lot 6b) : son message, accepté ; puis le conseil d'un déplacement, refusé.
+    let question = null, reponse = true;
+    await surDialogue(p, q => { question = q; return reponse; });
     d.ecritures = [];
     await p.click('.cal-seance button[type="submit"]'); await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
+    for (let k = 0; k < 20 && !question; k++) await pause();
+    await p.waitForFunction(() => !document.querySelector('.mrt-dialogue')).catch(() => {});
     const ecrit = () => d.ecritures.filter(x => x.table === 'seances' && x.methode === 'PATCH').map(x => x.corps);
     pb.push(egal({ faite: true, ressenti: 7, douleur: 'legere', douleur_ou: 'genou droit', fatigue: 3, commentaire: 'Dur sur la fin', date_prevue: null },
       (c => c && { faite: c.faite, ressenti: c.ressenti, douleur: c.douleur, douleur_ou: c.douleur_ou, fatigue: c.fatigue, commentaire: c.commentaire, date_prevue: c.date_prevue })(ecrit()[0]), 'retour enregistré avec la séance'));
     await p.waitForSelector('[data-drag="se-r"] .cal-v-com');
     pb.push(egal(1, await p.locator('[data-drag="se-r"] .cal-v-com').count(), 'vue : picto du commentaire'));
     // Déplacer par la fenêtre vers la veille d'une Plaisir (sam. 12 déc.) : le conseil ; « Revenir au jour d'avant » remet la séance.
-    let question = null;
-    await surDialogue(p, q => { question = q; return false; });
+    question = null; reponse = false;
     d.ecritures = [];
     await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance');
     await p.fill('.cal-seance [name="date"]', '2026-12-12'); await p.click('.cal-seance button[type="submit"]');
