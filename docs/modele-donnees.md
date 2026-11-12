@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.23 · 12 novembre 2026 · `profils.vma` et `profils.fc_max` supprimées (évolution 033) : une seule VMA et une seule FC max, dans `profil_entrainement` · [Retour au sommaire](README.md)
+Version 0.24 · 12 novembre 2026 · nouveau compte : profil et préférences créés par la base (évolution 015) · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 

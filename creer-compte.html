@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<title>Créer un compte · MyRunTools</title>
+<!-- Polices : liées ici (et non importées par la feuille de style), pour être chargées en même temps qu'elle. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+</head>
+<body class="mrt-public">
+<main class="connexion">
+  <h1>MyRunTools</h1>
+  <p class="accroche">La boîte à outils du coureur</p>
+  <h2 class="titre-page">Créer un compte</h2>
+  <form id="form-compte" hidden novalidate>
+    <div class="cc-ligne">
+      <div>
+        <label for="prenom">Prénom<span class="cc-oblig" aria-hidden="true">*</span></label>
+        <input class="mrt-champ" type="text" id="prenom" required maxlength="60" autocomplete="given-name">
+      </div>
+      <div>
+        <label for="nom">Nom<span class="cc-oblig" aria-hidden="true">*</span></label>
+        <input class="mrt-champ" type="text" id="nom" required maxlength="60" autocomplete="family-name">
+      </div>
+    </div>
+    <label for="email" class="champ-suivant">Adresse e-mail<span class="cc-oblig" aria-hidden="true">*</span></label>
+    <input class="mrt-champ" type="email" id="email" required autocomplete="email" inputmode="email" placeholder="toi@exemple.fr">
+    <label for="mdp" class="champ-suivant">Mot de passe<span class="cc-oblig" aria-hidden="true">*</span></label>
+    <input class="mrt-champ" type="password" id="mdp" required autocomplete="new-password" placeholder="14 caractères au moins">
+    <label for="mdp2" class="champ-suivant">Confirmation<span class="cc-oblig" aria-hidden="true">*</span></label>
+    <input class="mrt-champ" type="password" id="mdp2" required autocomplete="new-password">
+    <label class="cc-accord" id="accord" hidden><input type="checkbox" id="accepte"> <span>J'accepte la <a class="mrt-lien" id="lien-confidentialite" target="_blank" rel="noopener">politique de confidentialité</a></span></label>
+    <div id="captcha"></div>
+    <button type="submit" class="mrt-btn is-principal">Créer mon compte</button>
+    <p class="cc-legende"><span class="cc-oblig" aria-hidden="true">*</span> Obligatoire</p>
+  </form>
+  <p class="message" id="message" aria-live="polite"></p>
+  <p class="message"><a class="mrt-lien" href="connexion.html" id="retour">Déjà un compte ? Se connecter</a></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script>
+  // Pas d'en-tête ici : thème par défaut, le visiteur n'est pas encore connu.
+  const cfg = window.MRT_SUPABASE || {};
+  const form = document.getElementById('form-compte'), msg = document.getElementById('message');
+  const champ = id => document.getElementById(id);
+  const prenom = champ('prenom'), nom = champ('nom'), email = champ('email'), mdp = champ('mdp'), mdp2 = champ('mdp2'), accepte = champ('accepte');
+  const dire = (texte, erreur) => { msg.className = 'message' + (erreur ? ' erreur' : ''); msg.textContent = texte; };
+  // Déjà connecté : direction l'accueil.
+  mrtSession().then(s => { if (s) location.replace('index.html'); });
+  if (!cfg.inscription) {
+    dire('Les inscriptions ne sont pas encore ouvertes.');
+  } else {
+    form.hidden = false;
+    mrtOeil(mdp); mrtOeil(mdp2);
+    // Politique de confidentialité : à accepter dès qu'elle existe.
+    if (cfg.confidentialite) { champ('accord').hidden = false; champ('lien-confidentialite').href = cfg.confidentialite; }
+    const captcha = mrtCaptcha(champ('captcha'));
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const vide = [prenom, nom, email, mdp, mdp2].find(c => !c.value.trim());
+      if (vide) { vide.focus(); return dire('Remplis les champs obligatoires.', true); }
+      if (!email.checkValidity()) { email.focus(); return dire('Adresse e-mail invalide.', true); }
+      const regle = mrtRegleMotDePasse(mdp.value, email.value);
+      if (regle) { mdp.focus(); return dire(regle, true); }
+      if (mdp.value !== mdp2.value) { mdp2.focus(); return dire('Les deux saisies sont différentes.', true); }
+      if (cfg.confidentialite && !accepte.checked) { accepte.focus(); return dire('Accepte la politique de confidentialité.', true); }
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      dire('Envoi en cours…');
+      try {
+        // Le lien de l'e-mail ramène sur la connexion, qui dit que l'adresse est confirmée.
+        await mrtCreerCompte(prenom.value.trim(), nom.value.trim(), email.value.trim(), mdp.value,
+          new URL('connexion.html?confirme=1', location.href).href, await captcha.jeton());
+        form.hidden = true;
+        // Même réponse que l'adresse ait déjà un compte ou non.
+        dire('Si l\'adresse est valide, un e-mail de confirmation vient d\'être envoyé. Ouvre le lien pour accéder à ton espace.');
+      } catch (err) {
+        captcha.reinitialiser();
+        dire(err.nature === 'fermee' ? 'Les inscriptions ne sont pas encore ouvertes.'
+          : mrtNatureErreur(err) === 'limite' ? 'Trop de tentatives, réessaie dans quelques minutes.' : 'Création impossible pour l\'instant.', true);
+        btn.disabled = false;
+      }
+    });
+  }
+</script>
+</body>
+</html>
