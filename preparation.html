@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/calendrier.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/plan-saison.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/profil.css?v=__VERSION__">
 </head>
 <body>
 <main>
@@ -45,12 +46,14 @@
 <script src="composants/fiche-course.js?v=__VERSION__"></script>
 <script src="composants/modale-course.js?v=__VERSION__"></script>
 <script src="composants/calendrier.js?v=__VERSION__"></script>
+<script src="composants/besoin.js?v=__VERSION__"></script>
+<script src="composants/profil.js?v=__VERSION__"></script>
 <script src="composants/seances-ia.js?v=__VERSION__"></script>
 <script src="composants/plan-saison.js?v=__VERSION__"></script>
 <script>
   // Mon plan : le plan de saison de l'utilisateur connecté (ou du site partagé), lu dans la base (spécification Préparation, § 5).
   mrtPage({ courant: 'preparation.html', sansEnTete: true, plan: true }).then(page => {
-    const ctx = { courses: page.courses, seances: page.plan.seances, semaines: page.plan.semaines, lectureSeule: page.lectureSeule };
+    const ctx = { courses: page.courses, seances: page.plan.seances, semaines: page.plan.semaines, lectureSeule: page.lectureSeule, id: page.session.id, mesures: page.session.profil || {} };
     ctx.relire = async () => {
       const [courses, plan] = await Promise.all([page.relire(), page.relirePlan()]);
       return { courses, seances: plan.seances, semaines: plan.semaines };

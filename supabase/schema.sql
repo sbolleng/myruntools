@@ -54,8 +54,6 @@ create table profils (
   taille    int          check (taille > 0),    -- cm
   pointure  numeric(3,1) check (pointure > 0),
   fc_repos  int          check (fc_repos > 0),  -- bpm
-  fc_max    int          check (fc_max > 0),    -- bpm
-  vma       numeric(4,1) check (vma > 0),       -- km/h
   vo2max    numeric(4,1) check (vo2max > 0),    -- ml/kg/min
   activite  activite,                           -- niveau d'activité hors sport (Nutrition)
   cree_le   timestamptz not null default now()

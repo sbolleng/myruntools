@@ -18,7 +18,7 @@
     { nom: 'Nutrition', page: 'nutrition.html', defaut: false, aide: 'Ton besoin du jour et ton journal des repas.' }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
     { nom: 'Courses à surveiller', libelle: 'Courses', page: 'courses-a-surveiller.html' },
     { nom: 'Palmarès', page: 'palmares.html' },
-    { nom: 'Profil' },
+    { nom: 'Profil', libelle: 'Mon profil', page: 'profil.html' }, // tout ce qui décrit le coureur ; au menu par défaut (sixième onglet)
     { nom: 'Guide' }
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif

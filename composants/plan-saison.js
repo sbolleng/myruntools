@@ -18,206 +18,11 @@
   // Texte d'une alerte (spécification, § 3.4) : celui de preparation.js, le nom des courses en lien (gras : CSS).
   const texteAlerte = a => P.texteAlerte(a, nom);
 
-  // ----- Profil d'entraînement (spécification, § 5.2) : une liste de lignes ; chaque ligne ouvre une question ;
-  // un choix s'enregistre aussitôt et ramène à la liste. -----
-  const JOURS7 = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-  const JOURS_COURTS = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
-  const ECHELLES = {
-    anciennete: [['debut', 'Je débute'], ['1-3', '1 à 3 ans'], ['3-6', '3 à 6 ans'], ['6-10', '6 à 10 ans'], ['10+', 'Plus de 10 ans']],
-    volume_tranche: [['inconnu', 'Aucune idée'], ['0-20', '0 à 20 km'], ['20-40', '20 à 40 km'], ['40-60', '40 à 60 km'], ['60-80', '60 à 80 km'], ['80+', 'Plus de 80 km']],
-    sortie_tranche: [['-1h', 'Moins de 1 h'], ['1h-1h30', '1 h à 1 h 30'], ['1h30-2h', '1 h 30 à 2 h'], ['2-3h', '2 à 3 h'], ['3h+', 'Plus de 3 h']],
-    seance_max_min: [[45, '45 min'], [60, '1 h'], [90, '1 h 30'], [120, '2 h'], [1440, 'Sans limite']],
-    terrain: [['plat', 'Pas de dénivelé'], ['cotes', 'Petites côtes (moins de 50 m de D+)'], ['vallonne', 'Vallonné (50 à 500 m de D+)'], ['montagne', 'Montagne (plus de 500 m de D+)']],
-    renfo_niveau: [['debutant', 'Débutant'], ['intermediaire', 'Intermédiaire'], ['confirme', 'Confirmé'], ['expert', 'Expert']],
-    allure_type: [['vma', 'VMA'], ['10km', 'Temps sur 10 km'], ['semi', 'Temps sur semi-marathon'], ['inconnu', 'Je ne sais pas']]
-  };
-  const libelleDe = (cle, v) => ((ECHELLES[cle] || []).find(x => String(x[0]) === String(v)) || [])[1] || null;
-  // Ma semaine : jours possibles pour courir et pour le renforcement (un même jour peut avoir les deux), nombre de sorties et de
-  // renforcements, jour à privilégier pour la sortie longue (vide : peu importe). Jours : 1 (lundi) à 7 (dimanche).
-  const joursDe = (pr, k) => (Array.isArray(pr && pr[k]) ? pr[k].map(Number) : []);
-  // Temps : « 45:30 » ou « 1:42:00 » → secondes ; vide → null ; illisible → NaN. Et l'inverse.
-  function secondes(v) {
-    const t = String(v || '').trim();
-    if (!t) return null;
-    const m = t.match(/^(?:(\d+):)?([0-5]?\d):([0-5]\d)$/);
-    return m ? (Number(m[1] || 0) * 3600 + Number(m[2]) * 60 + Number(m[3])) : NaN;
-  }
-  const pad2 = n => String(n).padStart(2, '0');
-  const enTemps = s => (s == null ? '' : (s >= 3600 ? Math.floor(s / 3600) + ':' + pad2(Math.floor(s % 3600 / 60)) : Math.floor(s / 60)) + ':' + pad2(s % 60));
+  // ----- Mon profil (composants/profil.js) : la feuille commune ; ici, les questions indispensables à l'IA qui manquent. -----
   const virgule = v => (v == null ? '' : String(v).replace('.', ','));
-  // Repère d'allure : complet s'il est « je ne sais pas », ou si la valeur de son type est là.
-  const allureFaite = pr => !!pr && (pr.allure_type === 'inconnu' || (pr.allure_type === 'vma' && pr.vma != null) || (pr.allure_type === '10km' && pr.temps_10km_s != null) || (pr.allure_type === 'semi' && pr.temps_semi_s != null));
-  const resumeAllure = pr => (!allureFaite(pr) ? null : pr.allure_type === 'inconnu' ? 'Je ne sais pas' : pr.allure_type === 'vma' ? 'VMA ' + virgule(pr.vma) + ' km/h' :
-    pr.allure_type === '10km' ? '10 km en ' + enTemps(pr.temps_10km_s) : 'Semi en ' + enTemps(pr.temps_semi_s));
-  // Résumé de la semaine : complète quand il y a au moins un jour de course et un nombre de sorties.
-  const resumeSemaine = pr => {
-    if (!joursDe(pr, 'jours_course').length || !pr.nb_sorties) return null;
-    const r = pr.nb_renfo || 0;
-    return pr.nb_sorties + (pr.nb_sorties > 1 ? ' sorties' : ' sortie') + (r ? ', ' + r + (r > 1 ? ' renforcements' : ' renforcement') : '');
-  };
-  // Lignes de la liste : [clé, question, résumé, obligatoire].
-  const lignes = pr => [
-    ['anciennete', 'Je cours depuis', libelleDe('anciennete', pr.anciennete), true],
-    ['volume_tranche', 'Distance par semaine', libelleDe('volume_tranche', pr.volume_tranche), true],
-    ['sortie_tranche', 'Plus longue sortie récente', libelleDe('sortie_tranche', pr.sortie_tranche), true],
-    ['semaine', 'Ma semaine', resumeSemaine(pr), true],
-    ['allure', 'Repère d\'allure', resumeAllure(pr), true],
-    ['seance_max_min', 'Durée maximale d\'une séance', libelleDe('seance_max_min', pr.seance_max_min), false],
-    ['terrain', 'Terrains d\'entraînement', (libelleDe('terrain', pr.terrain) || '').replace(/ \(.*\)$/, '') || null, false],
-    ['renfo_niveau', 'Niveau en renforcement', libelleDe('renfo_niveau', pr.renfo_niveau), false],
-    ['sante', 'FC max et points fragiles', [pr.fc_max ? 'FC max ' + pr.fc_max : '', pr.fragiles ? 'points fragiles' : ''].filter(Boolean).join(', ') || null, false]
-  ];
-  // Questions obligatoires qui manquent (le reste du site s'en sert pour proposer, ou non, des séances).
-  const manquants = pr => lignes(pr || {}).filter(l => l[3] && !l[2]).map(l => l[1].toLowerCase());
-  function ouvrirProfil(ctx) {
-    // La feuille d'une course (modale-course.css) : à la largeur des pages, plein écran sur téléphone ; la croix en haut à droite.
-    const voile = document.createElement('div');
-    voile.className = 'mc-voile';
-    voile.innerHTML = '<div class="mc-panneau mc-ecrans ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
-    const corps = voile.querySelector('.mc-corps');
-    document.body.appendChild(voile);
-    document.documentElement.classList.add('mc-ouvert');
-    const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
-    const clavier = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue, .cal-voile')) fermer(); };
-    document.addEventListener('keydown', clavier);
-    voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
-    const pr = () => ctx.profil || {};
-    const msg = () => corps.querySelector('.ps-msg');
-    // Enregistre les champs donnés (le profil entier, fusionné) ; rend vrai si c'est fait.
-    async function ranger(champs) {
-      const ligne = Object.assign({}, pr(), champs, { maj: new Date().toISOString() });
-      delete ligne.utilisateur;
-      const { error } = await window.mrtSupabase.from('profil_entrainement').upsert(ligne);
-      if (error) { console.warn(error); msg().textContent = 'Enregistrement impossible pour l\'instant.'; return false; }
-      ctx.profil = Object.assign({}, pr(), champs);
-      ctx.redessiner();
-      return true;
-    }
-    // Barre du haut : « ‹ » (retour à la liste) à gauche dans une question, la croix à droite ; dessous, le titre en libellé.
-    // Avec « valider » (Ma semaine), comme les autres fenêtres de saisie du site : « Annuler » à gauche, « Enregistrer » à droite.
-    const barre = (titre, retour, valider) => '<div class="pc-barre ps-profil-barre">' +
-      (valider ? '<button type="button" class="mrt-btn" data-q="liste">Annuler</button><button type="button" class="mrt-btn is-principal" data-enregistrer>Enregistrer</button>' :
-        (retour ? '<button type="button" class="mrt-rond" data-q="liste" aria-label="Retour à la liste" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span></span>') +
-        '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button>') + '</div>' +
-      '<p class="fc-libelle" id="ps-titre">' + titre + '</p><p class="ps-msg" role="alert"></p>';
-
-    // Glissement du contenu (ordinateur seulement, voir modale-course.css) : vers une question par la droite, retour à la liste par la gauche.
-    let ecran = 'liste';
-    const glisse = sens => {
-      corps.classList.remove('mc-glisse-avant', 'mc-glisse-retour');
-      void corps.offsetWidth;
-      corps.classList.add('mc-glisse-' + sens);
-    };
-    const versQuestion = () => { if (ecran === 'liste') glisse('avant'); ecran = 'question'; };
-    function liste() {
-      if (ecran === 'question') glisse('retour');
-      ecran = 'liste';
-      const ls = lignes(pr()), obligatoires = ls.filter(l => l[3]), faites = obligatoires.filter(l => l[2]).length;
-      const ligneHtml = l => '<button type="button" class="ps-ligne-q" data-q="' + l[0] + '"><span>' + l[1] + '</span><span class="ps-rep' + (!l[2] && l[3] ? ' is-a-faire' : '') + '">' + (l[2] ? esc(l[2]) : l[3] ? 'À renseigner' : '—') + '</span><i aria-hidden="true">›</i></button>';
-      corps.innerHTML = barre('Mon profil de coureur', false) +
-        '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Indispensable pour proposer tes séances <span class="ps-compte' + (faites === obligatoires.length ? ' is-complet' : '') + '">' + faites + ' sur ' + obligatoires.length + '</span></h2>' +
-        '<div class="ps-groupe-l">' + obligatoires.map(ligneHtml).join('') + '</div></section>' +
-        '<section class="mrt-section"><h2 class="mrt-section-titre ps-section-t">Pour affiner (facultatif)</h2><div class="ps-groupe-l">' + ls.filter(l => !l[3]).map(ligneHtml).join('') + '</div></section>';
-    }
-    // Une question à choix : un toucher enregistre et revient à la liste.
-    function choix(cle, titre) {
-      versQuestion();
-      corps.innerHTML = barre(titre, true) + '<div class="ps-groupe-l">' + ECHELLES[cle].map(([k, lib]) =>
-        '<button type="button" class="ps-choix' + (String(pr()[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
-      corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', async () => {
-        const val = cle === 'seance_max_min' ? Number(b.dataset.val) : b.dataset.val;
-        if (await ranger({ [cle]: val })) liste();
-      }));
-    }
-    // Ma semaine : jours pour courir et pour le renforcement (cumulables), jour de la sortie longue, en pastilles ; nombres de
-    // sorties et de renforcements, un chiffre de 0 à 7. Les changements sont gardés dans la feuille ; « Enregistrer » (en haut) les range et revient à la liste, « Annuler » les abandonne.
-    function semaine(brouillon) {
-      versQuestion();
-      const p0 = pr(), b = brouillon || { jc: joursDe(p0, 'jours_course'), jr: joursDe(p0, 'jours_renfo'), jl: p0.jour_long || null, ns: p0.nb_sorties, nr: p0.nb_renfo };
-      const pastille = (attr, val, on, lib) => '<button type="button" class="mrt-pastille" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + lib + '</button>';
-      const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
-      const chiffre = (nom, lib, v) => '<label class="ps-sem-q ps-chiffre"><span>' + lib + '</span><input class="mrt-champ" name="' + nom + '" inputmode="numeric" maxlength="1" placeholder="0 à 7" value="' + (v == null ? '' : v) + '"></label>';
-      const section = (titre, html) => '<section class="mrt-section"><h2 class="mrt-section-titre">' + titre + '</h2><div class="ps-groupe-l">' + html + '</div></section>';
-      corps.innerHTML = barre('Ma semaine', true, true) +
-        section('Course',
-          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, b.jc.includes(i + 1), j)).join('')) +
-          chiffre('nb_sorties', 'Séances par semaine', b.ns) +
-          q('Sortie longue', (b.jc.length ? b.jc.map(n => pastille('data-long', n, b.jl === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !b.jl, 'Peu importe'))) +
-        section('Renforcement',
-          q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, b.jr.includes(i + 1), j)).join('')) +
-          chiffre('nb_renfo', 'Séances par semaine', b.nr));
-      const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, c) => a - c));
-      const lire = () => corps.querySelectorAll('.ps-chiffre input').forEach(x => { const t = x.value.trim(); b[x.name === 'nb_sorties' ? 'ns' : 'nr'] = t === '' ? null : t; });
-      corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(btn => btn.addEventListener('click', () => {
-        lire();
-        const d = btn.dataset;
-        if (d.jc) { b.jc = bascule(b.jc, Number(d.jc)); if (b.jl && !b.jc.includes(b.jl)) b.jl = null; }
-        if (d.jr) b.jr = bascule(b.jr, Number(d.jr));
-        if (d.long) b.jl = Number(d.long) || null;
-        semaine(b);
-      }));
-      corps.querySelector('[data-enregistrer]').addEventListener('click', async () => {
-        lire();
-        if ([b.ns, b.nr].some(t => t !== null && !/^[0-7]$/.test(t))) { msg().textContent = 'Un chiffre de 0 à 7.'; return; }
-        msg().textContent = '';
-        if (await ranger({ jours_course: b.jc, jours_renfo: b.jr, jour_long: b.jl, nb_sorties: b.ns === null ? null : Number(b.ns), nb_renfo: b.nr === null ? null : Number(b.nr) })) liste();
-      });
-    }
-    // Repère d'allure : son type, puis sa valeur (« Je ne sais pas » : enregistré aussitôt).
-    function allure(type) {
-      versQuestion();
-      const t = type || pr().allure_type;
-      const saisie = t === 'vma' ? ['VMA (km/h)', virgule(pr().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['Temps sur 10 km', enTemps(pr().temps_10km_s), 'ex. 45:30', 'text'] :
-        t === 'semi' ? ['Temps sur semi-marathon', enTemps(pr().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
-      corps.innerHTML = barre('Repère d\'allure', true) + '<div class="ps-groupe-l">' + ECHELLES.allure_type.map(([k, lib]) =>
-        '<button type="button" class="ps-choix' + (t === k ? ' is-on' : '') + '" data-type="' + k + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' +
-        (saisie ? '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + saisie[0] + '</span><input class="mrt-champ" name="valeur" inputmode="' + saisie[3] + '" placeholder="' + saisie[2] + '" value="' + esc(saisie[1]) + '"></label>' +
-          '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>' : '');
-      corps.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', async () => {
-        if (b.dataset.type === 'inconnu') { if (await ranger({ allure_type: 'inconnu' })) liste(); } else allure(b.dataset.type);
-      }));
-      const f = corps.querySelector('.ps-valeur');
-      if (f) {
-        f.valeur.focus();
-        f.addEventListener('submit', async e => {
-          e.preventDefault();
-          if (t === 'vma') {
-            const x = P.nombre(f.valeur.value);
-            if (x === null || Number.isNaN(x) || x < 8 || x > 30) return void (msg().textContent = 'La VMA doit être comprise entre 8 et 30 km/h.');
-            if (await ranger({ allure_type: 'vma', vma: x })) liste();
-          } else {
-            const x = secondes(f.valeur.value), [a, b2] = t === '10km' ? [1200, 7200] : [3000, 14400];
-            if (x === null || Number.isNaN(x) || x < a || x > b2) return void (msg().textContent = t === '10km' ? 'Le temps sur 10 km s\'écrit 45:30 (entre 20:00 et 2:00:00).' : 'Le temps sur semi s\'écrit 1:42:00 (entre 50:00 et 4:00:00).');
-            if (await ranger(t === '10km' ? { allure_type: '10km', temps_10km_s: x } : { allure_type: 'semi', temps_semi_s: x })) liste();
-          }
-        });
-      }
-    }
-    // FC max et points fragiles : deux champs facultatifs, « Valider ».
-    function sante() {
-      versQuestion();
-      corps.innerHTML = barre('FC max et points fragiles', true) + '<form class="ps-valeur" novalidate>' +
-        '<label class="cal-champ"><span>FC max</span><input class="mrt-champ" name="fc" inputmode="numeric" placeholder="ex. 185" value="' + esc(pr().fc_max == null ? '' : pr().fc_max) + '"></label>' +
-        '<label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(pr().fragiles || '') + '</textarea></label>' +
-        '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>';
-      const f = corps.querySelector('form');
-      f.addEventListener('submit', async e => {
-        e.preventDefault();
-        const fc = P.nombre(f.fc.value);
-        if (fc !== null && (Number.isNaN(fc) || !Number.isInteger(fc) || fc < 100 || fc > 230)) return void (msg().textContent = 'La FC max doit être comprise entre 100 et 230.');
-        if (await ranger({ fc_max: fc, fragiles: f.fragiles.value.trim() || null })) liste();
-      });
-    }
-    corps.addEventListener('click', e => {
-      if (e.target.closest('[data-fermer]')) return fermer();
-      const q = e.target.closest('[data-q]');
-      if (!q) return;
-      const k = q.dataset.q, titre = (lignes(pr()).find(l => l[0] === k) || [])[1];
-      if (k === 'liste') liste(); else if (k === 'semaine') semaine(); else if (k === 'allure') allure(); else if (k === 'sante') sante(); else choix(k, titre);
-    });
-    liste();
-    voile.querySelector('.mc-panneau').focus({ preventScroll: true });
-  }
+  const manquants = pr => window.mrtProfil.manquants(pr);
+  const ouvrirProfil = ctx => window.mrtProfil.feuille({ etat: { id: ctx.id, mesures: ctx.mesures || {}, entrainement: ctx.profil || null, courses: ctx.courses },
+    surMaj: e => { ctx.profil = e.entrainement; ctx.mesures = e.mesures; ctx.redessiner(); } });
 
   // ----- Séances proposées par l'IA (spécification, § 6 ; calcul et appel : seances-ia.js) -----
   const IA = () => window.mrtSeancesIA;
@@ -230,7 +35,7 @@
     const blocAl = listeAl ? '<section class="ps-proposition ps-seul"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '</section>' : '';
     if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return blocAl;
     const etat = ctx.ia || {}, manque = manquants(ctx.profil);
-    if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil de coureur</button></p>';
+    if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
     if (!prop) return blocAl + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
@@ -290,7 +95,7 @@
       // (2) Mon profil et (12) son état : ce qui manque pour proposer des séances.
       const manque = manquants(ctx.profil);
       const profil = ctx.lectureSeule ? '' : '<div class="ps-profil-haut"><span class="ps-profil-etat' + (manque.length ? '' : ' is-complet') + '">' +
-        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil de coureur</button></div>';
+        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil</button></div>';
       if (!prochaine) {
         root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta saison.</p>' + coursesHtml(ctx) + '</div>';
         return;

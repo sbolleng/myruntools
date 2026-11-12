@@ -512,7 +512,7 @@ const CONTROLES = {
     {
       const neuf = jeuObjectif(db0).db; neuf.ecritures = [];
       const o = await ouvrir(nav, 'index.html', 1200, neuf, {}, PARIS);
-      pb.push(egal([['Mon plan', 'Nutrition'], ['Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès']],
+      pb.push(egal([['Mon plan', 'Nutrition'], ['Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.ac-decouvrir button')].map(b => b.textContent),
           document.querySelector('.ac-decouvrir .ac-titre').textContent, [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'Pour aller plus loin : une ligne et son bouton par module absent du menu'));
@@ -520,8 +520,8 @@ const CONTROLES = {
       await o.p.click('.ac-decouvrir [data-module="Préparation"]');
       await o.p.waitForSelector('.mrt-tab:has-text("Mon plan")');
       const e = neuf.ecritures.filter(x => x.table === 'preferences')[0];
-      pb.push(egal(['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès', 'Cette semaine', 'Profil', 'Guide'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
-      pb.push(egal([['Nutrition'], ['En un coup d\'œil', 'Saison', 'Mon plan', 'Calendrier', 'Courses', 'Palmarès']],
+      pb.push(egal(['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès', 'Profil', 'Cette semaine', 'Guide'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
+      pb.push(egal([['Nutrition'], ['En un coup d\'œil', 'Saison', 'Mon plan', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'après l\'ajout : l\'onglet Mon plan apparaît, sa ligne disparaît'));
       pb.push(egal(['Mon plan →', 'preparation.html'], await o.p.evaluate(() => { const l = document.querySelector('[data-bloc="dicila"] .ac-titre a'); return [l && l.textContent.trim(), l && l.getAttribute('href')]; }),
@@ -603,10 +603,10 @@ const CONTROLES = {
     // Menu
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     // Le menu ne montre que les modules construits ; les autres sont sur une ligne, « bientôt ».
-    const construits = ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès'];
+    const construits = ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
-    pb.push(egal(5, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les cinq modules construits cochés, En un coup d\'œil compris, sauf Nutrition (à cocher)'));
-    pb.push(egal('Bientôt dans le menu : Cette semaine, Profil, Guide.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
+    pb.push(egal(6, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les six modules par défaut cochés, En un coup d\'œil et Mon profil compris, sauf Mon plan et Nutrition (à cocher)'));
+    pb.push(egal('Bientôt dans le menu : Cette semaine, Guide.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
     // Réglage rare : les flèches n'apparaissent qu'après « Réorganiser » (Menu et En un coup d'œil), qui devient « Terminé ».
     pb.push(egal([0, 0, 'Réorganiser', 'Réorganiser', 0], await p.evaluate(() => [document.querySelectorAll('.pref-fleches').length, document.querySelectorAll('[data-monter]').length,
       document.querySelector('#bloc-menu .pref-reorg').textContent, document.querySelector('#bloc-accueil .pref-reorg').textContent, document.querySelectorAll('.pref-defaut').length]), 'Préférences : ni flèches ni « Réinitialiser l\'ordre » tant qu\'on ne réorganise pas'));
@@ -616,7 +616,7 @@ const CONTROLES = {
     // Préparation (non cochée) est entre Saison et Calendrier dans la liste : deux clics pour passer devant Saison.
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Calendrier', 'Saison', 'Courses', 'Palmarès'];
+    const monte = ['En un coup d\'œil', 'Calendrier', 'Saison', 'Courses', 'Palmarès', 'Mon profil'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -629,7 +629,7 @@ const CONTROLES = {
     pb.push(egal(['En un coup d\'œil'], await menu(), 'un seul module affiché'));
     pb.push(egal(true, await q('.pref-modules input[data-i]:checked', 'x.disabled'), 'dernière case non décochable'));
     // Les modules « bientôt » restent dans la liste enregistrée, à la fin : ils entreront dans le menu une fois construits.
-    pb.push(egal(['En un coup d\'œil', 'Cette semaine', 'Profil', 'Guide'], db.preferences[0].modules, 'modules « bientôt » gardés dans la liste enregistrée'));
+    pb.push(egal(['En un coup d\'œil', 'Cette semaine', 'Guide'], db.preferences[0].modules, 'modules « bientôt » gardés dans la liste enregistrée'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
 
     // Cap
@@ -2473,34 +2473,40 @@ const CONTROLES = {
       texte: document.querySelector('.ps-profil').textContent
     }));
     const derniere = d => { const e = d.ecritures.filter(x => x.table === 'profil_entrainement').pop(); return e && e.corps; };
-    // Profil vide : la liste, ce qui manque, aucune astérisque ni phrase sur le site partagé.
+    const sections = p => p.evaluate(() => [...document.querySelectorAll('.ps-profil .ps-section-t, .mp-cadre .ps-section-t')].map(e => e.childNodes[0].textContent.trim() + (e.querySelector('.ps-compte') ? ' ' + e.querySelector('.ps-compte').textContent : '')));
+    const ligne = (r, debut) => r.lignes.find(l => l.startsWith(debut + ' |'));
+    const mesures = d => Object.assign({}, ...d.ecritures.filter(x => x.table === 'profils' && x.methode === 'PATCH').map(x => x.corps));
+    // Profil vide (seul le sexe est connu) : la feuille « Mon profil » depuis Mon plan, quatre sections, ce qui manque.
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForFunction(() => /Profil/.test((document.querySelector('.ps-profil-etat') || {}).textContent || ''));
-    pb.push(egal('Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', await etat(p), 'profil vide : les cinq questions indispensables'));
+    pb.push(egal(['Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', 'Mon profil'], [await etat(p), (await p.textContent('[data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
     await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     let r = await liste(p);
-    pb.push(egal([true, ['Indispensable pour proposer tes séances', 'Pour affiner (facultatif)'], '0 sur 5', 5, 9, false, false],
-      [r.feuille, r.sections, r.compte, r.aFaire, r.lignes.length, /\*/.test(r.texte), /site partagé/.test(r.texte)], 'liste : feuille d\'une course (croix ronde, pas de bouton « Fermer »), deux sections, « 0 sur 5 », cinq lignes à renseigner, ni astérisque ni mention du site partagé'));
-    // Largeur fixe sur ordinateur : la liste et les neuf questions ont la même largeur ; le contenu glisse (par la droite à l'ouverture, par la gauche au retour).
+    pb.push(egal([true, ['Moi 1 sur 5', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 9, 18, false],
+      [r.feuille, await sections(p), await p.textContent('.ps-profil .fc-libelle'), r.aFaire, r.lignes.length, /\*/.test(r.texte)], 'feuille Mon profil : feuille d\'une course (croix ronde), quatre sections et leur compte, neuf lignes à renseigner, 18 lignes, ni astérisque'));
+    pb.push(egal(['Sexe | Homme', 'Pointure | —', 'Course | À renseigner', 'FC de repos | —'], [ligne(r, 'Sexe'), ligne(r, 'Pointure'), ligne(r, 'Course'), ligne(r, 'FC de repos')], 'feuille : mesures lues dans le profil, facultatifs en « — »'));
+    pb.push(egal('Dans ton Palmarès : Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026Reprendre', await p.evaluate(() => document.querySelector('.ps-profil .mp-palmares').textContent),
+      'repère du Palmarès : la dernière course de 10 km ou semi de moins de 12 mois, avec « Reprendre »'));
+    // Même taille pour la liste et chaque question ; le contenu glisse (par la droite à l'ouverture, par la gauche au retour).
     const largeur = () => p.evaluate(() => (r => Math.round(r.width) + 'x' + Math.round(r.height))(document.querySelector('.ps-profil').getBoundingClientRect()));
     const l0 = await largeur(), largeurs = [], glisses = [];
-    for (const q of ['anciennete', 'volume_tranche', 'sortie_tranche', 'semaine', 'allure', 'seance_max_min', 'terrain', 'renfo_niveau', 'sante']) {
+    for (const q of ['sexe', 'naissance', 'poids', 'activite', 'anciennete', 'semaine', 'allure', 'terrain', 'fc_max', 'fragiles']) {
       await p.click('.ps-profil [data-q="' + q + '"]');
       glisses.push(await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-avant')));
       largeurs.push(await largeur());
       await p.click('.ps-profil [data-q="liste"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     }
     pb.push(egal([true, true, true], [largeurs.every(x => x === l0), glisses.every(Boolean), await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-retour'))],
-      'profil sur ordinateur : même taille (largeur et hauteur) pour la liste et les neuf questions, glissement vers la droite à l\'ouverture, vers la gauche au retour'));
+      'profil sur ordinateur : même taille pour la liste et les questions, glissement vers la droite à l\'ouverture, vers la gauche au retour'));
     // Une question à choix : un toucher enregistre et revient à la liste.
     await p.click('.ps-profil [data-q="anciennete"]');
     pb.push(egal(['Je débute', '1 à 3 ans', '3 à 6 ans', '6 à 10 ans', 'Plus de 10 ans'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil .ps-choix')].map(b => b.childNodes[0].textContent)), 'Je cours depuis : cinq tranches'));
     await p.click('.ps-profil [data-val="3-6"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
-    pb.push(egal([{ anciennete: '3-6' }, 'Je cours depuis | 3 à 6 ans', '1 sur 5'], [(c => c && { anciennete: c.anciennete })(derniere(d)), (await liste(p)).lignes[0], (await liste(p)).compte], 'choix enregistré aussitôt, retour à la liste'));
+    pb.push(egal([{ anciennete: '3-6' }, 'Je cours depuis | 3 à 6 ans', 'Mon niveau 1 sur 4'], [(c => c && { anciennete: c.anciennete })(derniere(d)), ligne(await liste(p), 'Je cours depuis'), (await sections(p))[1]], 'choix enregistré aussitôt, retour à la liste'));
     await p.click('.ps-profil [data-q="volume_tranche"]'); await p.click('.ps-profil [data-val="inconnu"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await p.click('.ps-profil [data-q="sortie_tranche"]'); await p.click('.ps-profil [data-val="1h30-2h"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
-    // Ma semaine : jours pour courir (mardi, jeudi, samedi, dimanche), 3 sorties, sortie longue le dimanche puis le dimanche retiré
+    // Ma semaine : jours pour courir (mardi, jeudi, samedi, dimanche), 3 séances, sortie longue le dimanche puis le dimanche retiré
     // (sortie longue : peu importe) ; renforcement mardi et jeudi (cumul avec la course), 1 par semaine.
     await p.click('.ps-profil [data-q="semaine"]');
     const tap = async sel => { await p.click('.ps-profil ' + sel); await pause(); };
@@ -2508,7 +2514,7 @@ const CONTROLES = {
     const chiffre = async (nom, v) => { await p.fill('.ps-profil [name="' + nom + '"]', v); await pause(); };
     const avant = JSON.stringify(derniere(d));
     await chiffre('nb_sorties', '8'); await p.click('.ps-profil [data-enregistrer]'); await pause();
-    pb.push(egal(['Un chiffre de 0 à 7.', avant], [await p.textContent('.ps-profil .ps-msg'), JSON.stringify(derniere(d))], 'nombre de sorties : 8 refusé, rien d\'enregistré'));
+    pb.push(egal(['Un chiffre de 0 à 7.', avant], [await p.textContent('.ps-profil .ps-msg'), JSON.stringify(derniere(d))], 'nombre de séances : 8 refusé, rien d\'enregistré'));
     await chiffre('nb_sorties', '3'); await tap('[data-long="7"]');
     await tap('[data-jc="7"]');
     pb.push(egal([avant, 'Ma semaine'], [JSON.stringify(derniere(d)), await p.textContent('.ps-profil .fc-libelle')], 'ma semaine : rien d\'enregistré avant « Enregistrer »'));
@@ -2517,26 +2523,64 @@ const CONTROLES = {
     await p.click('.ps-profil [data-enregistrer]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const sem = derniere(d) || {};
     pb.push(egal([[2, 4, 6], [2, 4], 3, 1, 6], [sem.jours_course, sem.jours_renfo, sem.nb_sorties, sem.nb_renfo, sem.jour_long], 'ma semaine enregistrée d\'un coup par « Enregistrer », retour à la liste ; sortie longue ramenée à « peu importe » si son jour est retiré ; course et renforcement le même jour possibles'));
-    // Repère d'allure : VMA refusée hors bornes, puis un temps sur 10 km.
+    // Repère d'allure : VMA refusée hors bornes, puis un temps sur 10 km ; puis « Reprendre » le semi du Palmarès.
     await p.click('.ps-profil [data-q="allure"]'); await p.click('.ps-profil [data-type="vma"]');
     await p.fill('.ps-profil [name="valeur"]', '35'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     pb.push(egal('La VMA doit être comprise entre 8 et 30 km/h.', await p.textContent('.ps-profil .ps-msg'), 'VMA à 35 refusée'));
     await p.click('.ps-profil [data-type="10km"]'); await p.fill('.ps-profil [name="valeur"]', '45:30'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     await p.waitForSelector('.ps-profil .ps-ligne-q');
     r = await liste(p);
-    pb.push(egal(['5 sur 5', 0, 'Repère d\'allure | 10 km en 45:30', 'Ma semaine | 3 sorties, 1 renforcement', 'Distance par semaine | Aucune idée'], [r.compte, r.aFaire, r.lignes[4], r.lignes[3], r.lignes[1]], 'profil complet : 5 sur 5, résumés à droite'));
+    pb.push(egal(['Mon niveau 4 sur 4', 'Ma semaine 1 sur 1', 'Repère d\'allure | 10 km en 45:30', 'Course | mar., jeu., sam. · 3 séances, longue le samedi', 'Renforcement | mar., jeu. · 1 séance', 'Distance par semaine | Aucune idée'],
+      [(await sections(p))[1], (await sections(p))[2], ligne(r, 'Repère d\'allure'), ligne(r, 'Course'), ligne(r, 'Renforcement'), ligne(r, 'Distance par semaine')], 'niveau et semaine complets, résumés à droite'));
     pb.push(egal({ allure_type: '10km', temps_10km_s: 2730 }, (c => c && { allure_type: c.allure_type, temps_10km_s: c.temps_10km_s })(derniere(d)), 'repère d\'allure : 10 km en 2 730 secondes'));
-    // Facultatif : durée maximale, terrains, santé.
+    await p.click('.ps-profil [data-reprendre]'); await p.waitForFunction(() => !document.querySelector('.ps-profil .mp-palmares'));
+    pb.push(egal([{ allure_type: 'semi', temps_semi_s: 6965 }, 'Repère d\'allure | Semi en 1:56:05'], [(c => c && { allure_type: c.allure_type, temps_semi_s: c.temps_semi_s })(derniere(d)), ligne(await liste(p), 'Repère d\'allure')], '« Reprendre » : le temps du semi du Palmarès devient le repère d\'allure ; la suggestion disparaît'));
+    // Facultatif : durée maximale, terrains ; Santé : FC max, FC de repos, points fragiles.
     await p.click('.ps-profil [data-q="seance_max_min"]'); await p.click('.ps-profil [data-val="90"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await p.click('.ps-profil [data-q="terrain"]'); await p.click('.ps-profil [data-val="vallonne"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
-    await p.click('.ps-profil [data-q="sante"]'); await p.fill('.ps-profil [name="fc"]', '250'); await p.click('.ps-profil .ps-valeur [type="submit"]');
+    const valeur = async (q, v, attendre = true) => { await p.click('.ps-profil [data-q="' + q + '"]'); await p.fill('.ps-profil [name="valeur"]', v); await p.click('.ps-profil .ps-valeur [type="submit"]'); if (attendre) await p.waitForSelector('.ps-profil .ps-ligne-q'); else await pause(); };
+    await valeur('fc_max', '250', false);
     pb.push(egal('La FC max doit être comprise entre 100 et 230.', await p.textContent('.ps-profil .ps-msg'), 'FC max à 250 refusée'));
-    await p.fill('.ps-profil [name="fc"]', '186'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await p.fill('.ps-profil [name="valeur"]', '186'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await valeur('fc_repos', '52');
+    await valeur('fragiles', 'tendon d\'Achille gauche');
+    // Moi : naissance, poids (virgule), taille, activité ; pointure en demi-pointures.
+    await valeur('naissance', '2031-01-01', false);
+    pb.push(egal('Cette date de naissance n\'est pas possible.', await p.textContent('.ps-profil .ps-msg'), 'naissance impossible refusée'));
+    await p.fill('.ps-profil [name="valeur"]', '1985-03-12'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await valeur('poids', '72,4'); await valeur('taille', '178');
+    await valeur('pointure', '42,3', false);
+    pb.push(egal('La pointure doit être comprise entre 30 et 55 (demi-pointures acceptées).', await p.textContent('.ps-profil .ps-msg'), 'pointure 42,3 refusée'));
+    await p.fill('.ps-profil [name="valeur"]', '42,5'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await p.click('.ps-profil [data-q="activite"]'); await p.click('.ps-profil [data-val="peu"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     r = await liste(p);
-    pb.push(egal(['Durée maximale d\'une séance | 1 h 30', 'Terrains d\'entraînement | Vallonné', 'FC max et points fragiles | FC max 186'], [r.lignes[5], r.lignes[6], r.lignes[8]], 'facultatif : résumés'));
+    pb.push(egal([['Moi 5 sur 5', 'Mon niveau 4 sur 4', 'Ma semaine 1 sur 1', 'Santé'], 0, ['Date de naissance | 12 mars 1985', 'Poids | 72,4 kg', 'Taille | 178 cm', 'Activité hors sport | Peu actif', 'Pointure | 42,5', 'FC max | 186 bpm', 'FC de repos | 52 bpm', 'Points fragiles | tendon d\'Achille gauche', 'Durée maximale d\'une séance | 1 h 30', 'Terrains d\'entraînement | Vallonné']],
+      [await sections(p), r.aFaire, ['Date de naissance', 'Poids', 'Taille', 'Activité hors sport', 'Pointure', 'FC max', 'FC de repos', 'Points fragiles', 'Durée maximale d\'une séance', 'Terrains d\'entraînement'].map(x => ligne(r, x))], 'profil complet : résumés de toutes les sections'));
+    pb.push(egal({ fc_repos: 52, naissance: '1985-03-12', poids: 72.4, taille: 178, pointure: 42.5, activite: 'peu' }, mesures(d), 'mesures rangées dans le profil (naissance, poids, taille, pointure, FC de repos, activité)'),
+      egal([186, 'tendon d\'Achille gauche'], (c => c && [c.fc_max, c.fragiles])(derniere(d)), 'FC max et points fragiles rangés avec le niveau'));
     await p.click('.ps-profil [data-fermer]');
-    pb.push(egal('Profil complet.', await etat(p), 'profil complet sur la page'));
+    pb.push(egal('Profil complet.', await etat(p), 'profil complet sur la page Mon plan'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
+    await ctx.close();
+    // Page Mon profil : l'état de tout le profil, les quatre sections ; une ligne ouvre sa question seule (sans « ‹ »), l'enregistrement ferme la feuille.
+    d = copie();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
+    await p.waitForSelector('.mp-cadre .ps-ligne-q');
+    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, je cours depuis, distance par semaine, plus longue sortie récente, repère d\'allure, ma semaine.', ['Moi 1 sur 5', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 'Mon profil', 1],
+      [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
+    await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
+    pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
+    await p.fill('.ps-profil [name="valeur"]', '181'); await p.click('.ps-profil .ps-valeur [type="submit"]');
+    await p.waitForSelector('.ps-profil', { state: 'detached' });
+    pb.push(egal(['Taille | 181 cm', 'Moi 2 sur 5', { taille: 181 }], [await p.evaluate(() => [...document.querySelectorAll('.mp-cadre .ps-ligne-q')].map(b => b.children[0].textContent + ' | ' + b.children[1].textContent).find(l => l.startsWith('Taille'))), (await sections(p))[0], mesures(d)], 'page : enregistrer ferme la feuille, la page se met à jour'));
+    await p.click('.mp-cadre [data-reprendre]'); await p.waitForFunction(() => !document.querySelector('.mp-cadre .mp-palmares'));
+    pb.push(egal({ allure_type: 'semi', temps_semi_s: 6965 }, (c => c && { allure_type: c.allure_type, temps_semi_s: c.temps_semi_s })(derniere(d)), 'page : « Reprendre » range le repère du Palmarès'));
+    pb.push(egal([], erreurs, 'page Mon profil : erreurs JavaScript'));
+    await ctx.close();
+    // Mon profil au menu par défaut : sixième onglet ; téléphone sans débordement.
+    ({ p, ctx } = await ouvrir(nav, 'profil.html', 390, copie(), {}, PARIS));
+    await p.waitForSelector('.mp-cadre .ps-ligne-q');
+    pb.push(egal([true, false], [await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].some(t => (t.getAttribute('aria-label') || t.textContent).trim() === 'Mon profil')), await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)], 'téléphone : onglet Mon profil, page sans débordement'));
     await ctx.close();
     // Séance : durée, distance, intensité facultatives.
     d = copie();
@@ -2563,6 +2607,10 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
     await p.waitForSelector('.ps-cadre');
     pb.push(egal(0, await p.locator('[data-profil], .ps-profil-etat').count(), 'lecture seule : pas de profil'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'profil.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
+    await p.waitForSelector('.mp-cadre');
+    pb.push(egal(['Le profil n\'est pas partagé.', 0], [await p.textContent('.mp-vide'), await p.locator('.ps-ligne-q').count()], 'lecture seule : la page Mon profil ne montre rien'));
     await ctx.close();
     // Téléphone : la liste et la semaine type tiennent dans l'écran.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS));
@@ -3688,29 +3736,26 @@ const CONTROLES = {
     pb.push(egal([['PATCH', 'profils', { sexe: 'femme' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'sexe enregistré'));
     await ctx.close();
 
-    // Profil complet : pas d'encart ; « Modifier mon profil » ouvre les cinq champs.
+    // Profil complet : pas d'encart ; « Calculé pour … » ouvre la feuille Mon profil (composants/profil.js), mesures en tête.
     d = copie(COMPLET);
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 1200, d));
     pb.push(egal(0, await p.locator('.pf-encart').count(), 'profil complet : pas d\'encart'), egal('2 117 kcal', await txt(p, '.nu-kcal'), 'profil complet : besoin du jour'));
-    await p.click('.nu-profil-l');
-    pb.push(egal(['sexe', 'naissance', 'poids', 'taille', 'activite'], await p.evaluate(() => [...document.querySelectorAll('.pf-panneau .pf-champ')].map(c => (c.querySelector('[name]') || {}).name)), 'fenêtre : les cinq champs'),
-      egal(['homme', '1986-03-15', '70', '175', 'peu'], await p.evaluate(() => { const f = document.querySelector('.pf-panneau'); return [f.querySelector('input[name="sexe"]:checked').value, f.naissance.value, f.poids.value, f.taille.value, f.activite.value]; }), 'fenêtre : valeurs du profil'));
-    await p.click('.pf-panneau [data-act="annuler"]');
-    pb.push(egal([0, 0], [await p.locator('.pf-panneau').count(), d.ecritures.length], 'Annuler : fenêtre fermée, rien d\'écrit'));
-    await p.click('.nu-profil-l');
-    await p.fill('.pf-panneau [name="poids"]', '72,5');
-    await p.selectOption('.pf-panneau [name="activite"]', 'actif');
-    await p.click('.pf-panneau [type="submit"]');
-    await p.waitForSelector('.pf-panneau', { state: 'detached' });
+    const lignesMoi = () => p.evaluate(() => [...document.querySelectorAll('.ps-profil #moi .ps-ligne-q')].map(b => b.children[0].textContent + ' | ' + b.children[1].textContent));
+    await p.click('.nu-profil-l'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    pb.push(egal(['Mon profil', ['Sexe | Homme', 'Date de naissance | 15 mars 1986', 'Poids | 70 kg', 'Taille | 175 cm', 'Activité hors sport | Peu actif', 'Pointure | —']], [await txt(p, '.ps-profil .fc-libelle'), await lignesMoi()], 'feuille Mon profil : les mesures du calcul, en tête'));
+    await p.click('.ps-profil [data-fermer]');
+    pb.push(egal([0, 0], [await p.locator('.ps-profil').count(), d.ecritures.length], 'croix : feuille fermée, rien d\'écrit'));
+    await p.click('.nu-profil-l'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await p.click('.ps-profil [data-q="poids"]'); await p.fill('.ps-profil [name="valeur"]', '72,5'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await p.click('.ps-profil [data-q="activite"]'); await p.click('.ps-profil [data-val="actif"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await p.waitForFunction(() => /2 401/.test((document.querySelector('.nu-kcal') || {}).textContent || ''), null, { timeout: 5000 }).catch(() => {});
-    pb.push(egal([['PATCH', 'profils', { ...COMPLET, poids: 72.5, activite: 'actif' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'fenêtre : les cinq champs rangés, virgule acceptée'),
+    pb.push(egal([['PATCH', 'profils', { poids: 72.5 }], ['PATCH', 'profils', { activite: 'actif' }]], d.ecritures.map(e => [e.methode, e.table, e.corps]), 'feuille : chaque mesure rangée, virgule acceptée'),
       egal('2 401 kcal', await txt(p, '.nu-kcal'), 'besoin recalculé avec 72,5 kg et activité « actif »'));
-    // Échec d'écriture : message, fenêtre ouverte.
+    // Échec d'écriture : message, la question reste ouverte.
     d.panne = true;
-    await p.click('.nu-profil-l');
-    await p.click('.pf-panneau [type="submit"]');
-    await p.locator('.pf-msg:not(:empty)').waitFor();
-    pb.push(egal('Enregistrement impossible pour l\'instant.', await txt(p, '.pf-msg'), 'panne : message d\'erreur'), egal(1, await p.locator('.pf-panneau').count(), 'panne : la fenêtre reste ouverte'));
+    await p.click('.ps-profil [data-q="taille"]'); await p.click('.ps-profil .ps-valeur [type="submit"]');
+    await p.locator('.ps-profil .ps-msg:not(:empty)').waitFor();
+    pb.push(egal('Enregistrement impossible pour l\'instant.', await txt(p, '.ps-profil .ps-msg'), 'panne : message d\'erreur'), egal(1, await p.locator('.ps-profil .ps-valeur').count(), 'panne : la question reste ouverte'));
     await ctx.close();
 
     // Phase d'après la course cap (choisie dans les préférences) : J-12, J-2, J-1, puis une course lointaine.
@@ -4302,7 +4347,7 @@ const CONTROLES = {
     const pb = [];
     const INTERDITS = [/(Objectif (&|&amp;) plan|Plan (&|&amp;) objectifs)/, /Feuille de route/, /Périodicité/, /Déjà couru/, /Musculation/, /Effacer/, /Rétablir/, /Recalculer/, /Créer/,
       /[Cc]andidat/, /\bprépa\b/i, /[Pp]lan de saison/, /Saison :/, /\b(mon|ton|son|ta|sa) site\b/i, /\bsite (de|partagé)\b/, /Sauvegarder/, /Éditer/, /Sorties par/, /Renforcements par/,
-      /^Dossard$/i, /^Cap$/, /^Mon profil$/, /^Modifier$/, /Fermer la fiche/, /Plans des courses/, /dans Préparation/,
+      /^Dossard$/i, /^Cap$/, /Mes mesures/, /Mon profil de coureur/, /^Modifier$/, /Fermer la fiche/, /Plans des courses/, /dans Préparation/,
       // Courses (glossaire) : le statut s'appelle « Repérée », les vues « À surveiller » et « À venir » n'existent plus.
       /À surveiller/, /Courses à surveiller/, /^À venir( \d+)?$/];
     const textes = p => p.evaluate(() => {
@@ -4319,7 +4364,7 @@ const CONTROLES = {
       pb.push(egal([], trouves, quoi + ' : aucun ancien mot dans les textes affichés'));
     };
     const PAGES = [['index.html', 'En un coup d\'œil'], ['objectif.html', 'Saison'], ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'],
-      ['courses-a-surveiller.html?vue=tout', 'À surveiller'], ['palmares.html', 'Palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Mon plan'],
+      ['courses-a-surveiller.html?vue=tout', 'À surveiller'], ['palmares.html', 'Palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Mon plan'], ['profil.html', 'Mon profil'],
       ['nutrition.html', 'Nutrition'], ['course.html?id=' + id(3), 'page d\'une course']];
     for (const [page, quoi] of PAGES) {
       for (const w of [1200, 390]) {
@@ -4353,7 +4398,7 @@ const CONTROLES = {
   async affichage(nav, db) {
     const pb = [];
     for (const [nom, w] of Object.entries(LARGEURS))
-      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'calendrier.html', 'course.html?id=00000000-0000-0000-0001-000000000020', 'courses-a-surveiller.html', 'nutrition.html'])
+      for (const page of ['index.html', 'palmares.html', 'preferences.html', 'objectif.html', 'calendrier.html', 'course.html?id=00000000-0000-0000-0001-000000000020', 'courses-a-surveiller.html', 'nutrition.html', 'profil.html'])
         pb.push(...await sansSaut(nav, db, page, w, page.replace(/\.html.*/, '') + ' ' + nom));
     return pb;
   }
