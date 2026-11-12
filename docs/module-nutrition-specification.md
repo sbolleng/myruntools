@@ -38,7 +38,7 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 | Carbo-loading | J-3 à J-1 | 65 à 75 % | 15 à 25 % |
 | Veille de course | J-1 | 55 à 65 % | 15 à 25 % |
 
-- **La phase se déduit seule** : c'est celle du plan global, la semaine en cours dans le plan de la course confirmée la plus proche qui la couvre (Base, Développement, Affûtage, Deload : règles du [Calendrier](module-calendrier-specification.md), § 5) ; sans plan, « Entraînement ». De J-3 à J-2 avant la course confirmée la plus proche : « Carbo-loading » ; à J-1 : « Veille de course » ; ces deux phases changent les parts du tableau ci-dessus. Les phases du plan gardent les parts d'Entraînement.
+- **La phase se déduit seule** : « Entraînement » tous les jours ; de J-3 à J-2 avant la course confirmée la plus proche, « Carbo-loading » ; à J-1, « Veille de course » ; ces deux phases changent les parts du tableau ci-dessus, jamais le total de calories. La phase du plan (Base, Développement, Affûtage…) ne change rien au calcul : elle n'est pas affichée dans Nutrition.
 - **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, todo du [sommaire](README.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
 - **Chevauchement** : la veille de course (J-1) l'emporte sur le carbo-loading (J-3 à J-1) ; la phase affichée est « Veille de course ».
 - **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche. Le coefficient du métabolisme de base n'existe que pour « femme » et « homme » : un sexe « non précisé » compte comme manquant, et l'encart demande de choisir l'un des deux pour le calcul.
@@ -56,7 +56,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 ┌─────────────────────────────────────────────────────────┐
 │ (32)        (‹)   Lundi 9 novembre   (›) (33)(»)        │  centré ; 33 sur un autre jour seulement
 │ (5)              1 701  kcal                            │  centré, Accent, 1,5 rem
-│ (22)          Phase · Entretien                         │  discret
+│ (22)          Phase · Entraînement                      │  discret
 │ (21) Calculé pour F · 59 kg · 163 cm · sédentaire ›     │  lien d'action : la fenêtre du profil
 │ ─────────────────────────────────────────────────────── │
 │ (26–29)  quatre anneaux : nom, valeur, Reste, Besoin    │
@@ -101,7 +101,7 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 48 | « + » d'un repas | Rond à droite de PETIT-DÉJ, MIDI, ENCAS, SOIR | Journal | Petit rond commun ; ouvre la feuille d'ajout sur ce repas |
 | 20 | Modifier le profil (retiré le 10 nov. 2026) | « Modifier » | En haut à droite de la carte 1 | `mrt-btn` ; ouvre la fenêtre du profil (§ 4.5) |
 | 21 | Profil du calcul | « Calculé pour F · 59 kg · 163 cm · sédentaire › » (H pour un homme) | Sous la phase, centré | Lien d'action (0,8 rem) ; ouvre la fenêtre du profil (§ 4.5) |
-| 22 | Phase | « Phase · Développement » | Sous le 21 | Texte discret |
+| 22 | Phase | « Phase · Entraînement », « Phase · Carbo-loading » (J-3, J-2), « Phase · Veille de course » (J-1) | Sous le 21 | Texte discret ; la phase de Nutrition, celle qui règle le calcul (pas celle du plan) |
 | 23 | Titre « Sport du jour » | « SPORT DU JOUR » | Sous le 22 | Libellé en capitales (Space Mono) |
 | 24 | Ligne de sport | Sport (liste) et durée en heures | Sous le 23 | `mrt-champ` ; remplir la dernière ligne en fait apparaître une autre (cinq au plus) |
 | 5 | Besoin du jour | « 2 817 kcal » | Sous le sélecteur de jour, comme un titre | Chiffre en Space Mono, Accent, 1,5 rem |
@@ -231,7 +231,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | B, 1 h 30 de jogging à 9,5 km/h, entraînement | Métabolisme de base 1 302 kcal ; besoin **2 563 kcal** ; protéines 81 à 116 g ; glucides 320 à 384 g ; lipides 71 à 100 g |
 | Profil sans poids | Pas de calcul ; l'encart ne demande que le poids |
 | Sexe « non précisé » | Pas de calcul ; l'encart demande le sexe (femme ou homme) |
-| Plan de 12 semaines de la course confirmée la plus proche (jour J au 1er nov.), puis J-2, J-1, puis jour J au 20 déc. ; sans plan | « Phase · Affûtage » ; « Phase · Carbo-loading » ; « Phase · Veille de course » ; « Phase · Deload » ; sans plan : « Phase · Entraînement » |
+| Plan de 12 semaines de la course confirmée la plus proche (jour J au 1er nov.), puis J-2, J-1, puis jour J au 20 déc. ; sans plan | « Phase · Entraînement » ; « Phase · Carbo-loading » ; « Phase · Veille de course » ; « Phase · Entraînement » ; sans plan : « Phase · Entraînement » |
 | Ajouter « Banane » (1 pièce) au midi | Une ligne au midi ; les jauges montent des valeurs de la banane |
 | Supprimer la ligne (✕) | La ligne disparaît ; les jauges reviennent à l'état d'avant |
 | Modifier l'aliment « Banane » après coup | Les jours passés gardent leurs valeurs d'origine |
@@ -242,7 +242,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Encart rempli (15 mars 1986, 70 kg, 175 cm, peu actif) | Une écriture avec ces quatre champs ; l'encart disparaît ; « 2 117 kcal aujourd'hui », « Phase · Entraînement » (aucun plan), besoins 2 117 kcal, 98–140 g, 265–318 g, 59–82 g |
 | Profil complet, « Modifier » (20) | Fenêtre avec les cinq champs remplis ; « Annuler » ne range rien ; poids « 72,5 » et activité « actif » : une écriture à cinq champs, besoin 2 401 kcal |
 | Écriture en panne | « Enregistrement impossible pour l'instant. », fenêtre ouverte |
-| Profil A, plan de 12 semaines du Trail du Lac | Carte 1 : « Homme · 40 ans · 70 kg · 175 cm · Peu actif », « Phase · Développement », « 2 117 kcal aujourd'hui » ; titre des jauges « Mardi 20 octobre » ; ni mention ni fourchettes en texte |
+| Profil A, plan de 12 semaines du Trail du Lac | Carte 1 : « Homme · 40 ans · 70 kg · 175 cm · Peu actif », « Phase · Entraînement », « 2 117 kcal aujourd'hui » ; titre des jauges « Mardi 20 octobre » ; ni mention ni fourchettes en texte |
 | Journal du jour : riz cuit 200 g au midi (260 kcal), banane au petit-déj (90 kcal) | Blocs « Petit-déj 90 kcal » et « Midi 260 kcal » ; « Riz cuit · 200 g » ; anneaux : 350, Reste 1 767 kcal, Besoin 2 117 kcal ; 6 g, Reste 92 g, Besoin 98–140 g ; 76 g, Reste 189 g, Besoin 265–318 g ; 1 g, Reste 58 g, Besoin 59–82 g |
 | Banane à 2 portions (étape 2) | Aperçu « 180 kcal · P 2 g · G 40 g · L 1 g », bouton « Ajouter · 180 kcal » ; riz cuit à 200 g saisi au clavier : « 260 kcal · P 5 g · G 56 g · L 1 g » |
 | Sources dans l'ordre Récents, Favoris, + Aliment libre ; toucher la banane, puis « ‹ » | Étape 2 : la banane seule, sans recherche ni listes, « ‹ » visible ; « ‹ » : retour aux listes |

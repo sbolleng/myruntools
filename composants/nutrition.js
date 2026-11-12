@@ -41,19 +41,17 @@
   }
 
   // ----- Phase d'un jour -----
-  // Celle du plan (Base, Développement, Affûtage, Deload : même règle que le Calendrier) ; de J-3 à J-1 avant la
-  // prochaine course confirmée, Carbo-loading puis Veille de course, qui changent la part des glucides.
+  // Phase de Nutrition, celle qui règle le calcul : Entraînement ; de J-3 à J-2 avant la prochaine course confirmée,
+  // Carbo-loading ; J-1, Veille de course (part des glucides). La phase du plan ne change rien au calcul : elle n'est pas affichée.
   function phaseDuJour(ctx, jour) {
-    const B = window.mrtBesoin, P = window.mrtPreparation;
+    const B = window.mrtBesoin;
     const prochaine = (ctx.courses || []).filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && !c.date_approx && c.date > jour)
       .sort((a, b) => (a.date < b.date ? -1 : 1))[0];
     const jours = prochaine ? Math.round((parse(prochaine.date) - parse(jour)) / 86400000) : null;
-    const calc = B.phaseDuJour(jours);
-    if (calc === 'carbo' || calc === 'veille') return { calc, libelle: B.PHASES[calc].libelle };
-    // Phase de la semaine dans le plan de saison (spécification Préparation, § 4), Récupération et Entretien compris.
-    const sem = P ? P.phaseDe(P.planSaison({ courses: ctx.courses || [], semaines: ctx.semaines || [] }), P.lundiDe(jour)) : null;
-    return { calc: 'train', libelle: sem ? P.NOM_PHASE[sem.phase] : 'Entraînement' };
+    const c = B.phaseDuJour(jours), calc = c === 'carbo' || c === 'veille' ? c : 'train';
+    return { calc, libelle: B.PHASES[calc].libelle };
   }
+
 
   // ----- Lectures et écritures -----
   const sb = () => window.mrtSupabase;
