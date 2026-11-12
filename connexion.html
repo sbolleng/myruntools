@@ -27,6 +27,7 @@
     <button type="submit" class="mrt-btn is-principal">Se connecter</button>
   </form>
   <p class="message" id="message" aria-live="polite"></p>
+  <a class="mrt-lien inscription" href="creer-compte.html" id="inscription" hidden>Créer un compte</a>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>
@@ -38,9 +39,26 @@
   const email = document.getElementById('email'), mdp = document.getElementById('mdp'), oubli = document.getElementById('oubli');
   mrtOeil(mdp);
   const captcha = mrtCaptcha(document.getElementById('captcha'));
-  // Déjà connecté : direction l'accueil.
-  mrtSession().then(s => { if (s) location.replace('index.html' + location.search); });
   const dire = (texte, erreur) => { msg.className = 'message' + (erreur ? ' erreur' : ''); msg.textContent = texte; };
+  // « Créer un compte » : seulement une fois l'inscription ouverte.
+  if ((window.MRT_SUPABASE || {}).inscription) document.getElementById('inscription').hidden = false;
+  // Retour du lien de confirmation d'une inscription (?confirme=1) : Supabase ouvre une session, qu'on referme ;
+  // l'adresse est prouvée, le coureur se connecte avec son mot de passe.
+  const confirme = new URLSearchParams(location.search).has('confirme');
+  if (confirme && /error/.test(location.hash)) {
+    history.replaceState(null, '', 'connexion.html');
+    dire('Lien expiré : crée de nouveau ton compte avec la même adresse pour en recevoir un autre.', true);
+  } else if (confirme) {
+    mrtSession().then(async s => {
+      if (s) { email.value = s.email || ''; await mrtDeconnecter(); }
+      history.replaceState(null, '', 'connexion.html');
+      dire('Adresse confirmée, tu peux te connecter.');
+      mdp.focus();
+    });
+  } else {
+    // Déjà connecté : direction l'accueil.
+    mrtSession().then(s => { if (s) location.replace('index.html' + location.search); });
+  }
   const limite = 'Trop de tentatives, réessaie dans quelques minutes.';
   form.addEventListener('submit', async e => {
     e.preventDefault();

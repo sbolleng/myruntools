@@ -63,6 +63,11 @@ function simulerBase(ctx, db) {
         return json(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
       }
       if (chemin === 'recover') return json(200, {});
+      // Inscription : db.auth.fermee, inscriptions désactivées ; sinon un compte à confirmer, sans session (même réponse pour une adresse déjà inscrite).
+      if (chemin === 'signup') {
+        if (db.auth.fermee) return json(422, { code: 422, error_code: 'signup_disabled', msg: 'Signups not allowed for this instance' });
+        return json(200, Object.assign({}, utilisateur, { email: corps.email, user_metadata: corps.data || {}, confirmation_sent_at: '2026-10-20T08:00:00Z' }));
+      }
       if (chemin === 'logout') return route.fulfill({ status: 204, body: '' });
       if (chemin === 'user' && req.method() === 'PUT') {
         if (corps.password === db.auth.mdp[adresse]) return json(422, { code: 422, error_code: 'same_password', msg: 'New password should be different from the old password.' });
@@ -2876,6 +2881,90 @@ const CONTROLES = {
     pb.push(egal([ 'Lien expiré : demande-en un nouveau.', true], [await message(p), await p.locator('#form-mdp').isHidden()], 'lien périmé : « Lien expiré », pas de formulaire'));
     await ctx.close();
 
+    // Créer un compte (spécification générale, § 3, C1 à C15). Réglages du site remplacés au chargement : inscription ouverte ou non, politique de confidentialité.
+    const reglages = r => `(() => { let v; Object.defineProperty(window, 'MRT_SUPABASE', { configurable: true, get: () => v, set: x => { v = Object.assign(x, ${JSON.stringify(r)}); } }); })()`;
+    const inscrit = async (page, d, r) => {
+      const ctx = await nav.newContext({ viewport: { width: 390, height: 900 }, timezoneId: PARIS.fuseau });
+      await ctx.route('https://cdn.jsdelivr.net/**', x => x.fulfill({ body: LIB, contentType: 'application/javascript' }));
+      await ctx.route(/fonts\.(googleapis|gstatic)\.com/, x => x.fulfill({ body: '', contentType: 'text/css' }));
+      await ctx.addInitScript(reglages(r));
+      await simulerBase(ctx, d);
+      const p = await ctx.newPage();
+      const erreurs = [];
+      p.on('pageerror', e => erreurs.push(e.message));
+      await p.goto(RACINE + page);
+      return { p, ctx, erreurs };
+    };
+    // Inscription fermée (réglage du site) : pas de lien sur la connexion ; la page dit que ce n'est pas ouvert, sans formulaire.
+    d = neuve({ maintenant: null });
+    ({ p, ctx } = await visiteur('connexion.html', d));
+    pb.push(egal(false, await p.locator('#inscription').isVisible(), 'inscription fermée : pas de « Créer un compte » sur la connexion'));
+    await p.goto(RACINE + 'creer-compte.html');
+    await p.waitForFunction(() => /pas encore ouvertes/.test(document.getElementById('message').textContent));
+    pb.push(egal(['Les inscriptions ne sont pas encore ouvertes.', true], [await message(p), await p.locator('#form-compte').isHidden()], 'inscription fermée : message, pas de formulaire'));
+    await ctx.close();
+    // Inscription ouverte : lien sur la connexion ; champs, étoiles, case de confidentialité absente sans politique.
+    d = neuve({ maintenant: null });
+    ({ p, ctx, erreurs } = await inscrit('connexion.html', d, { inscription: true }));
+    pb.push(egal([true, 'creer-compte.html'], [await p.locator('#inscription').isVisible(), await p.getAttribute('#inscription', 'href')], 'inscription ouverte : « Créer un compte » sur la connexion'));
+    await p.click('#inscription');
+    await p.waitForSelector('#form-compte:not([hidden])');
+    pb.push(egal({ libelles: ['Prénom*', 'Nom*', 'Adresse e-mail*', 'Mot de passe*', 'Confirmation*'], cote: true, oeils: 2, accord: false, bouton: 'Créer mon compte', retour: 'Déjà un compte ? Se connecter', entete: 0 },
+      await p.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect(); return {
+        libelles: [...document.querySelectorAll('#form-compte > label:not(.cc-accord), .cc-ligne label')].map(l => l.textContent).sort((a, b) => ['Prénom*', 'Nom*', 'Adresse e-mail*', 'Mot de passe*', 'Confirmation*'].indexOf(a) - ['Prénom*', 'Nom*', 'Adresse e-mail*', 'Mot de passe*', 'Confirmation*'].indexOf(b)),
+        cote: Math.abs(r('prenom').top - r('nom').top) < 1 && r('prenom').right < r('nom').left, oeils: document.querySelectorAll('#form-compte .mrt-oeil').length,
+        accord: !document.getElementById('accord').hidden, bouton: document.querySelector('#form-compte button[type="submit"]').textContent,
+        retour: document.getElementById('retour').textContent, entete: document.querySelectorAll('.mrt-header').length }; }),
+      'créer un compte : cinq champs obligatoires, prénom et nom côte à côte à 390 px, deux yeux, pas de case sans politique'));
+    const creer = async (v) => { for (const [k, x] of Object.entries(v)) await p.fill('#' + k, x); await p.click('#form-compte button[type="submit"]'); return message(p); };
+    const base = { prenom: 'Camille', nom: 'Essai', email: 'nouveau@exemple.fr', mdp: NEUF, mdp2: NEUF };
+    pb.push(egal(['Remplis les champs obligatoires.', 'Au moins 14 caractères.', 'Les deux saisies sont différentes.', 'Différent de l\'adresse e-mail.', false],
+      [await creer(Object.assign({}, base, { nom: ' ' })), await creer(Object.assign({}, base, { mdp: 'treize-caract', mdp2: 'treize-caract' })),
+        await creer(Object.assign({}, base, { mdp2: NEUF + 'x' })), await creer(Object.assign({}, base, { email: 'adresse-longue@exemple.fr', mdp: 'adresse-longue@exemple.fr', mdp2: 'adresse-longue@exemple.fr' })),
+        qui(d).includes('POST signup')],
+      'créer un compte : champ vide, 13 caractères, saisies différentes, mot de passe égal à l\'adresse refusés ; rien d\'envoyé'));
+    await creer(base);
+    await p.waitForFunction(() => /confirmation vient/.test(document.getElementById('message').textContent));
+    const insc = d.auth.appels.filter(a => a.chemin === 'signup');
+    pb.push(egal([1, { prenom: 'Camille', nom: 'Essai' }, 'nouveau@exemple.fr', true, 'Si l\'adresse est valide, un e-mail de confirmation vient d\'être envoyé. Ouvre le lien pour accéder à ton espace.', true],
+      [insc.length, insc[0] && insc[0].corps.data, insc[0] && insc[0].corps.email, !!insc[0] && /redirect_to=[^&]*connexion\.html%3Fconfirme%3D1/.test(insc[0].requete), await message(p), await p.locator('#form-compte').isHidden()],
+      'créer un compte : prénom et nom envoyés, retour vers la connexion, message neutre, formulaire masqué'));
+    pb.push(egal([], erreurs, 'créer un compte, erreurs JavaScript'));
+    await ctx.close();
+    // Politique de confidentialité renseignée : la case s'affiche et doit être cochée.
+    d = neuve({ maintenant: null });
+    ({ p, ctx } = await inscrit('creer-compte.html', d, { inscription: true, confidentialite: 'confidentialite.html' }));
+    await p.waitForSelector('#form-compte:not([hidden])');
+    const refus = await creer(base);
+    await p.check('#accepte');
+    await p.click('#form-compte button[type="submit"]');
+    await p.waitForFunction(() => /confirmation vient/.test(document.getElementById('message').textContent));
+    pb.push(egal([true, 'confidentialite.html', 'Accepte la politique de confidentialité.', 1], [await p.locator('#accord').count() === 1, await p.getAttribute('#lien-confidentialite', 'href'), refus, d.auth.appels.filter(a => a.chemin === 'signup').length],
+      'créer un compte : politique renseignée, case à cocher, refus tant qu\'elle ne l\'est pas'));
+    await ctx.close();
+    // Inscriptions désactivées dans Supabase alors que le site les ouvre : message clair, pas de plantage.
+    d = neuve({ maintenant: null, fermee: true });
+    ({ p, ctx } = await inscrit('creer-compte.html', d, { inscription: true }));
+    await p.waitForSelector('#form-compte:not([hidden])');
+    await creer(base);
+    await p.waitForFunction(() => /pas encore ouvertes/.test(document.getElementById('message').textContent));
+    pb.push(egal(['Les inscriptions ne sont pas encore ouvertes.', false], [await message(p), await p.locator('button[type="submit"]').isDisabled()], 'créer un compte : refusé par Supabase, « pas encore ouvertes »'));
+    await ctx.close();
+    // Lien de confirmation : la session ouverte par Supabase est refermée ; adresse préremplie, message, on reste sur la connexion.
+    d = neuve({ maintenant: null });
+    ({ p, ctx, erreurs } = await visiteur('connexion.html?confirme=1#access_token=essai&refresh_token=essai&expires_in=3600&token_type=bearer&type=signup', d));
+    await p.waitForFunction(() => /Adresse confirmée/.test(document.getElementById('message').textContent));
+    await p.waitForTimeout(300);
+    pb.push(egal(['Adresse confirmée, tu peux te connecter.', 'essai@exemple.fr', true, true], [await message(p), await p.inputValue('#email'), qui(d).includes('POST logout'), /connexion\.html$/.test(p.url())],
+      'lien de confirmation : déconnecté, adresse préremplie, « Adresse confirmée », on reste sur la connexion'));
+    pb.push(egal([], erreurs, 'lien de confirmation, erreurs JavaScript'));
+    await ctx.close();
+    d = neuve({ maintenant: null });
+    ({ p, ctx } = await visiteur('connexion.html?confirme=1#error=access_denied&error_code=otp_expired', d));
+    await p.waitForFunction(() => /expiré/.test(document.getElementById('message').textContent));
+    pb.push(egal('Lien expiré : crée de nouveau ton compte avec la même adresse pour en recevoir un autre.', await message(p), 'lien de confirmation périmé : message'));
+    await ctx.close();
+
     // Préférences : changer le mot de passe.
     d = neuve();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'preferences.html', 1200, d, {}, PARIS));
@@ -3644,7 +3733,7 @@ const CONTROLES = {
     const pages = fs.readdirSync(path.resolve(__dirname, '../..')).filter(f => f.endsWith('.html') && f !== 'mentions-legales.html');
     const vus = [];
     for (const page of pages) {
-      ({ p, ctx } = await contexte(!/connexion|mot-de-passe/.test(page)));
+      ({ p, ctx } = await contexte(!/connexion|creer-compte|mot-de-passe/.test(page)));
       await p.goto(RACINE + page);
       await p.waitForSelector('.mrt-pied', { timeout: 4000 }).catch(() => {});
       vus.push([page, await p.evaluate(() => [document.querySelectorAll('.mrt-pied').length, (document.querySelector('.mrt-pied a') || {}).href || ''])]);

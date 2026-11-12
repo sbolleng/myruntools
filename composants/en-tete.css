@@ -289,6 +289,14 @@ body.mrt-public { display: grid; place-items: center; grid-template-rows: 1fr au
 .connexion button[type="submit"] { margin-top: 0.8rem; width: 100%; padding: 0.6rem; }
 .connexion .message { min-height: 2.6em; margin-top: 1rem; font-size: var(--t-petit); color: var(--muted); text-align: center; }
 .connexion .erreur { color: var(--red); }
+.connexion .titre-page { margin: -0.8rem 0 1.2rem; font-size: var(--t-nom); font-weight: 600; }
+.connexion .cc-ligne { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; } /* prénom et nom côte à côte, téléphone compris */
+.connexion .cc-oblig { color: var(--accent); font-weight: 700; margin-left: 0.15em; } /* champ obligatoire : l'étoile en Accent */
+.connexion .cc-accord { display: flex; gap: 0.5rem; align-items: flex-start; margin-top: 1rem; font-family: inherit; font-size: var(--t-petit); letter-spacing: 0; text-transform: none; color: var(--text); }
+.connexion .cc-accord input { width: auto; margin-top: 0.15rem; accent-color: var(--accent); }
+.connexion .cc-legende { margin-top: 0.5rem; font-size: var(--t-libelle); color: var(--muted); text-align: right; }
+.connexion .inscription { display: block; margin: 1rem auto 0; }
+.connexion .inscription[hidden], .connexion .cc-accord[hidden] { display: none; }
 
 /* Survols : seulement avec une souris. Sur écran tactile, un toucher laisserait
    l'effet « collé » (bouton qui reste orange). */

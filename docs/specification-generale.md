@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.36 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.37 · 12 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -17,7 +17,7 @@ Deux profils pilotes au lancement :
 | Pilote trail | Trail | Bleu et orange |
 | Pilote route | Route | Vert et rose |
 
-- **Comptes créés par l'administrateur** : pas d'inscription libre. Ajouter un coureur revient à créer son compte, son profil et ses préférences dans la base, sans toucher au code des modules.
+- **Création d'un compte** : chacun crée son compte (page « Créer un compte », § 3), une fois l'inscription ouverte ; d'ici là, l'administrateur le crée à la main. Dans les deux cas, la base crée le profil et les préférences, sans toucher au code des modules.
 - Chaque utilisateur ne voit que ses propres données ; il peut montrer son site à un autre, en lecture seule (§ 9).
 - La pratique ne fixe que le thème proposé au départ (§ 6) ; modules, cap et contenus sont propres à chacun.
 
@@ -31,7 +31,7 @@ Chaque page suit le même gabarit, de haut en bas :
 
 L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris par chaque page. Chaque module a sa propre page : changer d'onglet, c'est ouvrir la page du module. Ailleurs que sur la page de démarrage (Palmarès, Préférences, page d'une course…), une barre fine remplace l'en-tête : « Cap sur » et le nom du cap (vers En un coup d'œil), et l'engrenage ; l'en-tête complet n'y ferait que repousser le contenu, ou concurrencer le titre de la page.
 
-**Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu. Connexion par **adresse e-mail et mot de passe** (décidé le 30 oct. 2026 ; plus de lien magique, pas de second facteur). Les comptes sont créés à la main : aucune inscription.
+**Exception : la page de connexion.** Seule page visible sans être connecté, elle n'a ni en-tête ni menu. Connexion par **adresse e-mail et mot de passe** (décidé le 30 oct. 2026 ; plus de lien magique, pas de second facteur). Lien « Créer un compte » (L7) sous le message, une fois l'inscription ouverte.
 
 ```
 ┌────────────────────────────┐
@@ -52,12 +52,52 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 | L4 | « Mot de passe oublié ? » | Envoie le lien de réinitialisation à l'adresse saisie en L1 (message « Saisis ton adresse e-mail » si le champ est vide) ; la réponse est toujours « Si un compte existe pour cette adresse, un e-mail vient d'être envoyé. », que l'adresse existe ou non |
 | L5 | « Se connecter » | Désactivé pendant l'envoi ; connecté, direction l'accueil |
 | L6 | Message | Une seule erreur pour tout échec : « Adresse ou mot de passe incorrect. » (on ne dit jamais lequel) ; « Trop de tentatives, réessaie dans quelques minutes. » en cas de limitation |
+| L7 | « Créer un compte » | Lien vers la page de création d'un compte ; absent tant que l'inscription n'est pas ouverte |
 
 **Règles du mot de passe** : 14 caractères au moins, aucune règle de composition (une phrase de passe longue protège mieux) ; refusé s'il est identique à l'adresse e-mail. Il est haché par Supabase ; il ne figure jamais dans le dépôt et n'est jamais affiché en dehors de l'œil (L3).
 
 **Nouveau mot de passe** : le lien reçu par e-mail ouvre une page du même gabarit que la connexion, avec « Nouveau mot de passe » (L10), « Confirmation » (L11) et « Enregistrer » (L12) ; les deux saisies doivent être identiques. Enregistré, l'utilisateur est connecté et arrive sur l'accueil. Le lien ne sert qu'une fois et expire au bout d'une heure ; périmé ou déjà utilisé : « Lien expiré : demande-en un nouveau. » avec retour à la page de connexion.
 
 **Premier accès** : les comptes existants n'ont pas encore de mot de passe ; on le choisit par « Mot de passe oublié ? ».
+
+**Créer un compte** (décidé le 30 oct. 2026, page construite le 12 nov. 2026) : une page à part, du même gabarit que la connexion, sans en-tête ni menu. Elle s'ouvre par le lien L7, ou directement à son adresse.
+
+```
+┌──────────────────────────────────────┐
+│            MyRunTools (C1)           │
+│     La boîte à outils du coureur (C2)│
+│        Créer un compte (C3)          │
+│  Prénom * (C4)       Nom * (C5)      │
+│  Adresse e-mail * (C6)               │
+│  Mot de passe * (C7)            👁   │
+│  Confirmation * (C9)            👁   │
+│  [ ] J'accepte la politique de       │
+│      confidentialité (C10)           │
+│  [anti-robot] (C11)                  │
+│  [      Créer mon compte      ] (C12)│
+│                      * Obligatoire   │
+│  Message (C13)                       │
+│  Déjà un compte ? Se connecter (C14) │
+└──────────────────────────────────────┘
+```
+
+| N° | Élément | Règle |
+| --- | --- | --- |
+| C4, C5 | Prénom, nom | Obligatoires, côte à côte (téléphone compris), 60 caractères au plus ; ils deviennent le profil |
+| C6 | Adresse e-mail | Obligatoire ; elle sert à se connecter |
+| C7 (C8) | Mot de passe | Règles du mot de passe ci-dessus ; « 14 caractères au moins » (C8) écrit dans le champ ; œil |
+| C9 | Confirmation | Identique au mot de passe (« Les deux saisies sont différentes. ») ; œil |
+| C10 | Politique de confidentialité | Case à cocher, avec le lien vers la politique ; présente dès que la politique existe, obligatoire alors |
+| C11 | Anti-robot | Le même que sur la connexion ; invisible tant qu'il n'est pas actif |
+| C12 | « Créer mon compte » | Désactivé pendant l'envoi ; un champ obligatoire vide : « Remplis les champs obligatoires. » ; rien n'est envoyé tant qu'une erreur demeure |
+| C13 | Message | Toujours le même après l'envoi, que l'adresse ait déjà un compte ou non : « Si l'adresse est valide, un e-mail de confirmation vient d'être envoyé. Ouvre le lien pour accéder à ton espace. » ; le formulaire disparaît. Inscription pas encore ouverte : « Les inscriptions ne sont pas encore ouvertes. », sans formulaire |
+| C14 | « Déjà un compte ? Se connecter » | Retour à la connexion |
+
+**Confirmation de l'adresse** : le compte ne sert qu'une fois l'adresse confirmée. Le lien de l'e-mail ramène sur la page de connexion, adresse préremplie, avec « Adresse confirmée, tu peux te connecter. » ; on se connecte alors avec son mot de passe (l'adresse est prouvée avant le premier accès). Lien périmé ou déjà utilisé : « Lien expiré : crée de nouveau ton compte avec la même adresse pour en recevoir un autre. ». À la création du compte, la base crée le profil (prénom, nom) et des préférences vides, qui prennent les valeurs par défaut (thème, menu, page de démarrage).
+
+**Ouverture de l'inscription** : un réglage du site (`inscription`) affiche le lien L7 et le formulaire ; il s'active en même temps que la création de comptes dans Supabase, une fois en place la politique de confidentialité, l'anti-robot et un service d'envoi d'e-mails.
+
+**E-mail de confirmation**, en français, au vouvoiement. Objet : « Confirmez votre adresse MyRunTools ». Texte : « Bonjour, pour activer votre compte MyRunTools, confirmez votre adresse : Confirmer mon adresse. Si vous n'avez rien demandé, ignorez cet e-mail : aucun compte ne sera activé. »
 
 **Protection contre les essais** : limitation des demandes et des tentatives par Supabase, et contrôle anti-robot (Cloudflare Turnstile ou hCaptcha) sur la page de connexion. Après un changement de mot de passe, les autres appareils sont déconnectés.
 
@@ -314,6 +354,12 @@ Résultats attendus :
 - « Mot de passe oublié ? » : même réponse pour une adresse connue et pour une inconnue ; champ vide : « Saisis ton adresse e-mail ».
 - Nouveau mot de passe : 13 caractères refusés, deux saisies différentes refusées, 14 caractères identiques acceptés ; enregistré, connecté sur l'accueil ; lien périmé : « Lien expiré : demande-en un nouveau. ».
 - L'œil affiche puis masque le mot de passe.
+- Inscription fermée : pas de « Créer un compte » sur la connexion ; la page « Créer un compte » dit « Les inscriptions ne sont pas encore ouvertes. », sans formulaire.
+- Inscription ouverte : le lien mène à la page ; cinq champs obligatoires, prénom et nom côte à côte à 390 px, deux yeux, pas de case de confidentialité sans politique.
+- Créer un compte : un champ vide, 13 caractères, deux saisies différentes, un mot de passe égal à l'adresse sont refusés, sans rien envoyer ; accepté, le prénom et le nom partent avec la demande, le lien de retour mène à la connexion, le message est neutre et le formulaire disparaît.
+- Politique renseignée : la case s'affiche ; non cochée, « Accepte la politique de confidentialité. ».
+- Création de comptes désactivée dans Supabase : « Les inscriptions ne sont pas encore ouvertes. ».
+- Lien de confirmation : la session ouverte est refermée, l'adresse préremplie, « Adresse confirmée, tu peux te connecter. » ; lien périmé : « Lien expiré : crée de nouveau ton compte… ».
 - A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son espace » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · espace de A ».
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.

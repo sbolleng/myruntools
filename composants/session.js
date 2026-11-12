@@ -45,7 +45,7 @@
   };
 
   // ----- Connexion par adresse e-mail et mot de passe (spécification générale, § 3) -----
-  // Les comptes sont créés à la main : pas d'inscription. Le mot de passe est haché par Supabase, jamais gardé ici.
+  // Inscription par la page « Créer un compte » (ouverte par MRT_SUPABASE.inscription), ou compte créé à la main. Le mot de passe est haché par Supabase, jamais gardé ici.
   const LONGUEUR = 14;
   // Règles du mot de passe : 14 caractères au moins, sans règle de composition, différent de l'adresse. Rend le message d'erreur, ou null.
   window.mrtRegleMotDePasse = (mdp, email) => {
@@ -62,6 +62,19 @@
     if (!client) throw new Error('Connexion indisponible');
     const { error } = await client.auth.signInWithPassword({ email, password: motDePasse, options: captchaToken ? { captchaToken } : {} });
     if (error) throw error;
+  };
+
+  // Création d'un compte : prénom et nom vont dans les métadonnées, d'où la base tire le profil (évolution 015).
+  // Supabase répond de même pour une adresse déjà inscrite (pas d'erreur) : la réponse reste neutre.
+  // Erreurs rendues : « fermee » (inscriptions désactivées dans Supabase), « limite », ou l'erreur de Supabase.
+  window.mrtCreerCompte = async function (prenom, nom, email, motDePasse, retour, captchaToken) {
+    if (!client) throw new Error('Connexion indisponible');
+    const options = { data: { prenom, nom }, emailRedirectTo: retour };
+    if (captchaToken) options.captchaToken = captchaToken;
+    const { error } = await client.auth.signUp({ email, password: motDePasse, options });
+    if (!error) return;
+    if (error.code === 'signup_disabled' || /signups? not allowed/i.test(error.message || '')) { error.nature = 'fermee'; throw error; }
+    throw error;
   };
 
   // Lien de réinitialisation, envoyé si le compte existe ; la réponse ne dit jamais si l'adresse existe (erreur de limite exceptée).
@@ -144,8 +157,8 @@
     if (h.classList.contains('mrt-attente-contenu')) h.classList.add('mrt-fondu');
     h.classList.remove('mrt-attente', 'mrt-attente-contenu');
   };
-  // Pages publiques : connexion, nouveau mot de passe, mentions légales.
-  const surConnexion = /(connexion|nouveau-mot-de-passe|mentions-legales)\.html$/.test(location.pathname);
+  // Pages publiques : connexion, création d'un compte, nouveau mot de passe, mentions légales.
+  const surConnexion = /(connexion|creer-compte|nouveau-mot-de-passe|mentions-legales)\.html$/.test(location.pathname);
   window.mrtSession().then(s => {
     if (!s && !surConnexion) {
       location.replace('connexion.html' + location.search);
