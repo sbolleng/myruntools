@@ -47,3 +47,13 @@
 .ac-pas.is-fait .ac-module b { color: var(--muted); }
 .ac-pas-fait { font-size: var(--t-petit); color: var(--muted); }
 .ac-pas .mrt-btn { flex: none; }
+
+/* Découvrir MyRunTools : sous les Premiers pas, sur toute la largeur ; une ligne par module (nom et phrase à gauche, case « Au menu » à droite). */
+.ac-decouverte { grid-column: 1 / -1; }
+.ac-decouverte .ac-titre { align-items: center; }
+.ac-decouverte ul { display: flex; flex-direction: column; gap: 0.7rem; }
+.ac-decouverte li { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
+.ac-decouverte .ac-module { flex: 1; min-width: 0; }
+.ac-au-menu { flex: none; display: flex; align-items: center; gap: 0.4rem; font-size: var(--t-second); color: var(--muted); cursor: pointer; white-space: nowrap; }
+.ac-au-menu input { accent-color: var(--accent); margin: 0; }
+.ac-options { margin: 1rem 0 0.6rem; }

@@ -56,6 +56,8 @@
     noms.splice(pos, 0, nom);
     return noms.concat(MODULES.filter(m => !m.page && !m.adresse).map(m => m.nom));
   };
+  // Liste à enregistrer pour retirer un module du menu (bloc Découvrir d'En un coup d'œil).
+  window.mrtModulesSans = (prefs, nom) => modulesAffiches(prefs).map(m => m.nom).filter(n => n !== nom).concat(MODULES.filter(m => !m.page && !m.adresse).map(m => m.nom));
   // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête :
   // le premier module construit du menu (par défaut En un coup d'œil).
   window.mrtDemarrage = prefs => {
