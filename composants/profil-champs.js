@@ -59,8 +59,9 @@
   }
 
   async function enregistrer(id, valeurs) {
-    const { error } = await window.mrtSupabase.from('profils').update(valeurs).eq('id', id);
-    return error;
+    // select : aucune ligne touchée (profil absent de la base) compte comme un échec.
+    const { data, error } = await window.mrtSupabase.from('profils').update(valeurs).eq('id', id).select('id');
+    return error || (!data || !data.length ? new Error('Profil introuvable') : null);
   }
 
   const aujourdhui = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); };

@@ -135,8 +135,9 @@
   async function ranger(etat, table, champs) {
     const sb = window.mrtSupabase;
     if (table === 'mesures') {
-      const { error } = await sb.from('profils').update(champs).eq('id', etat.id);
-      if (error) { console.warn(error); return false; }
+      // select : une mise à jour qui ne touche aucune ligne (profil absent de la base) n'est pas une erreur pour Supabase ; ici, si.
+      const { data, error } = await sb.from('profils').update(champs).eq('id', etat.id).select('id');
+      if (error || !data || !data.length) { console.warn(error || 'Profil introuvable : rien d\'enregistré'); return false; }
       etat.mesures = Object.assign({}, etat.mesures, champs);
     } else {
       const ligne = Object.assign({}, etat.entrainement, champs, { maj: new Date().toISOString() });
@@ -164,8 +165,8 @@
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
     // Petite feuille, comme les saisies rapides de Nutrition : 30 rem de large. Une seule question (page Mon profil) : hauteur
-    // selon le contenu (sur téléphone, elle monte du bas) ; liste ou suite de questions : hauteur fixe, le contenu glisse.
-    voile.innerHTML = '<div class="mc-panneau mc-etroit ' + (opts.question ? 'mc-court' : 'mc-ecrans') + ' ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
+    // selon le contenu (sur téléphone, elle monte du bas), suite de questions (profil express) comprise ; la liste : hauteur fixe, le contenu glisse.
+    voile.innerHTML = '<div class="mc-panneau mc-etroit ' + (opts.question || suite ? 'mc-court' : 'mc-ecrans') + ' ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');

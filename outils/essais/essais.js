@@ -127,9 +127,11 @@ function simulerBase(ctx, db) {
         return route.fulfill({ contentType: 'application/json', body: '[]' });
       }
       // Profil (Nutrition) : les champs modifiés s'écrivent dans la base simulée.
+      // Comme Supabase avec select() : la réponse rend les lignes modifiées (aucune si le profil n'existe pas).
       if (tab === 'profils' && req.method() === 'PATCH') {
-        db.profils.filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
-        return route.fulfill({ contentType: 'application/json', body: '[]' });
+        const touchees = db.profilAbsent ? [] : db.profils.filter(correspond); // db.profilAbsent : la ligne manque dans la base
+        touchees.forEach(x => Object.assign(x, req.postDataJSON()));
+        return route.fulfill({ contentType: 'application/json', body: JSON.stringify(touchees.map(x => ({ id: x.id }))) });
       }
       // Fiche v2 : les courses ajoutées ou modifiées s'écrivent dans la base simulée (db.persister).
       if (tab === 'courses' && db.persister && req.method() !== 'DELETE') {
@@ -461,9 +463,9 @@ const CONTROLES = {
     let d = neuf();
     let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 390, d, {}, PARIS);
     await p.waitForSelector('.ac-premiers');
-    pb.push(egal({ titre: 'Bienvenue,Essai', phrase: 'Ajoute une course pour fixer ton cap.', stats: 0, compte: 0, blocs: ['premiers', 'aujourdhui', 'decouvrir'], pas: ['profil Compléter', 'course Ajouter'] },
+    pb.push(egal({ titre: 'Bienvenue,Essai', phrase: 'Ajoute une course pour fixer ton cap.', stats: 0, compte: 0, blocs: ['premiers'], pas: ['profil Compléter', 'course Ajouter'] },
       { titre: await p.textContent('.mrt-header h1'), phrase: await p.textContent('.mrt-bienvenue'), stats: await p.locator('.mrt-stats').count(), compte: await p.locator('.mrt-days').count(), blocs: await blocs(p), pas: await pas(p) },
-      'compte neuf : « Bienvenue, prénom », Premiers pas en tête, Prochaine course, D\'ici là et Dernière course masqués'));
+      'compte neuf : « Bienvenue, prénom », les Premiers pas seuls'));
     // Profil express : cinq questions, l'une après l'autre ; enregistrées, la feuille se ferme et l'étape est cochée.
     await p.click('[data-premier="profil"]');
     await p.waitForSelector('.ps-profil');
@@ -497,6 +499,13 @@ const CONTROLES = {
     const debut = await titreFeuille(p);
     await p.click('.ps-profil [data-fermer]');
     pb.push(egal(['Poids · 3 sur 5', ['profil Compléter', 'course Ajouter']], [debut, await pas(p)], 'profil commencé : reprise à la première question qui manque ; la croix ferme, l\'étape reste à faire'));
+    // Profil absent de la base (aucune ligne touchée) : l'échec se dit, la question reste ouverte.
+    d.profilAbsent = true;
+    await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
+    await p.fill('.ps-profil [name="valeur"]', '70'); await p.click('.ps-profil .ps-valeur [type="submit"]');
+    await p.waitForFunction(() => /impossible/.test((document.querySelector('.ps-profil .ps-msg') || {}).textContent || ''));
+    pb.push(egal(['Enregistrement impossible pour l\'instant.', 'Poids · 3 sur 5'], [await p.textContent('.ps-profil .ps-msg'), await titreFeuille(p)], 'profil absent de la base : « Enregistrement impossible », la question reste'));
+    await p.click('.ps-profil [data-fermer]');
     // Barre fine d'une autre page : « Bienvenue, prénom ».
     await p.goto(RACINE + 'palmares.html'); await p.waitForSelector('.mrt-barre-cap');
     pb.push(egal('Bienvenue, Essai', (await p.textContent('.mrt-barre-cap')).replace(/\s+/g, ' ').trim(), 'compte neuf, barre fine : « Bienvenue » et le prénom'));

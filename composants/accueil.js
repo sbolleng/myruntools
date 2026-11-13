@@ -105,7 +105,9 @@
     // Aucune course : les blocs qui en montrent une (Prochaine course, D'ici là, Dernière course) attendent la première.
     const SANS = ['prochaine', 'dicila', 'derniere'];
     const blocs = window.mrtBlocsAffiches(prefs).filter(b => courses.length || !SANS.includes(b.id));
-    el.innerHTML = '<div class="ac-grille">' + premiers(courses, nutrition) + aujourdhui(courses, nutrition, prefs) + blocs.map(b => BLOCS[b.id](courses, prefs)).join('') + decouvrir(prefs, nutrition && nutrition.lectureSeule) + '</div>';
+    // Compte neuf (aucune course) : les Premiers pas seuls ; le reste de la page vient avec la première course.
+    const pas = premiers(courses, nutrition);
+    el.innerHTML = '<div class="ac-grille">' + pas + (pas && !courses.length ? '' : aujourdhui(courses, nutrition, prefs) + blocs.map(b => BLOCS[b.id](courses, prefs)).join('') + decouvrir(prefs, nutrition && nutrition.lectureSeule)) + '</div>';
     el.querySelectorAll('[data-premier]').forEach(b => b.addEventListener('click', () => {
       if (b.dataset.premier === 'profil') nutrition.ouvrirProfil(); else nutrition.ajouterCourse();
     }));
