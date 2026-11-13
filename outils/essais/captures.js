@@ -93,6 +93,8 @@ const PAGES = {
   // Semaine défilée : la barre collante sous le menu, les jours qui passent dessous.
   'calendrier-defile': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.evaluate(() => window.scrollTo(0, 700)); await p.waitForTimeout(300); } },
   'calendrier-plein': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.click('[data-plein], .mrt-plein, [aria-label*="plein" i]'); await p.waitForTimeout(500); await p.evaluate(() => { const c = document.querySelector('[data-plein-cible]'); (c.matches(':fullscreen') ? c : document.documentElement).scrollTop = 700; c.scrollTop = 700; }); await p.waitForTimeout(300); } },
+  // Mon profil : une question seule, en petite feuille (téléphone : feuille du bas).
+  'profil-question': { url: 'profil.html', action: async p => { await p.waitForSelector('.mp-cadre .ps-ligne-q'); await p.click('.mp-cadre [data-q="sexe"]'); await p.waitForTimeout(500); } },
   'calendrier-menu': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.click('[data-menu]'); await p.waitForTimeout(200); } },
   // Consultation d'une course courue : le semi de San Sebastián, avec des valeurs fictives ajoutées.
   'consultation-courue': { url: 'palmares.html', hauteur: { ordi: 700 }, donnees: d => { Object.assign(d.courses.find(c => c.id === '00000000-0000-0000-0001-000000000007'),

@@ -2663,6 +2663,8 @@ const CONTROLES = {
       [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
+    // Petite feuille (comme Nutrition) : 30 rem de large au plus, hauteur selon le contenu.
+    pb.push(egal([true, true], await p.evaluate(() => { const r = document.querySelector('.ps-profil').getBoundingClientRect(); return [r.width <= 482, r.height < 400]; }), 'page : question seule dans une petite feuille (30 rem au plus, hauteur du contenu)'));
     await p.fill('.ps-profil [name="valeur"]', '181'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     await p.waitForSelector('.ps-profil', { state: 'detached' });
     pb.push(egal(['Taille | 181 cm', 'Moi 2 sur 5', { taille: 181 }], [await p.evaluate(() => [...document.querySelectorAll('.mp-cadre .ps-ligne-q')].map(b => b.children[0].textContent + ' | ' + b.children[1].textContent).find(l => l.startsWith('Taille'))), (await sections(p))[0], mesures(d)], 'page : enregistrer ferme la feuille, la page se met à jour'));
@@ -2674,6 +2676,9 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'profil.html', 390, copie(), {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
     pb.push(egal([true, false], [await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].some(t => (t.getAttribute('aria-label') || t.textContent).trim() === 'Mon profil')), await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)], 'téléphone : onglet Mon profil, page sans débordement'));
+    // Téléphone : la question monte du bas, à la hauteur de son contenu.
+    await p.click('.mp-cadre [data-q="sexe"]'); await p.waitForSelector('.ps-profil .ps-choix'); await p.waitForTimeout(400);
+    pb.push(egal([true, true], await p.evaluate(() => { const r = document.querySelector('.ps-profil').getBoundingClientRect(); return [Math.abs(r.bottom - innerHeight) < 2, r.height < innerHeight * 0.6]; }), 'téléphone : question en feuille du bas, à la hauteur du contenu'));
     await ctx.close();
     // Séance : durée, distance, intensité facultatives.
     d = copie();
