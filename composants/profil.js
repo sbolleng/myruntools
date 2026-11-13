@@ -163,7 +163,9 @@
     let courante = seule;
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
-    voile.innerHTML = '<div class="mc-panneau mc-ecrans ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
+    // Petite feuille, comme les saisies rapides de Nutrition : 30 rem de large. Une seule question (page Mon profil) : hauteur
+    // selon le contenu (sur téléphone, elle monte du bas) ; liste ou suite de questions : hauteur fixe, le contenu glisse.
+    voile.innerHTML = '<div class="mc-panneau mc-etroit ' + (opts.question ? 'mc-court' : 'mc-ecrans') + ' ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');

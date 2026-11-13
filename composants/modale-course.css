@@ -60,4 +60,10 @@ html.mc-ouvert { overflow: hidden; }
 @media (max-width: 600px) {
   .mc-pied { margin: auto -1rem -1.5rem; padding: 0.8rem 1rem calc(1rem + env(safe-area-inset-bottom)); }
 }
+/* Feuille courte (une question du profil) : hauteur selon le contenu ; sur téléphone, elle monte du bas, à la hauteur de son
+   contenu, la page restant visible au-dessus sous le voile. */
+@media (max-width: 600px) {
+  .mc-voile:has(> .mc-court) { place-items: end stretch; align-content: end; background: color-mix(in srgb, var(--bg) 75%, transparent); }
+  .mc-panneau.mc-court { height: auto; max-height: 90vh; border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+}
 @media (prefers-reduced-motion: reduce) { .mc-panneau, .mc-corps { animation: none !important; } }
