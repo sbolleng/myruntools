@@ -376,41 +376,93 @@
   const ligneRessenti = (r, duree) => { const nv = niveauRessenti(r); return nv ? '<b>' + r + ' · ' + nv[1] + '</b> : ' + nv[2] + '.' + (charge(r, duree) ? ' Charge : ' + charge(r, duree) + ' UA.' : '') : 'À noter 15 à 30 minutes après la séance.'; };
   const pastilles = (nom, valeurs, choisie) => '<div class="ps-coches cal-pastilles" data-groupe="' + nom + '">' + valeurs.map(([v, lib]) =>
     '<button type="button" class="mrt-pastille" data-val="' + v + '" aria-pressed="' + (String(choisie) === String(v)) + '">' + lib + '</button>').join('') + '</div>';
+  // Sensations : indépendantes de l'effort ; 1 (très bien) à 5 (très mal), un visage chacune.
+  const SENSATIONS = [[1, 'Très bien', 'M4.8 9.4q3.2 3 6.4 0'], [2, 'Bien', 'M5.4 10q2.6 1.8 5.2 0'], [3, 'Moyennes', 'M5.4 10.6h5.2'], [4, 'Pas bien', 'M5.4 11.2q2.6-1.6 5.2 0'], [5, 'Très mal', 'M4.8 11.8q3.2-3 6.4 0']];
+  const visage = d => '<svg class="cal-visage" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="5.9" cy="6.4" r="0.9" fill="currentColor"/><circle cx="10.1" cy="6.4" r="0.9" fill="currentColor"/><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  const INFOS = {
+    effort: 'L\'effort perçu note l\'intensité de la séance, de 1 (très facile) à 10 (maximal) : une sortie facile reste dans le vert, un fractionné intense va vers le rouge. La description sous le curseur aide à choisir ; à noter 15 à 30 minutes après la séance.',
+    sensations: 'Les sensations sont indépendantes de l\'effort : on peut se sentir très bien sur une séance difficile, ou mal sur une séance facile.'
+  };
+  const info = k => '<button type="button" class="mrt-rond is-petit cal-info" data-info="' + k + '" aria-label="Explication" title="Explication"><b aria-hidden="true">i</b></button>';
+  // Les champs du retour (fenêtre d'une séance et feuille « Effort et sensations ») : effort au curseur, sensations, fatigue,
+  // douleur ; le commentaire à part (il vaut avant comme après la séance).
+  function champsRetour(x) {
+    const dou = x.douleur || '', r = x.ressenti || null;
+    return '<div class="cal-champ cal-effort"><span class="cal-titre-info">Effort perçu' + info('effort') + '</span>' +
+        '<input type="range" class="cal-curseur" name="ressenti" min="1" max="10" step="1" value="' + (r || 1) + '"' + (r ? '' : ' data-vide="1"') + ' aria-label="Effort perçu, de 1 à 10">' +
+        '<p class="cal-ressenti-lib">' + ligneRessenti(r, x.duree_min) + '</p>' + '<button type="button" class="mrt-lien cal-sans-note"' + (r ? '' : ' hidden') + '>Ne pas noter</button></div>' +
+      '<div class="cal-champ"><span class="cal-titre-info">Sensations' + info('sensations') + '</span><div class="cal-visages" data-groupe="sensations">' + SENSATIONS.map(([v, lib, d]) =>
+        '<button type="button" class="mrt-rond cal-visage-b v-' + v + '" data-val="' + v + '" aria-pressed="' + (String(x.sensations) === String(v)) + '" aria-label="' + lib + '" title="' + lib + '">' + visage(d) + '</button>').join('') + '</div></div>' +
+      '<div class="cal-champ"><span>Fatigue du jour (de 1 à 5)</span>' + pastilles('fatigue', [1, 2, 3, 4, 5].map(n => [n, n]), x.fatigue) + '</div>' +
+      '<div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', Object.entries(DOULEURS), dou) + '</div>' +
+      '<label class="cal-champ cal-douleur-ou"' + (dou === 'legere' || dou === 'forte' ? '' : ' hidden') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>';
+  }
+  const champCommentaire = x => '<label class="cal-champ"><span>Commentaire</span><textarea class="mrt-champ" name="commentaire" maxlength="300" rows="2" placeholder="ex. genou sensible, pas disponible jeudi">' + esc(x.commentaire || '') + '</textarea><small class="cal-compteur">' + (x.commentaire || '').length + '/300</small></label>';
   function retourHtml(s) {
-    const x = s || {}, faite = !!x.faite, dou = x.douleur || '';
+    const x = s || {}, faite = !!x.faite;
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
-      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' +
-        '<div class="cal-champ"><span>Ressenti (effort perçu, de 1 à 10)</span>' + pastilles('ressenti', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => [n, n]), x.ressenti) + '<p class="cal-ressenti-lib">' + ligneRessenti(x.ressenti, x.duree_min) + '</p></div>' +
-        '<div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', Object.entries(DOULEURS), dou) + '</div>' +
-        '<label class="cal-champ cal-douleur-ou"' + (dou === 'legere' || dou === 'forte' ? '' : ' hidden') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>' +
-        '<div class="cal-champ"><span>Fatigue du jour (de 1 à 5)</span>' + pastilles('fatigue', [1, 2, 3, 4, 5].map(n => [n, n]), x.fatigue) + '</div>' +
-      '</div>' +
-      '<label class="cal-champ"><span>Commentaire</span><textarea class="mrt-champ" name="commentaire" maxlength="300" rows="2" placeholder="ex. genou sensible, pas disponible jeudi">' + esc(x.commentaire || '') + '</textarea><small class="cal-compteur">' + (x.commentaire || '').length + '/300</small></label></section>';
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) + '</section>';
   }
-  // Branche les pastilles (une seule choisie par groupe, un second toucher la retire), la case « faite » et le compteur.
-  function brancherRetour(f) {
-    const choix = {};
+  // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé ; « Ne pas noter » le remet), pastilles et visages
+  // (une seule choisie par groupe, un second toucher la retire), « i », case « faite » (absente de la feuille : la séance y est faite),
+  // compteur. duree() rend la durée en minutes (pour la charge). Rend la lecture des champs.
+  function brancherRetour(f, duree) {
+    const choix = {}, cur = f.querySelector('.cal-curseur');
     f.querySelectorAll('[data-groupe]').forEach(g => { const on = g.querySelector('[aria-pressed="true"]'); choix[g.dataset.groupe] = on ? on.dataset.val : null; });
+    const note = () => (cur.dataset.vide ? null : Number(cur.value));
+    const majRessenti = () => { f.querySelector('.cal-ressenti-lib').innerHTML = ligneRessenti(note(), duree()); f.querySelector('.cal-sans-note').hidden = !note(); cur.classList.toggle('is-vide', !note()); };
+    cur.addEventListener('input', () => { delete cur.dataset.vide; majRessenti(); });
     f.addEventListener('click', e => {
+      const i = e.target.closest('[data-info]');
+      if (i) return void window.mrtConfirmer({ texte: INFOS[i.dataset.info], action: 'Fermer', seul: true });
+      if (e.target.closest('.cal-sans-note')) { cur.dataset.vide = '1'; cur.value = 1; return majRessenti(); }
       const b = e.target.closest('[data-groupe] [data-val]');
       if (!b) return;
       const g = b.closest('[data-groupe]').dataset.groupe, deja = choix[g] === b.dataset.val;
       choix[g] = deja ? null : b.dataset.val;
       b.closest('[data-groupe]').querySelectorAll('[data-val]').forEach(x => x.setAttribute('aria-pressed', String(!deja && x === b)));
       if (g === 'douleur') f.querySelector('.cal-douleur-ou').hidden = !['legere', 'forte'].includes(choix.douleur);
-      if (g === 'ressenti') majRessenti();
     });
-    const majRessenti = () => { const d = nombre(f.duree.value); f.querySelector('.cal-ressenti-lib').innerHTML = ligneRessenti(choix.ressenti == null ? null : Number(choix.ressenti), Number.isInteger(d) ? d : null); };
-    f.duree.addEventListener('input', majRessenti);
-    f.faite.addEventListener('change', () => { f.querySelector('.cal-si-faite').hidden = !f.faite.checked; });
+    if (f.duree) f.duree.addEventListener('input', majRessenti);
+    if (f.faite) f.faite.addEventListener('change', () => { f.querySelector('.cal-si-faite').hidden = !f.faite.checked; });
     f.commentaire.addEventListener('input', () => { f.querySelector('.cal-compteur').textContent = f.commentaire.value.length + '/300'; });
+    majRessenti();
     return () => {
-      const faite = f.faite.checked, n = k => (choix[k] == null ? null : Number(choix[k]));
-      return { faite, ressenti: faite ? n('ressenti') : null, douleur: faite ? choix.douleur : null,
+      const faite = f.faite ? f.faite.checked : true, n = k => (choix[k] == null ? null : Number(choix[k]));
+      return { faite, ressenti: faite ? note() : null, sensations: faite ? n('sensations') : null, douleur: faite ? choix.douleur : null,
         douleur_ou: faite && ['legere', 'forte'].includes(choix.douleur) ? (f.douleur_ou.value.trim() || null) : null,
         fatigue: faite ? n('fatigue') : null, commentaire: f.commentaire.value.trim() || null };
     };
+  }
+  // Feuille « Effort et sensations » : s'ouvre quand une séance est cochée « faite » dans une vue (feuille de saisie rapide du
+  // site ; « Enregistrer » collé en bas ; la croix ou « Plus tard » la ferment sans rien ranger).
+  function feuilleRetour(ctx, s) {
+    const voile = document.createElement('div');
+    voile.className = 'mc-voile';
+    voile.innerHTML = '<div class="mc-panneau mc-ecrans mc-etroit cal-feuille-retour" role="dialog" aria-modal="true" aria-labelledby="cal-retour-titre" tabindex="-1"><div class="mc-corps"><div class="mc-ecran">' +
+      '<div class="pc-barre"><span></span><button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
+      '<p class="fc-libelle" id="cal-retour-titre">Effort et sensations</p><p class="cal-retour-seance">' + esc(TYPES[s.type] || '') + ' · ' + esc(s.libelle) + ' · ' + longue(s.date) + '</p><p class="cal-msg" role="alert"></p>' +
+      '<form class="cal-ecran" novalidate>' + champsRetour(s) + champCommentaire(s) +
+      '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button><button type="button" class="mrt-lien cal-plus-tard" data-fermer>Plus tard</button></div></form></div></div></div>';
+    document.body.appendChild(voile);
+    document.documentElement.classList.add('mc-ouvert');
+    const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', echap); };
+    const echap = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue')) fermer(); };
+    document.addEventListener('keydown', echap);
+    voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
+    voile.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermer(); });
+    const f = voile.querySelector('form'), lire = brancherRetour(f, () => s.duree_min || null);
+    voile.querySelector('.mc-panneau').focus({ preventScroll: true });
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      const champs = lire();
+      const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
+      if (error) { voile.querySelector('.cal-msg').textContent = 'Enregistrement impossible pour l\'instant.'; console.warn(error); return; }
+      fermer();
+      await ctx.actualiser();
+      if (champs.commentaire && champs.commentaire !== (s.commentaire || null)) relancer(ctx);
+    });
   }
 
   // ----- Déplacer une séance : libre, avec un conseil quand une règle n'est pas respectée (spécification Préparation, § 5.5) -----
@@ -483,7 +535,7 @@
       v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
         titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
     }
-    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f);
+    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
     if (s) f.type.value = s.type;
     else if (opts.type && TYPES[opts.type]) f.type.value = opts.type; // type proposé par la page qui ouvre la fenêtre (Nutrition)
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
@@ -615,11 +667,14 @@
       if (!fait) return;
       const { error } = await window.mrtSupabase.from('seances').update({ faite: e.target.checked }).eq('id', fait);
       if (error) { e.target.checked = !e.target.checked; console.warn(error); return; }
+      // Cochée « faite » : la feuille « Effort et sensations » s'ouvre aussitôt (la croix ou « Plus tard » la ferment).
+      const s = e.target.checked && (ctx.seances || []).find(x => x.id === fait);
+      if (s) feuilleRetour(ctx, Object.assign({}, s, { faite: true }));
       ctx.actualiser();
     });
   }
 
   window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    ouvrirSeance, deplacer, conseils, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
+    ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();

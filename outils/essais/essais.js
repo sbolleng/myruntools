@@ -2037,6 +2037,9 @@ const CONTROLES = {
     await p.locator('[data-fait="se-2"]').check();
     for (let i = 0; i < 20 && !d.ecritures.some(e => e.table === 'seances'); i++) await p.clock.runFor(100);
     pb.push(egal({ methode: 'PATCH', corps: { faite: true } }, (({ methode, corps }) => ({ methode, corps }))(d.ecritures.find(e => e.table === 'seances')), 'case « faite » cochée dans une case : écriture'));
+    // La feuille « Effort et sensations » s'ouvre à la case cochée : « Plus tard » la ferme.
+    for (let i = 0; i < 20 && !(await p.locator('.cal-feuille-retour').count()); i++) await p.clock.runFor(100);
+    if (await p.locator('.cal-feuille-retour').count()) { await p.click('.cal-feuille-retour .cal-plus-tard'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); }
     await p.click('[data-ajout="2026-10-21"]');
     await p.fill('.cal-seance [name="libelle"]', 'Footing 30 min');
     await p.click('.cal-seance button[type="submit"]');
@@ -2136,6 +2139,8 @@ const CONTROLES = {
     await p.locator('[data-fait="se-2"]').check();
     for (let i = 0; i < 20 && !d.ecritures.some(e => e.table === 'seances'); i++) await p.clock.runFor(100);
     pb.push(egal({ methode: 'PATCH', corps: { faite: true } }, (({ methode, corps }) => ({ methode, corps }))(d.ecritures.find(e => e.table === 'seances')), 'case « faite » : écriture'));
+    for (let i = 0; i < 20 && !(await p.locator('.cal-feuille-retour').count()); i++) await p.clock.runFor(100);
+    if (await p.locator('.cal-feuille-retour').count()) { await p.click('.cal-feuille-retour .cal-plus-tard'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); }
     await p.click('[data-ajout="2026-10-21"]');
     await p.click('.cal-seance button[type="submit"]');
     pb.push(egal('Écris le libellé de la séance.', await p.textContent('.cal-msg'), 'séance sans libellé : message'));
@@ -2694,7 +2699,7 @@ const CONTROLES = {
     await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance .cal-retour');
     pb.push(egal([true, 'Retour sur la séance'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.textContent('.cal-retour .mrt-section-titre')], 'fenêtre : « Retour sur la séance », ressenti caché tant qu\'elle n\'est pas faite'));
     await p.check('.cal-seance [name="faite"]');
-    await p.click('.cal-seance [data-groupe="ressenti"] [data-val="7"]'); await p.click('.cal-seance [data-groupe="douleur"] [data-val="legere"]');
+    await p.fill('.cal-seance .cal-curseur', '7'); await p.click('.cal-seance [data-groupe="sensations"] [data-val="2"]'); await p.click('.cal-seance [data-groupe="douleur"] [data-val="legere"]');
     pb.push(egal('7 · Seuil, allure semi-marathon ou 10 km : effort soutenu et inconfortable ; quelques mots isolés. Charge : 420 UA.', (await p.textContent('.cal-ressenti-lib')).replace(/\u00a0/g, ' '), 'ressenti 7 : libellé du niveau et charge (7 × 60 min)'));
     await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit'); await p.click('.cal-seance [data-groupe="fatigue"] [data-val="3"]');
     await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
@@ -2707,8 +2712,8 @@ const CONTROLES = {
     for (let k = 0; k < 20 && !question; k++) await pause();
     await p.waitForFunction(() => !document.querySelector('.mrt-dialogue')).catch(() => {});
     const ecrit = () => d.ecritures.filter(x => x.table === 'seances' && x.methode === 'PATCH').map(x => x.corps);
-    pb.push(egal({ faite: true, ressenti: 7, douleur: 'legere', douleur_ou: 'genou droit', fatigue: 3, commentaire: 'Dur sur la fin', date_prevue: null },
-      (c => c && { faite: c.faite, ressenti: c.ressenti, douleur: c.douleur, douleur_ou: c.douleur_ou, fatigue: c.fatigue, commentaire: c.commentaire, date_prevue: c.date_prevue })(ecrit()[0]), 'retour enregistré avec la séance'));
+    pb.push(egal({ faite: true, ressenti: 7, sensations: 2, douleur: 'legere', douleur_ou: 'genou droit', fatigue: 3, commentaire: 'Dur sur la fin', date_prevue: null },
+      (c => c && { faite: c.faite, ressenti: c.ressenti, sensations: c.sensations, douleur: c.douleur, douleur_ou: c.douleur_ou, fatigue: c.fatigue, commentaire: c.commentaire, date_prevue: c.date_prevue })(ecrit()[0]), 'retour enregistré avec la séance'));
     await p.waitForSelector('[data-drag="se-r"] .cal-v-com');
     pb.push(egal(1, await p.locator('[data-drag="se-r"] .cal-v-com').count(), 'vue : picto du commentaire'));
     // Déplacer par la fenêtre vers la veille d'une Plaisir (sam. 12 déc.) : le conseil ; « Revenir au jour d'avant » remet la séance.
@@ -2723,6 +2728,26 @@ const CONTROLES = {
     question = null; d.ecritures = [];
     await p.dragAndDrop('[data-drag="se-r"]', '[data-jour-ligne="2026-10-23"]'); await pause(); await pause();
     pb.push(egal([null, [{ date: '2026-10-23', date_prevue: '2026-10-21' }]], [question, ecrit().map(c => ({ date: c.date, date_prevue: c.date_prevue }))], 'glisser : séance déplacée, jour d\'origine gardé, pas de conseil'));
+    // Cocher « faite » dans la vue : la feuille « Effort et sensations » ; « Plus tard » la ferme sans rien ranger ; puis effort et sensations enregistrés.
+    await p.evaluate(() => { const c = document.querySelector('[data-fait="se-r"]'); if (c.checked) { c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); } }); await pause();
+    d.ecritures = [];
+    await p.check('[data-fait="se-r"]'); await p.waitForSelector('.cal-feuille-retour');
+    pb.push(egal(['Effort et sensations', '7 · Seuil, allure semi-marathon ou 10 km : effort soutenu et inconfortable ; quelques mots isolés. Charge : 420 UA.', 5, 1], [await p.textContent('.cal-feuille-retour .fc-libelle'), await p.textContent('.cal-feuille-retour .cal-ressenti-lib'),
+      await p.locator('.cal-feuille-retour .cal-visage-b').count(), await p.locator('.cal-feuille-retour .mc-pied .is-principal').count()], 'cocher « faite » : la feuille, l\'effort déjà noté repris, cinq visages, « Enregistrer » collé en bas'));
+    await p.click('.cal-feuille-retour .cal-plus-tard'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
+    pb.push(egal([{ faite: true }], ecrit(), '« Plus tard » : seule la case « faite » est rangée'));
+    await p.evaluate(() => { const c = document.querySelector('[data-fait="se-r"]'); c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); }); await pause();
+    d.ecritures = [];
+    await p.check('[data-fait="se-r"]'); await p.waitForSelector('.cal-feuille-retour');
+    await p.fill('.cal-feuille-retour .cal-curseur', '4'); await p.click('.cal-feuille-retour [data-groupe="sensations"] [data-val="1"]');
+    pb.push(egal('4 · Endurance fondamentale : allure confortable, conversation complète sans essoufflement. Charge : 240 UA.', (await p.textContent('.cal-feuille-retour .cal-ressenti-lib')).replace(/ /g, ' '), 'feuille : libellé et charge au glissement'));
+    question = null; reponse = true;
+    await p.click('.cal-feuille-retour [data-info="sensations"]');
+    for (let k = 0; k < 10 && !question; k++) await pause();
+    pb.push(egal(true, (question || '').includes('indépendantes de l\'effort'), 'rond « i » : l\'explication des sensations'));
+    await p.waitForFunction(() => !document.querySelector('.mrt-dialogue'));
+    await p.click('.cal-feuille-retour .mc-pied .is-principal'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
+    pb.push(egal({ ressenti: 4, sensations: 1 }, (c => c && { ressenti: c.ressenti, sensations: c.sensations })(ecrit()[1]), 'feuille : effort et sensations enregistrés'));
     pb.push(egal([], erreurs, 'retour sur une séance : erreurs JavaScript'));
     await ctx.close();
     // Site partagé : ni bouton ni état du profil.
@@ -4445,7 +4470,7 @@ const CONTROLES = {
     await p.waitForSelector('.nu-feuille .cal-seance', { state: 'detached' });
     await p.waitForFunction(() => /3\s539/.test(document.querySelector('.nu-kcal').textContent));
     await p.waitForFunction(() => /Fractionné/.test(document.querySelector('.nu-feuille .nu-seances-f').textContent));
-    pb.push(egal([['POST', 'seances', { course: null, date: '2026-10-20', type: 'run', libelle: 'Fractionné', duree_min: 40, distance_km: 8, intensite: null, faite: false, ressenti: null, douleur: null, douleur_ou: null, fatigue: null, commentaire: null }], '3 539 kcal', 'Ajouter une activité'],
+    pb.push(egal([['POST', 'seances', { course: null, date: '2026-10-20', type: 'run', libelle: 'Fractionné', duree_min: 40, distance_km: 8, intensite: null, faite: false, ressenti: null, sensations: null, douleur: null, douleur_ou: null, fatigue: null, commentaire: null }], '3 539 kcal', 'Ajouter une activité'],
       [[d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].corps], await kcal(p), norm(await p.locator('#nu-feuille-titre').textContent())], 'séance ajoutée : rangée dans le Calendrier, besoin recalculé (8 km en 40 min), retour à la liste de la feuille'));
     await fermerF(p);
     // Toucher une séance du journal : la feuille Activité s'ouvre sur cette séance ; Supprimer avec la question du site.
