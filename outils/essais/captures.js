@@ -7,6 +7,7 @@
 //   node captures.js course,palmares          quelques pages seulement
 //   node captures.js course ../../../en-ligne captures/avant
 //                                             une autre copie du site (ex. git archive origin/main), pour un avant/après
+//   VIERGE=1 node captures.js accueil      un compte neuf : profil et préférences vides, aucune course
 //   THEME=vert-rose node captures.js objectif ../.. captures/vert-rose
 //                                             dans un autre thème que celui des données fictives (bleu-orange)
 // Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares,
@@ -25,6 +26,13 @@ const src = fs.readFileSync(E + 'essais.js', 'utf8');
 const a = src.indexOf('function jeuObjectif(db0) {'), b = src.indexOf('\n}\n', a) + 2;
 const jeuObjectif = eval('(' + src.slice(a, b) + ')');
 const { db: db0, id } = jeuObjectif(JSON.parse(fs.readFileSync(E + 'donnees-fictives.json', 'utf8')));
+// VIERGE=1 : un compte neuf, tel que la base le crée (évolution 015) : prénom et nom seuls, préférences vides, aucune donnée.
+if (process.env.VIERGE) {
+  const moi = db0.profils[0];
+  db0.profils = [Object.fromEntries(Object.keys(moi).map(k => [k, ['id', 'prenom', 'nom', 'cree_le'].includes(k) ? moi[k] : null]))];
+  db0.preferences = [Object.fromEntries(Object.keys(db0.preferences[0]).map(k => [k, k === 'utilisateur' ? moi.id : k === 'palmares_groupe' ? true : null]))];
+  for (const t of Object.keys(db0)) if (Array.isArray(db0[t]) && !['profils', 'preferences', 'types_course', 'formats', 'types_equipement'].includes(t)) db0[t] = [];
+}
 if (process.env.THEME) db0.preferences[0].theme = process.env.THEME;
 let db = db0;
 const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
