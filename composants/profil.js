@@ -156,6 +156,10 @@
 
   // La feuille (celle d'une course, modale-course.css) : la liste et ses questions (opts.question absent), ou une seule question
   // (la page : opts.question ; la croix ou un enregistrement la ferme). opts.surMaj(etat) après chaque enregistrement.
+  // Clic qui traverse : la feuille fermée, un clic de plus (double clic, rebond) tomberait sur la ligne de la liste juste
+  // dessous et rouvrirait une autre question. La page ignore les clics pendant un court instant après une fermeture.
+  let fermeeA = 0;
+  const justeFermee = () => Date.now() - fermeeA < 400;
   function feuille(opts) {
     const etat = opts.etat, suite = opts.suite || null;
     // Suite : on commence par la première question qui manque ; chacune, enregistrée, passe à la suivante qui manque.
@@ -169,7 +173,7 @@
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
-    const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
+    const fermer = () => { fermeeA = Date.now(); voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
     const clavier = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue, .cal-voile')) fermer(); };
     document.addEventListener('keydown', clavier);
     voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
@@ -354,7 +358,7 @@
         return;
       }
       const q = ev.target.closest('[data-q]');
-      if (q) feuille({ etat, question: q.dataset.q, surMaj: dessiner });
+      if (q && !justeFermee()) feuille({ etat, question: q.dataset.q, surMaj: dessiner });
     });
     dessiner();
     if (location.hash) { const z = el.querySelector(location.hash); if (z) z.scrollIntoView(); }

@@ -2668,8 +2668,18 @@ const CONTROLES = {
     await p.fill('.ps-profil [name="valeur"]', '181'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     await p.waitForSelector('.ps-profil', { state: 'detached' });
     pb.push(egal(['Taille | 181 cm', 'Moi 4 sur 7', { taille: 181 }], [await p.evaluate(() => [...document.querySelectorAll('.mp-cadre .ps-ligne-q')].map(b => b.children[0].textContent + ' | ' + b.children[1].textContent).find(l => l.startsWith('Taille'))), (await sections(p))[0], mesures(d)], 'page : enregistrer ferme la feuille, la page se met à jour'));
-    // Prénom (compte créé à la main sans prénom) : vide refusé, enregistré dans `profils`.
-    await p.click('.mp-cadre [data-q="prenom"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
+    await p.waitForTimeout(450);
+    // Clic qui traverse : la croix ferme la feuille ; un second clic aussitôt au même endroit (sur la ligne dessous) n'ouvre rien.
+    await p.click('.mp-cadre [data-q="prenom"]'); await p.waitForSelector('.ps-profil [data-fermer]'); await p.waitForTimeout(400);
+    const rx = await p.locator('.ps-profil [data-fermer]').boundingBox();
+    await p.mouse.click(rx.x + rx.width / 2, rx.y + rx.height / 2);
+    const dessous = await p.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); const q = e && e.closest('[data-q]'); return q ? q.dataset.q : null; }, [rx.x + rx.width / 2, rx.y + rx.height / 2]);
+    await p.mouse.click(rx.x + rx.width / 2, rx.y + rx.height / 2); await p.waitForTimeout(300);
+    pb.push(egal([true, 0], [!!dessous, await p.locator('.ps-profil').count()], 'croix puis clic aussitôt : la croix est au-dessus d\'une ligne de la liste, aucune question ne s\'ouvre dessous'));
+    if (await p.locator('.ps-profil').count()) { await p.keyboard.press('Escape'); await p.waitForTimeout(200); }
+    await p.waitForTimeout(450);
+    // Prénom (compte créé à la main sans prénom) : vide refusé, enregistré dans `profils` (après une pause : juste après une fermeture, la page ignore les clics).
+    await p.waitForTimeout(450); await p.click('.mp-cadre [data-q="prenom"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     await p.fill('.ps-profil [name="valeur"]', '  '); await p.click('.ps-profil .ps-valeur [type="submit"]');
     const videPrenom = await p.textContent('.ps-profil .ps-msg');
     await p.fill('.ps-profil [name="valeur"]', ' Camille '); await p.click('.ps-profil .ps-valeur [type="submit"]');
