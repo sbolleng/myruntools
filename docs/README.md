@@ -103,6 +103,7 @@ Dans l'ordre :
    - **Dupliquer une course pour l'année suivante** (à rediscuter) : une ligne par édition ; bouton sur la fiche d'une course courue qui crée une copie À surveiller, un an plus tard (mois seul), sans résultat, dossard ni ouverture ; question ouverte : recopier le tracé GPX ?
    - Index UTMB (plus tard).
 3. [ ] **Calendrier** : [spécification 0.25](module-calendrier-specification.md) ; trois vues (Année, Mois, Semaine) au menu « Vue », bouton « Plan », modèle de données et séances en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
+   - **Idée notée (13 nov. 2026, à décider plus tard)** : la frise de Mon plan comme vue du Calendrier (« Frise » dans le menu « Vue », plein écran, En cours / Tout ; toucher une phase ouvre la Semaine) ; Mon plan garderait sa frise.
    - **Légende** : retravailler son intégration, surtout les différents événements (ajouté le 11 nov. 2026).
    - **Fonds de phase** (Mois, Semaine ; un seul fond par phase depuis le 0.17) : lisibilité à vérifier à l'usage, notamment sur fond blanc.
    - **Prépa des courses préparatoires et plaisir** : réglée par le module Préparation (plan de préparation), qui remplace la règle « course confirmée la plus proche ».
