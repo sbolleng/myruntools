@@ -156,7 +156,19 @@
     const marque = '<div class="mrt-brand"><a href="' + lien(cfg.accueil || 'index.html') + '">MyRunTools</a>' + engrenage + '</div>';
     const header = document.createElement('header');
     header.className = 'mrt-header';
-    header.innerHTML =
+    // Sans cap (compte neuf, aucune course à venir) : « Bienvenue, prénom » et une phrase, sans indicateurs ni compte à rebours.
+    const bienvenue = !o.nom && cfg.bienvenue != null;
+    const salut = 'Bienvenue' + (cfg.bienvenue ? ',' : '');
+    if (bienvenue) header.innerHTML =
+      '<div class="mrt-grid is-bienvenue">' +
+        '<div class="mrt-gauche">' +
+          '<h1><span class="mrt-cap">' + salut + '</span>' + (cfg.bienvenue ? '<em>' + esc(cfg.bienvenue) + '</em>' : '') + '</h1>' +
+          '<p class="mrt-bienvenue">Ajoute une course pour fixer ton cap.</p>' +
+        '</div>' +
+        '<div class="mrt-droite">' + marque + '</div>' +
+      '</div>' +
+      '<div class="mrt-bar"></div>';
+    else header.innerHTML =
       '<div class="mrt-grid">' +
         '<div class="mrt-gauche">' +
           '<h1><span class="mrt-cap">Cap sur</span><em>' + esc(o.nom || dash) + '</em></h1>' +
@@ -190,7 +202,8 @@
       const barre = document.createElement('header');
       barre.className = 'mrt-barre';
       // Rappel du cap, discret (pas en Accent : il ne doit pas concurrencer le titre de la page).
-      barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien(cfg.accueil || 'index.html') + '">Cap sur <b>' + esc(o.nom || dash) + '</b></a>' + engrenage + '</div>';
+      barre.innerHTML = '<div class="mrt-barre-in"><a class="mrt-barre-cap" href="' + lien(cfg.accueil || 'index.html') + '">' +
+        (bienvenue ? salut + (cfg.bienvenue ? ' <b>' + esc(cfg.bienvenue) + '</b>' : '') : 'Cap sur <b>' + esc(o.nom || dash) + '</b>') + '</a>' + engrenage + '</div>';
       document.body.prepend(barre, nav);
       haut = barre;
     } else document.body.prepend(header, nav);
@@ -235,7 +248,7 @@
       const left = next && next.date ? daysBetween(t, parseDate(next.date)) : -1;
       $('.mrt-next').innerHTML = left >= 0 ? 'prochaine course · <b>' + esc(next.nom) + '</b> · J-' + left : '';
     }
-    if (cfg.sansEnTete) return;
+    if (cfg.sansEnTete || bienvenue) return;
     tick();
     if (!cfg.maintenant) minuteur = setInterval(tick, 1000);
   };

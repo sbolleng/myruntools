@@ -4,6 +4,9 @@
 // ouvre sa question, un écran par question, enregistrée à chaque choix. Deux usages, une seule liste :
 //   mrtProfil.page(el, etat)          la page Mon plan (profil.html) : la liste dans la page, une question en feuille
 //   mrtProfil.feuille({ etat, surMaj }) la feuille « Mon profil » (Mon plan, Nutrition) : la liste et ses questions
+//   mrtProfil.feuille({ etat, suite: mrtProfil.EXPRESS, surMaj }) le profil express (Premiers pas d'En un coup d'œil) :
+//                                       les questions de la suite qui manquent, l'une après l'autre, puis la feuille se ferme
+//   mrtProfil.expressFait(mesures, entrainement)  vrai quand le profil express est rempli
 //   mrtProfil.manquants(entrainement)   questions indispensables à l'IA qui manquent (Mon plan)
 // etat : { id, mesures (ligne de `profils`), entrainement (ligne de `profil_entrainement`, lue si absente), courses }.
 // Les mesures sont rangées dans `profils`, le reste dans `profil_entrainement` (règles par ligne : chacun sa ligne).
@@ -91,6 +94,10 @@
   const TABLE = { sexe: 'mesures', naissance: 'mesures', activite: 'mesures', poids: 'mesures', taille: 'mesures', pointure: 'mesures', fc_repos: 'mesures' };
   // Questions indispensables pour que l'IA propose des séances (Mon plan) : leur nom, dans l'ordre.
   const IA = [['anciennete', 'je cours depuis'], ['volume_tranche', 'distance par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
+  // Profil express (premiers pas d'un nouveau compte) : ce qui sert tout de suite à Nutrition et à Mon plan.
+  const EXPRESS = ['sexe', 'naissance', 'poids', 'taille', 'allure'];
+  const faiteDe = (k, m, e) => !!ligneDe(k)[2](m || {}, e || {});
+  const expressFait = (m, e) => EXPRESS.every(k => faiteDe(k, m, e));
   const manquants = e => IA.filter(([k]) => !ligneDe(k)[2]({}, e || {})).map(x => x[1]);
   // Toutes les questions obligatoires qui manquent (état de la page).
   const tousManquants = (m, e) => LIGNES.filter(l => l[3] && !l[2](m || {}, e || {})).map(l => (l[0] === 'semaine' ? 'ma semaine' : l[1].toLowerCase()));
@@ -148,7 +155,10 @@
   // La feuille (celle d'une course, modale-course.css) : la liste et ses questions (opts.question absent), ou une seule question
   // (la page : opts.question ; la croix ou un enregistrement la ferme). opts.surMaj(etat) après chaque enregistrement.
   function feuille(opts) {
-    const etat = opts.etat, seule = opts.question || null;
+    const etat = opts.etat, suite = opts.suite || null;
+    // Suite : on commence par la première question qui manque ; chacune, enregistrée, passe à la suivante qui manque.
+    const seule = opts.question || (suite ? (suite.find(k => !faiteDe(k, etat.mesures, etat.entrainement)) || suite[0]) : null);
+    let courante = seule;
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
     voile.innerHTML = '<div class="mc-panneau mc-ecrans ps-profil" role="dialog" aria-modal="true" aria-labelledby="ps-titre" tabindex="-1"><div class="mc-corps"></div></div>';
@@ -162,7 +172,11 @@
     const msg = () => corps.querySelector('.ps-msg');
     const m = () => etat.mesures || {}, e = () => etat.entrainement || {};
     // Après un enregistrement : la liste (feuille), ou la feuille fermée (page).
-    const apres = () => { if (opts.surMaj) opts.surMaj(etat); if (seule) fermer(); else liste(); };
+    const apres = () => {
+      if (opts.surMaj) opts.surMaj(etat);
+      if (suite) { const i = suite.indexOf(courante), k = suite.slice(i + 1).concat(suite.slice(0, i)).find(x => !faiteDe(x, m(), e())); return k ? question(k) : fermer(); }
+      if (seule) fermer(); else liste();
+    };
     const garder = async (table, champs) => { if (await ranger(etat, table, champs)) apres(); else msg().textContent = 'Enregistrement impossible pour l\'instant.'; };
     // Barre du haut : « ‹ » (retour à la liste, feuille seulement) à gauche dans une question, la croix à droite ; dessous, le titre en libellé.
     // Avec « valider » (Ma semaine), comme les autres fenêtres de saisie du site : « Annuler » à gauche, « Enregistrer » à droite.
@@ -170,7 +184,7 @@
       (valider ? '<button type="button" class="mrt-btn" data-q="' + (seule ? 'fermer' : 'liste') + '">Annuler</button><button type="button" class="mrt-btn is-principal" data-enregistrer>Enregistrer</button>' :
         (retour && !seule ? '<button type="button" class="mrt-rond" data-q="liste" aria-label="Retour à la liste" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span></span>') +
         '<button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button>') + '</div>' +
-      '<p class="fc-libelle" id="ps-titre">' + titre + '</p><p class="ps-msg" role="alert"></p>';
+      '<p class="fc-libelle" id="ps-titre">' + titre + (suite && suite.includes(courante) ? '<span class="ps-etape"> · ' + (suite.indexOf(courante) + 1) + ' sur ' + suite.length + '</span>' : '') + '</p><p class="ps-msg" role="alert"></p>';
 
     // Glissement du contenu (ordinateur seulement, voir modale-course.css) : vers une question par la droite, retour à la liste par la gauche.
     let ecran = seule ? 'question' : 'liste';
@@ -299,6 +313,7 @@
     function question(k) {
       const l = ligneDe(k);
       if (!l) return;
+      courante = k;
       if (l[4] === 'blessure') return blessure();
       if (l[4] === 'semaine') semaine(); else if (l[4] === 'allure') allure(); else if (l[4] === 'choix') choix(k, l[1]); else champ(k, l[1], l[4]);
     }
@@ -339,5 +354,5 @@
     if (location.hash) { const z = el.querySelector(location.hash); if (z) z.scrollIntoView(); }
   }
 
-  window.mrtProfil = { page, feuille, manquants, tousManquants, duPalmares, ECHELLES, libelleDe };
+  window.mrtProfil = { page, feuille, EXPRESS, expressFait, manquants, tousManquants, duPalmares, ECHELLES, libelleDe };
 })();

@@ -109,6 +109,7 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 }
 .mrt-header h1 em { display: block; font-style: normal; color: var(--accent); }
 .mrt-cap { white-space: nowrap; }
+.mrt-bienvenue { margin-top: 1rem; font-size: var(--t-texte); color: var(--muted); } /* compte sans cap : la phrase sous « Bienvenue, prénom » */
 .mrt-stats { grid-area: stats; display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.2rem; }
 .mrt-stat { display: flex; flex-direction: column; gap: 0.15rem; max-width: 15rem; }
 .mrt-stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text); }

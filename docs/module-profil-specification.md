@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.2 · 12 novembre 2026 · [Retour au sommaire](README.md) · Santé : blessure en cours
+Version 0.3 · 13 novembre 2026 · [Retour au sommaire](README.md) · profil express des Premiers pas
 
 ## 1. Rôle
 
@@ -8,6 +8,7 @@ Une seule page rassemble tout ce qui décrit le coureur : ses mesures, son nivea
 
 - La page **Mon profil** (`profil.html`) est au menu par défaut (sixième onglet, après Palmarès ; clé des préférences « Profil »).
 - La **feuille Mon profil** reprend la même liste, au-dessus d'une autre page : le bouton « Mon profil » de Mon plan et le lien « Calculé pour … » de Nutrition l'ouvrent, pour compléter sans changer de page.
+- Le **profil express** (bloc Premiers pas d'En un coup d'œil, [spécification générale](specification-generale.md), § 5 bis) : la même feuille, réduite à cinq questions (sexe, date de naissance, poids, taille, repère d'allure, « Je ne sais pas » compris), posées l'une après l'autre en commençant par la première qui manque, avec « n sur 5 » dans le titre, sans retour à la liste ; la dernière enregistrée, la feuille se ferme. La croix la ferme à tout moment (« plus tard ») ; ce qui est enregistré reste. Le profil express est rempli quand ces cinq questions ont une réponse.
 - L'encart du premier usage de Nutrition (les seules mesures qui manquent au calcul) reste : il range les mêmes données.
 - Ressenti, douleur et fatigue se notent sur chaque séance ([Préparation](module-preparation-specification.md), § 5.5). Connexions (Strava, import d'un fichier) : avec l'import ; pas de section vide d'ici là.
 
@@ -83,4 +84,5 @@ Jeu d'essai : données fictives du banc d'essai au mardi 20 octobre 2026 ; profi
 - Refus : VMA 35, FC max 250, naissance en 2031, pointure 42,3 ; acceptés : FC max 186, FC de repos 52, pointure 42,5, poids 72,4 (virgule), taille 178, activité Peu actif ; mesures écrites dans `profils`, FC max et points fragiles avec le niveau ; « Moi 5 sur 5 » ; Mon plan : « Profil complet. ».
 - Page Mon profil : état de toutes les obligatoires qui manquent (« date de naissance, poids, taille, activité hors sport, je cours depuis, distance par semaine, plus longue sortie récente, repère d'allure, ma semaine ») ; onglet et titre « Mon profil » ; Taille touchée : la question seule, sans « ‹ » ; 181 enregistré : feuille fermée, « Taille | 181 cm », « Moi 2 sur 5 ».
 - Nutrition : « Calculé pour … » ouvre la feuille Mon profil, les mesures en tête ; poids 72,5 et activité Actif : deux écritures, besoin recalculé (2 401 kcal) ; panne : « Enregistrement impossible pour l'instant. », la question reste ouverte.
+- Profil express : voir le jeu d'essai de la [spécification générale](specification-generale.md), § 13 (Premiers pas).
 - Menu par défaut : six onglets, Mon profil en dernier ; téléphone sans débordement ; site partagé : « Le profil n'est pas partagé. ».

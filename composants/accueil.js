@@ -85,9 +85,30 @@
       '<button type="button" class="mrt-btn" data-module="' + esc(m.nom) + '">Ajouter au menu</button></li>').join('') + '</ul></section>';
   };
 
+  // ----- Premiers pas : un compte neuf, en tête de page ; deux étapes, cochées une fois faites ; le bloc disparaît quand les deux le sont -----
+  // nutrition.entrainement : la ligne de profil_entrainement (undefined tant qu'elle n'est pas lue : pas de bloc) ;
+  // nutrition.ouvrirProfil() : le profil express ; nutrition.ajouterCourse() : la fiche d'ajout d'une course.
+  const premiers = (courses, nutrition) => {
+    if (!nutrition || nutrition.lectureSeule || nutrition.entrainement === undefined || !window.mrtProfil) return '';
+    const profil = window.mrtProfil.expressFait(nutrition.profil, nutrition.entrainement), course = courses.length > 0;
+    if (profil && course) return '';
+    const etape = (n, cle, nom, aide, fait, bouton) => '<li class="ac-pas' + (fait ? ' is-fait' : '') + '" data-pas="' + cle + '"><span class="ac-pas-n" aria-hidden="true">' + (fait ? '✓' : n) + '</span>' +
+      '<span class="ac-module"><b>' + nom + '</b><span>' + aide + '</span></span>' +
+      (fait ? '<span class="ac-pas-fait">Fait</span>' : '<button type="button" class="mrt-btn is-principal" data-premier="' + cle + '">' + bouton + '</button>') + '</li>';
+    return '<section class="ac-bloc ac-premiers" data-bloc="premiers"><h2 class="ac-titre"><span>Premiers pas</span></h2><ol>' +
+      etape(1, 'profil', 'Mon profil', 'Quelques questions, pour ton plan et ta nutrition.', profil, 'Compléter') +
+      etape(2, 'course', 'Ma première course', 'Une course à venir, ou déjà courue.', course, 'Ajouter') + '</ol></section>';
+  };
+
   // nutrition : { ..., lectureSeule, ajouterModule(nom) } ; ajouterModule enregistre le choix et redessine la page.
   window.renderAccueil = function (el, courses, prefs, nutrition) {
-    el.innerHTML = '<div class="ac-grille">' + aujourdhui(courses, nutrition, prefs) + window.mrtBlocsAffiches(prefs).map(b => BLOCS[b.id](courses, prefs)).join('') + decouvrir(prefs, nutrition && nutrition.lectureSeule) + '</div>';
+    // Aucune course : les blocs qui en montrent une (Prochaine course, D'ici là, Dernière course) attendent la première.
+    const SANS = ['prochaine', 'dicila', 'derniere'];
+    const blocs = window.mrtBlocsAffiches(prefs).filter(b => courses.length || !SANS.includes(b.id));
+    el.innerHTML = '<div class="ac-grille">' + premiers(courses, nutrition) + aujourdhui(courses, nutrition, prefs) + blocs.map(b => BLOCS[b.id](courses, prefs)).join('') + decouvrir(prefs, nutrition && nutrition.lectureSeule) + '</div>';
+    el.querySelectorAll('[data-premier]').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.premier === 'profil') nutrition.ouvrirProfil(); else nutrition.ajouterCourse();
+    }));
     el.querySelectorAll('[data-module]').forEach(b => b.addEventListener('click', () => { b.disabled = true; if (nutrition && nutrition.ajouterModule) nutrition.ajouterModule(b.dataset.module); }));
     el.querySelectorAll('[data-rapide]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.rapide;
