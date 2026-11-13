@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 13 nov. 2026 | Plafond de l'IA levé | Pendant les essais des pilotes, plus de limite de propositions : réglage `plafondIA` du site (0 : sans limite, compteur masqué) et secret facultatif `PLAFOND` de la fonction (absent : sans limite). À remettre à 4 avant l'ouverture (todo du sommaire). |
 | 13 nov. 2026 | Mon profil : une question en petite feuille | Une question ouverte depuis la page Mon profil (Sexe, Date de naissance…) s'ouvre dans une petite feuille, comme les saisies rapides de Nutrition : 30 rem de large, hauteur selon le contenu ; sur téléphone, elle monte du bas à la hauteur de son contenu (classe `mc-court`). La liste « Mon profil » (Mon plan, Nutrition) et le profil express gardent leur hauteur fixe, en 30 rem de large. Option A retenue parmi quatre (petite feuille, réponse dans la liste, volet latéral, menu sous la ligne). |
 | 13 nov. 2026 | Mon profil 0.4 | Prénom et nom en tête de la section Moi, obligatoires (un compte créé à la main peut en être dépourvu) ; « Moi n sur 7 ». |
 | 13 nov. 2026 | Effort et sensations | Inspiration Runmotion : effort perçu au curseur de 1 à 10 (dégradé vert → rouge, description en direct, « Ne pas noter ») ; sensations en cinq visages, indépendantes de l'effort (nouvelle donnée, évolution 036), la fatigue du jour gardée ; ronds « i » d'explication ; cocher « faite » dans une vue ouvre la feuille « Effort et sensations » (option B), « Plus tard » pour passer. Textes rédigés d'après l'article Runmotion. Préparation 1.52. |
