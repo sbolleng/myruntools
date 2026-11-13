@@ -7,7 +7,9 @@
 (function () {
   const P = window.mrtPreparation;
   const { iso, parse, addDays, lundiDe, longue, TYPES, NOM_PHASE } = P;
-  const PLAFOND = 4, BLOC = 4;
+  const BLOC = 4;
+  // Plafond mensuel des propositions : réglage du site (donnees/supabase.js, plafondIA) ; 0 : sans limite.
+  const PLAFOND = () => Number((window.MRT_SUPABASE || {}).plafondIA) || 0;
   const NOMS_JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   const ROLES = { objectif: 'Objectif', preparatoire: 'Préparatoire', plaisir: 'Plaisir' };
   const numJour = j => ((parse(j).getDay() + 6) % 7) + 1; // 1 lundi … 7 dimanche
@@ -125,7 +127,7 @@
   }
 
   // Propositions du mois (essai 1, sauf les échecs) ; il en reste PLAFOND moins celles-là.
-  const restantes = ctx => Math.max(0, PLAFOND - (ctx.propositions || []).filter(x => x.essai === 1 && x.statut !== 'echec' && x.motif !== 'readaptation' && String(x.cree).slice(0, 7) === ceMois()).length);
+  const restantes = ctx => (!PLAFOND() ? Infinity : Math.max(0, PLAFOND() - (ctx.propositions || []).filter(x => x.essai === 1 && x.statut !== 'echec' && x.motif !== 'readaptation' && String(x.cree).slice(0, 7) === ceMois()).length));
   // Proposition en attente de validation pour ce bloc : la dernière « brute ».
   const enAttente = (ctx, lundi) => (ctx.propositions || []).filter(x => x.bloc === lundi && x.statut === 'brute').sort((a, b) => (a.cree < b.cree ? 1 : -1))[0] || null;
   const statut = (id, s) => sb().from('propositions').update({ statut: s }).eq('id', id);

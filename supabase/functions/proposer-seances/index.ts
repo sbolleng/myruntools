@@ -12,6 +12,7 @@
 //   ANTHROPIC_API_KEY  la clé de l'API d'Anthropic
 //   PILOTES            les identifiants des comptes autorisés, séparés par des virgules (Authentication → Users)
 //   MODELE             facultatif, claude-sonnet-5-5 par défaut
+//   PLAFOND            facultatif : propositions par mois et par compte ; absent ou 0, sans limite (essais des pilotes)
 // Écrit en JavaScript (valide en TypeScript).
 import Anthropic from 'npm:@anthropic-ai/sdk';
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -22,7 +23,7 @@ const ENTETES = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json'
 };
-const PLAFOND = 4; // propositions par mois civil (essai 1) ; les reprises (essai 2) ne comptent pas, dans la limite d'autant
+const PLAFOND = Number(Deno.env.get('PLAFOND')) || 0; // propositions par mois civil (essai 1), 0 : sans limite ; les reprises (essai 2) ne comptent pas, dans la limite d'autant
 const repondre = (status, corps) => new Response(JSON.stringify(corps), { status, headers: ENTETES });
 
 // Format imposé de la réponse : une recommandation pour le bloc, puis ses séances.
@@ -90,7 +91,7 @@ Deno.serve(async req => {
   if (e1) return repondre(500, { message: e1.message });
   const horsReadaptation = mois.filter(x => x.motif !== 'readaptation');
   const comptees = horsReadaptation.filter(x => x.essai === 1 && x.statut !== 'echec').length, reprises = horsReadaptation.filter(x => x.essai === 2).length;
-  if (motif !== 'readaptation' && ((essai === 1 && comptees >= PLAFOND) || (essai === 2 && reprises >= PLAFOND))) return repondre(429, { code: 'plafond', prochaine });
+  if (PLAFOND && motif !== 'readaptation' && ((essai === 1 && comptees >= PLAFOND) || (essai === 2 && reprises >= PLAFOND))) return repondre(429, { code: 'plafond', prochaine });
 
   // Appel à Claude : format imposé ; repli côté serveur si le modèle décline (fallbacks « default »).
   const modele = Deno.env.get('MODELE') || 'claude-sonnet-5-5';
