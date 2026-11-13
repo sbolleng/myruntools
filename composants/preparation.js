@@ -458,7 +458,7 @@
       e.preventDefault();
       const champs = lire();
       const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
-      if (error) { voile.querySelector('.cal-msg').textContent = 'Enregistrement impossible pour l\'instant.'; console.warn(error); return; }
+      if (error) { const m = voile.querySelector('.cal-msg'); m.textContent = error.code === 'PGRST204' || /column/i.test(String(error.message || '')) ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.'; m.scrollIntoView({ block: 'nearest' }); console.warn(error); return; }
       fermer();
       await ctx.actualiser();
       if (champs.commentaire && champs.commentaire !== (s.commentaire || null)) relancer(ctx);
@@ -541,7 +541,12 @@
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
-    const echec = err => { msg.textContent = 'Enregistrement impossible pour l\'instant.'; console.warn(err); };
+    // Échec : le message en tête de la fenêtre, ramené à l'écran ; une colonne inconnue de la base (évolution SQL pas encore passée) est dite.
+    const echec = err => {
+      const colonne = err && (err.code === 'PGRST204' || /column|colonne/i.test(String(err.message || '')));
+      msg.textContent = colonne ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.';
+      msg.scrollIntoView({ block: 'nearest' }); console.warn(err);
+    };
     if (!dans) v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
     if (s) v.querySelector('[data-act="supprimer"]').addEventListener('click', async e => {
       e.stopPropagation();

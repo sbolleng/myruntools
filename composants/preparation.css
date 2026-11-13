@@ -164,3 +164,5 @@
 .cal-retour-seance { margin: -0.2rem 0 0.4rem; font-size: var(--t-second); color: var(--muted); }
 .cal-feuille-retour .cal-ecran > .cal-champ { margin-bottom: 0.8rem; }
 .cal-plus-tard { display: block; margin: 0.6rem auto 0; font-size: var(--t-second); }
+/* Un champ masqué le reste (le display de .cal-champ l'emportait sur l'attribut hidden : « Où » visible avec « Aucune »). */
+.cal-champ[hidden], .cal-si-faite[hidden], .cal-sans-note[hidden] { display: none; }
