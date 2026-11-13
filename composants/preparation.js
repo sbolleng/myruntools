@@ -362,6 +362,18 @@
   // Ressenti : effort perçu de 1 (très facile) à 10 (maximal), une fois la séance faite ; douleur : aucune, légère, forte (et où) ;
   // fatigue du jour : 1 à 5 ; commentaire : 300 caractères au plus, avant comme après la séance.
   const DOULEURS = { aucune: 'Aucune', legere: 'Légère', forte: 'Forte' };
+  // Échelle de l'effort perçu (Borg modifiée, de 1 à 10 ; spécification Préparation, § 5.5) : un libellé par niveau.
+  const NIVEAUX_RESSENTI = [
+    [2, 'Très facile', 'marche active ou footing de récupération très lent ; respiration par le nez, sans effort'],
+    [4, 'Endurance fondamentale', 'allure confortable, conversation complète sans essoufflement'],
+    [6, 'Endurance active, tempo', 'respiration plus rapide ; des phrases courtes, la discussion devient hachée'],
+    [8, 'Seuil, allure semi-marathon ou 10 km', 'effort soutenu et inconfortable ; quelques mots isolés'],
+    [9, 'VMA, fractionné court', 'effort très difficile, proche du maximum ; impossible de parler'],
+    [10, 'Sprint maximal', 'effort absolu, intenable plus de quelques secondes']];
+  const niveauRessenti = n => (n ? NIVEAUX_RESSENTI.find(x => n <= x[0]) : null);
+  // Charge d'une séance (méthode de Foster) : ressenti × durée en minutes, en unités arbitraires (UA).
+  const charge = (ressenti, duree) => (ressenti && duree ? ressenti * duree : null);
+  const ligneRessenti = (r, duree) => { const nv = niveauRessenti(r); return nv ? '<b>' + r + ' · ' + nv[1] + '</b> : ' + nv[2] + '.' + (charge(r, duree) ? ' Charge : ' + charge(r, duree) + ' UA.' : '') : 'À noter 15 à 30 minutes après la séance.'; };
   const pastilles = (nom, valeurs, choisie) => '<div class="ps-coches cal-pastilles" data-groupe="' + nom + '">' + valeurs.map(([v, lib]) =>
     '<button type="button" class="mrt-pastille" data-val="' + v + '" aria-pressed="' + (String(choisie) === String(v)) + '">' + lib + '</button>').join('') + '</div>';
   function retourHtml(s) {
@@ -369,7 +381,7 @@
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
       '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' +
-        '<div class="cal-champ"><span>Ressenti (effort perçu, de 1 à 10)</span>' + pastilles('ressenti', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => [n, n]), x.ressenti) + '</div>' +
+        '<div class="cal-champ"><span>Ressenti (effort perçu, de 1 à 10)</span>' + pastilles('ressenti', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => [n, n]), x.ressenti) + '<p class="cal-ressenti-lib">' + ligneRessenti(x.ressenti, x.duree_min) + '</p></div>' +
         '<div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', Object.entries(DOULEURS), dou) + '</div>' +
         '<label class="cal-champ cal-douleur-ou"' + (dou === 'legere' || dou === 'forte' ? '' : ' hidden') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>' +
         '<div class="cal-champ"><span>Fatigue du jour (de 1 à 5)</span>' + pastilles('fatigue', [1, 2, 3, 4, 5].map(n => [n, n]), x.fatigue) + '</div>' +
@@ -387,7 +399,10 @@
       choix[g] = deja ? null : b.dataset.val;
       b.closest('[data-groupe]').querySelectorAll('[data-val]').forEach(x => x.setAttribute('aria-pressed', String(!deja && x === b)));
       if (g === 'douleur') f.querySelector('.cal-douleur-ou').hidden = !['legere', 'forte'].includes(choix.douleur);
+      if (g === 'ressenti') majRessenti();
     });
+    const majRessenti = () => { const d = nombre(f.duree.value); f.querySelector('.cal-ressenti-lib').innerHTML = ligneRessenti(choix.ressenti == null ? null : Number(choix.ressenti), Number.isInteger(d) ? d : null); };
+    f.duree.addEventListener('input', majRessenti);
     f.faite.addEventListener('change', () => { f.querySelector('.cal-si-faite').hidden = !f.faite.checked; });
     f.commentaire.addEventListener('input', () => { f.querySelector('.cal-compteur').textContent = f.commentaire.value.length + '/300'; });
     return () => {
@@ -605,6 +620,6 @@
   }
 
   window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
-    ouvrirSeance, deplacer, conseils, DOULEURS, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
+    ouvrirSeance, deplacer, conseils, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();
