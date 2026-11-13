@@ -145,3 +145,22 @@
 .cal-compteur { display: block; margin-top: 0.2rem; font-size: var(--t-micro); color: var(--muted); text-align: right; }
 .cal-ressenti-lib { margin: 0.35rem 0 0; font-size: var(--t-second); color: var(--muted); }
 .cal-ressenti-lib b { font-weight: 600; color: var(--text); }
+
+/* Effort perçu au curseur (dégradé du vert de la Base au rouge d'Alerte) ; sensations en visages ; rond « i » ; feuille « Effort et sensations ». */
+.cal-titre-info { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.cal-info b { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 700; }
+.cal-curseur { width: 100%; height: 1.6rem; margin: 0.4rem 0 0; background: none; accent-color: var(--accent); -webkit-appearance: none; appearance: none; cursor: pointer; }
+.cal-curseur::-webkit-slider-runnable-track { height: 0.35rem; border-radius: 1rem; background: linear-gradient(90deg, var(--ph-base), var(--ph-developpement), var(--red)); }
+.cal-curseur::-moz-range-track { height: 0.35rem; border-radius: 1rem; background: linear-gradient(90deg, var(--ph-base), var(--ph-developpement), var(--red)); }
+.cal-curseur::-webkit-slider-thumb { -webkit-appearance: none; width: 1.6rem; height: 1.2rem; margin-top: -0.43rem; border-radius: 1rem; background: var(--text); border: 0; }
+.cal-curseur::-moz-range-thumb { width: 1.6rem; height: 1.2rem; border-radius: 1rem; background: var(--text); border: 0; }
+.cal-curseur.is-vide::-webkit-slider-thumb { opacity: 0.55; }
+.cal-curseur.is-vide::-moz-range-thumb { opacity: 0.55; }
+.cal-sans-note { margin-top: 0.2rem; font-size: var(--t-petit); }
+.cal-visages { display: flex; justify-content: space-between; gap: 0.4rem; margin-top: 0.35rem; }
+.cal-visage-b { width: 2.6rem; height: 2.6rem; color: var(--muted); }
+.cal-visage-b .cal-visage { width: 1.7rem; height: 1.7rem; }
+.cal-visage-b[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.cal-retour-seance { margin: -0.2rem 0 0.4rem; font-size: var(--t-second); color: var(--muted); }
+.cal-feuille-retour .cal-ecran > .cal-champ { margin-bottom: 0.8rem; }
+.cal-plus-tard { display: block; margin: 0.6rem auto 0; font-size: var(--t-second); }

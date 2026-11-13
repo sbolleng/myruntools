@@ -200,6 +200,7 @@ create table seances (
   douleur     text check (douleur in ('aucune', 'legere', 'forte')),
   douleur_ou  text check (char_length(douleur_ou) <= 100),
   fatigue     smallint check (fatigue between 1 and 5),
+  sensations  smallint check (sensations between 1 and 5),         -- 1 très bien … 5 très mal (évolution 036)
   commentaire text check (char_length(commentaire) <= 300),
   date_prevue date,                                                -- jour d'origine d'une séance déplacée
   foreign key (utilisateur, course) references courses (utilisateur, id) on delete set null (course)
