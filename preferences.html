@@ -194,7 +194,7 @@
     const blocMenu = blocs[1];
     // Libellé affiché d'un module (« Saison ») ; la clé rangée reste son nom.
     const libelle = n => ((mrtModules.find(m => m.nom === n) || {}).libelle || n);
-    const construits = mrtModules.filter(m => m.page), aVenir = mrtModules.filter(m => !m.page).map(m => m.nom);
+    const construits = mrtModules.filter(m => m.page), aVenir = mrtModules.filter(m => !m.page && !m.adresse).map(m => m.nom); // le Guide (adresse seulement) n'est pas annoncé
     const parDefaut = () => construits.map(m => ({ nom: m.nom, affiche: m.defaut !== false })); // un module « à cocher » (Nutrition) reste décoché
     const depuisPrefs = () => {
       if (!prefs.modules || !prefs.modules.length) return parDefaut();

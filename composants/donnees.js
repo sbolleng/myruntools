@@ -49,12 +49,12 @@
   // précédent déjà affiché ; les modules « bientôt » restent en fin de liste, comme dans les Préférences.
   window.mrtModulesAvec = (prefs, nom) => {
     const noms = modulesAffiches(prefs).map(m => m.nom);
-    if (noms.includes(nom)) return noms.concat(MODULES.filter(m => !m.page).map(m => m.nom));
+    if (noms.includes(nom)) return noms.concat(MODULES.filter(m => !m.page && !m.adresse).map(m => m.nom));
     const i = MODULES.findIndex(m => m.nom === nom);
     const avant = MODULES.slice(0, i).map(m => m.nom).filter(n => noms.includes(n));
     const pos = avant.length ? noms.indexOf(avant[avant.length - 1]) + 1 : 0;
     noms.splice(pos, 0, nom);
-    return noms.concat(MODULES.filter(m => !m.page).map(m => m.nom));
+    return noms.concat(MODULES.filter(m => !m.page && !m.adresse).map(m => m.nom));
   };
   // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête :
   // le premier module construit du menu (par défaut En un coup d'œil).

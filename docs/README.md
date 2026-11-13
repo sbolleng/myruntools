@@ -129,6 +129,7 @@ Dans l'ordre :
    - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
 20. [ ] **Prévoir un profil piste ?**
 21. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales, n° 5) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).
+22. [ ] **Guide** ([spécification 0.1](module-guide-specification.md), en ligne) : **rappel : me trouver les liens** des deux sources de nutrition, la formule de Black et al. (métabolisme de base) et l'équation de course de l'ACSM ; elles sont citées sans lien d'ici là (ajouté le 13 nov. 2026).
 
 ## Questions ouvertes
 
