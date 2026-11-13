@@ -39,7 +39,7 @@
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
     if (!prop) return blocAl + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
-      (etat.encours ? (etat.readaptation ? 'Réadaptation en cours…' : 'Proposition en cours…') : 'Proposer les séances') + '</button><span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span></div>' + msg;
+      (etat.encours ? (etat.readaptation ? 'Réadaptation en cours…' : 'Proposition en cours…') : 'Proposer les séances') + '</button>' + (Number.isFinite(reste) ? '<span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span>' : '') + '</div>' + msg;
     const seances = IA().seancesDe(prop.reponse), lundis = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)), choisies = etat.semaines || lundis;
     const choixSem = etat.choix ? '<div class="ps-coches ps-prop-sems">' + lundis.map(l => '<button type="button" class="mrt-pastille" data-coche="' + l + '" aria-pressed="' + choisies.includes(l) + '">Semaine ' + window.mrtFormat.semaine(l) + '</button>').join('') + '</div>' : '';
     const actions = etat.choix
@@ -216,7 +216,7 @@
       const act = b.dataset.ia, lundi = lundiDe(iso(new Date())), prop = IA().enAttente(ctx, lundi);
       const recharger = async () => { await IA().lirePropositions(ctx); await ctx.actualiser(); };
       if (act === 'proposer' || act === 'refaire') {
-        if (act === 'refaire' && !(await window.mrtConfirmer({ texte: 'Refaire la proposition ? Elle compte pour une (' + IA().restantes(ctx) + ' restantes ce mois-ci).', action: 'Refaire' }))) return;
+        if (act === 'refaire' && !(await window.mrtConfirmer({ texte: Number.isFinite(IA().restantes(ctx)) ? 'Refaire la proposition ? Elle compte pour une (' + IA().restantes(ctx) + ' restantes ce mois-ci).' : 'Refaire la proposition ?', action: 'Refaire' }))) return;
         ctx.ia = { encours: true }; dessiner();
         if (act === 'refaire' && prop) await IA().abandonner(prop);
         const r = await IA().proposer(ctx, lundi, act);

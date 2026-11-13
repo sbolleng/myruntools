@@ -174,6 +174,8 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
     r.fulfill({ body: fs.readFileSync(path.join(path.dirname(require.resolve('leaflet/package.json')), 'dist', f), 'utf8'), contentType: f.endsWith('css') ? 'text/css' : 'application/javascript' });
   });
   await ctx.route(/tile\.opentopomap\.org/, r => r.fulfill({ body: TUILE, contentType: 'image/png' }));
+  // Réglages du site remplacés (donnees/supabase.js), le temps d'un essai : db.reglages (ex. { plafondIA: 4 }).
+  if (db && db.reglages) await ctx.addInitScript(`(() => { let v; Object.defineProperty(window, 'MRT_SUPABASE', { configurable: true, get: () => v, set: x => { v = Object.assign(x, ${JSON.stringify(db.reglages)}); } }); })()`);
   await simulerBase(ctx, db);
   const p = await ctx.newPage();
   const erreurs = [];
@@ -2814,6 +2816,7 @@ const CONTROLES = {
     // Base simulée : le relais range chaque appel dans « propositions », comme la fonction, et rend la réponse choisie.
     const copie = (reponses, f) => {
       const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = []; d.propositions = []; d.profil_entrainement = [Object.assign({}, PROFIL)];
+      d.reglages = { plafondIA: 4 }; // le plafond se vérifie avec sa valeur d'ouverture ; le site est aujourd'hui sans limite (essais)
       d.appels = [];
       d.relais = corps => {
         d.appels.push(corps);
