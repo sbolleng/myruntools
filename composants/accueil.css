@@ -36,3 +36,14 @@
 .ac-rapide { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
 .ac-rapide .mrt-btn { display: inline-flex; align-items: center; gap: 0.35rem; }
 @media (max-width: 600px) { .ac-rapide .mrt-btn { flex: 1 1 100%; justify-content: center; } }
+
+/* Premiers pas : un compte neuf ; en tête, sur toute la largeur, cadre en Accent ; une ligne par étape (numéro, nom et aide, bouton). */
+.ac-premiers { grid-column: 1 / -1; border-color: var(--accent); }
+.ac-premiers ol { display: flex; flex-direction: column; gap: 0.9rem; list-style: none; }
+.ac-pas { display: flex; align-items: center; gap: 0.8rem; }
+.ac-pas .ac-module { flex: 1; min-width: 0; }
+.ac-pas-n { flex: none; display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); font-family: 'Space Mono', monospace; font-size: var(--t-second); font-weight: 700; }
+.ac-pas.is-fait .ac-pas-n { background: var(--accent); color: var(--bg); }
+.ac-pas.is-fait .ac-module b { color: var(--muted); }
+.ac-pas-fait { font-size: var(--t-petit); color: var(--muted); }
+.ac-pas .mrt-btn { flex: none; }

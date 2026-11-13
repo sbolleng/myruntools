@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="composants/fiche-course.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/modale-course.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/nutrition.css?v=__VERSION__">
+<link rel="stylesheet" href="composants/profil.css?v=__VERSION__">
 <link rel="stylesheet" href="composants/accueil.css?v=__VERSION__">
 </head>
 <body>
@@ -45,6 +46,7 @@
 <script src="composants/modale-course.js?v=__VERSION__"></script>
 <script src="composants/besoin.js?v=__VERSION__"></script>
 <script src="composants/nutrition.js?v=__VERSION__"></script>
+<script src="composants/profil.js?v=__VERSION__"></script>
 <script src="composants/accueil.js?v=__VERSION__"></script>
 <script>
   mrtPage({ courant: 'index.html' }).then(page => {
@@ -61,7 +63,19 @@
       page.redessiner(prefs);
       renderAccueil(el, courses, prefs, nutrition);
     };
-    renderAccueil(el, courses, page.preferences(), nutrition);
+    const dessiner = () => renderAccueil(el, courses, page.preferences(), nutrition);
+    // Premiers pas : le profil express (sexe, naissance, poids, taille, repère d'allure) et la fiche d'ajout d'une course.
+    const etatProfil = { id: page.session.id, mesures: nutrition.profil };
+    nutrition.ouvrirProfil = () => mrtProfil.feuille({ etat: etatProfil, suite: mrtProfil.EXPRESS, surMaj: e => { nutrition.profil = e.mesures; nutrition.entrainement = e.entrainement || null; dessiner(); } });
+    const edition = mrtEdition(page, () => courses, async () => { courses = await page.relire(); dessiner(); });
+    nutrition.ajouterCourse = () => edition && edition.ajouter();
+    // Le profil d'entraînement (repère d'allure) est lu avant le premier affichage : les Premiers pas ne surgissent pas après coup.
+    if (!page.lectureSeule) mrtAttendre(mrtSupabase.from('profil_entrainement').select('*').then(({ data, error }) => {
+      if (error) console.warn(error);
+      nutrition.entrainement = etatProfil.entrainement = (data && data[0]) || null;
+      dessiner();
+    }));
+    dessiner();
     // Les séances du jour arrivent ensuite : le bloc « Aujourd'hui » se redessine avec elles.
     if (!page.lectureSeule) page.relirePlan().then(p => { nutrition.seances = p.seances || []; renderAccueil(el, courses, page.preferences(), nutrition); }).catch(e => console.warn('Séances illisibles', e));
     // La page d'une course s'ouvre en modale, par-dessus l'Accueil.

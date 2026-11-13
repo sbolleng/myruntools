@@ -260,6 +260,8 @@
     const dessiner = p => {
       prefsCourantes = p;
       const cfg = Object.assign(configEnTete(p, courses), { partage: !!proprietaire }), demarrage = window.mrtDemarrage(p);
+      // Sans cap, sur son propre site : « Bienvenue, prénom » à la place de « Cap sur — » (prénom vide : « Bienvenue »).
+      if (!cfg.objectif.nom && !proprietaire) cfg.bienvenue = ((session.profil && session.profil.prenom) || '').trim();
       ecrireCache({ cfg, demarrage });
       tracer(cfg, demarrage);
       document.documentElement.dataset.mrtDonnees = '1'; // en-tête tiré des données (et non de la copie gardée)

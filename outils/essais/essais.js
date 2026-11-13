@@ -443,10 +443,86 @@ const CONTROLES = {
   },
   // Préférences : thème, menu, cap, lecture seule (module-preferences-specification.md).
   // Accueil, page de démarrage et passage entre le grand en-tête et la barre fine (spécification générale, § 6).
+  // Premiers pas d'un compte neuf (spécification générale, § 5 bis) : en-tête « Bienvenue », blocs sans course masqués,
+  // profil express (une question après l'autre), fiche d'ajout d'une course ; le bloc disparaît quand les deux étapes sont faites.
+  async premiers(nav, db0) {
+    const pb = [];
+    const neuf = () => {
+      const d = JSON.parse(JSON.stringify(db0)), moi = d.profils[0];
+      d.profils = [{ id: moi.id, prenom: 'Essai', nom: 'Fictif', sexe: null, naissance: null, poids: null, taille: null, activite: null }];
+      d.preferences = [{ utilisateur: moi.id, theme: null, modules: null, course_cap: null, palmares_colonnes: null, palmares_groupe: true, page_demarrage: null, accueil_blocs: null }];
+      d.courses = []; d.courses_circuits = []; d.profil_entrainement = []; d.ecritures = [];
+      return d;
+    };
+    const blocs = p => p.evaluate(() => [...document.querySelectorAll('.ac-bloc')].map(b => b.dataset.bloc));
+    const pas = p => p.evaluate(() => [...document.querySelectorAll('.ac-pas')].map(l => l.dataset.pas + (l.classList.contains('is-fait') ? ' fait' : ' ' + l.querySelector('button').textContent)));
+    const titreFeuille = p => p.evaluate(() => document.getElementById('ps-titre').textContent);
+    // Compte neuf : « Bienvenue, prénom », sans indicateurs ni compte à rebours ; Premiers pas en tête ; pas de bloc qui montre une course.
+    let d = neuf();
+    let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 390, d, {}, PARIS);
+    await p.waitForSelector('.ac-premiers');
+    pb.push(egal({ titre: 'Bienvenue,Essai', phrase: 'Ajoute une course pour fixer ton cap.', stats: 0, compte: 0, blocs: ['premiers', 'aujourdhui', 'decouvrir'], pas: ['profil Compléter', 'course Ajouter'] },
+      { titre: await p.textContent('.mrt-header h1'), phrase: await p.textContent('.mrt-bienvenue'), stats: await p.locator('.mrt-stats').count(), compte: await p.locator('.mrt-days').count(), blocs: await blocs(p), pas: await pas(p) },
+      'compte neuf : « Bienvenue, prénom », Premiers pas en tête, Prochaine course, D\'ici là et Dernière course masqués'));
+    // Profil express : cinq questions, l'une après l'autre ; enregistrées, la feuille se ferme et l'étape est cochée.
+    await p.click('[data-premier="profil"]');
+    await p.waitForSelector('.ps-profil');
+    const titres = [await titreFeuille(p)];
+    await p.click('.ps-choix[data-val="femme"]');
+    await p.waitForFunction(() => /2 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
+    await p.fill('.ps-valeur [name="valeur"]', '1990-05-12'); await p.click('.ps-valeur button[type="submit"]');
+    await p.waitForFunction(() => /3 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
+    await p.fill('.ps-valeur [name="valeur"]', '62'); await p.click('.ps-valeur button[type="submit"]');
+    await p.waitForFunction(() => /4 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
+    await p.fill('.ps-valeur [name="valeur"]', '168'); await p.click('.ps-valeur button[type="submit"]');
+    await p.waitForFunction(() => /5 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
+    const retour = await p.locator('.ps-profil [data-q="liste"]').count();
+    await p.click('.ps-choix[data-type="inconnu"]');
+    await p.waitForFunction(() => !document.querySelector('.ps-profil'));
+    pb.push(egal([['Sexe · 1 sur 5', 'Date de naissance · 2 sur 5', 'Poids · 3 sur 5', 'Taille · 4 sur 5', 'Repère d\'allure · 5 sur 5'], 0, ['profil fait', 'course Ajouter']],
+      [titres, retour, await pas(p)], 'profil express : cinq questions dans l\'ordre, sans retour à la liste ; la feuille se ferme, l\'étape est cochée'));
+    const ecr = d.ecritures.filter(x => ['profils', 'profil_entrainement'].includes(x.table)).map(x => x.table + ' ' + Object.keys(x.corps || {}).filter(k => !['maj', 'utilisateur', 'id'].includes(k)).join(','));
+    pb.push(egal(['profils sexe', 'profils naissance', 'profils poids', 'profils taille', 'profil_entrainement allure_type'], ecr, 'profil express : chaque réponse enregistrée à sa place'));
+    // Ma première course : la fiche d'ajout s'ouvre.
+    await p.click('[data-premier="course"]');
+    await p.waitForSelector('.fc-barre');
+    pb.push(egal(true, await p.locator('.fc-barre').isVisible(), 'ma première course : la fiche d\'ajout s\'ouvre'));
+    pb.push(egal([], erreurs, 'Premiers pas, erreurs JavaScript'));
+    await ctx.close();
+    // Profil commencé (sexe, naissance) : le profil express reprend à la première question qui manque ; la croix le ferme, l'étape reste à faire.
+    d = neuf(); Object.assign(d.profils[0], { sexe: 'homme', naissance: '1985-03-15' });
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, d, {}, PARIS));
+    await p.click('[data-premier="profil"]');
+    await p.waitForSelector('.ps-profil');
+    const debut = await titreFeuille(p);
+    await p.click('.ps-profil [data-fermer]');
+    pb.push(egal(['Poids · 3 sur 5', ['profil Compléter', 'course Ajouter']], [debut, await pas(p)], 'profil commencé : reprise à la première question qui manque ; la croix ferme, l\'étape reste à faire'));
+    // Barre fine d'une autre page : « Bienvenue, prénom ».
+    await p.goto(RACINE + 'palmares.html'); await p.waitForSelector('.mrt-barre-cap');
+    pb.push(egal('Bienvenue, Essai', (await p.textContent('.mrt-barre-cap')).replace(/\s+/g, ' ').trim(), 'compte neuf, barre fine : « Bienvenue » et le prénom'));
+    await ctx.close();
+    // Une course, profil express rempli : plus de Premiers pas ; les blocs des courses reviennent ; « Cap sur » si la course est à venir.
+    const { db } = jeuObjectif(db0);
+    d = JSON.parse(JSON.stringify(db)); Object.assign(d.profils[0], { sexe: 'homme', naissance: '1985-03-15', poids: 70, taille: 175 });
+    d.profil_entrainement = [{ utilisateur: d.profils[0].id, allure_type: 'inconnu' }];
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, d, {}, PARIS));
+    pb.push(egal([0, true, true], [await p.locator('.ac-premiers').count(), await p.locator('[data-bloc="prochaine"]').count() === 1, /^Cap sur/.test(await p.textContent('.mrt-header h1'))],
+      'des courses et le profil express rempli : plus de Premiers pas, blocs des courses, « Cap sur »'));
+    await ctx.close();
+    // Des courses, profil incomplet : l'étape de la course est cochée, celle du profil reste.
+    d = JSON.parse(JSON.stringify(db));
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, d, {}, PARIS));
+    await p.waitForSelector('.ac-premiers');
+    pb.push(egal(['profil Compléter', 'course fait'], await pas(p), 'des courses, profil incomplet : seule l\'étape du profil reste'));
+    await ctx.close();
+    return pb;
+  },
+
   async accueil(nav, db0) {
     const { db } = jeuObjectif(db0);
     const pb = [];
-    const blocs = p => p.evaluate(() => [...document.querySelectorAll('.ac-bloc')].map(b => b.dataset.bloc + (b.classList.contains('is-bientot') ? ' (bientôt)' : '')));
+    // Premiers pas (profil express du compte fictif incomplet) : contrôlés à part, groupe « premiers ».
+    const blocs = p => p.evaluate(() => [...document.querySelectorAll('.ac-bloc:not([data-bloc="premiers"])')].map(b => b.dataset.bloc + (b.classList.contains('is-bientot') ? ' (bientôt)' : '')));
     // Par défaut : l'Accueil est la page de démarrage, avec le grand en-tête ; blocs par défaut.
     let { p, ctx, erreurs } = await ouvrir(nav, 'index.html', 1200, db, {}, PARIS);
     pb.push(egal([true, 'En un coup d\'œil'], [await p.evaluate(() => !!document.querySelector('.mrt-header')), await p.getAttribute('.mrt-tab.is-on', 'aria-label')], 'En un coup d\'œil : grand en-tête, onglet actif'));
@@ -4407,7 +4483,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, d));
     await p.waitForSelector('.nu-ac-bilan');
     if (CAPTURES) await p.locator('[data-bloc="nutrition"]').screenshot({ path: path.join(__dirname, 'captures', 'accueil-nutrition.png') });
-    pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]')[2].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position (après « Aujourd\'hui » et la prochaine course)'),
+    pb.push(egal('nutrition', await p.evaluate(() => document.querySelectorAll('[data-bloc]:not([data-bloc="premiers"])')[2].dataset.bloc), 'Accueil : le bloc Nutrition en deuxième position (après « Aujourd\'hui » et la prochaine course)'),
       egal(['350 / 2 117 kcal', ['p|sous|6 g|Reste 92 g', 'g|sous|76 g|Reste 189 g', 'l|sous|1 g|Reste 58 g']],
         [norm(await p.locator('.nu-ac-bilan').textContent()), await p.evaluate(() => [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => [j.dataset.jauge, j.dataset.etat, j.querySelector('.nu-anneau-v').textContent, j.querySelector('.nu-jauge-reste').textContent].join('|').replace(/\s+/g, ' ')))], 'Accueil : bilan du jour, puis protéines, glucides, lipides en anneaux avec « Reste »'),
       egal([0, 1], await p.evaluate(() => { const t = [...document.querySelectorAll('.nu-ac-anneaux .nu-jauge')].map(j => Math.round(j.getBoundingClientRect().top)); return [t[2] - t[0], new Set(t).size]; }), 'Accueil : les trois anneaux sur une ligne, téléphone compris'),

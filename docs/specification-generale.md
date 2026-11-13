@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.37 · 12 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.38 · 13 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -158,6 +158,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 ### Cas limites
 
+- Aucune course à venir (compte neuf compris), sur son propre site : « Bienvenue, » et le prénom (en Accent ; « Bienvenue » seul sans prénom) à la place de « Cap sur », puis la phrase « Ajoute une course pour fixer ton cap. », sans indicateurs ni compte à rebours ; la barre fine dit « Bienvenue, prénom ». Site partagé : « Cap sur — », comme avant.
 - Aucune course à venir : la ligne « prochaine course » est masquée.
 - Aucune course avant l'objectif : D'ici là affiche « — ».
 - Objectif passé : le compteur affiche « Course courue » jusqu'à la définition d'un nouvel objectif.
@@ -175,7 +176,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 - **Page de démarrage** : le premier module construit du menu, dans l'ordre choisi dans les Préférences ; rien d'autre à choisir. Par défaut En un coup d'œil. En arrivant sur le site (adresse tapée, nouvel onglet, retour du lien de connexion), on y arrive directement, avec le grand en-tête ; l'onglet En un coup d'œil, touché depuis le site, ouvre bien cette page.
 - **Grand en-tête** sur la page de démarrage seulement ; partout ailleurs, la barre fine (« Cap sur … » et l'engrenage). La page d'une course a toujours la barre fine.
 - **Passage** : en quittant la page de démarrage, le grand en-tête se réduit en barre fine (0,45 s) ; en y revenant, il se déplie. Rien au premier affichage, ni quand l'utilisateur a demandé à réduire les animations.
-- **En un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences :
+- **En un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences. Sans aucune course, les blocs Prochaine course, D'ici là et Dernière course sont masqués ; ils reviennent tous dès la première course :
 
 | Bloc | Contenu | Par défaut |
 | --- | --- | --- |
@@ -184,6 +185,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Nutrition | Bilan du jour (mangé / besoin) et ajout en une touche des favoris et récents ([Nutrition](module-nutrition-specification.md), § 4.7) ; seulement quand le module Nutrition est au menu | Affiché |
 | D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent ; lien « Préparation → » quand ce module est au menu | Affiché |
 | Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Affiché |
+| Premiers pas | Pour un compte neuf, en tête de page, sur toute la largeur, cadre en Accent. Deux étapes numérotées : « Mon profil » (« Compléter » : le profil express, [Mon profil](module-profil-specification.md), § 1) et « Ma première course » (« Ajouter » : la fiche d'ajout d'une course). Une étape faite est cochée ✓, « Fait », sans bouton ; le profil est fait quand le profil express est rempli, la course dès qu'il y a une course (à venir, repérée ou courue). Le bloc disparaît quand les deux étapes sont faites ; ni choisi ni rangé dans les Préférences ; absent d'un site partagé | Affiché tant qu'une étape manque |
 | Pour aller plus loin | Une ligne par module « à cocher » absent du menu (Préparation, Nutrition) : son nom, une phrase d'aide et le bouton « Ajouter au menu », qui l'ajoute à sa place du menu (liste enregistrée dans les Préférences) et redessine le menu ; la ligne disparaît, puis tout le bloc quand les deux sont au menu. Sur toute la largeur, toujours en dernier, ni choisi ni rangé dans les Préférences ; absent d'un site partagé | Affiché tant qu'un module manque |
 
 ## 6. Thèmes
@@ -336,6 +338,9 @@ Résultats attendus :
 - Indicateurs, dans l'ordre : « 60 km / 3 500 m D+ » Distance, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
+- Compte neuf (prénom « Essai », aucune course, profil vide) : en-tête « Bienvenue, Essai » et « Ajoute une course pour fixer ton cap. », sans indicateurs ni compteur ; blocs Premiers pas, Aujourd'hui, Pour aller plus loin ; étapes « Compléter » et « Ajouter » ; barre fine du Palmarès : « Bienvenue, Essai ».
+- Profil express : « Sexe · 1 sur 5 », « Date de naissance · 2 sur 5 », « Poids · 3 sur 5 », « Taille · 4 sur 5 », « Repère d'allure · 5 sur 5 », sans retour à la liste ; Femme, 12 mai 1990, 62, 168, « Je ne sais pas » : cinq écritures (quatre dans `profils`, une avec le niveau), feuille fermée, étape cochée. Sexe et naissance déjà connus : reprise à « Poids · 3 sur 5 » ; la croix ferme, l'étape reste à faire. « Ajouter » ouvre la fiche d'ajout d'une course.
+- Des courses, profil incomplet : seule l'étape du profil reste ; des courses et le profil express rempli : plus de Premiers pas, « Cap sur ».
 - Ligne sous le compteur, la page En un coup d'œil sans son bloc Prochaine course : « prochaine course · Trail du Lac · J-26 » ; avec le bloc : pas de ligne.
 - Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; sur ordinateur, compte à rebours et prochaine course alignés à droite, leur bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, alignés à gauche, le nombre de jours et les heures sur une ligne.
 - Même objectif sans D+ (42,195 km) : Distance affiche « 42,195 km » seul ; l'en-tête garde 4 indicateurs.
