@@ -56,7 +56,7 @@ Spécification → validation → modèle de données si besoin → construction
 À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
 
 - Dernier lot : Mon profil, une question en petite feuille (30 rem, hauteur du contenu, feuille du bas sur téléphone : `mc-court`).
-- Lots précédents récents : effort et sensations (évolutions 034 à 036 passées) ; parcours d'un nouvel utilisateur (Premiers pas, profil express) ; Mon plan, lots 6a et 6b (**fonction `proposer-seances` à recoller**) ; Inscription (**évolution 015 à passer**) ; Guide 0.1 ; Mon profil (**évolution 033 à passer**) ; Mon plan, un seul plan (Préparation 1.3). Le détail et tout l'historique : `docs/journal.md`.
+- Lots précédents récents : effort et sensations (évolutions 034 à 036 passées) ; parcours d'un nouvel utilisateur (Premiers pas, profil express) ; Mon plan, lots 6a et 6b (fonction `proposer-seances` recollée le 13 nov. ; plafond de l'IA levé pendant les essais, à remettre avant l'ouverture) ; Inscription (**évolution 015 à passer**) ; Guide 0.1 ; Mon profil (évolution 033 passée) ; Mon plan, un seul plan (Préparation 1.3). Le détail et tout l'historique : `docs/journal.md`.
 - **Rappel en fin de lot**, tant que ce n'est pas fait : ouvrir l'inscription côté Supabase (SMTP par Resend, anti-robot Turnstile, page RGPD, modèle « Confirm signup », adresse de retour, puis « Allow new users to sign up » avec `inscription: true` ; README n° 8 et `docs/reglages-supabase-connexion.md`).
 - Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
 - Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
