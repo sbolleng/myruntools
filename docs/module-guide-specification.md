@@ -59,8 +59,8 @@ Téléphone : même ordre ; frises et jauges en largeur de l'écran, tableaux qu
 
 ## 3. Questions ouvertes
 
-- [ ] Liens des sources de nutrition (Black et al., équation de course de l'ACSM) : aucun lien dans la spécification Nutrition ; cités par leur nom jusqu'à ce qu'ils soient fournis.
-- [ ] Place du Guide dans les Préférences : il y reste annoncé « bientôt » (pas de page au menu).
+- [ ] Liens des sources de nutrition (Black et al., équation de course de l'ACSM) : **à fournir par l'utilisateur** (rappel dans la todo du sommaire) ; cités par leur nom en attendant.
+- [x] Place du Guide dans les Préférences : plus annoncé « bientôt » (13 nov. 2026).
 
 ## 4. Contrôles
 
