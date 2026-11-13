@@ -176,7 +176,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 - **Page de démarrage** : le premier module construit du menu, dans l'ordre choisi dans les Préférences ; rien d'autre à choisir. Par défaut En un coup d'œil. En arrivant sur le site (adresse tapée, nouvel onglet, retour du lien de connexion), on y arrive directement, avec le grand en-tête ; l'onglet En un coup d'œil, touché depuis le site, ouvre bien cette page.
 - **Grand en-tête** sur la page de démarrage seulement ; partout ailleurs, la barre fine (« Cap sur … » et l'engrenage). La page d'une course a toujours la barre fine.
 - **Passage** : en quittant la page de démarrage, le grand en-tête se réduit en barre fine (0,45 s) ; en y revenant, il se déplie. Rien au premier affichage, ni quand l'utilisateur a demandé à réduire les animations.
-- **En un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences. Sans aucune course, les blocs Prochaine course, D'ici là et Dernière course sont masqués ; ils reviennent tous dès la première course :
+- **En un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences. Sans aucune course (compte neuf), les Premiers pas sont seuls sur la page ; tous les autres blocs viennent avec la première course :
 
 | Bloc | Contenu | Par défaut |
 | --- | --- | --- |
@@ -338,8 +338,8 @@ Résultats attendus :
 - Indicateurs, dans l'ordre : « 60 km / 3 500 m D+ » Distance, « août 2029 » Date, « Finisher » Objectif, « 12 courses » D'ici là.
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
-- Compte neuf (prénom « Essai », aucune course, profil vide) : en-tête « Bienvenue, Essai » et « Ajoute une course pour fixer ton cap. », sans indicateurs ni compteur ; blocs Premiers pas, Aujourd'hui, Pour aller plus loin ; étapes « Compléter » et « Ajouter » ; barre fine du Palmarès : « Bienvenue, Essai ».
-- Profil express : « Sexe · 1 sur 5 », « Date de naissance · 2 sur 5 », « Poids · 3 sur 5 », « Taille · 4 sur 5 », « Repère d'allure · 5 sur 5 », sans retour à la liste ; Femme, 12 mai 1990, 62, 168, « Je ne sais pas » : cinq écritures (quatre dans `profils`, une avec le niveau), feuille fermée, étape cochée. Sexe et naissance déjà connus : reprise à « Poids · 3 sur 5 » ; la croix ferme, l'étape reste à faire. « Ajouter » ouvre la fiche d'ajout d'une course.
+- Compte neuf (prénom « Essai », aucune course, profil vide) : en-tête « Bienvenue, Essai » et « Ajoute une course pour fixer ton cap. », sans indicateurs ni compteur ; les Premiers pas seuls ; étapes « Compléter » et « Ajouter » ; barre fine du Palmarès : « Bienvenue, Essai ».
+- Profil express : « Sexe · 1 sur 5 », « Date de naissance · 2 sur 5 », « Poids · 3 sur 5 », « Taille · 4 sur 5 », « Repère d'allure · 5 sur 5 », sans retour à la liste ; Femme, 12 mai 1990, 62, 168, « Je ne sais pas » : cinq écritures (quatre dans `profils`, une avec le niveau), feuille fermée, étape cochée. Sexe et naissance déjà connus : reprise à « Poids · 3 sur 5 » ; la croix ferme, l'étape reste à faire. « Ajouter » ouvre la fiche d'ajout d'une course. Profil absent de la base : « Enregistrement impossible pour l'instant. », la question reste ouverte.
 - Des courses, profil incomplet : seule l'étape du profil reste ; des courses et le profil express rempli : plus de Premiers pas, « Cap sur ».
 - Ligne sous le compteur, la page En un coup d'œil sans son bloc Prochaine course : « prochaine course · Trail du Lac · J-26 » ; avec le bloc : pas de ligne.
 - Disposition : « MyRunTools » en haut à droite, à la hauteur de « Cap sur » ; sur ordinateur, compte à rebours et prochaine course alignés à droite, leur bas au niveau du bas des indicateurs ; sur téléphone, sous les indicateurs, alignés à gauche, le nombre de jours et les heures sur une ligne.
