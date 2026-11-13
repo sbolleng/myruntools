@@ -505,6 +505,31 @@ const CONTROLES = {
     await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil');
     pb.push(egal(['Date de naissance · 2 sur 5', 'Poids · 3 sur 5', []], [reel1, await titreFeuille(p), erreurs], 'prénom vide, sexe connu : naissance, puis poids ; la croix ferme, « Compléter » rouvre'));
     await ctx.close();
+    // Découvrir MyRunTools (compte neuf, decouverte_vue faux) : sous les Premiers pas ; un module par ligne, dans l'ordre où il sert ;
+    // « Au menu » ajoute ou retire le module ; « J'ai compris » range le bloc.
+    d = neuf(); d.preferences[0].decouverte_vue = false;
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'index.html', 390, d, {}, PARIS));
+    await p.waitForSelector('.ac-decouverte');
+    const lignesDec = () => p.evaluate(() => [...document.querySelectorAll('.ac-decouverte li')].map(l => l.querySelector('b').textContent + (l.querySelector('input').checked ? ' ✓' : '')));
+    pb.push(egal([['premiers', 'decouverte'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès ✓', 'Nutrition'], 'Options'],
+      [await blocs(p), await lignesDec(), await p.textContent('.ac-options')], 'découverte : sous les Premiers pas, sept modules dans l\'ordre, les options après, cases « Au menu »'));
+    const onglets = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => (t.getAttribute('aria-label') || t.textContent).trim()));
+    await p.check('[data-menu="Nutrition"]');
+    await p.waitForFunction(() => [...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Nutrition'));
+    await p.uncheck('[data-menu="Palmarès"]');
+    await p.waitForFunction(() => ![...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Palmarès'));
+    pb.push(egal([['En un coup d\'œil', 'Saison', 'Calendrier', 'Nutrition', 'Courses', 'Mon profil'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès', 'Nutrition ✓']],
+      [await onglets(), await lignesDec()], 'découverte : Nutrition ajoutée au menu à sa place, Palmarès retiré'));
+    await p.click('[data-compris]');
+    await p.waitForFunction(() => !document.querySelector('.ac-decouverte'));
+    pb.push(egal([true, ['premiers']], [d.preferences[0].decouverte_vue, await blocs(p)], '« J\'ai compris » : enregistré, le bloc disparaît'));
+    pb.push(egal([], erreurs, 'découverte, erreurs JavaScript'));
+    // Préférences : « Revoir la découverte » le ramène.
+    await p.goto(RACINE + 'preferences.html'); await p.waitForSelector('.pref-revoir');
+    await p.click('.pref-revoir');
+    await p.waitForFunction(() => /Enregistré/.test(document.querySelector('#bloc-accueil .pref-msg').textContent));
+    pb.push(egal(false, d.preferences[0].decouverte_vue, 'Préférences : « Revoir la découverte » le ramène'));
+    await ctx.close();
     // Profil commencé (sexe, naissance) : le profil express reprend à la première question qui manque ; la croix le ferme, l'étape reste à faire.
     d = neuf(); Object.assign(d.profils[0], { sexe: 'homme', naissance: '1985-03-15' });
     ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, d, {}, PARIS));

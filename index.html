@@ -64,6 +64,15 @@
       renderAccueil(el, courses, prefs, nutrition);
     };
     const dessiner = () => renderAccueil(el, courses, page.preferences(), nutrition);
+    // Découvrir MyRunTools : la case « Au menu » ajoute ou retire le module ; « J'ai compris » range le bloc (Préférences : « Revoir la découverte »).
+    const garderPrefs = async champs => {
+      const prefs = page.preferences();
+      const { error } = await mrtSupabase.from('preferences').upsert(Object.assign({ utilisateur: page.session.id }, champs));
+      if (error) console.warn(error); else { Object.assign(prefs, champs); page.redessiner(prefs); }
+      dessiner();
+    };
+    nutrition.basculerModule = (nom, on) => garderPrefs({ modules: on ? mrtModulesAvec(page.preferences(), nom) : mrtModulesSans(page.preferences(), nom) });
+    nutrition.decouverteVue = () => garderPrefs({ decouverte_vue: true });
     // Premiers pas : le profil express (sexe, naissance, poids, taille, repère d'allure) et la fiche d'ajout d'une course.
     const etatProfil = { id: page.session.id, mesures: nutrition.profil };
     nutrition.ouvrirProfil = () => mrtProfil.feuille({ etat: etatProfil, suite: mrtProfil.EXPRESS, surMaj: e => { nutrition.profil = e.mesures; nutrition.entrainement = e.entrainement || null; dessiner(); } });

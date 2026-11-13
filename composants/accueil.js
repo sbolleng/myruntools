@@ -100,14 +100,43 @@
       etape(2, 'course', 'Ma première course', 'Une course à venir, ou déjà courue.', course, 'Ajouter') + '</ol></section>';
   };
 
+  // ----- Découvrir MyRunTools : chaque module, dans l'ordre où il sert, une phrase et sa case « Au menu » ; jusqu'à « J'ai compris » -----
+  // Affiché quand preferences.decouverte_vue vaut false (compte neuf) ; absent (colonne pas encore créée) : jamais.
+  const DECOUVRIR = [
+    ['Courses à surveiller', 'Toutes les courses qui t\'intéressent : repérées, en option, confirmées ou déjà courues.'],
+    ['Objectif', 'Le chemin vers ta course principale, ton cap : les courses à venir, dans l\'ordre.'],
+    ['Profil', 'Qui tu es, comment tu t\'entraînes : il règle Mon plan et Nutrition.'],
+    ['Préparation', 'Ta préparation en phases, et des séances proposées.'],
+    ['Calendrier', 'Tes séances et tes courses, jour par jour.'],
+    null, // les options
+    ['Palmarès', 'Tes résultats et ta progression.'],
+    ['Nutrition', 'Ton besoin du jour et ton journal des repas.']
+  ];
+  const decouverteAffichee = (prefs, nutrition) => !!nutrition && !nutrition.lectureSeule && !!prefs && prefs.decouverte_vue === false;
+  const decouverte = prefs => {
+    const affiches = window.mrtModulesAffiches(prefs).map(m => m.nom);
+    const ligne = ([nom, aide]) => {
+      const m = window.mrtModules.find(x => x.nom === nom);
+      if (!m) return '';
+      return '<li><span class="ac-module"><b>' + esc(m.libelle || m.nom) + '</b><span>' + esc(aide) + '</span></span>' +
+        '<label class="ac-au-menu"><input type="checkbox" data-menu="' + esc(nom) + '"' + (affiches.includes(nom) ? ' checked' : '') + '> Au menu</label></li>';
+    };
+    return '<section class="ac-bloc ac-decouverte" data-bloc="decouverte"><h2 class="ac-titre"><span>Découvrir MyRunTools</span><button type="button" class="mrt-btn" data-compris>J\'ai compris</button></h2><ul>' +
+      DECOUVRIR.map(x => (x ? ligne(x) : '</ul><p class="fc-libelle ac-options">Options</p><ul>')).join('') + '</ul></section>';
+  };
+
   // nutrition : { ..., lectureSeule, ajouterModule(nom) } ; ajouterModule enregistre le choix et redessine la page.
   window.renderAccueil = function (el, courses, prefs, nutrition) {
     // Aucune course : les blocs qui en montrent une (Prochaine course, D'ici là, Dernière course) attendent la première.
     const SANS = ['prochaine', 'dicila', 'derniere'];
     const blocs = window.mrtBlocsAffiches(prefs).filter(b => courses.length || !SANS.includes(b.id));
-    // Compte neuf (aucune course) : les Premiers pas seuls ; le reste de la page vient avec la première course.
-    const pas = premiers(courses, nutrition);
-    el.innerHTML = '<div class="ac-grille">' + pas + (pas && !courses.length ? '' : aujourdhui(courses, nutrition, prefs) + blocs.map(b => BLOCS[b.id](courses, prefs)).join('') + decouvrir(prefs, nutrition && nutrition.lectureSeule)) + '</div>';
+    // Compte neuf (aucune course) : les Premiers pas et la découverte seuls ; le reste de la page vient avec la première course.
+    // La découverte, tant qu'elle est là, tient lieu de « Pour aller plus loin ».
+    const pas = premiers(courses, nutrition), dec = decouverteAffichee(prefs, nutrition) ? decouverte(prefs) : '';
+    el.innerHTML = '<div class="ac-grille">' + pas + dec + (pas && !courses.length ? '' : aujourdhui(courses, nutrition, prefs) + blocs.map(b => BLOCS[b.id](courses, prefs)).join('') + (dec ? '' : decouvrir(prefs, nutrition && nutrition.lectureSeule))) + '</div>';
+    el.querySelectorAll('[data-menu]').forEach(c => c.addEventListener('change', () => { c.disabled = true; nutrition.basculerModule(c.dataset.menu, c.checked); }));
+    const compris = el.querySelector('[data-compris]');
+    if (compris) compris.addEventListener('click', () => { compris.disabled = true; nutrition.decouverteVue(); });
     el.querySelectorAll('[data-premier]').forEach(b => b.addEventListener('click', () => {
       if (b.dataset.premier === 'profil') nutrition.ouvrirProfil(); else nutrition.ajouterCourse();
     }));

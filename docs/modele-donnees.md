@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.24 · 12 novembre 2026 · nouveau compte : profil et préférences créés par la base (évolution 015) · [Retour au sommaire](README.md)
+Version 0.25 · 13 novembre 2026 · `preferences.decouverte_vue` (évolution 037) · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -62,6 +62,7 @@ Ce document décrit les données que l'application range dans Supabase : les tab
 | `palmares_groupe` | Regroupement par type activé ou non | Oui |
 | `page_demarrage` | Plus utilisé : la page de démarrage est le premier module construit du menu | — |
 | `accueil_blocs` | Blocs affichés sur la page En un coup d'œil, dans l'ordre choisi | Prochaine course, Pense-bête, Bilan nutrition, D'ici là |
+| `decouverte_vue` | « J'ai compris » touché sur le bloc Découvrir MyRunTools (faux pour un compte neuf ; vrai pour les comptes qui avaient déjà des courses) | vrai |
 
 Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par défaut.
 
