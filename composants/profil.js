@@ -55,7 +55,7 @@
   const resumeRenfo = pr => (!pr.nb_renfo ? (pr.nb_renfo === 0 ? 'Aucune' : null) : (joursDe(pr, 'jours_renfo').length ? listeJours(joursDe(pr, 'jours_renfo')) + ' · ' : '') + seances(pr.nb_renfo));
 
   // Les lignes : [clé, question, résumé(mesures, entraînement), obligatoire, écran].
-  // Écrans : choix (une liste), nombre, date, texte, semaine, allure.
+  // Écrans : choix (une liste), nombre, date, texte, ligne (prénom, nom), semaine, allure.
   const NOMBRES = {
     poids: { table: 'mesures', unite: 'kg', min: 20, max: 300, pas: 0.1, ex: 'ex. 72', erreur: 'Le poids doit être compris entre 20 et 300 kg.' },
     taille: { table: 'mesures', unite: 'cm', min: 100, max: 250, pas: 1, ex: 'ex. 178', erreur: 'La taille doit être comprise entre 100 et 250 cm.' },
@@ -66,6 +66,8 @@
   const unite = (cle, v) => (v == null ? null : virgule(v) + (NOMBRES[cle].unite ? ' ' + NOMBRES[cle].unite : ''));
   const SECTIONS = [
     ['moi', 'Moi', [
+      ['prenom', 'Prénom', m => (m.prenom || '').trim() || null, true, 'ligne'],
+      ['nom', 'Nom', m => (m.nom || '').trim() || null, true, 'ligne'],
       ['sexe', 'Sexe', m => libelleDe('sexe', m.sexe), true, 'choix'],
       ['naissance', 'Date de naissance', m => (m.naissance ? window.mrtFormat.date(m.naissance) : null), true, 'date'],
       ['poids', 'Poids', m => unite('poids', m.poids), true, 'nombre'],
@@ -91,7 +93,7 @@
   ];
   const LIGNES = SECTIONS.flatMap(s => s[2]);
   const ligneDe = cle => LIGNES.find(l => l[0] === cle);
-  const TABLE = { sexe: 'mesures', naissance: 'mesures', activite: 'mesures', poids: 'mesures', taille: 'mesures', pointure: 'mesures', fc_repos: 'mesures' };
+  const TABLE = { prenom: 'mesures', nom: 'mesures', sexe: 'mesures', naissance: 'mesures', activite: 'mesures', poids: 'mesures', taille: 'mesures', pointure: 'mesures', fc_repos: 'mesures' };
   // Questions indispensables pour que l'IA propose des séances (Mon plan) : leur nom, dans l'ordre.
   const IA = [['anciennete', 'je cours depuis'], ['volume_tranche', 'distance par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
   // Profil express (premiers pas d'un nouveau compte) : ce qui sert tout de suite à Nutrition et à Mon plan.
@@ -207,7 +209,8 @@
     function champ(cle, titre, type) {
       versQuestion();
       const n = NOMBRES[cle], src = (TABLE[cle] === 'mesures' ? m() : e())[cle];
-      const entree = type === 'date' ? '<input class="mrt-champ" type="date" name="valeur" value="' + esc(src || '') + '">'
+      const entree = type === 'ligne' ? '<input class="mrt-champ" name="valeur" maxlength="60" autocomplete="' + (cle === 'prenom' ? 'given-name' : 'family-name') + '" value="' + esc(src || '') + '">'
+        : type === 'date' ? '<input class="mrt-champ" type="date" name="valeur" value="' + esc(src || '') + '">'
         : type === 'texte' ? '<textarea class="mrt-champ" name="valeur" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(src || '') + '</textarea>'
         : '<input class="mrt-champ" name="valeur" inputmode="decimal" placeholder="' + n.ex + '" value="' + esc(virgule(src)) + '">';
       corps.innerHTML = barre(titre, true) + '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + titre + (n && n.unite ? ' (' + n.unite + ')' : '') + '</span>' + entree + '</label>' +
@@ -216,6 +219,7 @@
       f.addEventListener('submit', ev => {
         ev.preventDefault();
         const v = f.valeur.value;
+        if (type === 'ligne') return v.trim() ? garder('mesures', { [cle]: v.trim() }) : void (msg().textContent = 'Le ' + titre.toLowerCase() + ' ne peut pas être vide.');
         if (type === 'date') {
           const a = window.mrtBesoin ? window.mrtBesoin.age(v, iso(new Date())) : 30;
           if (!v || !a || a < 10 || a > 110) return void (msg().textContent = 'Cette date de naissance n\'est pas possible.');
