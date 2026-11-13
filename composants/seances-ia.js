@@ -33,7 +33,8 @@
   // les séances des 4 semaines passées.
   // Retour sur une séance (lot 6a) : seulement ce qui est renseigné.
   const DOUL = { aucune: 'aucune', legere: 'légère', forte: 'forte' };
-  const retour = s => Object.fromEntries(Object.entries({ ressenti_sur_10: s.ressenti, douleur: s.douleur ? DOUL[s.douleur] + (s.douleur_ou ? ' (' + s.douleur_ou + ')' : '') : null,
+  const retour = s => Object.fromEntries(Object.entries({ ressenti_sur_10: s.ressenti, ressenti: s.ressenti ? (P.niveauRessenti(s.ressenti) || [])[1] : null,
+    charge_ua: P.charge(s.ressenti, s.duree_min), douleur: s.douleur ? DOUL[s.douleur] + (s.douleur_ou ? ' (' + s.douleur_ou + ')' : '') : null,
     fatigue_sur_5: s.fatigue, commentaire: s.commentaire, deplacee_du: s.date_prevue }).filter(([, v]) => v != null && v !== ''));
   function contexte(ctx, lundi) {
     const ps = P.planSaison(ctx), pr = ctx.profil || {}, fin = addDays(lundi, 7 * BLOC - 1);

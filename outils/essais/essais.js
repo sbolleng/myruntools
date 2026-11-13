@@ -2695,6 +2695,7 @@ const CONTROLES = {
     pb.push(egal([true, 'Retour sur la séance'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.textContent('.cal-retour .mrt-section-titre')], 'fenêtre : « Retour sur la séance », ressenti caché tant qu\'elle n\'est pas faite'));
     await p.check('.cal-seance [name="faite"]');
     await p.click('.cal-seance [data-groupe="ressenti"] [data-val="7"]'); await p.click('.cal-seance [data-groupe="douleur"] [data-val="legere"]');
+    pb.push(egal('7 · Seuil, allure semi-marathon ou 10 km : effort soutenu et inconfortable ; quelques mots isolés. Charge : 420 UA.', (await p.textContent('.cal-ressenti-lib')).replace(/\u00a0/g, ' '), 'ressenti 7 : libellé du niveau et charge (7 × 60 min)'));
     await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit'); await p.click('.cal-seance [data-groupe="fatigue"] [data-val="3"]');
     await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
     pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur-ou').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
@@ -2927,7 +2928,7 @@ const CONTROLES = {
       const ap = d6.appels[d6.appels.length - 1] || {}, cx = ap.contexte || {};
       pb.push(egal(['readaptation', '2026-10-19', [{ date: '2026-10-20', type: 'run', libelle: 'Footing', commentaire: 'Pas disponible jeudi' }], { description: 'tendinite', depuis: '2026-10-10' }],
         [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'commentaire : réadaptation relancée aussitôt, commentaire à venir et blessure envoyés'));
-      pb.push(egal({ ressenti_sur_10: 8, douleur: 'légère (mollet)', fatigue_sur_5: 4, commentaire: 'Dur', deplacee_du: '2026-10-12' }, (h => h && { ressenti_sur_10: h.ressenti_sur_10, douleur: h.douleur, fatigue_sur_5: h.fatigue_sur_5, commentaire: h.commentaire, deplacee_du: h.deplacee_du })((cx.historique || []).find(x => x.date === '2026-10-13')),
+      pb.push(egal({ ressenti_sur_10: 8, ressenti: 'Seuil, allure semi-marathon ou 10 km', charge_ua: 400, douleur: 'légère (mollet)', fatigue_sur_5: 4, commentaire: 'Dur', deplacee_du: '2026-10-12' }, (h => h && { ressenti_sur_10: h.ressenti_sur_10, ressenti: h.ressenti, charge_ua: h.charge_ua, douleur: h.douleur, fatigue_sur_5: h.fatigue_sur_5, commentaire: h.commentaire, deplacee_du: h.deplacee_du })((cx.historique || []).find(x => x.date === '2026-10-13')),
         'séances passées : ressenti, douleur, fatigue, commentaire et jour d\'origine envoyés'));
       pb.push(egal([4, 'Historique des propositions (1)', 'Réadaptation', 'En attente'], await q.p.evaluate(() => {
         const li = document.querySelector('.ps-historique li');
