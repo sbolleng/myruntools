@@ -491,6 +491,18 @@ const CONTROLES = {
     pb.push(egal(true, await p.locator('.fc-barre').isVisible(), 'ma première course : la fiche d\'ajout s\'ouvre'));
     pb.push(egal([], erreurs, 'Premiers pas, erreurs JavaScript'));
     await ctx.close();
+    // Essai réel du 13 nov. : prénom vide, sexe seul connu ; « Compléter » s'ouvre, enchaîne, se rouvre après la croix.
+    d = neuf(); Object.assign(d.profils[0], { prenom: '', nom: '', sexe: 'homme' });
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'index.html', 1200, d, {}, PARIS));
+    await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil');
+    const reel1 = await titreFeuille(p);
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'premiers-naissance.png') });
+    await p.fill('.ps-valeur [name="valeur"]', '1980-01-02'); await p.click('.ps-valeur button[type="submit"]');
+    await p.waitForFunction(() => /3 sur 5/.test(document.getElementById('ps-titre').textContent));
+    await p.click('.ps-profil [data-fermer]');
+    await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil');
+    pb.push(egal(['Date de naissance · 2 sur 5', 'Poids · 3 sur 5', []], [reel1, await titreFeuille(p), erreurs], 'prénom vide, sexe connu : naissance, puis poids ; la croix ferme, « Compléter » rouvre'));
+    await ctx.close();
     // Profil commencé (sexe, naissance) : le profil express reprend à la première question qui manque ; la croix le ferme, l'étape reste à faire.
     d = neuf(); Object.assign(d.profils[0], { sexe: 'homme', naissance: '1985-03-15' });
     ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, d, {}, PARIS));
