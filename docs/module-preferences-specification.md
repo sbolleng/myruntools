@@ -1,6 +1,6 @@
 # Préférences utilisateur · spécification fonctionnelle
 
-Version 1.15 · 11 novembre 2026 · [Retour au sommaire](README.md)
+Version 1.16 · 13 novembre 2026 · [Retour au sommaire](README.md)
 
 ## 1. Objet
 
@@ -29,6 +29,7 @@ Une section par réglage, de la plus utilisée à la moins utilisée : **Thème*
 - Texte d'aide : « Coche les blocs à afficher (« Réorganiser » change leur ordre). »
 - Les blocs construits, chacun avec une case « affiché » ; les deux flèches dessinées n'apparaissent qu'après « Réorganiser » (qui devient « Terminé »), comme le Menu ; les blocs pas encore construits sur une ligne, « Bientôt : Pense-bête. », sans case ni flèches (gardés à la fin de la liste enregistrée : ils apparaîtront une fois construits ; jamais de bloc vide sur la page).
 - Par défaut : Prochaine course, D'ici là, Dernière course affichés. « Réinitialiser l'ordre » y revient.
+- « Revoir la découverte » (bouton à contour, sous la liste), une fois le bloc Découvrir MyRunTools rangé par « J'ai compris » : il revient sur En un coup d'œil.
 
 ## 4. Menu
 

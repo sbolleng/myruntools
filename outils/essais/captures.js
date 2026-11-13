@@ -31,6 +31,7 @@ if (process.env.VIERGE) {
   const moi = db0.profils[0];
   db0.profils = [Object.fromEntries(Object.keys(moi).map(k => [k, ['id', 'prenom', 'nom', 'cree_le'].includes(k) ? moi[k] : null]))];
   db0.preferences = [Object.fromEntries(Object.keys(db0.preferences[0]).map(k => [k, k === 'utilisateur' ? moi.id : k === 'palmares_groupe' ? true : null]))];
+  db0.preferences[0].decouverte_vue = false;
   for (const t of Object.keys(db0)) if (Array.isArray(db0[t]) && !['profils', 'preferences', 'types_course', 'formats', 'types_equipement'].includes(t)) db0[t] = [];
 }
 if (process.env.THEME) db0.preferences[0].theme = process.env.THEME;

@@ -338,6 +338,7 @@ create table preferences (
   palmares_groupe   boolean not null default true,
   page_demarrage    text check (page_demarrage ~ '^[a-z-]+\.html$'), -- vide : l'Accueil (index.html)
   accueil_blocs     text[], -- blocs de l'Accueil, dans l'ordre ; vide : les blocs par défaut
+  decouverte_vue    boolean not null default false, -- « J'ai compris » touché sur le bloc Découvrir MyRunTools (évolution 037)
   foreign key (utilisateur, course_cap) references courses (utilisateur, id) on delete set null (course_cap)
 );
 
