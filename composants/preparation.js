@@ -373,29 +373,31 @@
   const niveauRessenti = n => (n ? NIVEAUX_RESSENTI.find(x => n <= x[0]) : null);
   // Charge d'une séance (méthode de Foster) : ressenti × durée en minutes, en unités arbitraires (UA).
   const charge = (ressenti, duree) => (ressenti && duree ? ressenti * duree : null);
-  const ligneRessenti = (r, duree) => { const nv = niveauRessenti(r); return nv ? '<b>' + r + ' · ' + nv[1] + '</b> : ' + nv[2] + '.' + (charge(r, duree) ? ' Charge : ' + charge(r, duree) + ' UA.' : '') : 'À noter 15 à 30 minutes après la séance.'; };
+  const ligneRessenti = (r, duree) => { const nv = niveauRessenti(r); return nv ? '<b>' + r + ' · ' + nv[1] + '</b> : ' + nv[2] + '.' + (charge(r, duree) ? ' Charge : ' + charge(r, duree) + ' UA.' : '') : ''; };
   const pastilles = (nom, valeurs, choisie) => '<div class="ps-coches cal-pastilles" data-groupe="' + nom + '">' + valeurs.map(([v, lib]) =>
     '<button type="button" class="mrt-pastille" data-val="' + v + '" aria-pressed="' + (String(choisie) === String(v)) + '">' + lib + '</button>').join('') + '</div>';
   // Sensations : indépendantes de l'effort ; 1 (très bien) à 5 (très mal), un visage chacune.
   const SENSATIONS = [[1, 'Très bien', 'M4.8 9.4q3.2 3 6.4 0'], [2, 'Bien', 'M5.4 10q2.6 1.8 5.2 0'], [3, 'Moyennes', 'M5.4 10.6h5.2'], [4, 'Pas bien', 'M5.4 11.2q2.6-1.6 5.2 0'], [5, 'Très mal', 'M4.8 11.8q3.2-3 6.4 0']];
   const visage = d => '<svg class="cal-visage" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="5.9" cy="6.4" r="0.9" fill="currentColor"/><circle cx="10.1" cy="6.4" r="0.9" fill="currentColor"/><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
   const INFOS = {
-    effort: 'L\'effort perçu note l\'intensité de la séance, de 1 (très facile) à 10 (maximal) : une sortie facile reste dans le vert, un fractionné intense va vers le rouge. La description sous le curseur aide à choisir ; à noter 15 à 30 minutes après la séance.',
+    effort: 'L\'effort perçu note l\'intensité de la séance, de 1 (très facile) à 10 (maximal) : une sortie facile reste dans le vert, un fractionné intense va vers le rouge. La description sous le curseur aide à choisir.',
     sensations: 'Les sensations sont indépendantes de l\'effort : on peut se sentir très bien sur une séance difficile, ou mal sur une séance facile.'
   };
-  const info = k => '<button type="button" class="mrt-rond is-petit cal-info" data-info="' + k + '" aria-label="Explication" title="Explication"><b aria-hidden="true">i</b></button>';
-  // Les champs du retour (fenêtre d'une séance et feuille « Effort et sensations ») : effort au curseur, sensations, fatigue,
-  // douleur ; le commentaire à part (il vaut avant comme après la séance).
+  // « i » : un petit picto dessiné, sans cadre, collé au titre ; il ouvre l'explication (confirmation du site).
+  const info = k => '<button type="button" class="cal-info" data-info="' + k + '" aria-label="Explication" title="Explication"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 7.2v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="4.9" r="0.85" fill="currentColor"/></svg></button>';
+  const DOULEURS_SIGNALEES = [['legere', 'Légère'], ['forte', 'Forte']];
+  // Les champs du retour (fenêtre d'une séance et feuille « Effort et sensations ») : effort au curseur, sensations ; la douleur
+  // seulement si elle est signalée (« + Signaler une douleur ») ; plus de fatigue du jour (gardée en base, plus demandée).
   function champsRetour(x) {
-    const dou = x.douleur || '', r = x.ressenti || null;
+    const dou = ['legere', 'forte'].includes(x.douleur) ? x.douleur : '', r = x.ressenti || null;
     return '<div class="cal-champ cal-effort"><span class="cal-titre-info">Effort perçu' + info('effort') + '</span>' +
-        '<input type="range" class="cal-curseur" name="ressenti" min="1" max="10" step="1" value="' + (r || 1) + '"' + (r ? '' : ' data-vide="1"') + ' aria-label="Effort perçu, de 1 à 10">' +
-        '<p class="cal-ressenti-lib">' + ligneRessenti(r, x.duree_min) + '</p>' + '<button type="button" class="mrt-lien cal-sans-note"' + (r ? '' : ' hidden') + '>Ne pas noter</button></div>' +
+        '<input type="range" class="cal-curseur' + (r ? '' : ' is-vide') + '" name="ressenti" min="1" max="10" step="1" value="' + (r || 1) + '"' + (r ? '' : ' data-vide="1"') + ' aria-label="Effort perçu, de 1 à 10">' +
+        '<p class="cal-ressenti-lib">' + ligneRessenti(r, x.duree_min) + '</p></div>' +
       '<div class="cal-champ"><span class="cal-titre-info">Sensations' + info('sensations') + '</span><div class="cal-visages" data-groupe="sensations">' + SENSATIONS.map(([v, lib, d]) =>
         '<button type="button" class="mrt-rond cal-visage-b v-' + v + '" data-val="' + v + '" aria-pressed="' + (String(x.sensations) === String(v)) + '" aria-label="' + lib + '" title="' + lib + '">' + visage(d) + '</button>').join('') + '</div></div>' +
-      '<div class="cal-champ"><span>Fatigue du jour (de 1 à 5)</span>' + pastilles('fatigue', [1, 2, 3, 4, 5].map(n => [n, n]), x.fatigue) + '</div>' +
-      '<div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', Object.entries(DOULEURS), dou) + '</div>' +
-      '<label class="cal-champ cal-douleur-ou"' + (dou === 'legere' || dou === 'forte' ? '' : ' hidden') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>';
+      '<button type="button" class="mrt-lien cal-signaler"' + (dou ? ' hidden' : '') + '>+ Signaler une douleur</button>' +
+      '<div class="cal-douleur"' + (dou ? '' : ' hidden') + '><div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', DOULEURS_SIGNALEES, dou) + '</div>' +
+        '<label class="cal-champ"><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label></div>';
   }
   const champCommentaire = x => '<label class="cal-champ"><span>Commentaire</span><textarea class="mrt-champ" name="commentaire" maxlength="300" rows="2" placeholder="ex. genou sensible, pas disponible jeudi">' + esc(x.commentaire || '') + '</textarea><small class="cal-compteur">' + (x.commentaire || '').length + '/300</small></label>';
   function retourHtml(s) {
@@ -404,47 +406,50 @@
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
       '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) + '</section>';
   }
-  // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé ; « Ne pas noter » le remet), pastilles et visages
-  // (une seule choisie par groupe, un second toucher la retire), « i », case « faite » (absente de la feuille : la séance y est faite),
-  // compteur. duree() rend la durée en minutes (pour la charge). Rend la lecture des champs.
+  // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
+  // un second toucher la retire), « i », « + Signaler une douleur », case « faite » (absente de la feuille : la séance y est faite),
+  // compteur. duree() rend la durée en minutes (pour la charge). Rend la lecture des champs (la fatigue n'y est plus : inchangée en base).
   function brancherRetour(f, duree) {
     const choix = {}, cur = f.querySelector('.cal-curseur');
     f.querySelectorAll('[data-groupe]').forEach(g => { const on = g.querySelector('[aria-pressed="true"]'); choix[g.dataset.groupe] = on ? on.dataset.val : null; });
     const note = () => (cur.dataset.vide ? null : Number(cur.value));
-    const majRessenti = () => { f.querySelector('.cal-ressenti-lib').innerHTML = ligneRessenti(note(), duree()); f.querySelector('.cal-sans-note').hidden = !note(); cur.classList.toggle('is-vide', !note()); };
+    const majRessenti = () => { f.querySelector('.cal-ressenti-lib').innerHTML = ligneRessenti(note(), duree()); cur.classList.toggle('is-vide', !note()); };
     cur.addEventListener('input', () => { delete cur.dataset.vide; majRessenti(); });
     f.addEventListener('click', e => {
       const i = e.target.closest('[data-info]');
       if (i) return void window.mrtConfirmer({ texte: INFOS[i.dataset.info], action: 'Fermer', seul: true });
-      if (e.target.closest('.cal-sans-note')) { cur.dataset.vide = '1'; cur.value = 1; return majRessenti(); }
+      if (e.target.closest('.cal-signaler')) { f.querySelector('.cal-signaler').hidden = true; f.querySelector('.cal-douleur').hidden = false; return; }
       const b = e.target.closest('[data-groupe] [data-val]');
       if (!b) return;
       const g = b.closest('[data-groupe]').dataset.groupe, deja = choix[g] === b.dataset.val;
       choix[g] = deja ? null : b.dataset.val;
       b.closest('[data-groupe]').querySelectorAll('[data-val]').forEach(x => x.setAttribute('aria-pressed', String(!deja && x === b)));
-      if (g === 'douleur') f.querySelector('.cal-douleur-ou').hidden = !['legere', 'forte'].includes(choix.douleur);
     });
     if (f.duree) f.duree.addEventListener('input', majRessenti);
     if (f.faite) f.faite.addEventListener('change', () => { f.querySelector('.cal-si-faite').hidden = !f.faite.checked; });
     f.commentaire.addEventListener('input', () => { f.querySelector('.cal-compteur').textContent = f.commentaire.value.length + '/300'; });
-    majRessenti();
     return () => {
       const faite = f.faite ? f.faite.checked : true, n = k => (choix[k] == null ? null : Number(choix[k]));
-      return { faite, ressenti: faite ? note() : null, sensations: faite ? n('sensations') : null, douleur: faite ? choix.douleur : null,
-        douleur_ou: faite && ['legere', 'forte'].includes(choix.douleur) ? (f.douleur_ou.value.trim() || null) : null,
-        fatigue: faite ? n('fatigue') : null, commentaire: f.commentaire.value.trim() || null };
+      const dou = faite && ['legere', 'forte'].includes(choix.douleur) ? choix.douleur : null;
+      return { faite, ressenti: faite ? note() : null, sensations: faite ? n('sensations') : null, douleur: dou,
+        douleur_ou: dou ? (f.douleur_ou.value.trim() || null) : null, commentaire: f.commentaire.value.trim() || null };
     };
   }
-  // Feuille « Effort et sensations » : s'ouvre quand une séance est cochée « faite » dans une vue (feuille de saisie rapide du
-  // site ; « Enregistrer » collé en bas ; la croix ou « Plus tard » la ferment sans rien ranger).
+  // Feuille « Effort et sensations » : s'ouvre quand une séance est cochée « faite » (vues du Calendrier, grille de Mon plan,
+  // En un coup d'œil, Nutrition). La petite feuille du site (hauteur du contenu ; feuille du bas sur téléphone) ; en tête, le type
+  // et le jour en libellé, puis le nom de la séance (avant « : ») et son détail (après) ; « Enregistrer » en bas ; la croix ferme.
   function feuilleRetour(ctx, s) {
+    const lib = String(s.libelle || ''), k = lib.indexOf(' : ') >= 0 ? lib.indexOf(' : ') : lib.indexOf(': ');
+    const nom = k > 0 ? lib.slice(0, k).trim() : lib, detail = k > 0 ? lib.slice(k + (lib[k] === ' ' ? 3 : 2)).trim() : '';
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
-    voile.innerHTML = '<div class="mc-panneau mc-ecrans mc-etroit cal-feuille-retour" role="dialog" aria-modal="true" aria-labelledby="cal-retour-titre" tabindex="-1"><div class="mc-corps"><div class="mc-ecran">' +
+    voile.innerHTML = '<div class="mc-panneau mc-etroit mc-court cal-feuille-retour" role="dialog" aria-modal="true" aria-labelledby="cal-retour-nom" tabindex="-1"><div class="mc-corps">' +
       '<div class="pc-barre"><span></span><button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
-      '<p class="fc-libelle" id="cal-retour-titre">Effort et sensations</p><p class="cal-retour-seance">' + esc(TYPES[s.type] || '') + ' · ' + esc(s.libelle) + ' · ' + longue(s.date) + '</p><p class="cal-msg" role="alert"></p>' +
+      '<p class="fc-libelle">' + esc(TYPES[s.type] || '') + ' · ' + esc(F.date(s.date, { semaine: true, annee: false })) + '</p>' +
+      '<h2 class="cal-retour-nom" id="cal-retour-nom">' + esc(nom.charAt(0).toUpperCase() + nom.slice(1)) + '</h2>' +
+      (detail ? '<p class="cal-retour-detail">' + esc(detail.charAt(0).toUpperCase() + detail.slice(1)) + '</p>' : '') + '<p class="cal-msg" role="alert"></p>' +
       '<form class="cal-ecran" novalidate>' + champsRetour(s) + champCommentaire(s) +
-      '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button><button type="button" class="mrt-lien cal-plus-tard" data-fermer>Plus tard</button></div></form></div></div></div>';
+      '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form></div></div>';
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
     const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', echap); };
@@ -460,7 +465,7 @@
       const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
       if (error) { const m = voile.querySelector('.cal-msg'); m.textContent = error.code === 'PGRST204' || /column/i.test(String(error.message || '')) ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.'; m.scrollIntoView({ block: 'nearest' }); console.warn(error); return; }
       fermer();
-      await ctx.actualiser();
+      if (ctx.actualiser) await ctx.actualiser();
       if (champs.commentaire && champs.commentaire !== (s.commentaire || null)) relancer(ctx);
     });
   }
