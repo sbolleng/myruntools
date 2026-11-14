@@ -148,7 +148,6 @@
 
 /* Effort perçu au curseur (dégradé du vert de la Base au rouge d'Alerte) ; sensations en visages ; rond « i » ; feuille « Effort et sensations ». */
 .cal-titre-info { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.cal-info b { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 700; }
 .cal-curseur { width: 100%; height: 1.6rem; margin: 0.4rem 0 0; background: none; accent-color: var(--accent); -webkit-appearance: none; appearance: none; cursor: pointer; }
 .cal-curseur::-webkit-slider-runnable-track { height: 0.35rem; border-radius: 1rem; background: linear-gradient(90deg, var(--ph-base), var(--ph-developpement), var(--red)); }
 .cal-curseur::-moz-range-track { height: 0.35rem; border-radius: 1rem; background: linear-gradient(90deg, var(--ph-base), var(--ph-developpement), var(--red)); }
@@ -156,13 +155,21 @@
 .cal-curseur::-moz-range-thumb { width: 1.6rem; height: 1.2rem; border-radius: 1rem; background: var(--text); border: 0; }
 .cal-curseur.is-vide::-webkit-slider-thumb { opacity: 0.55; }
 .cal-curseur.is-vide::-moz-range-thumb { opacity: 0.55; }
-.cal-sans-note { margin-top: 0.2rem; font-size: var(--t-petit); }
 .cal-visages { display: flex; justify-content: space-between; gap: 0.4rem; margin-top: 0.35rem; }
 .cal-visage-b { width: 2.6rem; height: 2.6rem; color: var(--muted); }
 .cal-visage-b .cal-visage { width: 1.7rem; height: 1.7rem; }
 .cal-visage-b[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
-.cal-retour-seance { margin: -0.2rem 0 0.4rem; font-size: var(--t-second); color: var(--muted); }
 .cal-feuille-retour .cal-ecran > .cal-champ { margin-bottom: 0.8rem; }
-.cal-plus-tard { display: block; margin: 0.6rem auto 0; font-size: var(--t-second); }
 /* Un champ masqué le reste (le display de .cal-champ l'emportait sur l'attribut hidden : « Où » visible avec « Aucune »). */
-.cal-champ[hidden], .cal-si-faite[hidden], .cal-sans-note[hidden] { display: none; }
+.cal-champ[hidden], .cal-si-faite[hidden], .cal-douleur[hidden], .cal-signaler[hidden] { display: none; }
+/* Feuille « Effort et sensations », allégée : « i » en petit picto sans cadre ; nom de la séance, puis son détail ; « + Signaler une douleur ». */
+.cal-titre-info { justify-content: flex-start; }
+.cal-info { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; margin: -0.4rem 0 -0.4rem 0.1rem; padding: 0; color: var(--muted); background: none; border: 0; cursor: pointer; }
+.cal-info svg { width: 0.95rem; height: 0.95rem; }
+@media (hover: hover) { .cal-info:hover { color: var(--accent); } }
+.cal-retour-nom { margin: 0.1rem 0 0; font-size: var(--t-nom); font-weight: 600; color: var(--text); }
+.cal-retour-detail { margin: 0.2rem 0 0.4rem; font-size: var(--t-second); color: var(--muted); }
+.cal-ressenti-lib:empty { display: none; }
+.cal-signaler { display: inline-block; margin: 0 0 0.8rem; font-size: var(--t-second); }
+/* Petite feuille sur ordinateur : la hauteur du contenu, sans barre de défilement tant qu'il tient. */
+.mc-panneau.cal-feuille-retour { height: auto; max-height: 92vh; }

@@ -721,6 +721,8 @@
       if (error) { console.warn('Nutrition : séance non rangée', error); dessinerJournal(); return; }
       const x = S.seances.find(y => y.id === id); if (x) x.faite = faite;
       chiffres(); dessinerJournal();
+      // Cochée « faite » : la feuille « Effort et sensations », la même que dans le Calendrier.
+      if (x && faite && window.mrtPreparation && window.mrtPreparation.feuilleRetour) window.mrtPreparation.feuilleRetour(calendrier, Object.assign({}, x, { faite: true }));
     }
     const changer = e => {
       if (e.target.closest('.nu-sport-l')) lireSports();

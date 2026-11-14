@@ -149,6 +149,8 @@
       const { error } = await window.mrtSupabase.from('seances').update({ faite: c.checked }).eq('id', c.dataset.faite);
       if (error) { console.warn(error); c.checked = !c.checked; return; }
       const x = (nutrition.seances || []).find(y => y.id === c.dataset.faite); if (x) x.faite = c.checked;
+      // Cochée « faite » : la feuille « Effort et sensations », la même que dans le Calendrier.
+      if (x && c.checked && window.mrtPreparation && window.mrtPreparation.feuilleRetour) window.mrtPreparation.feuilleRetour({ courses, seances: nutrition.seances || [], actualiser: async () => {} }, Object.assign({}, x, { faite: true }));
     }));
     const carte = el.querySelector('.ac-carte');
     if (carte) window.renderCarteCourse(carte, courses.find(c => c.id === carte.dataset.course));
