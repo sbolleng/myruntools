@@ -51,7 +51,9 @@
     const seanceHtml = s => '<span class="cal-v-se' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + '><input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') +
       ' aria-label="Faite">' + (!ctx.lectureSeule ? '<button type="button" class="cal-v-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-v-se-txt">') +
       '<b>' + (s.intensite ? '<i class="cal-v-int i-' + s.intensite + '" title="' + (P.INTENSITES[s.intensite] || '') + '"></i>' : '') + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' +
-      (detail(s) ? '<small class="cal-v-det">' + detail(s) + '</small>' : '') + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
+      (detail(s) ? '<small class="cal-v-det">' + detail(s) + '</small>' : '') + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + (!ctx.lectureSeule ? '</button>' : '</span>') +
+      // Faite sans effort noté : « à noter », qui rouvre la feuille « Effort et sensations » (jamais sur le site partagé).
+      (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="cal-v-anoter" data-noter="' + esc(s.id) + '">à noter</button>' : '') + '</span>';
     const plusHtml = jour => (!ctx.lectureSeule ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
     return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml };
   }

@@ -2771,11 +2771,11 @@ const CONTROLES = {
     await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance .cal-retour');
     pb.push(egal([true, 'Retour sur la séance'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.textContent('.cal-retour .mrt-section-titre')], 'fenêtre : « Retour sur la séance », ressenti caché tant qu\'elle n\'est pas faite'));
     await p.check('.cal-seance [name="faite"]');
-    await p.fill('.cal-seance .cal-curseur', '7'); await p.click('.cal-seance [data-groupe="sensations"] [data-val="2"]'); await p.click('.cal-seance .cal-signaler'); await p.click('.cal-seance [data-groupe="douleur"] [data-val="legere"]');
+    await p.fill('.cal-seance .cal-curseur', '7'); await p.click('.cal-seance [data-groupe="sensations"] [data-val="2"]'); await p.click('.cal-seance [data-groupe="douleur"] [data-val="legere"]');
     pb.push(egal('7 · Seuil, allure semi-marathon ou 10 km : effort soutenu et inconfortable ; quelques mots isolés. Charge : 420 UA.', (await p.textContent('.cal-ressenti-lib')).replace(/\u00a0/g, ' '), 'ressenti 7 : libellé du niveau et charge (7 × 60 min)'));
     await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit');
     await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
-    pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
+    pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur-ou').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
     // Le commentaire relance une réadaptation (lot 6b) : son message, accepté ; puis le conseil d'un déplacement, refusé.
     let question = null, reponse = true;
     await surDialogue(p, q => { question = q; return reponse; });
@@ -2807,7 +2807,7 @@ const CONTROLES = {
     pb.push(egal(['Course à pied · ven. 23 oct.', '7 · Seuil, allure semi-marathon ou 10 km : effort soutenu et inconfortable ; quelques mots isolés. Charge : 420 UA.', 5, 1], [(await p.textContent('.cal-feuille-retour .fc-libelle')).replace(/\u00a0/g, ' '), await p.textContent('.cal-feuille-retour .cal-ressenti-lib'),
       await p.locator('.cal-feuille-retour .cal-visage-b').count(), await p.locator('.cal-feuille-retour .mc-pied .is-principal').count()], 'cocher « faite » : la feuille, l\'effort déjà noté repris, cinq visages, « Enregistrer » collé en bas'));
     pb.push(egal([0, 0, 0, 1], [await p.locator('.cal-feuille-retour .cal-plus-tard, .cal-feuille-retour .cal-sans-note').count(), await p.locator('.cal-feuille-retour [data-groupe="fatigue"]').count(),
-      await p.evaluate(() => { const x = document.querySelector('.cal-feuille-retour'); return x.scrollHeight > x.clientHeight + 1 ? 1 : 0; }), await p.locator('.cal-feuille-retour .cal-signaler').count()], 'feuille allégée : ni « Plus tard », ni « Ne pas noter », ni fatigue ; pas de barre de défilement ; « + Signaler une douleur »'));
+      await p.evaluate(() => { const x = document.querySelector('.cal-feuille-retour'); return x.scrollHeight > x.clientHeight + 1 ? 1 : 0; }), await p.evaluate(() => [...document.querySelectorAll('.cal-feuille-retour [data-groupe="douleur"] [aria-pressed="true"]')].map(b => b.textContent).join() === 'Légère' && !document.querySelector('.cal-feuille-retour .cal-douleur-ou').hidden ? 1 : 0)], 'feuille allégée : ni « Plus tard », ni « Ne pas noter », ni fatigue ; pas de barre de défilement ; douleur déjà notée reprise, avec « Où »'));
     await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
     pb.push(egal([{ faite: true }], ecrit(), 'la croix : seule la case « faite » est rangée'));
     await p.evaluate(() => { const c = document.querySelector('[data-fait="se-r"]'); c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); }); await pause();
@@ -2829,6 +2829,21 @@ const CONTROLES = {
     await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' });
     pb.push(egal([], erreurs, 'retour sur une séance : erreurs JavaScript'));
     await ctx.close();
+    // Faite sans effort noté : « à noter » dans la vue (pas sur une séance notée ni non faite) ; le toucher rouvre la feuille.
+    {
+      const dn = copie(x => { x.seances = [
+        { id: 'se-n', utilisateur: x.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Footing', faite: true, ressenti: null, course: null, origine: 'saisie', etat: 'acceptee' },
+        { id: 'se-o', utilisateur: x.profils[0].id, date: '2026-10-22', type: 'run', libelle: 'Seuil', faite: true, ressenti: 6, course: null, origine: 'saisie', etat: 'acceptee' },
+        { id: 'se-p', utilisateur: x.profils[0].id, date: '2026-10-23', type: 'run', libelle: 'Côtes', faite: false, course: null, origine: 'saisie', etat: 'acceptee' }]; });
+      const q = await ouvrir(nav, 'calendrier.html', 1200, dn, {}, PARIS);
+      await q.p.waitForSelector('[data-drag="se-n"]');
+      pb.push(egal(['se-n'], await q.p.evaluate(() => [...document.querySelectorAll('[data-noter]')].map(b => b.dataset.noter)), '« à noter » : seulement sur la séance faite sans effort noté'));
+      await q.p.click('[data-noter="se-n"]'); await q.p.waitForSelector('.cal-feuille-retour');
+      pb.push(egal(['Footing', 'Aucune', true], [await q.p.textContent('.cal-retour-nom'), await q.p.evaluate(() => document.querySelector('.cal-feuille-retour [data-groupe="douleur"] [aria-pressed="true"]').textContent), await q.p.evaluate(() => document.querySelector('.cal-feuille-retour .cal-douleur-ou').hidden)],
+      '« à noter » rouvre la feuille de la séance ; douleur « Aucune » d\'office, sans « Où »'));
+      pb.push(egal([], q.erreurs, '« à noter » : erreurs JavaScript'));
+      await q.ctx.close();
+    }
     // Site partagé : ni bouton ni état du profil.
     const autre = '00000000-0000-0000-0000-00000000000b';
     const partage = copie(x => {

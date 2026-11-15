@@ -220,3 +220,6 @@
   .cal-m-points .rdv { font-size: var(--t-micro); line-height: 5px; color: var(--muted); }
   .cal-s-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
 }
+/* Séance faite sans effort noté : « à noter », en Accent, qui rouvre la feuille « Effort et sensations ». */
+.cal-v-anoter { flex: none; margin-left: 0.3rem; padding: 0 0.35rem; font: inherit; font-size: var(--t-micro); line-height: 1.5; color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 1rem; cursor: pointer; white-space: nowrap; }
+.cal-m-case .cal-v-anoter { margin: 0.15rem 0 0; }
