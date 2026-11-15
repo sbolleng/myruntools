@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.26 · 12 novembre 2026 · [Retour au sommaire](README.md) · Un seul plan : la rubrique d'une course montre sa place dans la saison (Préparation, § 5.4), « Paramétrer le plan » s'ouvre depuis Mon plan, sur un Objectif seulement · Avant : Rond « plein écran » (ordinateur) dans la barre du haut · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de préparation du [module Préparation](module-preparation-specification.md)
+Version 0.27 · 15 novembre 2026 · [Retour au sommaire](README.md) · Vue Semaine enrichie : séances en cartes (27), total de la semaine (28, aussi sous chaque semaine du Mois), place dans la saison (29) ; Mon plan n'a plus de grille et y renvoie · Un seul plan : la rubrique d'une course montre sa place dans la saison (Préparation, § 5.4), « Paramétrer le plan » s'ouvre depuis Mon plan, sur un Objectif seulement · Avant : Rond « plein écran » (ordinateur) dans la barre du haut · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de préparation du [module Préparation](module-preparation-specification.md)
 
 ## 1. Rôle
 
@@ -131,6 +131,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
 | 17 | Course du jour, à sa couleur | « Trail du Lac » | Case du jour |
 | 8 | Rendez-vous clé : ouverture des inscriptions | « ◆ Inscriptions · Corrida de Noël » | Case du jour |
 | 6, 7 | Séance : case « faite », type, libellé (touché : sa fenêtre) | « ☐ Course à pied 8×400 m » | Case du jour, une ligne par séance |
+| 28 | Total de la semaine (Semaine, § 4.4) | « 1/4 séances » | Sous la semaine, sur toute la largeur ; rien sans séance |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Coin bas droit de la case |
 | 21 | Jours des mois voisins | 28, 29, 30 sept. ; 1er nov. | Le fond des autres jours, numéro et contenu atténués |
 | 5 | Fond de phase (Plan) | développement | Toute la case |
@@ -149,12 +150,12 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
 (25) [Semaine ⌄]                                          (26) [Plan]   (22) [Aujourd'hui]
 ──────────────────────────────────────────────────────────────────────────────────────────
                          (24) ↑ Afficher les semaines passées
-(4) SEMAINE DU 19 AU 25 OCT.
+(4) SEMAINE DU 19 AU 25 OCT.                                         (28) 1/4 séances · 8/32 km
     ┌──────┬────────────────────────────────────────────────────────────────┐
-(3) │  19  │ (6) ☑ RENFO Gainage 30 min                                (10) + │
-    │ LUN. │                                                                  │
-(15)│ (20) │ (7) ☐ RUN 8×400 m                                             + │  ← cerclée
-    │ MAR. │                                                                  │
+(3) │  19  │ (6, 27) ┌ Gainage 30 min  à noter ──────────────── ☑ ┐ (10) + │
+    │ LUN. │         └ Renforcement · 30 min ─────────────────────┘        │
+(15)│ (20) │ (7)     ┌ ● 8×400 m ────────────────────────────── ☐ ┐      + │  ← cerclée
+    │ MAR. │         └ Course à pied · 1 h · 11 km ───────────────┘        │
     │  …   │                                                                  │
     └──────┴────────────────────────────────────────────────────────────────┘
     SEMAINE DU 26 OCT. AU 1ER NOV.
@@ -176,7 +177,9 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 | 15 | Aujourd'hui | numéro dans un rond Accent, ligne cerclée | Ligne du jour |
 | 17 | Course du jour | « Trail du Lac » | Ligne du jour |
 | 8 | Rendez-vous clé | « ◆ Ouverture des inscriptions · Corrida de Noël » | Ligne du jour |
-| 6, 7 | Séance : case « faite », type, libellé | « ☐ Course à pied 8×400 m » | Ligne du jour |
+| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : le nom en gras (le libellé jusqu'aux deux-points) avec le point d'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; « à noter » ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
+| 28 | Total de la semaine | « 1/4 séances · 8/32 km · 1 h 45/3 h 10 » : fait sur prévu pour la semaine en cours et les passées, le prévu seul pour les suivantes ; séances proposées en attente non comptées ; rien sans séance | À droite du titre 4 |
+| 29 | Place dans la saison | « Semaine 3 sur 16 · Base » (la phase dans sa couleur), dates dessous ; seulement dans une saison | À la place du titre 4 |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Bout de la ligne |
 | 5 | Fond de phase (Plan) | | Toute la ligne |
 
@@ -187,7 +190,7 @@ Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Retour sur la s�
 
 - **Liste** : la semaine en cours (ou celle de l'adresse) en tête, puis les suivantes ; trois au départ, deux de plus chaque fois que le bas de la liste approche de l'écran. Pas de flèches.
 - **Semaines passées** : le lien en ajoute quatre au-dessus à chaque toucher, sans que la semaine regardée ne bouge à l'écran. « Aujourd'hui » ramène à la semaine en cours et aux deux suivantes.
-- **Jours** : une ligne par jour, un même fond pour tous (passé compris ; seul le numéro d'un jour passé est atténué) ; pas de total de séances, pas de nom de phase.
+- **Jours** : une ligne par jour, un même fond pour tous (passé compris ; seul le numéro d'un jour passé est atténué) ; le total de la semaine (28) ; le nom de la phase seulement dans la place de la semaine (29).
 - **Rendez-vous clés** : l'ouverture des inscriptions (`ouverture_inscriptions`) d'une course Confirmée ou Option.
 - **Toucher une course** (jour de course, rendez-vous clé) ouvre sa page, à la rubrique Préparation ; une course courue, son résultat.
 - **Séance** : un type (Course à pied ou Renforcement, écrits en toutes lettres partout ; d'autres types, vélo, tapis…, s'ajouteront à la liste des types et à la base), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.

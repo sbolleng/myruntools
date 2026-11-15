@@ -102,3 +102,21 @@
 .ps-hist-liste li { display: grid; grid-template-columns: 1fr auto auto; gap: 0.8rem; color: var(--text); }
 .ps-hist-statut { color: var(--muted); }
 .ps-hist-statut.s-acceptee { color: var(--accent); }
+
+/* ----- Refonte (Préparation 1.6) : en-tête court, frise fine, bandeau de l'IA, « Cette semaine » ----- */
+.ps-place { margin-top: 0.5rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+.ps-frise-fine .ps-frise { --seg-h: 1.4rem; }
+.ps-frise-fine .ps-seg { font-size: var(--t-libelle); }
+.ps-saison-repli { margin-top: 0.8rem; }
+.ps-saison-repli > summary { display: flex; align-items: center; gap: 0.35rem; font-size: var(--t-second); color: var(--muted); cursor: pointer; }
+.ps-prop-repli > summary { display: flex; align-items: baseline; gap: 0.8rem; list-style: none; cursor: pointer; }
+.ps-prop-repli > summary::-webkit-details-marker { display: none; }
+.ps-prop-resume { flex: 1; min-width: 0; overflow: hidden; font-size: var(--t-second); white-space: nowrap; text-overflow: ellipsis; color: var(--text); }
+.ps-prop-repli[open] .ps-prop-resume { white-space: normal; }
+.ps-prop-repli[open] .ps-prop-voir { display: none; }
+.ps-prop-voir { flex: none; font-size: var(--t-second); }
+.ps-prop-repli .ps-prop-liste { display: flex; }
+.ps-semaine { margin-top: 1.2rem; }
+.ps-semaine-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
+.ps-semaine-tete .ps-libelle { margin: 0 0 0.5rem; }
+.ps-vers-cal { display: inline-block; margin-top: 0.6rem; font-size: var(--t-second); }
