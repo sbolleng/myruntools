@@ -161,7 +161,7 @@
 .cal-visage-b[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
 .cal-feuille-retour .cal-ecran > .cal-champ { margin-bottom: 0.8rem; }
 /* Un champ masqué le reste (le display de .cal-champ l'emportait sur l'attribut hidden : « Où » visible avec « Aucune »). */
-.cal-champ[hidden], .cal-si-faite[hidden], .cal-douleur[hidden], .cal-signaler[hidden] { display: none; }
+.cal-champ[hidden], .cal-si-faite[hidden] { display: none; }
 /* Feuille « Effort et sensations », allégée : « i » en petit picto sans cadre ; nom de la séance, puis son détail ; « + Signaler une douleur ». */
 .cal-titre-info { justify-content: flex-start; }
 .cal-info { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; margin: -0.4rem 0 -0.4rem 0.1rem; padding: 0; color: var(--muted); background: none; border: 0; cursor: pointer; }
@@ -170,6 +170,9 @@
 .cal-retour-nom { margin: 0.1rem 0 0; font-size: var(--t-nom); font-weight: 600; color: var(--text); }
 .cal-retour-detail { margin: 0.2rem 0 0.4rem; font-size: var(--t-second); color: var(--muted); }
 .cal-ressenti-lib:empty { display: none; }
-.cal-signaler { display: inline-block; margin: 0 0 0.8rem; font-size: var(--t-second); }
 /* Petite feuille sur ordinateur : la hauteur du contenu, sans barre de défilement tant qu'il tient. */
 .mc-panneau.cal-feuille-retour { height: auto; max-height: 92vh; }
+/* En tête de la feuille, un seul bloc qui qualifie la séance (type et jour, nom, détail), puis un espace avant la notation. */
+.cal-feuille-retour .fc-libelle { margin-bottom: 0.15rem; }
+.cal-feuille-retour .cal-retour-nom { margin-top: 0; }
+.cal-feuille-retour .cal-ecran { margin-top: 1.1rem; }
