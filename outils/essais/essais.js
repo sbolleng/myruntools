@@ -2038,6 +2038,7 @@ const CONTROLES = {
         fonds: (f => [f('2026-09-28') === f('2026-10-07'), f('2026-10-19') === f('2026-10-21')])(j => (e => e && getComputedStyle(e).backgroundColor)(document.querySelector('.cal-m-case[data-jour="' + j + '"]'))),
         plusAccent: (b => { const i = document.createElement('i'); i.style.color = 'var(--accent)'; document.body.append(i); const a = getComputedStyle(i).color; i.remove();
           return !!b && getComputedStyle(b).borderTopColor === a && getComputedStyle(b).color === a; })(document.querySelector('.cal-m-case [data-ajout]')),
+        totaux: [...document.querySelectorAll('.cal-m-total')].map(e => e.textContent),
         debordement: document.documentElement.scrollWidth > innerWidth
       };
     });
@@ -2052,6 +2053,7 @@ const CONTROLES = {
         egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances à cocher, un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
         ...(tel ? [] : [egal(true, r.plusAccent, nom + ', « + » à contour Accent')]),
         egal([!tel, tel], [r.texteVisible, r.reperes], nom + ', ' + (tel ? 'des repères à la place du texte' : 'le texte des cases')),
+        egal(['1/4 séances'], r.totaux, nom + ', sous chaque semaine son total ; rien pour une semaine sans séance'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-mois-' + nom.replace('é', 'e') + '.png'), fullPage: true });
@@ -2115,7 +2117,7 @@ const CONTROLES = {
     partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
     partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#mois', 1200, partage, { 'mrt-vue': autre }, PARIS));
-    pb.push(egal([0, 4], [await p.locator('[data-ajout], [data-edit]').count(), await p.locator('.cal-v-se input:disabled').count()], 'lecture seule : ni « + » ni modification, cases « faite » grisées'));
+    pb.push(egal([0, 4], [await p.locator('[data-ajout], [data-edit]').count(), await p.locator('.cal-v-se input:disabled, .cal-carte input:disabled').count()], 'lecture seule : ni « + » ni modification, cases « faite » grisées'));
     await ctx.close();
     return pb;
   },
@@ -2138,10 +2140,12 @@ const CONTROLES = {
         vue: [document.querySelector('[data-menu]').textContent.trim(), [...document.querySelectorAll('.cal-menu a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))],
         passees: (document.querySelector('[data-passees]') || {}).textContent || null,
         semaines: [...document.querySelectorAll('.cal-s-titre')].map(e => e.textContent),
+        totaux: [...document.querySelectorAll('.cal-s-semaine')].slice(0, 2).map(e => (e.querySelector('.cal-total') || {}).textContent || ''),
+        moisTotaux: [...document.querySelectorAll('.cal-m-total')].map(e => e.textContent),
         courante: (document.querySelector('.cal-s-semaine.is-courante .cal-s-titre') || {}).textContent || null,
         dates: [...document.querySelectorAll('.cal-s-semaine:first-of-type .cal-s-date')].map(e => e.textContent),
         auj: [...document.querySelectorAll('.cal-s-ligne.auj')].map(e => e.dataset.jourLigne),
-        seances: [...document.querySelectorAll('.cal-s-ligne .cal-v-se')].map(e => [ligne(e), e.querySelector('.cal-v-se-txt').textContent.replace(/\s+/g, ' ').trim(), e.querySelector('input').checked]),
+        seances: [...document.querySelectorAll('.cal-s-ligne .cal-carte')].map(e => [ligne(e), (e.querySelector('.cal-carte-det').textContent + ' ' + e.querySelector('.cal-carte-nom').textContent).replace(/\s+/g, ' ').trim(), e.querySelector('input').checked]),
         rdv: [...document.querySelectorAll('.cal-s-ligne .cal-v-rdv')].map(e => [ligne(e), e.textContent]),
         courses: [...document.querySelectorAll('.cal-s-ligne .cal-v-course')].map(e => [ligne(e), e.textContent, [...e.classList].find(c => /^c-|^courue$/.test(c))]),
         plus: document.querySelectorAll('.cal-s-ligne [data-ajout]').length,
@@ -2165,6 +2169,7 @@ const CONTROLES = {
         egal([[['2026-10-19', 'Renforcement Gainage 30 min', true], ['2026-10-20', 'Course à pied 8×400 m', false], ['2026-10-22', 'Course à pied Footing 45 min', false], ['2026-10-24', 'Course à pied Sortie 1 h 30', false]],
           [['2026-11-01', '◆ Ouverture des inscriptions · Corrida de Noël']]], [r.seances, r.rdv], nom + ', séances à cocher, rendez-vous clé'),
         egal([r.semaines.length * 7, false, false], [r.plus, /Faites/.test(r.texte), /Développement/.test(r.texte)], nom + ', un « + » par jour ; ni « Faites », ni nom de phase'),
+        egal(['1/4 séances', ''], r.totaux, nom + ', total de la semaine en cours (fait sur prévu), rien sans séance'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-semaine-' + nom.replace('é', 'e') + '.png'), fullPage: true });
@@ -2246,7 +2251,7 @@ const CONTROLES = {
     partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
     partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
-    pb.push(egal([0, 4], [await p.locator('[data-ajout], [data-edit]').count(), await p.locator('.cal-v-se input:disabled').count()], 'lecture seule : ni « + » ni modification, cases « faite » grisées'));
+    pb.push(egal([0, 4], [await p.locator('[data-ajout], [data-edit]').count(), await p.locator('.cal-v-se input:disabled, .cal-carte input:disabled').count()], 'lecture seule : ni « + » ni modification, cases « faite » grisées'));
     await ctx.close();
     return pb;
   },
@@ -2403,20 +2408,22 @@ const CONTROLES = {
     const { db, id } = jeuObjectif(db0);
     const copie = f => { const d = JSON.parse(JSON.stringify(db)); if (f) f(d); return d; };
     const course = (d, n) => d.courses.find(c => c.id === id(n));
-    const lire = async (p, defaut) => { if (!defaut) await p.click('[data-frise="tout"]'); return p.evaluate(() => {
+    const lire = async (p, defaut) => { await p.evaluate(() => { const d = document.querySelector('.ps-saison-repli'); if (d) d.open = true; }); if (!defaut) await p.click('[data-frise="tout"]'); return p.evaluate(() => {
       const t = s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
       const segs = [...document.querySelectorAll('.ps-seg')];
       const ph = l => { const e = segs.find(x => x.dataset.debut <= l && l <= x.dataset.fin); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
       return {
-        titre: t('.ps-titre'), sous: t('.ps-sous'), etat: t('.ps-etat'), runs: [...document.querySelectorAll('.ps-run')].map(e => e.dataset.lundi + ' ' + e.dataset.fin + ' ' + e.querySelector('.ps-run-nom').textContent + ' ' + e.querySelector('.ps-run-dates').textContent), titreBloc: t('.ps-bloc > .ps-libelle'), vide: t('.ps-vide'),
+        titre: t('.ps-titre'), sous: t('.ps-sous'), place: t('.ps-place'), total: t('.ps-semaine-tete .cal-total'), etat: t('.ps-etat'), runs: [...document.querySelectorAll('.ps-run')].map(e => e.dataset.lundi + ' ' + e.dataset.fin + ' ' + e.querySelector('.ps-run-nom').textContent + ' ' + e.querySelector('.ps-run-dates').textContent), titreBloc: t('.ps-bloc > .ps-libelle'), vide: t('.ps-vide'),
         semaines: segs.length ? [segs[0].dataset.debut, segs[segs.length - 1].dataset.fin] : [],
         phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
         marques: [...document.querySelectorAll('.ps-marque[href]')].map(a => a.title.split(' · ')[0] + ' ' + [...a.classList].filter(c => c !== 'ps-marque').join(' ')),
         alertes: ['Alertes (' + document.querySelectorAll('.ps-alerte').length + ')', ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
         textesAlertes: [...document.querySelectorAll('.ps-alerte')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
-        // Bloc en cours : la grille du mois ; ses cases, et les repères du jour écrits dedans.
-        bloc: [...document.querySelectorAll('.ps-bloc .cal-m-case')].map(e => e.dataset.jour),
-        reperes: [...document.querySelectorAll('.ps-bloc .cal-v-rep')].map(e => e.closest('.cal-m-case').dataset.jour + ' ' + e.textContent),
+        // Cette semaine : une ligne par jour, et les repères du jour écrits dedans.
+        bloc: [...document.querySelectorAll('.ps-bloc .cal-s-ligne')].map(e => e.dataset.jourLigne),
+        reperes: [...document.querySelectorAll('.ps-bloc .cal-v-rep')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne + ' ' + e.textContent),
+        repos: [...document.querySelectorAll('.ps-bloc .cal-repos')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne),
+        lien: (document.querySelector('.ps-vers-cal') || {}).textContent || null,
         plus: document.querySelectorAll('.ps-bloc [data-ajout]').length,
         debordement: document.documentElement.scrollWidth > innerWidth
       };
@@ -2428,7 +2435,7 @@ const CONTROLES = {
       await p.waitForSelector('.ps-cadre');
       const r = await lire(p, false);
       pb.push(
-        egal(['Trail des Gorges', 'dim. 7 mars 2027 · dans 20 sem.'], [r.titre, r.sous], nom + ', titre court : le nom de la course visée, dessous la date et le temps restant'),
+        egal(['Trail des Gorges', 'dim. 7 mars 2027 · J-138', 'Entretien'], [r.titre, r.sous, r.place], nom + ', titre court : le nom de la course visée, dessous la date et les jours restants, puis la place de la semaine (hors saison : la phase)'),
         ...(w > 600 ? [
         egal(['2026-10-19', '2027-10-25'], [r.semaines[0], r.semaines[1]], nom + ', frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
         egal(['ph-entretien', 'ph-base', 'ph-base', 'ph-recuperation', 'ph-recuperation', 'ph-entretien', 'ph-entretien', 'ph-base', 'ph-affutage', 'ph-recuperation'], r.phases,
@@ -2467,8 +2474,8 @@ const CONTROLES = {
       await t.ctx.close();
       const q = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS);
       await q.p.waitForSelector('.ps-cadre');
-      pb.push(egal([1, 'Recommandation de MyRunTools', 1, 0], await q.p.evaluate(() => [document.querySelectorAll('.ps-bloc .ps-proposition').length, document.querySelector('.ps-bloc .ps-proposition .ps-libelle').textContent, document.querySelectorAll('.ps-bloc .ps-proposition .ps-alerte').length, document.querySelectorAll('section.ps-alertes').length].map((x, i) => i === 3 ? x : x)),
-        'une alerte : dans le bloc « Recommandation de MyRunTools » (pas de section Alertes à part)'));
+      pb.push(egal([1, 1, 0], await q.p.evaluate(() => [document.querySelectorAll('.ps-bloc .ps-proposition').length, document.querySelectorAll('.ps-bloc .ps-proposition .ps-alerte').length, document.querySelectorAll('section.ps-alertes').length]),
+        'une alerte : dans le bandeau de MyRunTools, en haut du bloc (pas de section Alertes à part)'));
       await q.ctx.close();
       const z = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
       await z.p.waitForSelector('.ps-cadre');
@@ -2479,18 +2486,23 @@ const CONTROLES = {
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
     await p.waitForSelector('.ps-cadre');
     let r = await lire(p, false);
-    pb.push(egal([28, '2026-10-19', '2026-11-15', 0], [r.bloc.length, r.bloc[0], r.bloc[27], await p.locator('.ps-bloc .cal-sem').count()], 'bloc en cours : la grille du mois, 28 cases du 19 octobre au 15 novembre'));
-    pb.push(egal([null, null], [r.etat, r.titreBloc], 'plus d\'état de la semaine ni de titre « Bloc en cours »'));
-    pb.push(egal([['2026-11-12 Allégé', '2026-11-13 Allégé', '2026-11-14 Allégé'], 28], [r.reperes, r.plus], 'repères dans les cases : allégé du 12 au 14 novembre avant le Trail du Lac ; un « + » par jour'));
+    pb.push(egal([7, '2026-10-19', '2026-10-25', 0, 0], [r.bloc.length, r.bloc[0], r.bloc[6], await p.locator('.ps-bloc .cal-m-case').count(), await p.locator('.ps-bloc .cal-sem').count()], 'cette semaine : une ligne par jour, du 19 au 25 octobre ; plus de grille du bloc'));
+    pb.push(egal([null, null, 7, 'Voir les semaines dans le Calendrier →'], [r.etat, r.titreBloc, r.plus, r.lien], 'ni état de la semaine ni titre « Bloc en cours » ; un « + » par jour ; lien vers le Calendrier'));
+    pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
+    await ctx.close();
+    // La semaine du 9 novembre : allégé du 12 au 14 avant le Trail du Lac.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
+    await p.waitForSelector('.ps-cadre');
+    r = await lire(p, false);
+    pb.push(egal(['2026-11-12 Allégé', '2026-11-13 Allégé', '2026-11-14 Allégé'], r.reperes, 'repères dans les lignes : allégé du 12 au 14 novembre avant le Trail du Lac'));
     await ctx.close();
     // Récupération et repos de la veille : la semaine du 30 novembre (récupération du Trail du Lac jusqu'au 4 décembre).
     const plusTard = { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-30T10:00:00+01:00') };
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, plusTard));
     await p.waitForSelector('.ps-cadre');
     r = await lire(p, false);
-    pb.push(egal([true, false, true, 'ph-base'], [r.reperes.includes('2026-12-04 Récupération'), r.reperes.includes('2026-12-05 Récupération'), r.reperes.includes('2026-12-12 Repos'),
-      await p.evaluate(() => [...document.querySelector('.ps-bloc .cal-m-case[data-jour="2026-11-30"]').classList].find(c => c.startsWith('ph-')))],
-      'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre (19 jours), repos la veille de la Corrida de Noël, semaine 3 de la saison en base'));
+    pb.push(egal([true, false, 'Semaine 3 sur 16 · Base'], [r.reperes.includes('2026-12-04 Récupération'), r.reperes.includes('2026-12-05 Récupération'), r.place],
+      'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre (19 jours) ; semaine 3 de la saison, en base'));
     await ctx.close();
     // Ultra du Plateau confirmé : sa récupération (83 km-effort, 52 jours) déborde sur l'affûtage du Trail des Crêtes.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS));
@@ -2766,8 +2778,8 @@ const CONTROLES = {
     d = copie(x => { x.seances = [{ id: 'se-r', utilisateur: x.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Seuil', faite: false, course: null, duree_min: 60, distance_km: 11, intensite: 'intense', origine: 'saisie', etat: 'acceptee' }]; });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', 1200, d, {}, PARIS));
     await p.waitForSelector('[data-drag="se-r"]');
-    pb.push(egal(['Course à pied Seuil1 h · 11 km', 1, 0], await p.evaluate(() => { const e = document.querySelector('[data-drag="se-r"]'); return [e.textContent.replace(/\s+/g, ' ').trim(), e.querySelectorAll('.cal-v-int.i-intense').length, e.querySelectorAll('.cal-v-com').length]; }),
-      'vue : durée sous le libellé, point de l\'intensité, pas de picto sans commentaire'));
+    pb.push(egal(['SeuilCourse à pied · 1 h · 11 km', 1, 0], await p.evaluate(() => { const e = document.querySelector('[data-drag="se-r"]'); return [e.textContent.replace(/\s+/g, ' ').trim(), e.querySelectorAll('.cal-v-int.i-intense').length, e.querySelectorAll('.cal-v-com').length]; }),
+      'vue en carte : le nom, dessous le type, la durée et la distance ; point de l\'intensité, pas de picto sans commentaire'));
     await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance .cal-retour');
     pb.push(egal([true, 'Retour sur la séance'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.textContent('.cal-retour .mrt-section-titre')], 'fenêtre : « Retour sur la séance », ressenti caché tant qu\'elle n\'est pas faite'));
     await p.check('.cal-seance [name="faite"]');
@@ -2904,7 +2916,7 @@ const CONTROLES = {
       reste: (document.querySelector('.ps-ia-reste') || {}).textContent || null,
       msg: (document.querySelector('.ps-ia-msg') || {}).textContent || null, aide: (document.querySelector('.ps-ia-aide') || {}).textContent || null,
       props: document.querySelectorAll('.ps-bloc .cal-v-prop').length, lignes: document.querySelectorAll('.ps-prop-liste li').length,
-      premiere: ((document.querySelector('.ps-bloc .cal-m-case[data-jour="2026-10-20"] .cal-v-prop') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
+      premiere: ((document.querySelector('.ps-bloc .cal-s-ligne[data-jour-ligne="2026-10-20"] .cal-v-prop') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
       reco: (document.querySelector('.ps-reco') || {}).textContent || null, autres: document.querySelectorAll('.ps-prop-expl, .ps-ia-mention, .ps-prop-sem').length,
       actions: [...document.querySelectorAll('.ps-prop-actions button')].map(b => b.textContent)
     }));
@@ -2921,8 +2933,12 @@ const CONTROLES = {
     await p.waitForSelector('.ps-proposition');
     r = await lire(p);
     const envoi = d.appels[0];
-    pb.push(egal([12, 12, 'Footing · 45 min', 'Entretien : deux footings et une sortie longue par semaine.', 0, ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
-      [r.props, r.lignes, r.premiere, r.reco, r.autres, r.actions], 'proposition en attente : une recommandation, 12 séances dans la grille du bloc, quatre boutons'));
+    pb.push(egal(true, await p.evaluate(() => document.querySelector('.ps-prop-repli').open), 'bandeau : la proposition ouverte juste après la demande'));
+    await p.reload(); await p.waitForSelector('.ps-proposition');
+    pb.push(egal([false, 'Voir'], await p.evaluate(() => [document.querySelector('.ps-prop-repli').open, document.querySelector('.ps-prop-voir').textContent]), 'bandeau : au retour sur la page, la proposition repliée sur une ligne, avec « Voir »'));
+    await p.click('.ps-prop-repli > summary');
+    pb.push(egal([3, 12, 'Footing · 45 min', 'Entretien : deux footings et une sortie longue par semaine.', 0, ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
+      [r.props, r.lignes, r.premiere, r.reco, r.autres, r.actions], 'proposition en attente : une recommandation, bandeau (les 12 séances dans la liste, les 3 de la semaine dans « Cette semaine »), quatre boutons'));
     pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, [['mardi', 'samedi'], ['jeudi']], ['allégé (avant une course Préparatoire)']],
       [envoi.essai, envoi.contexte.bloc.debut, envoi.contexte.bloc.fin, envoi.contexte.semaines[0].phase, /Trail du Lac|Trail des Gorges|Corrida/.test(JSON.stringify(envoi)), JSON.stringify(envoi).includes(db.profils[0].prenom || '§§'),
         [envoi.contexte.profil.jours_possibles_course, envoi.contexte.profil.jours_possibles_renforcement], envoi.contexte.semaines[3].jours[3].reperes],

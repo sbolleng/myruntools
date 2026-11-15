@@ -32,7 +32,7 @@
   function iaHtml(ctx, lundi, alertes) {
     // Les alertes (seulement s'il y en a) sont dans le bloc de la recommandation ; sans proposition, le bloc ne les porte que seules.
     const listeAl = alertes && alertes.length ? '<ul class="ps-alertes">' + alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('') + '</ul>' : '';
-    const blocAl = listeAl ? '<section class="ps-proposition ps-seul"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '</section>' : '';
+    const blocAl = listeAl ? '<section class="ps-proposition ps-seul">' + listeAl + '</section>' : '';
     if (ctx.lectureSeule || !IA() || ctx.profil === undefined) return blocAl;
     const etat = ctx.ia || {}, manque = manquants(ctx.profil);
     if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
@@ -47,8 +47,11 @@
       : '<button type="button" class="mrt-btn is-principal" data-ia="tout">Tout accepter</button><button type="button" class="mrt-btn" data-ia="choisir">Choisir semaine par semaine</button>' +
         '<button type="button" class="mrt-btn" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>' + (etat.encours ? 'Proposition en cours…' : 'Refaire') + '</button><button type="button" class="mrt-btn" data-ia="abandonner">Abandonner</button>';
     // Téléphone : la grille ne montre que des repères ; la liste des séances proposées s'ajoute sous la recommandation.
-    return '<section class="ps-proposition"><h3 class="ps-libelle">Recommandation de MyRunTools</h3>' + listeAl + '<p class="ps-reco">' + esc(IA().recommandationDe(prop.reponse)) + '</p>' +
-      '<ul class="ps-prop-liste">' + seances.map(ligneSeance).join('') + '</ul>' + choixSem + '<div class="ps-prop-actions">' + actions + '</div>' + msg + '</section>';
+    // Bandeau : les alertes, puis la proposition repliée sur une ligne (« Nouvelle proposition de MyRunTools : … Voir ») ; ouverte d'office
+    // juste après une demande (Proposer, Refaire, Réadaptation, Choisir).
+    const reco = IA().recommandationDe(prop.reponse);
+    return '<section class="ps-proposition">' + listeAl + '<details class="mrt-deroule ps-prop-repli"' + (etat.ouvert || etat.choix ? ' open' : '') + '><summary><span class="ps-prop-resume"><b>Nouvelle proposition de MyRunTools</b> : <span class="ps-reco">' + esc(reco) + '</span></span><span class="mrt-lien ps-prop-voir">Voir</span></summary><div>' +
+      '<ul class="ps-prop-liste">' + seances.map(ligneSeance).join('') + '</ul>' + choixSem + '<div class="ps-prop-actions">' + actions + '</div></div></details>' + msg + '</section>';
   }
   // Dans une case de la grille : les repères du jour (allégé, repos, récupération) et les séances proposées, en attente.
   function caseHtml(ctx, ps, j) {
@@ -112,7 +115,10 @@
       const dans = semainesEntre(auj, prochaine.jourJ);
       // Le nom de la course visée en titre ; dessous, petit : la date (l'année seulement si ce n'est pas la présente) et le temps restant.
       const dateVisee = window.mrtFormat.date(prochaine.jourJ, { semaine: true, annee: parse(prochaine.jourJ).getFullYear() !== new Date().getFullYear() });
-      let h = '<div class="ps-cadre">' + profil + '<h2 class="ps-titre">' + nom(prochaine.course) + '</h2><p class="ps-sous">' + dateVisee + ' · dans ' + dans + ' sem.</p>';
+      // (1) le nom de l'Objectif, sa date et « J-112 » ; (18) où en est la semaine : « Semaine 3 sur 16 · Base ».
+      const jours = Math.round((parse(prochaine.jourJ) - parse(auj)) / 86400000), place = window.mrtSemaineDuPlan(ps, lundi);
+      let h = '<div class="ps-cadre">' + profil + '<h2 class="ps-titre">' + nom(prochaine.course) + '</h2><p class="ps-sous">' + dateVisee + ' · J-' + jours + '</p>' +
+        (place ? '<p class="ps-place">' + place + '</p>' : '');
 
       // (3) Frise, à deux niveaux : « Saison » (jusqu'à l'Objectif, par défaut) ou « Tout » (jusqu'à la fin de la dernière récupération).
       const derniere = ps.saisons[ps.saisons.length - 1], recupDer = ps.reperes.find(r => r.course === derniere.course);
@@ -166,14 +172,19 @@
         z.querySelector('.ps-frise-corps').innerHTML = friseCorps(m);
         z.querySelectorAll('[data-frise]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.frise === m)));
       };
-      h += '<div class="ps-frise-zone" data-plein-cible><div class="ps-frise-barre"><div class="ps-coches">' +
+      // (3) La frise, fine ; sur téléphone, repliée sous « Saison » pour que la semaine en cours apparaisse sans défiler.
+      if (mq.matches) h += '<details class="mrt-deroule ps-saison-repli"><summary>' + window.mrtIcone.chevron + 'Saison</summary><div>';
+      h += '<div class="ps-frise-zone ps-frise-fine" data-plein-cible><div class="ps-frise-barre"><div class="ps-coches">' +
         [['saison', 'En cours'], ['tout', 'Tout']].map(x => '<button type="button" class="mrt-pastille" data-frise="' + x[0] + '" aria-pressed="' + (mode === x[0]) + '">' + x[1] + '</button>').join('') + '</div>' +
         '<span class="ps-frise-ronds">' + (ctx.lectureSeule ? '' : '<button type="button" class="mrt-rond" data-preparer="' + esc(prochaine.course.id) + '" aria-label="Régler les phases" title="Régler les phases">' + P.REGLAGES + '</button>') + window.mrtPleinEcran.bouton() + '</span></div><div class="ps-frise-corps">' + friseCorps(mode) + '</div></div>';
 
-      // Le bloc en cours : la recommandation (avec les alertes, s'il y en a) et la grille des 4 semaines à partir de celle-ci, dans la grille
-      // du mois du Calendrier ; dans les cases, les repères et les séances proposées par l'IA, en attente.
+      if (mq.matches) h += '</div></details>';
+      // (9) Le bandeau de l'IA (alertes, proposition repliée) ; (19) cette semaine en cartes, (20) son total ; (22) le lien vers le Calendrier.
+      // Le détail des semaines est dans le Calendrier (vue Semaine) : plus de grille du bloc ici.
+      const total = window.mrtTotalSemaine(ctx, lundi);
       h += '<section class="ps-bloc">' + iaHtml(ctx, lundi, ps.alertes) +
-        '<div class="ps-grille">' + window.mrtGrilleMois(ctx, lundi, addDays(lundi, 7 * BLOC - 1), { ps, plus: j => caseHtml(ctx, ps, j) }) + '</div>';
+        '<div class="ps-semaine"><div class="ps-semaine-tete"><h3 class="ps-libelle">Cette semaine</h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
+        window.mrtCetteSemaine(ctx, lundi, { plus: j => caseHtml(ctx, ps, j) }) + '<a class="mrt-lien ps-vers-cal" href="calendrier.html">Voir les semaines dans le Calendrier →</a></div>';
       root.innerHTML = h + historiqueHtml(ctx) + '</section>' + coursesHtml(ctx) + suggestionHtml(ctx, prochaine.course) + '</div>';
     }
 
@@ -184,7 +195,7 @@
       ctx.ia = { encours: true, readaptation: true }; dessiner();
       const r = await IA().readapter(ctx);
       await IA().lirePropositions(ctx);
-      ctx.ia = { message: r.reserve ? null : r.message || null }; dessiner();
+      ctx.ia = { message: r.reserve ? null : r.message || null, ouvert: true }; dessiner();
     };
     ctx.ia = {};
     root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
@@ -221,8 +232,8 @@
         if (act === 'refaire' && prop) await IA().abandonner(prop);
         const r = await IA().proposer(ctx, lundi, act);
         await IA().lirePropositions(ctx);
-        ctx.ia = { message: r.message || null }; dessiner();
-      } else if (act === 'choisir' || act === 'sans-choix') { ctx.ia = { choix: act === 'choisir' }; dessiner(); }
+        ctx.ia = { message: r.message || null, ouvert: true }; dessiner();
+      } else if (act === 'choisir' || act === 'sans-choix') { ctx.ia = { choix: act === 'choisir', ouvert: true }; dessiner(); }
       else if (act === 'tout' || act === 'selection') {
         const tous = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i));
         const lundis = act === 'tout' ? tous : (ctx.ia.semaines || tous);
