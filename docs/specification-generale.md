@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.39 · 13 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.40 · 15 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -97,11 +97,11 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 
 **Ouverture de l'inscription** : un réglage du site (`inscription`) affiche le lien L7 et le formulaire ; il s'active en même temps que la création de comptes dans Supabase, une fois en place la politique de confidentialité, l'anti-robot et un service d'envoi d'e-mails.
 
-**E-mail de confirmation**, en français, au vouvoiement. Objet : « Confirmez votre adresse MyRunTools ». Texte : « Bonjour, pour activer votre compte MyRunTools, confirmez votre adresse : Confirmer mon adresse. Si vous n'avez rien demandé, ignorez cet e-mail : aucun compte ne sera activé. »
+**E-mail de confirmation**, en français, au vouvoiement, au gabarit commun des e-mails ([design](design.md), § 13 ; modèle `supabase/emails/confirmer-inscription.html`). Objet : « Confirmez votre adresse MyRunTools ». Texte : « Bonjour, pour activer votre compte MyRunTools, confirmez votre adresse : », bouton « Confirmer mon adresse », mention « Ce lien ne sert qu'une fois. Si vous n'avez rien demandé, ignorez cet e-mail : aucun compte ne sera activé. »
 
 **Protection contre les essais** : limitation des demandes et des tentatives par Supabase, et contrôle anti-robot (Cloudflare Turnstile ou hCaptcha) sur la page de connexion. Après un changement de mot de passe, les autres appareils sont déconnectés.
 
-**E-mail de réinitialisation**, en français, au vouvoiement. Objet : « Réinitialisation de votre mot de passe MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe : Choisir un mot de passe. Ce lien ne sert qu'une fois et expire dans une heure. Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe reste inchangé. » **E-mail d'alerte** après chaque changement : « Le mot de passe de votre compte MyRunTools vient d'être modifié. Si ce n'est pas vous, répondez à ce message. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
+**E-mail de réinitialisation**, en français, au vouvoiement, au même gabarit (modèle `supabase/emails/reinitialiser-mot-de-passe.html`, bouton « Choisir un mot de passe »). Objet : « Réinitialisation de votre mot de passe MyRunTools ». Texte : « Bonjour, cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe : Choisir un mot de passe. Ce lien ne sert qu'une fois et expire dans une heure. Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe reste inchangé. » **E-mail d'alerte** après chaque changement : « Le mot de passe de votre compte MyRunTools vient d'être modifié. Si ce n'est pas vous, répondez à ce message. » Expéditeur : une adresse du domaine de l'application, envoyée par un service d'envoi d'e-mails branché sur la base.
 
 **Affichage d'une page.** Une page privée reste invisible tant que la session n'est pas vérifiée, que le menu (et l'en-tête, s'il y en a un) n'est pas dessiné et que son contenu n'est pas prêt, puis elle apparaît d'un seul coup : l'en-tête et le menu ne s'ajoutent jamais après coup en poussant le contenu vers le bas, sur ordinateur comme sur téléphone. Si un chargement échoue, la page apparaît quand même au bout de quelques secondes.
 
