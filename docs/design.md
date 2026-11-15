@@ -1,6 +1,6 @@
 # Design
 
-Version 0.53 · 12 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.54 · 15 novembre 2026 · [Retour au sommaire](README.md)
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -289,3 +289,18 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Quitter une saisie | **Annuler** ; la confirmation propose **Continuer** (ou **Garder**) et **Abandonner**, jamais deux « Annuler » | |
 
 Colonne « Événement » et colonne « Course » du tableau des Courses : l'événement est l'organisation (Trail du Lac), la course l'épreuve (Le Tour du Lac).
+
+## 13. E-mails
+
+Un seul gabarit pour tous les e-mails envoyés par la base (confirmation de l'adresse, réinitialisation du mot de passe, et tout nouvel e-mail) ; modèles prêts à coller : `supabase/emails/`.
+
+| Élément | Règle |
+| --- | --- |
+| Fond | Gris très clair `#f3f5f9`, marge de 32 px autour du cadre (16 px sur les côtés) |
+| Cadre | Blanc, 480 px de large au plus (toute la largeur sur téléphone), bordure fine `#dde3ee`, coins de 8 px, marges intérieures de 32 px |
+| Titre | « MyRunTools », 22 px, gras, Fond `#060b14` |
+| Filet | Sous le titre : 40 × 3 px, Accent `#ffb700` |
+| Texte | « Bonjour, » puis la phrase de l'e-mail : 15 px, interligne 22 px, `#1c2433` |
+| Bouton | Le seul lien de l'e-mail : fond `#060b14`, texte Accent `#ffb700` en gras 15 px, coins de 6 px, 12 × 24 px de marge ; un verbe à la première personne (« Confirmer mon adresse », « Choisir un mot de passe ») |
+| Mention | Sous le bouton : durée du lien et « Si vous n'avez rien demandé, ignorez cet e-mail… », 13 px, `#5b6678` |
+| Technique | Tableaux (`role="presentation"`), styles en ligne, police Arial : lisible dans toutes les messageries ; `noindex` ; vouvoiement |
