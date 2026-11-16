@@ -45,6 +45,20 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 - **Source de référence** : la calculette « DEJ » (fichier Excel, versions journée et semaine), [lien de téléchargement](https://bonus-liv.re/a/tFHEPC) (il renvoie vers le fichier `qrcode1-calculettedej.xlsx`). Concordance vérifiée le 16 nov. 2026 : même formule de Black et al., mêmes coefficients d'activité (1,2 · 1,3 · 1,45 · 1,6), même dépense MET × poids × heures, mêmes MET pour les 14 sports repris. La calculette ne donne que la dépense totale : protéines, glucides, lipides et phases viennent d'ailleurs ; elle compte la course avec ses MET fixes, Nutrition avec l'équation de l'ACSM (§ ci-dessus).
 - Les valeurs sont des **repères** : la page reste épurée, sans mention ni explication du calcul (choix du 6 nov. 2026).
 
+### 3.1 Méthodes de calcul et sources
+
+| Calcul | Méthode | Source |
+| --- | --- | --- |
+| Métabolisme de base (dépense au repos sur 24 h) | Formule de Black et al. : coefficient (1,083 homme, 0,963 femme) × poids^0,48 × (taille en m)^0,5 × âge^−0,13, en mégajoules, × 1000 ÷ 4,1855 pour des kcal | Black A. E., Coward W. A., Cole T. J., Prentice A. M., « Human energy expenditure in affluent societies: an analysis of 574 doubly-labelled water measurements », *European Journal of Clinical Nutrition*, 1996, 50, p. 72-92 ; formule retenue en France dans les références nutritionnelles (ANSES) |
+| Activité hors sport | Métabolisme de base × 1,2 (sédentaire), 1,3 (peu actif), 1,45 (actif), 1,6 (très actif) | Calculette de référence (ci-dessous) ; même principe que le « niveau d'activité physique » (NAP) des références nutritionnelles |
+| Dépense d'un sport | MET × poids (kg) × durée (h) : un MET vaut environ 1 kcal par kg et par heure, la dépense au repos | MET des sports : *Compendium of Physical Activities* (Ainsworth et al.), repris par la calculette de référence |
+| Dépense d'une séance de course | MET = (0,2 × vitesse en m/min + 3,5) ÷ 3,5 ; vitesse = distance ÷ durée, sinon 65, 75 ou 85 % de la VMA (facile, modérée, intense), sinon 9,5 km/h | Équation de course de l'ACSM (*ACSM's Guidelines for Exercise Testing and Prescription*, American College of Sports Medicine) |
+| Séance de renforcement | 3 MET | *Compendium of Physical Activities* (musculation, effort modéré), comme la calculette |
+| Protéines | 1,4 à 2 g par kg de poids | Position de l'International Society of Sports Nutrition sur les protéines (Jäger et al., 2017) |
+| Glucides et lipides | Part des calories selon la phase (tableau du § 3) ; 4 kcal par g de glucide, 9 kcal par g de lipide | Repères courants de la nutrition du sportif, repris de la première calculatrice ; source précise à confirmer (todo « Partenariat nutrition ») |
+
+**Calculette de référence** : « DEJ » (dépense énergétique journalière), fichier Excel en deux versions, journée et semaine, [lien de téléchargement](https://bonus-liv.re/a/tFHEPC). Elle calcule la dépense totale seulement (métabolisme de base, activité hors sport, sports), pas les macros ni les phases.
+
 ## 4. Plan de page
 
 Trois cartes, dans le cadre commun (`.card`) ; titres de cadre communs (0,85 rem, 600, Texte, casse normale ; [design](design.md), § 1), sous-titres en libellé ; tailles de l'échelle commune (§ 3), sauf le besoin (5), grand chiffre d'un résultat (1,5 rem). Page épurée : pas de texte d'explication. Retenu le 6 nov. 2026, d'après la carte « Mon besoin du jour » et les anneaux d'une première version de l'outil.
