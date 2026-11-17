@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.40 · 15 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.41 · 17 novembre 2026 · [Retour au sommaire](README.md) · profil express en quatre questions (le repère d'allure passe dans le parcours de Mon plan)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -340,7 +340,7 @@ Résultats attendus :
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
 - Compte neuf (prénom « Essai », aucune course, profil vide) : en-tête « Bienvenue, Essai » et « Ajoute une course pour fixer ton cap. », sans indicateurs ni compteur ; les Premiers pas seuls ; étapes « Compléter » et « Ajouter » ; barre fine du Palmarès : « Bienvenue, Essai ».
-- Profil express : « Sexe · 1 sur 5 », « Date de naissance · 2 sur 5 », « Poids · 3 sur 5 », « Taille · 4 sur 5 », « Repère d'allure · 5 sur 5 », sans retour à la liste ; Femme, 12 mai 1990, 62, 168, « Je ne sais pas » : cinq écritures (quatre dans `profils`, une avec le niveau), feuille fermée, étape cochée. Sexe et naissance déjà connus : reprise à « Poids · 3 sur 5 » ; la croix ferme, l'étape reste à faire. « Ajouter » ouvre la fiche d'ajout d'une course. Profil absent de la base : « Enregistrement impossible pour l'instant. », la question reste ouverte.
+- Profil express : « Sexe · 1 sur 4 », « Date de naissance · 2 sur 4 », « Poids · 3 sur 4 », « Taille · 4 sur 4 », sans retour à la liste ; Femme, 12 mai 1990, 62, 168 : quatre écritures dans `profils`, feuille fermée, étape cochée. Sexe et naissance déjà connus : reprise à « Poids · 3 sur 4 » ; la croix ferme, l'étape reste à faire. « Ajouter » ouvre la fiche d'ajout d'une course. Profil absent de la base : « Enregistrement impossible pour l'instant. », la question reste ouverte.
 - Découvrir MyRunTools (compte neuf) : sous les Premiers pas ; Courses, Saison, Mon profil, Mon plan, Calendrier, puis « Options » : Palmarès, Nutrition ; cochées : celles du menu par défaut ; Nutrition cochée : son onglet arrive à sa place (après Calendrier) ; Palmarès décoché : son onglet disparaît ; « J'ai compris » : enregistré, le bloc disparaît ; « Revoir la découverte » dans les Préférences le ramène.
 - Des courses, profil incomplet : seule l'étape du profil reste ; des courses et le profil express rempli : plus de Premiers pas, « Cap sur ».
 - Ligne sous le compteur, la page En un coup d'œil sans son bloc Prochaine course : « prochaine course · Trail du Lac · J-26 » ; avec le bloc : pas de ligne.

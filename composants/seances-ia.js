@@ -62,7 +62,8 @@
       objectif_de_saison: sx ? { date: sx.jourJ, format: sx.course.formatLibelle || sx.course.format, distance_km: Number(sx.course.distance) || null, dplus_m: Number(sx.course.dplus) || null } : null,
       semaines,
       profil: {
-        je_cours_depuis: LIBELLES.anciennete[pr.anciennete] || null, distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
+        niveau: (window.mrtProfil && window.mrtProfil.libelleDe('niveau', pr.niveau)) || null, je_cours_depuis: LIBELLES.anciennete[pr.anciennete] || null,
+        antecedents_blessures: (window.mrtProfil && window.mrtProfil.libelleDe('antecedents', pr.antecedents)) || null, distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
         plus_longue_sortie_recente: LIBELLES.sortie_tranche[pr.sortie_tranche] || null,
         jours_possibles_course: joursDe(pr, 'jours_course').map(nomJour), jours_possibles_renforcement: joursDe(pr, 'jours_renfo').map(nomJour),
         sorties_course_par_semaine: pr.nb_sorties || null, renforcements_par_semaine: pr.nb_renfo || 0,
@@ -70,7 +71,7 @@
         consigne_semaine: 'Au plus ' + (pr.nb_sorties || 0) + ' sorties de course par semaine, seulement les jours possibles pour courir ; au plus ' + (pr.nb_renfo || 0) +
           ' renforcements, seulement les jours possibles pour le renforcement ; course et renforcement peuvent tomber le même jour : adapte alors le volume.',
         seance_max_min: pr.seance_max_min && pr.seance_max_min < 1440 ? pr.seance_max_min : null,
-        repere_allure: pr.allure_type === 'vma' ? 'VMA ' + pr.vma + ' km/h' : pr.allure_type === '10km' ? '10 km en ' + temps(pr.temps_10km_s) : pr.allure_type === 'semi' ? 'semi-marathon en ' + temps(pr.temps_semi_s) : 'inconnu (rester prudent)',
+        repere_allure: pr.allure_type === 'vma' ? 'VMA ' + pr.vma + ' km/h' : pr.allure_type === '10km' ? '10 km en ' + temps(pr.temps_10km_s) : pr.allure_type === 'semi' ? 'semi-marathon en ' + temps(pr.temps_semi_s) : pr.allure_type === 'marathon' ? 'marathon en ' + temps(pr.temps_marathon_s) : 'inconnu (rester prudent)',
         terrains: LIBELLES.terrain[pr.terrain] || null, niveau_renforcement: pr.renfo_niveau || null, fc_max: pr.fc_max == null ? null : pr.fc_max, points_fragiles: pr.fragiles || null
       },
       historique,

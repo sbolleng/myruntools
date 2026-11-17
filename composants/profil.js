@@ -29,15 +29,22 @@
   const ECHELLES = {
     sexe: [['femme', 'Femme'], ['homme', 'Homme']],
     anciennete: [['debut', 'Je débute'], ['1-3', '1 à 3 ans'], ['3-6', '3 à 6 ans'], ['6-10', '6 à 10 ans'], ['10+', 'Plus de 10 ans']],
+    // Niveau (remplace « Je cours depuis ») et antécédents de blessures : chaque choix a sa ligne (Préparation, § 5.0).
+    niveau: [['debutant', 'Débutant', 'Tu cours depuis peu, jusqu\'à 10 km.'], ['intermediaire', 'Intermédiaire', 'Tu cours chaque semaine, jusqu\'au semi ou à un trail court.'],
+      ['confirme', 'Confirmé', 'Marathon ou trails de plus de 40 km, entraînement suivi.'], ['expert', 'Expert', 'Entraînement structuré depuis des années, tu vises la performance.']],
+    antecedents: [['rares', 'Rarement ou jamais'], ['legeres', 'Légères, ou une grave guérie', 'Petites blessures de temps en temps, ou une grave aujourd\'hui guérie.'],
+      ['frequentes', 'Fréquentes ou récentes', 'Blessures fréquentes, gêne qui dure, ou blessure grave récente.'], ['non_dit', 'Je préfère ne rien dire']],
     volume_tranche: [['inconnu', 'Aucune idée'], ['0-20', '0 à 20 km'], ['20-40', '20 à 40 km'], ['40-60', '40 à 60 km'], ['60-80', '60 à 80 km'], ['80+', 'Plus de 80 km']],
     sortie_tranche: [['-1h', 'Moins de 1 h'], ['1h-1h30', '1 h à 1 h 30'], ['1h30-2h', '1 h 30 à 2 h'], ['2-3h', '2 à 3 h'], ['3h+', 'Plus de 3 h']],
     seance_max_min: [[45, '45 min'], [60, '1 h'], [90, '1 h 30'], [120, '2 h'], [1440, 'Sans limite']],
     terrain: [['plat', 'Pas de dénivelé'], ['cotes', 'Petites côtes (moins de 50 m de D+)'], ['vallonne', 'Vallonné (50 à 500 m de D+)'], ['montagne', 'Montagne (plus de 500 m de D+)']],
     renfo_niveau: [['debutant', 'Débutant'], ['intermediaire', 'Intermédiaire'], ['confirme', 'Confirmé'], ['expert', 'Expert']],
-    allure_type: [['vma', 'VMA'], ['10km', 'Temps sur 10 km'], ['semi', 'Temps sur semi-marathon'], ['inconnu', 'Je ne sais pas']]
+    allure_type: [['vma', 'VMA'], ['10km', 'Temps sur 10 km'], ['semi', 'Temps sur semi-marathon'], ['marathon', 'Temps sur marathon'], ['inconnu', 'Je ne sais pas']]
   };
   const activites = () => Object.entries((window.mrtBesoin && window.mrtBesoin.ACTIVITES) || {}).map(([k, a]) => [k, a.libelle]);
   const echelle = cle => (cle === 'activite' ? activites() : ECHELLES[cle] || []);
+  // Un choix et, s'il en a une, sa ligne de description (niveau, antécédents).
+  const choixTexte = (cle, k, lib) => { const d = (echelle(cle).find(x => String(x[0]) === String(k)) || [])[2]; return d ? '<span class="ps-choix-t">' + esc(lib) + '<small>' + esc(d) + '</small></span>' : esc(lib); };
   const libelleDe = (cle, v) => (echelle(cle).find(x => String(x[0]) === String(v)) || [])[1] || null;
   const JOURS_COURTS = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
   const JOURS_LONGS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
@@ -46,9 +53,9 @@
   const listeJours = l => l.map(n => JOURS_COURTS[n - 1].toLowerCase()).join(', ');
 
   // Repère d'allure : complet s'il est « je ne sais pas », ou si la valeur de son type est là.
-  const allureFaite = pr => !!pr && (pr.allure_type === 'inconnu' || (pr.allure_type === 'vma' && pr.vma != null) || (pr.allure_type === '10km' && pr.temps_10km_s != null) || (pr.allure_type === 'semi' && pr.temps_semi_s != null));
+  const allureFaite = pr => !!pr && (pr.allure_type === 'inconnu' || (pr.allure_type === 'vma' && pr.vma != null) || (pr.allure_type === '10km' && pr.temps_10km_s != null) || (pr.allure_type === 'semi' && pr.temps_semi_s != null) || (pr.allure_type === 'marathon' && pr.temps_marathon_s != null));
   const resumeAllure = pr => (!allureFaite(pr) ? null : pr.allure_type === 'inconnu' ? 'Je ne sais pas' : pr.allure_type === 'vma' ? 'VMA ' + virgule(pr.vma) + ' km/h' :
-    pr.allure_type === '10km' ? '10 km en ' + enTemps(pr.temps_10km_s) : 'Semi en ' + enTemps(pr.temps_semi_s));
+    pr.allure_type === '10km' ? '10 km en ' + enTemps(pr.temps_10km_s) : pr.allure_type === 'marathon' ? 'Marathon en ' + enTemps(pr.temps_marathon_s) : 'Semi en ' + enTemps(pr.temps_semi_s));
   // Ma semaine : course complète avec au moins un jour et un nombre de séances ; renforcement, facultatif.
   const resumeCourse = pr => (!joursDe(pr, 'jours_course').length || !pr.nb_sorties ? null :
     listeJours(joursDe(pr, 'jours_course')) + ' · ' + seances(pr.nb_sorties) + (pr.jour_long ? ', longue le ' + JOURS_LONGS[pr.jour_long - 1] : ''));
@@ -75,7 +82,7 @@
       ['activite', 'Activité hors sport', m => (libelleDe('activite', m.activite) || '').split(' · ')[0] || null, true, 'choix'],
       ['pointure', 'Pointure', m => unite('pointure', m.pointure), false, 'nombre']]],
     ['niveau', 'Mon niveau', [
-      ['anciennete', 'Je cours depuis', (m, e) => libelleDe('anciennete', e.anciennete), true, 'choix'],
+      ['niveau', 'Niveau', (m, e) => libelleDe('niveau', e.niveau), true, 'choix'],
       ['volume_tranche', 'Distance par semaine', (m, e) => libelleDe('volume_tranche', e.volume_tranche), true, 'choix'],
       ['sortie_tranche', 'Plus longue sortie récente', (m, e) => libelleDe('sortie_tranche', e.sortie_tranche), true, 'choix'],
       ['allure', 'Repère d\'allure', (m, e) => resumeAllure(e), true, 'allure'],
@@ -88,6 +95,7 @@
     ['sante', 'Santé', [
       ['fc_max', 'FC max', (m, e) => unite('fc_max', e.fc_max), false, 'nombre'],
       ['fc_repos', 'FC de repos', m => unite('fc_repos', m.fc_repos), false, 'nombre'],
+      ['antecedents', 'Antécédents de blessures', (m, e) => libelleDe('antecedents', e.antecedents), false, 'choix'],
       ['fragiles', 'Points fragiles', (m, e) => e.fragiles || null, false, 'texte'],
       ['blessure', 'Blessure en cours', (m, e) => (e.blessure ? e.blessure + (e.blessure_debut ? ', depuis le ' + window.mrtFormat.date(e.blessure_debut, { annee: false }) : '') : null), false, 'blessure']]]
   ];
@@ -95,26 +103,33 @@
   const ligneDe = cle => LIGNES.find(l => l[0] === cle);
   const TABLE = { prenom: 'mesures', nom: 'mesures', sexe: 'mesures', naissance: 'mesures', activite: 'mesures', poids: 'mesures', taille: 'mesures', pointure: 'mesures', fc_repos: 'mesures' };
   // Questions indispensables pour que l'IA propose des séances (Mon plan) : leur nom, dans l'ordre.
-  const IA = [['anciennete', 'je cours depuis'], ['volume_tranche', 'distance par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
+  const IA = [['niveau', 'niveau'], ['volume_tranche', 'distance par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
   // Profil express (premiers pas d'un nouveau compte) : ce qui sert tout de suite à Nutrition et à Mon plan.
-  const EXPRESS = ['sexe', 'naissance', 'poids', 'taille', 'allure'];
+  // Depuis le 17 nov. 2026, le repère d'allure se demande dans le parcours de Mon plan (Préparation, § 5.0).
+  const EXPRESS = ['sexe', 'naissance', 'poids', 'taille'];
   const faiteDe = (k, m, e) => !!ligneDe(k)[2](m || {}, e || {});
   const expressFait = (m, e) => EXPRESS.every(k => faiteDe(k, m, e));
   const manquants = e => IA.filter(([k]) => !ligneDe(k)[2]({}, e || {})).map(x => x[1]);
   // Toutes les questions obligatoires qui manquent (état de la page).
   const tousManquants = (m, e) => LIGNES.filter(l => l[3] && !l[2](m || {}, e || {})).map(l => (l[0] === 'semaine' ? 'ma semaine' : l[1].toLowerCase()));
 
+  const CHAMP_TEMPS = { '10km': 'temps_10km_s', semi: 'temps_semi_s', marathon: 'temps_marathon_s' };
+  const NOM_TEMPS = { '10km': '10 km', semi: 'Semi', marathon: 'Marathon' };
+  // Bornes du temps de chaque distance, en secondes, et le message d'un temps refusé.
+  const BORNES_TEMPS = { '10km': [1200, 7200, 'Le temps sur 10 km s\'écrit 45:30 (entre 20:00 et 2:00:00).'], semi: [3000, 14400, 'Le temps sur semi s\'écrit 1:42:00 (entre 50:00 et 4:00:00).'],
+    marathon: [6600, 28800, 'Le temps sur marathon s\'écrit 3:45:00 (entre 1:50:00 et 8:00:00).'] };
+  const repereDe = sg => ({ allure_type: sg.type, [CHAMP_TEMPS[sg.type]]: sg.s });
   // Repère tiré du Palmarès : la dernière course courue sur 10 km ou semi-marathon (route), de moins de 12 mois, avec un temps.
   function duPalmares(etat) {
     const auj = new Date(), il12 = iso(new Date(auj.getFullYear() - 1, auj.getMonth(), auj.getDate()));
-    const c = (etat.courses || []).filter(x => x.etat === 'courue' && !x.dnf && Number(x.temps) > 0 && ['route_10km', 'route_semi'].includes(x.format) && x.date && x.date >= il12 && x.date <= iso(auj))
+    const c = (etat.courses || []).filter(x => x.etat === 'courue' && !x.dnf && Number(x.temps) > 0 && ['route_10km', 'route_semi', 'route_marathon'].includes(x.format) && x.date && x.date >= il12 && x.date <= iso(auj))
       .sort((a, b) => (a.date < b.date ? 1 : -1))[0];
     if (!c) return null;
-    const type = c.format === 'route_10km' ? '10km' : 'semi', e = etat.entrainement || {};
-    if (e.allure_type === type && Number(type === '10km' ? e.temps_10km_s : e.temps_semi_s) === Number(c.temps)) return null;
+    const type = c.format === 'route_10km' ? '10km' : c.format === 'route_marathon' ? 'marathon' : 'semi', e = etat.entrainement || {};
+    if (e.allure_type === type && Number(e[CHAMP_TEMPS[type]]) === Number(c.temps)) return null;
     return { type, s: Number(c.temps), course: c };
   }
-  const suggestionHtml = sg => '<div class="mp-palmares"><span>Dans ton Palmarès : <b>' + (sg.type === '10km' ? '10 km' : 'Semi') + ' en ' + enTemps(sg.s) + '</b> · ' + esc(sg.course.course) + ', ' +
+  const suggestionHtml = sg => '<div class="mp-palmares"><span>Dans ton Palmarès : <b>' + NOM_TEMPS[sg.type] + ' en ' + enTemps(sg.s) + '</b> · ' + esc(sg.course.course) + ', ' +
     window.mrtFormat.date(sg.course.date, { semaine: true }) + '</span><button type="button" class="mrt-btn" data-reprendre>Reprendre</button></div>';
 
   // La liste : un titre de section commun par section, le compte des obligatoires à droite ; chaque ligne ouvre sa question.
@@ -208,7 +223,7 @@
     function choix(cle, titre) {
       versQuestion();
       corps.innerHTML = barre(titre, true) + '<div class="ps-groupe-l">' + echelle(cle).map(([k, lib]) =>
-        '<button type="button" class="ps-choix' + (String((TABLE[cle] === 'mesures' ? m() : e())[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + esc(lib) + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
+        '<button type="button" class="ps-choix' + (String((TABLE[cle] === 'mesures' ? m() : e())[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + choixTexte(cle, k, lib) + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
       corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', () =>
         garder(TABLE[cle] || 'entrainement', { [cle]: cle === 'seance_max_min' ? Number(b.dataset.val) : b.dataset.val })));
     }
@@ -278,7 +293,7 @@
       versQuestion();
       const t = type || e().allure_type;
       const saisie = t === 'vma' ? ['VMA (km/h)', virgule(e().vma), 'ex. 15,5', 'decimal'] : t === '10km' ? ['Temps sur 10 km', enTemps(e().temps_10km_s), 'ex. 45:30', 'text'] :
-        t === 'semi' ? ['Temps sur semi-marathon', enTemps(e().temps_semi_s), 'ex. 1:42:00', 'text'] : null;
+        t === 'semi' ? ['Temps sur semi-marathon', enTemps(e().temps_semi_s), 'ex. 1:42:00', 'text'] : t === 'marathon' ? ['Temps sur marathon', enTemps(e().temps_marathon_s), 'ex. 3:45:00', 'text'] : null;
       corps.innerHTML = barre('Repère d\'allure', true) + '<div class="ps-groupe-l">' + ECHELLES.allure_type.map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (t === k ? ' is-on' : '') + '" data-type="' + k + '">' + lib + '<i aria-hidden="true">✓</i></button>').join('') + '</div>' +
         (saisie ? '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + saisie[0] + '</span><input class="mrt-champ" name="valeur" inputmode="' + saisie[3] + '" placeholder="' + saisie[2] + '" value="' + esc(saisie[1]) + '"></label>' +
@@ -296,9 +311,9 @@
             if (x === null || Number.isNaN(x) || x < 8 || x > 30) return void (msg().textContent = 'La VMA doit être comprise entre 8 et 30 km/h.');
             garder('entrainement', { allure_type: 'vma', vma: x });
           } else {
-            const x = secondes(f.valeur.value), [a, b2] = t === '10km' ? [1200, 7200] : [3000, 14400];
-            if (x === null || Number.isNaN(x) || x < a || x > b2) return void (msg().textContent = t === '10km' ? 'Le temps sur 10 km s\'écrit 45:30 (entre 20:00 et 2:00:00).' : 'Le temps sur semi s\'écrit 1:42:00 (entre 50:00 et 4:00:00).');
-            garder('entrainement', t === '10km' ? { allure_type: '10km', temps_10km_s: x } : { allure_type: 'semi', temps_semi_s: x });
+            const x = secondes(f.valeur.value), [a, b2, err] = BORNES_TEMPS[t];
+            if (x === null || Number.isNaN(x) || x < a || x > b2) return void (msg().textContent = err);
+            garder('entrainement', { allure_type: t, [CHAMP_TEMPS[t]]: x });
           }
         });
       }
@@ -330,7 +345,7 @@
     }
     corps.addEventListener('click', ev => {
       if (ev.target.closest('[data-fermer]')) return fermer();
-      if (ev.target.closest('[data-reprendre]')) { const sg = duPalmares(etat); if (sg) garder('entrainement', sg.type === '10km' ? { allure_type: '10km', temps_10km_s: sg.s } : { allure_type: 'semi', temps_semi_s: sg.s }); return; }
+      if (ev.target.closest('[data-reprendre]')) { const sg = duPalmares(etat); if (sg) garder('entrainement', repereDe(sg)); return; }
       const q = ev.target.closest('[data-q]');
       if (!q) return;
       const k = q.dataset.q;
@@ -354,7 +369,7 @@
     el.addEventListener('click', async ev => {
       if (ev.target.closest('[data-reprendre]')) {
         const sg = duPalmares(etat);
-        if (sg && await ranger(etat, 'entrainement', sg.type === '10km' ? { allure_type: '10km', temps_10km_s: sg.s } : { allure_type: 'semi', temps_semi_s: sg.s })) dessiner();
+        if (sg && await ranger(etat, 'entrainement', repereDe(sg))) dessiner();
         else if (sg) el.querySelector('.mp-msg').textContent = 'Enregistrement impossible pour l\'instant.';
         return;
       }
@@ -365,5 +380,7 @@
     if (location.hash) { const z = el.querySelector(location.hash); if (z) z.scrollIntoView(); }
   }
 
-  window.mrtProfil = { page, feuille, EXPRESS, expressFait, manquants, tousManquants, duPalmares, ECHELLES, libelleDe };
+  // Pour le parcours de Mon plan (plan-parcours.js) : les mêmes échelles, résumés, contrôles et enregistrements.
+  window.mrtProfil = { page, feuille, EXPRESS, expressFait, manquants, tousManquants, duPalmares, ECHELLES, libelleDe, choixTexte, ranger, lireEntrainement, faiteDe,
+    resumeAllure, resumeCourse, allureFaite, secondes, enTemps, nombre, virgule, CHAMP_TEMPS, NOM_TEMPS, BORNES_TEMPS, repereDe, JOURS_COURTS, JOURS_LONGS, joursDe };
 })();

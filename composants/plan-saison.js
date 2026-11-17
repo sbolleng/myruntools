@@ -103,12 +103,17 @@
     function dessiner() {
       const auj = iso(new Date()), lundi = lundiDe(auj), ps = P.planSaison(ctx);
       const prochaine = ps.saisons.find(x => x.jourJ >= auj);
+      // Le parcours « Construire mon plan » (§ 5.0) : la page elle-même, sans Objectif à venir ou après « + Objectif ».
+      if (!ctx.lectureSeule && window.mrtParcours && (ctx.parcours || !prochaine)) {
+        if (!ctx.parcours) ctx.parcours = window.mrtParcours.nouveau(ctx);
+        return window.mrtParcours.dessiner(root, ctx);
+      }
       // (2) Mon profil et (12) son état : ce qui manque pour proposer des séances.
       const manque = manquants(ctx.profil);
       const profil = ctx.lectureSeule ? '' : '<div class="ps-profil-haut"><span class="ps-profil-etat' + (manque.length ? '' : ' is-complet') + '">' +
-        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-profil>Mon profil</button></div>';
+        (ctx.profil === undefined ? '' : manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</span><button type="button" class="mrt-btn" data-parcours>+ Objectif</button><button type="button" class="mrt-btn" data-profil>Mon profil</button></div>';
       if (!prochaine) {
-        root.innerHTML = '<div class="ps-cadre">' + profil + '<p class="ps-vide">Aucun Objectif à venir : donne le rôle Objectif à une course confirmée (page Saison) pour construire ta saison.</p>' + coursesHtml(ctx) + '</div>';
+        root.innerHTML = '<div class="ps-cadre"><p class="ps-vide">Aucun Objectif à venir.</p>' + coursesHtml(ctx) + '</div>';
         return;
       }
       // (1) Saison visée.
@@ -189,6 +194,21 @@
     }
 
     ctx.redessiner = dessiner;
+    // Proposer (ou refaire) les séances du bloc ; aussi juste après « Construire mon plan » (§ 5.0), si le profil est complet
+    // et qu'il reste des propositions ce mois-ci.
+    async function proposer(act, prop) {
+      const lundi = lundiDe(iso(new Date()));
+      ctx.ia = { encours: true }; dessiner();
+      if (act === 'refaire' && prop) await IA().abandonner(prop);
+      const r = await IA().proposer(ctx, lundi, act);
+      await IA().lirePropositions(ctx);
+      ctx.ia = { message: r.message || null, ouvert: true }; dessiner();
+    }
+    ctx.proposer = async () => {
+      if (ctx.lectureSeule || !IA() || ctx.profil === undefined || manquants(ctx.profil).length) return;
+      if (IA().enAttente(ctx, lundiDe(iso(new Date()))) || !IA().restantes(ctx)) return;
+      await proposer('proposer');
+    };
     // Un commentaire sur une séance (fenêtre d'une séance) : la réadaptation se suit dans le bloc de la recommandation.
     ctx.surCommentaire = async () => {
       if (!IA()) return;
@@ -199,7 +219,7 @@
     };
     ctx.ia = {};
     root.__ctx = ctx; // pour le banc d'essai (garde-fous sur les données de la page)
-    root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); const f = e.target.closest('[data-frise]'); if (f && ctx.friseMaj) ctx.friseMaj(f.dataset.frise); });
+    root.addEventListener('click', e => { if (e.target.closest('[data-profil]')) ouvrirProfil(ctx); if (e.target.closest('[data-parcours]') && window.mrtParcours) { ctx.parcours = window.mrtParcours.nouveau(ctx); dessiner(); window.scrollTo(0, 0); } const f = e.target.closest('[data-frise]'); if (f && ctx.friseMaj) ctx.friseMaj(f.dataset.frise); });
     // Passer en Plaisir (une Déconseillée), confirmer une course repérée en Préparatoire, ajouter une course (la fiche du site).
     root.addEventListener('click', async e => {
       const pl = e.target.closest('[data-plaisir]'), cf = e.target.closest('[data-confirmer]'), aj = e.target.closest('[data-ajouter]');
@@ -228,11 +248,7 @@
       const recharger = async () => { await IA().lirePropositions(ctx); await ctx.actualiser(); };
       if (act === 'proposer' || act === 'refaire') {
         if (act === 'refaire' && !(await window.mrtConfirmer({ texte: Number.isFinite(IA().restantes(ctx)) ? 'Refaire la proposition ? Elle compte pour une (' + IA().restantes(ctx) + ' restantes ce mois-ci).' : 'Refaire la proposition ?', action: 'Refaire' }))) return;
-        ctx.ia = { encours: true }; dessiner();
-        if (act === 'refaire' && prop) await IA().abandonner(prop);
-        const r = await IA().proposer(ctx, lundi, act);
-        await IA().lirePropositions(ctx);
-        ctx.ia = { message: r.message || null, ouvert: true }; dessiner();
+        await proposer(act, prop);
       } else if (act === 'choisir' || act === 'sans-choix') { ctx.ia = { choix: act === 'choisir', ouvert: true }; dessiner(); }
       else if (act === 'tout' || act === 'selection') {
         const tous = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i));

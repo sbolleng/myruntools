@@ -236,15 +236,15 @@
 
     reglagesAccueil(page, prefs, enregistrer);
 
-    // ----- Cap : course du titre de l'en-tête, par défaut la plus lointaine.
-    const blocCap = blocs[2], candidates = mrtCoursesCap(page.courses);
+    // ----- Cap : course du titre de l'en-tête, par défaut le dernier Objectif à venir (Préparation, § 5.0) ; seuls les Objectifs se choisissent.
+    const blocCap = blocs[2], candidates = mrtObjectifsCap(page.courses);
     if (!candidates.length) {
-      blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Aucune course à venir.</p>';
+      blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-vide">Aucun Objectif à venir : il se choisit dans Mon plan.</p>';
     } else {
       const plusLointaine = candidates[candidates.length - 1];
       const capActuel = () => (candidates.some(c => c.id === prefs.course_cap) ? prefs.course_cap : '');
       blocCap.querySelector('.pref-corps').innerHTML = '<p class="pref-intro">Course affichée dans l\'en-tête (« Cap sur … »).</p>' +
-        '<select class="mrt-champ pref-select" aria-label="Objectif principal"><option value="">Par défaut : la plus lointaine (' + esc(mrtNomCourse(plusLointaine)) + ')</option>' +
+        '<select class="mrt-champ pref-select" aria-label="Objectif principal"><option value="">Par défaut : le dernier Objectif (' + esc(mrtNomCourse(plusLointaine)) + ')</option>' +
         candidates.map(c => '<option value="' + esc(c.id) + '">' + esc(mrtNomCourse(c)) + ' · ' + esc(dateCourte(c)) + '</option>').join('') + '</select>';
       const select = blocCap.querySelector('select');
       select.value = capActuel();

@@ -114,7 +114,7 @@ function simulerBase(ctx, db) {
       const filtresEq = [...u.searchParams].filter(([k, v]) => /^eq\./.test(v) && k !== 'select');
       const filtresIn = [...u.searchParams].filter(([k, v]) => /^in\.\(/.test(v));
       const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3)) && filtresIn.every(([k, v]) => v.slice(4, -1).split(',').includes(String(x[k])));
-      if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour', 'propositions'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).every(k => ['prepa_semaines', 'statut', 'role'].includes(k)))) {
+      if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour', 'propositions'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).every(k => ['prepa_semaines', 'statut', 'role', 'groupe_options'].includes(k)))) {
         if (!db[tab]) db[tab] = [];
         if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach((l, i) => db[tab].push(Object.assign({ id: 'nouveau-' + db[tab].length + '-' + i, utilisateur: db.profils[0].id }, l)));
         else if (req.method() === 'PATCH') db[tab].filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
@@ -468,25 +468,24 @@ const CONTROLES = {
     pb.push(egal({ titre: 'Bienvenue,Essai', phrase: 'Ajoute une course pour fixer ton cap.', stats: 0, compte: 0, blocs: ['premiers'], pas: ['profil Compléter', 'course Ajouter'] },
       { titre: await p.textContent('.mrt-header h1'), phrase: await p.textContent('.mrt-bienvenue'), stats: await p.locator('.mrt-stats').count(), compte: await p.locator('.mrt-days').count(), blocs: await blocs(p), pas: await pas(p) },
       'compte neuf : « Bienvenue, prénom », les Premiers pas seuls'));
-    // Profil express : cinq questions, l'une après l'autre ; enregistrées, la feuille se ferme et l'étape est cochée.
+    // Profil express : quatre questions, l'une après l'autre ; enregistrées, la feuille se ferme et l'étape est cochée
+    // (le repère d'allure se demande dans le parcours de Mon plan depuis le 17 nov. 2026).
     await p.click('[data-premier="profil"]');
     await p.waitForSelector('.ps-profil');
     const titres = [await titreFeuille(p)];
     await p.click('.ps-choix[data-val="femme"]');
-    await p.waitForFunction(() => /2 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
+    await p.waitForFunction(() => /2 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     await p.fill('.ps-valeur [name="valeur"]', '1990-05-12'); await p.click('.ps-valeur button[type="submit"]');
-    await p.waitForFunction(() => /3 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
+    await p.waitForFunction(() => /3 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     await p.fill('.ps-valeur [name="valeur"]', '62'); await p.click('.ps-valeur button[type="submit"]');
-    await p.waitForFunction(() => /4 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
-    await p.fill('.ps-valeur [name="valeur"]', '168'); await p.click('.ps-valeur button[type="submit"]');
-    await p.waitForFunction(() => /5 sur 5/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
+    await p.waitForFunction(() => /4 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     const retour = await p.locator('.ps-profil [data-q="liste"]').count();
-    await p.click('.ps-choix[data-type="inconnu"]');
+    await p.fill('.ps-valeur [name="valeur"]', '168'); await p.click('.ps-valeur button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.ps-profil'));
-    pb.push(egal([['Sexe · 1 sur 5', 'Date de naissance · 2 sur 5', 'Poids · 3 sur 5', 'Taille · 4 sur 5', 'Repère d\'allure · 5 sur 5'], 0, ['profil fait', 'course Ajouter']],
-      [titres, retour, await pas(p)], 'profil express : cinq questions dans l\'ordre, sans retour à la liste ; la feuille se ferme, l\'étape est cochée'));
+    pb.push(egal([['Sexe · 1 sur 4', 'Date de naissance · 2 sur 4', 'Poids · 3 sur 4', 'Taille · 4 sur 4'], 0, ['profil fait', 'course Ajouter']],
+      [titres, retour, await pas(p)], 'profil express : quatre questions dans l\'ordre, sans retour à la liste ; la feuille se ferme, l\'étape est cochée'));
     const ecr = d.ecritures.filter(x => ['profils', 'profil_entrainement'].includes(x.table)).map(x => x.table + ' ' + Object.keys(x.corps || {}).filter(k => !['maj', 'utilisateur', 'id'].includes(k)).join(','));
-    pb.push(egal(['profils sexe', 'profils naissance', 'profils poids', 'profils taille', 'profil_entrainement allure_type'], ecr, 'profil express : chaque réponse enregistrée à sa place'));
+    pb.push(egal(['profils sexe', 'profils naissance', 'profils poids', 'profils taille'], ecr, 'profil express : chaque réponse enregistrée à sa place'));
     // Ma première course : la fiche d'ajout s'ouvre.
     await p.click('[data-premier="course"]');
     await p.waitForSelector('.fc-barre');
@@ -500,10 +499,10 @@ const CONTROLES = {
     const reel1 = await titreFeuille(p);
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'premiers-naissance.png') });
     await p.fill('.ps-valeur [name="valeur"]', '1980-01-02'); await p.click('.ps-valeur button[type="submit"]');
-    await p.waitForFunction(() => /3 sur 5/.test(document.getElementById('ps-titre').textContent));
+    await p.waitForFunction(() => /3 sur 4/.test(document.getElementById('ps-titre').textContent));
     await p.click('.ps-profil [data-fermer]');
     await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil');
-    pb.push(egal(['Date de naissance · 2 sur 5', 'Poids · 3 sur 5', []], [reel1, await titreFeuille(p), erreurs], 'prénom vide, sexe connu : naissance, puis poids ; la croix ferme, « Compléter » rouvre'));
+    pb.push(egal(['Date de naissance · 2 sur 4', 'Poids · 3 sur 4', []], [reel1, await titreFeuille(p), erreurs], 'prénom vide, sexe connu : naissance, puis poids ; la croix ferme, « Compléter » rouvre'));
     await ctx.close();
     // Découvrir MyRunTools (compte neuf, decouverte_vue faux) : sous les Premiers pas ; un module par ligne, dans l'ordre où il sert ;
     // « Au menu » ajoute ou retire le module ; « J'ai compris » range le bloc.
@@ -537,13 +536,13 @@ const CONTROLES = {
     await p.waitForSelector('.ps-profil');
     const debut = await titreFeuille(p);
     await p.click('.ps-profil [data-fermer]');
-    pb.push(egal(['Poids · 3 sur 5', ['profil Compléter', 'course Ajouter']], [debut, await pas(p)], 'profil commencé : reprise à la première question qui manque ; la croix ferme, l\'étape reste à faire'));
+    pb.push(egal(['Poids · 3 sur 4', ['profil Compléter', 'course Ajouter']], [debut, await pas(p)], 'profil commencé : reprise à la première question qui manque ; la croix ferme, l\'étape reste à faire'));
     // Profil absent de la base (aucune ligne touchée) : l'échec se dit, la question reste ouverte.
     d.profilAbsent = true;
     await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     await p.fill('.ps-profil [name="valeur"]', '70'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     await p.waitForFunction(() => /impossible/.test((document.querySelector('.ps-profil .ps-msg') || {}).textContent || ''));
-    pb.push(egal(['Enregistrement impossible pour l\'instant.', 'Poids · 3 sur 5'], [await p.textContent('.ps-profil .ps-msg'), await titreFeuille(p)], 'profil absent de la base : « Enregistrement impossible », la question reste'));
+    pb.push(egal(['Enregistrement impossible pour l\'instant.', 'Poids · 3 sur 4'], [await p.textContent('.ps-profil .ps-msg'), await titreFeuille(p)], 'profil absent de la base : « Enregistrement impossible », la question reste'));
     await p.click('.ps-profil [data-fermer]');
     // Barre fine d'une autre page : « Bienvenue, prénom ».
     await p.goto(RACINE + 'palmares.html'); await p.waitForSelector('.mrt-barre-cap');
@@ -762,10 +761,12 @@ const CONTROLES = {
     pb.push(egal(['En un coup d\'œil', 'Cette semaine'], db.preferences[0].modules, 'modules « bientôt » gardés dans la liste enregistrée'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
 
-    // Cap
+    // Cap (Préparation, § 5.0) : seuls les Objectifs à venir se choisissent ; par défaut, le dernier. Le Trail du Lac devient un Objectif.
+    db.courses.find(c => c.course === 'Trail du Lac').role = 'objectif';
+    await recharger();
     const options = await p.evaluate(() => [...document.querySelectorAll('#bloc-cap option')].map(o => o.textContent));
-    pb.push(egal('Par défaut : la plus lointaine (Trail des Crêtes)', options[0], 'cap, premier choix'));
-    pb.push(egal(['Trail du Lac', 'Course A', 'Trail des Crêtes'], options.slice(1).map(o => o.split(' · ')[0]), 'cap, courses proposées'));
+    pb.push(egal('Par défaut : le dernier Objectif (Trail des Crêtes)', options[0], 'cap, premier choix'));
+    pb.push(egal(['Trail du Lac', 'Trail des Crêtes'], options.slice(1).map(o => o.split(' · ')[0]), 'cap, seuls les Objectifs proposés'));
     await p.selectOption('#bloc-cap select', { label: options[1] }); await attendre();
     pb.push(egal('Trail du Lac', await capEnTete(), 'cap Trail du Lac dans l\'en-tête'));
     pb.push(egal(options[1], await q('#bloc-cap select', 'x.selectedOptions[0].textContent'), 'cap après rechargement'));
@@ -776,6 +777,7 @@ const CONTROLES = {
     await recharger();
     await p.selectOption('#bloc-cap select', ''); await attendre();
     pb.push(egal('Trail des Crêtes', await capEnTete(), 'cap par défaut'));
+    db.courses.find(c => c.course === 'Trail du Lac').role = 'preparatoire';
 
     // Échec d'enregistrement
     db.panne = true;
@@ -2524,11 +2526,10 @@ const CONTROLES = {
     r = await lire(p, false);
     pb.push(egal([['Alertes (2)', 'recup-affutage', 'prepa-proche'], 'Trail des Cimes : à 14 jours de Trail des Crêtes (3 semaines conseillées)'], [r.alertes, r.textesAlertes[1]], 'Trail des Cimes au 14 août : Préparatoire trop proche et récupération dans l\'affûtage, en une ligne chacune'));
     await ctx.close();
-    // Sans Objectif : un message, pas de frise.
+    // Sans Objectif : le parcours « Construire mon plan » (§ 5.0) à la place de la page, pas de frise.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { d.courses.forEach(c => { if (c.role === 'objectif' || c.role === 'objectif_intermediaire') c.role = 'preparatoire'; }); }), {}, PARIS));
-    await p.waitForSelector('.ps-cadre');
-    r = await lire(p, true);
-    pb.push(egal([true, []], [/^Aucun Objectif à venir/.test(r.vide || ''), r.semaines], 'sans Objectif : un message, pas de frise'));
+    await p.waitForSelector('.pp[data-ecran="plan"]');
+    pb.push(egal([0, 'Ton plan'], [await p.locator('.ps-seg').count(), await p.textContent('.pp .fc-libelle')], 'sans Objectif : le parcours, pas de frise'));
     await ctx.close();
     // Calendrier : la récupération d'un Objectif en rose (semaine du 8 mars), l'Entretien sans fond.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#mois=2027-03', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
@@ -2627,18 +2628,18 @@ const CONTROLES = {
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForFunction(() => /Profil/.test((document.querySelector('.ps-profil-etat') || {}).textContent || ''));
-    pb.push(egal(['Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', 'Mon profil'], [await etat(p), (await p.textContent('[data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
+    pb.push(egal(['Profil à compléter : niveau, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', 'Mon profil'], [await etat(p), (await p.textContent('[data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
     await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     let r = await liste(p);
-    pb.push(egal([true, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 9, 21, false],
-      [r.feuille, await sections(p), await p.textContent('.ps-profil .fc-libelle'), r.aFaire, r.lignes.length, /\*/.test(r.texte)], 'feuille Mon profil : feuille d\'une course (croix ronde), quatre sections et leur compte, neuf lignes à renseigner, 19 lignes, ni astérisque'));
+    pb.push(egal([true, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 9, 22, false],
+      [r.feuille, await sections(p), await p.textContent('.ps-profil .fc-libelle'), r.aFaire, r.lignes.length, /\*/.test(r.texte)], 'feuille Mon profil : feuille d\'une course (croix ronde), quatre sections et leur compte, neuf lignes à renseigner, 22 lignes, ni astérisque'));
     pb.push(egal(['Sexe | Homme', 'Pointure | —', 'Course | À renseigner', 'FC de repos | —'], [ligne(r, 'Sexe'), ligne(r, 'Pointure'), ligne(r, 'Course'), ligne(r, 'FC de repos')], 'feuille : mesures lues dans le profil, facultatifs en « — »'));
     pb.push(egal('Dans ton Palmarès : Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026Reprendre', await p.evaluate(() => document.querySelector('.ps-profil .mp-palmares').textContent),
       'repère du Palmarès : la dernière course de 10 km ou semi de moins de 12 mois, avec « Reprendre »'));
     // Même taille pour la liste et chaque question ; le contenu glisse (par la droite à l'ouverture, par la gauche au retour).
     const largeur = () => p.evaluate(() => (r => Math.round(r.width) + 'x' + Math.round(r.height))(document.querySelector('.ps-profil').getBoundingClientRect()));
     const l0 = await largeur(), largeurs = [], glisses = [];
-    for (const q of ['sexe', 'naissance', 'poids', 'activite', 'anciennete', 'semaine', 'allure', 'terrain', 'fc_max', 'fragiles']) {
+    for (const q of ['sexe', 'naissance', 'poids', 'activite', 'niveau', 'semaine', 'allure', 'terrain', 'fc_max', 'fragiles']) {
       await p.click('.ps-profil [data-q="' + q + '"]');
       glisses.push(await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-avant')));
       largeurs.push(await largeur());
@@ -2647,10 +2648,11 @@ const CONTROLES = {
     pb.push(egal([true, true, true], [largeurs.every(x => x === l0), glisses.every(Boolean), await p.evaluate(() => document.querySelector('.ps-profil .mc-corps').className.includes('mc-glisse-retour'))],
       'profil sur ordinateur : même taille pour la liste et les questions, glissement vers la droite à l\'ouverture, vers la gauche au retour'));
     // Une question à choix : un toucher enregistre et revient à la liste.
-    await p.click('.ps-profil [data-q="anciennete"]');
-    pb.push(egal(['Je débute', '1 à 3 ans', '3 à 6 ans', '6 à 10 ans', 'Plus de 10 ans'], await p.evaluate(() => [...document.querySelectorAll('.ps-profil .ps-choix')].map(b => b.childNodes[0].textContent)), 'Je cours depuis : cinq tranches'));
-    await p.click('.ps-profil [data-val="3-6"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
-    pb.push(egal([{ anciennete: '3-6' }, 'Je cours depuis | 3 à 6 ans', 'Mon niveau 1 sur 4'], [(c => c && { anciennete: c.anciennete })(derniere(d)), ligne(await liste(p), 'Je cours depuis'), (await sections(p))[1]], 'choix enregistré aussitôt, retour à la liste'));
+    await p.click('.ps-profil [data-q="niveau"]');
+    pb.push(egal(['Débutant · Tu cours depuis peu, jusqu\'à 10 km.', 'Intermédiaire · Tu cours chaque semaine, jusqu\'au semi ou à un trail court.', 'Confirmé · Marathon ou trails de plus de 40 km, entraînement suivi.', 'Expert · Entraînement structuré depuis des années, tu vises la performance.'],
+      await p.evaluate(() => [...document.querySelectorAll('.ps-profil .ps-choix')].map(b => b.querySelector('.ps-choix-t').childNodes[0].textContent + ' · ' + b.querySelector('small').textContent)), 'Niveau : quatre choix, chacun avec sa ligne'));
+    await p.click('.ps-profil [data-val="intermediaire"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    pb.push(egal([{ niveau: 'intermediaire' }, 'Niveau | Intermédiaire', 'Mon niveau 1 sur 4'], [(c => c && { niveau: c.niveau })(derniere(d)), ligne(await liste(p), 'Niveau'), (await sections(p))[1]], 'choix enregistré aussitôt, retour à la liste'));
     await p.click('.ps-profil [data-q="volume_tranche"]'); await p.click('.ps-profil [data-val="inconnu"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await p.click('.ps-profil [data-q="sortie_tranche"]'); await p.click('.ps-profil [data-val="1h30-2h"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     // Ma semaine : jours pour courir (mardi, jeudi, samedi, dimanche), 3 séances, sortie longue le dimanche puis le dimanche retiré
@@ -2720,7 +2722,7 @@ const CONTROLES = {
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
-    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, je cours depuis, distance par semaine, plus longue sortie récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 'Mon profil', 1],
+    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance par semaine, plus longue sortie récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 'Mon profil', 1],
       [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
@@ -2883,11 +2885,134 @@ const CONTROLES = {
   },
 
   // Spécification Préparation, § 6 (lot 3) : séances proposées par l'IA ; l'appel est remplacé par des réponses fixes, sans coût.
+  // Construire mon plan (spécification Préparation, § 5.0) : le parcours, écran par écran ; le chevauchement de deux Objectifs ;
+  // la préparatoire pertinente (règles fixes) ; les questions déjà répondues sautées.
+  async preparationParcours(nav, db0) {
+    const pb = [];
+    const { db, id } = jeuObjectif(db0);
+    const moi = db.profils[0].id;
+    const COMPLET = { utilisateur: moi, niveau: 'intermediaire', antecedents: 'rares', volume_tranche: '20-40', sortie_tranche: '1h30-2h', jours_course: [2, 4, 6], nb_sorties: 3, jour_long: 6, allure_type: '10km', temps_10km_s: 2730 };
+    const copie = f => {
+      const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = []; d.propositions = []; d.profil_entrainement = []; d.reglages = { plafondIA: 4 }; d.appels = [];
+      d.relais = corps => { d.appels.push(corps); return { status: 200, body: { id: 'prop-1', reponse: { recommandation: 'Entretien.', seances: [] } } }; };
+      if (f) f(d);
+      return d;
+    };
+    const sansObjectif = d => d.courses.forEach(c => { if (c.role === 'objectif' || c.role === 'objectif_intermediaire') c.role = 'preparatoire'; });
+    const ecran = p => p.evaluate(() => { const e = document.querySelector('.pp'); return e ? e.dataset.ecran : null; });
+    const vers = async (p, k) => { await p.waitForFunction(k => (document.querySelector('.pp') || {}).dataset && document.querySelector('.pp').dataset.ecran === k, k); };
+    const choix = p => p.evaluate(() => [...document.querySelectorAll('.pp .ps-choix')].map(b => b.textContent.replace('✓', '').replace(/\s+/g, ' ').trim() + (b.disabled ? ' [inactif]' : '')));
+    const msg = p => p.evaluate(() => document.querySelector('.pp .ps-msg').textContent);
+    const prog = p => p.evaluate(() => Number(document.querySelector('.pp-prog').getAttribute('aria-valuenow')));
+    // 1. Sans Objectif : la page est le parcours ; ni retour ni croix au premier écran.
+    let d = copie(sansObjectif);
+    let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
+    await vers(p, 'plan');
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-plan.png') });
+    pb.push(egal([['Une course ou un trail', 'Me maintenir en formeBientôt [inactif]'], 0, 0, 0],
+      [await choix(p), await p.locator('.pp [data-pp="retour"]').count(), await p.locator('.pp [data-pp="fermer"]').count(), await prog(p)], 'écran 1 : deux plans, « Me maintenir en forme » inactif ; ni retour ni croix'));
+    await p.click('[data-plan="course"]'); await vers(p, 'course');
+    const confirmees = await choix(p);
+    await p.click('[data-filtre="toutes"]'); await pause();
+    const toutes = await choix(p);
+    pb.push(egal([['Trail du Lacdim. 15 nov. 2026 · 24 km · 650 m D+', 'Corrida de Noëldim. 13 déc. 2026 · 10 km · 40 m D+', 'Trail des Gorgesdim. 7 mars 2027 · 45 km · 2 100 m D+', 'Trail des Crêtessam. 28 août 2027 · 60 km · 3 500 m D+'],
+      ['Trail du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Trail des Cimes', 'Ultra du Plateau', 'Trail de la Forêtdate à préciser [inactif]', 'Trail des Crêtes', 'Trail des Sommets'], 1],
+      [confirmees, toutes.map(t => t.replace(/(dim|sam)\. .*?(?= \[|$)/, '').replace(/ · .*?(?= \[|$)/, '')), await p.locator('.pp [data-pp="ajouter"]').count()],
+      'écran 2 : les confirmées à venir par défaut (date, distance, D+), « Toutes » ajoute options et Repérées ; mois seul : inactive ; « Ajouter une course » en tête'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-course.png') });
+    await p.click('[data-filtre="confirmees"]'); await pause();
+    await p.click('[data-course="' + id(3) + '"]'); await vers(p, 'niveau');
+    pb.push(egal([['DébutantTu cours depuis peu, jusqu\'à 10 km.', 'IntermédiaireTu cours chaque semaine, jusqu\'au semi ou à un trail court.', 'ConfirméMarathon ou trails de plus de 40 km, entraînement suivi.', 'ExpertEntraînement structuré depuis des années, tu vises la performance.'], 1, 25],
+      [await choix(p), await p.locator('.pp [data-pp="retour"]').count(), await prog(p)], 'écran 3 : quatre niveaux décrits ; retour présent ; progression'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-niveau.png') });
+    await p.click('.pp [data-val="intermediaire"]'); await vers(p, 'blessures');
+    await p.click('.pp [data-antecedent="legeres"]'); await p.waitForSelector('.pp-form [name="fragiles"]');
+    await p.fill('.pp-form [name="fragiles"]', 'genou droit'); await p.fill('.pp-form [name="debut"]', '2026-10-01');
+    await p.click('.pp [data-pp="continuer"]'); await pause();
+    const m1 = await msg(p);
+    await p.fill('.pp-form [name="debut"]', ''); await p.click('.pp [data-pp="continuer"]'); await vers(p, 'volume');
+    pb.push(egal('Décris la blessure, ou laisse la date vide.', m1, 'écran 4 : une date sans blessure refusée'));
+    await p.click('.pp [data-vol="volume_tranche|20-40"]'); await pause();
+    const resteVolume = await ecran(p);
+    await p.click('.pp [data-vol="sortie_tranche|1h30-2h"]'); await vers(p, 'allure');
+    const allure0 = await p.evaluate(() => [document.querySelector('.pp [data-allure][aria-pressed="true"]').textContent, document.querySelector('.pp-form [name="valeur"]').value, document.querySelector('.pp-form .pp-note').textContent]);
+    pb.push(egal(['volume', ['Semi', '1:56:05', 'Palmarès · 4 oct. 2026']], [resteVolume, allure0], 'écran 5 : suite quand les deux sont choisies ; écran 6 : le semi du Palmarès prérempli'));
+    await p.click('.pp [data-allure="marathon"]'); await pause();
+    await p.fill('.pp-form [name="valeur"]', '1:40:00'); await p.click('.pp [data-pp="continuer"]'); await pause();
+    const m2 = await msg(p);
+    await p.fill('.pp-form [name="valeur"]', '3:45:00'); await p.click('.pp [data-pp="continuer"]'); await vers(p, 'semaine');
+    pb.push(egal('Le temps sur marathon s\'écrit 3:45:00 (entre 1:50:00 et 8:00:00).', m2, 'repère sur marathon : 1:40:00 refusé'));
+    pb.push(egal([0, 'Course'], [await p.locator('.pp [name="nb_renfo"]').count(), await p.textContent('.pp .mrt-section-titre')], 'écran 7 : Ma semaine, section Course seulement'));
+    await p.click('.pp [data-jc="2"]'); await p.click('.pp [data-jc="4"]'); await p.fill('.pp [name="nb_sorties"]', '3');
+    await p.click('.pp [data-pp="continuer"]'); await pause();
+    const m3 = await msg(p);
+    await p.click('.pp [data-jc="7"]'); await p.click('.pp [data-long="7"]'); await p.click('.pp [data-pp="continuer"]'); await vers(p, 'debut');
+    pb.push(egal('Choisis au moins 3 jours.', m3, 'ma semaine : moins de jours que de séances refusé'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-semaine.png') });
+    const debuts = await choix(p);
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-debut.png') });
+    await p.click('.pp [data-debut="0"]'); await vers(p, 'recap');
+    const recap = await p.evaluate(() => [document.querySelector('.pp .ps-titre').textContent, document.querySelector('.pp .ps-sous').textContent,
+      [...document.querySelectorAll('.pp-recap .ps-ligne-q')].map(b => b.children[0].textContent + ' | ' + b.children[1].textContent)]);
+    pb.push(egal([['Durée conseillée · 16 semaines Recommandéeà partir du lun. 16 nov. 2026 · Entretien d\'ici là', 'Dès lundi · 19 semainesà partir du lun. 26 oct. 2026 · Base plus longue', 'PersonnaliserRégler les phases semaine par semaine'],
+      ['Trail des Gorges', 'dim. 7 mars 2027 · 16 semaines · 45 km', ['Niveau | Intermédiaire', 'Blessures | Légères, ou une grave guérie', 'Volume | 20 à 40 km · 1 h 30 à 2 h', 'Repère d\'allure | Marathon en 3:45:00', 'Ma semaine | mar., jeu., dim. · 3 séances, longue le dimanche', 'Début | lun. 16 nov. 2026 · 16 semaines']]],
+      [debuts, recap], 'écran 8 : durée conseillée (16 semaines, Entretien d\'ici là), dès lundi (19 semaines), personnaliser ; écran 9 : le récapitulatif'));
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-recap.png') });
+    // Le récapitulatif ramène à une question, puis revient.
+    await p.click('[data-recap="niveau"]'); await vers(p, 'niveau');
+    await p.click('.pp [data-val="confirme"]'); await vers(p, 'recap');
+    const niveau2 = await p.evaluate(() => document.querySelector('[data-recap="niveau"] .ps-rep').textContent);
+    pb.push(egal('Confirmé', niveau2, 'récapitulatif : une ligne ramène à sa question, puis au récapitulatif'));
+    d.ecritures = [];
+    await p.click('.pp [data-pp="construire"]');
+    await p.waitForSelector('.ps-titre:not(.pp .ps-titre)');
+    await p.waitForFunction(() => document.querySelector('.ps-proposition, .ps-ia'));
+    const maj = d.ecritures.filter(x => x.table === 'courses').map(x => x.filtres + ' ' + JSON.stringify(x.corps));
+    const pr = d.profil_entrainement[0] || {};
+    pb.push(egal([['?id=eq.' + id(3) + ' {"role":"objectif","statut":"confirmee","groupe_options":null,"prepa_semaines":null}'], 'Trail des Gorges', 1],
+      [maj, await p.textContent('.ps-titre'), Math.min(d.appels.length, 1)], '« Construire mon plan » : Objectif confirmé, durée conseillée ; la page du plan ; l\'IA propose aussitôt le premier bloc'));
+    pb.push(egal({ niveau: 'confirme', antecedents: 'legeres', fragiles: 'genou droit', volume_tranche: '20-40', sortie_tranche: '1h30-2h', allure_type: 'marathon', temps_marathon_s: 13500, jours_course: [2, 4, 7], nb_sorties: 3, jour_long: 7 },
+      (({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }) => ({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }))(pr),
+      'les réponses rangées dans Mon profil'));
+    pb.push(egal([], erreurs, 'parcours, erreurs JavaScript'));
+    await ctx.close();
+
+    // 2. Deux Objectifs : le Trail des Crêtes avancé au 2 mai chevauche le Trail des Gorges (récupération jusqu'au 17 avril). Profil complet : sauté.
+    d = copie(x => { x.courses.find(c => c.id === id(7)).date = '2027-05-02'; x.profil_entrainement = [Object.assign({}, COMPLET)]; });
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 390, d, {}, PARIS));
+    await p.waitForSelector('[data-parcours]'); await pause();
+    await p.click('[data-parcours]'); await vers(p, 'plan');
+    pb.push(egal(1, await p.locator('.pp [data-pp="fermer"]').count(), '« + Objectif » : le parcours, avec la croix'));
+    await p.click('[data-plan="course"]'); await vers(p, 'course');
+    await p.click('[data-course="' + id(7) + '"]'); await vers(p, 'conflit');
+    const conflit = await choix(p);
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-conflit-tel.png') });
+    await p.click('[data-conflit="prendre"]'); await vers(p, 'debut');
+    const sautes = await ecran(p);
+    await p.click('.pp [data-pp="retour"]'); await vers(p, 'conflit');
+    await p.click('[data-conflit="garder"]');
+    await p.waitForFunction(() => !document.querySelector('.pp'));
+    pb.push(egal([['Trail des Crêtes en ObjectifTrail des Gorges devient Plaisir', 'Garder Trail des GorgesTrail des Crêtes devient Plaisir'], 'debut', ['?id=eq.' + id(7) + ' {"role":"plaisir"}']],
+      [conflit, sautes, d.ecritures.filter(x => x.table === 'courses').map(x => x.filtres + ' ' + JSON.stringify(x.corps))],
+      'chevauchement : choisir ; l\'autre devient Plaisir (pas de règle de préparatoire avant un ultra) ; profil complet : du conflit au début ; « Garder » range le rôle et ramène au plan'));
+    pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement'));
+    pb.push(egal([], erreurs, 'chevauchement, erreurs JavaScript'));
+    // 3. Préparatoire pertinente (règles fixes) : avant le Trail des Gorges (trail de 42 à 59 km : 21 à 30 km, 4 à 6 semaines).
+    const role = (date, distance, format) => p.evaluate(([date, distance, format, idg]) => {
+      const c = document.getElementById('saison').__ctx, w = c.courses.find(x => x.id === idg);
+      return window.mrtParcours.rolePerdant(c, Object.assign({}, w, { id: 'essai', course: 'Essai', date, distance, dplus: 500, format, type: format.split('_')[0], role: 'objectif' }), w);
+    }, [date, distance, format, id(3)]);
+    pb.push(egal(['preparatoire', 'plaisir', 'plaisir', 'plaisir', 'plaisir'],
+      [await role('2027-01-31', 25, 'trail_court'), await role('2026-12-20', 25, 'trail_court'), await role('2027-01-31', 35, 'trail_court'), await role('2027-01-31', 25, 'route_semi'), await role('2027-04-04', 25, 'trail_court')],
+      'préparatoire pertinente : 25 km de trail 5 semaines avant ; sinon Plaisir (11 semaines, 35 km, route, après l\'Objectif)'));
+    await ctx.close();
+    return pb;
+  },
   async preparationIA(nav, db0) {
     const pb = [];
     const { db } = jeuObjectif(db0);
     const moi = db.profils[0].id;
-    const PROFIL = { utilisateur: moi, anciennete: '3-6', volume_tranche: '20-40', sortie_tranche: '1h30-2h', jours_course: [2, 6], jours_renfo: [4], nb_sorties: 2, nb_renfo: 1, jour_long: 6, seance_max_min: 120, allure_type: '10km', temps_10km_s: 2730 };
+    const PROFIL = { utilisateur: moi, niveau: 'intermediaire', volume_tranche: '20-40', sortie_tranche: '1h30-2h', jours_course: [2, 6], jours_renfo: [4], nb_sorties: 2, nb_renfo: 1, jour_long: 6, seance_max_min: 120, allure_type: '10km', temps_10km_s: 2730 };
     // Bloc du 19 octobre au 15 novembre : séances les mardis, jeudis et samedis (jours du profil).
     const LUNDIS = ['2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09'];
     const bonne = () => ({ recommandation: 'Entretien : deux footings et une sortie longue par semaine.', seances: LUNDIS.flatMap(l => [1, 3, 5].map(k => {

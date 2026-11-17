@@ -120,3 +120,25 @@
 .ps-semaine-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
 .ps-semaine-tete .ps-libelle { margin: 0 0 0.5rem; }
 .ps-vers-cal { display: inline-block; margin-top: 0.6rem; font-size: var(--t-second); }
+
+/* ===== Le parcours « Construire mon plan » (plan-parcours.js ; spécification Préparation, § 5.0) =====
+   Les écrans de question de Mon profil (profil.css), dans la page : une colonne de 40 rem, la barre (‹, progression, croix). */
+.pp { max-width: 40rem; margin: 0 auto; padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.pp-barre { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
+.pp-place { width: 2rem; flex: none; }
+.pp-prog { flex: 1; height: 4px; background: var(--case); border-radius: 2px; overflow: hidden; }
+.pp-prog i { display: block; height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.2s; }
+.pp .fc-libelle { margin-bottom: 0.2rem; }
+.pp .ps-groupe-l + .ps-groupe-l, .pp .ps-groupe-l + .pp-note { margin-top: 0.8rem; }
+.pp-tete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem; }
+.pp-types { margin-bottom: 0.4rem; }
+.pp-role { margin-left: 0.4rem; font-size: var(--t-petit); font-weight: 600; color: var(--accent); }
+.pp-note { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
+.pp-vide { font-size: var(--t-texte); color: var(--muted); }
+.pp-pied { display: flex; justify-content: flex-end; margin-top: 1rem; }
+.pp .ps-choix[disabled] { cursor: default; opacity: 0.45; }
+.pp .ps-choix.pp-bientot small { font-size: var(--t-second); color: var(--muted); }
+.pp-recap { margin-top: 0.8rem; }
+.pp .ps-titre { margin-top: 0.2rem; }
+@media (hover: hover) { .pp .ps-choix[disabled]:hover { background: none; } }
+@media (prefers-reduced-motion: reduce) { .pp-prog i { transition: none; } }
