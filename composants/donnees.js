@@ -137,10 +137,13 @@
   // ne sont pas encore marquées courues (elles restent là jusqu'à ce qu'on saisisse leur résultat).
   window.mrtCoursesRoute = courses => courses.filter(c => c.etat === 'a_venir' && c.date && (c.date >= today() ? PLAN.has(c.statut) : c.statut === 'confirmee')).sort(parDate);
 
-  // Le cap : la course choisie dans les Préférences, sinon la plus lointaine à venir.
+  // Objectifs à venir (rôle donné dans Mon plan), du plus proche au plus lointain : ceux que les Préférences proposent comme cap.
+  window.mrtObjectifsCap = courses => window.mrtCoursesCap(courses).filter(c => c.statut === 'confirmee' && (c.role === 'objectif' || c.role === 'objectif_intermediaire'));
+  // Le cap (Préparation, § 5.0) : l'Objectif choisi dans les Préférences, sinon le dernier Objectif à venir ; sans Objectif,
+  // la course à venir la plus lointaine.
   window.mrtCap = (courses, prefs) => {
-    const aVenir = window.mrtCoursesCap(courses);
-    return aVenir.find(c => c.id === (prefs || {}).course_cap) || aVenir[aVenir.length - 1] || null;
+    const aVenir = window.mrtCoursesCap(courses), objectifs = window.mrtObjectifsCap(courses);
+    return objectifs.find(c => c.id === (prefs || {}).course_cap) || objectifs[objectifs.length - 1] || aVenir[aVenir.length - 1] || null;
   };
 
   function configEnTete(prefs, courses) {

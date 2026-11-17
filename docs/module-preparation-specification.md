@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 1.6 · 15 novembre 2026 · [Retour au sommaire](README.md) · **Mon plan, page de pilotage** : titre « J-138 », place de la semaine (18), frise fine (repliée sur téléphone), bandeau de MyRunTools avec la proposition repliée, « Cette semaine » en cartes avec son total (19 à 21) et le lien vers le Calendrier (22) ; plus de grille du bloc (7) · Douleur en trois pastilles (Aucune d'office) ; repère « à noter » sur une séance faite sans effort noté ; en tête de la feuille, un bloc qui qualifie la séance, puis un espace avant la notation · Feuille « Effort et sensations » allégée : en tête type et jour, nom et détail de la séance ; « i » en petit picto ; douleur sur « + Signaler une douleur » ; plus de fatigue du jour, de « Ne pas noter » ni de « Plus tard » ; petite feuille sans barre de défilement ; ouverte aussi depuis En un coup d'œil et Nutrition · Effort au curseur, sensations en visages, rond « i », feuille « Effort et sensations » à la case « faite » (§ 5.5) · Échelle du ressenti (Borg modifiée, libellé par niveau) et charge de Foster (§ 5.5) · Lot 6b : un commentaire relance aussitôt une réadaptation, hors plafond ; l'IA reçoit les retours, les commentaires à venir et la blessure en cours ; historique des propositions (§ 6) · Lot 6a : retour sur une séance (faite, ressenti, douleur, fatigue, commentaire), déplacer librement avec un conseil, durée et distance dans les vues (§ 5.5) · Sources de la préparatoire conseillée vérifiées : Marathon Handbook et Laura Norris seulement ; trail de 21 à 30 km avant 42 à 59 km ; ultras 4 à 8 semaines ; fenêtre en semaines entières · **Un seul plan** : la page s'appelle « Mon plan » ; plus de plan par course ni de bloc « Plans des courses » ; les phases se règlent sur l'Objectif de la saison (rond « Régler les phases ») ; « Courses du plan » avec l'avis de chaque course (Conseillée, Possible, Déconseillée, sources) et « Passer en Plaisir » ; préparatoire conseillée avant l'Objectif visé (§ 3.5) ; la page d'une course et sa fiche montrent sa place dans la saison (§ 5.4) · Avant (1.2) : Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
+Version 2.0 · 17 novembre 2026 · [Retour au sommaire](README.md) · **Refonte de Mon plan, étape 1 : le parcours « Construire mon plan »** (§ 5.0) : un écran par question, dans la page ; le choix de la course donne le rôle Objectif (Mon plan seulement) ; deux Objectifs qui se chevauchent : choisir, l'autre devient Préparatoire si les règles fixes le permettent, sinon Plaisir (§ 2) ; niveau, antécédents de blessures et repère sur marathon dans Mon profil ; « Cap sur » : le dernier Objectif par défaut · **Mon plan, page de pilotage** : titre « J-138 », place de la semaine (18), frise fine (repliée sur téléphone), bandeau de MyRunTools avec la proposition repliée, « Cette semaine » en cartes avec son total (19 à 21) et le lien vers le Calendrier (22) ; plus de grille du bloc (7) · Douleur en trois pastilles (Aucune d'office) ; repère « à noter » sur une séance faite sans effort noté ; en tête de la feuille, un bloc qui qualifie la séance, puis un espace avant la notation · Feuille « Effort et sensations » allégée : en tête type et jour, nom et détail de la séance ; « i » en petit picto ; douleur sur « + Signaler une douleur » ; plus de fatigue du jour, de « Ne pas noter » ni de « Plus tard » ; petite feuille sans barre de défilement ; ouverte aussi depuis En un coup d'œil et Nutrition · Effort au curseur, sensations en visages, rond « i », feuille « Effort et sensations » à la case « faite » (§ 5.5) · Échelle du ressenti (Borg modifiée, libellé par niveau) et charge de Foster (§ 5.5) · Lot 6b : un commentaire relance aussitôt une réadaptation, hors plafond ; l'IA reçoit les retours, les commentaires à venir et la blessure en cours ; historique des propositions (§ 6) · Lot 6a : retour sur une séance (faite, ressenti, douleur, fatigue, commentaire), déplacer librement avec un conseil, durée et distance dans les vues (§ 5.5) · Sources de la préparatoire conseillée vérifiées : Marathon Handbook et Laura Norris seulement ; trail de 21 à 30 km avant 42 à 59 km ; ultras 4 à 8 semaines ; fenêtre en semaines entières · **Un seul plan** : la page s'appelle « Mon plan » ; plus de plan par course ni de bloc « Plans des courses » ; les phases se règlent sur l'Objectif de la saison (rond « Régler les phases ») ; « Courses du plan » avec l'avis de chaque course (Conseillée, Possible, Déconseillée, sources) et « Passer en Plaisir » ; préparatoire conseillée avant l'Objectif visé (§ 3.5) ; la page d'une course et sa fiche montrent sa place dans la saison (§ 5.4) · Avant (1.2) : Titre sur deux lignes ; frise en segments avec dates, noms et dates des courses, liste verticale sur téléphone · Page allégée : plus d'état de la semaine (11) ni de titre de bloc (5) ; alertes en une ligne dans le bloc « Recommandation de MyRunTools » ; frise à deux niveaux, plus large, avec plein écran ; une nouvelle acceptation remplace les séances de l'IA non faites · « Ma semaine » en deux cadres, Course et Renforcement · Feuille du profil de taille fixe sur ordinateur, contenu qui glisse d'un écran à l'autre (§ 5.3) · Profil dans la feuille d'une course (règle de design, § 5.3) ; nombres de sorties et de renforcements saisis de 0 à 7 ; bloc affiché dans la grille du Mois du Calendrier ; une seule recommandation de l'IA pour le bloc ; plus de phrases d'aide ni de mention
 
 ## 1. Rôle
 
@@ -22,7 +22,8 @@ La Préparation construit **un seul plan pour toute la saison**, au lieu d'un pl
 
 - **Une saison par Objectif** : du premier jour de sa préparation (durée de prépa de son format, [Calendrier](module-calendrier-specification.md), § 5.4) au jour de la course. Il peut y avoir plusieurs Objectifs dans l'année : les saisons se suivent.
 - **Entre deux saisons** : la récupération de l'Objectif qui vient de se courir (§ 3.3), puis des semaines d'**Entretien** jusqu'au début de la saison suivante. Avant le premier Objectif, les semaines sont aussi en Entretien.
-- **Deux Objectifs trop proches** : sous **12 semaines** entre deux Objectifs, le plan affiche une alerte et suggère de passer l'un des deux en Préparatoire. Le plan ne bloque rien : si l'utilisateur garde les deux, la seconde saison commence au lendemain de la première course, raccourcie d'autant (§ 4).
+- **Deux Objectifs qui se chevauchent** (17 novembre 2026) : la saison d'un Objectif (durée conseillée de son format, ou celle réglée) commence avant la fin de la récupération de l'autre. Le choix se fait dans le parcours (§ 5.0, écran 2 bis) : un seul des deux reste Objectif ; l'autre devient **Préparatoire** s'il tombe avant et que les règles fixes le permettent (§ 3.5, « Préparatoire pertinente »), sinon **Plaisir** ; s'il tombe après, **Plaisir** aussi (sans affûtage ; le rôle ne peut pas être vide en base). Plusieurs Objectifs espacés restent possibles : chacun sa saison.
+- **Données d'avant le parcours** : deux Objectifs trop proches (moins de 12 semaines) gardent l'alerte et la règle d'avant (la seconde saison commence au lendemain de la première course, raccourcie, § 4).
 - **Courses en option** : elles apparaissent dans la frise, mais aucune règle ne s'applique tant qu'elles ne sont pas confirmées. À la confirmation, le plan se recalcule.
 
 ## 3. Rôles et règles de combinaison
@@ -95,6 +96,15 @@ Chaque course à venir qui n'est pas un Objectif reçoit un **avis**, par rappor
 | Trail de 130 km ou plus (ultra) | Un trail d'environ 80 km (la moitié), sur un terrain proche | 4 à 8 semaines avant | [Marathon Handbook](https://marathonhandbook.com/tune-up-race/), [Laura Norris](https://lauranorrisrunning.com/tune-up-races/) |
 | Plus court (route sous 21 km, trail sous 42 km) | Pas de conseil (pour un 10 km, Laura Norris cite un 5 km, 2 à 5 semaines avant : à reprendre plus tard) | | |
 
+**Préparatoire pertinente** (17 novembre 2026, règles fixes, sans jugement) : une course qui perd le rôle Objectif (§ 2) devient Préparatoire seulement si les quatre conditions sont réunies, sinon Plaisir :
+
+1. elle tombe **avant** l'Objectif retenu ;
+2. elle est **dans la fenêtre** du tableau ci-dessus (en semaines entières) ;
+3. sa **distance** est dans la fourchette du tableau, et de la même famille (route ou trail) : 10 à 15 km avant une route du semi au marathon exclu ; 21 à 30 km avant un marathon ou plus ; 21 à 30 km (trail) avant un trail de 42 à 59 km ; **ultras** : pas encore de fourchette (« environ 50 km », « environ 80 km » ne sont pas des bornes) : Plaisir en attendant (todo) ;
+4. elle ne déclenche **aucune alerte** du § 3.4 en Préparatoire.
+
+Un Objectif plus court (route sous 21 km, trail sous 42 km) n'a pas de fenêtre : l'autre course passe toujours en Plaisir.
+
 Écarts tranchés : la fenêtre se compte en **semaines entières**, comme elle s'affiche (« 8 semaines avant » est dans « 4 à 8 ») ; iRunFar (choisir une course qui a du sens pour soi, aussi grande que l'Objectif, qui pousse sans épuiser) ne donne ni distance ni délai : retiré des sources ; la page RunnersConnect reçue est un calculateur d'allure : retirée ; UltraRunning, non vérifiée : retirée. Le mini-affûtage de 3 jours rejoint Laura Norris (3 à 4 jours, volume et intensité réduits de 15 à 20 %).
 
 La distance est celle de la course (les sources parlent en kilomètres réels, pas en km-effort). Sur la page Mon plan, la préparatoire conseillée de l'Objectif visé s'affiche tant que sa fenêtre n'est pas passée et qu'aucune Préparatoire Conseillée n'y est déjà ; elle reprend les courses **Repérées** qui tombent dans la fenêtre, à confirmer d'un toucher. MyRunTools n'invente jamais une course : il propose un type de course et une fenêtre.
@@ -109,6 +119,45 @@ La distance est celle de la course (les sources parlent en kilomètres réels, p
 ## 5. Page Mon plan
 
 Une page à part, `preparation.html`, titrée et nommée au menu **Mon plan** (clé des préférences : « Préparation »). Son onglet se coche dans les Préférences, comme Nutrition : le menu par défaut garde cinq onglets, qui tiennent sur un téléphone. Tant qu'elle n'est pas au menu, la page En un coup d'œil la propose dans le bloc « Pour aller plus loin » (bouton « Ajouter au menu », [spécification générale](specification-generale.md), § 6).
+
+### 5.0 Construire mon plan (parcours, 17 novembre 2026)
+
+Sans Objectif à venir, la page Mon plan **est** le parcours ; avec un Objectif, le bouton **« + Objectif »** le relance (la croix ramène au plan). Il occupe la page elle-même, en colonne de 40 rem au plus (pas de feuille par-dessus), et reprend les écrans de question de Mon profil (§ 5.2 : libellé, une ligne par choix, coche Accent) : aucun style nouveau. Absent du site partagé.
+
+```
+(P1) (‹)  ━━━━━━━━━━━━──────────  (×)        progression fine
+(P2) TA COURSE                                  question en libellé
+(P3) …contenu de l'écran…
+(P4)                              [Continuer]   seulement sur les écrans à plusieurs saisies
+```
+
+| N° | Élément | Contenu |
+|---|---|---|
+| P1 | Barre | « ‹ » (écran précédent ; absent sur le premier), la progression (filet Accent sur fond discret, part des écrans du parcours), la croix (absente sans Objectif à venir : la page n'a rien d'autre) |
+| P2 | Question | Libellé de la feuille (comme M5) ; aucune phrase d'aide, aucun « ? » |
+| P3 | Choix | Les lignes du profil (M6) ; une seconde ligne en Texte discret quand le choix se décrit |
+| P4 | Continuer | `mrt-btn is-principal`, en bas à droite ; seulement sur les écrans à plusieurs saisies |
+
+Un choix unique enregistre la réponse (dans Mon profil pour les questions du coureur) et passe aussitôt à l'écran suivant. Les questions du profil **déjà répondues sont sautées** ; le récapitulatif (9) ramène à chacune. La croix garde ce qui est enregistré ; le rôle et la durée ne s'écrivent qu'à « Construire mon plan ».
+
+| Écran | Question | Contenu |
+|---|---|---|
+| 1 | Ton plan | « Une course ou un trail » ; « Me maintenir en forme », estompée, inactive, « Bientôt » à droite (todo) |
+| 2 | Ta course | « + Ajouter une course » en tête (la fiche du site, Confirmée ; enregistrée, elle est choisie et le parcours continue) ; pastilles **Confirmées** (par défaut : confirmées à venir) et **Toutes** (plus les options et les Repérées) ; une ligne par course à venir : nom (600), dessous « dim. 7 mars 2027 · 45 km · 2 100 m D+ » ; une course dont seul le mois est connu : estompée, « date à préciser », inactive ; le rôle actuel « Objectif » à droite s'il l'est. Choisir une Repérée ou une option la passera Confirmée |
+| 2 bis | Deux Objectifs se chevauchent | Seulement en cas de chevauchement (§ 2) : « Trail des Crêtes en Objectif » (dessous : ce que devient l'autre : « Trail des Gorges devient Préparatoire » ou « … devient Plaisir ») ; « Garder Trail des Gorges » (dessous : ce que devient la course choisie). Le second choix range aussitôt le rôle de la course choisie et ramène au plan |
+| 3 | Ton niveau | Débutant (« Tu cours depuis peu, jusqu'à 10 km. ») · Intermédiaire (« Tu cours chaque semaine, jusqu'au semi ou à un trail court. ») · Confirmé (« Marathon ou trails de plus de 40 km, entraînement suivi. ») · Expert (« Entraînement structuré depuis des années, tu vises la performance. ») |
+| 4 | Tes blessures | Rarement ou jamais · Légères, ou une grave guérie (« Petites blessures de temps en temps, ou une grave aujourd'hui guérie. ») · Fréquentes ou récentes (« Blessures fréquentes, gêne qui dure, ou blessure grave récente. ») · Je préfère ne rien dire ; les deux du milieu déplient « Où ? » (les points fragiles) et « Blessure en cours » (texte et date), facultatifs, et « Continuer » |
+| 5 | Mon volume | Distance par semaine et Plus longue sortie récente, en pastilles (tranches du § 5.2) ; suite dès que les deux sont choisies |
+| 6 | Repère d'allure | VMA · 10 km · Semi · Marathon · Je ne sais pas ; le champ (« h:mm:ss ») ; un résultat du Palmarès de moins de 12 mois sur ces distances, prérempli ; dessous : « Ton niveau d'aujourd'hui, pas un ancien record. » ; « Continuer » |
+| 7 | Ma semaine | L'écran de Mon profil, section Course seulement (le renforcement viendra à l'étape « ajouter le renforcement ») ; « Continuer » à la place d'Annuler et Enregistrer ; moins de jours possibles que de séances : « Choisis au moins N jours. » ; au moins une séance |
+| 8 | Début | **Durée conseillée** · 16 semaines (« Recommandée » ; dessous : « à partir du lun. 16 nov. · Entretien d'ici là ») ; **Dès lundi** · 19 semaines (« à partir du lun. 26 oct. · Base plus longue ») ; **Personnaliser** (la fenêtre « Régler les phases », une fois le plan construit). Course trop proche : « Dès lundi » seul, « (raccourcie) ». Un Objectif juste avant : « Dès lundi » devient « Après Trail des Gorges », au lundi qui suit sa récupération. Toujours un lundi, jamais en cours de semaine |
+| 9 | Récapitulatif | Le nom de la course en titre, dessous « dim. 7 mars 2027 · 16 semaines · 45 km » ; une ligne par réponse (Niveau, Blessures, Volume, Repère d'allure, Ma semaine, Début), chacune ramène à son écran ; **« Construire mon plan »** |
+
+**Construire mon plan** : la course prend le rôle Objectif (Confirmée si elle ne l'était pas) ; l'autre course d'un chevauchement prend son rôle ; la durée choisie s'écrit sur l'Objectif (`prepa_semaines`, vide pour la durée conseillée) ; l'IA propose aussitôt le premier bloc (compte pour une proposition du mois ; profil incomplet ou plus de proposition : le plan s'affiche sans, avec le message habituel) ; puis la page Mon plan (vue d'ensemble : étape suivante de la refonte). « Personnaliser » ouvre ensuite « Régler les phases ».
+
+**Objectif principal** (« Cap sur » de l'en-tête) : par défaut le **dernier Objectif à venir** (le plus lointain) ; sans Objectif, la course à venir la plus lointaine, comme avant. Les Préférences proposent « Par défaut (le dernier Objectif) » puis chaque Objectif à venir.
+
+**Rôle Objectif** : il ne se donne plus que dans Mon plan (parcours) ; la fiche d'une course ne le propose plus (un Objectif y est affiché, sans choix), Préparatoire et Plaisir y restent en attendant l'étape « ajouter une course préparatoire ».
 
 ### 5.1 Plan de page
 
@@ -209,11 +258,11 @@ Dans la feuille d'une course (§ 5.3). Une liste de questions courtes, une par l
 
 | Question | Choix | Indispensable |
 |---|---|---|
-| Je cours depuis | Je débute · 1 à 3 ans · 3 à 6 ans · 6 à 10 ans · Plus de 10 ans | Oui |
+| Niveau (17 nov. 2026, remplace « Je cours depuis ») | Débutant · Intermédiaire · Confirmé · Expert, chacun avec sa ligne (§ 5.0, écran 3) | Oui |
 | Distance par semaine | Aucune idée · 0 à 20 km · 20 à 40 km · 40 à 60 km · 60 à 80 km · Plus de 80 km | Oui |
 | Plus longue sortie récente | Moins de 1 h · 1 h à 1 h 30 · 1 h 30 à 2 h · 2 à 3 h · Plus de 3 h | Oui |
 | Ma semaine | Sur un écran, cinq questions enregistrées à chaque toucher, « ‹ Retour » à la fin : jours possibles pour courir (plusieurs) ; nombre de sorties par semaine (champ texte, un chiffre de 0 à 7, sinon « Un chiffre de 0 à 7. ») ; jour à privilégier pour la sortie longue (un des jours de course, ou Peu importe) ; jours possibles pour le renforcement (plusieurs, un même jour que la course possible : le volume est adapté) ; nombre de renforcements par semaine (même champ, 0 à 7). Retirer un jour ramène la sortie longue à « Peu importe » si besoin. Complète avec au moins un jour pour courir et un nombre de sorties | Oui |
-| Repère d'allure | VMA · Temps sur 10 km · Temps sur semi-marathon · Je ne sais pas ; puis la valeur (VMA de 8 à 30 km/h ; 10 km de 20:00 à 2:00:00 ; semi de 50:00 à 4:00:00), « Valider » | Oui |
+| Repère d'allure | VMA · Temps sur 10 km · Temps sur semi-marathon · Temps sur marathon · Je ne sais pas ; puis la valeur (VMA de 8 à 30 km/h ; 10 km de 20:00 à 2:00:00 ; semi de 50:00 à 4:00:00 ; marathon de 1:50:00 à 8:00:00), « Valider » | Oui |
 | Durée maximale d'une séance | 45 min · 1 h · 1 h 30 · 2 h · Sans limite | Non |
 | Terrains d'entraînement | Pas de dénivelé · Petites côtes (moins de 50 m de D+) · Vallonné (50 à 500 m) · Montagne (plus de 500 m) | Non |
 | Niveau en renforcement | Débutant · Intermédiaire · Confirmé · Expert | Non |
@@ -326,6 +375,7 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 4. **Un seul plan** (12 novembre 2026, construit) : page « Mon plan », courses du plan et leur avis, préparatoire conseillée, place d'une course dans la saison (§ 3.5, 5.1, 5.4) ; sans évolution de la base.
 5. **Profil du coureur** (page « Mon profil », un onglet de plus : mesures, niveau, ma semaine, santé, connexions ; temps de référence saisi ou tiré du Palmarès).
 6. **Adaptation**. 6a **construit** (12 novembre 2026) : retour sur une séance, déplacer avec un conseil, détail dans les vues (§ 5.5), blessure en cours dans Mon profil, mention des données de santé ; évolution `034-retour-seance.sql`. 6b **construit** (12 novembre 2026) : réadaptation et historique (§ 6) ; évolution `035-motif-proposition.sql` ; fonction `proposer-seances` à recoller (motif, plafond hors réadaptation, consigne des retours).
+7. **Refonte de Mon plan, étape 1 : construire mon plan** (17 novembre 2026, construit) : parcours `composants/plan-parcours.js` (§ 5.0), niveau et antécédents dans Mon profil, repère sur marathon, rôle Objectif donné dans Mon plan seulement, « Cap sur » le dernier Objectif ; évolution `038-construire-mon-plan.sql`. Étapes suivantes : la vue d'ensemble du plan, ajouter une course préparatoire, ajouter le renforcement.
 
 ## 9. Questions ouvertes
 
@@ -339,6 +389,7 @@ Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de
 - [ ] **Progression du volume** d'une semaine à l'autre : pas de garde-fou chiffré tant qu'aucune source solide n'est trouvée (la règle des 10 % courante n'est pas établie).
 - [x] **Un seul plan** : page « Mon plan », phases réglées sur l'Objectif, avis des courses, préparatoire conseillée, « Passer en Plaisir » (retenu le 12 novembre 2026).
 - [x] **Sources de la préparatoire conseillée** : vérifiées sur les pages entières (12 novembre 2026).
+- [ ] **Préparatoire avant un ultra** : bornes de distance à fournir (« environ 50 km », « environ 80 km ») ; en attendant, Plaisir.
 - [ ] **Saison raccourcie** : faut-il une durée minimale sous laquelle la seconde saison n'a pas de base du tout ?
 
 ## 10. Contrôles
@@ -411,3 +462,15 @@ Résultats attendus, IA (le banc d'essai remplace l'appel par une réponse fixe,
 - Garde-fous au 17 novembre : fractionné le 19 novembre (récupération du Trail du Lac) refusé, le 8 décembre accepté ; une séance le 12 décembre (veille de la Corrida de Noël) refusée.
 - Site partagé en lecture seule : trame et séances visibles ; ni profil, ni proposition.
 - Téléphone : rien ne déborde, la frise défile.
+
+Résultats attendus, construire mon plan (§ 5.0 ; jeu d'essai sans Objectif, profil vide, le semi du Palmarès du 4 oct. 2026 en 1:56:05) :
+
+- Écran 1 : « Une course ou un trail », « Me maintenir en forme » inactive avec « Bientôt » ; ni retour ni croix.
+- Écran 2 : Confirmées (par défaut) : Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Crêtes, chacune avec date, distance et D+ ; Toutes : plus Trail des Cimes, Ultra du Plateau, Trail de la Forêt (« date à préciser », inactive) et Trail des Sommets ; « Ajouter une course » en tête.
+- Trail des Gorges choisi : écran 3, quatre niveaux décrits, la progression à 25 %. Écran 4 : « Légères, ou une grave guérie » déplie « Où ? » et la blessure en cours ; une date sans blessure : « Décris la blessure, ou laisse la date vide. »
+- Écran 5 : la suite dès que la distance et la plus longue sortie sont choisies. Écran 6 : Semi et 1:56:05 préremplis, « Palmarès · 4 oct. 2026 » ; marathon en 1:40:00 refusé (« Le temps sur marathon s'écrit 3:45:00 (entre 1:50:00 et 8:00:00). »), 3:45:00 accepté.
+- Écran 7 : section Course seulement ; mardi et jeudi pour 3 séances : « Choisis au moins 3 jours. »
+- Écran 8 : « Durée conseillée · 16 semaines » (Recommandée, à partir du lun. 16 nov. 2026, Entretien d'ici là), « Dès lundi · 19 semaines » (à partir du lun. 26 oct. 2026, Base plus longue), « Personnaliser ».
+- Écran 9 : « Trail des Gorges », « dim. 7 mars 2027 · 16 semaines · 45 km », six lignes ; une ligne ramène à sa question puis au récapitulatif. « Construire mon plan » : Trail des Gorges Objectif et Confirmée, durée conseillée (vide) ; la page du plan ; l'IA appelée pour le premier bloc ; les réponses rangées dans Mon profil.
+- Trail des Crêtes avancé au 2 mai 2027, profil complet, « + Objectif » : la croix ; Crêtes choisi : « Deux Objectifs se chevauchent » : « Trail des Crêtes en Objectif » (Trail des Gorges devient Plaisir) ou « Garder Trail des Gorges » (Trail des Crêtes devient Plaisir) ; « en Objectif » mène au début (questions du profil sautées) ; « Garder » range le rôle Plaisir du Trail des Crêtes et ramène au plan.
+- Préparatoire pertinente avant le Trail des Gorges : un trail de 25 km le 31 janv. 2027 : Préparatoire ; 11 semaines avant, 35 km, sur route ou après l'Objectif : Plaisir.

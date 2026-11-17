@@ -268,6 +268,7 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Course choisie pour l'en-tête | **Objectif principal** (Préférences) ; l'en-tête garde la formule « Cap sur … » | « Cap » seul, comme étiquette |
 | Rôle d'une course | **Objectif**, Préparatoire, Plaisir | |
 | Module qui construit le plan | Page **Mon plan** (menu, titre, lien d'En un coup d'œil ; clé « Préparation ») ; rubrique **Préparation** d'une course ; les phases se règlent **dans Mon plan seulement** (rond **Régler les phases**, sur un Objectif) ; « plan » dans « Paramétrer le plan », « Place dans le plan », « Courses du plan » ; la frise de la page bascule entre **En cours** et **Tout** | plan de saison, prépa, Saison (pour la frise), Plans des courses, page Préparation |
+| Parcours de Mon plan | **Construire mon plan** (bouton final) ; **+ Objectif** (le relancer) ; **Niveau** (Débutant, Intermédiaire, Confirmé, Expert) ; **Antécédents de blessures** | Je cours depuis, Générer mon plan, programme |
 | Jugement d'une course dans le plan | **avis** : **Conseillée**, **Possible**, **Déconseillée** ; **Préparatoire conseillée** (type de course et fenêtre) | recommandée, à éviter |
 | Phases affichées au Calendrier | bouton **Phases** | Plan (bouton), Phases de prépa |
 | Choix du Calendrier (Semaine, Mois, Année…) | menu **Vue** | Périodicité |

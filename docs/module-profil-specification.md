@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.4 · 13 novembre 2026 · [Retour au sommaire](README.md) · prénom et nom dans Moi
+Version 0.5 · 17 novembre 2026 · [Retour au sommaire](README.md) · **Niveau** (quatre choix décrits) à la place de « Je cours depuis » ; **Antécédents de blessures** dans Santé ; repère d'allure sur **marathon** ; profil express réduit à quatre questions (le repère d'allure se demande dans le parcours de Mon plan, [Préparation](module-preparation-specification.md), § 5.0) · Avant : prénom et nom dans Moi
 
 ## 1. Rôle
 
@@ -8,7 +8,7 @@ Une seule page rassemble tout ce qui décrit le coureur : ses mesures, son nivea
 
 - La page **Mon profil** (`profil.html`) est au menu par défaut (sixième onglet, après Palmarès ; clé des préférences « Profil »).
 - La **feuille Mon profil** reprend la même liste, au-dessus d'une autre page : le bouton « Mon profil » de Mon plan et le lien « Calculé pour … » de Nutrition l'ouvrent, pour compléter sans changer de page.
-- Le **profil express** (bloc Premiers pas d'En un coup d'œil, [spécification générale](specification-generale.md), § 5 bis) : la même feuille, réduite à cinq questions (sexe, date de naissance, poids, taille, repère d'allure, « Je ne sais pas » compris), posées l'une après l'autre en commençant par la première qui manque, avec « n sur 5 » dans le titre, sans retour à la liste, dans une petite feuille de la hauteur de chaque question ; la dernière enregistrée, la feuille se ferme. La croix la ferme à tout moment (« plus tard ») ; ce qui est enregistré reste. Le profil express est rempli quand ces cinq questions ont une réponse.
+- Le **profil express** (bloc Premiers pas d'En un coup d'œil, [spécification générale](specification-generale.md), § 5 bis) : la même feuille, réduite à quatre questions (sexe, date de naissance, poids, taille), posées l'une après l'autre en commençant par la première qui manque, avec « n sur 4 » dans le titre, sans retour à la liste, dans une petite feuille de la hauteur de chaque question ; la dernière enregistrée, la feuille se ferme. La croix la ferme à tout moment (« plus tard ») ; ce qui est enregistré reste. Le profil express est rempli quand ces quatre questions ont une réponse.
 - L'encart du premier usage de Nutrition (les seules mesures qui manquent au calcul) reste : il range les mêmes données.
 - Ressenti, douleur et fatigue se notent sur chaque séance ([Préparation](module-preparation-specification.md), § 5.5). Connexions (Strava, import d'un fichier) : avec l'import ; pas de section vide d'ici là.
 
@@ -24,7 +24,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 5).
     │ Date de naissance            À renseigner   › │
     │ Poids · Taille · Activité hors sport · Pointure │
 (5) MON NIVEAU                                       0 sur 4
-    │ Je cours depuis · Distance par semaine · Plus longue sortie récente │
+    │ Niveau · Distance par semaine · Plus longue sortie récente │
     │ Repère d'allure                 À renseigner › │
     │ (6) ┆ Dans ton Palmarès : Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026  [Reprendre] ┆
     │ Durée maximale d'une séance · Terrains d'entraînement · Niveau en renforcement │
@@ -41,7 +41,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 5).
 | 2 | État | « Profil à compléter : … » (les questions obligatoires qui manquent, dans l'ordre de la page) ou « Profil complet. » |
 | 3, 5, 7, 8 | Sections | Moi, Mon niveau, Ma semaine, Santé : une ligne par question (question à gauche, réponse à droite, « À renseigner » pour une obligatoire vide, « — » pour une facultative) |
 | 4 | Compte | Les obligatoires remplies de la section, « 1 sur 5 » ; Santé n'en a pas |
-| 6 | Repère du Palmarès | La dernière course **courue** sur 10 km ou semi-marathon (route), de moins de 12 mois, avec un temps (pas d'abandon) ; affiché tant qu'il diffère du repère d'allure saisi ; « Reprendre » en fait le repère d'allure |
+| 6 | Repère du Palmarès | La dernière course **courue** sur 10 km, semi-marathon ou marathon (route), de moins de 12 mois, avec un temps (pas d'abandon) ; affiché tant qu'il diffère du repère d'allure saisi ; « Reprendre » en fait le repère d'allure |
 
 Une ligne touchée ouvre sa question dans la feuille commune : sur la page, la question seule (croix, sans « ‹ »), fermée à l'enregistrement ; dans la feuille Mon profil, la liste puis la question (« ‹ » revient à la liste). Un choix s'enregistre au toucher ; un champ, par « Enregistrer » ; Ma semaine, par « Enregistrer » en haut (« Annuler » à gauche).
 
@@ -59,13 +59,14 @@ Site partagé en lecture seule : « Le profil n'est pas partagé. »
 | Moi | Taille | 100 à 250 cm | Nutrition | `profils.taille` |
 | Moi | Activité hors sport | Sédentaire, Peu actif, Actif, Très actif | Nutrition | `profils.activite` |
 | Moi | Pointure | 30 à 55, demi-pointures | — | `profils.pointure` |
-| Mon niveau | Je cours depuis, Distance par semaine, Plus longue sortie récente | Tranches ([Préparation](module-preparation-specification.md), § 5.2) | Mon plan (IA) | `profil_entrainement` |
+| Mon niveau | Niveau (Débutant, Intermédiaire, Confirmé, Expert, chacun décrit ; remplace « Je cours depuis » le 17 nov. 2026), Distance par semaine, Plus longue sortie récente | Tranches ([Préparation](module-preparation-specification.md), § 5.2) | Mon plan (IA) | `profil_entrainement` |
 | Mon niveau | Repère d'allure | VMA (8 à 30 km/h), temps sur 10 km ou sur semi, ou « Je ne sais pas » | Mon plan (IA) | `profil_entrainement` |
 | Mon niveau | Durée maximale d'une séance, Terrains d'entraînement, Niveau en renforcement | Listes | — | `profil_entrainement` |
 | Ma semaine | Course | Jours possibles, nombre de séances (0 à 7), jour de la sortie longue | Mon plan (IA) | `profil_entrainement` |
 | Ma semaine | Renforcement | Jours possibles, nombre de séances (0 à 7) | — | `profil_entrainement` |
 | Santé | FC max | 100 à 230 bpm | — | `profil_entrainement.fc_max` |
 | Santé | FC de repos | 30 à 120 bpm | — | `profils.fc_repos` |
+| Santé | Antécédents de blessures | Rarement ou jamais · Légères, ou une grave guérie · Fréquentes ou récentes · Je préfère ne rien dire (facultatif) | Mon plan (IA) | `profil_entrainement.antecedents` (évolution 038) |
 | Santé | Points fragiles | Texte, 300 caractères au plus | — | `profil_entrainement.fragiles` |
 | Santé | Blessure en cours | Texte (300 caractères) et date de début (pas dans le futur) ; « Plus de blessure » l'efface | — | `profil_entrainement.blessure`, `blessure_debut` (évolution 034) |
 
@@ -79,12 +80,12 @@ Aucune table nouvelle. Évolution `033-mon-profil.sql` (à coller dans l'éditeu
 
 Jeu d'essai : données fictives du banc d'essai au mardi 20 octobre 2026 ; profil : sexe Homme seulement ; Palmarès : 10 km de Montauban (29 mars 2026, 49:18) et Semi de San Sebastián (4 oct. 2026, 1:56:05).
 
-- Mon plan : « Profil à compléter : je cours depuis, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. », bouton « Mon profil » ; la feuille : quatre sections, « Moi 3 sur 7 », « Mon niveau 0 sur 4 », « Ma semaine 0 sur 1 », Santé sans compte ; 20 lignes, 9 « À renseigner » ; Pointure et FC de repos en « — ».
+- Mon plan : « Profil à compléter : niveau, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. », bouton « Mon profil » ; la feuille : quatre sections, « Moi 3 sur 7 », « Mon niveau 0 sur 4 », « Ma semaine 0 sur 1 », Santé sans compte ; 20 lignes, 9 « À renseigner » ; Pointure et FC de repos en « — ».
 - Repère du Palmarès : « Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026 » ; 10 km en 45:30 saisi, puis « Reprendre » : semi en 6 965 secondes, la suggestion disparaît.
 - Même taille pour la liste et chaque question sur ordinateur, glissement à l'ouverture et au retour.
 - Ma semaine : mardi, jeudi, samedi ; 3 séances, longue le samedi ; renforcement mardi et jeudi, 1 : « mar., jeu., sam. · 3 séances, longue le samedi », « mar., jeu. · 1 séance » ; 8 refusé.
 - Refus : VMA 35, FC max 250, naissance en 2031, pointure 42,3 ; acceptés : FC max 186, FC de repos 52, pointure 42,5, poids 72,4 (virgule), taille 178, activité Peu actif ; mesures écrites dans `profils`, FC max et points fragiles avec le niveau ; « Moi 7 sur 7 » ; Mon plan : « Profil complet. ».
-- Page Mon profil : état de toutes les obligatoires qui manquent (« date de naissance, poids, taille, activité hors sport, je cours depuis, distance par semaine, plus longue sortie récente, repère d'allure, ma semaine ») ; onglet et titre « Mon profil » ; Taille touchée : la question seule, sans « ‹ » ; 181 enregistré : feuille fermée, « Taille | 181 cm », « Moi 4 sur 7 » ; prénom vide refusé, « Camille » enregistré.
+- Page Mon profil : état de toutes les obligatoires qui manquent (« date de naissance, poids, taille, activité hors sport, niveau, distance par semaine, plus longue sortie récente, repère d'allure, ma semaine ») ; onglet et titre « Mon profil » ; Taille touchée : la question seule, sans « ‹ » ; 181 enregistré : feuille fermée, « Taille | 181 cm », « Moi 4 sur 7 » ; prénom vide refusé, « Camille » enregistré.
 - Nutrition : « Calculé pour … » ouvre la feuille Mon profil, les mesures en tête ; poids 72,5 et activité Actif : deux écritures, besoin recalculé (2 401 kcal) ; panne : « Enregistrement impossible pour l'instant. », la question reste ouverte.
 - Profil express : voir le jeu d'essai de la [spécification générale](specification-generale.md), § 13 (Premiers pas).
 - Menu par défaut : six onglets, Mon profil en dernier ; téléphone sans débordement ; site partagé : « Le profil n'est pas partagé. ».

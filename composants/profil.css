@@ -25,6 +25,9 @@
 .ps-choix i { visibility: hidden; color: var(--accent); }
 .ps-choix.is-on { font-weight: 600; color: var(--accent); }
 .ps-choix.is-on i { visibility: visible; }
+/* Un choix décrit (niveau, antécédents) : le choix, puis sa ligne en Texte discret. */
+.ps-choix-t { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.ps-choix-t small { font-size: var(--t-second); font-weight: 400; color: var(--muted); }
 /* Ma semaine : une question par bloc, ses réponses en pastilles (plusieurs pour les jours). */
 .ps-sem-q { padding: 0.8rem 0.9rem; }
 .ps-sem-q + .ps-sem-q { border-top: 1px solid var(--surface); }

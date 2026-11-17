@@ -112,3 +112,4 @@
 /* Tracé GPX : l'état, puis « Importer un GPX » ou « Remplacer » et « Supprimer ». */
 .fc-gpx { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
 .fc-gpx-etat { color: var(--muted); }
+.fc-fixe { margin: 0; padding: 0.45rem 0; font-size: var(--t-texte); color: var(--text); }

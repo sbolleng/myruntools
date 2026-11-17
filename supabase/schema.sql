@@ -250,14 +250,18 @@ create table profil_entrainement (
   volume_tranche text check (volume_tranche in ('inconnu', '0-20', '20-40', '40-60', '60-80', '80+')),
   sortie_tranche text check (sortie_tranche in ('-1h', '1h-1h30', '1h30-2h', '2-3h', '3h+')),
   semaine_type   text[] check (cardinality(semaine_type) = 7 and semaine_type <@ array['repos', 'course', 'longue', 'renfo']),
-  allure_type    text check (allure_type in ('vma', '10km', 'semi', 'inconnu')),
+  allure_type    text check (allure_type in ('vma', '10km', 'semi', 'marathon', 'inconnu')),
   terrain        text check (terrain in ('plat', 'cotes', 'vallonne', 'montagne')),
   renfo_niveau   text check (renfo_niveau in ('debutant', 'intermediaire', 'confirme', 'expert')),
   -- Évolution 027 : jours possibles et nombre de séances (semaine_type n'est plus employée ; jour_long : la sortie longue, vide : peu importe).
   jours_course smallint[] check (jours_course <@ array[1, 2, 3, 4, 5, 6, 7]::smallint[]),
   jours_renfo  smallint[] check (jours_renfo <@ array[1, 2, 3, 4, 5, 6, 7]::smallint[]),
   nb_sorties   smallint check (nb_sorties between 0 and 7),
-  nb_renfo     smallint check (nb_renfo between 0 and 7)
+  nb_renfo     smallint check (nb_renfo between 0 and 7),
+  -- Évolution 038 : niveau (remplace anciennete), antécédents de blessures, repère sur marathon.
+  niveau           text check (niveau in ('debutant', 'intermediaire', 'confirme', 'expert')),
+  antecedents      text check (antecedents in ('rares', 'legeres', 'frequentes', 'non_dit')),
+  temps_marathon_s integer check (temps_marathon_s between 6600 and 28800)
 );
 
 -- ----- Nutrition : aliments de l'utilisateur et lignes de repas
