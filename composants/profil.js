@@ -266,7 +266,7 @@
       corps.innerHTML = barre('Ma semaine', true, true) +
         section('Course',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, b.jc.includes(i + 1), j)).join('')) +
-          chiffre('nb_sorties', 'Séances par semaine', b.ns) +
+          chiffre('nb_sorties', 'Séances maximum par semaine', b.ns) +
           q('Sortie longue', (b.jc.length ? b.jc.map(n => pastille('data-long', n, b.jl === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !b.jl, 'Peu importe'))) +
         section('Renforcement',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, b.jr.includes(i + 1), j)).join('')) +
