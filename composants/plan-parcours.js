@@ -160,7 +160,7 @@
       const q = (lib, html) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + html + '</div></div>';
       return '<section class="mrt-section"><h2 class="mrt-section-titre">Course</h2><div class="ps-groupe-l">' +
         q('Jours possibles', PRf.JOURS_COURTS.map((j, i) => pastille('data-jc', i + 1, b.jc.includes(i + 1), j)).join('')) +
-        '<label class="ps-sem-q ps-chiffre"><span>Séances par semaine</span><input class="mrt-champ" name="nb_sorties" inputmode="numeric" maxlength="1" placeholder="1 à 7" value="' + esc(b.ns) + '"></label>' +
+        '<label class="ps-sem-q ps-chiffre"><span>Séances maximum par semaine</span><input class="mrt-champ" name="nb_sorties" inputmode="numeric" maxlength="1" placeholder="1 à 7" value="' + esc(b.ns) + '"></label>' +
         q('Sortie longue', b.jc.map(n => pastille('data-long', n, b.jl === n, PRf.JOURS_COURTS[n - 1])).join('') + pastille('data-long', 0, !b.jl, 'Peu importe')) + '</div></section>' + continuer;
     }
     if (k === 'debut') return '<div class="ps-groupe-l">' + departs(ctx, st, x).map((o, i) => choix('data-debut', i, st.debut && st.debut.mode === o.mode,
