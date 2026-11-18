@@ -50,6 +50,13 @@
     const av = P.avisCourse(essai, Object.assign({}, l, { role: 'preparatoire', statut: 'confirmee' }));
     return av && av.niveau === 'conseillee' ? 'preparatoire' : 'plaisir';
   }
+  // Une course en carte, comme sur la page Courses (sans lien ni inscription) : rôle et date complète, nom complet, lieu et format, distance.
+  function carte(c, role, enCours) {
+    const M = window.mrtCartes, dist = M.distance(c), info = M.lieuFormat(c);
+    return '<article class="ob-carte sans-cpt pp-carte' + (enCours ? ' is-obj' : '') + '"><span class="ob-role' + (enCours ? ' is-obj' : '') + '">' + role + '</span><span class="ob-date">' + window.mrtFormat.date(c.date, { semaine: true }) + '</span>' +
+      '<h3 class="ob-nom">' + M.nomHtml(c) + '</h3>' + (info ? '<p class="ob-info">' + esc(info) + '</p>' : '') +
+      (dist ? '<div class="ob-lignes">' + M.ligne('Distance', '<span class="ob-val">' + esc(dist) + '</span>') + '</div>' : '') + '</article>';
+  }
   const devient = (c, role) => esc(c.course) + ' devient ' + ROLE[role];
 
   // ----- Le parcours : la suite des écrans -----
@@ -119,9 +126,12 @@
           : '<p class="pp-vide">' + (st.filtre === 'toutes' ? 'Aucune course à venir.' : 'Aucune course confirmée à venir.') + '</p>');
     }
     if (k === 'conflit') {
-      const cs = conflits(ctx, x), w = cs.find(o => o.date > x.date) || null, rx = w ? rolePerdant(ctx, x, w) : 'plaisir';
-      return '<div class="ps-groupe-l">' + choix('data-conflit', 'prendre', false, texte('<b>' + esc(x.course) + '</b> en Objectif', cs.map(o => devient(o, rolePerdant(ctx, o, x))).join(' · '))) +
-        choix('data-conflit', 'garder', false, texte('Garder <b>' + cs.map(o => esc(o.course)).join('</b> et <b>') + '</b>', devient(x, rx))) + '</div>';
+      // L'alerte, puis deux colonnes : l'Objectif en cours (ou ceux), la course choisie ; sous chacune, son bouton et ce que devient l'autre.
+      const cs = conflits(ctx, x), w = cs.find(o => o.date > x.date) || null, rx = w ? rolePerdant(ctx, x, w) : 'plaisir', plus = cs.length > 1;
+      const colonne = (cartes, act, lib, suite) => '<div class="pp-c-col">' + cartes + '<button type="button" class="mrt-btn is-actif" data-conflit="' + act + '">' + lib + '</button><p class="pp-note">' + suite + '</p></div>';
+      return '<p class="pp-alerte" role="alert">' + window.mrtIcone.attention + 'Attention : deux Objectifs se chevauchent</p><div class="pp-conflit">' +
+        colonne(cs.map(o => carte(o, 'Objectif en cours', true)).join(''), 'garder', plus ? 'Garder les Objectifs en cours' : 'Garder l\'Objectif en cours', devient(x, rx)) +
+        colonne(carte(x, 'Nouvel Objectif', false), 'prendre', plus ? 'Remplacer les Objectifs en cours' : 'Remplacer l\'Objectif en cours', cs.map(o => devient(o, rolePerdant(ctx, o, x))).join(' · ')) + '</div>';
     }
     if (k === 'niveau') return '<div class="ps-groupe-l">' + PRf.ECHELLES.niveau.map(([v, lib]) => choix('data-val', v, pr.niveau === v, PRf.choixTexte('niveau', v, lib))).join('') + '</div>';
     if (k === 'blessures') {
@@ -194,7 +204,7 @@
       (st.pile.length > 1 ? '<button type="button" class="mrt-rond" data-pp="retour" aria-label="Écran précédent" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span class="pp-place"></span>') +
       '<span class="pp-prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></span>' +
       (fermable ? '<button type="button" class="mrt-rond is-fermer" data-pp="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button>' : '<span class="pp-place"></span>') + '</div>' +
-      '<p class="fc-libelle">' + TITRES[k] + '</p><p class="ps-msg" role="alert">' + esc(st.msg || '') + '</p>' + ecran(ctx, st) + '</div>';
+      (k === 'conflit' ? '' : '<p class="fc-libelle">' + TITRES[k] + '</p>') + '<p class="ps-msg" role="alert">' + esc(st.msg || '') + '</p>' + ecran(ctx, st) + '</div>';
     const champ = root.querySelector('.pp-form [name]');
     if (champ && k === 'allure') champ.focus({ preventScroll: true });
   }

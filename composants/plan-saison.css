@@ -122,8 +122,8 @@
 .ps-vers-cal { display: inline-block; margin-top: 0.6rem; font-size: var(--t-second); }
 
 /* ===== Le parcours « Construire mon plan » (plan-parcours.js ; spécification Préparation, § 5.0) =====
-   Les écrans de question de Mon profil (profil.css), dans la page : une colonne de 40 rem, la barre (‹, progression, croix). */
-.pp { max-width: 40rem; margin: 0 auto; padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+   Les écrans de question de Mon profil (profil.css), dans la page, toute sa largeur (le cadre du plan) : la barre (‹, progression, croix). */
+.pp { padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .pp-barre { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
 .pp-place { width: 2rem; flex: none; }
 .pp-prog { flex: 1; height: 4px; background: var(--case); border-radius: 2px; overflow: hidden; }
@@ -142,3 +142,13 @@
 .pp .ps-titre { margin-top: 0.2rem; }
 @media (hover: hover) { .pp .ps-choix[disabled]:hover { background: none; } }
 @media (prefers-reduced-motion: reduce) { .pp-prog i { transition: none; } }
+/* Deux Objectifs qui se chevauchent : l'alerte, puis deux colonnes (cartes de la page Courses, bouton à contour Accent, conséquence) ; une seule sur téléphone. */
+.pp-alerte { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.8rem; font-size: var(--t-texte); font-weight: 600; color: var(--red); }
+.pp-alerte .mrt-ico { width: 1.1rem; height: 1.1rem; flex: none; }
+.pp-conflit { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.pp-c-col { display: flex; flex-direction: column; align-items: stretch; }
+.pp-c-col .pp-carte { flex: 1; margin-bottom: 0.8rem; background: var(--case); }
+.pp-carte.is-obj { border-color: var(--accent); }
+.pp-c-col .mrt-btn { align-self: flex-start; }
+.pp-c-col .pp-note { margin-top: 0.4rem; }
+@media (max-width: 600px) { .pp-conflit { grid-template-columns: 1fr; gap: 1.6rem; } .pp-c-col .mrt-btn { align-self: stretch; } }
