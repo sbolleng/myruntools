@@ -2985,14 +2985,17 @@ const CONTROLES = {
     pb.push(egal(1, await p.locator('.pp [data-pp="fermer"]').count(), '« + Objectif » : le parcours, avec la croix'));
     await p.click('[data-plan="course"]'); await vers(p, 'course');
     await p.click('[data-course="' + id(7) + '"]'); await vers(p, 'conflit');
-    const conflit = await choix(p);
+    const conflit = await p.evaluate(() => [document.querySelector('.pp-alerte').textContent, document.querySelector('.pp .fc-libelle') ? 'libellé' : 'sans libellé',
+      ...[...document.querySelectorAll('.pp-c-col')].map(c => [...c.querySelectorAll('.ob-role, .ob-date, .ob-nom, .ob-info, .ob-val, .mrt-btn.is-actif, .pp-note')].map(e => e.textContent.replace(/\s+/g, ' ').trim()).join(' | '))]);
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-conflit-tel.png') });
     await p.click('[data-conflit="prendre"]'); await vers(p, 'debut');
     const sautes = await ecran(p);
     await p.click('.pp [data-pp="retour"]'); await vers(p, 'conflit');
     await p.click('[data-conflit="garder"]');
     await p.waitForFunction(() => !document.querySelector('.pp'));
-    pb.push(egal([['Trail des Crêtes en ObjectifTrail des Gorges devient Plaisir', 'Garder Trail des GorgesTrail des Crêtes devient Plaisir'], 'debut', ['?id=eq.' + id(7) + ' {"role":"plaisir"}']],
+    pb.push(egal([['Attention : deux Objectifs se chevauchent', 'sans libellé',
+      'Objectif en cours | dim. 7 mars 2027 | Trail des Gorges | Mont-Clair · Trail long | 45 km · 2 100 m D+ | Garder l\'Objectif en cours | Trail des Crêtes devient Plaisir',
+      'Nouvel Objectif | dim. 2 mai 2027 | Trail des Crêtes | Mont-Clair · Ultra-trail | 60 km · 3 500 m D+ | Remplacer l\'Objectif en cours | Trail des Gorges devient Plaisir'], 'debut', ['?id=eq.' + id(7) + ' {"role":"plaisir"}']],
       [conflit, sautes, d.ecritures.filter(x => x.table === 'courses').map(x => x.filtres + ' ' + JSON.stringify(x.corps))],
       'chevauchement : choisir ; l\'autre devient Plaisir (pas de règle de préparatoire avant un ultra) ; profil complet : du conflit au début ; « Garder » range le rôle et ramène au plan'));
     pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement'));
