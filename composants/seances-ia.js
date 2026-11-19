@@ -96,6 +96,8 @@
       if (!/^\d{4}-\d\d-\d\d$/.test(j) || j < lundi || j > fin) return err.push(quand + ' : date hors du bloc (' + lundi + ' au ' + fin + ')');
       if (!TYPES[s.type]) err.push(quand + ' : type inconnu');
       if (!String(s.libelle || '').trim() || String(s.libelle).length > 100) err.push(quand + ' : libellé vide ou de plus de 100 caractères');
+      const nomOk = P.lireLibelle(s.libelle), dispo = P.nomsDuType(s.type).map(x => x.nom);
+      if (String(s.libelle || '').trim() && !dispo.includes(nomOk.nom)) err.push(quand + ' : le libellé doit commencer par un nom de la liste (' + dispo.join(', ') + ')');
       if (!Number.isInteger(s.duree_min) || s.duree_min < 1 || s.duree_min > 1440) err.push(quand + ' : durée invalide');
       const ok = possibles(pr, j);
       if (s.type === 'run' && !ok.includes('course')) err.push(quand + ' : jour non prévu pour courir');
