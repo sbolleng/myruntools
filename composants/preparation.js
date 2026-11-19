@@ -668,7 +668,10 @@
       const ajout = e.target.closest('[data-ajout]'), edit = e.target.closest('[data-edit]'), prep = e.target.closest('[data-preparer]');
       const noter = e.target.closest('[data-noter]');
       if (noter) { const s = (ctx.seances || []).find(x => x.id === noter.dataset.noter); if (s) feuilleRetour(ctx, s); return; }
-      if (ajout) ouvrirSeance(ctx, { date: ajout.dataset.ajout, course: courseId || null });
+      // Toute la carte d'une séance ouvre sa fenêtre, sauf la case « faite », « à noter » et les liens.
+      const carte = !edit && !ajout && !noter && !prep && e.target.closest('[data-carte]');
+      if (carte && !e.target.closest('input, button, a, label')) ouvrirSeance(ctx, { seance: ctx.seances.find(s => s.id === carte.dataset.carte) });
+      else if (ajout) ouvrirSeance(ctx, { date: ajout.dataset.ajout, course: courseId || null });
       else if (edit) ouvrirSeance(ctx, { seance: ctx.seances.find(s => s.id === edit.dataset.edit) });
       else if (prep) ouvrirPreparer(ctx, prep.dataset.preparer);
     });

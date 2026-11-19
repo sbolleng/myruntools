@@ -60,7 +60,7 @@
     const carteHtml = s => {
       const lib = String(s.libelle || ''), k = lib.indexOf(':'), nom = (k > 0 ? lib.slice(0, k) : lib).trim();
       const ligne2 = [TYPES[s.type], detail(s)].filter(Boolean).join(' · ');
-      return '<div class="cal-carte' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + '>' +
+      return '<div class="cal-carte' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '" data-carte="' + esc(s.id) + '"' : '') + '>' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
         '<span class="cal-carte-nom">' + (s.intensite ? '<i class="cal-v-int i-' + s.intensite + '" title="' + (P.INTENSITES[s.intensite] || '') + '"></i>' : '') + esc(nom) + '</span>' +
         '<span class="cal-carte-det">' + esc(ligne2) + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') +
@@ -253,7 +253,8 @@
     }
     function vueSemaine() {
       const phases = phasesVisibles(), plans = phases ? planSaison(ctx) : null;
-      let h = haut('semaines') + '<div class="cal-sep"></div>' + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') +
+      const intensites = '<span class="cal-groupe"><b class="cal-libelle">Intensité</b>' + Object.keys(P.INTENSITES).map(k => '<span><i class="cal-v-int i-' + k + '"></i>' + P.INTENSITES[k] + '</span>').join('') + '</span>';
+      let h = haut('semaines') + '<div class="cal-sep"></div><div class="cal-legende">' + intensites + (phases ? legendePhases() : '') + '</div>' +
         '<button type="button" class="mrt-lien cal-passees" data-passees>↑ Afficher les semaines passées</button>';
       for (let i = 0; i < liste.nb; i++) h += semaineHtml(addDays(liste.debut, 7 * i), plans);
       return h + '<div class="cal-fin" aria-hidden="true"></div>';

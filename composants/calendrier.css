@@ -237,6 +237,7 @@
 .cal-carte-nom { overflow: hidden; font-size: var(--t-texte); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .cal-carte-det { font-size: var(--t-petit); color: var(--muted); }
 .cal-carte.faite .cal-carte-nom { color: var(--muted); text-decoration: line-through; }
-.cal-carte[draggable="true"] { cursor: grab; }
+.cal-carte[data-carte] { cursor: pointer; }
+.cal-carte[data-carte]:hover { border-color: var(--accent); }
 .cal-carte .cal-v-anoter { margin-left: 0; }
 .cal-repos { font-size: var(--t-second); color: var(--muted); }
