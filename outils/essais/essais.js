@@ -3014,6 +3014,27 @@ const CONTROLES = {
       [await role('2027-01-31', 25, 'trail_court'), await role('2026-12-20', 25, 'trail_court'), await role('2027-01-31', 35, 'trail_court'), await role('2027-01-31', 25, 'route_semi'), await role('2027-04-04', 25, 'trail_court')],
       'préparatoire pertinente : 25 km de trail 5 semaines avant ; sinon Plaisir (11 semaines, 35 km, route, après l\'Objectif)'));
     await ctx.close();
+    // 4. Mon profil changé après la dernière proposition : une ligne dans Mon plan, « Refaire la proposition » ; dans Mon profil, la ligne d'information.
+    const avecProp = maj => copie(x => {
+      x.profil_entrainement = [Object.assign({}, COMPLET, { maj })];
+      x.propositions = [{ id: 'p1', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Entretien.', seances: [] } }];
+    });
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, avecProp('2026-10-18T10:00:00Z'), {}, PARIS));
+    await p.waitForSelector('[data-ia="proposer"]');
+    const avant = await p.locator('.ps-profil-change').count();
+    await ctx.close();
+    d = avecProp('2026-10-19T12:00:00Z');
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await p.waitForSelector('.ps-profil-change');
+    const ligneChange = await p.evaluate(() => [document.querySelector('.ps-profil-change').textContent, document.querySelector('.ps-profil-change [data-ia]').dataset.ia]);
+    await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    const infoAvant = await p.locator('.ps-profil .ps-info').count();
+    await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-info');
+    pb.push(egal([0, ['Ton profil a changé depuis la dernière proposition. Refaire la proposition', 'proposer'], 0, 'Mon plan : refais la proposition pour en tenir compte.'],
+      [avant, ligneChange, infoAvant, await p.textContent('.ps-profil .ps-info')],
+      'profil changé après la dernière proposition : la ligne et « Refaire la proposition » dans Mon plan (rien avant) ; dans Mon profil, après un changement, la ligne d\'information'));
+    pb.push(egal([], erreurs, 'profil changé, erreurs JavaScript'));
+    await ctx.close();
     return pb;
   },
   async preparationIA(nav, db0) {

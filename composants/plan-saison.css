@@ -152,3 +152,5 @@
 .pp-c-col .mrt-btn { align-self: flex-start; }
 .pp-c-col .pp-note { margin-top: 0.4rem; }
 @media (max-width: 600px) { .pp-conflit { grid-template-columns: 1fr; gap: 1.6rem; } .pp-c-col .mrt-btn { align-self: stretch; } }
+/* Mon profil changé depuis la dernière proposition : une ligne, comme une alerte, avec « Refaire la proposition ». */
+.ps-profil-change { margin: 0 0 0.8rem; padding: 0.45rem 0.7rem; font-size: var(--t-second); color: var(--text); border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 4px 4px 0; }
