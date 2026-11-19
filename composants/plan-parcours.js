@@ -134,11 +134,13 @@
     }
     if (k === 'niveau') return '<div class="ps-groupe-l">' + PRf.ECHELLES.niveau.map(([v, lib]) => choix('data-val', v, pr.niveau === v, PRf.choixTexte('niveau', v, lib))).join('') + '</div>';
     if (k === 'blessures') {
-      const det = st.detail, bz = st.bless || { fragiles: pr.fragiles || '', blessure: pr.blessure || '', debut: pr.blessure_debut || '' };
+      // Points fragiles (durables) ; « Blessé en ce moment ? » Non (d'office) ou Oui, et alors « Quoi et où ? » ; la date : celle du jour.
+      const det = st.detail, bz = st.bless || (st.bless = { fragiles: pr.fragiles || '', oui: !!pr.blessure, blessure: pr.blessure || '' });
       return '<div class="ps-groupe-l">' + PRf.ECHELLES.antecedents.map(([v, lib]) => choix('data-antecedent', v, pr.antecedents === v, PRf.choixTexte('antecedents', v, lib))).join('') + '</div>' +
-        (det ? '<form class="ps-valeur pp-form" novalidate><label class="cal-champ"><span>Où ?</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="2" placeholder="ex. tendon d\'Achille gauche">' + esc(bz.fragiles) + '</textarea></label>' +
-          '<label class="cal-champ"><span>Blessure en cours</span><textarea class="mrt-champ" name="blessure" maxlength="300" rows="2" placeholder="ex. entorse de la cheville droite">' + esc(bz.blessure) + '</textarea></label>' +
-          '<label class="cal-champ"><span>Depuis le</span><input class="mrt-champ" type="date" name="debut" value="' + esc(bz.debut) + '"></label></form>' + continuer : '');
+        (det ? '<form class="ps-valeur pp-form" novalidate><label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="2" placeholder="ex. tendon d\'Achille gauche">' + esc(bz.fragiles) + '</textarea></label>' +
+          '<div class="cal-champ pp-blesse"><span>Blessé en ce moment ?</span><div class="ps-coches">' + pastille('data-blesse', 'non', !bz.oui, 'Non') + pastille('data-blesse', 'oui', bz.oui, 'Oui') + '</div></div>' +
+          (bz.oui ? '<label class="cal-champ"><span>Quoi et où ?</span><textarea class="mrt-champ" name="blessure" maxlength="300" rows="2" placeholder="ex. entorse de la cheville droite">' + esc(bz.blessure) + '</textarea></label>' : '') +
+          '</form>' + continuer : '');
     }
     if (k === 'volume') {
       const grp = (cle, lib) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + PRf.ECHELLES[cle].map(([v, l]) => pastille('data-vol', cle + '|' + v, pr[cle] === v, l)).join('') + '</div></div>';
@@ -254,17 +256,22 @@
       }
       if (b('[data-val]') && courant(st) === 'niveau') { if (await ranger(ctx, st, { niveau: b('[data-val]').dataset.val })) suivant(ctx, st); return redessiner(); }
       if (b('[data-antecedent]')) {
-        const v = b('[data-antecedent]').dataset.antecedent;
+        const v = b('[data-antecedent]').dataset.antecedent, f0 = root.querySelector('.pp-form');
+        if (f0 && st.bless) { st.bless.fragiles = f0.fragiles.value; if (f0.blessure) st.bless.blessure = f0.blessure.value; } // le texte tapé reste
         if (!(await ranger(ctx, st, { antecedents: v }))) return redessiner();
         if (v === 'legeres' || v === 'frequentes') { st.detail = true; return redessiner(); }
         suivant(ctx, st); return redessiner();
       }
+      // Les champs tapés restent quand l'écran se redessine.
+      const lireBless = () => { const f = root.querySelector('.pp-form'); if (f && st.bless) { st.bless.fragiles = f.fragiles.value; if (f.blessure) st.bless.blessure = f.blessure.value; } };
+      if (b('[data-blesse]') && st.bless) { lireBless(); st.bless.oui = b('[data-blesse]').dataset.blesse === 'oui'; st.msg = ''; return redessiner(); }
       if (act === 'continuer' && courant(st) === 'blessures') {
-        const f = root.querySelector('.pp-form'), bl = f.blessure.value.trim(), d = f.debut.value || null;
-        st.bless = { fragiles: f.fragiles.value, blessure: f.blessure.value, debut: f.debut.value }; // gardé si le message redessine l'écran
-        if (d && !bl) { st.msg = 'Décris la blessure, ou laisse la date vide.'; return redessiner(); }
-        if (d && d > auj()) { st.msg = 'La date de début ne peut pas être dans le futur.'; return redessiner(); }
-        if (await ranger(ctx, st, { fragiles: f.fragiles.value.trim() || null, blessure: bl || null, blessure_debut: bl ? d : null })) { st.bless = null; suivant(ctx, st); }
+        lireBless();
+        const bz = st.bless, bl = bz.oui ? bz.blessure.trim() : '', pr0 = e(st);
+        if (bz.oui && !bl) { st.msg = 'Décris la blessure, ou réponds « Non ».'; return redessiner(); }
+        // La date de début : gardée si la blessure ne change pas, sinon celle du jour (modifiable dans Mon profil).
+        const debut = !bl ? null : bl === (pr0.blessure || '') && pr0.blessure_debut ? pr0.blessure_debut : auj();
+        if (await ranger(ctx, st, { fragiles: bz.fragiles.trim() || null, blessure: bl || null, blessure_debut: debut })) { st.bless = null; suivant(ctx, st); }
         return redessiner();
       }
       if (b('[data-vol]')) {
