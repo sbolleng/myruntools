@@ -2927,11 +2927,14 @@ const CONTROLES = {
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-niveau.png') });
     await p.click('.pp [data-val="intermediaire"]'); await vers(p, 'blessures');
     await p.click('.pp [data-antecedent="legeres"]'); await p.waitForSelector('.pp-form [name="fragiles"]');
-    await p.fill('.pp-form [name="fragiles"]', 'genou droit'); await p.fill('.pp-form [name="debut"]', '2026-10-01');
+    const champs4 = await p.evaluate(() => [...document.querySelectorAll('.pp-form .cal-champ > span')].map(e => e.textContent).concat([document.querySelector('[data-blesse][aria-pressed="true"]').textContent, document.querySelectorAll('.pp-form [name="blessure"], .pp-form [type="date"]').length]));
+    await p.fill('.pp-form [name="fragiles"]', 'genou droit'); await p.click('.pp [data-blesse="oui"]'); await pause();
     await p.click('.pp [data-pp="continuer"]'); await pause();
     const m1 = await msg(p);
-    await p.fill('.pp-form [name="debut"]', ''); await p.click('.pp [data-pp="continuer"]'); await vers(p, 'volume');
-    pb.push(egal('Décris la blessure, ou laisse la date vide.', m1, 'écran 4 : une date sans blessure refusée'));
+    const garde = await p.inputValue('.pp-form [name="fragiles"]');
+    await p.fill('.pp-form [name="blessure"]', 'entorse de la cheville droite'); await p.click('.pp [data-pp="continuer"]'); await vers(p, 'volume');
+    pb.push(egal([['Points fragiles', 'Blessé en ce moment ?', 'Non', 0], 'Décris la blessure, ou réponds « Non ».', 'genou droit'], [champs4, m1, garde],
+      'écran 4 : points fragiles, « Blessé en ce moment ? » Non d\'office, sans date ; Oui sans texte refusé, le texte tapé gardé'));
     await p.click('.pp [data-vol="volume_tranche|20-40"]'); await pause();
     const resteVolume = await ecran(p);
     await p.click('.pp [data-vol="sortie_tranche|1h30-2h"]'); await vers(p, 'allure');
@@ -2976,6 +2979,7 @@ const CONTROLES = {
     const pr = d.profil_entrainement[0] || {};
     pb.push(egal([['?id=eq.' + id(3) + ' {"role":"objectif","statut":"confirmee","groupe_options":null,"prepa_semaines":null}'], 'Trail des Gorges', 1],
       [maj, await p.textContent('.ps-titre'), Math.min(d.appels.length, 1)], '« Construire mon plan » : Objectif confirmé, durée conseillée ; la page du plan ; l\'IA propose aussitôt le premier bloc'));
+    pb.push(egal(['entorse de la cheville droite', '2026-10-20'], [pr.blessure, pr.blessure_debut], 'blessure en cours : datée du jour'));
     pb.push(egal({ niveau: 'confirme', antecedents: 'legeres', fragiles: 'genou droit', volume_tranche: '40-60', sortie_tranche: '1h30-2h', allure_type: 'marathon', temps_marathon_s: 13500, jours_course: [2, 4, 7], nb_sorties: 3, jour_long: 7 },
       (({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }) => ({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }))(pr),
       'les réponses rangées dans Mon profil'));
