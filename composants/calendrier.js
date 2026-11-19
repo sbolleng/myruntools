@@ -70,20 +70,20 @@
     return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml, detail };
   }
 
-  // Total d'une semaine (Calendrier, Mon plan) : séances, km et durée ; « fait sur prévu » pour la semaine en cours et les passées,
-  // le prévu seul pour les semaines à venir ; vide sans séance. Les propositions de l'IA en attente ne comptent pas.
-  const duree = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + String(m % 60).padStart(2, '0') : '') : m + ' min');
+  // Total d'une période (une semaine, un mois ; Calendrier, Mon plan) : séances et km, sans la durée ; « fait sur prévu » pour la période
+  // en cours et les passées, le prévu seul pour une période à venir ; vide sans séance. Les propositions de l'IA en attente ne comptent pas.
   const km = x => String(Math.round(x * 10) / 10).replace('.', ',');
-  function totalSemaine(ctx, lundi) {
-    const ss = (ctx.seances || []).filter(s => s.date >= lundi && s.date <= addDays(lundi, 6) && s.etat !== 'proposee');
+  function totalPeriode(ctx, de, a, avenir) {
+    const ss = (ctx.seances || []).filter(s => s.date >= de && s.date <= a && s.etat !== 'proposee');
     if (!ss.length) return '';
     const somme = (l, f) => l.reduce((t, s) => t + (Number(f(s)) || 0), 0), faites = ss.filter(s => s.faite);
-    const prevu = { n: ss.length, km: somme(ss, s => s.distance_km), min: somme(ss, s => s.duree_min) };
-    const fait = { n: faites.length, km: somme(faites, s => s.distance_km), min: somme(faites, s => s.duree_min) };
+    const prevu = { n: ss.length, km: somme(ss, s => s.distance_km) }, fait = { n: faites.length, km: somme(faites, s => s.distance_km) };
     const seances = n => n + (n > 1 ? ' séances' : ' séance');
-    if (lundi > lundiDe(iso(new Date()))) return [seances(prevu.n), prevu.km ? km(prevu.km) + ' km' : '', prevu.min ? duree(prevu.min) : ''].filter(Boolean).join(' · ');
-    return [fait.n + '/' + seances(prevu.n), prevu.km ? km(fait.km) + '/' + km(prevu.km) + ' km' : '', prevu.min ? duree(fait.min) + '/' + duree(prevu.min) : ''].filter(Boolean).join(' · ');
+    if (avenir) return [seances(prevu.n), prevu.km ? km(prevu.km) + ' km' : ''].filter(Boolean).join(' · ');
+    return [fait.n + '/' + seances(prevu.n), prevu.km ? km(fait.km) + '/' + km(prevu.km) + ' km' : ''].filter(Boolean).join(' · ');
   }
+  const totalSemaine = (ctx, lundi) => totalPeriode(ctx, lundi, addDays(lundi, 6), lundi > lundiDe(iso(new Date())));
+  const totalMois = (ctx, m) => totalPeriode(ctx, m + '-01', iso(new Date(an(m), rang(m) + 1, 0)), m + '-01' > iso(new Date()));
   window.mrtTotalSemaine = totalSemaine;
   // Place d'une semaine dans le plan de saison : « Semaine 3 sur 16 · Base » (la phase dans sa couleur) ; hors saison, la phase seule
   // (Entretien, Récupération) ; rien après le dernier Objectif.
@@ -125,8 +125,6 @@
         // Téléphone : des repères à la place du texte (barre de la course, point par séance, losange du rendez-vous).
         '<span class="cal-m-points" aria-hidden="true">' + cs.map(c => '<i class="barre ' + couleur(c) + '"></i>').join('') +
         se.map(s => '<i class="pt' + (s.faite ? ' faite' : '') + '"></i>').join('') + rdv.map(() => '<i class="rdv">◆</i>').join('') + '</span>' + cc.plusHtml(j) + '</div>';
-      // opts.totaux : sous chaque semaine, son total (séances, km, durée), sur toute la largeur.
-      if (o.totaux && d.getDay() === 0) { const t = totalSemaine(ctx, lundiDe(j)); if (t) h += '<div class="cal-m-total">' + t + '</div>'; }
     }
     return h + '</div>';
   }
@@ -160,7 +158,7 @@
         '<nav class="cal-menu" id="cal-menu" aria-label="Vue" hidden><span class="cal-libelle">Vue</span>' + VUES.map(x =>
           '<a href="#' + x[0] + (x[2] && depart ? '=' + depart : '') + '" data-vue="' + x[0] + '"' + (x[2] ? ' data-periode="' + x[2] + '"' : '') +
           (est(x) ? ' class="is-on" aria-current="true"' : '') + '>' + x[1] + '</a>').join('') + '</nav></div>' +
-        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Afficher les phases de la préparation">Phases</button>' +
+        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Colorer les jours selon les phases de la préparation"><span class="cal-plan-long">' + (plan ? 'Masquer les phases' : 'Afficher les phases') + '</span><span class="cal-plan-court">Phases</span></button>' +
         '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     };
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
@@ -225,9 +223,9 @@
       const auj = iso(new Date()), phases = phasesVisibles();
       const debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
       const courses = visibles(ctx.courses, debut, fin, auj), plans = phases ? planSaison(ctx) : null;
-      const h = grilleMois(ctx, debut, fin, { ps: plans, mois: rang(m), totaux: true });
+      const h = grilleMois(ctx, debut, fin, { ps: plans, mois: rang(m) });
       const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
-      return haut('mois') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), '', [court(decaler(m, -1)), '#mois=' + decaler(m, -1), 'Mois précédent'],
+      return haut('mois') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois=' + decaler(m, -1), 'Mois précédent'],
         [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + h;
     }
 
