@@ -83,7 +83,7 @@
       ['pointure', 'Pointure', m => unite('pointure', m.pointure), false, 'nombre']]],
     ['niveau', 'Mon niveau', [
       ['niveau', 'Niveau', (m, e) => libelleDe('niveau', e.niveau), true, 'choix'],
-      ['volume_tranche', 'Distance par semaine', (m, e) => libelleDe('volume_tranche', e.volume_tranche), true, 'choix'],
+      ['volume_tranche', 'Distance moyenne par semaine', (m, e) => libelleDe('volume_tranche', e.volume_tranche), true, 'choix'],
       ['sortie_tranche', 'Plus longue sortie récente', (m, e) => libelleDe('sortie_tranche', e.sortie_tranche), true, 'choix'],
       ['allure', 'Repère d\'allure', (m, e) => resumeAllure(e), true, 'allure'],
       ['seance_max_min', 'Durée maximale d\'une séance', (m, e) => libelleDe('seance_max_min', e.seance_max_min), false, 'choix'],
@@ -103,7 +103,7 @@
   const ligneDe = cle => LIGNES.find(l => l[0] === cle);
   const TABLE = { prenom: 'mesures', nom: 'mesures', sexe: 'mesures', naissance: 'mesures', activite: 'mesures', poids: 'mesures', taille: 'mesures', pointure: 'mesures', fc_repos: 'mesures' };
   // Questions indispensables pour que l'IA propose des séances (Mon plan) : leur nom, dans l'ordre.
-  const IA = [['niveau', 'niveau'], ['volume_tranche', 'distance par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
+  const IA = [['niveau', 'niveau'], ['volume_tranche', 'distance moyenne par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
   // Profil express (premiers pas d'un nouveau compte) : ce qui sert tout de suite à Nutrition et à Mon plan.
   // Depuis le 17 nov. 2026, le repère d'allure se demande dans le parcours de Mon plan (Préparation, § 5.0).
   const EXPRESS = ['sexe', 'naissance', 'poids', 'taille'];
@@ -270,7 +270,7 @@
           q('Sortie longue', (b.jc.length ? b.jc.map(n => pastille('data-long', n, b.jl === n, JOURS_COURTS[n - 1])).join('') : '') + pastille('data-long', 0, !b.jl, 'Peu importe'))) +
         section('Renforcement',
           q('Jours possibles', JOURS_COURTS.map((j, i) => pastille('data-jr', i + 1, b.jr.includes(i + 1), j)).join('')) +
-          chiffre('nb_renfo', 'Séances par semaine', b.nr));
+          chiffre('nb_renfo', 'Séances maximum par semaine', b.nr));
       const bascule = (l, n) => (l.includes(n) ? l.filter(x => x !== n) : l.concat([n]).sort((a, c) => a - c));
       const lire = () => corps.querySelectorAll('.ps-chiffre input').forEach(x => { const t = x.value.trim(); b[x.name === 'nb_sorties' ? 'ns' : 'nr'] = t === '' ? null : t; });
       corps.querySelectorAll('button[data-jc], button[data-jr], button[data-long]').forEach(btn => btn.addEventListener('click', () => {
