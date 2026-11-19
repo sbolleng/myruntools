@@ -2219,7 +2219,7 @@ const CONTROLES = {
     // Plan : le fond des jours à la couleur de la phase de la semaine (le même pour tous ses jours), et la légende ; pas de nom de phase.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
     let r = await lire(p);
-    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, r.legende],
+    pb.push(egal([0, ['Facile', 'Modérée', 'Intense', 'Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, r.legende],
       'Plan, semaine du 19 octobre : Entretien, pas de fond ; légende avec Récupération'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines=2026-11-30', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
@@ -2779,8 +2779,8 @@ const CONTROLES = {
     d = copie(x => { x.seances = [{ id: 'se-r', utilisateur: x.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Seuil', faite: false, course: null, duree_min: 60, distance_km: 11, intensite: 'intense', origine: 'saisie', etat: 'acceptee' }]; });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', 1200, d, {}, PARIS));
     await p.waitForSelector('[data-drag="se-r"]');
-    pb.push(egal(['SeuilCourse à pied · 1 h · 11 km', 1, 0], await p.evaluate(() => { const e = document.querySelector('[data-drag="se-r"]'); return [e.textContent.replace(/\s+/g, ' ').trim(), e.querySelectorAll('.cal-v-int.i-intense').length, e.querySelectorAll('.cal-v-com').length]; }),
-      'vue en carte : le nom, dessous le type, la durée et la distance ; point de l\'intensité, pas de picto sans commentaire'));
+    pb.push(egal(['SeuilCourse à pied · 1 h · 11 km', 1, 0], await p.evaluate(() => { const e = document.querySelector('[data-drag="se-r"]'); return [e.textContent.replace(/\s+/g, ' ').trim(), e.matches('.i-intense') && getComputedStyle(e).borderBottomWidth === '4px' ? 1 : 0, e.querySelectorAll('.cal-v-com').length]; }),
+      'vue en carte : le nom, dessous le type, la durée et la distance ; liseré de l\'intensité (4 px, intense), pas de picto sans commentaire'));
     await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance .cal-retour');
     pb.push(egal([true, 'Retour sur la séance'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.textContent('.cal-retour .mrt-section-titre')], 'fenêtre : « Retour sur la séance », ressenti caché tant qu\'elle n\'est pas faite'));
     await p.check('.cal-seance [name="faite"]');
@@ -3024,7 +3024,7 @@ const CONTROLES = {
     const LUNDIS = ['2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09'];
     const bonne = () => ({ recommandation: 'Entretien : deux footings et une sortie longue par semaine.', seances: LUNDIS.flatMap(l => [1, 3, 5].map(k => {
       const d = new Date(l + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + k); const j = d.toISOString().slice(0, 10);
-      return { date: j, type: k === 3 ? 'renfo' : 'run', libelle: k === 5 ? 'Sortie longue' : k === 3 ? 'Gainage' : 'Footing', duree_min: k === 5 ? 90 : 45, distance_km: k === 3 ? 0 : k === 5 ? 15 : 8, intensite: 'facile' };
+      return { date: j, type: k === 3 ? 'renfo' : 'run', libelle: k === 5 ? 'Sortie longue' : k === 3 ? 'Renforcement : Gainage' : 'Endurance', duree_min: k === 5 ? 90 : 45, distance_km: k === 3 ? 0 : k === 5 ? 15 : 8, intensite: 'facile' };
     })) });
     const mauvaise = () => { const r = bonne(); r.seances.push({ date: '2026-10-21', type: 'run', libelle: 'Fractionné', duree_min: 50, distance_km: 9, intensite: 'intense' }); return r; };
     // Base simulée : le relais range chaque appel dans « propositions », comme la fonction, et rend la réponse choisie.
@@ -3069,7 +3069,7 @@ const CONTROLES = {
     await p.reload(); await p.waitForSelector('.ps-proposition');
     pb.push(egal([false, 'Voir'], await p.evaluate(() => [document.querySelector('.ps-prop-repli').open, document.querySelector('.ps-prop-voir').textContent]), 'bandeau : au retour sur la page, la proposition repliée sur une ligne, avec « Voir »'));
     await p.click('.ps-prop-repli > summary');
-    pb.push(egal([3, 12, 'Footing · 45 min', 'Entretien : deux footings et une sortie longue par semaine.', 0, ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
+    pb.push(egal([3, 12, 'Endurance · 45 min', 'Entretien : deux footings et une sortie longue par semaine.', 0, ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
       [r.props, r.lignes, r.premiere, r.reco, r.autres, r.actions], 'proposition en attente : une recommandation, bandeau (les 12 séances dans la liste, les 3 de la semaine dans « Cette semaine »), quatre boutons'));
     pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, [['mardi', 'samedi'], ['jeudi']], ['allégé (avant une course Préparatoire)']],
       [envoi.essai, envoi.contexte.bloc.debut, envoi.contexte.bloc.fin, envoi.contexte.semaines[0].phase, /Trail du Lac|Trail des Gorges|Corrida/.test(JSON.stringify(envoi)), JSON.stringify(envoi).includes(db.profils[0].prenom || '§§'),
@@ -3161,7 +3161,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-17T10:00:00+01:00') }));
     await pret(p);
     const gf = await p.evaluate(() => {
-      const s = (date, intensite) => ({ date, type: 'run', libelle: 'Séance', duree_min: 50, distance_km: 9, intensite });
+      const s = (date, intensite) => ({ date, type: 'run', libelle: 'Endurance', duree_min: 50, distance_km: 9, intensite });
       return window.mrtSeancesIA.gardeFous({ recommandation: '', seances: [s('2026-11-19', 'intense'), s('2026-12-08', 'intense'), s('2026-12-12', 'facile')] }, document.getElementById('saison').__ctx, '2026-11-16');
     });
     pb.push(egal([true, false, true], [gf.some(x => /19 nov.* : jour de récupération/.test(x)), gf.some(x => /8 déc/.test(x)), gf.some(x => /12 déc.* : jour de repos/.test(x))],
