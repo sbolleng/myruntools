@@ -48,21 +48,25 @@
     const detail = s => [s.duree_min ? (s.duree_min >= 60 ? Math.floor(s.duree_min / 60) + ' h' + (s.duree_min % 60 ? String(s.duree_min % 60).padStart(2, '0') : '') : s.duree_min + ' min') : '',
       Number(s.distance_km) > 0 ? String(s.distance_km).replace('.', ',') + ' km' : ''].filter(Boolean).join(' · ');
     const COMMENTAIRE = '<svg class="cal-v-com" viewBox="0 0 16 16" aria-label="Commentaire" role="img"><path d="M3 3.5h10v7H7l-3 2.5v-2.5H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
-    const seanceHtml = s => '<span class="cal-v-se' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + '><input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') +
-      ' aria-label="Faite">' + (!ctx.lectureSeule ? '<button type="button" class="cal-v-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-v-se-txt">') +
-      '<b>' + (s.intensite ? '<i class="cal-v-int i-' + s.intensite + '" title="' + (P.INTENSITES[s.intensite] || '') + '"></i>' : '') + TYPES[s.type] + '</b> <span>' + esc(s.libelle) + '</span>' +
-      (detail(s) ? '<small class="cal-v-det">' + detail(s) + '</small>' : '') + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + (!ctx.lectureSeule ? '</button>' : '</span>') +
-      // Faite sans effort noté : « à noter », qui rouvre la feuille « Effort et sensations » (jamais sur le site partagé).
-      (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="cal-v-anoter" data-noter="' + esc(s.id) + '">à noter</button>' : '') + '</span>';
+    // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré dessous à la couleur de son intensité ;
+    // glissable (ordinateur) ; toucher le nom ouvre sa fenêtre. On coche dans la vue Semaine.
+    const seanceHtml = s => {
+      const l = P.lireLibelle(s.libelle), km = Number(s.distance_km) > 0 ? String(s.distance_km).replace('.', ',') + ' km' : '';
+      const tit = esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '');
+      return '<span class="cal-m-se i-' + (s.intensite || 'aucune') + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + tit + '">' +
+        (!ctx.lectureSeule ? '<button type="button" class="cal-m-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m-se-txt">') +
+        '<span class="cal-m-se-nom"><span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span></span>' + (km ? '<small>' + km + '</small>' : '') +
+        (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
+    };
     const plusHtml = jour => (!ctx.lectureSeule ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
-    // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : point d'intensité et nom (le libellé avant « : »),
+    // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : nom (le libellé avant « : »), liseré d'intensité dessous,
     // puis type, durée, distance et picto du commentaire ; la case « faite » à droite ; « à noter » ; toucher la carte ouvre sa fenêtre.
     const carteHtml = s => {
       const lib = String(s.libelle || ''), k = lib.indexOf(':'), nom = (k > 0 ? lib.slice(0, k) : lib).trim();
       const ligne2 = [TYPES[s.type], detail(s)].filter(Boolean).join(' · ');
-      return '<div class="cal-carte' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '" data-carte="' + esc(s.id) + '"' : '') + '>' +
-        (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
-        '<span class="cal-carte-nom">' + (s.intensite ? '<i class="cal-v-int i-' + s.intensite + '" title="' + (P.INTENSITES[s.intensite] || '') + '"></i>' : '') + esc(nom) + '</span>' +
+      return '<div class="cal-carte i-' + (s.intensite || 'aucune') + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? ' draggable="true" data-drag="' + esc(s.id) + '" data-carte="' + esc(s.id) + '"' : '') + '>' +
+        (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
+        '<span class="cal-carte-nom">' + esc(nom) + '</span>' +
         '<span class="cal-carte-det">' + esc(ligne2) + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') +
         (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="cal-v-anoter" data-noter="' + esc(s.id) + '">à noter</button>' : '') +
         '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></div>';
@@ -166,6 +170,7 @@
       '<a class="cal-voisin" href="' + avant[1] + '" aria-label="' + avant[2] + '"><span class="mrt-rond">' + window.mrtIcone.gauche + '</span><span class="cal-voisin-txt">' + avant[0] + '</span></a>' +
       '<div class="cal-titre-bloc"><h2 class="cal-titre">' + titre + '</h2>' + (sous || '') + '</div>' +
       '<a class="cal-voisin is-suiv" href="' + apres[1] + '" aria-label="' + apres[2] + '"><span class="cal-voisin-txt">' + apres[0] + '</span><span class="mrt-rond">' + window.mrtIcone.droite + '</span></a></div>';
+    const intensites = '<span class="cal-groupe"><b class="cal-libelle">Intensité</b>' + Object.keys(P.INTENSITES).map(k => '<span><i class="cal-lis i-' + k + '"></i>' + P.INTENSITES[k] + '</span>').join('') + '</span>';
     const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.concat([['recuperation', NOM_PHASE.recuperation]]).map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
     // Phase d'un jour : celle de sa semaine dans le plan de saison (spécification Préparation, § 4) ; l'Entretien n'a pas de fond.
     const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
@@ -226,7 +231,7 @@
       const h = grilleMois(ctx, debut, fin, { ps: plans, mois: rang(m) });
       const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
       return haut('mois') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois=' + decaler(m, -1), 'Mois précédent'],
-        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + h;
+        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + '<div class="cal-legende">' + intensites + (phases ? legendePhases() : '') + '</div>' + h;
     }
 
     // ----- Semaine : un jour par ligne ; les semaines suivantes au fil du défilement, les passées par un lien (spécification § 4.3 et 4.4) -----
@@ -251,7 +256,6 @@
     }
     function vueSemaine() {
       const phases = phasesVisibles(), plans = phases ? planSaison(ctx) : null;
-      const intensites = '<span class="cal-groupe"><b class="cal-libelle">Intensité</b>' + Object.keys(P.INTENSITES).map(k => '<span><i class="cal-v-int i-' + k + '"></i>' + P.INTENSITES[k] + '</span>').join('') + '</span>';
       let h = haut('semaines') + '<div class="cal-sep"></div><div class="cal-legende">' + intensites + (phases ? legendePhases() : '') + '</div>' +
         '<button type="button" class="mrt-lien cal-passees" data-passees>↑ Afficher les semaines passées</button>';
       for (let i = 0; i < liste.nb; i++) h += semaineHtml(addDays(liste.debut, 7 * i), plans);

@@ -19,6 +19,26 @@
   const TYPES = { run: 'Course à pied', renfo: 'Renforcement' };
   // Intensité d'une séance (facultative) : une séance facile est la seule permise pendant une récupération (spécification Préparation, § 3.3).
   const INTENSITES = { facile: 'Facile', moderee: 'Modérée', intense: 'Intense' };
+  // Noms normalisés des séances de course (liste courte, d'après les usages courants) : le nom, son abréviation (Mois sur téléphone),
+  // l'intensité proposée ; le libellé d'une séance est « Nom » ou « Nom : détail » (le détail, libre, vient après « : »).
+  const NOMS = [
+    { nom: 'Endurance', abr: 'End.', titre: 'Endurance fondamentale', intensite: 'facile' },
+    { nom: 'Récupération', abr: 'Réc.', titre: 'Footing très lent entre deux séances dures', intensite: 'facile' },
+    { nom: 'Sortie longue', abr: 'S. longue', titre: 'Sortie longue', intensite: 'facile' },
+    { nom: 'Seuil', abr: 'Seuil', titre: 'Allure seuil (tempo)', intensite: 'moderee' },
+    { nom: 'Fractionné', abr: 'Frac.', titre: 'Fractionné (VMA)', intensite: 'intense' },
+    { nom: 'Côtes', abr: 'Côtes', titre: 'Répétitions en côte', intensite: 'intense' }
+  ];
+  const NOM_RENFO = { nom: 'Renforcement', abr: 'Renfo', titre: 'Renforcement', intensite: '' };
+  const nomsDuType = type => (type === 'renfo' ? [NOM_RENFO] : NOMS);
+  // « Côtes : 8 x 1 min » → { nom: 'Côtes', detail: '8 x 1 min', def } ; def vide pour un nom libre d'avant la liste (affiché tel quel).
+  function lireLibelle(lib) {
+    lib = String(lib || '');
+    const k = lib.indexOf(' : ') >= 0 ? lib.indexOf(' : ') : lib.indexOf(': ');
+    const nom = (k > 0 ? lib.slice(0, k) : lib).trim(), detail = k > 0 ? lib.slice(k + (lib[k] === ' ' ? 3 : 2)).trim() : '';
+    const def = NOMS.concat([NOM_RENFO]).find(x => x.nom.toLowerCase() === nom.toLowerCase()) || null;
+    return { nom: def ? def.nom : nom, detail, def, abr: def ? def.abr : nom };
+  }
   // Nombre saisi (virgule acceptée) ; vide : null ; illisible : NaN.
   const nombre = v => { const t = String(v == null ? '' : v).trim().replace(',', '.'); return t === '' ? null : /^\d+(\.\d+)?$/.test(t) ? Number(t) : NaN; };
 
@@ -519,10 +539,11 @@
   }
 
   function ouvrirSeance(ctx, opts) {
-    const s = opts.seance, dans = opts.dans;
+    const s = opts.seance, dans = opts.dans, lu = lireLibelle(s ? s.libelle : '');
     const champs = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
       '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type">' + Object.keys(TYPES).map(k => '<option value="' + k + '">' + TYPES[k] + '</option>').join('') + '</select></label>' +
-      '<label class="cal-champ"><span>Libellé</span><input class="mrt-champ" name="libelle" maxlength="100" placeholder="ex. Footing 45 min" value="' + esc(s ? s.libelle : '') + '"></label>' +
+      '<div class="cal-champs2"><label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label>' +
+      '<label class="cal-champ"><span>Détail</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label></div>' +
       // Facultatifs : durée, distance, intensité (spécification Préparation, § 7).
       '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
       '<label class="cal-champ"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
@@ -541,6 +562,22 @@
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
     if (s) f.type.value = s.type;
     else if (opts.type && TYPES[opts.type]) f.type.value = opts.type; // type proposé par la page qui ouvre la fenêtre (Nutrition)
+    // Le nom se choisit dans la liste du type ; un nom libre d'avant la liste reste proposé tel quel, pour ne pas le perdre.
+    const nomsOptions = () => {
+      const liste = nomsDuType(f.type.value).map(x => x.nom);
+      if (s && lu.nom && f.type.value === s.type && !liste.includes(lu.nom)) liste.push(lu.nom);
+      return liste;
+    };
+    const dessinerNoms = choisi => {
+      f.nom.innerHTML = nomsOptions().map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+      f.nom.value = choisi && nomsOptions().includes(choisi) ? choisi : f.nom.options[0].value;
+    };
+    dessinerNoms(lu.nom);
+    // Un nom choisi propose son intensité (modifiable) ; un changement de type refait la liste.
+    const proposer = () => { const d = nomsDuType(f.type.value).find(x => x.nom === f.nom.value); if (d) f.intensite.value = d.intensite; };
+    f.type.addEventListener('change', () => { dessinerNoms(); proposer(); });
+    f.nom.addEventListener('change', proposer);
+    if (!s) proposer();
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
@@ -560,9 +597,8 @@
     });
     f.addEventListener('submit', async e => {
       e.preventDefault(); e.stopPropagation();
-      const libelle = f.libelle.value.trim(), date = f.date.value;
+      const detail = f.detail.value.trim().replace(/\s+/g, ' '), libelle = f.nom.value + (detail ? ' : ' + detail : ''), date = f.date.value;
       if (!date) return void (msg.textContent = 'Choisis une date.');
-      if (!libelle) return void (msg.textContent = 'Écris le libellé de la séance.');
       const duree = nombre(f.duree.value), distance = nombre(f.distance.value);
       if (duree !== null && !(Number.isInteger(duree) && duree >= 1 && duree <= 1440)) return void (msg.textContent = 'La durée doit être un nombre de minutes entre 1 et 1 440.');
       if (distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
@@ -687,7 +723,7 @@
     });
   }
 
-  window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();

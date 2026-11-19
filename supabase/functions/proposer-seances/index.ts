@@ -42,7 +42,7 @@ const SCHEMA = {
         properties: {
           date: { type: 'string', description: 'AAAA-MM-JJ' },
           type: { type: 'string', enum: ['run', 'renfo'] },
-          libelle: { type: 'string', description: 'Libellé court en français, 100 caractères au plus' },
+          libelle: { type: 'string', description: 'Nom normalisé, puis éventuellement « : » et un détail court. Séance de course : Endurance, Récupération, Sortie longue, Seuil, Fractionné ou Côtes. Renforcement : Renforcement. Ex. « Côtes : 8 x 1 min en côte », 100 caractères au plus' },
           duree_min: { type: 'integer' },
           distance_km: { type: 'number', description: '0 pour une séance sans distance (renforcement)' },
           intensite: { type: 'string', enum: ['facile', 'moderee', 'intense'] }
@@ -64,6 +64,7 @@ Règles impératives :
 - Respecte le nombre de séances de renforcement par semaine du profil ; la sortie longue le jour prévu par le profil.
 - Pars du volume récent du coureur et progresse prudemment.
 - distance_km : 0 pour une séance de renforcement.
+- Le libellé commence toujours par un de ces noms, écrit exactement ainsi : Endurance, Récupération, Sortie longue, Seuil, Fractionné, Côtes (course à pied) ou Renforcement (renforcement) ; le détail éventuel suit après « : » (ex. « Fractionné : 6 x 800 m »). Aucun autre nom.
 Retours du coureur (ils priment sur le plan prévu) : pour chaque séance passée, le contexte peut donner le ressenti (effort perçu de 1 à 10, échelle de Borg modifiée, et son libellé) et la charge (ressenti × durée en minutes, méthode de Foster), la douleur (aucune, légère, forte, et où), les sensations (indépendantes de l'effort), la fatigue du jour (1 à 5), un commentaire et le jour d'origine si elle a été déplacée ; les séances à venir peuvent porter un commentaire (une contrainte, une envie) ; le profil peut donner une blessure en cours. Adapte le bloc en conséquence, toujours dans les règles impératives ; en cas de douleur forte ou de blessure en cours, reste sur des séances faciles et dis-le dans la recommandation, sans avis médical.
 Rends une recommandation pour l'ensemble du bloc (trois phrases au plus, sans détailler chaque séance), puis toutes les séances du bloc, dans l'ordre des dates.`;
 
