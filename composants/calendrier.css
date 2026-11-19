@@ -27,7 +27,7 @@
 .cal-menu a.is-on::before { content: ''; position: absolute; top: 0.4rem; bottom: 0.4rem; left: 0.45rem; width: 3px; border-radius: 2px; background: var(--accent); }
 .cal-menu a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 /* Bouton « Plan » enfoncé : contour et texte Accent (comme tout bouton actif), sur un fond teinté d'Accent qui le distingue du survol. */
-.cal-plan-court { display: none; }
+.cal-plan { display: inline-flex; align-items: center; gap: 0.4rem; }
 .cal-plan[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 
 /* ----- Période (Année, Mois) : la période voisine et sa flèche de chaque côté du titre ----- */
@@ -190,8 +190,6 @@
 }
 
 @media (max-width: 600px) {
-  .cal-plan-long { display: none; }
-  .cal-plan-court { display: inline; }
   .cal-cadre { --ligne: 1.25rem; padding: 0.8rem 0.6rem; } /* grille serrée : marges plus étroites que le cadre commun */
   /* Barre du haut sur une ligne : le menu, puis « Plan » et « Aujourd'hui », boutons un peu resserrés. */
   .cal-haut { flex-wrap: nowrap; gap: 0.5rem; }

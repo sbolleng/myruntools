@@ -76,6 +76,9 @@
     droite: icone('M6 3.5L10.5 8 6 12.5'),
     agrandir: icone('M3 6V3h3M13 6V3h-3M3 10v3h3M13 10v3h-3'),
     reduire: icone('M6 3v3H3M10 3v3h3M6 13v-3H3M10 13v-3h3'),
+    // Œil ouvert (affiché) et œil barré (masqué) : bouton « Phases » du Calendrier.
+    oeil: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM8 6.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 1 1 0-3.4z'),
+    oeilBarre: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM3 13.5L13 2.5'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
     bas: icone('M8 3.5v9M4.5 9L8 12.5 11.5 9'),
     // Avis sur une course (Mon plan) : conseillée, possible, déconseillée.

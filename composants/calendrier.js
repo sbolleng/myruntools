@@ -158,7 +158,7 @@
         '<nav class="cal-menu" id="cal-menu" aria-label="Vue" hidden><span class="cal-libelle">Vue</span>' + VUES.map(x =>
           '<a href="#' + x[0] + (x[2] && depart ? '=' + depart : '') + '" data-vue="' + x[0] + '"' + (x[2] ? ' data-periode="' + x[2] + '"' : '') +
           (est(x) ? ' class="is-on" aria-current="true"' : '') + '>' + x[1] + '</a>').join('') + '</nav></div>' +
-        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="Colorer les jours selon les phases de la préparation"><span class="cal-plan-long">' + (plan ? 'Masquer les phases' : 'Afficher les phases') + '</span><span class="cal-plan-court">Phases</span></button>' +
+        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="' + (plan ? 'Masquer les phases de la préparation' : 'Afficher les phases de la préparation') + '">Phases' + (plan ? window.mrtIcone.oeil : window.mrtIcone.oeilBarre) + '</button>' +
         '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     };
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
