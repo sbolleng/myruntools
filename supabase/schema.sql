@@ -193,6 +193,7 @@ create table seances (
   course      uuid,
   duree_min   integer check (duree_min between 1 and 1440),
   distance_km numeric(5,1) check (distance_km > 0 and distance_km < 1000),
+  denivele_m  integer check (denivele_m >= 1 and denivele_m < 10000),  -- dénivelé positif en mètres (évolution 039)
   intensite   seance_intensite,
   origine     seance_origine not null default 'saisie',
   etat        seance_etat not null default 'acceptee',

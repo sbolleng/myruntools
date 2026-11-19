@@ -65,13 +65,13 @@
 .cal-v-se.faite .cal-v-se-txt span { color: var(--muted); text-decoration: line-through; }
 /* Durée et distance sous le libellé ; point de l'intensité devant le type ; picto du commentaire ; case visée pendant un glisser. */
 .cal-v-det { margin-left: 0.3rem; font-size: var(--t-micro); color: var(--muted); }
-/* Liseré d'intensité (échelle rouge progressive) : couleur et épaisseur croissantes, pour ne pas dépendre de la couleur seule.
-   Facile : gris discret, 2 px ; Modérée : rouge à demi, 3 px ; Intense : rouge plein, 4 px ; sans intensité (renforcement) : la bordure du thème. */
-.i-facile { --lis: color-mix(in srgb, var(--muted) 55%, transparent); --lis-e: 2px; }
-.i-moderee { --lis: color-mix(in srgb, var(--red) 55%, var(--surface)); --lis-e: 3px; }
-.i-intense { --lis: var(--red); --lis-e: 4px; }
-.i-aucune { --lis: var(--border); --lis-e: 2px; }
-.cal-lis { display: inline-block; width: 1.1rem; height: var(--lis-e); margin-right: 0.35rem; vertical-align: middle; border-radius: 1px; background: var(--lis); }
+/* Intensité : trois traits montants (comme un signal), un, deux ou trois allumés ; gris (facile), orange (modérée), rouge (intense). */
+.cal-int { display: inline-flex; align-items: flex-end; gap: 2px; flex: none; height: 0.8rem; margin-right: 0.4rem; vertical-align: -0.05em; --c: var(--muted); }
+.cal-int b { width: 3px; border-radius: 1px; background: var(--border); }
+.cal-int b:nth-child(1) { height: 35%; } .cal-int b:nth-child(2) { height: 65%; } .cal-int b:nth-child(3) { height: 100%; }
+.cal-int b.on { background: var(--c); }
+.cal-int.i-moderee { --c: var(--int-moy, #f0883e); }
+.cal-int.i-intense { --c: var(--red); }
 .cal-v-com { display: inline-block; width: 0.75rem; height: 0.75rem; margin-left: 0.25rem; vertical-align: -0.1em; color: var(--muted); }
 .cal-v-se[draggable="true"] { cursor: grab; }
 .is-cible { outline: 2px dashed var(--accent); outline-offset: -2px; }
@@ -110,6 +110,7 @@
 /* Nom de la course dans sa case, décalé des seules barres de ce jour-là. */
 .cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: 0.45rem; font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
 .cal-a-se { font-size: var(--t-micro); color: var(--text); }
+.cal-a-sn .n-court { display: none; }
 .cal-a-se.faite { color: var(--muted); text-decoration: line-through; }
 .cal-a-j.c-route-v { background: var(--route); }
 .cal-a-j.c-trail-v { background: var(--trail); }
@@ -137,13 +138,14 @@
 .cal-m-case.passe .cal-m-num { color: var(--muted); }
 .cal-m-num.auj, .cal-m-case.passe .cal-m-num.auj { color: var(--bg); background: var(--accent); }
 .cal-m-txt { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
-.cal-m-case .cal-v-plus { right: 0.35rem; bottom: 0.35rem; }
+.cal-m-case .cal-v-plus { right: 0.35rem; bottom: 0.35rem; width: 1.15rem; height: 1.15rem; }
+.cal-m-case .cal-v-plus .mrt-ico { width: 0.65rem; height: 0.65rem; }
 .cal-m-case .cal-v-det { display: block; margin-left: 0; }
 .cal-m-points { display: none; }
-.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border-bottom: var(--lis-e) solid var(--lis); border-radius: 3px 3px 0 0; }
+.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border-radius: 3px; }
 .cal-m-se[draggable="true"] { cursor: pointer; }
 .cal-m-se-txt { display: flex; flex-direction: column; min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
-.cal-m-se-nom { overflow: hidden; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.cal-m-se-nom { display: flex; align-items: center; overflow: hidden; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .cal-m-se small { font-size: var(--t-micro); color: var(--muted); }
 .cal-m-se .n-court { display: none; }
 .cal-m-se.faite .cal-m-se-nom { color: var(--muted); font-weight: 400; text-decoration: line-through; }
@@ -212,6 +214,8 @@
   .cal-a-n i { display: none; }
   .cal-a-n b { min-width: 1.1rem; line-height: 1.05rem; }
   .cal-a-nom { font-size: var(--t-micro); }
+  .cal-a-sn .n-long { display: none; }
+  .cal-a-sn .n-court { display: inline; }
   /* Mois : trop étroit pour du texte : le numéro et des repères ; toucher la case ouvre sa semaine, où l'on coche et ajoute. */
   .cal-m-case { align-items: center; min-height: 4.2rem; padding: 0.2rem 0.15rem; }
   .cal-m-num { align-self: center; min-width: 1.4rem; padding: 0 0.2rem; font-size: var(--t-libelle); line-height: 1.4rem; }
@@ -250,7 +254,6 @@
 .cal-carte-nom { overflow: hidden; font-size: var(--t-texte); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .cal-carte-det { font-size: var(--t-petit); color: var(--muted); }
 .cal-carte.faite .cal-carte-nom { color: var(--muted); text-decoration: line-through; }
-.cal-carte { border-bottom: var(--lis-e) solid var(--lis); }
 .cal-carte[data-carte] { cursor: pointer; }
 .cal-carte[data-carte]:hover { border-color: var(--accent); }
 .cal-carte .cal-v-anoter { margin-left: 0; }

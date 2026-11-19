@@ -1918,7 +1918,7 @@ const CONTROLES = {
         blocs: [...document.querySelectorAll('.cal-a-bloc')].map(b => b.querySelectorAll('.cal-a-mois').length),
         mois: [...document.querySelectorAll('.cal-a-mois')].map(m => m.textContent.replace(/\s+/g, ' ').trim()),
         courses: [...document.querySelectorAll('.cal-a-j[data-course]')].map(j => [j.querySelector('.cal-a-nom').textContent, [...j.classList].find(c => /^c-|^courue$/.test(c))]).sort((a, b) => (a[0] < b[0] ? -1 : 1)),
-        seances: ['2026-10-19', '2026-10-20', '2026-10-21'].map(j => { const e = document.querySelector('.cal-a-j[data-jour="' + j + '"] .cal-a-se'); return e ? [e.textContent, e.classList.contains('faite')] : null; }),
+        seances: ['2026-10-19', '2026-10-20', '2026-10-21'].map(j => { const e = document.querySelector('.cal-a-j[data-jour="' + j + '"] .cal-a-se'); return e ? [[...e.querySelectorAll('.n-long')].map(x => x.textContent).join(' · '), e.classList.contains('faite')] : null; }),
         nbPhases: document.querySelectorAll('.cal-a-j[class*="ph-"]').length, barres: document.querySelectorAll('.cal-a-barre').length,
         p1: phase('2026-10-01'), p12: phase('2026-10-12'), p20: phase('2026-10-20'), p0116: phase('2026-11-16'), p0208: phase('2027-02-08'), l12: lisere('2026-12-08'), l20: lisere('2027-01-12'), lGorges: lisere('2027-03-07'),
         titre20: (document.querySelector('.cal-a-j[data-jour="2026-10-20"]') || {}).title || '',
@@ -1945,7 +1945,7 @@ const CONTROLES = {
         egal([tel ? [3, 3] : [6], ['oct. 26', 'nov.', 'déc.', 'janv. 27', 'févr.', 'mars']], [r.blocs, r.mois], nom + ', ' + (tel ? 'deux blocs de trois mois' : 'un bloc de six mois')),
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, 0, false, LEGENDE], [r.nbPhases, r.barres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni fond de phase ni légende des phases'),
-        egal([['Renforcement', true], ['Course à pied · Renforcement', false], null], r.seances, nom + ', séances du jour en toutes lettres (barrées quand elles sont faites), rien un jour sans séance'),
+        egal([['Gainage 30 min', true], ['8×400 m · Gainage 20 min', false], null], r.seances, nom + ', nom des séances du jour (et non leur type) (barrées quand elles sont faites), rien un jour sans séance'),
         egal([['2026-10-20'], 'M20'], [r.auj, r.aujN], nom + ', aujourd\'hui repéré : case cerclée, numéro dans un rond'),
         egal([[['J1', false, false], ['S3', true, false], ['D4', true, true], ['L5', false, false]], ['oct. 26'], [true, true]], [r.jours10, r.moisCourant, r.fonds],
           nom + ', chaque mois a ses jours (initiale, numéro), samedi et dimanche plus foncés, filet sous le dimanche, mois en cours repéré ; jour passé : même fond'),
@@ -2031,9 +2031,9 @@ const CONTROLES = {
         auj: [...document.querySelectorAll('.cal-m-num.auj')].map(jourDe),
         courses: [...document.querySelectorAll('.cal-m-case .cal-v-course')].map(a => [jourDe(a), a.textContent, [...a.classList].find(c => /^c-|^courue$/.test(c))]),
         rdv: [...document.querySelectorAll('.cal-m-case .cal-v-rdv')].map(a => [jourDe(a), a.textContent]),
-        seances: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => [jourDe(e), e.querySelector('.n-long').textContent, [...e.classList].find(c => /^i-/.test(c)), e.classList.contains('faite')]),
+        seances: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => [jourDe(e), e.querySelector('.n-long').textContent, (t => t ? [...t.classList].find(c => /^i-/.test(c)) : 'i-aucune')(e.querySelector('.cal-int')), e.classList.contains('faite')]),
         abreges: [...document.querySelectorAll('.cal-m-case .cal-m-se .n-court')].map(e => e.textContent),
-        lis: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => getComputedStyle(e).borderBottomWidth),
+        lis: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => e.querySelectorAll('.cal-int .on').length),
         abrege: (e => !!e && getComputedStyle(e).display !== 'none')(document.querySelector('.cal-m-se .n-court')),
         plus: document.querySelectorAll('.cal-m-case [data-ajout]').length,
         phases: cases.filter(c => /\bph-/.test(c.className)).map(c => [c.dataset.jour, [...c.classList].find(x => x.startsWith('ph-'))]),
@@ -2055,8 +2055,8 @@ const CONTROLES = {
         egal([['Mois', ['Semaine', 'Mois *', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
         egal([35, ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['2026-10-20']], [r.nb, r.hors, r.auj], nom + ', cinq semaines, jours des mois voisins atténués, aujourd\'hui'),
         egal([[['2026-10-04', 'Semi de San Sebastián', 'courue']], [['2026-11-01', '◆ Inscriptions · Corrida de Noël']]], [r.courses, r.rdv], nom + ', course courue et rendez-vous clé'),
-        egal([SEANCES, 35, [], ['Facile', 'Modérée', 'Intense'], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances (nom normalisé, intensité, faite), un « + » par case, pas de phases, légende de l\'intensité ; un seul fond pour toutes les cases'),
-        egal(['2px', '4px', '2px', '2px'], r.lis, nom + ', liseré sous la séance : 2 px facile, 4 px intense, 2 px sans intensité'),
+        egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances (nom normalisé, intensité, faite), un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
+        egal([0, 3, 1, 1], r.lis, nom + ', intensité en trois traits : aucun sans intensité, trois intense, un facile'),
         egal(['Renfo', 'Frac.', 'End.', 'S. longue'], r.abreges, nom + ', abréviations des noms'),
         ...(tel ? [] : [egal(true, r.plusAccent, nom + ', « + » à contour Accent')]),
         egal([tel, tel], [r.abrege, r.reperes], nom + ', ' + (tel ? 'noms abrégés et barres de course' : 'noms en toutes lettres')),
@@ -2070,7 +2070,7 @@ const CONTROLES = {
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', 1200, d, { 'mrt-calendrier-phases': '1' }, PARIS);
     let r = await lire(p);
-    pb.push(egal([0, ['Facile', 'Modérée', 'Intense', 'Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.length, r.legende], 'Plan, octobre : Entretien (pas encore de saison), aucun fond de phase ; légende avec Récupération'));
+    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.length, r.legende], 'Plan, octobre : Entretien (pas encore de saison), aucun fond de phase ; légende avec Récupération'));
     await p.goto(RACINE + 'calendrier.html#mois=2026-12'); await p.waitForSelector('.cal-m-grille');
     r = await lire(p);
     const fondM = j => p.evaluate(x => getComputedStyle(document.querySelector('.cal-m-case[data-jour="' + x + '"]')).backgroundColor, j);
@@ -2206,7 +2206,7 @@ const CONTROLES = {
     pb.push(egal([{ date: '2026-10-21', type: 'run', libelle: 'Endurance : 30 min' }, true], [(({ date, type, libelle }) => ({ date, type, libelle }))(d.seances[d.seances.length - 1]),
       (await lire(p)).seances.some(x => x[0] === '2026-10-21' && x[1] === 'Course à pied Endurance')], 'séance ajoutée : écriture, affichée au bon jour'));
     await p.click('[data-edit="se-3"]');
-    await p.selectOption('.cal-seance [name="type"]', 'renfo'); await p.fill('.cal-seance [name="detail"]', 'Gainage 20 min');
+    await p.selectOption('.cal-seance [name="nom"]', 'Renforcement'); await p.fill('.cal-seance [name="detail"]', 'Gainage 20 min');
     await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal(['Renforcement Renforcement'], (await lire(p)).seances.filter(x => x[0] === '2026-10-22').map(x => x[1]), 'séance modifiée'));
@@ -2219,7 +2219,7 @@ const CONTROLES = {
     // Plan : le fond des jours à la couleur de la phase de la semaine (le même pour tous ses jours), et la légende ; pas de nom de phase.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
     let r = await lire(p);
-    pb.push(egal([0, ['Facile', 'Modérée', 'Intense', 'Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, r.legende],
+    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, r.legende],
       'Plan, semaine du 19 octobre : Entretien, pas de fond ; légende avec Récupération'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines=2026-11-30', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
@@ -2779,8 +2779,8 @@ const CONTROLES = {
     d = copie(x => { x.seances = [{ id: 'se-r', utilisateur: x.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Seuil', faite: false, course: null, duree_min: 60, distance_km: 11, intensite: 'intense', origine: 'saisie', etat: 'acceptee' }]; });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', 1200, d, {}, PARIS));
     await p.waitForSelector('[data-drag="se-r"]');
-    pb.push(egal(['SeuilCourse à pied · 1 h · 11 km', 1, 0], await p.evaluate(() => { const e = document.querySelector('[data-drag="se-r"]'); return [e.textContent.replace(/\s+/g, ' ').trim(), e.matches('.i-intense') && getComputedStyle(e).borderBottomWidth === '4px' ? 1 : 0, e.querySelectorAll('.cal-v-com').length]; }),
-      'vue en carte : le nom, dessous le type, la durée et la distance ; liseré de l\'intensité (4 px, intense), pas de picto sans commentaire'));
+    pb.push(egal(['SeuilCourse à pied · 1 h · 11 km', 1, 0], await p.evaluate(() => { const e = document.querySelector('[data-drag="se-r"]'); return [e.textContent.replace(/\s+/g, ' ').trim(), e.querySelectorAll('.cal-int.i-intense .on').length === 3 ? 1 : 0, e.querySelectorAll('.cal-v-com').length]; }),
+      'vue en carte : le nom, dessous le type, la durée et la distance ; trois traits d\'intensité (intense), pas de picto sans commentaire'));
     await p.click('[data-edit="se-r"]'); await p.waitForSelector('.cal-seance .cal-retour');
     pb.push(egal([true, 'Retour sur la séance'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.textContent('.cal-retour .mrt-section-titre')], 'fenêtre : « Retour sur la séance », ressenti caché tant qu\'elle n\'est pas faite'));
     await p.check('.cal-seance [name="faite"]');
@@ -4684,7 +4684,7 @@ const CONTROLES = {
     d.ecritures.length = 0;
     await p.click('.nu-feuille [data-act="ajout-seance"]');
     await p.waitForSelector('.nu-feuille .cal-seance');
-    pb.push(egal(['Ajouter une séance', true, '2026-10-20', 'run', 0, 1], [norm(await p.locator('#nu-feuille-titre').textContent()), await p.locator('.nu-feuille .nu-retour').isVisible(), await p.inputValue('.nu-feuille [name="date"]'), await p.inputValue('.nu-feuille [name="type"]'), await p.locator('.cal-voile').count(), await p.locator('.mc-voile').count()],
+    pb.push(egal(['Ajouter une séance', true, '2026-10-20', 'Endurance', 0, 1], [norm(await p.locator('#nu-feuille-titre').textContent()), await p.locator('.nu-feuille .nu-retour').isVisible(), await p.inputValue('.nu-feuille [name="date"]'), await p.inputValue('.nu-feuille [name="nom"]'), await p.locator('.cal-voile').count(), await p.locator('.mc-voile').count()],
       'Ajouter une séance : un écran de la feuille (« ‹ » pour revenir), au jour de la page, sans fenêtre par-dessus'));
     // Même largeur et même hauteur d'un écran à l'autre ; le bouton qui valide en bas de la feuille.
     const cadre = () => p.evaluate(() => { const r = document.querySelector('.nu-feuille').getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
@@ -4704,7 +4704,7 @@ const CONTROLES = {
         const pan = document.querySelector('.nu-feuille').getBoundingClientRect(), champs = [...document.querySelectorAll('.nu-feuille .cal-champs3 .mrt-champ')].map(c => Math.round(c.getBoundingClientRect().top));
         const b = document.querySelector('.nu-feuille .mc-pied').getBoundingClientRect();
         return [/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName), pan.width === innerWidth && pan.height === innerHeight, champs.length === 3 && champs.every(t => t === champs[0]), Math.abs(b.bottom - innerHeight) < 2];
-      }), 'téléphone : aucun champ pris (pas de clavier), feuille plein écran, durée, distance et intensité alignées, « Enregistrer » en bas de l\'écran'));
+      }), 'téléphone : aucun champ pris (pas de clavier), feuille plein écran, durée, distance et dénivelé alignés, « Enregistrer » en bas de l\'écran'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'seance-telephone.png') });
       await p.setViewportSize(vp);
     }

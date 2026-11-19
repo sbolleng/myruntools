@@ -422,7 +422,7 @@
     const x = s || {}, faite = !!x.faite;
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
-      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) + '</section>';
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + champCommentaire(x) + '</div></section>';
   }
   // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
   // un second toucher la retire), « i », « + Signaler une douleur », case « faite » (absente de la feuille : la séance y est faite),
@@ -540,14 +540,15 @@
 
   function ouvrirSeance(ctx, opts) {
     const s = opts.seance, dans = opts.dans, lu = lireLibelle(s ? s.libelle : '');
-    const champs = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
-      '<label class="cal-champ"><span>Type</span><select class="mrt-champ" name="type">' + Object.keys(TYPES).map(k => '<option value="' + k + '">' + TYPES[k] + '</option>').join('') + '</select></label>' +
-      '<div class="cal-champs2"><label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label>' +
-      '<label class="cal-champ"><span>Détail</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label></div>' +
-      // Facultatifs : durée, distance, intensité (spécification Préparation, § 7).
+    // Un seul choix de séance (le type s'en déduit : Renforcement ou course à pied) ; la date seule en tête, puis le détail,
+    // puis durée, distance et dénivelé sur une ligne, l'intensité (proposée selon la séance) ; le retour (faite, effort, commentaire) dessous.
+    const champs = '<div class="cal-champs2"><label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
+      '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label></div>' +
+      '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
       '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
-      '<label class="cal-champ"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
-      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label></div>' +
+      '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
+      '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele" inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
+      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>' +
       retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
@@ -560,24 +561,19 @@
         titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
     }
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
-    if (s) f.type.value = s.type;
-    else if (opts.type && TYPES[opts.type]) f.type.value = opts.type; // type proposé par la page qui ouvre la fenêtre (Nutrition)
-    // Le nom se choisit dans la liste du type ; un nom libre d'avant la liste reste proposé tel quel, pour ne pas le perdre.
-    const nomsOptions = () => {
-      const liste = nomsDuType(f.type.value).map(x => x.nom);
-      if (s && lu.nom && f.type.value === s.type && !liste.includes(lu.nom)) liste.push(lu.nom);
-      return liste;
-    };
-    const dessinerNoms = choisi => {
-      f.nom.innerHTML = nomsOptions().map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
-      f.nom.value = choisi && nomsOptions().includes(choisi) ? choisi : f.nom.options[0].value;
-    };
-    dessinerNoms(lu.nom);
-    // Un nom choisi propose son intensité (modifiable) ; un changement de type refait la liste.
-    const proposer = () => { const d = nomsDuType(f.type.value).find(x => x.nom === f.nom.value); if (d) f.intensite.value = d.intensite; };
-    f.type.addEventListener('change', () => { dessinerNoms(); proposer(); });
-    f.nom.addEventListener('change', proposer);
+    // Le choix de séance : la liste des courses, puis Renforcement ; un nom libre d'avant la liste reste proposé tel quel (avec son type).
+    // Le type s'en déduit ; Renforcement n'a ni distance ni dénivelé.
+    const typeOuvert = s ? s.type : (opts.type && TYPES[opts.type] ? opts.type : 'run'); // type proposé par la page qui ouvre la fenêtre (Nutrition)
+    const noms = () => NOMS.map(x => x.nom).concat([NOM_RENFO.nom]).concat(s && lu.nom && !lu.def ? [lu.nom] : []);
+    f.nom.innerHTML = noms().map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+    f.nom.value = s && noms().includes(lu.nom) ? lu.nom : (typeOuvert === 'renfo' ? NOM_RENFO.nom : NOMS[0].nom);
+    const typeDe = () => (f.nom.value === NOM_RENFO.nom ? 'renfo' : s && !lu.def && f.nom.value === lu.nom ? s.type : 'run');
+    const montrer = () => v.querySelector('form').querySelectorAll('.cal-seul-course').forEach(e => { e.hidden = typeDe() === 'renfo'; });
+    // Un nom choisi propose son intensité (modifiable).
+    const proposer = () => { const d = NOMS.concat([NOM_RENFO]).find(x => x.nom === f.nom.value); if (d) f.intensite.value = d.intensite; };
+    f.nom.addEventListener('change', () => { proposer(); montrer(); });
     if (!s) proposer();
+    montrer();
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
@@ -601,8 +597,12 @@
       if (!date) return void (msg.textContent = 'Choisis une date.');
       const duree = nombre(f.duree.value), distance = nombre(f.distance.value);
       if (duree !== null && !(Number.isInteger(duree) && duree >= 1 && duree <= 1440)) return void (msg.textContent = 'La durée doit être un nombre de minutes entre 1 et 1 440.');
-      if (distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
-      const champs = Object.assign({ date, type: f.type.value, libelle, duree_min: duree, distance_km: distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null }, retour(),
+      if (typeDe() !== 'renfo' && distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
+      const type = typeDe(), renfo = type === 'renfo', deniv = nombre(f.denivele.value);
+      if (!renfo && deniv !== null && !(Number.isInteger(deniv) && deniv >= 1 && deniv < 10000)) return void (msg.textContent = 'Le dénivelé doit être un nombre de mètres entre 1 et 9 999.');
+      const champs = Object.assign({ date, type, libelle, duree_min: duree, distance_km: renfo || distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null }, retour(),
+        // Le dénivelé n'est envoyé que s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir sa colonne (évolution 039).
+        !renfo && deniv !== null ? { denivele_m: deniv } : (s && s.denivele_m != null ? { denivele_m: null } : {}),
         s ? { date_prevue: date === s.date ? (s.date_prevue || null) : datePrevue(s, date) } : {});
       const { error } = s ? await sb.from('seances').update(champs).eq('id', s.id)
         : await sb.from('seances').insert(Object.assign({ course: opts.course || null }, champs));

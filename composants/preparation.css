@@ -2,9 +2,9 @@
    docs/module-calendrier-specification.md, § 4 et 5 ; couleurs : docs/design.md, § 9 et 10.
    Partagé par le Calendrier (calendrier.html) et la page d'une course (course.html). */
 /* Couleurs fixes, les mêmes dans tous les thèmes ; l'encre : le texte écrit sur la couleur d'une course. */
-:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; }
+:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --int-moy: #f0883e; }
 /* Fond blanc : des phases plus foncées, lisibles quand leur nom est écrit dans leur couleur. */
-.t-blanc-orange { --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; }
+.t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; }
 
 /* ----- Phases (base, développement, affûtage, deload ; hors saison : récupération, l'entretien sans couleur) ----- */
 .cal-k.ph-base, .cal-seg.ph-base { background: var(--ph-base); }
@@ -83,7 +83,7 @@
 .cal-duree .mrt-champ { width: 6rem; }
 .cal-msg { margin: 0 0 0.6rem; font-size: var(--t-petit); color: var(--red); }
 .cal-msg:empty { display: none; }
-.cal-bas { margin-top: 1.2rem; }
+.cal-bas { margin-top: 0.7rem; }
 .cal-tab { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1rem; }
 .cal-tab-sem { display: flex; flex-direction: column; line-height: 1.3; color: var(--text); }
 .cal-tab-sem small { font-size: var(--t-libelle); color: var(--muted); }
