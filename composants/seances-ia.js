@@ -185,7 +185,7 @@
   }
 
   // Réadaptation (lot 6b) : un commentaire enregistré sur une séance relance aussitôt une proposition pour le bloc qui commence
-  // cette semaine, sans compter dans le plafond ; la proposition en attente de ce bloc, s'il y en a une, est abandonnée.
+  // cette semaine, sans compter dans le plafond, et ses séances s'écrivent ; la proposition en attente de ce bloc, s'il y en a une, est abandonnée.
   // ctx : { courses, seances, semaines, profil? } ; rend { message } (à montrer), { reserve } (compte non pilote : rien à dire) ou {}.
   async function readapter(ctx) {
     const c = Object.assign({}, ctx, { seances: ctx.seances || [], semaines: ctx.semaines || [], courses: ctx.courses || [] });
@@ -196,7 +196,10 @@
     if (avant) await statut(avant.id, 'abandonnee');
     const r = await proposer(c, lundi, 'readaptation');
     if (r.message === 'Réservé aux comptes pilotes pour l\'instant.') return { reserve: true };
-    return r.message ? { message: r.message } : { id: r.id };
+    if (r.message) return { message: r.message };
+    // Les séances s'écrivent d'office (spécification Préparation, § 6) : celles de l'IA non faites du bloc sont remplacées.
+    const err = await accepter(c, { id: r.id, reponse: r.reponse }, [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)));
+    return err ? { message: 'Enregistrement impossible pour l\'instant.' } : { id: r.id };
   }
   // Historique (élément 10) : une ligne par proposition (la reprise d'une proposition refusée par les garde-fous n'en fait qu'une).
   const MOTIFS = { proposer: 'Proposer', refaire: 'Refaire', readaptation: 'Réadaptation' };

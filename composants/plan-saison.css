@@ -116,7 +116,7 @@
 .ps-prop-repli[open] .ps-prop-voir { display: none; }
 .ps-prop-voir { flex: none; font-size: var(--t-second); }
 .ps-prop-repli .ps-prop-liste { display: flex; }
-.ps-semaine { margin-top: 1.2rem; }
+.ps-semaine { margin-top: 0; }
 .ps-semaine-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
 .ps-semaine-tete .ps-libelle { margin: 0 0 0.5rem; }
 .ps-vers-cal { display: inline-block; margin-top: 0.6rem; font-size: var(--t-second); }
@@ -154,3 +154,45 @@
 @media (max-width: 600px) { .pp-conflit { grid-template-columns: 1fr; gap: 1.6rem; } .pp-c-col .mrt-btn { align-self: stretch; } }
 /* Mon profil changé depuis la dernière proposition : une ligne, comme une alerte, avec « Refaire la proposition ». */
 .ps-profil-change { margin: 0 0 0.8rem; padding: 0.45rem 0.7rem; font-size: var(--t-second); color: var(--text); border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 4px 4px 0; }
+
+/* ===== Vue d'ensemble (§ 5.1) : carte de l'Objectif, frise en cases semaine, bandeau toujours ouvert ===== */
+.ps-vue { display: flex; flex-direction: column; gap: 1.1rem; }
+.ps-objectif { margin: 0; border-color: var(--accent); background: var(--case); }
+.ps-objectif .ps-j { justify-self: end; font-family: 'Space Mono', monospace; font-size: var(--t-nom); font-weight: 700; line-height: 1; color: var(--accent); }
+.ps-objectif .ps-titre { grid-column: 1 / -1; margin: 0.1rem 0 0; font-size: 1.6rem; font-weight: 700; line-height: 1.25; color: var(--accent); }
+.ps-objectif .ps-titre a { color: inherit; text-decoration: none; }
+.ps-objectif .ps-sous { grid-column: 1 / -1; margin: 0; font-size: var(--t-texte); color: var(--text); }
+.ps-court { grid-column: 1 / -1; margin: 0; font-size: var(--t-second); font-weight: 600; color: var(--red); }
+.ps-reglages { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.ps-reglages .mrt-btn .mrt-ico, .ps-reglages .mrt-btn .cal-ico { width: 0.95rem; height: 0.95rem; }
+@media (hover: hover) { .ps-objectif .ps-titre a:hover { text-decoration: underline; } }
+/* Frise : une case par semaine, à la hauteur d'une case de la vue Mois ; flèches de part et d'autre si tout ne tient pas. */
+.ps-frise-z { display: flex; align-items: center; gap: 0.4rem; }
+.ps-frise-z .ps-frise-defile { flex: 1; min-width: 0; margin: 0; padding: 2px 0 0.4rem; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.ps-semaines { display: flex; gap: 4px; }
+.ps-sem { flex: 0 0 5.2rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.15rem; min-height: 4.6rem; padding: 0.4rem 0.45rem; overflow: hidden;
+  scroll-snap-align: start; text-decoration: none; color: var(--bg); border: 2px solid transparent; border-radius: 6px; background: var(--case); }
+.ps-sem.ph-base { background: var(--ph-base); }
+.ps-sem.ph-developpement { background: var(--ph-developpement); }
+.ps-sem.ph-affutage { background: var(--ph-affutage); }
+.ps-sem.ph-deload { background: var(--ph-deload); }
+.ps-sem.ph-recuperation { background: var(--ph-recuperation); }
+.ps-sem.ph-entretien { color: var(--muted); }
+.ps-sem.is-courante { border-color: var(--accent); }
+.ps-sem-d { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); white-space: nowrap; }
+.ps-sem-c { overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.ps-sem.ph-entretien .ps-sem-c { color: var(--text); }
+.ps-sem.ph-entretien .ps-sem-c.r-objectif { color: var(--accent); }
+.ps-sem-c.is-option { font-weight: 400; font-style: italic; }
+.ps-sem-p { overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.ps-fl[hidden] { display: none; }
+@media (hover: hover) { .ps-sem:hover { filter: brightness(1.08); } }
+@media (max-width: 600px) { .ps-sem { flex-basis: calc((100% - 12px) / 4); } .ps-objectif .ps-titre { font-size: 1.35rem; } }
+/* Bandeau de MyRunTools : toujours ouvert, sous la frise. */
+.ps-bandeau { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.6rem 0.8rem; border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 6px 6px 0; }
+.ps-bandeau .ps-alertes { margin: 0; }
+.ps-bandeau .ps-alerte { padding: 0; border: 0; background: none; }
+.ps-bandeau .ps-profil-change { margin: 0; padding: 0; border: 0; background: none; }
+.ps-reco, .ps-bandeau .ps-ia-aide { margin: 0; font-size: var(--t-second); color: var(--text); }
+.ps-reco .ps-ia-reste { color: var(--muted); }
+.ps-bandeau .ps-ia-msg { margin: 0; }
