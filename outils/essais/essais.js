@@ -2034,7 +2034,7 @@ const CONTROLES = {
         seances: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => [jourDe(e), e.querySelector('.n-long').textContent, [...e.classList].find(c => /^i-/.test(c)), e.classList.contains('faite')]),
         abreges: [...document.querySelectorAll('.cal-m-case .cal-m-se .n-court')].map(e => e.textContent),
         lis: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => getComputedStyle(e).borderBottomWidth),
-        abrege: getComputedStyle(document.querySelector('.cal-m-se .n-court')).display !== 'none',
+        abrege: (e => !!e && getComputedStyle(e).display !== 'none')(document.querySelector('.cal-m-se .n-court')),
         plus: document.querySelectorAll('.cal-m-case [data-ajout]').length,
         phases: cases.filter(c => /\bph-/.test(c.className)).map(c => [c.dataset.jour, [...c.classList].find(x => x.startsWith('ph-'))]),
         legende: [...document.querySelectorAll('.cal-legende .cal-groupe > span')].map(x => x.textContent),
