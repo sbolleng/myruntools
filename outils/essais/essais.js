@@ -664,7 +664,7 @@ const CONTROLES = {
         const d = jeuObjectif(db0).db;
         d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès'];
         const q = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
-        await q.p.waitForSelector('.ps-courses .ps-course'); await q.p.click('.ps-courses .ps-course');
+        await q.p.waitForSelector('.ps-objectif .ps-titre a'); await q.p.click('.ps-objectif .ps-titre a');
         await q.p.waitForSelector('.mc-panneau .pc-titre');
         pb.push(egal(['Mon plan', 1], await q.p.evaluate(() => [document.querySelector('.mrt-tab.is-on').textContent.trim(), document.querySelectorAll('.mc-panneau').length]), 'Mon plan : une course s\'ouvre en modale, l\'onglet reste Mon plan'));
         await q.p.click('.mc-panneau .pc-fermer');
@@ -2316,14 +2316,14 @@ const CONTROLES = {
     await ctx.close();
 
     // Régler les phases, depuis Mon plan (rond de la frise, ou de l'Objectif dans « Courses du plan ») : durée de 20 semaines, une semaine en Base, puis recalcul
-    const plans = async (largeur = 1200) => { const o = await ouvrir(nav, 'preparation.html', largeur, d, {}, PARIS); await o.p.waitForSelector('.ps-courses [data-preparer]'); await surDialogue(o.p, () => true); return o; };
-    const regler = async (q, idCourse) => { await q.p.click('.ps-courses [data-preparer="' + idCourse + '"]'); await q.p.waitForSelector('.cal-preparer'); };
+    const plans = async (largeur = 1200) => { const o = await ouvrir(nav, 'preparation.html', largeur, d, {}, PARIS); await o.p.waitForSelector('.ps-reglages [data-preparer]'); await surDialogue(o.p, () => true); return o; };
+    const regler = async (q, idCourse) => { await q.p.click('.ps-reglages [data-preparer="' + idCourse + '"]'); await q.p.waitForSelector('.cal-preparer'); };
     const fini = async q => { await q.p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause(); };
     d = copie();
     let q = await plans();
-    pb.push(egal([[GORGES], [GORGES, id(7)]], await q.p.evaluate(() => [[...document.querySelectorAll('.ps-frise-barre [data-preparer]')].map(b => b.dataset.preparer), [...document.querySelectorAll('.ps-courses [data-preparer]')].map(b => b.dataset.preparer)]),
-      'Mon plan : « Régler les phases » sur la frise (Objectif visé) et sur chaque Objectif de « Courses du plan », jamais sur une autre course'));
-    await q.p.click('.ps-frise-barre [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
+    pb.push(egal([[GORGES], 'Personnaliser'], await q.p.evaluate(() => [[...document.querySelectorAll('[data-preparer]')].map(b => b.dataset.preparer), document.querySelector('.ps-reglages [data-preparer]').textContent.trim()]),
+      'Mon plan : « Personnaliser » (Régler les phases) dans la carte de l\'Objectif visé, seul réglage des phases de la page'));
+    await q.p.click('.ps-reglages [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
     await q.p.fill('.cal-prep [name="duree"]', '20'); await q.p.dispatchEvent('.cal-prep [name="duree"]', 'change');
     pb.push(egal('Début : lun. 19 oct. 2026 → jour J : dim. 7 mars 2027 · durée du format : 16 sem.', await q.p.textContent('.cal-prep .cal-plan-dates'), 'Régler les phases : 20 semaines, début le 19 octobre'));
     await q.p.selectOption('.cal-prep [data-sem="2026-12-07"]', 'base');
@@ -2372,13 +2372,12 @@ const CONTROLES = {
     d.courses.find(c => c.id === GORGES).format = 'tri_s';
     ({ p, ctx } = await ouvertePrep(d, GORGES));
     pb.push(egal('Objectif · pas encore de plan : ce format n\'a pas de durée de préparation par défaut.', (await place(p)).ligne, 'Objectif sans durée de format : pas de plan'));
-    q = await plans(); await regler(q, GORGES);
-    await q.p.fill('.cal-prep [name="duree"]', '10'); await q.p.dispatchEvent('.cal-prep [name="duree"]', 'change');
-    await q.p.click('[data-act="enregistrer"]');
-    await fini(q); await q.ctx.close();
-    await p.reload(); await p.waitForSelector('#preparation .cal-plan-dates');
-    pb.push(egal(true, (await place(p)).ligne.startsWith('Objectif · saison de 10 semaines'), 'durée choisie pour un format sans durée'));
     await ctx.close();
+    // Mon plan : sans durée, pas de saison ; l'écran Début du parcours en donne une (§ 5.0).
+    q = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
+    await q.p.waitForSelector('.ps-objectif');
+    pb.push(egal('Trail des Crêtes', (await q.p.textContent('.ps-objectif .ps-titre')).trim(), 'Mon plan, Objectif sans durée de format : pas de saison, la carte montre l\'Objectif suivant (la durée se choisit à l\'écran Début du parcours)'));
+    await q.ctx.close();
 
     // Lecture seule : la rubrique s'affiche, sans lien ni réglage.
     const autre = '00000000-0000-0000-0000-00000000000b';
@@ -2395,7 +2394,7 @@ const CONTROLES = {
       await p.screenshot({ path: path.join(__dirname, 'captures', 'course-preparation.png'), fullPage: true });
       await ctx.close();
       const o = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await o.p.waitForSelector('.ps-courses [data-preparer]'); await o.p.click('.ps-courses [data-preparer]');
+      await o.p.waitForSelector('.ps-reglages [data-preparer]'); await o.p.click('.ps-reglages [data-preparer]');
       await o.p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-preparer.png') });
       await o.ctx.close();
     }
@@ -2410,126 +2409,96 @@ const CONTROLES = {
     const { db, id } = jeuObjectif(db0);
     const copie = f => { const d = JSON.parse(JSON.stringify(db)); if (f) f(d); return d; };
     const course = (d, n) => d.courses.find(c => c.id === id(n));
-    const lire = async (p, defaut) => { await p.evaluate(() => { const d = document.querySelector('.ps-saison-repli'); if (d) d.open = true; }); if (!defaut) await p.click('[data-frise="tout"]'); return p.evaluate(() => {
+    // La vue d'ensemble (§ 5.1) : carte de l'Objectif, frise en cases semaine, bandeau, Cette semaine.
+    const lire = p => p.evaluate(() => {
       const t = s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
-      const segs = [...document.querySelectorAll('.ps-seg')];
-      const ph = l => { const e = segs.find(x => x.dataset.debut <= l && l <= x.dataset.fin); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
+      const sem = [...document.querySelectorAll('.ps-sem')];
+      const ph = l => { const e = sem.find(x => x.dataset.lundi === l); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
       return {
-        titre: t('.ps-titre'), sous: t('.ps-sous'), place: t('.ps-place'), total: t('.ps-semaine-tete .cal-total'), etat: t('.ps-etat'), runs: [...document.querySelectorAll('.ps-run')].map(e => e.dataset.lundi + ' ' + e.dataset.fin + ' ' + e.querySelector('.ps-run-nom').textContent + ' ' + e.querySelector('.ps-run-dates').textContent), titreBloc: t('.ps-bloc > .ps-libelle'), vide: t('.ps-vide'),
-        semaines: segs.length ? [segs[0].dataset.debut, segs[segs.length - 1].dataset.fin] : [],
+        titre: t('.ps-objectif .ps-titre'), sous: t('.ps-objectif .ps-sous'), j: t('.ps-objectif .ps-j'), court: t('.ps-court'),
+        reglages: [...document.querySelectorAll('.ps-reglages .mrt-btn')].map(b => b.textContent.trim()),
+        semaines: sem.length ? [sem[0].dataset.lundi, sem[sem.length - 1].dataset.lundi] : [], courante: (document.querySelector('.ps-sem.is-courante') || {}).dataset ? document.querySelector('.ps-sem.is-courante').dataset.lundi : null,
         phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
-        marques: [...document.querySelectorAll('.ps-marque[href]')].map(a => a.title.split(' · ')[0] + ' ' + [...a.classList].filter(c => c !== 'ps-marque').join(' ')),
+        marques: [...document.querySelectorAll('.ps-sem-c')].map(e => e.closest('.ps-sem').dataset.lundi + ' ' + e.textContent + ' ' + [...e.classList].filter(c => c !== 'ps-sem-c').join(' ')),
         alertes: ['Alertes (' + document.querySelectorAll('.ps-alerte').length + ')', ...[...document.querySelectorAll('.ps-alerte')].map(e => e.dataset.alerte)],
         textesAlertes: [...document.querySelectorAll('.ps-alerte')].map(e => e.textContent.replace(/\s+/g, ' ').trim()),
-        // Cette semaine : une ligne par jour, et les repères du jour écrits dedans.
-        bloc: [...document.querySelectorAll('.ps-bloc .cal-s-ligne')].map(e => e.dataset.jourLigne),
-        reperes: [...document.querySelectorAll('.ps-bloc .cal-v-rep')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne + ' ' + e.textContent),
-        repos: [...document.querySelectorAll('.ps-bloc .cal-repos')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne),
+        retires: document.querySelectorAll('.ps-courses, .ps-suggestion, .ps-historique, [data-frise], .mrt-plein, .ps-place, .ps-profil-etat, .ps-prop-repli, [data-ia="proposer"]').length,
+        bloc: [...document.querySelectorAll('.ps-semaine .cal-s-ligne')].map(e => e.dataset.jourLigne),
+        reperes: [...document.querySelectorAll('.ps-semaine .cal-v-rep')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne + ' ' + e.textContent),
+        repos: [...document.querySelectorAll('.ps-semaine .cal-repos')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne),
         lien: (document.querySelector('.ps-vers-cal') || {}).textContent || null,
-        plus: document.querySelectorAll('.ps-bloc [data-ajout]').length,
+        plus: document.querySelectorAll('.ps-semaine [data-ajout]').length,
+        ordre: [...document.querySelectorAll('.ps-vue > *')].map(e => e.className.split(' ').find(c => c.startsWith('ps-'))),
         debordement: document.documentElement.scrollWidth > innerWidth
       };
-    }); };
-    // Le jeu d'essai : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (ancien objectif intermédiaire : un Objectif),
-    // Trail des Cimes et Ultra du Plateau (options), Trail des Crêtes (Objectif).
+    });
+    const fleches = p => p.evaluate(() => [...document.querySelectorAll('.ps-fl')].map(b => !b.hidden));
     for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
       const { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', w, copie(), {}, PARIS);
-      await p.waitForSelector('.ps-cadre');
-      const r = await lire(p, false);
+      await p.waitForSelector('.ps-objectif');
+      const r = await lire(p);
       pb.push(
-        egal(['Trail des Gorges', 'dim. 7 mars 2027 · J-138', 'Entretien'], [r.titre, r.sous, r.place], nom + ', titre court : le nom de la course visée, dessous la date et les jours restants, puis la place de la semaine (hors saison : la phase)'),
-        ...(w > 600 ? [
-        egal(['2026-10-19', '2027-10-25'], [r.semaines[0], r.semaines[1]], nom + ', frise de la semaine en cours à la fin de la récupération du dernier Objectif'),
+        egal(['Trail des Gorges', 'dim. 7 mars 2027 · 45 km · 2 100 m D+', 'J-138', null, ['Mon profil', 'Changer d\'Objectif', 'Personnaliser']], [r.titre, r.sous, r.j, r.court, r.reglages],
+          nom + ', carte de l\'Objectif : nom, date complète, distance et D+, J-138 ; les trois réglages du plan'),
+        egal(['2026-10-19', '2027-10-25', '2026-10-19'], [r.semaines[0], r.semaines[1], r.courante], nom + ', frise : tout le plan, de la semaine en cours à la fin de la dernière récupération ; la semaine en cours repérée'),
         egal(['ph-entretien', 'ph-base', 'ph-base', 'ph-recuperation', 'ph-recuperation', 'ph-entretien', 'ph-entretien', 'ph-base', 'ph-affutage', 'ph-recuperation'], r.phases,
-          nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août')] : [
-        egal([true, '2026-10-19', '2027-10-25', 0], [r.runs.length > 5, r.runs[0].split(' ')[0], r.runs[r.runs.length - 1].split(' ')[1], await p.locator('.ps-seg').count()],
-          nom + ', frise en liste verticale (une ligne par phase), de la semaine en cours à la fin de la dernière récupération'),
-        egal('Entretien 19 oct. → 15 nov. · 4 sem.', r.runs[0].split(' ').slice(2).join(' '), nom + ', première ligne : phase, dates, durée')]),
-        egal(['Trail du Lac r-preparatoire', 'Corrida de Noël r-plaisir', 'Trail des Gorges r-objectif', 'Trail des Cimes r-preparatoire is-option', 'Ultra du Plateau r-preparatoire is-option', 'Trail de la Forêt r-preparatoire is-option', 'Trail des Crêtes r-objectif'], r.marques,
-          nom + ', courses sur la frise, repérées par leur rôle, options en pointillé'),
-        egal(['Alertes (0)'], r.alertes, nom + ', pas d\'alerte (25 semaines entre les deux Objectifs, options sans règle)'),
+          nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août'),
+        egal(['2026-11-09 ▲ Trail du Lac r-preparatoire', '2026-12-07 ▲ Corrida de Noël r-plaisir', '2027-03-01 ▲ Trail des Gorges r-objectif', '2027-05-24 ▲ Trail des Cimes r-preparatoire is-option', '2027-06-21 ▲ Ultra du Plateau r-preparatoire is-option', '2027-06-28 ▲ Trail de la Forêt r-preparatoire is-option', '2027-08-23 ▲ Trail des Crêtes r-objectif'], r.marques,
+          nom + ', courses dans leur semaine, repérées par leur rôle, options à part'),
+        egal([['Alertes (0)'], 0, ['ps-objectif', 'ps-frise-z', 'ps-bandeau', 'ps-semaine']], [r.alertes, r.retires, r.ordre], nom + ', pas d\'alerte ; plus de frise « En cours », de courses du plan, d\'historique ni de « Proposer » ; l\'ordre de la page'),
+        egal([false, true], await fleches(p), nom + ', flèches : seule « suivantes » au départ (la frise ne tient pas)'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));
-      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'preparation-' + nom.replace('é', 'e') + '.png'), fullPage: true });
+      await p.click('.ps-fl[data-fl="1"]'); await pause();
+      pb.push(egal([true, true], await fleches(p), nom + ', flèche « suivantes » : la frise défile, « précédentes » apparaît'));
+      pb.push(egal('calendrier.html#semaines=2026-11-16', await p.getAttribute('.ps-sem[data-lundi="2026-11-16"]', 'href'), nom + ', une semaine de la frise mène au Calendrier, sur elle'));
+      if (CAPTURES) { await p.evaluate(() => { document.querySelector('.ps-frise-defile').scrollLeft = 0; }); await p.screenshot({ path: path.join(__dirname, 'captures', 'preparation-' + nom.replace('é', 'e') + '.png'), fullPage: true }); }
       await ctx.close();
     }
-    // Frise à deux niveaux : « En cours » par défaut (jusqu'à l'Objectif), « Tout » ; plein écran sur ordinateur seulement ; alertes dans le bloc de la recommandation.
-    {
-      const { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await p.waitForSelector('.ps-cadre');
-      const f = () => p.evaluate(() => { const l = [...document.querySelectorAll('.ps-seg')]; return [l[0].dataset.debut, l[l.length - 1].dataset.fin, document.querySelector('[data-frise][aria-pressed="true"]').textContent, l.map(e => e.textContent).join(',')]; });
-      pb.push(egal(['2026-10-19', '2027-03-01', 'En cours', 'Entretien,Base,Développement'], (await f()).slice(0, 3).concat([(await f())[3].split(',').filter((x, i, t) => t.indexOf(x) === i).filter(x => ['Entretien', 'Base', 'Développement'].includes(x)).join(',')]),
-        'frise : « En cours » par défaut, de la semaine en cours à celle de l\'Objectif, le nom de la phase écrit sur la barre'));
-      pb.push(egal([['Trail du Lac · 15 nov.', 'Corrida de Noël · 13 déc.', 'Trail des Gorges · 7 mars'], ['Objectif', 'Préparatoire', 'Plaisir', 'Base', 'Développement', 'Affûtage', 'Deload', 'Entretien']],
-        await p.evaluate(() => [[...document.querySelectorAll('.ps-marque-nom')].map(e => e.textContent), [...document.querySelectorAll('.ps-legende span')].map(e => e.textContent.replace(/[▲]/g, '').trim())]),
-        'frise « Saison » : nom et date écrits sous chaque ▲ ; légende limitée à ce qui est montré (pas de Récupération)'));
-      await p.click('[data-frise="tout"]');
-      pb.push(egal(['2026-10-19', '2027-10-25', 'Tout'], (await f()).slice(0, 3), 'frise : « Tout » jusqu\'à la fin de la dernière récupération'));
-      pb.push(egal([1, 'data-plein-cible'], [await p.locator('.ps-frise-zone .mrt-plein').count(), await p.evaluate(() => document.querySelector('.ps-frise-zone').hasAttribute('data-plein-cible') ? 'data-plein-cible' : '')], 'frise : le rond « plein écran » sur ordinateur'));
-      await ctx.close();
-      const t = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS);
-      await t.p.waitForSelector('.ps-cadre');
-      pb.push(egal('none', await t.p.evaluate(() => { const b = document.querySelector('.mrt-plein'); return b ? getComputedStyle(b).display : 'none'; }), 'téléphone : pas de plein écran'));
-      // Téléphone, « Saison » : une liste verticale, sans débordement, la course sous sa phase.
-      pb.push(egal([true, false, 'Trail du Lac · 15 nov.'], await t.p.evaluate(() => [document.querySelectorAll('.ps-run').length >= 2, document.documentElement.scrollWidth > innerWidth, (document.querySelector('.ps-run .ps-marque-nom') || {}).textContent || null]),
-        'téléphone, « Saison » : la frise est une liste verticale (une ligne par phase), sans débordement, la course écrite sous sa phase'));
-      await t.ctx.close();
-      const q = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS);
-      await q.p.waitForSelector('.ps-cadre');
-      pb.push(egal([1, 1, 0], await q.p.evaluate(() => [document.querySelectorAll('.ps-bloc .ps-proposition').length, document.querySelectorAll('.ps-bloc .ps-proposition .ps-alerte').length, document.querySelectorAll('section.ps-alertes').length]),
-        'une alerte : dans le bandeau de MyRunTools, en haut du bloc (pas de section Alertes à part)'));
-      await q.ctx.close();
-      const z = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await z.p.waitForSelector('.ps-cadre');
-      pb.push(egal(0, await z.p.locator('.ps-alerte').count(), 'sans alerte : rien (ni compteur, ni titre « Alertes »)'));
-      await z.ctx.close();
-    }
-    // État de la semaine, bloc en cours et repères.
+    // Cette semaine et ses repères.
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-    await p.waitForSelector('.ps-cadre');
-    let r = await lire(p, false);
-    pb.push(egal([7, '2026-10-19', '2026-10-25', 0, 0], [r.bloc.length, r.bloc[0], r.bloc[6], await p.locator('.ps-bloc .cal-m-case').count(), await p.locator('.ps-bloc .cal-sem').count()], 'cette semaine : une ligne par jour, du 19 au 25 octobre ; plus de grille du bloc'));
-    pb.push(egal([null, null, 7, 'Voir les semaines dans le Calendrier →'], [r.etat, r.titreBloc, r.plus, r.lien], 'ni état de la semaine ni titre « Bloc en cours » ; un « + » par jour ; lien vers le Calendrier'));
+    await p.waitForSelector('.ps-objectif');
+    let r = await lire(p);
+    pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'Voir les semaines dans le Calendrier →'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier'));
     pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
     await ctx.close();
-    // La semaine du 9 novembre : allégé du 12 au 14 avant le Trail du Lac.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
-    await p.waitForSelector('.ps-cadre');
-    r = await lire(p, false);
-    pb.push(egal(['2026-11-12 Allégé', '2026-11-13 Allégé', '2026-11-14 Allégé'], r.reperes, 'repères dans les lignes : allégé du 12 au 14 novembre avant le Trail du Lac'));
+    await p.waitForSelector('.ps-objectif');
+    pb.push(egal(['2026-11-12 Allégé', '2026-11-13 Allégé', '2026-11-14 Allégé'], (await lire(p)).reperes, 'repères dans les lignes : allégé du 12 au 14 novembre avant le Trail du Lac'));
     await ctx.close();
-    // Récupération et repos de la veille : la semaine du 30 novembre (récupération du Trail du Lac jusqu'au 4 décembre).
-    const plusTard = { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-30T10:00:00+01:00') };
-    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, plusTard));
-    await p.waitForSelector('.ps-cadre');
-    r = await lire(p, false);
-    pb.push(egal([true, false, 'Semaine 3 sur 16 · Base'], [r.reperes.includes('2026-12-04 Récupération'), r.reperes.includes('2026-12-05 Récupération'), r.place],
-      'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre (19 jours) ; semaine 3 de la saison, en base'));
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-30T10:00:00+01:00') }));
+    await p.waitForSelector('.ps-objectif');
+    r = await lire(p);
+    pb.push(egal([true, false, '2026-11-30', '2026-11-16'], [r.reperes.includes('2026-12-04 Récupération'), r.reperes.includes('2026-12-05 Récupération'), r.courante, r.semaines[0]],
+      'au 30 novembre : récupération du Trail du Lac jusqu\'au 4 décembre ; la frise part du début de la saison, la semaine en cours repérée'));
     await ctx.close();
-    // Ultra du Plateau confirmé : sa récupération (83 km-effort, 52 jours) déborde sur l'affûtage du Trail des Crêtes.
+    // Alertes, dans le bandeau de MyRunTools.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 5).statut = 'confirmee'; }), {}, PARIS));
-    await p.waitForSelector('.ps-cadre');
-    r = await lire(p, false);
-    pb.push(egal([['Alertes (1)', 'recup-affutage'], true], [r.alertes, /^Ultra du Plateau : récupération jusqu'au .*17 août.*, sur l'affûtage de Trail des Crêtes$/.test(r.textesAlertes[0])],
-      'Ultra du Plateau confirmé : récupération jusqu\'au 17 août, dans l\'affûtage du Trail des Crêtes ; pas d\'alerte de Préparatoire trop proche (9 semaines)'));
+    await p.waitForSelector('.ps-objectif');
+    r = await lire(p);
+    pb.push(egal([['Alertes (1)', 'recup-affutage'], true, 1], [r.alertes, /^Ultra du Plateau : récupération jusqu'au .*17 août.*, sur l'affûtage de Trail des Crêtes$/.test(r.textesAlertes[0]), await p.locator('.ps-bandeau .ps-alerte').count()],
+      'Ultra du Plateau confirmé : récupération dans l\'affûtage du Trail des Crêtes, l\'alerte dans le bandeau'));
     await ctx.close();
-    // Trail des Crêtes avancé au 2 mai : Objectifs trop proches (8 semaines) ; la seconde saison part le 8 mars, raccourcie.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 7).date = '2027-05-02'; }), {}, PARIS));
-    await p.waitForSelector('.ps-cadre');
-    r = await lire(p, false);
+    await p.waitForSelector('.ps-objectif');
+    r = await lire(p);
     pb.push(egal([['Alertes (1)', 'proches'], true, 'ph-developpement'], [r.alertes, r.textesAlertes[0] === 'Trail des Gorges et Trail des Crêtes : 8 semaines d\'écart (12 conseillées)', r.phases[3]],
-      'Trail des Crêtes au 2 mai : alerte Objectifs trop proches (8 semaines) ; saison raccourcie, le 8 mars en développement'));
+      'données d\'avant le parcours, Trail des Crêtes au 2 mai : alerte Objectifs trop proches ; saison raccourcie, le 8 mars en développement'));
     await ctx.close();
-    // Trail des Cimes confirmé et avancé au 14 août : Préparatoire trop proche (14 jours avant un ultra-trail), et sa récupération dans l'affûtage.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 4).statut = 'confirmee'; course(d, 4).date = '2027-08-14'; }), {}, PARIS));
-    await p.waitForSelector('.ps-cadre');
-    r = await lire(p, false);
+    await p.waitForSelector('.ps-objectif');
+    r = await lire(p);
     pb.push(egal([['Alertes (2)', 'recup-affutage', 'prepa-proche'], 'Trail des Cimes : à 14 jours de Trail des Crêtes (3 semaines conseillées)'], [r.alertes, r.textesAlertes[1]], 'Trail des Cimes au 14 août : Préparatoire trop proche et récupération dans l\'affûtage, en une ligne chacune'));
     await ctx.close();
-    // Sans Objectif : le parcours « Construire mon plan » (§ 5.0) à la place de la page, pas de frise.
+    // Plan plus court que le minimum du format (trail long : 12 semaines) : dit dans la carte.
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 3).prepa_semaines = 8; }), {}, PARIS));
+    await p.waitForSelector('.ps-objectif');
+    pb.push(egal('Plan court : 8 semaines (12 au minimum)', (await lire(p)).court, 'plan de 8 semaines pour un trail long : « Plan court » dans la carte'));
+    await ctx.close();
+    // Sans Objectif : le parcours « Construire mon plan » (§ 5.0) à la place de la page.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { d.courses.forEach(c => { if (c.role === 'objectif' || c.role === 'objectif_intermediaire') c.role = 'preparatoire'; }); }), {}, PARIS));
     await p.waitForSelector('.pp[data-ecran="plan"]');
-    pb.push(egal([0, 'Ton plan'], [await p.locator('.ps-seg').count(), await p.textContent('.pp .fc-libelle')], 'sans Objectif : le parcours, pas de frise'));
+    pb.push(egal([0, 'Ton plan'], [await p.locator('.ps-sem').count(), await p.textContent('.pp .fc-libelle')], 'sans Objectif : le parcours, pas de frise'));
     await ctx.close();
     // Calendrier : la récupération d'un Objectif en rose (semaine du 8 mars), l'Entretien sans fond.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#mois=2027-03', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
@@ -2539,58 +2508,7 @@ const CONTROLES = {
       return [cl('2027-03-02'), cl('2027-03-09'), getComputedStyle(document.querySelector('.cal-m-case[data-jour="2027-03-09"]')).backgroundColor !== getComputedStyle(document.querySelector('.cal-m-case[data-jour="2027-03-02"]')).backgroundColor];
     }), 'Calendrier, mars 2027 : affûtage puis Récupération du Trail des Gorges, d\'une autre couleur'));
     await ctx.close();
-    // Courses du plan (15) : une ligne par course à venir, son avis ; préparatoire conseillée (16) ; « Confirmer », « Passer en Plaisir », « + Ajouter une course ».
-    {
-      const lireC = q => q.evaluate(() => ({
-        lignes: [...document.querySelectorAll('.ps-c')].map(li => [li.querySelector('.ps-c-nom').textContent, (li.querySelector('.pr-avis-n') || {}).textContent || null, li.querySelectorAll('[data-plaisir]').length]),
-        sg: (document.querySelector('.ps-sg-texte') || {}).textContent || null, sgSources: (document.querySelector('.ps-suggestion .pr-sources') || {}).textContent || null,
-        reperees: [...document.querySelectorAll('.ps-sg-liste li')].map(e => e.textContent.trim()), ajouter: document.querySelectorAll('.ps-suggestion [data-ajouter].ob-ajout.is-principal').length,
-        ordre: [...document.querySelectorAll('.ps-cadre > section, .ps-cadre > .ps-bloc')].map(e => e.className.split(' ')[0]) }));
-      const d1 = copie(); d1.ecritures = [];
-      let q = await ouvrir(nav, 'preparation.html', 1200, d1, {}, PARIS);
-      await q.p.waitForSelector('.ps-courses');
-      let c = await lireC(q.p);
-      pb.push(egal([['Trail du Lac', 'Possible', 0], ['Corrida de Noël', 'Possible', 0], ['Trail des Gorges', null, 0], ['Trail des Cimes', 'Possible', 0], ['Ultra du Plateau', 'Déconseillée', 0], ['Trail de la Forêt', 'Conseillée', 0], ['Trail des Crêtes', null, 0]], c.lignes,
-        'Courses du plan : toutes les courses à venir, dans l\'ordre ; avis des courses qui ne sont pas un Objectif (options jugées comme confirmées) ; pas de « Passer en Plaisir » qui n\'aiderait pas'));
-      pb.push(egal(['Préparatoire conseillée avant Trail des Gorges : un trail de 21 à 30 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027.', 'Sources : Marathon Handbook, Laura Norris', [], 1],
-        [c.sg, c.sgSources, c.reperees, c.ajouter], 'préparatoire conseillée : distance, terrain et fenêtre, sources ; aucune course repérée ; « + Ajouter une course »'));
-      pb.push(egal(['ps-bloc', 'ps-courses', 'ps-suggestion'], c.ordre, 'Mon plan : le bloc, puis les courses du plan, puis la préparatoire conseillée'));
-      await q.p.click('[data-ajouter]'); await q.p.waitForSelector('.fc-fiche');
-      pb.push(egal(['Ajouter une course', 'confirmee', 'preparatoire'], [await q.p.textContent('#fc-titre'), await q.p.inputValue('#fc-statut'), await q.p.inputValue('#fc-role')], '« + Ajouter une course » : la fiche du site, Confirmée et Préparatoire'));
-      await q.ctx.close();
-      // Une course repérée dans la fenêtre : « Confirmer » la rend Préparatoire ; elle est Conseillée et la suggestion disparaît.
-      const d2 = copie(x => { x.courses.push(Object.assign({}, x.courses.find(k => k.id === id(1)), { id: id(40), course: 'Trail de l\'Hiver', date: '2027-01-31', statut: 'a_surveiller', inscrit: false, dossard: null })); x.ecritures = []; });
-      q = await ouvrir(nav, 'preparation.html', 1200, d2, {}, PARIS);
-      await q.p.waitForSelector('.ps-sg-liste [data-confirmer]');
-      pb.push(egal(['Trail de l\'Hiver · dim. 31 janv. 2027Confirmer'], (await lireC(q.p)).reperees, 'préparatoire conseillée : la course repérée de la fenêtre, avec « Confirmer »'));
-      await surDialogue(q.p, () => true);
-      await q.p.click('[data-confirmer]');
-      await q.p.waitForSelector('.ps-sg-liste', { state: 'detached' }); await pause();
-      c = await lireC(q.p);
-      pb.push(egal([['PATCH', 'courses', { statut: 'confirmee', role: 'preparatoire' }], ['Trail de l\'Hiver', 'Conseillée', 0], null],
-        [[d2.ecritures[0].methode, d2.ecritures[0].table, d2.ecritures[0].corps], c.lignes.find(l => l[0] === 'Trail de l\'Hiver'), c.sg], 'Confirmer : Préparatoire, Conseillée (5 semaines avant), plus de suggestion'));
-      pb.push(egal('5 semaines avant Trail des Gorges : dans la fenêtre conseillée (4 à 6 semaines)', await q.p.evaluate(() => [...document.querySelectorAll('.ps-c')].find(li => li.textContent.includes('Hiver')).querySelector('.pr-avis-r').textContent), 'Conseillée : la raison'));
-      await q.ctx.close();
-      // Une Préparatoire à 20 jours d'un Objectif de plus de 42 km, récupérée avant l'affûtage : Déconseillée, « Passer en Plaisir » la tire d'affaire.
-      const d3 = copie(x => { Object.assign(x.courses.find(k => k.id === id(2)), { date: '2027-02-15', role: 'preparatoire' }); x.ecritures = []; });
-      q = await ouvrir(nav, 'preparation.html', 1200, d3, {}, PARIS);
-      await q.p.waitForSelector('[data-plaisir]');
-      pb.push(egal([['Corrida de Noël', 'Déconseillée', 1], 'Corrida de Noël : à 20 jours de Trail des Gorges (3 semaines conseillées)'], [(await lireC(q.p)).lignes[1],
-        await q.p.evaluate(() => document.querySelectorAll('.ps-c')[1].querySelector('.pr-avis-r').textContent)], 'Préparatoire trop proche : Déconseillée, avec « Passer en Plaisir »'));
-      await surDialogue(q.p, () => true);
-      await q.p.click('[data-plaisir]');
-      await q.p.waitForSelector('[data-plaisir]', { state: 'detached' }); await pause();
-      pb.push(egal([{ role: 'plaisir' }, ['Corrida de Noël', 'Possible', 0]], [d3.ecritures[0].corps, (await lireC(q.p)).lignes[1]], 'Passer en Plaisir : rôle écrit, la course devient Possible'));
-      pb.push(egal([], q.erreurs, 'Mon plan, courses du plan : erreurs JavaScript'));
-      await q.ctx.close();
-      // Téléphone : rien ne déborde ; « + Course » en court.
-      q = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS);
-      await q.p.waitForSelector('.ps-courses');
-      pb.push(egal([false, 'Course'], await q.p.evaluate(() => [document.documentElement.scrollWidth > innerWidth, [...document.querySelectorAll('.ps-suggestion [data-ajouter] span')].filter(e => e.getClientRects().length).map(e => e.textContent).join('')]),
-        'téléphone : courses du plan sans débordement, « + Course »'));
-      await q.ctx.close();
-    }
-    // Lecture seule : le plan s'affiche, sans « + ».
+    // Lecture seule : la vue s'affiche, sans réglages ni « + ».
     const autre = '00000000-0000-0000-0000-00000000000b';
     const partage = copie(d => {
       d.courses = d.courses.filter(c => c.utilisateur !== autre).map(c => Object.assign({}, c, { utilisateur: autre }));
@@ -2598,9 +2516,9 @@ const CONTROLES = {
       d.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
     });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
-    await p.waitForSelector('.ps-cadre');
+    await p.waitForSelector('.ps-objectif');
     r = await lire(p);
-    pb.push(egal([true, 0], [/Trail des Gorges/.test(r.titre || ''), r.plus], 'lecture seule : la saison s\'affiche, sans « + »'));
+    pb.push(egal([true, 0, []], [/Trail des Gorges/.test(r.titre || ''), r.plus, r.reglages], 'lecture seule : la vue s\'affiche, sans réglages ni « + »'));
     await ctx.close();
     return pb;
   },
@@ -2627,9 +2545,9 @@ const CONTROLES = {
     // Profil vide (seul le sexe est connu) : la feuille « Mon profil » depuis Mon plan, quatre sections, ce qui manque.
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
-    await p.waitForFunction(() => /Profil/.test((document.querySelector('.ps-profil-etat') || {}).textContent || ''));
-    pb.push(egal(['Profil à compléter : niveau, distance moyenne par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', 'Mon profil'], [await etat(p), (await p.textContent('[data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
-    await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await p.waitForSelector('.ps-ia-aide');
+    pb.push(egal(['Pour que MyRunTools propose tes séances : Compléter mon profil', 'Mon profil'], [(await p.textContent('.ps-ia-aide')).trim(), (await p.textContent('.ps-reglages [data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
+    await p.click('.ps-reglages [data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     let r = await liste(p);
     pb.push(egal([true, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 9, 22, false],
       [r.feuille, await sections(p), await p.textContent('.ps-profil .fc-libelle'), r.aFaire, r.lignes.length, /\*/.test(r.texte)], 'feuille Mon profil : feuille d\'une course (croix ronde), quatre sections et leur compte, neuf lignes à renseigner, 22 lignes, ni astérisque'));
@@ -2715,7 +2633,7 @@ const CONTROLES = {
     pb.push(egal({ fc_repos: 52, naissance: '1985-03-12', poids: 72.4, taille: 178, pointure: 42.5, activite: 'peu' }, mesures(d), 'mesures rangées dans le profil (naissance, poids, taille, pointure, FC de repos, activité)'),
       egal([186, 'tendon d\'Achille gauche'], (c => c && [c.fc_max, c.fragiles])(derniere(d)), 'FC max et points fragiles rangés avec le niveau'));
     await p.click('.ps-profil [data-fermer]');
-    pb.push(egal('Profil complet.', await etat(p), 'profil complet sur la page Mon plan'));
+    pb.push(egal(0, await p.locator('.ps-ia-aide').count(), 'profil complet : plus de « Compléter mon profil » sur la page Mon plan'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
     await ctx.close();
     // Page Mon profil : l'état de tout le profil, les quatre sections ; une ligne ouvre sa question seule (sans « ‹ »), l'enregistrement ferme la feuille.
@@ -2973,12 +2891,12 @@ const CONTROLES = {
     pb.push(egal('Confirmé', niveau2, 'récapitulatif : une ligne ramène à sa question, puis au récapitulatif'));
     d.ecritures = [];
     await p.click('.pp [data-pp="construire"]');
-    await p.waitForSelector('.ps-titre:not(.pp .ps-titre)');
-    await p.waitForFunction(() => document.querySelector('.ps-proposition, .ps-ia'));
+    await p.waitForSelector('.ps-objectif .ps-titre');
+    await p.waitForFunction(() => document.querySelector('.ps-bandeau .ps-ia-msg, .ps-bandeau [data-ia="refaire"]'));
     const maj = d.ecritures.filter(x => x.table === 'courses').map(x => x.filtres + ' ' + JSON.stringify(x.corps));
     const pr = d.profil_entrainement[0] || {};
     pb.push(egal([['?id=eq.' + id(3) + ' {"role":"objectif","statut":"confirmee","groupe_options":null,"prepa_semaines":null}'], 'Trail des Gorges', 1],
-      [maj, await p.textContent('.ps-titre'), Math.min(d.appels.length, 1)], '« Construire mon plan » : Objectif confirmé, durée conseillée ; la page du plan ; l\'IA propose aussitôt le premier bloc'));
+      [maj, (await p.textContent('.ps-objectif .ps-titre')).trim(), Math.min(d.appels.length, 1)], '« Construire mon plan » : Objectif confirmé, durée conseillée ; la page du plan ; l\'IA propose aussitôt le premier bloc'));
     pb.push(egal(['entorse de la cheville droite', '2026-10-20'], [pr.blessure, pr.blessure_debut], 'blessure en cours : datée du jour'));
     pb.push(egal({ niveau: 'confirme', antecedents: 'legeres', fragiles: 'genou droit', volume_tranche: '40-60', sortie_tranche: '1h30-2h', allure_type: 'marathon', temps_marathon_s: 13500, jours_course: [2, 4, 7], nb_sorties: 3, jour_long: 7 },
       (({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }) => ({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }))(pr),
@@ -3024,17 +2942,17 @@ const CONTROLES = {
       x.propositions = [{ id: 'p1', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Entretien.', seances: [] } }];
     });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, avecProp('2026-10-18T10:00:00Z'), {}, PARIS));
-    await p.waitForSelector('[data-ia="proposer"]');
+    await p.waitForSelector('.ps-bandeau [data-ia="refaire"]');
     const avant = await p.locator('.ps-profil-change').count();
     await ctx.close();
     d = avecProp('2026-10-19T12:00:00Z');
     ({ p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.ps-profil-change');
-    const ligneChange = await p.evaluate(() => [document.querySelector('.ps-profil-change').textContent, document.querySelector('.ps-profil-change [data-ia]').dataset.ia]);
-    await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    const ligneChange = await p.evaluate(() => [document.querySelector('.ps-profil-change').textContent, document.querySelectorAll('.ps-bandeau [data-ia="refaire"]').length]);
+    await p.click('.ps-reglages [data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const infoAvant = await p.locator('.ps-profil .ps-info').count();
     await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-info');
-    pb.push(egal([0, ['Ton profil a changé depuis la dernière proposition. Refaire la proposition', 'proposer'], 0, 'Mon plan : refais la proposition pour en tenir compte.'],
+    pb.push(egal([0, ['Ton profil a changé depuis la dernière proposition.', 1], 0, 'Mon plan : refais la proposition pour en tenir compte.'],
       [avant, ligneChange, infoAvant, await p.textContent('.ps-profil .ps-info')],
       'profil changé après la dernière proposition : la ligne et « Refaire la proposition » dans Mon plan (rien avant) ; dans Mon profil, après un changement, la ligne d\'information'));
     pb.push(egal([], erreurs, 'profil changé, erreurs JavaScript'));
@@ -3070,122 +2988,107 @@ const CONTROLES = {
       return d;
     };
     const lire = p => p.evaluate(() => ({
-      bouton: (document.querySelector('[data-ia="proposer"]') || {}).textContent || null, desactive: !!(document.querySelector('[data-ia="proposer"]') || {}).disabled,
-      reste: (document.querySelector('.ps-ia-reste') || {}).textContent || null,
-      msg: (document.querySelector('.ps-ia-msg') || {}).textContent || null, aide: (document.querySelector('.ps-ia-aide') || {}).textContent || null,
-      props: document.querySelectorAll('.ps-bloc .cal-v-prop').length, lignes: document.querySelectorAll('.ps-prop-liste li').length,
-      premiere: ((document.querySelector('.ps-bloc .cal-s-ligne[data-jour-ligne="2026-10-20"] .cal-v-prop') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
-      reco: (document.querySelector('.ps-reco') || {}).textContent || null, autres: document.querySelectorAll('.ps-prop-expl, .ps-ia-mention, .ps-prop-sem').length,
-      actions: [...document.querySelectorAll('.ps-prop-actions button')].map(b => b.textContent)
+      reste: (document.querySelector('.ps-ia-reste') || {}).textContent || null, msg: (document.querySelector('.ps-ia-msg') || {}).textContent || null,
+      aide: (document.querySelector('.ps-ia-aide') || {}).textContent || null, reco: ((document.querySelector('.ps-reco') || {}).textContent || '').replace(/\s+/g, ' ').trim() || null,
+      refaire: document.querySelectorAll('[data-ia="refaire"]').length, desactive: !!(document.querySelector('[data-ia="refaire"]') || {}).disabled,
+      anciens: document.querySelectorAll('[data-ia="proposer"], [data-ia="tout"], [data-ia="choisir"], [data-ia="abandonner"], .ps-prop-repli, .cal-v-prop').length,
+      semaine: [...document.querySelectorAll('.ps-semaine .cal-s-ligne[data-jour-ligne="2026-10-20"] .cal-v-lib, .ps-semaine .cal-s-ligne[data-jour-ligne="2026-10-20"] .cal-v-nom')].map(e => e.textContent.trim()).join(' ')
     }));
-    const pret = p => p.waitForFunction(() => document.querySelector('[data-ia], .ps-ia-aide'));
-    const attendre = p => p.waitForFunction(() => !document.querySelector('[data-ia][disabled]') || document.querySelector('.ps-ia-msg'));
+    // La page a fini : la recommandation et « Refaire », un message, ou le lien vers le profil.
+    const fini = p => p.waitForFunction(() => document.querySelector('.ps-ia-msg, .ps-ia-aide, .ps-reco [data-ia="refaire"]'));
 
-    // Profil complet, aucune proposition : le bouton, 4 restantes, aucune mention.
-    let d = copie([bonne()]);
+    // Profil complet, aucune proposition : l'IA propose d'office, les séances s'écrivent (§ 6) ; rien à accepter.
+    let d = copie([Object.assign(bonne(), { recommandation: 'Entretien : deux footings et une sortie longue par semaine. Garde une allure facile. Hydrate-toi bien.' })]);
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
-    await pret(p);
+    await fini(p);
     let r = await lire(p);
-    pb.push(egal(['Proposer les séances', '4 restantes ce mois-ci', null, 0], [r.bouton, r.reste, r.msg, r.autres], 'bouton et propositions restantes, sans mention'));
-    await p.click('[data-ia="proposer"]');
-    await p.waitForSelector('.ps-proposition');
-    r = await lire(p);
     const envoi = d.appels[0];
-    pb.push(egal(true, await p.evaluate(() => document.querySelector('.ps-prop-repli').open), 'bandeau : la proposition ouverte juste après la demande'));
-    await p.reload(); await p.waitForSelector('.ps-proposition');
-    pb.push(egal([false, 'Voir'], await p.evaluate(() => [document.querySelector('.ps-prop-repli').open, document.querySelector('.ps-prop-voir').textContent]), 'bandeau : au retour sur la page, la proposition repliée sur une ligne, avec « Voir »'));
-    await p.click('.ps-prop-repli > summary');
-    pb.push(egal([3, 12, 'Footing · 45 min', 'Entretien : deux footings et une sortie longue par semaine.', 0, ['Tout accepter', 'Choisir semaine par semaine', 'Refaire', 'Abandonner']],
-      [r.props, r.lignes, r.premiere, r.reco, r.autres, r.actions], 'proposition en attente : une recommandation, bandeau (les 12 séances dans la liste, les 3 de la semaine dans « Cette semaine »), quatre boutons'));
+    pb.push(egal([1, 12, 'ia', 'acceptee', 'acceptee', null, '3 restantes ce mois-ci', 0],
+      [d.appels.length, d.seances.length, d.seances[0].origine, d.seances[0].etat, d.propositions[0].statut, d.seances.find(x => x.type === 'renfo').distance_km, r.reste.replace(/^ · /, ''), r.anciens],
+      'à l\'arrivée : l\'IA propose d\'office, 12 séances écrites (origine IA), proposition acceptée, 3 restantes ; plus rien à accepter'));
+    pb.push(egal('MyRunTools : Entretien : deux footings et une sortie longue par semaine. Garde une allure facile. Refaire · 3 restantes ce mois-ci', r.reco, 'bandeau : la recommandation en deux phrases au plus, « Refaire »'));
     pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, [['mardi', 'samedi'], ['jeudi']], ['allégé (avant une course Préparatoire)']],
       [envoi.essai, envoi.contexte.bloc.debut, envoi.contexte.bloc.fin, envoi.contexte.semaines[0].phase, /Trail du Lac|Trail des Gorges|Corrida/.test(JSON.stringify(envoi)), JSON.stringify(envoi).includes(db.profils[0].prenom || '§§'),
         [envoi.contexte.profil.jours_possibles_course, envoi.contexte.profil.jours_possibles_renforcement], envoi.contexte.semaines[3].jours[3].reperes],
       'contexte envoyé : le bloc, ses phases et repères, le profil ; ni nom de course ni prénom'));
-    await p.click('[data-ia="tout"]');
-    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
-    r = await lire(p);
-    pb.push(egal([12, 'ia', 'acceptee', 'acceptee', '3 restantes ce mois-ci', null], [d.seances.length, d.seances[0].origine, d.seances[0].etat, d.propositions[0].statut, r.reste, d.seances.find(x => x.type === 'renfo').distance_km],
-      'tout accepter : 12 séances écrites (origine IA), proposition acceptée, 3 restantes ; distance vide pour le renforcement'));
+    await p.reload(); await fini(p);
+    pb.push(egal(1, d.appels.length, 'retour sur la page : la proposition couvre la semaine, pas de nouvel appel'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
     await ctx.close();
 
-    // Une seconde acceptation remplace les séances de l'IA non faites du bloc, sans toucher aux séances saisies ni aux faites.
-    d = copie([bonne()], x => x.seances.push(
-      { id: 'ia-a', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Ancien footing', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: false },
-      { id: 'ia-b', utilisateur: moi, date: '2026-10-22', type: 'run', libelle: 'Footing fait', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: true },
-      { id: 'main-c', utilisateur: moi, date: '2026-10-23', type: 'run', libelle: 'Ma séance', duree_min: 30, origine: 'saisie', etat: 'acceptee', faite: false }));
+    // « Refaire » : confirmé, remplace les séances de l'IA non faites du bloc, sans toucher aux séances saisies ni aux faites.
+    d = copie([bonne()], x => {
+      x.propositions.push({ id: 'p0', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Ancienne.', seances: [] } });
+      x.seances.push(
+        { id: 'ia-a', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Ancien footing', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: false },
+        { id: 'ia-b', utilisateur: moi, date: '2026-10-22', type: 'run', libelle: 'Footing fait', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: true },
+        { id: 'main-c', utilisateur: moi, date: '2026-10-23', type: 'run', libelle: 'Ma séance', duree_min: 30, origine: 'saisie', etat: 'acceptee', faite: false });
+    });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
-    await pret(p);
-    await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
-    await p.click('[data-ia="tout"]');
+    await fini(p);
+    const avantRefaire = d.appels.length;
+    await p.click('[data-ia="refaire"]');
     const question = await repondre(p, true);
-    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
-    pb.push(egal(['1 séance déjà proposée par MyRunTools sur ces semaines sera remplacée (pas celles que tu as saisies, ni les faites).', 14, ['ia-b', 'main-c'], 0],
-      [question, d.seances.length, d.seances.filter(x => !String(x.id).startsWith('nouveau')).map(x => x.id), d.seances.filter(x => x.libelle === 'Ancien footing').length],
-      'seconde acceptation : la séance de l\'IA non faite est remplacée après confirmation ; la séance saisie et la séance faite restent ; 12 nouvelles'));
+    for (let k = 0; k < 40 && !d.appels.length; k++) await pause();
+    await p.waitForFunction(() => document.querySelector('.ps-reco [data-ia="refaire"]') && /deux footings/.test(document.querySelector('.ps-reco').textContent));
+    pb.push(egal([0, 'Refaire la proposition ? Les séances proposées par MyRunTools non faites seront remplacées (pas celles que tu as saisies, ni les faites). Elle compte pour une (3 restantes ce mois-ci).', 'refaire', 14, ['ia-b', 'main-c'], 0],
+      [avantRefaire, question, d.appels[0].motif, d.seances.length, d.seances.filter(x => !String(x.id).startsWith('nouveau')).map(x => x.id), d.seances.filter(x => x.libelle === 'Ancien footing').length],
+      'une proposition couvre déjà la semaine : pas d\'appel ; « Refaire » (confirmé) : la séance de l\'IA non faite remplacée ; la saisie et la faite restent ; 12 nouvelles'));
     await ctx.close();
 
-    // Garde-fou : un jour non disponible ; la demande est refaite une fois, avec la correction.
+    // Garde-fou : un jour non disponible ; la demande est refaite une fois, avec la correction, puis écrite.
     d = copie([mauvaise(), bonne()]);
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
-    await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
-    pb.push(egal([2, 2, true, 'invalide', 'brute', 12], [d.appels.length, d.appels[1].essai, (d.appels[1].corrections || []).some(x => /mer\. 21 oct.* : jour non prévu pour courir/.test(x)), d.propositions[0].statut, d.propositions[1].statut, (await lire(p)).lignes],
-      'garde-fou : jour non prévu pour courir, proposition refaite (essai 2, avec la correction) ; la première marquée invalide'));
-    // Choisir semaine par semaine : sans la semaine du 26 octobre, 9 séances.
-    await p.click('[data-ia="choisir"]');
-    await p.click('[data-coche="2026-10-26"]');
-    await p.click('[data-ia="selection"]');
-    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
-    pb.push(egal([9, false], [d.seances.length, d.seances.some(x => x.date >= '2026-10-26' && x.date <= '2026-11-01')], 'choisir semaine par semaine : seules les semaines cochées sont écrites'));
+    await fini(p);
+    pb.push(egal([2, 2, true, 'invalide', 'acceptee', 12], [d.appels.length, d.appels[1].essai, (d.appels[1].corrections || []).some(x => /mer\. 21 oct.* : jour non prévu pour courir/.test(x)), d.propositions[0].statut, d.propositions[1].statut, d.seances.length],
+      'garde-fou : jour non prévu pour courir, proposition refaite (essai 2, avec la correction) ; la première marquée invalide, la seconde écrite'));
     await ctx.close();
 
-    // Deux réponses fautives de suite : message, plafond inchangé.
+    // Deux réponses fautives de suite : message, plafond inchangé, rien d'écrit, pas de nouvel essai dans la visite.
     d = copie([mauvaise()]);
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
-    await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-ia-msg');
+    await fini(p); await pause();
     r = await lire(p);
-    pb.push(egal(['Proposition impossible à vérifier, réessaie plus tard.', ['echec', 'echec'], '4 restantes ce mois-ci', 0], [r.msg, d.propositions.map(x => x.statut), r.reste, d.seances.length],
-      'deux échecs : message, les deux appels en échec, rien de décompté ni d\'écrit'));
+    pb.push(egal(['Proposition impossible à vérifier, réessaie plus tard.', ['echec', 'echec'], '4 restantes ce mois-ci', 0, 2], [r.msg, d.propositions.map(x => x.statut), (r.reste || '').replace(/^ · /, ''), d.seances.length, d.appels.length],
+      'deux échecs : message, les deux appels en échec, rien de décompté ni d\'écrit, pas de nouvel essai'));
     await ctx.close();
 
-    // Abandonner : rien n'est écrit.
-    d = copie([bonne()]);
+    // Une proposition restée en attente (d'avant) pour la semaine : écrite à l'arrivée, sans appel.
+    d = copie([bonne()], x => { x.propositions.push({ id: 'p-att', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'brute', motif: 'proposer', reponse: bonne() }); });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
-    await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-proposition');
-    await p.click('[data-ia="abandonner"]'); await repondre(p, true);
-    await p.waitForFunction(() => !document.querySelector('.ps-proposition'));
-    pb.push(egal(['abandonnee', 0, '3 restantes ce mois-ci'], [d.propositions[0].statut, d.seances.length, (await lire(p)).reste], 'abandonner : rien d\'écrit, la proposition compte'));
+    await p.waitForFunction(() => document.querySelector('.ps-reco [data-ia="refaire"]') && /Entretien/.test(document.querySelector('.ps-reco').textContent));
+    pb.push(egal([0, 12, 'acceptee'], [d.appels.length, d.seances.length, d.propositions[0].statut], 'proposition en attente d\'avant : écrite à l\'arrivée, sans appel'));
     await ctx.close();
 
-    // Plafond atteint : bouton grisé ; refus de la fonction (plafond, réservé aux pilotes) : son message.
+    // Plafond atteint : rien d'office, « Refaire » grisé ; refus de la fonction (plafond, réservé aux pilotes) : son message.
     d = copie([bonne()], x => { for (let i = 0; i < 4; i++) x.propositions.push({ id: 'vieille-' + i, utilisateur: moi, cree: '2026-10-0' + (i + 1) + 'T10:00:00Z', bloc: '2026-09-28', essai: 1, statut: 'acceptee', reponse: null }); });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
-    await pret(p);
+    await fini(p);
     r = await lire(p);
-    pb.push(egal([true, '0 restante ce mois-ci'], [r.desactive, r.reste], 'plafond atteint (4 ce mois-ci) : bouton grisé'));
+    pb.push(egal([true, '0 restante ce mois-ci', 0], [r.desactive, (r.reste || '').replace(/^ · /, ''), d.appels.length], 'plafond atteint (4 ce mois-ci) : rien d\'office, « Refaire » grisé'));
     await ctx.close();
     for (const [rep, attendu, nom] of [[{ status: 429, body: { code: 'plafond', prochaine: '2026-11-01' } }, /^Plus de proposition ce mois-ci\s:\sla prochaine le .*1er\snov\.\s2026\.$/, 'plafond de la fonction'],
       [{ status: 403, body: { code: 'reserve' } }, /^Réservé aux comptes pilotes pour l'instant\.$/, 'compte non pilote']]) {
       d = copie([rep]);
       ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
-      await pret(p); await p.click('[data-ia="proposer"]'); await p.waitForSelector('.ps-ia-msg');
+      await p.waitForSelector('.ps-ia-msg');
       r = await lire(p);
       pb.push(egal(true, attendu.test(r.msg || ''), nom + ' : « ' + r.msg + ' »'));
       await ctx.close();
     }
 
-    // Profil incomplet : pas de bouton, le lien vers le profil.
+    // Profil incomplet : rien d'office, le lien vers le profil.
     d = copie([bonne()], x => { x.profil_entrainement = [Object.assign({}, PROFIL, { jours_course: [] })]; });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
-    await pret(p);
+    await fini(p);
     r = await lire(p);
-    pb.push(egal([null, true], [r.bouton, /Compléter mon profil/.test(r.aide || '')], 'profil incomplet : pas de bouton, « Compléter mon profil »'));
+    pb.push(egal([0, true], [d.appels.length, /Compléter mon profil/.test(r.aide || '')], 'profil incomplet : rien d\'office, « Compléter mon profil »'));
     await ctx.close();
 
     // Garde-fous au 17 novembre : récupération du Trail du Lac (séance facile seulement), repos la veille de la Corrida de Noël.
     d = copie([bonne()]);
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-17T10:00:00+01:00') }));
-    await pret(p);
+    await fini(p);
     const gf = await p.evaluate(() => {
       const s = (date, intensite) => ({ date, type: 'run', libelle: 'Séance', duree_min: 50, distance_km: 9, intensite });
       return window.mrtSeancesIA.gardeFous({ recommandation: '', seances: [s('2026-11-19', 'intense'), s('2026-12-08', 'intense'), s('2026-12-12', 'facile')] }, document.getElementById('saison').__ctx, '2026-11-16');
@@ -3212,25 +3115,25 @@ const CONTROLES = {
           { id: 'se-p', utilisateur: moi, date: '2026-10-13', date_prevue: '2026-10-12', type: 'run', libelle: 'Seuil', faite: true, ressenti: 8, douleur: 'legere', douleur_ou: 'mollet', fatigue: 4, commentaire: 'Dur', duree_min: 50, distance_km: 9, intensite: 'intense', origine: 'saisie', etat: 'acceptee', course: null },
           { id: 'se-a', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Footing', faite: false, duree_min: 45, distance_km: 8, intensite: 'facile', origine: 'saisie', etat: 'acceptee', course: null }];
         x.profil_entrainement[0].blessure = 'tendinite'; x.profil_entrainement[0].blessure_debut = '2026-10-10';
+        x.propositions.push({ id: 'p0', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Ancienne.', seances: [] } });
       });
       const q = await ouvrir(nav, 'preparation.html', 1200, d6, {}, PARIS);
-      await pret(q.p);
+      await fini(q.p);
       await q.p.click('[data-edit="se-a"]'); await q.p.waitForSelector('.cal-seance');
       await q.p.fill('.cal-seance [name="commentaire"]', 'Pas disponible jeudi');
       await q.p.click('.cal-seance button[type="submit"]');
-      await q.p.waitForSelector('.ps-reco');
+      for (let k = 0; k < 40 && !d6.propositions.some(x => x.motif === 'readaptation' && x.statut === 'acceptee'); k++) await pause();
+      await fini(q.p);
       const ap = d6.appels[d6.appels.length - 1] || {}, cx = ap.contexte || {};
       pb.push(egal(['readaptation', '2026-10-19', [{ date: '2026-10-20', type: 'run', libelle: 'Footing', commentaire: 'Pas disponible jeudi' }], { description: 'tendinite', depuis: '2026-10-10' }],
         [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'commentaire : réadaptation relancée aussitôt, commentaire à venir et blessure envoyés'));
       pb.push(egal({ ressenti_sur_10: 8, ressenti: 'Seuil, allure semi-marathon ou 10 km', charge_ua: 400, douleur: 'légère (mollet)', fatigue_sur_5: 4, commentaire: 'Dur', deplacee_du: '2026-10-12' }, (h => h && { ressenti_sur_10: h.ressenti_sur_10, ressenti: h.ressenti, charge_ua: h.charge_ua, douleur: h.douleur, fatigue_sur_5: h.fatigue_sur_5, commentaire: h.commentaire, deplacee_du: h.deplacee_du })((cx.historique || []).find(x => x.date === '2026-10-13')),
         'séances passées : ressenti, douleur, fatigue, commentaire et jour d\'origine envoyés'));
-      pb.push(egal([4, 'Historique des propositions (1)', 'Réadaptation', 'En attente'], await q.p.evaluate(() => {
-        const li = document.querySelector('.ps-historique li');
-        return [window.mrtSeancesIA.restantes(document.getElementById('saison').__ctx), document.querySelector('.ps-historique summary').textContent.trim(), li && li.children[1].textContent, li && li.children[2].textContent]; }),
-        'réadaptation hors plafond (4 restantes) ; historique : une ligne, motif et statut'));
+      pb.push(egal([3, 'acceptee', 14], [await q.p.evaluate(() => window.mrtSeancesIA.restantes(document.getElementById('saison').__ctx)), (d6.propositions.find(x => x.motif === 'readaptation') || {}).statut, d6.seances.length],
+        'réadaptation hors plafond (seule la proposition du 19 octobre compte : 3 restantes), ses 12 séances écrites d\'office ; la séance saisie et la passée restent'));
       pb.push(egal([], q.erreurs, 'réadaptation : erreurs JavaScript'));
       await q.ctx.close();
-      // Calendrier : la même relance, puis un message (la proposition attend dans Mon plan).
+      // Calendrier : la même relance, écrite d'office, puis un message.
       const d7 = copie([bonne()], x => { x.seances = [{ id: 'se-a', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Footing', faite: false, origine: 'saisie', etat: 'acceptee', course: null }]; });
       const c = await ouvrir(nav, 'calendrier.html', 1200, d7, {}, PARIS);
       let message = null;
@@ -3240,7 +3143,7 @@ const CONTROLES = {
       await c.p.click('.cal-seance button[type="submit"]');
       await c.p.waitForFunction(() => window.__mrtFini === undefined, null, { timeout: 100 }).catch(() => {});
       for (let k = 0; k < 20 && !message; k++) await pause();
-      pb.push(egal(['readaptation', 'Commentaire pris en compte : une nouvelle proposition de MyRunTools attend dans Mon plan.'], [(d7.appels[0] || {}).motif, message], 'Calendrier : commentaire, réadaptation, message'));
+      pb.push(egal(['readaptation', 'Commentaire pris en compte : MyRunTools a réadapté tes séances.'], [(d7.appels[0] || {}).motif, message], 'Calendrier : commentaire, réadaptation, message'));
       await c.ctx.close();
     }
     return pb;
@@ -3674,7 +3577,7 @@ const CONTROLES = {
     await ctx.close();
     {
       const q = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await q.p.waitForSelector('.ps-courses [data-preparer]'); await q.p.click('.ps-courses [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
+      await q.p.waitForSelector('.ps-reglages [data-preparer]'); await q.p.click('.ps-reglages [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
       pb.push(egal(COMMUN, await champs(q.p), 'fenêtre « Paramétrer le plan » : champs communs'));
       pb.push(egal({ barre: ['Annuler', 'Enregistrer *'], titre: 'uppercase Space Mono', voile: true, libelles: ['11.2px'] }, await fenetre(q.p), 'fenêtre « Paramétrer le plan » : comme la fiche'));
       await q.ctx.close();
@@ -4892,11 +4795,11 @@ const CONTROLES = {
     await o.ctx.close();
     // « 1er » dans Mon plan (Trail de la Forêt, 1er juillet) ; « + » d'une séance : le petit rond commun, dessiné ; aucune fenêtre du navigateur.
     o = await ouvrir(nav, 'preparation.html', 1200, db, {}, PARIS);
-    await o.p.waitForSelector('.ps-courses');
+    await o.p.waitForSelector('.ps-frise-defile');
     const natif = []; o.p.on('dialog', d => { natif.push(d.message()); d.dismiss(); });
-    pb.push(egal([true, false, true], await o.p.evaluate(() => { const t = document.querySelector('.ps-courses').textContent;
+    pb.push(egal([true, false, true], await o.p.evaluate(() => { const t = [...document.querySelectorAll('.ps-sem-d')].map(e => e.textContent).join(' ');
       return [/\b1er\b/.test(t), /\b1 (janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déc)/.test(t), [...document.querySelectorAll('.cal-plus')].every(b => b.classList.contains('mrt-rond') && b.classList.contains('is-petit') && !!b.querySelector('svg'))]; }),
-      'préparation : « 1er », jamais « 1 » ; « + » en petit rond commun dessiné'));
+      'Mon plan, frise (lun. 1er févr., 1er mars) : « 1er », jamais « 1 » ; « + » en petit rond commun dessiné'));
     await o.ctx.close();
     o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS);
     await o.p.waitForSelector('.mc-panneau .pc-titre');

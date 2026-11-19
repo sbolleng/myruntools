@@ -97,7 +97,10 @@
     const des = mini > lundi ? mini : lundi, n = x.prepaFormat, conseil = n ? debutDe(x, n) : null;
     const opts = [];
     // « Plan de 16 semaines », dessous la date de départ, rien de plus ; la durée conseillée porte « Recommandée ».
-    const plan = (mode, k, debut, reco) => ({ mode, n: k, debut, reco, titre: 'Plan de ' + k + (k > 1 ? ' semaines' : ' semaine'), sous: 'à partir du ' + longue(debut) });
+    // Sous le minimum du format (§ 5.0) : dit à la suite de la date.
+    const minFormat = P.minimumDe(x);
+    const plan = (mode, k, debut, reco) => ({ mode, n: k, debut, reco, titre: 'Plan de ' + k + (k > 1 ? ' semaines' : ' semaine'),
+      sous: 'à partir du ' + longue(debut) + (minFormat && k < minFormat ? ' · plan court, ' + minFormat + ' semaines au minimum' : '') });
     if (conseil && conseil >= des) {
       opts.push(plan('conseillee', n, conseil, true));
       if (des < conseil) opts.push(plan('lundi', semaines(des, x.date), des));

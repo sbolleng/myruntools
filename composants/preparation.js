@@ -108,6 +108,11 @@
   }
 
 
+  // Durée minimum d'un plan, par format, en semaines (spécification Préparation, § 5.0, écran 8) : le bas des fourchettes publiées
+  // pour un coureur déjà régulier ; sans valeur publiée, pas de minimum. Sous le minimum, le plan se construit, signalé « Plan court ».
+  const MINIMUMS = { route_5km: 4, route_10km: 6, route_20km: 8, route_semi: 8, route_marathon: 12, route_100km: 12, trail_court: 8, trail_long: 12, trail_ultra: 12 };
+  const minimumDe = c => MINIMUMS[c && c.format] || null;
+
   // ----- Plan de saison : une saison par Objectif, les autres courses insérées selon leur rôle (spécification Préparation, § 2 à 4) -----
 
   // Rôle dans le plan : l'ancien « objectif intermédiaire » compte comme un Objectif.
@@ -507,7 +512,7 @@
     if (ctx.surCommentaire) return ctx.surCommentaire();
     const r = await window.mrtSeancesIA.readapter(ctx);
     if (r.reserve) return;
-    await window.mrtConfirmer({ texte: r.message || 'Commentaire pris en compte : une nouvelle proposition de MyRunTools attend dans Mon plan.', action: 'Fermer', seul: true });
+    await window.mrtConfirmer({ texte: r.message || 'Commentaire pris en compte : MyRunTools a réadapté tes séances.', action: 'Fermer', seul: true });
   }
   async function deplacer(ctx, id, jour) {
     const s = ctx.seances.find(x => x.id === id);
@@ -686,5 +691,5 @@
 
   window.mrtPreparation = { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
-    fenetreConseillee, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
+    fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();
