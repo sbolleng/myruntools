@@ -61,7 +61,7 @@
 
   // ----- Le parcours : la suite des écrans -----
   const PROFIL = ['niveau', 'blessures', 'volume', 'allure', 'semaine'];
-  const TITRES = { plan: 'Ton plan', course: 'Ta course', conflit: 'Deux Objectifs se chevauchent', niveau: 'Ton niveau', blessures: 'Tes blessures', volume: 'Mon volume',
+  const TITRES = { plan: 'Ton plan', course: 'Ta course', conflit: 'Deux Objectifs se chevauchent', niveau: 'Ton niveau', blessures: 'Tes blessures', volume: 'Mon volume actuel',
     allure: 'Repère d\'allure', semaine: 'Ma semaine', debut: 'Début', recap: 'Récapitulatif' };
   const e = st => st.etat.entrainement || {};
   const semaineFaite = pr => !!PR().resumeCourse(pr) && PR().joursDe(pr, 'jours_course').length >= (pr.nb_sorties || 0);
@@ -96,13 +96,12 @@
     const mini = avant ? lundiSuivant(addDays(finDe(avant), 1)) : lundi;
     const des = mini > lundi ? mini : lundi, n = x.prepaFormat, conseil = n ? debutDe(x, n) : null;
     const opts = [];
+    // « Plan de 16 semaines », dessous la date de départ, rien de plus ; la durée conseillée porte « Recommandée ».
+    const plan = (mode, k, debut, reco) => ({ mode, n: k, debut, reco, titre: 'Plan de ' + k + (k > 1 ? ' semaines' : ' semaine'), sous: 'à partir du ' + longue(debut) });
     if (conseil && conseil >= des) {
-      opts.push({ mode: 'conseillee', n, debut: conseil, titre: 'Durée conseillée · ' + n + ' semaines', reco: true, sous: 'à partir du ' + longue(conseil) + (conseil > lundi ? ' · ' + (avant ? 'Récupération puis Entretien d\'ici là' : 'Entretien d\'ici là') : '') });
-      if (des < conseil) opts.push({ mode: 'lundi', n: semaines(des, x.date), debut: des, titre: (avant && des === mini ? 'Après ' + esc(avant.course) : 'Dès lundi') + ' · ' + semaines(des, x.date) + ' semaines', sous: 'à partir du ' + longue(des) + ' · Base plus longue' });
-    } else {
-      const k = semaines(des, x.date);
-      opts.push({ mode: 'lundi', n: k, debut: des, titre: (avant && des === mini ? 'Après ' + esc(avant.course) : 'Dès lundi') + ' · ' + k + (k > 1 ? ' semaines' : ' semaine') + (n ? ' (raccourcie)' : ''), sous: 'à partir du ' + longue(des) });
-    }
+      opts.push(plan('conseillee', n, conseil, true));
+      if (des < conseil) opts.push(plan('lundi', semaines(des, x.date), des));
+    } else opts.push(plan('lundi', semaines(des, x.date), des));
     opts.push({ mode: 'perso', titre: 'Personnaliser', sous: 'Régler les phases semaine par semaine' });
     return opts;
   }
@@ -122,7 +121,7 @@
       return '<div class="pp-tete"><div class="ps-coches">' + pastille('data-filtre', 'confirmees', st.filtre !== 'toutes', 'Confirmées') + pastille('data-filtre', 'toutes', st.filtre === 'toutes', 'Toutes') + '</div>' +
         (ctx.edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-pp="ajouter" title="Ajouter une course"><svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div>' +
         (cs.length ? '<div class="ps-groupe-l">' + cs.map(c => choix('data-course', c.id, c.id === st.courseId,
-          texte('<b>' + esc(c.course) + '</b>' + (roleDe(c) === 'objectif' && c.statut === 'confirmee' ? ' <span class="pp-role">Objectif</span>' : ''), sousTitre(c)), c.date_approx)).join('') + '</div>'
+          texte('<b>' + esc(c.course) + '</b>' + (roleDe(c) === 'objectif' && c.statut === 'confirmee' ? ' <span class="pp-role">Objectif</span>' : ''), sousTitre(c)))).join('') + '</div>'
           : '<p class="pp-vide">' + (st.filtre === 'toutes' ? 'Aucune course à venir.' : 'Aucune course confirmée à venir.') + '</p>');
     }
     if (k === 'conflit') {
@@ -143,7 +142,7 @@
     }
     if (k === 'volume') {
       const grp = (cle, lib) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + PRf.ECHELLES[cle].map(([v, l]) => pastille('data-vol', cle + '|' + v, pr[cle] === v, l)).join('') + '</div></div>';
-      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance par semaine') + grp('sortie_tranche', 'Plus longue sortie récente') + '</div>' + (st.volumeVu ? continuer : '');
+      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance moyenne par semaine') + grp('sortie_tranche', 'Plus longue sortie récente') + '</div>';
     }
     if (k === 'allure') {
       const t = st.allure || pr.allure_type || null, champ = PRf.CHAMP_TEMPS[t];
@@ -187,6 +186,11 @@
       st.sauter = PROFIL.filter(k => FAIT[k](ctx.profil || {}));
     }
     st.etat.courses = ctx.courses;
+    // Une course dont la date vient d'être précisée : elle est choisie, le parcours continue.
+    if (st.attenteDate) {
+      const c = ctx.courses.find(x => x.id === st.attenteDate);
+      if (c && !c.date_approx) { st.attenteDate = null; st.courseId = c.id; suivant(ctx, st); }
+    }
     // Une course ajoutée depuis l'écran « Ta course » : elle est choisie, le parcours continue.
     if (st.avantAjout) {
       const nv = ctx.courses.find(c => !st.avantAjout.includes(c.id) && aVenir(c));
@@ -234,6 +238,10 @@
       if (b('[data-plan]')) { aller(st, 'course'); return redessiner(); }
       if (b('[data-filtre]')) { st.filtre = b('[data-filtre]').dataset.filtre; return redessiner(); }
       if (act === 'ajouter' && ctx.edition) { st.avantAjout = ctx.courses.map(c => c.id); return ctx.edition.ajouter({ defauts: { statut: 'confirmee' } }); }
+      if (b('[data-course]') && ctx.edition && (ctx.courses.find(c => c.id === b('[data-course]').dataset.course) || {}).date_approx) {
+        // Seul le mois est connu : la fiche de la course s'ouvre pour préciser la date ; enregistrée, la course est choisie.
+        st.attenteDate = b('[data-course]').dataset.course; return ctx.edition.modifier(st.attenteDate);
+      }
       if (b('[data-course]')) { const id = b('[data-course]').dataset.course; if (id !== st.courseId) { st.debut = null; st.garder = false; } st.courseId = id; suivant(ctx, st); return redessiner(); }
       if (b('[data-conflit]')) {
         if (b('[data-conflit]').dataset.conflit === 'prendre') { st.garder = false; suivant(ctx, st); return redessiner(); }
@@ -260,8 +268,8 @@
         return redessiner();
       }
       if (b('[data-vol]')) {
-        const [cle, v] = b('[data-vol]').dataset.vol.split('|'), avant = FAIT.volume(e(st));
-        if (await ranger(ctx, st, { [cle]: v }) && !avant && !st.volumeVu && FAIT.volume(e(st))) suivant(ctx, st);
+        const [cle, v] = b('[data-vol]').dataset.vol.split('|');
+        if (await ranger(ctx, st, { [cle]: v }) && FAIT.volume(e(st))) suivant(ctx, st); // les deux choisies : la suite
         return redessiner();
       }
       if (act === 'continuer' && courant(st) === 'volume') { if (FAIT.volume(e(st))) suivant(ctx, st); else st.msg = 'Choisis la distance et la plus longue sortie.'; return redessiner(); }
@@ -301,7 +309,7 @@
         return redessiner();
       }
       if (b('[data-debut]')) { st.debut = departs(ctx, st, x)[Number(b('[data-debut]').dataset.debut)]; suivant(ctx, st); return redessiner(); }
-      if (b('[data-recap]')) { const q = b('[data-recap]').dataset.recap; st.depuisRecap = true; st.volumeVu = q === 'volume'; aller(st, q); return redessiner(); }
+      if (b('[data-recap]')) { const q = b('[data-recap]').dataset.recap; st.depuisRecap = true; aller(st, q); return redessiner(); }
       if (act === 'construire') return construire(ctx, st, x);
     });
   }

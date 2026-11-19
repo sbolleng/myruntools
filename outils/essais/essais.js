@@ -2628,7 +2628,7 @@ const CONTROLES = {
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForFunction(() => /Profil/.test((document.querySelector('.ps-profil-etat') || {}).textContent || ''));
-    pb.push(egal(['Profil à compléter : niveau, distance par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', 'Mon profil'], [await etat(p), (await p.textContent('[data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
+    pb.push(egal(['Profil à compléter : niveau, distance moyenne par semaine, plus longue sortie récente, ma semaine, repère d\'allure.', 'Mon profil'], [await etat(p), (await p.textContent('[data-profil]')).trim()], 'Mon plan : les cinq questions indispensables à l\'IA, bouton « Mon profil »'));
     await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     let r = await liste(p);
     pb.push(egal([true, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 9, 22, false],
@@ -2679,8 +2679,8 @@ const CONTROLES = {
     await p.click('.ps-profil [data-type="10km"]'); await p.fill('.ps-profil [name="valeur"]', '45:30'); await p.click('.ps-profil .ps-valeur [type="submit"]');
     await p.waitForSelector('.ps-profil .ps-ligne-q');
     r = await liste(p);
-    pb.push(egal(['Mon niveau 4 sur 4', 'Ma semaine 1 sur 1', 'Repère d\'allure | 10 km en 45:30', 'Course | mar., jeu., sam. · 3 séances, longue le samedi', 'Renforcement | mar., jeu. · 1 séance', 'Distance par semaine | Aucune idée'],
-      [(await sections(p))[1], (await sections(p))[2], ligne(r, 'Repère d\'allure'), ligne(r, 'Course'), ligne(r, 'Renforcement'), ligne(r, 'Distance par semaine')], 'niveau et semaine complets, résumés à droite'));
+    pb.push(egal(['Mon niveau 4 sur 4', 'Ma semaine 1 sur 1', 'Repère d\'allure | 10 km en 45:30', 'Course | mar., jeu., sam. · 3 séances, longue le samedi', 'Renforcement | mar., jeu. · 1 séance', 'Distance moyenne par semaine | Aucune idée'],
+      [(await sections(p))[1], (await sections(p))[2], ligne(r, 'Repère d\'allure'), ligne(r, 'Course'), ligne(r, 'Renforcement'), ligne(r, 'Distance moyenne par semaine')], 'niveau et semaine complets, résumés à droite'));
     pb.push(egal({ allure_type: '10km', temps_10km_s: 2730 }, (c => c && { allure_type: c.allure_type, temps_10km_s: c.temps_10km_s })(derniere(d)), 'repère d\'allure : 10 km en 2 730 secondes'));
     await p.click('.ps-profil [data-reprendre]'); await p.waitForFunction(() => !document.querySelector('.ps-profil .mp-palmares'));
     pb.push(egal([{ allure_type: 'semi', temps_semi_s: 6965 }, 'Repère d\'allure | Semi en 1:56:05'], [(c => c && { allure_type: c.allure_type, temps_semi_s: c.temps_semi_s })(derniere(d)), ligne(await liste(p), 'Repère d\'allure')], '« Reprendre » : le temps du semi du Palmarès devient le repère d\'allure ; la suggestion disparaît'));
@@ -2722,7 +2722,7 @@ const CONTROLES = {
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
-    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance par semaine, plus longue sortie récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 'Mon profil', 1],
+    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue sortie récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 'Mon profil', 1],
       [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
@@ -2916,9 +2916,9 @@ const CONTROLES = {
     await p.click('[data-filtre="toutes"]'); await pause();
     const toutes = await choix(p);
     pb.push(egal([['Trail du Lacdim. 15 nov. 2026 · 24 km · 650 m D+', 'Corrida de Noëldim. 13 déc. 2026 · 10 km · 40 m D+', 'Trail des Gorgesdim. 7 mars 2027 · 45 km · 2 100 m D+', 'Trail des Crêtessam. 28 août 2027 · 60 km · 3 500 m D+'],
-      ['Trail du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Trail des Cimes', 'Ultra du Plateau', 'Trail de la Forêtdate à préciser [inactif]', 'Trail des Crêtes', 'Trail des Sommets'], 1],
+      ['Trail du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Trail des Cimes', 'Ultra du Plateau', 'Trail de la Forêtdate à préciser', 'Trail des Crêtes', 'Trail des Sommets'], 1],
       [confirmees, toutes.map(t => t.replace(/(dim|sam)\. .*?(?= \[|$)/, '').replace(/ · .*?(?= \[|$)/, '')), await p.locator('.pp [data-pp="ajouter"]').count()],
-      'écran 2 : les confirmées à venir par défaut (date, distance, D+), « Toutes » ajoute options et Repérées ; mois seul : inactive ; « Ajouter une course » en tête'));
+      'écran 2 : les confirmées à venir par défaut (date, distance, D+), « Toutes » ajoute options et Repérées ; mois seul : « date à préciser » ; « Ajouter une course » en tête'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-course.png') });
     await p.click('[data-filtre="confirmees"]'); await pause();
     await p.click('[data-course="' + id(3) + '"]'); await vers(p, 'niveau');
@@ -2954,11 +2954,16 @@ const CONTROLES = {
     await p.click('.pp [data-debut="0"]'); await vers(p, 'recap');
     const recap = await p.evaluate(() => [document.querySelector('.pp .ps-titre').textContent, document.querySelector('.pp .ps-sous').textContent,
       [...document.querySelectorAll('.pp-recap .ps-ligne-q')].map(b => b.children[0].textContent + ' | ' + b.children[1].textContent)]);
-    pb.push(egal([['Durée conseillée · 16 semaines Recommandéeà partir du lun. 16 nov. 2026 · Entretien d\'ici là', 'Dès lundi · 19 semainesà partir du lun. 26 oct. 2026 · Base plus longue', 'PersonnaliserRégler les phases semaine par semaine'],
+    pb.push(egal([['Plan de 16 semaines Recommandéeà partir du lun. 16 nov. 2026', 'Plan de 19 semainesà partir du lun. 26 oct. 2026', 'PersonnaliserRégler les phases semaine par semaine'],
       ['Trail des Gorges', 'dim. 7 mars 2027 · 16 semaines · 45 km', ['Niveau | Intermédiaire', 'Blessures | Légères, ou une grave guérie', 'Volume | 20 à 40 km · 1 h 30 à 2 h', 'Repère d\'allure | Marathon en 3:45:00', 'Ma semaine | mar., jeu., dim. · 3 séances, longue le dimanche', 'Début | lun. 16 nov. 2026 · 16 semaines']]],
-      [debuts, recap], 'écran 8 : durée conseillée (16 semaines, Entretien d\'ici là), dès lundi (19 semaines), personnaliser ; écran 9 : le récapitulatif'));
+      [debuts, recap], 'écran 8 : « Plan de 16 semaines » (recommandé), « Plan de 19 semaines » (dès lundi), personnaliser, la date seule dessous ; écran 9 : le récapitulatif'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-recap.png') });
     // Le récapitulatif ramène à une question, puis revient.
+    await p.click('[data-recap="volume"]'); await vers(p, 'volume');
+    const contVol = await p.locator('.pp [data-pp="continuer"]').count();
+    await p.click('.pp [data-vol="volume_tranche|40-60"]'); await vers(p, 'recap');
+    pb.push(egal([0, '40 à 60 km · 1 h 30 à 2 h', 'Mon volume actuel'], [contVol, await p.evaluate(() => document.querySelector('[data-recap="volume"] .ps-rep').textContent), 'Mon volume actuel'],
+      'récapitulatif, volume : pas de « Continuer », un toucher range et ramène au récapitulatif'));
     await p.click('[data-recap="niveau"]'); await vers(p, 'niveau');
     await p.click('.pp [data-val="confirme"]'); await vers(p, 'recap');
     const niveau2 = await p.evaluate(() => document.querySelector('[data-recap="niveau"] .ps-rep').textContent);
@@ -2971,7 +2976,7 @@ const CONTROLES = {
     const pr = d.profil_entrainement[0] || {};
     pb.push(egal([['?id=eq.' + id(3) + ' {"role":"objectif","statut":"confirmee","groupe_options":null,"prepa_semaines":null}'], 'Trail des Gorges', 1],
       [maj, await p.textContent('.ps-titre'), Math.min(d.appels.length, 1)], '« Construire mon plan » : Objectif confirmé, durée conseillée ; la page du plan ; l\'IA propose aussitôt le premier bloc'));
-    pb.push(egal({ niveau: 'confirme', antecedents: 'legeres', fragiles: 'genou droit', volume_tranche: '20-40', sortie_tranche: '1h30-2h', allure_type: 'marathon', temps_marathon_s: 13500, jours_course: [2, 4, 7], nb_sorties: 3, jour_long: 7 },
+    pb.push(egal({ niveau: 'confirme', antecedents: 'legeres', fragiles: 'genou droit', volume_tranche: '40-60', sortie_tranche: '1h30-2h', allure_type: 'marathon', temps_marathon_s: 13500, jours_course: [2, 4, 7], nb_sorties: 3, jour_long: 7 },
       (({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }) => ({ niveau, antecedents, fragiles, volume_tranche, sortie_tranche, allure_type, temps_marathon_s, jours_course, nb_sorties, jour_long }))(pr),
       'les réponses rangées dans Mon profil'));
     pb.push(egal([], erreurs, 'parcours, erreurs JavaScript'));

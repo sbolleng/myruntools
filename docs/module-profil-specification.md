@@ -24,7 +24,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 5).
     │ Date de naissance            À renseigner   › │
     │ Poids · Taille · Activité hors sport · Pointure │
 (5) MON NIVEAU                                       0 sur 4
-    │ Niveau · Distance par semaine · Plus longue sortie récente │
+    │ Niveau · Distance moyenne par semaine · Plus longue sortie récente │
     │ Repère d'allure                 À renseigner › │
     │ (6) ┆ Dans ton Palmarès : Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026  [Reprendre] ┆
     │ Durée maximale d'une séance · Terrains d'entraînement · Niveau en renforcement │
@@ -59,7 +59,7 @@ Site partagé en lecture seule : « Le profil n'est pas partagé. »
 | Moi | Taille | 100 à 250 cm | Nutrition | `profils.taille` |
 | Moi | Activité hors sport | Sédentaire, Peu actif, Actif, Très actif | Nutrition | `profils.activite` |
 | Moi | Pointure | 30 à 55, demi-pointures | — | `profils.pointure` |
-| Mon niveau | Niveau (Débutant, Intermédiaire, Confirmé, Expert, chacun décrit ; remplace « Je cours depuis » le 17 nov. 2026), Distance par semaine, Plus longue sortie récente | Tranches ([Préparation](module-preparation-specification.md), § 5.2) | Mon plan (IA) | `profil_entrainement` |
+| Mon niveau | Niveau (Débutant, Intermédiaire, Confirmé, Expert, chacun décrit ; remplace « Je cours depuis » le 17 nov. 2026), Distance moyenne par semaine, Plus longue sortie récente | Tranches ([Préparation](module-preparation-specification.md), § 5.2) | Mon plan (IA) | `profil_entrainement` |
 | Mon niveau | Repère d'allure | VMA (8 à 30 km/h), temps sur 10 km ou sur semi, ou « Je ne sais pas » | Mon plan (IA) | `profil_entrainement` |
 | Mon niveau | Durée maximale d'une séance, Terrains d'entraînement, Niveau en renforcement | Listes | — | `profil_entrainement` |
 | Ma semaine | Course | Jours possibles, nombre de séances (0 à 7), jour de la sortie longue | Mon plan (IA) | `profil_entrainement` |
@@ -80,12 +80,12 @@ Aucune table nouvelle. Évolution `033-mon-profil.sql` (à coller dans l'éditeu
 
 Jeu d'essai : données fictives du banc d'essai au mardi 20 octobre 2026 ; profil : sexe Homme seulement ; Palmarès : 10 km de Montauban (29 mars 2026, 49:18) et Semi de San Sebastián (4 oct. 2026, 1:56:05).
 
-- Mon plan : « Profil à compléter : niveau, distance par semaine, plus longue sortie récente, ma semaine, repère d'allure. », bouton « Mon profil » ; la feuille : quatre sections, « Moi 3 sur 7 », « Mon niveau 0 sur 4 », « Ma semaine 0 sur 1 », Santé sans compte ; 20 lignes, 9 « À renseigner » ; Pointure et FC de repos en « — ».
+- Mon plan : « Profil à compléter : niveau, distance moyenne par semaine, plus longue sortie récente, ma semaine, repère d'allure. », bouton « Mon profil » ; la feuille : quatre sections, « Moi 3 sur 7 », « Mon niveau 0 sur 4 », « Ma semaine 0 sur 1 », Santé sans compte ; 20 lignes, 9 « À renseigner » ; Pointure et FC de repos en « — ».
 - Repère du Palmarès : « Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026 » ; 10 km en 45:30 saisi, puis « Reprendre » : semi en 6 965 secondes, la suggestion disparaît.
 - Même taille pour la liste et chaque question sur ordinateur, glissement à l'ouverture et au retour.
 - Ma semaine : mardi, jeudi, samedi ; 3 séances, longue le samedi ; renforcement mardi et jeudi, 1 : « mar., jeu., sam. · 3 séances, longue le samedi », « mar., jeu. · 1 séance » ; 8 refusé.
 - Refus : VMA 35, FC max 250, naissance en 2031, pointure 42,3 ; acceptés : FC max 186, FC de repos 52, pointure 42,5, poids 72,4 (virgule), taille 178, activité Peu actif ; mesures écrites dans `profils`, FC max et points fragiles avec le niveau ; « Moi 7 sur 7 » ; Mon plan : « Profil complet. ».
-- Page Mon profil : état de toutes les obligatoires qui manquent (« date de naissance, poids, taille, activité hors sport, niveau, distance par semaine, plus longue sortie récente, repère d'allure, ma semaine ») ; onglet et titre « Mon profil » ; Taille touchée : la question seule, sans « ‹ » ; 181 enregistré : feuille fermée, « Taille | 181 cm », « Moi 4 sur 7 » ; prénom vide refusé, « Camille » enregistré.
+- Page Mon profil : état de toutes les obligatoires qui manquent (« date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue sortie récente, repère d'allure, ma semaine ») ; onglet et titre « Mon profil » ; Taille touchée : la question seule, sans « ‹ » ; 181 enregistré : feuille fermée, « Taille | 181 cm », « Moi 4 sur 7 » ; prénom vide refusé, « Camille » enregistré.
 - Nutrition : « Calculé pour … » ouvre la feuille Mon profil, les mesures en tête ; poids 72,5 et activité Actif : deux écritures, besoin recalculé (2 401 kcal) ; panne : « Enregistrement impossible pour l'instant. », la question reste ouverte.
 - Profil express : voir le jeu d'essai de la [spécification générale](specification-generale.md), § 13 (Premiers pas).
 - Menu par défaut : six onglets, Mon profil en dernier ; téléphone sans débordement ; site partagé : « Le profil n'est pas partagé. ».
