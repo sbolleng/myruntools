@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.5 · 17 novembre 2026 · [Retour au sommaire](README.md) · **Niveau** (quatre choix décrits) à la place de « Je cours depuis » ; **Antécédents de blessures** dans Santé ; repère d'allure sur **marathon** ; profil express réduit à quatre questions (le repère d'allure se demande dans le parcours de Mon plan, [Préparation](module-preparation-specification.md), § 5.0) · Avant : prénom et nom dans Moi
+Version 0.6 · 19 novembre 2026 · [Retour au sommaire](README.md) · Un changement du niveau, de la semaine ou de la santé, un Objectif à venir : « Mon plan : refais la proposition pour en tenir compte. » en tête de la liste ([Préparation](module-preparation-specification.md), § 5.0) · Avant (0.5) : **Niveau** (quatre choix décrits) à la place de « Je cours depuis » ; **Antécédents de blessures** dans Santé ; repère d'allure sur **marathon** ; profil express réduit à quatre questions (le repère d'allure se demande dans le parcours de Mon plan, [Préparation](module-preparation-specification.md), § 5.0) · Avant : prénom et nom dans Moi
 
 ## 1. Rôle
 

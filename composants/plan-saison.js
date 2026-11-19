@@ -38,7 +38,11 @@
     if (manque.length) return blocAl + '<p class="ps-ia-aide">Pour que l\'IA propose les séances du bloc : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>';
     const prop = IA().enAttente(ctx, lundi), reste = IA().restantes(ctx);
     const msg = etat.message ? '<p class="ps-ia-msg" role="alert">' + etat.message + '</p>' : '';
-    if (!prop) return blocAl + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
+    // Mon profil changé après la dernière proposition (en attente ou acceptée) : les séances n'en tiennent pas compte (§ 5.0).
+    const derniere = IA().historique(ctx).find(x => x.statut === 'brute' || x.statut === 'acceptee');
+    const change = derniere && ctx.profil && ctx.profil.maj && String(ctx.profil.maj) > String(derniere.cree) && !etat.encours
+      ? '<p class="ps-profil-change" role="status">Ton profil a changé depuis la dernière proposition. <button type="button" class="mrt-lien" data-ia="' + (prop ? 'refaire' : 'proposer') + '"' + (reste ? '' : ' disabled') + '>Refaire la proposition</button></p>' : '';
+    if (!prop) return blocAl + change + '<div class="ps-ia"><button type="button" class="mrt-btn is-principal" data-ia="proposer"' + (etat.encours || !reste ? ' disabled' : '') + '>' +
       (etat.encours ? (etat.readaptation ? 'Réadaptation en cours…' : 'Proposition en cours…') : 'Proposer les séances') + '</button>' + (Number.isFinite(reste) ? '<span class="ps-ia-reste">' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span>' : '') + '</div>' + msg;
     const seances = IA().seancesDe(prop.reponse), lundis = [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)), choisies = etat.semaines || lundis;
     const choixSem = etat.choix ? '<div class="ps-coches ps-prop-sems">' + lundis.map(l => '<button type="button" class="mrt-pastille" data-coche="' + l + '" aria-pressed="' + choisies.includes(l) + '">Semaine ' + window.mrtFormat.semaine(l) + '</button>').join('') + '</div>' : '';
@@ -50,7 +54,7 @@
     // Bandeau : les alertes, puis la proposition repliée sur une ligne (« Nouvelle proposition de MyRunTools : … Voir ») ; ouverte d'office
     // juste après une demande (Proposer, Refaire, Réadaptation, Choisir).
     const reco = IA().recommandationDe(prop.reponse);
-    return '<section class="ps-proposition">' + listeAl + '<details class="mrt-deroule ps-prop-repli"' + (etat.ouvert || etat.choix ? ' open' : '') + '><summary><span class="ps-prop-resume"><b>Nouvelle proposition de MyRunTools</b> : <span class="ps-reco">' + esc(reco) + '</span></span><span class="mrt-lien ps-prop-voir">Voir</span></summary><div>' +
+    return '<section class="ps-proposition">' + listeAl + change + '<details class="mrt-deroule ps-prop-repli"' + (etat.ouvert || etat.choix ? ' open' : '') + '><summary><span class="ps-prop-resume"><b>Nouvelle proposition de MyRunTools</b> : <span class="ps-reco">' + esc(reco) + '</span></span><span class="mrt-lien ps-prop-voir">Voir</span></summary><div>' +
       '<ul class="ps-prop-liste">' + seances.map(ligneSeance).join('') + '</ul>' + choixSem + '<div class="ps-prop-actions">' + actions + '</div></div></details>' + msg + '</section>';
   }
   // Dans une case de la grille : les repères du jour (allégé, repos, récupération) et les séances proposées, en attente.

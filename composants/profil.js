@@ -133,9 +133,11 @@
     window.mrtFormat.date(sg.course.date, { semaine: true }) + '</span><button type="button" class="mrt-btn" data-reprendre>Reprendre</button></div>';
 
   // La liste : un titre de section commun par section, le compte des obligatoires à droite ; chaque ligne ouvre sa question.
+  const PREVENIR = 'Mon plan : refais la proposition pour en tenir compte.';
+  const prevenirHtml = etat => (etat.planAPrevenir ? '<p class="ps-info" role="status">' + PREVENIR + '</p>' : '');
   function listeHtml(etat) {
     const m = etat.mesures || {}, e = etat.entrainement || {}, sg = duPalmares(etat);
-    return SECTIONS.map(([id, titre, ls]) => {
+    return prevenirHtml(etat) + SECTIONS.map(([id, titre, ls]) => {
       const ob = ls.filter(l => l[3]), faites = ob.filter(l => l[2](m, e)).length;
       const compte = ob.length ? '<span class="ps-compte' + (faites === ob.length ? ' is-complet' : '') + '">' + faites + ' sur ' + ob.length + '</span>' : '';
       return '<section class="mrt-section" id="' + id + '"><h2 class="mrt-section-titre ps-section-t">' + titre + ' ' + compte + '</h2><div class="ps-groupe-l">' + ls.map(l => {
@@ -159,7 +161,9 @@
       delete ligne.utilisateur;
       const { error } = await sb.from('profil_entrainement').upsert(ligne);
       if (error) { console.warn(error); return false; }
-      etat.entrainement = Object.assign({}, etat.entrainement, champs);
+      etat.entrainement = Object.assign({}, etat.entrainement, champs, { maj: ligne.maj });
+      // Un plan construit (un Objectif à venir) : ses séances ne changent pas d'elles-mêmes ; on le dit (Préparation, § 5.0).
+      etat.planAPrevenir = (etat.courses || []).some(c => c.statut === 'confirmee' && c.etat === 'a_venir' && (c.role === 'objectif' || c.role === 'objectif_intermediaire') && c.date && c.date >= iso(new Date()));
     }
     return true;
   }
