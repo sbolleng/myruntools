@@ -137,7 +137,8 @@
 .pp-note { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
 .pp-invite { margin: 0 0 0.8rem; }
 .pp-vide { font-size: var(--t-texte); color: var(--muted); }
-.pp-pied { display: flex; justify-content: flex-end; margin-top: 1rem; }
+.pp-pied { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
+.pp-attente { margin: 0; font-size: var(--t-texte); color: var(--muted); }
 .pp .ps-choix[disabled] { cursor: default; opacity: 0.45; }
 .pp .ps-choix.pp-bientot small { font-size: var(--t-second); color: var(--muted); }
 .pp-recap { margin-top: 0.8rem; }

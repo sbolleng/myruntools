@@ -66,7 +66,7 @@
     const carteHtml = s => {
       const lib = String(s.libelle || ''), k = lib.indexOf(':'), nom = (k > 0 ? lib.slice(0, k) : lib).trim();
       const ligne2 = [TYPES[s.type], detail(s)].filter(Boolean).join(' · ');
-      return '<div class="cal-carte' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '" data-carte="' + esc(s.id) + '"' : '') + '>' +
+      return '<div class="cal-carte' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? (P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' data-carte="' + esc(s.id) + '"' : '') + '>' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
         '<span class="cal-carte-nom">' + traitsHtml(s.intensite) + esc(nom) + '</span>' +
         '<span class="cal-carte-det">' + esc(ligne2) + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') +

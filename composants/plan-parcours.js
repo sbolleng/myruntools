@@ -212,7 +212,7 @@
     return '<h2 class="ps-titre">' + esc(x.course) + '</h2><p class="ps-sous">' + longue(x.date) + (d.n ? ' · ' + d.n + (d.n > 1 ? ' semaines' : ' semaine') : '') + (Number(x.distance) ? ' · ' + nombreFr(Number(x.distance)) + ' km' : '') + '</p>' +
       (cs.length ? '<p class="pp-note">' + cs.map(c => devient(c.course, c.role)).join(' · ') + '</p>' : '') +
       '<div class="ps-groupe-l pp-recap">' + lignes.map(([q, lib, r]) => '<button type="button" class="ps-ligne-q" data-recap="' + q + '"><span>' + lib + '</span><span class="ps-rep' + (r ? '' : ' is-a-faire') + '">' + esc(r || 'À renseigner') + '</span><i aria-hidden="true">›</i></button>').join('') + '</div>' +
-      '<div class="pp-pied"><button type="button" class="mrt-btn is-principal" data-pp="construire"' + (st.encours ? ' disabled' : '') + '>' + (st.encours ? 'Construction en cours…' : 'Construire mon plan') + '</button></div>';
+      '<div class="pp-pied">' + (st.attente ? '<p class="pp-attente" role="status">MyRunTools prépare tes séances…</p>' : '') + '<button type="button" class="mrt-btn is-principal" data-pp="construire"' + (st.encours ? ' disabled' : '') + '>' + (st.encours ? 'Construction en cours…' : 'Construire mon plan') + '</button></div>';
   }
 
   function dessiner(root, ctx) {
@@ -395,11 +395,15 @@
       .concat(changements(ctx, st, x).map(c => sb.from('courses').update({ role: c.role }).eq('id', c.course.id)));
     const res = await Promise.all(maj), err = res.find(r => r.error);
     if (err) { console.warn(err.error); st.encours = false; st.msg = 'Enregistrement impossible pour l\'instant.'; return ctx.redessiner(); }
-    ctx.parcours = null;
+    // « Personnaliser » : la fenêtre « Régler les phases » de l'Objectif.
+    if (d.mode === 'perso') { ctx.parcours = null; await ctx.actualiser(); return P.ouvrirPreparer(ctx, x.id); }
+    // Sinon l'IA propose le premier bloc : on attend sur le récapitulatif (« MyRunTools prépare tes séances… »), puis la page du plan s'ouvre.
+    st.attente = true;
     await ctx.actualiser();
-    // « Personnaliser » : la fenêtre « Régler les phases » de l'Objectif ; sinon l'IA propose le premier bloc.
-    if (d.mode === 'perso') return P.ouvrirPreparer(ctx, x.id);
-    if (ctx.proposer) ctx.proposer();
+    if (ctx.proposer) await ctx.proposer();
+    ctx.parcours = null;
+    ctx.redessiner();
+    window.scrollTo(0, 0);
   }
 
   window.mrtParcours = { nouveau, dessiner: (root, ctx) => { brancher(root, ctx); dessiner(root, ctx); }, conflits, rolePerdant, departs };
