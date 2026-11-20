@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.44 · 12 novembre 2026 · [Retour au sommaire](README.md) · Mesures modifiées dans la feuille Mon profil ; VMA lue dans Mon profil seulement · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 1.45 · 20 novembre 2026 · [Retour au sommaire](README.md) · Date de naissance de l'encart en trois champs · Avant (1.44) : Mesures modifiées dans la feuille Mon profil ; VMA lue dans Mon profil seulement · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
 
 ## 1. Rôle
 
@@ -140,7 +140,7 @@ Ajout en deux touches (option A, retenue le 5 nov. 2026) : choisir un aliment, r
 
 Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tard (todo du [sommaire](README.md)).
 
-- **Encart du premier usage** : tant que le profil est incomplet, une carte « POUR CALCULER TON BESOIN » remplace la page, avec **seulement les champs qui manquent** (sexe en deux pastilles, naissance, poids et taille avec leur unité, activité hors sport en liste) et « Enregistrer ».
+- **Encart du premier usage** : tant que le profil est incomplet, une carte « POUR CALCULER TON BESOIN » remplace la page, avec **seulement les champs qui manquent** (sexe en deux pastilles, naissance en trois champs Jour, Mois, Année, poids et taille avec leur unité, activité hors sport en liste) et « Enregistrer ».
 - **Feuille Mon profil** (depuis le 12 nov. 2026 ; avant : fenêtre « Mes mesures ») : le lien « Calculé pour … » (21) ouvre la feuille commune de [Mon profil](module-profil-specification.md), les mesures en tête (section Moi) ; chaque mesure s'enregistre seule, le besoin se recalcule aussitôt.
 - **Contrôles** : poids de 20 à 300 kg (virgule acceptée, un chiffre après la virgule), taille de 100 à 250 cm, âge de 10 à 110 ans, sexe femme ou homme, niveau d'activité choisi. Un champ refusé : message sous le titre, rien n'est écrit. Seuls les champs affichés sont rangés ; en cas d'échec, « Enregistrement impossible pour l'instant. », la fenêtre reste ouverte.
 - **Site partagé en lecture seule** : la page n'affiche aucune donnée de nutrition.

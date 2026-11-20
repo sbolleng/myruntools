@@ -18,7 +18,7 @@
       corps = '<span class="pf-pastilles">' + [['femme', 'Femme'], ['homme', 'Homme']].map(s =>
         '<label class="mrt-pastille"><input type="radio" name="sexe" value="' + s[0] + '"' + (v === s[0] ? ' checked' : '') + '>' + s[1] + '</label>').join('') + '</span>';
     } else if (nom === 'naissance') {
-      corps = '<input class="mrt-champ" type="date" name="naissance" value="' + esc(v) + '">';
+      corps = window.mrtDateTrois.html('naissance', v || '');
     } else if (nom === 'poids' || nom === 'taille') {
       corps = '<span class="pf-unite"><input class="mrt-champ" type="text" inputmode="decimal" name="' + nom + '" value="' + esc(v != null ? String(v).replace('.', ',') : '') + '">' + (nom === 'poids' ? 'kg' : 'cm') + '</span>';
     } else {
@@ -38,8 +38,8 @@
         if (!c) return { erreur: 'Choisis ton sexe (femme ou homme) : il sert à la formule du calcul.' };
         v.sexe = c.value;
       } else if (nom === 'naissance') {
-        const d = form.naissance.value, a = window.mrtBesoin.age(d, aujourdhui);
-        if (!d) return { erreur: 'Indique ta date de naissance.' };
+        const d = window.mrtDateTrois.lire(form, 'naissance'), a = d && window.mrtBesoin.age(d, aujourdhui);
+        if (d === '') return { erreur: 'Indique ta date de naissance.' };
         if (!a || a < 10 || a > 110) return { erreur: 'Cette date de naissance n\'est pas possible.' };
         v.naissance = d;
       } else if (nom === 'poids') {

@@ -231,6 +231,14 @@ async function sansSaut(nav, db, page, w, nom, opts) {
 // Jeu d'essai de la page Objectif (module-objectif-specification.md, § 10) :
 // les courses courues des données fictives, et ces courses à la place des autres.
 const PARIS = { fuseau: 'Europe/Paris', maintenant: new Date('2026-10-20T10:00:00+02:00') };
+// Date en trois champs (mrtDateTrois) : remplit Jour, Mois et Année d'une date ISO.
+async function dateTrois(p, zone, nom, iso) {
+  const [a, m, j] = iso.split('-').map(Number);
+  await p.fill(zone + ' [name="' + nom + '_j"]', String(j));
+  await p.selectOption(zone + ' [name="' + nom + '_m"]', String(m));
+  await p.fill(zone + ' [name="' + nom + '_a"]', String(a));
+}
+
 function jeuObjectif(db0) {
   const db = JSON.parse(JSON.stringify(db0));
   const moi = db.profils[0].id;
@@ -475,7 +483,8 @@ const CONTROLES = {
     const titres = [await titreFeuille(p)];
     await p.click('.ps-choix[data-val="femme"]');
     await p.waitForFunction(() => /2 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
-    await p.fill('.ps-valeur [name="valeur"]', '1990-05-12'); await p.click('.ps-valeur button[type="submit"]');
+    pb.push(egal([3, 0], await p.evaluate(() => [document.querySelectorAll('.ps-valeur .mrt-date3 .mrt-champ').length, document.querySelectorAll('.ps-valeur [type="date"]').length]), 'profil express : date de naissance en trois champs (Jour, Mois, Année), sans calendrier'));
+    await dateTrois(p, '.ps-valeur', 'valeur', '1990-05-12'); await p.click('.ps-valeur button[type="submit"]');
     await p.waitForFunction(() => /3 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     await p.fill('.ps-valeur [name="valeur"]', '62'); await p.click('.ps-valeur button[type="submit"]');
     await p.waitForFunction(() => /4 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
@@ -498,7 +507,7 @@ const CONTROLES = {
     await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil');
     const reel1 = await titreFeuille(p);
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'premiers-naissance.png') });
-    await p.fill('.ps-valeur [name="valeur"]', '1980-01-02'); await p.click('.ps-valeur button[type="submit"]');
+    await dateTrois(p, '.ps-valeur', 'valeur', '1980-01-02'); await p.click('.ps-valeur button[type="submit"]');
     await p.waitForFunction(() => /3 sur 4/.test(document.getElementById('ps-titre').textContent));
     await p.click('.ps-profil [data-fermer]');
     await p.click('[data-premier="profil"]'); await p.waitForSelector('.ps-profil');
@@ -2619,9 +2628,12 @@ const CONTROLES = {
     await p.click('.ps-profil [data-q="blessure"]'); await p.click('.ps-profil [data-guerie]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     pb.push(egal(['Blessure en cours | —', null], [ligne(await liste(p), 'Blessure en cours'), (derniere(d) || {}).blessure], '« Plus de blessure » : effacée'));
     // Moi : naissance, poids (virgule), taille, activité ; pointure en demi-pointures.
-    await valeur('naissance', '2031-01-01', false);
+    await p.click('.ps-profil [data-q="naissance"]'); await dateTrois(p, '.ps-profil', 'valeur', '2031-01-01'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await pause();
     pb.push(egal('Cette date de naissance n\'est pas possible.', await p.textContent('.ps-profil .ps-msg'), 'naissance impossible refusée'));
-    await p.fill('.ps-profil [name="valeur"]', '1985-03-12'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await p.fill('.ps-profil [name="valeur_j"]', '31'); await p.selectOption('.ps-profil [name="valeur_m"]', '2'); await p.fill('.ps-profil [name="valeur_a"]', '1985');
+    await p.click('.ps-profil .ps-valeur [type="submit"]'); await pause();
+    pb.push(egal('Cette date de naissance n\'est pas possible.', await p.textContent('.ps-profil .ps-msg'), 'naissance : 31 février refusé'));
+    await dateTrois(p, '.ps-profil', 'valeur', '1985-03-12'); await p.click('.ps-profil .ps-valeur [type="submit"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     await valeur('poids', '72,4'); await valeur('taille', '178');
     await valeur('pointure', '42,3', false);
     pb.push(egal('La pointure doit être comprise entre 30 et 55 (demi-pointures acceptées).', await p.textContent('.ps-profil .ps-msg'), 'pointure 42,3 refusée'));
@@ -4235,12 +4247,12 @@ const CONTROLES = {
     // Profil incomplet (sexe seul) : l'encart ne demande que les champs qui manquent.
     let d = copie({});
     let { p, ctx, erreurs } = await ouvrir(nav, 'nutrition.html', 390, d);
-    pb.push(egal(['naissance', 'poids', 'taille', 'activite'], await p.evaluate(() => [...document.querySelectorAll('.pf-encart .pf-champ')].map(c => (c.querySelector('[name]') || {}).name)), 'encart : seuls les champs manquants'),
+    pb.push(egal(['naissance_j', 'poids', 'taille', 'activite'], await p.evaluate(() => [...document.querySelectorAll('.pf-encart .pf-champ')].map(c => (c.querySelector('[name]') || {}).name)), 'encart : seuls les champs manquants (naissance en trois champs)'),
       egal(0, await p.locator('.nu-besoin').count(), 'encart : pas de besoin calculé'));
     // Valeurs refusées : rien n'est écrit.
     const remplir = async (v) => {
       for (const [k, x] of Object.entries(v)) {
-        if (k === 'activite') await p.selectOption('[name="activite"]', x); else await p.fill('[name="' + k + '"]', x);
+        if (k === 'activite') await p.selectOption('[name="activite"]', x); else if (k === 'naissance') await dateTrois(p, '.pf-encart', 'naissance', x); else await p.fill('[name="' + k + '"]', x);
       }
       await p.click('.pf-encart [type="submit"]');
     };
