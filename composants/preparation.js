@@ -34,6 +34,9 @@
     distance_km: s.distance_reelle_km != null ? s.distance_reelle_km : s.distance_km, denivele_m: s.denivele_reel_m != null ? s.denivele_reel_m : s.denivele_m }) : s);
   // Allure moyenne en min/km (« 6'20"/km ») ; vide sans durée ni distance.
   const allure = (min, km) => { if (!(min > 0 && km > 0)) return ''; const t = Math.round(min / km * 60); return Math.floor(t / 60) + '\'' + String(t % 60).padStart(2, '0') + '"/km'; };
+  // Intensité : trois traits montants (un, deux ou trois allumés), gris, orange, rouge ; rien sans intensité (Calendrier, fenêtre d'une séance).
+  const traits = i => (i && INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + INTENSITES[i] + '" title="' + INTENSITES[i] + '">' +
+    [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
   const NOM_RENFO = { nom: 'Renforcement', abr: 'Renfo', titre: 'Renforcement', intensite: '' };
   const nomsDuType = type => (type === 'renfo' ? [NOM_RENFO] : NOMS);
   // « Côtes : 8 x 1 min » → { nom: 'Côtes', detail: '8 x 1 min', def } ; def vide pour un nom libre d'avant la liste (affiché tel quel).
@@ -607,17 +610,26 @@
   function ouvrirSeance(ctx, opts) {
     const s = opts.seance, dans = opts.dans, lu = lireLibelle(s ? s.libelle : '');
     let degage = false; // « Modifier cette séance » : une séance de l'IA devient une séance à soi
-    const verrou = s && s.origine === 'ia' ? ' disabled' : ''; // le prévu d'une séance de l'IA est en lecture seule
+    const verrou = !!(s && s.origine === 'ia'); // le prévu d'une séance de l'IA se lit, il ne s'édite pas (« Modifier cette séance » le rend modifiable)
     // Un seul choix de séance (le type s'en déduit : Renforcement ou course à pied) ; la date seule en tête, puis le détail,
     // puis durée, distance et dénivelé sur une ligne, l'intensité (proposée selon la séance) ; le retour (faite, effort, commentaire) dessous.
-    const champs = (verrou ? '<p class="cal-ia-bandeau">Proposée par MyRunTools · <button type="button" class="mrt-lien" data-act="modifier">Modifier cette séance</button></p>' : '') +
-      '<div class="cal-champs2"><label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
-      '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"' + verrou + '></select></label></div>' +
-      '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80"' + verrou + ' placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
-      '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree"' + verrou + ' inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
-      '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance"' + verrou + ' inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
-      '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele"' + verrou + ' inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
-      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"' + verrou + '><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>' +
+    const champDate = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>';
+    const champNom = '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label>';
+    const champsPrevu = '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
+      '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
+      '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
+      '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele" inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
+      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>';
+    // Séance de l'IA : un texte structuré (le nom, ses précisions, durée, distance, D+, intensité), pas des champs ; les champs existent mais restent cachés.
+    const lecture = () => {
+      const duree = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + String(m % 60).padStart(2, '0') : '') : m + ' min'), course = s.type !== 'renfo';
+      const stat = (lib, val) => '<div><dt>' + lib + '</dt><dd>' + val + '</dd></div>';
+      return '<div class="cal-prevu-lecture"><p class="fc-libelle">Proposée par MyRunTools</p><h3 class="cal-prevu-nom">' + esc(lu.nom) + '</h3>' + (lu.detail ? '<p class="cal-prevu-detail">' + esc(lu.detail) + '</p>' : '') +
+        '<dl class="cal-prevu-stats">' + (s.duree_min ? stat('Durée', duree(s.duree_min)) : '') + (course && Number(s.distance_km) > 0 ? stat('Distance', esc(String(s.distance_km).replace('.', ',')) + ' km') : '') +
+        (course && Number(s.denivele_m) > 0 ? stat('D+', esc(s.denivele_m) + ' m') : '') + (s.intensite ? stat('Intensité', traits(s.intensite) + esc(INTENSITES[s.intensite] || '')) : '') + '</dl>' +
+        '<button type="button" class="mrt-lien" data-act="modifier">Modifier cette séance</button></div>';
+    };
+    const champs = (verrou ? champDate + lecture() + '<div class="cal-prevu-champs" hidden>' + champNom + champsPrevu + '</div>' : '<div class="cal-champs2">' + champDate + champNom + '</div>' + champsPrevu) +
       retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
@@ -654,8 +666,8 @@
     const mod = f.querySelector('[data-act="modifier"]');
     if (mod) mod.addEventListener('click', () => {
       degage = true;
-      ['nom', 'detail', 'duree', 'distance', 'denivele', 'intensite'].forEach(k => { f[k].disabled = false; });
-      mod.closest('.cal-ia-bandeau').remove();
+      mod.closest('.cal-prevu-lecture').remove();
+      f.querySelector('.cal-prevu-champs').hidden = false;
     });
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
@@ -817,7 +829,7 @@
     });
   }
 
-  window.mrtPreparation = { reel, allure, deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { traits, reel, allure, deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();
