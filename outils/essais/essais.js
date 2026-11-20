@@ -5265,13 +5265,17 @@ const CONTROLES = {
   // Anti-robot (Turnstile) : jamais dans le banc (pas de réseau) ; la clé du site est vidée au chargement de chaque page.
   const contexte0 = nav.newContext.bind(nav);
   nav.newContext = async (...a) => { const c = await contexte0(...a); await c.addInitScript(SANS_CAPTCHA); return c; };
-  let echecs = 0;
+  // Sortie courte (économie de jetons) : seuls les groupes en échec sont détaillés, les autres comptés ; DETAIL=1 pour une ligne par groupe.
+  let echecs = 0; const ok = [];
   for (const [nom, f] of Object.entries(CONTROLES)) {
     if (SEULS.length && !SEULS.includes(nom)) continue;
     const pb = (await f(nav, db)).filter(Boolean);
     echecs += pb.length;
-    console.log((pb.length ? 'ÉCHEC ' : 'OK    ') + nom + pb.map(x => '\n      - ' + x).join(''));
+    if (pb.length) console.log('ÉCHEC ' + nom + pb.map(x => '\n      - ' + x).join(''));
+    else if (process.env.DETAIL) console.log('OK    ' + nom);
+    else ok.push(nom);
   }
+  if (ok.length) console.log('OK    ' + ok.length + ' groupe' + (ok.length > 1 ? 's' : '') + (ok.length <= 3 ? ' (' + ok.join(', ') + ')' : ''));
   await nav.close();
   process.exit(echecs ? 1 : 0);
 })();
