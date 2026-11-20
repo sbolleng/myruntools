@@ -2109,11 +2109,12 @@ const CONTROLES = {
     await p.click('[data-ajout="2026-10-21"]');
     await p.selectOption('.cal-seance [name="nom"]', 'Endurance');
     pb.push(egal('facile', await p.inputValue('.cal-seance [name="intensite"]'), 'nom choisi : son intensité proposée'));
-    await p.fill('.cal-seance [name="detail"]', '30 min');
+    await p.fill('.cal-seance [name="detail"]', '30 min'); await p.fill('.cal-seance [name="description"]', 'Courir 30 min en endurance\nPuis 5 min de marche');
     await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal([{ date: '2026-10-21', type: 'run', libelle: 'Endurance : 30 min' }, true], [(({ date, type, libelle }) => ({ date, type, libelle }))(d.seances[d.seances.length - 1]),
       (await lire(p)).seances.some(x => x[0] === '2026-10-21' && x[1] === 'Endurance')], '« + » d\'une case : séance ajoutée à ce jour'));
+    pb.push(egal('Courir 30 min en endurance\nPuis 5 min de marche', d.seances[d.seances.length - 1].description, 'séance saisie : description enregistrée'));
     await p.click('[data-edit="se-3"]');
     pb.push(egal(['Endurance', ''], [await p.inputValue('.cal-seance [name="nom"]'), await p.inputValue('.cal-seance [name="detail"]')], 'séance touchée : sa fenêtre, nom et détail'));
     await p.click('.cal-seance [data-act="annuler"]');
@@ -2129,7 +2130,7 @@ const CONTROLES = {
     // Séance de l'IA : prévu en lecture seule, « Modifier cette séance » en fait une séance à soi ; séance faite : réalisé (durée, distance, D+, FC), allure calculée.
     {
       const dI = copie();
-      dI.seances.push({ id: 'se-ia', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Seuil : 3 x 8 min', duree_min: 55, distance_km: 10, denivele_m: 120, intensite: 'moderee', origine: 'ia', etat: 'acceptee', faite: false, course: null });
+      dI.seances.push({ id: 'se-ia', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Seuil : 3 x 8 min', description: '20 min en endurance facile\n3 x 8 min à allure seuil, 3 min de récupération\n5 min de retour au calme', duree_min: 55, distance_km: 10, denivele_m: 120, intensite: 'moderee', origine: 'ia', etat: 'acceptee', faite: false, course: null });
       const o = await ouvrir(nav, 'calendrier.html#mois', 1200, dI, {}, PARIS);
       await o.p.click('[data-edit="se-ia"]'); await o.p.waitForSelector('.cal-seance');
       pb.push(egal([1, ['Seuil', '3 x 8 min'], ['Durée55min', 'Distance10km', 'D+120m', 'IntensitéModérée'], true, 0, 2],
@@ -2137,8 +2138,13 @@ const CONTROLES = {
           await o.p.evaluate(() => [...document.querySelectorAll('.cal-prevu-stats > div')].map(e => e.textContent.replace(/\s+/g, ''))),
           await o.p.evaluate(() => document.querySelector('.cal-prevu-champs').hidden), await o.p.locator('.cal-prevu-lecture input, .cal-prevu-lecture select').count(), await o.p.locator('.cal-prevu-stats .cal-int.i-moderee .on').count()],
         'séance de l\'IA : texte structuré (nom, précisions, durée, distance, D+, intensité en traits), aucun champ ; les champs restent cachés'));
-      pb.push(egal(false, await o.p.evaluate(() => document.querySelector('.cal-seance [name="date"]').disabled), 'séance de l\'IA : la date reste modifiable'));
+      pb.push(egal([true, true, false], [await o.p.evaluate(() => document.querySelector('.cal-date-ia').hidden), await o.p.locator('.cal-prevu-etapes li').count() === 3 && await o.p.textContent('.cal-prevu-etapes li:first-child') === '20 min en endurance facile', await o.p.locator('.cal-seance .cal-panneau-titre').isVisible()],
+        'séance de l\'IA : date cachée, description en étapes numérotées, pas de titre « Modifier la séance » en haut'));
+      await o.p.check('.cal-seance [name="faite"]');
+      pb.push(egal(false, await o.p.evaluate(() => document.querySelector('.cal-date-ia').hidden), 'séance de l\'IA cochée « Faite » : la date apparaît'));
+      await o.p.uncheck('.cal-seance [name="faite"]');
       await o.p.click('[data-act="modifier"]');
+      pb.push(egal(false, await o.p.evaluate(() => document.querySelector('.cal-date-ia').hidden), '« Modifier cette séance » : la date apparaît avec les champs'));
       pb.push(egal([0, false, true], [await o.p.locator('.cal-prevu-lecture').count(), await o.p.evaluate(() => document.querySelector('.cal-prevu-champs').hidden), await o.p.isVisible('.cal-seance [name="duree"]')], '« Modifier cette séance » : le texte laisse place aux champs'));
       await o.p.check('.cal-seance [name="faite"]');
       pb.push(egal([true, '55', '10'], [await o.p.isVisible('.cal-seance [name="duree_reelle"]'), await o.p.getAttribute('.cal-seance [name="duree_reelle"]', 'placeholder'), await o.p.getAttribute('.cal-seance [name="distance_reelle"]', 'placeholder')], 'séance faite : bloc « Réalisé », le prévu en repère'));
@@ -3253,11 +3259,10 @@ const CONTROLES = {
       await q.p.click('[data-edit="se-a"]'); await q.p.waitForSelector('.cal-seance');
       // Séance à venir : le commentaire est là, mais l'IA n'intervient pas (elle n'agit que sur une séance faite).
       const avant = d6.appels.length;
-      pb.push(egal(true, await q.p.locator('.cal-seance [name="commentaire"]').isVisible(), 'séance à venir : champ « Commentaire » visible'));
-      await q.p.fill('.cal-seance [name="commentaire"]', 'Pas disponible jeudi');
-      await q.p.click('.cal-seance button[type="submit"]');
-      await q.p.waitForSelector('.cal-seance', { state: 'detached' }); await pause();
-      pb.push(egal(avant, d6.appels.length, 'commentaire sur une séance à venir : aucun appel à l\'IA'));
+      pb.push(egal([false, true], [await q.p.locator('.cal-seance [name="commentaire"]').isVisible(), await (async () => { await q.p.check('.cal-seance [name="faite"]'); return q.p.locator('.cal-seance [name="commentaire"]').isVisible(); })()],
+        'séance à venir : champ « Commentaire » caché, il apparaît avec « Faite »'));
+      await q.p.click('.cal-seance [data-act="annuler"]'); await q.p.waitForSelector('.cal-seance', { state: 'detached' }); await pause();
+      pb.push(egal(avant, d6.appels.length, 'fenêtre fermée sans enregistrer : aucun appel à l\'IA'));
       // Séance faite, effort noté : l'IA l'analyse (animation puis texte, dans la feuille) ; adapter le plan ne se fait que sur demande.
       await q.p.click('[data-edit="se-a"]'); await q.p.waitForSelector('.cal-seance');
       await q.p.check('.cal-seance [name="faite"]');

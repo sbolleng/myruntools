@@ -36,7 +36,7 @@ const SCHEMA_ANALYSE = {
   }
 };
 const CONSIGNES_ANALYSE = `Tu es un entraîneur de course à pied et de trail. Tu analyses une séance que le coureur vient de faire, en français, en le tutoyant.
-Le contexte (JSON) donne : la fiche de la séance (nom, durée, distance et dénivelé prévus, intensité prévue), son réalisé quand il est saisi (durée, distance, dénivelé, fréquence cardiaque moyenne et maximale, allure moyenne), le retour du coureur (effort perçu de 1 à 10 selon l'échelle de Borg modifiée, charge, sensations, douleur et où, commentaire, jour d'origine si la séance a été déplacée), la phase du plan, la prochaine course (rôle, format, distance, jours restants), le profil du coureur et ses séances des 4 dernières semaines avec leur retour.
+Le contexte (JSON) donne : la fiche de la séance (nom, description du déroulé, durée, distance et dénivelé prévus, intensité prévue), son réalisé quand il est saisi (durée, distance, dénivelé, fréquence cardiaque moyenne et maximale, allure moyenne), le retour du coureur (effort perçu de 1 à 10 selon l'échelle de Borg modifiée, charge, sensations, douleur et où, commentaire, jour d'origine si la séance a été déplacée), la phase du plan, la prochaine course (rôle, format, distance, jours restants), le profil du coureur et ses séances des 4 dernières semaines avec leur retour.
 Consignes :
 - Écris un seul texte de ${MAX_ANALYSE} caractères au plus (espaces compris), factuel, sans titre ni liste à puces : ce que la séance dit de sa forme, l'écart entre le prévu et le réalisé (durée, distance, allure, fréquence cardiaque) et entre l'intensité prévue et l'effort ressenti, les sensations, la douleur éventuelle et le commentaire, puis la suite à donner.
 - Appuie-toi seulement sur les données du contexte ; n'invente aucun chiffre ni aucun fait.
@@ -63,11 +63,12 @@ const SCHEMA = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['date', 'type', 'libelle', 'duree_min', 'distance_km', 'intensite'],
+        required: ['date', 'type', 'libelle', 'duree_min', 'distance_km', 'intensite', 'description'],
         properties: {
           date: { type: 'string', description: 'AAAA-MM-JJ' },
           type: { type: 'string', enum: ['run', 'renfo'] },
           libelle: { type: 'string', description: 'Nom normalisé, puis éventuellement « : » et un détail court. Séance de course : Endurance, Récupération, Sortie longue, Seuil, Fractionné ou Côtes. Renforcement : Renforcement. Ex. « Côtes : 8 x 1 min en côte », 100 caractères au plus' },
+          description: { type: 'string', description: 'Déroulé de la séance, une étape par ligne, 800 caractères au plus ; chaîne vide si une seule étape suffit' },
           duree_min: { type: 'integer' },
           distance_km: { type: 'number', description: '0 pour une séance sans distance (renforcement)' },
           intensite: { type: 'string', enum: ['facile', 'moderee', 'intense'] }
@@ -89,6 +90,7 @@ Règles impératives :
 - Respecte le nombre de séances de renforcement par semaine du profil ; la sortie longue le jour prévu par le profil.
 - Pars du volume récent du coureur et progresse prudemment.
 - distance_km : 0 pour une séance de renforcement.
+- description : le déroulé de la séance, une étape par ligne, 800 caractères au plus, sans numéro (le site les numérote), par exemple « Courir 20 min en endurance facile », « 3 x 12 min à allure semi, 5 min de récupération entre chaque », « 5 min de retour au calme ». Donne une allure ou une fréquence cardiaque seulement si le profil fournit un repère (VMA, temps sur 10 km, semi ou marathon, FC max) pour la calculer ; sinon décris l'effort (facile, soutenu, dur). Chaîne vide pour une séance d'une seule étape (une endurance simple).
 - Le libellé commence toujours par un de ces noms, écrit exactement ainsi : Endurance, Récupération, Sortie longue, Seuil, Fractionné, Côtes (course à pied) ou Renforcement (renforcement) ; le détail éventuel suit après « : » (ex. « Fractionné : 6 x 800 m »). Aucun autre nom.
 Retours du coureur (ils priment sur le plan prévu) : pour chaque séance passée, le contexte peut donner le ressenti (effort perçu de 1 à 10, échelle de Borg modifiée, et son libellé) et la charge (ressenti × durée en minutes, méthode de Foster), la douleur (aucune, légère, forte, et où), les sensations (indépendantes de l'effort), la fatigue du jour (1 à 5), un commentaire et le jour d'origine si elle a été déplacée ; les séances à venir peuvent porter un commentaire (une contrainte, une envie) ; le profil peut donner une blessure en cours. Adapte le bloc en conséquence, toujours dans les règles impératives ; en cas de douleur forte ou de blessure en cours, reste sur des séances faciles et dis-le dans la recommandation, sans avis médical.
 Rends une recommandation pour l'ensemble du bloc (deux phrases courtes au plus, sans détailler chaque séance), puis toutes les séances du bloc, dans l'ordre des dates.`;

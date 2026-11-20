@@ -444,7 +444,7 @@
     const x = s || {}, faite = !!x.faite;
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
-      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + realiseHtml(x) + champsRetour(x) + '</div>' + champCommentaire(x) +
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + realiseHtml(x) + champsRetour(x) + champCommentaire(x) + '</div>' +
       (x.analyse_ia ? '<div class="cal-analyse-lue"><h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(x.analyse_ia) + '</p></div>' : '') + '</section>';
   }
   // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
@@ -616,20 +616,24 @@
     const champDate = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>';
     const champNom = '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label>';
     const champsPrevu = '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
+      '<label class="cal-champ"><span>Description</span><textarea class="mrt-champ" name="description" maxlength="800" rows="4" placeholder="1. 20 min d\'échauffement&#10;2. 3 x 12 min à allure semi, 5 min de récupération&#10;3. 5 min de retour au calme">' + esc(s && s.description ? s.description : '') + '</textarea><small class="cal-compteur">' + (s && s.description ? s.description.length : 0) + '/800</small></label>' +
       '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
       '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
       '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele" inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
       '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>';
     // Séance de l'IA : un texte structuré (le nom, ses précisions, durée, distance, D+, intensité), pas des champs ; les champs existent mais restent cachés.
+    // Description : une étape par ligne, numérotée en Accent (une numérotation déjà écrite est reprise telle quelle).
+    const etapes = t => { const l = String(t || '').split(/\n+/).map(x => x.trim().replace(/^\d+[.)]\s*/, '')).filter(Boolean); return l.length ? '<ol class="cal-prevu-etapes">' + l.map(x => '<li>' + esc(x) + '</li>').join('') + '</ol>' : ''; };
     const lecture = () => {
       const duree = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + String(m % 60).padStart(2, '0') : '') : m + ' min'), course = s.type !== 'renfo';
       const stat = (lib, val) => '<div><dt>' + lib + '</dt><dd>' + val + '</dd></div>';
       return '<div class="cal-prevu-lecture"><p class="fc-libelle">Proposée par MyRunTools</p><h3 class="cal-prevu-nom">' + esc(lu.nom) + '</h3>' + (lu.detail ? '<p class="cal-prevu-detail">' + esc(lu.detail) + '</p>' : '') +
         '<dl class="cal-prevu-stats">' + (s.duree_min ? stat('Durée', duree(s.duree_min)) : '') + (course && Number(s.distance_km) > 0 ? stat('Distance', esc(String(s.distance_km).replace('.', ',')) + ' km') : '') +
-        (course && Number(s.denivele_m) > 0 ? stat('D+', esc(s.denivele_m) + ' m') : '') + (s.intensite ? stat('Intensité', traits(s.intensite) + esc(INTENSITES[s.intensite] || '')) : '') + '</dl>' +
+        (course && Number(s.denivele_m) > 0 ? stat('D+', esc(s.denivele_m) + ' m') : '') + (s.intensite ? stat('Intensité', traits(s.intensite) + esc(INTENSITES[s.intensite] || '')) : '') + '</dl>' + etapes(s.description) +
         '<button type="button" class="mrt-lien" data-act="modifier">Modifier cette séance</button></div>';
     };
-    const champs = (verrou ? champDate + lecture() + '<div class="cal-prevu-champs" hidden>' + champNom + champsPrevu + '</div>' : '<div class="cal-champs2">' + champDate + champNom + '</div>' + champsPrevu) +
+    // Séance de l'IA : la date ne s'offre qu'avec « Faite » ou « Modifier cette séance » (on invite à garder le planning).
+    const champs = (verrou ? lecture() + '<div class="cal-date-ia" hidden>' + champDate + '</div><div class="cal-prevu-champs" hidden>' + champNom + champsPrevu + '</div>' : '<div class="cal-champs2">' + champDate + champNom + '</div>' + champsPrevu) +
       retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
@@ -639,7 +643,7 @@
       v = { querySelector: q => dans.querySelector(q), fermer: () => opts.apres && opts.apres() };
     } else {
       v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
-        titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
+        titreFenetre(s ? '' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
     }
     const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
     // Le choix de séance : la liste des courses, puis Renforcement ; un nom libre d'avant la liste reste proposé tel quel (avec son type).
@@ -662,12 +666,16 @@
       f.querySelector('.cal-allure').textContent = a ? 'Allure moyenne : ' + a : '';
     };
     f.addEventListener('input', majAllure); majAllure();
+    f.description.addEventListener('input', () => { f.description.parentElement.querySelector('.cal-compteur').textContent = f.description.value.length + '/800'; });
     // Séance de l'IA : le prévu est en lecture seule ; « Modifier cette séance » le rend modifiable et en fait une séance à soi.
+    const majDate = () => { const d = f.querySelector('.cal-date-ia'); if (d) d.hidden = !(degage || f.faite.checked); };
+    f.faite.addEventListener('change', majDate); majDate();
     const mod = f.querySelector('[data-act="modifier"]');
     if (mod) mod.addEventListener('click', () => {
       degage = true;
       mod.closest('.cal-prevu-lecture').remove();
       f.querySelector('.cal-prevu-champs').hidden = false;
+      majDate();
     });
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
@@ -706,9 +714,11 @@
       }
       const reelChamps = {}, brut = { duree_reelle_min: faiteCochee ? dureeR : null, distance_reelle_km: faiteCochee && !renfo && distR !== null ? Math.round(distR * 10) / 10 : null, denivele_reel_m: faiteCochee && !renfo ? denivR : null, fc_moyenne: faiteCochee ? fcM : null, fc_max: faiteCochee ? fcX : null };
       Object.keys(brut).forEach(k => { if (brut[k] !== null || (s && s[k] != null)) reelChamps[k] = brut[k]; });
+      // Description : envoyée s'il y en a une (ou s'il y en avait une) : la base peut ne pas avoir sa colonne (évolution 043).
+      const texte = f.description.value.trim(), descChamps = texte || (s && s.description) ? { description: texte || null } : {};
       const champs = Object.assign({ date, type, libelle, duree_min: duree, distance_km: renfo || distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null }, retour(),
         // Le dénivelé n'est envoyé que s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir sa colonne (évolution 039).
-        !renfo && deniv !== null ? { denivele_m: deniv } : (s && s.denivele_m != null ? { denivele_m: null } : {}), reelChamps, degage ? { origine: 'saisie' } : {},
+        !renfo && deniv !== null ? { denivele_m: deniv } : (s && s.denivele_m != null ? { denivele_m: null } : {}), reelChamps, descChamps, degage ? { origine: 'saisie' } : {},
         s ? { date_prevue: date === s.date ? (s.date_prevue || null) : datePrevue(s, date) } : {});
       const { error } = s ? await sb.from('seances').update(champs).eq('id', s.id)
         : await sb.from('seances').insert(Object.assign({ course: opts.course || null }, champs));
