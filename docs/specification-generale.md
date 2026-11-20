@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.41 · 17 novembre 2026 · [Retour au sommaire](README.md) · profil express en quatre questions (le repère d'allure passe dans le parcours de Mon plan)
+Version 0.42 · 20 novembre 2026 · [Retour au sommaire](README.md) · profil express en quatre questions (le repère d'allure passe dans le parcours de Mon plan)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -87,7 +87,7 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 | C6 | Adresse e-mail | Obligatoire ; elle sert à se connecter |
 | C7 (C8) | Mot de passe | Règles du mot de passe ci-dessus ; « 14 caractères au moins » (C8) écrit dans le champ ; œil |
 | C9 | Confirmation | Identique au mot de passe (« Les deux saisies sont différentes. ») ; œil |
-| C10 | Politique de confidentialité | Case à cocher, avec le lien vers la politique ; présente dès que la politique existe, obligatoire alors |
+| C10 | Accords | Deux cases, obligatoires : « J'accepte la politique de confidentialité » (lien vers la page, § 11 ter) et « J'accepte que mes données de santé (poids, fréquences cardiaques, blessures, effort, repas) soient enregistrées pour calculer mon plan et ma nutrition » ; non cochées : « Accepte la politique de confidentialité. » ou « Accepte l'enregistrement de tes données de santé : le plan et la nutrition en dépendent. » ; la date des deux accords est gardée avec le compte |
 | C11 | Anti-robot | Le même que sur la connexion ; invisible tant qu'il n'est pas actif |
 | C12 | « Créer mon compte » | Désactivé pendant l'envoi ; un champ obligatoire vide : « Remplis les champs obligatoires. » ; rien n'est envoyé tant qu'une erreur demeure |
 | C13 | Message | Toujours le même après l'envoi, que l'adresse ait déjà un compte ou non : « Si l'adresse est valide, un e-mail de confirmation vient d'être envoyé. Ouvre le lien pour accéder à ton espace. » ; le formulaire disparaît. Inscription pas encore ouverte : « Les inscriptions ne sont pas encore ouvertes. », sans formulaire |
@@ -299,10 +299,31 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | M6 | Hébergement des données | Supabase, Inc., adresse recopiée de sa page légale ; données en Suède (région North EU, Stockholm) |
 | M7 | Propriété intellectuelle | Textes et code de l'éditeur ; les données saisies appartiennent à chaque utilisateur |
 | M8 | Crédits | Polices Space Grotesk et Space Mono (Google Fonts, licence SIL OFL) ; bibliothèque Supabase (licence MIT) ; Leaflet (licence BSD), fond OpenTopoMap (CC-BY-SA), données OpenStreetMap (ODbL), pour la carte des tracés ; anti-robot Cloudflare Turnstile une fois activé ; icônes dessinées pour le site |
-| M9 | Données personnelles | En attendant le lot RGPD : « La politique de confidentialité sera publiée ici avant l'ouverture du site à d'autres coureurs. » ; ensuite, le lien vers elle |
+| M9 | Données personnelles | Une phrase et le lien vers la politique de confidentialité (§ 11 ter) |
 | M10 | Mise à jour | Date de la dernière modification |
 | M11 | Retour | Vers l'accueil si connecté, sinon vers la page de connexion |
-| M12 | Pied de page | « Mentions légales · Confidentialité », petit, en Texte discret, en bas de **toutes** les pages, page de connexion comprise ; « Confidentialité » apparaît avec le lot RGPD |
+| M12 | Pied de page | « Mentions légales · Confidentialité », petit, en Texte discret, en bas de **toutes** les pages, page de connexion comprise ; sur l'une de ces deux pages, son nom en texte simple |
+
+## 11 ter. Confidentialité
+
+Page publique `confidentialite.html` (lot RGPD, 20 nov. 2026), au gabarit des mentions légales : visible sans être connecté, non indexée, liée au pied de page, aux mentions (M9) et aux accords de l'inscription (C10). Tutoiement, phrases courtes ; une proposition de rédaction, pas un avis juridique.
+
+| N° | Rubrique | Contenu |
+| --- | --- | --- |
+| P1 | Titre | « Confidentialité » |
+| P2 | En bref | Les données ne servent qu'à faire fonctionner les outils ; ni vendues, ni louées, ni publicité ; consultables, corrigibles, supprimables à tout moment |
+| P3 | Responsable | « MyRunTools », adresse de contact assemblée par le script (comme M4) |
+| P4 | Données recueillies | Compte, profil, courses, séances (effort, sensations, douleur, commentaire), nutrition, préférences ; les données de santé nommées, enregistrées avec l'accord explicite donné à l'inscription |
+| P5 | Pourquoi | Faire fonctionner le site ; base : l'inscription, et l'accord explicite (retirable) pour la santé |
+| P6 | Qui y accède | L'utilisateur seul (règles par ligne) ; en lecture seule, ceux à qui il ouvre son espace : courses et calendrier (séances et retours compris), jamais le profil ni les repas ; les prestataires, pour leur service |
+| P7 | Prestataires | Tableau prestataire, rôle, lieu : Supabase (UE, Suède), GitHub Pages, Cloudflare Turnstile, Resend, Anthropic (ce qui lui est envoyé, sans nom ni adresse), Google Fonts, jsDelivr et cdnjs (adresse IP), OpenTopoMap ; Open Food Facts interrogé depuis le serveur (seuls les mots cherchés) |
+| P8 | Durée | Tant que le compte existe ; tout est effacé à sa suppression |
+| P9 | Droits | Consulter, corriger, exporter, supprimer, retirer l'accord santé : dans Mon profil et la fenêtre d'une séance, ou par e-mail au contact (réponse sous un mois) ; réclamation à la CNIL |
+| P10 | Sur l'appareil | Ni cookie publicitaire ni mesure d'audience ; session et réglages d'affichage seulement |
+| P11 | Mise à jour | Date de la dernière modification |
+| P12 | Retour | Vers l'accueil si connecté, sinon vers la connexion |
+
+Tout changement de prestataire ou de donnée recueillie met la page à jour (P7, P4, P11).
 
 ## 12. Technique
 
@@ -365,7 +386,8 @@ Résultats attendus :
 - Inscription fermée : pas de « Créer un compte » sur la connexion ; la page « Créer un compte » dit « Les inscriptions ne sont pas encore ouvertes. », sans formulaire.
 - Inscription ouverte : le lien mène à la page ; cinq champs obligatoires, prénom et nom côte à côte à 390 px, deux yeux, pas de case de confidentialité sans politique.
 - Créer un compte : un champ vide, 13 caractères, deux saisies différentes, un mot de passe égal à l'adresse sont refusés, sans rien envoyer ; accepté, le prénom et le nom partent avec la demande, le lien de retour mène à la connexion, le message est neutre et le formulaire disparaît.
-- Politique renseignée : la case s'affiche ; non cochée, « Accepte la politique de confidentialité. ».
+- Politique renseignée : deux cases ; politique non cochée : « Accepte la politique de confidentialité. » ; santé non cochée : « Accepte l'enregistrement de tes données de santé… » ; les deux cochées : envoyé, avec la date des deux accords.
+- Confidentialité : page publique, rubriques P2 à P10, contact assemblé par le script (jamais en clair), sept prestataires, retour vers la connexion sans session ; pied « Mentions légales · Confidentialité » sur chaque page ; M9 mène à la politique.
 - Création de comptes désactivée dans Supabase : « Les inscriptions ne sont pas encore ouvertes. ».
 - Lien de confirmation : la session ouverte est refermée, l'adresse préremplie, « Adresse confirmée, tu peux te connecter. » ; lien périmé : « Lien expiré : crée de nouveau ton compte… ».
 - A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son espace » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · espace de A ».

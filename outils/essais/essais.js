@@ -3439,7 +3439,7 @@ const CONTROLES = {
     await ctx.close();
     // Inscription ouverte : lien sur la connexion ; champs, étoiles, case de confidentialité absente sans politique.
     d = neuve({ maintenant: null });
-    ({ p, ctx, erreurs } = await inscrit('connexion.html', d, { inscription: true }));
+    ({ p, ctx, erreurs } = await inscrit('connexion.html', d, { inscription: true, confidentialite: '' }));
     pb.push(egal([true, 'creer-compte.html'], [await p.locator('#inscription').isVisible(), await p.getAttribute('#inscription', 'href')], 'inscription ouverte : « Créer un compte » sur la connexion'));
     await p.click('#inscription');
     await p.waitForSelector('#form-compte:not([hidden])');
@@ -3472,13 +3472,19 @@ const CONTROLES = {
     const refus = await creer(base);
     await p.check('#accepte');
     await p.click('#form-compte button[type="submit"]');
+    const refusSante = await message(p);
+    await p.check('#accepte-sante');
+    await p.click('#form-compte button[type="submit"]');
     await p.waitForFunction(() => /confirmation vient/.test(document.getElementById('message').textContent));
-    pb.push(egal([true, 'confidentialite.html', 'Accepte la politique de confidentialité.', 1], [await p.locator('#accord').count() === 1, await p.getAttribute('#lien-confidentialite', 'href'), refus, d.auth.appels.filter(a => a.chemin === 'signup').length],
-      'créer un compte : politique renseignée, case à cocher, refus tant qu\'elle ne l\'est pas'));
+    const envoiAccords = d.auth.appels.filter(a => a.chemin === 'signup');
+    pb.push(egal([[true, true], 'confidentialite.html', 'Accepte la politique de confidentialité.', 'Accepte l\'enregistrement de tes données de santé : le plan et la nutrition en dépendent.', 1, true],
+      [await p.evaluate(() => [!document.getElementById('accord').hidden, !document.getElementById('accord-sante').hidden]), await p.getAttribute('#lien-confidentialite', 'href'), refus, refusSante, envoiAccords.length,
+        !!envoiAccords[0] && !!envoiAccords[0].corps.data.accord_confidentialite && !!envoiAccords[0].corps.data.accord_sante],
+      'créer un compte : politique et données de santé, deux cases, refus tant que l\'une manque ; dates des accords gardées avec le compte'));
     await ctx.close();
     // Inscriptions désactivées dans Supabase alors que le site les ouvre : message clair, pas de plantage.
     d = neuve({ maintenant: null, fermee: true });
-    ({ p, ctx } = await inscrit('creer-compte.html', d, { inscription: true }));
+    ({ p, ctx } = await inscrit('creer-compte.html', d, { inscription: true, confidentialite: '' }));
     await p.waitForSelector('#form-compte:not([hidden])');
     await creer(base);
     await p.waitForFunction(() => /pas encore ouvertes/.test(document.getElementById('message').textContent));
@@ -4248,7 +4254,7 @@ const CONTROLES = {
     const v = await lire(p);
     pb.push(egal(true, /mentions-legales\.html$/.test(p.url()), 'mentions, visiteur : la page reste ouverte'));
     pb.push(egal({ titre: 'Mentions légales', rubriques: ['Éditeur', 'Directeur de la publication', 'Contact', 'Hébergement du site', 'Hébergement des données', 'Propriété intellectuelle', 'Crédits', 'Données personnelles'],
-      contact: ['contact@myruntools.fr', 'mailto:contact@myruntools.fr'], enClair: false, robots: 'noindex', retour: 'connexion.html', entete: 0, pied: 'Mentions légales', lienPied: 0, large: false },
+      contact: ['contact@myruntools.fr', 'mailto:contact@myruntools.fr'], enClair: false, robots: 'noindex', retour: 'connexion.html', entete: 0, pied: 'Mentions légales · Confidentialité', lienPied: 1, large: false },
       v, 'mentions, visiteur : rubriques M2 à M9, contact assemblé par le script, noindex, retour vers la connexion, sans en-tête'));
     pb.push(egal([], erreurs, 'mentions : aucune erreur'));
     await ctx.close();
@@ -4265,16 +4271,28 @@ const CONTROLES = {
     pb.push(egal('index.html', (await lire(p)).retour, 'mentions, connecté : retour vers l\'accueil'));
     await ctx.close();
     // Pied de page : sur toutes les pages, page de connexion comprise, un seul, avec le lien vers les mentions.
-    const pages = fs.readdirSync(path.resolve(__dirname, '../..')).filter(f => f.endsWith('.html') && f !== 'mentions-legales.html');
+    const pages = fs.readdirSync(path.resolve(__dirname, '../..')).filter(f => f.endsWith('.html') && !['mentions-legales.html', 'confidentialite.html'].includes(f));
     const vus = [];
     for (const page of pages) {
-      ({ p, ctx } = await contexte(!/connexion|creer-compte|mot-de-passe/.test(page)));
+      ({ p, ctx } = await contexte(!/connexion|creer-compte|mot-de-passe|confidentialite/.test(page)));
       await p.goto(RACINE + page);
       await p.waitForSelector('.mrt-pied', { timeout: 4000 }).catch(() => {});
-      vus.push([page, await p.evaluate(() => [document.querySelectorAll('.mrt-pied').length, (document.querySelector('.mrt-pied a') || {}).href || ''])]);
+      vus.push([page, await p.evaluate(() => [document.querySelectorAll('.mrt-pied').length, [...document.querySelectorAll('.mrt-pied a')].map(a => a.href).join(' ')])]);
       await ctx.close();
     }
-    pb.push(egal(pages.map(f => [f, [1, RACINE + 'mentions-legales.html']]), vus, 'pied de page « Mentions légales » sur chaque page'));
+    pb.push(egal(pages.map(f => [f, [1, RACINE + 'mentions-legales.html ' + RACINE + 'confidentialite.html']]), vus, 'pied de page « Mentions légales · Confidentialité » sur chaque page'));
+    // Confidentialité (§ 11 ter) : page publique, rubriques P2 à P10, contact assemblé par le script, prestataires, retour ; lien depuis les mentions.
+    ({ p, ctx } = await contexte(false));
+    await p.goto(RACINE + 'confidentialite.html'); await p.waitForSelector('.mrt-pied');
+    pb.push(egal({ titre: 'Confidentialité', rubriques: ['En bref', 'Responsable', 'Données recueillies', 'Pourquoi', 'Qui y accède', 'Prestataires', 'Durée de conservation', 'Tes droits', 'Sur ton appareil'],
+      contact: 'contact@myruntools.fr', enClair: false, prestataires: 7, pied: 'Mentions légales · Confidentialité', retour: 'connexion.html', entete: 0 },
+      await p.evaluate(() => ({ titre: document.querySelector('h1').textContent, rubriques: [...document.querySelectorAll('.mrt-section-titre')].map(h => h.textContent),
+        contact: document.querySelector('.contact').textContent, enClair: document.documentElement.outerHTML.split('<script')[0].includes('contact@myruntools.fr'),
+        prestataires: document.querySelectorAll('#p7 tbody tr').length, pied: document.querySelector('.mrt-pied').textContent, retour: document.getElementById('p12').getAttribute('href'),
+        entete: document.querySelectorAll('.mrt-header').length })), 'confidentialité, visiteur : rubriques P2 à P10, contact assemblé, sept prestataires, pied, retour vers la connexion'));
+    await p.goto(RACINE + 'mentions-legales.html'); await p.waitForSelector('#m9');
+    pb.push(egal('confidentialite.html', await p.getAttribute('#m9 a', 'href'), 'mentions : M9 mène à la politique de confidentialité'));
+    await ctx.close();
     // Chaque page porte noindex.
     const sans = fs.readdirSync(path.resolve(__dirname, '../..')).filter(f => f.endsWith('.html'))
       .filter(f => !/<meta name="robots" content="noindex">/.test(fs.readFileSync(path.resolve(__dirname, '../..', f), 'utf8')));

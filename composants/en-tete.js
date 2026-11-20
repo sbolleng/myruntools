@@ -386,11 +386,14 @@
   // Lien rangé d'après l'adresse de ce script (composants/en-tete.js) : juste aussi pour une page d'un sous-dossier.
   // Pas sur les maquettes (docs/), ni sur la page des mentions elle-même.
   const piedLien = document.currentScript ? new URL('../mentions-legales.html', document.currentScript.src).href : 'mentions-legales.html';
+  const piedConf = document.currentScript ? new URL('../confidentialite.html', document.currentScript.src).href : 'confidentialite.html';
   function poserPied() {
     if (/\/docs\//.test(location.pathname) || document.querySelector('.mrt-pied')) return;
     const f = document.createElement('footer');
     f.className = 'mrt-pied';
-    f.innerHTML = /mentions-legales\.html$/.test(location.pathname) ? '<span>Mentions légales</span>' : '<a href="' + piedLien + '">Mentions légales</a>';
+    // « Mentions légales · Confidentialité » ; sur l'une de ces deux pages, son nom en texte simple.
+    const lienOu = (re, href, nom) => (re.test(location.pathname) ? '<span>' + nom + '</span>' : '<a href="' + href + '">' + nom + '</a>');
+    f.innerHTML = lienOu(/mentions-legales\.html$/, piedLien, 'Mentions légales') + ' · ' + lienOu(/confidentialite\.html$/, piedConf, 'Confidentialité');
     document.body.appendChild(f);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', poserPied); else poserPied();

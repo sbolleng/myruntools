@@ -12,7 +12,7 @@ window.MRT_SUPABASE = {
   // à passer à true en même temps que « Allow new users to sign up » dans Supabase.
   inscription: false,
   // Page de la politique de confidentialité : vide tant qu'elle n'existe pas ; renseignée, l'inscription demande de l'accepter.
-  confidentialite: '',
+  confidentialite: 'confidentialite.html',
   // Propositions de séances par l'IA, par mois et par compte (Mon plan) : 0, sans limite pendant les essais des pilotes ;
   // à remettre à 4 en même temps que le secret PLAFOND de la fonction proposer-seances (todo du sommaire).
   plafondIA: 0
