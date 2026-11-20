@@ -4345,6 +4345,18 @@ const CONTROLES = {
       pied: document.querySelector('.mrt-pied') && document.querySelector('.mrt-pied').textContent,
       lienPied: document.querySelectorAll('.mrt-pied a').length,
       large: document.documentElement.scrollWidth > window.innerWidth }));
+    // Thème : sans session, celui de la page de connexion même si un thème est retenu sur l'appareil ; connecté, celui de l'utilisateur.
+    const themes = [];
+    for (const [connecte, page] of [[false, 'mentions-legales.html'], [false, 'confidentialite.html'], [true, 'mentions-legales.html'], [true, 'confidentialite.html']]) {
+      const c = await contexte(connecte);
+      if (!connecte) await c.p.goto(RACINE + 'robots.txt');
+      await c.p.evaluate(() => localStorage.setItem('mrt-theme', 'blanc-orange'));
+      await c.p.goto(RACINE + page); await c.p.waitForTimeout(600);
+      themes.push(await c.p.evaluate(() => [...document.documentElement.classList].filter(x => x.startsWith('t-')).join(' ')));
+      await c.ctx.close();
+    }
+    const pref = 't-' + db0.preferences[0].theme;
+    pb.push(egal(['', '', pref, pref], themes, 'mentions et confidentialité : sans session, le thème de la page de connexion (même avec un thème retenu sur l\'appareil) ; connecté, le thème des préférences de l\'utilisateur'));
     // Visiteur sans connexion : la page s'ouvre (pas de renvoi), retour vers la connexion.
     let { p, ctx, erreurs } = await contexte(false);
     await p.goto(RACINE + 'mentions-legales.html');

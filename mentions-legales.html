@@ -7,8 +7,11 @@
 <meta name="color-scheme" content="dark">
 <meta name="site-version" content="__VERSION__">
 <script>
-  // Page publique : le thème de la dernière visite est posé tout de suite, s'il est connu (« auto » : selon l'appareil).
-  (function () { var t = null; try { t = localStorage.getItem('mrt-theme'); } catch (e) {}
+  // Page publique : connecté, le thème de l'utilisateur est posé tout de suite (« auto » : selon l'appareil) ; sans
+  // session (ouverte depuis la page de connexion), le thème de la page de connexion (celui par défaut).
+  (function () { var t = null, connecte = false; try { t = localStorage.getItem('mrt-theme');
+    for (var i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i))) connecte = true; } catch (e) {}
+    if (!connecte) t = null;
     if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noir-orange' : 'blanc-orange';
     if (t) document.documentElement.classList.add('t-' + t); })();
 </script>
@@ -85,7 +88,9 @@
   lien.textContent = adresse;
   // Retour : vers l'accueil si connecté, sinon vers la page de connexion.
   const retour = document.getElementById('m11');
-  mrtSession().then(s => { if (s) retour.href = 'index.html'; }).catch(() => {});
+  // Session expirée : le thème de la page de connexion.
+  const sansTheme = () => [...document.documentElement.classList].filter(c => c.startsWith('t-')).forEach(c => document.documentElement.classList.remove(c));
+  mrtSession().then(s => { if (s) retour.href = 'index.html'; else sansTheme(); }).catch(sansTheme);
 </script>
 </body>
 </html>
