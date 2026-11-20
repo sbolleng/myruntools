@@ -2647,6 +2647,13 @@ const CONTROLES = {
     await p.waitForSelector('.ps-objectif');
     pb.push(egal('Plan court : 8 semaines (12 au minimum)', (await lire(p)).court, 'plan de 8 semaines pour un trail long : « Plan court » dans la carte'));
     await ctx.close();
+    // L'Objectif a un parcours : le titre se coupe sans erreur et l'IA propose (une erreur dans le dessin empêchait la proposition).
+    let erreursP;
+    ({ p, ctx, erreurs: erreursP } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { course(d, 3).parcours = 'Le grand'; }), {}, PARIS));
+    await p.waitForSelector('.ps-objectif .ob-p');
+    await p.waitForFunction(() => document.querySelector('.ps-bandeau'));
+    pb.push(egal([[], true], [erreursP, (await p.textContent('.ps-titre')).includes('Le grand')], 'Objectif avec un parcours : aucune erreur JavaScript, le bandeau s\'affiche'));
+    await ctx.close();
     // Sans Objectif : le parcours « Construire mon plan » (§ 5.0) à la place de la page.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(d => { d.courses.forEach(c => { if (c.role === 'objectif' || c.role === 'objectif_intermediaire') c.role = 'preparatoire'; }); }), {}, PARIS));
     await p.waitForSelector('.pp[data-ecran="plan"]');

@@ -51,7 +51,8 @@
     : esc(c.course));
   function couperNoms() {
     document.querySelectorAll('.ob-p').forEach(p => {
-      const n = p.parentNode.closest('.ob-nom, .pc-titre');
+      const n = p.parentNode.closest('.ob-nom, .pc-titre, .ps-titre');
+      if (!n) return;
       n.classList.remove('is-coupe');
       if (p.offsetTop > p.previousElementSibling.offsetTop + 2) n.classList.add('is-coupe');
     });
