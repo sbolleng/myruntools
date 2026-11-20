@@ -5,6 +5,7 @@
 .cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 0.9rem; margin-bottom: 1.1rem; }
 /* Finishers, puis « Ajouter une course », poussés à droite ensemble. */
 .cs-barre .cs-finishers { margin-left: auto; text-decoration: none; }
+.cs-finishers-logo { width: 1.1rem; height: 1.1rem; border-radius: 4px; flex: none; }
 .cs-barre .cs-finishers + .ob-ajout { margin-left: 0; }
 .cs-barre { position: relative; z-index: 2; } /* la liste d'affichage passe au-dessus du panneau */
 .cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
