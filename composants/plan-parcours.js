@@ -139,13 +139,14 @@
         (sg ? '<p class="pp-note">Conseillée avant ' + esc(o.course) + ' : ' + sg.fenetre.texte + ', du ' + longue(sg.debut) + ' au ' + longue(sg.fin) + '.</p>' : '') +
         (cs.length ? '<div class="ps-groupe-l">' + cs.map(c => { const av = avisPrepa(ctx, c) || {};
           return choix('data-prepa-c', c.id, false, texte('<b>' + esc(c.course) + '</b>' + (roleDe(c) ? ' <span class="pp-role is-discret">' + ROLE[roleDe(c)] + '</span>' : '') +
-            (av.niveau ? ' <span class="pp-avis is-' + av.niveau + '">' + AVIS[av.niveau] + '</span>' : ''), sousTitre(c))); }).join('') + '</div>'
+            (av.niveau ? ' <span class="pp-avis is-' + av.niveau + '">' + AVIS[av.niveau] + '</span>' : ''), sousTitre(c) + (av.niveau ? '<span class="pp-pourquoi">' + esc(P.commentaireAvis(av)) + '</span>' : ''))); }).join('') + '</div>'
           : '<p class="pp-vide">' + (st.filtre === 'toutes' ? 'Aucune course avant ' + esc(o ? o.course : 'l\'Objectif') + '.' : 'Aucune course confirmée avant ' + esc(o ? o.course : 'l\'Objectif') + '.') + '</p>');
     }
     if (k === 'avis') {
       // Déconseillée en Préparatoire : la raison, la course, « Ajouter en Plaisir » (conseillé) ou « Ajouter quand même en Préparatoire ».
       const av = avisPrepa(ctx, x) || {}, nomS = c => '<b>' + esc(c.course) + '</b>';
       return '<p class="pp-alerte" role="alert">' + window.mrtIcone.attention + '<span>' + (av.alerte ? P.texteAlerte(av.alerte, nomS) : 'Déconseillée en Préparatoire') + '</span></p>' +
+        (av.niveau ? '<p class="pp-note">' + esc(P.commentaireAvis(av)) + '</p>' : '') +
         carte(x, 'Déconseillée en Préparatoire', false) +
         '<div class="pp-pied pp-deux"><button type="button" class="mrt-btn" data-avis="preparatoire">Ajouter quand même en Préparatoire</button><button type="button" class="mrt-btn is-principal" data-avis="plaisir">Ajouter en Plaisir</button></div>';
     }

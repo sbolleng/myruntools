@@ -133,7 +133,7 @@
     window.mrtFormat.date(sg.course.date, { semaine: true }) + '</span><button type="button" class="mrt-btn" data-reprendre>Reprendre</button></div>';
 
   // La liste : un titre de section commun par section, le compte des obligatoires à droite ; chaque ligne ouvre sa question.
-  const PREVENIR = 'Mon plan : refais la proposition pour en tenir compte.';
+  const PREVENIR = 'Mon plan : il sera mis à jour avec ces réponses.';
   const prevenirHtml = etat => (etat.planAPrevenir ? '<p class="ps-info" role="status">' + PREVENIR + '</p>' : '');
   function listeHtml(etat) {
     const m = etat.mesures || {}, e = etat.entrainement || {}, sg = duPalmares(etat);
@@ -175,7 +175,7 @@
   }
 
   // La feuille (celle d'une course, modale-course.css) : la liste et ses questions (opts.question absent), ou une seule question
-  // (la page : opts.question ; la croix ou un enregistrement la ferme). opts.surMaj(etat) après chaque enregistrement.
+  // (la page : opts.question ; la croix ou un enregistrement la ferme). opts.surMaj(etat) après chaque enregistrement ; opts.surFermer(etat) à la fermeture.
   // Clic qui traverse : la feuille fermée, un clic de plus (double clic, rebond) tomberait sur la ligne de la liste juste
   // dessous et rouvrirait une autre question. La page ignore les clics pendant un court instant après une fermeture.
   let fermeeA = 0;
@@ -193,7 +193,7 @@
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
-    const fermer = () => { fermeeA = Date.now(); voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
+    const fermer = () => { fermeeA = Date.now(); voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); if (opts.surFermer) opts.surFermer(etat); };
     const clavier = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue, .cal-voile')) fermer(); };
     document.addEventListener('keydown', clavier);
     voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });

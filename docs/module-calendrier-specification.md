@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.31 · 20 novembre 2026 · [Retour au sommaire](README.md) · Le liseré selon le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon) passe à toutes les vues : Semaine, Mois, Mois V2, export, « Cette semaine » de Mon plan ; pas de légende
+Version 0.32 · 20 novembre 2026 · [Retour au sommaire](README.md) · La feuille « Effort et sensations » porte le bloc « Réalisé » (durée, distance, D+, FC) comme la fenêtre de la séance · Le liseré selon le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon) passe à toutes les vues : Semaine, Mois, Mois V2, export, « Cette semaine » de Mon plan ; pas de légende
 
 ## 1. Rôle
 

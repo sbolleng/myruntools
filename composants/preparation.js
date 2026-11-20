@@ -331,12 +331,27 @@
     return { html: avant + (av.niveau === 'conseillee' ? ' : dans la fenêtre conseillée (' : ' (conseillé : ') + av.fenetre.min + ' à ' + av.fenetre.max + ' semaines)', sources: av.fenetre.sources };
   }
   const sourcesHtml = s => (s.length ? '<span class="pr-sources">Sources : ' + s.map(([n, u]) => '<a class="mrt-lien" href="' + u + '" target="_blank" rel="noopener">' + esc(n) + '</a>').join(', ') + '</span>' : '');
-  // L'avis en une ligne : picto et niveau, raison, sources.
+  // Le pourquoi de l'avis en une ou deux phrases, 200 caractères au plus (§ 3.5) : bâti par les règles, jamais par l'IA.
+  function commentaireAvis(av) {
+    const o = av.objectif.course, j = av.jours + ' jours', mini = 'mini-affûtage de 3 jours';
+    let t;
+    if (av.niveau === 'deconseillee') {
+      const a = av.alerte;
+      t = a.type === 'prepa-proche' ? 'Trop proche de ' + o + ' : ' + a.jours + ' jours seulement, pour ' + a.conseillees + ' semaines conseillées. Récupération de ' + j + ' : elle mordrait sur la préparation finale.'
+        : a.type === 'recup-affutage' ? 'Sa récupération (' + j + ') irait jusqu\'au ' + longue(a.fin) + ', pendant l\'affûtage de ' + o + ' : les deux dernières semaines doivent rester légères.'
+        : 'Plus longue que ' + o + ' : elle fatiguerait plus qu\'elle ne prépare. Récupération de ' + j + '.';
+    } else if (av.role === 'plaisir') t = 'Course plaisir : pas d\'affûtage, repos la veille, récupération de ' + j + ' finie avant l\'affûtage de ' + o + '.';
+    else if (!av.fenetre) t = 'Aucune fenêtre conseillée pour un Objectif de ce format, et aucun conflit : ' + mini + ', récupération de ' + j + ' finie avant l\'affûtage.';
+    else if (av.niveau === 'conseillee') t = av.semaines + ' semaines avant ' + o + ', dans la fenêtre conseillée (' + av.fenetre.min + ' à ' + av.fenetre.max + '). Elle compte comme séance de qualité de sa semaine : ' + mini + ', récupération de ' + j + '.';
+    else t = av.semaines + ' semaines avant ' + o + ' : hors de la fenêtre conseillée (' + av.fenetre.min + ' à ' + av.fenetre.max + '), mais sans conflit. ' + mini[0].toUpperCase() + mini.slice(1) + ', récupération de ' + j + ' finie avant l\'affûtage.';
+    return t.length > 200 ? t.slice(0, 199).replace(/\s+\S*$/, '') + '…' : t;
+  }
+  // L'avis : picto et niveau, raison, sources ; dessous, le pourquoi (200 caractères au plus).
   function avisHtml(av, nom) {
     if (!av || !av.niveau) return '';
     const r = raisonAvis(av, nom);
     return '<p class="pr-avis is-' + av.niveau + '"><span class="pr-avis-n">' + window.mrtIcone[PICTO_AVIS[av.niveau]] + NIVEAUX[av.niveau] + '</span>' +
-      '<span class="pr-avis-r">' + r.html + '</span>' + sourcesHtml(r.sources) + '</p>';
+      '<span class="pr-avis-r">' + r.html + '</span>' + sourcesHtml(r.sources) + '</p><p class="pr-avis-c">' + esc(commentaireAvis(av)) + '</p>';
   }
   // Préparatoire conseillée pour un Objectif : sa fenêtre (à partir d'aujourd'hui) et les courses repérées qui y tombent ;
   // null quand l'Objectif n'a pas de fenêtre, qu'elle est passée, ou qu'une Préparatoire conseillée y est déjà.
@@ -471,6 +486,7 @@
       if (g === 'douleur') f.querySelector('.cal-douleur-ou').hidden = !['legere', 'forte'].includes(choix.douleur);
     });
     if (f.duree) f.duree.addEventListener('input', majRessenti);
+    if (f.duree_reelle) f.duree_reelle.addEventListener('input', majRessenti);
     if (f.faite) f.faite.addEventListener('change', () => { f.querySelector('.cal-si-faite').hidden = !f.faite.checked; });
     f.commentaire.addEventListener('input', () => { f.querySelector('.cal-compteur').textContent = f.commentaire.value.length + '/300'; });
     return () => {
@@ -493,7 +509,7 @@
       '<p class="fc-libelle">' + esc(TYPES[s.type] || '') + ' · ' + esc(F.date(s.date, { semaine: true, annee: false })) + '</p>' +
       '<h2 class="cal-retour-nom" id="cal-retour-nom">' + esc(nom.charAt(0).toUpperCase() + nom.slice(1)) + '</h2>' +
       (detail ? '<p class="cal-retour-detail">' + esc(detail.charAt(0).toUpperCase() + detail.slice(1)) + '</p>' : '') + '<p class="cal-msg" role="alert"></p>' +
-      '<form class="cal-ecran" novalidate>' + champsRetour(s) + champCommentaire(s) +
+      '<form class="cal-ecran" novalidate>' + realiseHtml(s) + champsRetour(s) + champCommentaire(s) +
       '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form></div></div>';
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
@@ -502,11 +518,31 @@
     document.addEventListener('keydown', echap);
     voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
     voile.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermer(); });
-    const f = voile.querySelector('form'), lire = brancherRetour(f, () => reel(s).duree_min || null);
+    const f = voile.querySelector('form'), renfo = s.type === 'renfo';
+    const dureeCh = () => (nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : (s.duree_min || null));
+    const lire = brancherRetour(f, () => dureeCh() || (reel(s).duree_min || null));
+    if (renfo) f.querySelectorAll('.cal-seul-course').forEach(x => { x.hidden = true; });
+    // Allure moyenne du réalisé (ou du prévu à défaut), mise à jour à la frappe.
+    const majAllure = () => {
+      const k = nombre(f.distance_reelle.value) != null ? nombre(f.distance_reelle.value) : (s.distance_km != null ? Number(s.distance_km) : null);
+      const a = renfo ? '' : allure(dureeCh(), k);
+      f.querySelector('.cal-allure').textContent = a ? 'Allure moyenne : ' + a : '';
+    };
+    f.addEventListener('input', majAllure); majAllure();
     voile.querySelector('.mc-panneau').focus({ preventScroll: true });
     f.addEventListener('submit', async e => {
       e.preventDefault();
-      const champs = lire();
+      const m = voile.querySelector('.cal-msg');
+      // Réalisé : mêmes bornes que dans la fenêtre de la séance ; envoyé s'il y en a un (ou s'il y en avait un).
+      const dureeR = nombre(f.duree_reelle.value), distR = nombre(f.distance_reelle.value), denivR = nombre(f.denivele_reel.value), fcM = nombre(f.fc_moyenne.value), fcX = nombre(f.fc_max.value);
+      if (dureeR !== null && !(Number.isInteger(dureeR) && dureeR >= 1 && dureeR <= 1440)) return void (m.textContent = 'La durée réalisée doit être un nombre de minutes entre 1 et 1 440.');
+      if (!renfo && distR !== null && !(distR >= 0.1 && distR < 1000)) return void (m.textContent = 'La distance réalisée doit être comprise entre 0,1 et 999 km.');
+      if (!renfo && denivR !== null && !(Number.isInteger(denivR) && denivR >= 1 && denivR < 10000)) return void (m.textContent = 'Le dénivelé réalisé doit être un nombre de mètres entre 1 et 9 999.');
+      if ([fcM, fcX].some(x => x !== null && !(Number.isInteger(x) && x >= 30 && x <= 250))) return void (m.textContent = 'La fréquence cardiaque doit être comprise entre 30 et 250 battements par minute.');
+      if (fcM !== null && fcX !== null && fcM > fcX) return void (m.textContent = 'La FC moyenne ne peut pas dépasser la FC max.');
+      const brut = { duree_reelle_min: dureeR, distance_reelle_km: !renfo && distR !== null ? Math.round(distR * 10) / 10 : null, denivele_reel_m: renfo ? null : denivR, fc_moyenne: fcM, fc_max: fcX }, reelChamps = {};
+      Object.keys(brut).forEach(k => { if (brut[k] !== null || s[k] != null) reelChamps[k] = brut[k]; });
+      const champs = Object.assign(lire(), reelChamps);
       const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
       if (error) { const m = voile.querySelector('.cal-msg'); m.textContent = error.code === 'PGRST204' || /column/i.test(String(error.message || '')) ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.'; m.scrollIntoView({ block: 'nearest' }); console.warn(error); return; }
       if (ctx.actualiser) await ctx.actualiser();
@@ -613,8 +649,8 @@
 
   function ouvrirSeance(ctx, opts) {
     const s = opts.seance, dans = opts.dans, lu = lireLibelle(s ? s.libelle : '');
-    let degage = false; // « Modifier cette séance » : une séance de l'IA devient une séance à soi
-    const verrou = !!(s && s.origine === 'ia'); // le prévu d'une séance de l'IA se lit, il ne s'édite pas (« Modifier cette séance » le rend modifiable)
+    const degage = false; // une séance de l'IA garde son origine : son prévu ne se modifie pas
+    const verrou = !!(s && s.origine === 'ia'); // le prévu d'une séance de l'IA se lit, il ne s'édite pas 
     // Un seul choix de séance (le type s'en déduit : Renforcement ou course à pied) ; la date seule en tête, puis le détail,
     // puis durée, distance et dénivelé sur une ligne, l'intensité (proposée selon la séance) ; le retour (faite, effort, commentaire) dessous.
     const champDate = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>';
@@ -631,13 +667,12 @@
     const lecture = () => {
       const duree = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + String(m % 60).padStart(2, '0') : '') : m + ' min'), course = s.type !== 'renfo';
       const stat = (lib, val) => '<div><dt>' + lib + '</dt><dd>' + val + '</dd></div>';
-      return '<div class="cal-prevu-lecture"><p class="fc-libelle">Proposée par MyRunTools</p><h3 class="cal-prevu-nom">' + esc(lu.nom) + '</h3>' + (lu.detail ? '<p class="cal-prevu-detail">' + esc(lu.detail) + '</p>' : '') +
+      return '<div class="cal-prevu-lecture"><h3 class="cal-prevu-nom">' + esc(lu.nom) + '</h3>' + (lu.detail ? '<p class="cal-prevu-detail">' + esc(lu.detail) + '</p>' : '') +
         '<dl class="cal-prevu-stats">' + (s.duree_min ? stat('Durée', duree(s.duree_min)) : '') + (course && Number(s.distance_km) > 0 ? stat('Distance', esc(String(s.distance_km).replace('.', ',')) + ' km') : '') +
-        (course && Number(s.denivele_m) > 0 ? stat('D+', esc(s.denivele_m) + ' m') : '') + (s.intensite ? stat('Intensité', traits(s.intensite) + esc(INTENSITES[s.intensite] || '')) : '') + '</dl>' + etapes(s.description) +
-        '<button type="button" class="mrt-lien" data-act="modifier">Modifier cette séance</button></div>';
+        (course && Number(s.denivele_m) > 0 ? stat('D+', esc(s.denivele_m) + ' m') : '') + (s.intensite ? stat('Intensité', traits(s.intensite) + esc(INTENSITES[s.intensite] || '')) : '') + '</dl>' + etapes(s.description) + '</div>';
     };
-    // Séance de l'IA : la date ne s'offre qu'avec « Faite » ou « Modifier cette séance » (on invite à garder le planning).
-    const champs = (verrou ? lecture() + '<div class="cal-date-ia" hidden>' + champDate + '</div><div class="cal-prevu-champs" hidden>' + champNom + champsPrevu + '</div>' : '<div class="cal-champs2">' + champDate + champNom + '</div>' + champsPrevu) +
+    // Séance de l'IA : le prévu se lit sans se modifier ; seule la date se change (déplacer la séance) ; l'écart se dit dans le réalisé et le commentaire.
+    const champs = (verrou ? lecture() + '<div class="cal-date-ia">' + champDate + '</div><div class="cal-prevu-champs" hidden>' + champNom + champsPrevu + '</div>' : '<div class="cal-champs2">' + champDate + champNom + '</div>' + champsPrevu) +
       retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
@@ -671,16 +706,6 @@
     };
     f.addEventListener('input', majAllure); majAllure();
     f.description.addEventListener('input', () => { f.description.parentElement.querySelector('.cal-compteur').textContent = f.description.value.length + '/800'; });
-    // Séance de l'IA : le prévu est en lecture seule ; « Modifier cette séance » le rend modifiable et en fait une séance à soi.
-    const majDate = () => { const d = f.querySelector('.cal-date-ia'); if (d) d.hidden = !(degage || f.faite.checked); };
-    f.faite.addEventListener('change', majDate); majDate();
-    const mod = f.querySelector('[data-act="modifier"]');
-    if (mod) mod.addEventListener('click', () => {
-      degage = true;
-      mod.closest('.cal-prevu-lecture').remove();
-      f.querySelector('.cal-prevu-champs').hidden = false;
-      majDate();
-    });
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
@@ -845,5 +870,5 @@
 
   window.mrtPreparation = { traits, lisere, reel, allure, deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
-    fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
+    fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, commentaireAvis, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();
