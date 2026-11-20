@@ -3,7 +3,9 @@
    Cartes les moins larges possibles, de même hauteur, regroupées par mois et rangées côte à côte quand l'écran le permet (une colonne sur téléphone).
    Rien d'écrit en dur : les rôles de couleur du thème. */
 .cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 0.9rem; margin-bottom: 1.1rem; }
-.cs-barre .ob-ajout { margin-left: auto; }
+/* Finishers, puis « Ajouter une course », poussés à droite ensemble. */
+.cs-barre .cs-finishers { margin-left: auto; text-decoration: none; }
+.cs-barre .cs-finishers + .ob-ajout { margin-left: 0; }
 .cs-barre { position: relative; z-index: 2; } /* la liste d'affichage passe au-dessus du panneau */
 .cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
 /* Filtres : rond commun, comme le Palmarès ; Accent quand un filtre est actif ou le panneau ouvert, avec le nombre de filtres actifs. */

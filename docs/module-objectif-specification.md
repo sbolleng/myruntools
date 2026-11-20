@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.78 · 12 novembre 2026 · [Retour au sommaire](README.md) · Préparation d'une course : sa place dans la saison et son avis, lien « Voir dans Mon plan → » (C24, F39 à F42) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.79 · 20 novembre 2026 · [Retour au sommaire](README.md) · Bloc Inscription (50) dans les textes, fermé ; depuis la page Courses, les blocs vides affichés fermés · Jalon 1 (octobre 2026) · preuve de concept
 
 ## 1. Rôle
 
@@ -110,7 +110,7 @@ Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, q
 
 **Téléphone** : la modale prend tout l'écran, en montant du bas (animation courte, supprimée si l'appareil demande moins de mouvements) ; la croix la ferme. (Le bord transparent essayé d'abord a été abandonné : de la place perdue et des fermetures par erreur.)
 
-Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; numéros stables ; (5) et (1) sont dans la barre du haut, fixe). Une seule colonne, sur ordinateur comme sur téléphone, de la largeur habituelle (896 px). Deux cadres : la fiche, avec « À propos de la course » repliée dedans ; puis les textes. Tous les textes sont repliés à l'ouverture (le titre seul, précédé d'un chevron) ; un toucher sur le titre les ouvre ou les ferme.
+Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; numéros stables ; (5) et (1) sont dans la barre du haut, fixe). Une seule colonne, sur ordinateur comme sur téléphone, de la largeur habituelle (896 px). Deux cadres : la fiche, avec « À propos de la course » repliée dedans ; puis les textes. Tous les textes sont repliés à l'ouverture (le titre seul, précédé d'un chevron) ; un toucher sur le titre les ouvre ou les ferme. Un texte vide n'est pas affiché, sauf **Inscription (50)**, toujours là (« Non renseigné » en Texte discret quand rien n'est saisi) : Ouverture (date et heure, ou mois seul), Dossard, Prix, Site d'inscription ↗, en liste « libellé, valeur » comme le Résultat. **Ouverte depuis la page Courses**, la feuille montre tous ses blocs, vides compris (fermés, « Non renseigné ») ; les blocs renseignés sont ouverts (décidé le 20 nov. 2026).
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -132,6 +132,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 │ │ (18) › À PROPOS DE LA COURSE            (30) Site officiel ↗ │ │
 │ └───────────────────────────────────────────────────────────────┘ │
 │ ┌──────────────────────────────────────────────────────────────┐ │
+│ │ (50) › Inscription (ouverture, dossard, prix, site d'inscription) │ │
 │ │ (25) › Parcours  (26 carte, 47 plein écran, 32 profil, 48 lignes, 49 pente, 27 GPX, STRATÉGIE DE COURSE 16) │
 │ │ (24) › Préparation (RÔLE DANS LE PLAN 15, place dans la saison, Voir dans Mon plan →) │
 │ │ (17) › Logistique                                             │ │

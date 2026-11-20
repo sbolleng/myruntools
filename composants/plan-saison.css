@@ -119,7 +119,8 @@
 .ps-semaine { margin-top: 0; }
 .ps-semaine-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
 .ps-semaine-tete .ps-libelle { margin: 0 0 0.5rem; }
-.ps-vers-cal { display: inline-block; margin-top: 0.6rem; font-size: var(--t-second); }
+.ps-semaine-tete .ps-libelle { display: inline-flex; align-items: center; gap: 0.5rem; }
+.ps-vers-cal { letter-spacing: 0; }
 
 /* ===== Le parcours « Construire mon plan » (plan-parcours.js ; spécification Préparation, § 5.0) =====
    Les écrans de question de Mon profil (profil.css), dans la page, toute sa largeur (le cadre du plan) : la barre (‹, progression, croix). */

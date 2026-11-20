@@ -278,10 +278,24 @@
   // ----- Page d'une course (§ 3.4, option A) -----
   // Texte repliable : le titre, précédé d'un chevron ; un toucher sur le titre l'ouvre ou le ferme.
   const CHEVRON = window.mrtIcone.chevron; // chevron commun des titres repliables (mrt-chev)
-  const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule mrt-deroule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
+  // Un texte vide n'est pas affiché, sauf depuis la page Courses (ctx.toutOuvert : montrerVides) ou quand il est demandé
+  // (vide : Inscription, toujours là) : le bloc reste alors, fermé, avec « Non renseigné ».
+  let montrerVides = false;
+  const VIDE = '<p class="pc-vide">Non renseigné</p>';
+  const cellule = (titreCellule, html, ancre, vide) => (html || montrerVides || vide ? '<details class="pc-cellule mrt-deroule' + (html ? '' : ' is-vide') + '"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + (html || VIDE) + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   // Lien externe écrit en toutes lettres, suivi de la flèche dessinée.
   const lienExterne = (url, txt, classe) => '<a class="pc-ext' + (classe ? ' ' + classe : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>';
+  // Bloc Inscription d'une course à venir (fermé à l'ouverture) : ouverture des inscriptions, dossard, prix, site d'inscription.
+  function inscriptionHtml(c) {
+    const o = c.ouverture_inscriptions;
+    const ouverture = !o ? '' : c.ouverture_approx ? F.date(o.slice(0, 7)) : F.date(o) + (c.ouverture_heure ? ' à ' + F.heure(String(c.ouverture_heure).slice(0, 5)) : '');
+    const lignes = [['Ouverture', ouverture ? '<span class="ob-val">' + esc(ouverture) + '</span>' : ''],
+      ['Dossard', c.dossard ? '<span class="ob-val">n° ' + esc(c.dossard) + '</span>' : ''],
+      ['Prix', c.prix != null ? '<span class="ob-val">' + esc(nombre(c.prix)) + ' €</span>' : ''],
+      ['Site', lienSur(c.inscription) ? lienExterne(c.inscription, 'Site d\'inscription') : '']].filter(r => r[1]);
+    return cellule('Inscription', lignes.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join(''), 'inscription', true);
+  }
   // Lieu (n° 6) : OpenStreetMap, sur les coordonnées si elles sont connues, sinon une recherche du nom.
   const REPERE = '<svg class="pc-repere" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11s3.6-3.4 3.6-6.1A3.6 3.6 0 0 0 2.4 4.9C2.4 7.6 6 11 6 11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="6" cy="4.9" r="1.2" fill="currentColor"/></svg>';
   function lieuHtml(c) {
@@ -353,10 +367,11 @@
     telephone.addEventListener('change', regler);
   }
 
-  // Ouverte depuis la page Courses (ctx.toutOuvert) : tous les blocs sont ouverts à l'ouverture de la course.
+  // Ouverte depuis la page Courses (ctx.toutOuvert) : les blocs renseignés sont ouverts à l'ouverture de la course, les vides
+  // affichés fermés.
   function toutOuvrir(el, ctx, premier) {
     if (!ctx || !ctx.toutOuvert || !premier) return;
-    el.querySelectorAll('details.pc-cellule, details.is-montre').forEach(d => { d.open = true; });
+    el.querySelectorAll('details.pc-cellule:not(.is-vide), details.is-montre:not(.is-vide)').forEach(d => { d.open = true; });
   }
 
   // ctx : données de préparation (séances, phases : composants/preparation.js), ancre demandée (ctx.ancre) et
@@ -383,6 +398,7 @@
       return null;
     }
     const c = suite[i], prec = horsRoute ? null : suite[i - 1], suiv = horsRoute ? null : suite[i + 1];
+    montrerVides = !!(ctx && ctx.toutOuvert);
     const rang = etapes.findIndex(e => e.course === c || (e.candidats || []).includes(c)) + 1;
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
@@ -395,8 +411,8 @@
     const sousTitre = t => '<p class="pc-sous-titre">' + t + '</p>';
     const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Rôle dans la préparation') + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
-    // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
-    const bas = parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
+    // Textes, dans un seul cadre : Inscription (toujours là), Parcours, Préparation, Logistique.
+    const bas = inscriptionHtml(c) + parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
@@ -418,7 +434,7 @@
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>' + precisions(c)) : '') +
         ligne('Inscription', dossardHtml(c, true)) +
-        (c.description || officiel ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
+        (c.description || officiel || montrerVides ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
@@ -462,6 +478,7 @@
     const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>';
     const c = courses.find(x => x.id === id && x.etat === 'courue');
+    montrerVides = !!(ctx && ctx.toutOuvert);
     if (!c) {
       el.innerHTML = barre + '<p class="ob-vide">Course introuvable.</p>';
       brancher(el, { fermer: ctx.modale.fermer });
@@ -509,7 +526,7 @@
       '<div class="pc-colonnes pc-resultats">' +
       (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res mrt-lien" href="' + esc(resultats) + '" target="_blank" rel="noopener">Classement complet' + FLECHE + '</a>' : '',
         liste(resultat)) : '') +
-      (montre.length ? '<details class="pc-section is-montre mrt-deroule"><summary class="pc-intertitre">' + CHEVRON + '<span>Montre</span></summary><div class="pc-repli-corps">' + liste(montre) + '</div></details>' : '') +
+      (montre.length || montrerVides ? '<details class="pc-section is-montre mrt-deroule' + (montre.length ? '' : ' is-vide') + '"><summary class="pc-intertitre">' + CHEVRON + '<span>Montre</span></summary><div class="pc-repli-corps">' + (liste(montre) || VIDE) + '</div></details>' : '') +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +

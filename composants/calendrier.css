@@ -258,3 +258,5 @@
 .cal-carte[data-carte]:hover { border-color: var(--accent); }
 .cal-carte .cal-v-anoter { margin-left: 0; }
 .cal-repos { font-size: var(--t-second); color: var(--muted); }
+/* Légende des phases : l'Entretien en gris (ses jours gardent le fond ordinaire). */
+.cal-legende .cal-k.ph-entretien { background: var(--ph-entretien); }

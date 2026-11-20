@@ -170,6 +170,8 @@
       (tab ? '<button type="button" class="mrt-rond cs-cols-btn" data-cs="colonnes" aria-expanded="' + !!etat.panneauCols + '" aria-controls="cs-colonnes" aria-label="Ajouter ou retirer des colonnes" title="Ajouter ou retirer des colonnes">' + COLONNES_ICO + '</button>' : '') +
       (actifs ? '<span class="cs-compte" aria-live="polite">' + liste.length + ' sur ' + tous.length + ' course' + (tous.length > 1 ? 's' : '') + '</span>' +
         '<button type="button" class="mrt-lien cs-raz" data-cs="raz">Réinitialiser les filtres</button>' : '') +
+      // Finishers (calendrier des courses en ligne), à côté d'« Ajouter une course » : pour en trouver une.
+      '<a class="mrt-btn cs-finishers" href="https://www.finishers.com/" target="_blank" rel="noopener" title="Chercher une course sur Finishers">Finishers ' + FLECHE + '</a>' +
       (edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-cs="ajouter" title="Ajouter une course">' + PLUS + '<span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div>' + panneau + panneauCols;
 
     const redessiner = () => window.renderCourses(el, courses, edition, etat);

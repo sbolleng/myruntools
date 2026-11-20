@@ -199,10 +199,9 @@ Jeu d'essai, au 20 octobre 2026 (§ 10). Les numéros sont stables ; les éléme
 (9) ┃ ⚠ Lac : récupération jusqu'au ven. 4 déc., sur l'affûtage de Gorges          (s'il y en a)
     ┃ Ton profil a changé depuis la dernière proposition.                          (s'il y a lieu)
     ┃ MyRunTools : Entretien sur deux semaines… Refaire · 3 restantes ce mois-ci
-(19) CETTE SEMAINE                         (20) 2/4 séances · 18/32 km · 1 h 45/3 h 10
+(19) CETTE SEMAINE (22)                    (20) 2/4 séances · 18/32 km · 1 h 45/3 h 10
      19 lun. │ ● Footing · Course à pied · 45 min · 8 km     ☑ │ +
      20 mar. │ (21) Repos                                       │ +
-(22) Voir les semaines dans le Calendrier →
 ```
 
 Téléphone : même ordre ; la frise montre 4 semaines à la fois.
@@ -213,7 +212,7 @@ Téléphone : même ordre ; la frise montre 4 semaines à la fois.
 | 25 | Réglages du plan | Trois boutons de même forme, chacun son picto : **Mon profil** (la feuille Mon profil : les réponses du parcours), **Changer d'Objectif** (le parcours, § 5.0), **Personnaliser** (la fenêtre « Régler les phases » : durée et phases semaine par semaine) ; absents du site partagé |
 | 3 | Frise | Tout le plan, une case par semaine, de la semaine en cours (ou du début de la saison, s'il est passé) à la fin de la dernière récupération : le lundi (« 1er » pour le premier du mois), la course de la semaine (▲, par rôle ; une option en italique), la phase (fond de la phase) ; la semaine en cours cerclée d'Accent ; une case mène au Calendrier, sur sa semaine. La frise s'ouvre sur la semaine en cours ; « ‹ » et « › » font défiler de 4 semaines, seulement quand tout ne tient pas |
 | 9 | Bandeau de MyRunTools | Toujours ouvert, sous la frise : les alertes (§ 3.4), « Ton profil a changé depuis la dernière proposition. » (§ 5.0), la recommandation de l'IA (deux phrases au plus) et **« Refaire »** (confirmé : les séances proposées non faites sont remplacées, jamais celles saisies ni les faites ; compte pour une), les propositions restantes ce mois-ci ; un profil incomplet : « Pour que MyRunTools propose tes séances : Compléter mon profil » |
-| 19 à 22 | Cette semaine | Une ligne par jour (mise en page de la vue Semaine du Calendrier), le total fait sur prévu, « Repos » un jour vide, le lien vers le Calendrier |
+| 19 à 22 | Cette semaine | Une ligne par jour (mise en page de la vue Semaine du Calendrier), le total fait sur prévu, « Repos » un jour vide ; (22) un petit rond au picto de calendrier, à droite du titre, vers le Calendrier (infobulle « Voir les semaines dans le Calendrier ») |
 
 Retirés le 19 novembre 2026 : 2 et 12 (bouton Mon profil et état du profil : dans 25), 13 (plein écran), 17 (rond « Régler les phases » : « Personnaliser » de 25), 18 (place de la semaine), 23 (+ Objectif : « Changer d'Objectif »), les pastilles « En cours » et « Tout » de la frise (tout le plan d'office), 6 (Proposer les séances : l'IA propose d'office, § 6), 8 (proposition en attente : plus rien à accepter), 10 (historique des propositions), 15 (courses du plan) et 16 (préparatoire conseillée : à l'étape « ajouter une course préparatoire »). Avant (1.6) : 4, 5, 7, 11 et 14 déjà retirés.
 
@@ -424,7 +423,7 @@ Résultats attendus, vue d'ensemble (§ 5.1, depuis le 19 nov. 2026 ; ils rempla
 Résultats attendus, page et profil :
 
 - Titre « Trail des Gorges », dessous « dim. 7 mars 2027 · J-138 », puis « Entretien » (place de la semaine) ; ni état de la semaine ni titre « Bloc en cours » ; frise « Saison » par défaut, de la semaine du 19 octobre 2026 à celle du 1er mars 2027, nom de la phase écrit sur la barre ; « Tout » : de la semaine du 19 octobre 2026 à celle du 25 octobre 2027 (fin de la récupération du Trail des Crêtes, 59 jours) ; courses de la frise : Trail du Lac (Préparatoire), Corrida de Noël (Plaisir), Trail des Gorges (Objectif), Trail des Cimes, Ultra du Plateau et Trail de la Forêt (options), Trail des Crêtes (Objectif) ; aucune alerte : rien d'affiché. Plein écran : un rond sur ordinateur, aucun sur téléphone.
-- Cette semaine : une ligne par jour du lun. 19 au dim. 25 octobre, « Repos » sur les sept (aucune séance), un « + » par jour, plus de grille du bloc ; dessous, « Voir les semaines dans le Calendrier → ». Au 9 novembre : « Allégé » sur les lignes du 12 au 14 novembre.
+- Cette semaine : une ligne par jour du lun. 19 au dim. 25 octobre, « Repos » sur les sept (aucune séance), un « + » par jour, plus de grille du bloc ; à droite du titre, le picto du Calendrier. Au 9 novembre : « Allégé » sur les lignes du 12 au 14 novembre.
 - Proposition en attente : le bandeau ouvert juste après « Proposer les séances » (12 séances dans la liste, les 3 de la semaine dans « Cette semaine ») ; au retour sur la page, replié sur une ligne avec « Voir ».
 - Au 30 novembre : « Récupération » sur la ligne du ven. 4 décembre (pas le 5) ; place de la semaine « Semaine 3 sur 16 · Base ».
 - Calendrier, mars 2027 : affûtage le 2 mars, Récupération le 9, d'une autre couleur.
