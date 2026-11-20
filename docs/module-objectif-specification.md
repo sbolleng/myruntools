@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.80 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Saison sans rôle** : la page s'utilise sans Mon plan ; la course mise en avant (cadre Accent, losange de la difficulté) est l'Objectif principal des Préférences ; chaque carte dit son statut (Repérée, Option, Confirmée), puis, en petit, son rôle de Mon plan s'il en a un (pas sur téléphone)
+Version 0.81 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Remplir depuis la page de la course** (§ 3.9) : en ajout, un encart reçoit le texte copié d'une page de course (Finishers, site officiel…) ; une IA remplit les champs vides, rien n'est enregistré sans « Enregistrer »
 
 ## 1. Rôle
 
@@ -375,6 +375,80 @@ Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès 
 - [x] Consultation d'une course courue : oui, en touchant une ligne du Palmarès ; crayon de la ligne gardé, ouverture aussi en lecture seule (décidé le 29 oct. 2026) ; sections Résultat et Montre en liste (décidé le 30 oct. 2026 ; construit) ; objectif dans le Résultat et textes repliés sous la Montre (décidé le 6 nov. 2026 ; construit).
 - [x] Ordre des blocs : le même pour tous ; Résultat et Classements fusionnés (résultat d'abord) ; Place dans le plan, Préparation et Logistique avant Résultat, Inscription juste sous Logistique (décidé le 28 oct. 2026).
 
+### 3.9 Remplir depuis la page de la course
+
+**Principe** : pour ajouter une course, on peut partir de sa page sur un autre site (Finishers, site de l'organisateur, un calendrier de courses). Le coureur copie tout le texte de la page et le colle dans la fiche. Une IA y repère les informations utiles et remplit les champs vides. **MyRunTools n'ouvre jamais la page lui-même** : c'est le coureur qui apporte le texte (pas de récupération automatique des pages d'un autre site, voir la [todo](todo.md), n° 9). Rien n'est enregistré avant « Enregistrer », et rien n'est inventé : une information absente du texte laisse le champ vide. Décidé le 20 nov. 2026.
+
+**Où** : dans la fiche, **en ajout seulement** (F1 « Ajouter une course »), d'où qu'elle s'ouvre (Objectif, Courses, Palmarès, En un coup d'œil). Jamais pour une course existante, ni sur un site partagé.
+
+```
+Fiche « Ajouter une course » (édition)
+┌──────────────────────────────────────────────┐
+│ (F24) Annuler                (F25) Enregistrer│
+│ (F1) AJOUTER UNE COURSE                      │
+│ ┌ (F47) ─────────────────────────────────┐   │
+│ │ (F48) Tu as la page de la course       │   │
+│ │ (Finishers, site officiel…) ?          │   │
+│ │ [ (F49) Remplir depuis la page de la course ]│
+│ └────────────────────────────────────────┘   │
+│ ⌄ (F3) Course                                │
+└──────────────────────────────────────────────┘
+
+Après (F49) : l'encart s'ouvre sur place
+┌ (F47) ───────────────────────────────────────┐
+│ (F50) Copie tout le texte de la page …        │
+│ ┌ (F51) ─────────────────────────────────┐   │
+│ └────────────────────────────────────────┘   │
+│ (F52) Fermer               [ (F53) Remplir ]  │
+│ (F54) message                                 │
+└──────────────────────────────────────────────┘
+
+Plusieurs parcours dans le texte : l'encart demande lequel
+┌ (F47) ───────────────────────────────────────┐
+│ (F55) Plusieurs parcours trouvés : lequel ?   │
+│ [ (F56) Le 25 · 25 km · 900 m D+ ]            │
+│ [ (F56) Le 50 · 50 km · 2 400 m D+ ]          │
+│ (F52) Fermer                                  │
+└──────────────────────────────────────────────┘
+```
+
+Téléphone : le même ordre, l'encart sur toute la largeur.
+
+| N° | Nom | Exemple | Place | Style |
+| --- | --- | --- | --- | --- |
+| F47 | Encart | — | En tête de la fiche, au-dessus du bloc Course | Carte secondaire commune (`en-tete.css`) |
+| F48 | Phrase | « Tu as la page de la course (Finishers, site officiel…) ? » | Dans l'encart, fermé | Texte courant, couleur discrète |
+| F49 | Ouvrir | « Remplir depuis la page de la course » | Sous la phrase | Bouton à contour |
+| F50 | Consigne | « Copie tout le texte de la page (Ctrl+A puis Ctrl+C ; sur téléphone, « Tout sélectionner » puis « Copier ») et colle-le ici. » | Remplace F48 et F49 | Petite taille, discrète |
+| F51 | Zone de collage | Exemple : « Colle ici le texte de la page » | Sous la consigne | Zone de texte commune, cinq lignes |
+| F52 | Fermer | « Fermer » | En bas à gauche | Lien discret ; replie l'encart (F48, F49), zone vidée |
+| F53 | Remplir | « Remplir » | En bas à droite | Bouton à contour (« Enregistrer » reste le seul bouton plein) ; grisé tant que F51 est vide |
+| F54 | Message | « Lecture du texte… » ; puis le résultat ou l'erreur (ci-dessous) | Sous les boutons | Message commun |
+| F55 | Question | « Plusieurs parcours trouvés : lequel ? » | Remplace F50 à F53 | Texte courant |
+| F56 | Un parcours | « Le 25 · 25 km · 900 m D+ » (nom, distance, D+ s'ils sont connus) | Un bouton par parcours, l'un sous l'autre | Boutons à contour |
+
+**Fonctionnement**
+
+1. F49 ouvre l'encart (F50 à F54) ; F53 envoie le texte (30 000 caractères au plus, la suite est ignorée) à la fonction Supabase `lire-page-course`.
+2. La fonction rend les informations trouvées, **par parcours**. Un seul parcours : la fiche est remplie aussitôt. Plusieurs : F55 et un F56 par parcours ; toucher un parcours remplit la fiche avec les informations communes à l'épreuve (nom, lieu, site officiel, inscription) et celles de ce parcours (nom du parcours, date et heure, distance, D+, D−, format, prix).
+3. Champs que l'IA peut remplir, s'ils sont dans la fiche ouverte : course, parcours, date (ou mois seul si le jour n'est pas connu), heure, lieu, type, format, distance, D+, D−, description (résumé de 1 000 caractères au plus), site officiel ; ouverture des inscriptions (date, heure, ou mois seul), site d'inscription, prix. **Jamais** : statut, rôle, groupe d'options, objectif, inscrit et numéro, GPX, stratégie, logistique, résultat.
+4. **Seuls les champs vides sont remplis** : ce qui a déjà été saisi n'est jamais écrasé.
+5. Chaque valeur passe les contrôles de saisie du § 3.7 ; type et format doivent être une valeur de leur liste. Une valeur qui ne passe pas est laissée de côté (champ vide), sans message.
+6. Les champs remplis portent un liseré Accent jusqu'à leur première modification, ou jusqu'à « Enregistrer ». Leurs blocs s'ouvrent.
+7. Après le remplissage, l'encart se replie (F48, F49) et F54 reste dessous : « 9 champs remplis : vérifie-les avant d'enregistrer. ». On peut recommencer avec un autre texte (seuls les champs encore vides sont remplis).
+
+**Messages (F54)**
+
+| Cas | Message |
+| --- | --- |
+| Pendant l'attente | « Lecture du texte… » (F53 grisé) |
+| Champs remplis | « N champs remplis : vérifie-les avant d'enregistrer. » (« 1 champ rempli… ») |
+| Rien trouvé, ou tous les champs déjà remplis | « Aucune information à ajouter n'a été trouvée dans ce texte. » |
+| Compte non pilote | « Réservé aux comptes pilotes pour l'instant. » |
+| Panne (IA, réseau) | « La lecture n'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main. » |
+
+**Fonction `lire-page-course`** (Supabase, comme `proposer-seances`) : vérifie l'utilisateur connecté et la liste des pilotes (secret `PILOTES`) ; envoie le texte à l'IA (secret `ANTHROPIC_API_KEY`, modèle rapide) avec la consigne de ne rendre que ce qui figure dans le texte ; rend `{ parcours: [ … ] }`. Le texte collé n'est pas gardé. Pas de plafond tant qu'elle est réservée aux pilotes. Réponses : 401 (pas connecté), 403 `{ code: 'reserve' }`, 502 `{ code: 'ia' }`.
+
 ## 4. Données d'une course
 
 | Groupe | Champs | Sert à |
@@ -654,3 +728,16 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon ni « Importer un GPX ».
 - Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.
 
+Résultats attendus, remplir depuis la page de la course (§ 3.9) ; réponse de `lire-page-course` simulée par le banc (texte fictif « Trail des Hauts », deux parcours : Le 25, 25 km, 900 m D+, 13 juin 2027 à 9 h ; Le 50, 50 km, 2 400 m D+, 12 juin 2027 à 6 h ; lieu Mont-Clair ; site officiel et site d'inscription en `https://` ; ouverture des inscriptions le 1er déc. 2026 ; 35 € et 60 €) :
+
+- « + Ajouter une course » (Objectif) : l'encart F47 en tête, « Remplir depuis la page de la course » ; absent avec le crayon d'une course existante, avec « Marquer comme courue » et sur un site partagé.
+- F49 : la consigne et la zone de collage ; « Remplir » grisé tant que la zone est vide.
+- Texte collé, « Remplir » : « Plusieurs parcours trouvés : lequel ? », deux boutons « Le 25 · 25 km · 900 m D+ » et « Le 50 · 50 km · 2 400 m D+ ».
+- « Le 50 » : course Trail des Hauts, parcours Le 50, 12 juin 2027, 06:00, Mont-Clair, 50 km, 2 400 m D+, site officiel ; Inscription : ouverture 1er déc. 2026, site d'inscription, 60 € ; ces champs portent le liseré Accent, les blocs Course et Inscription sont ouverts ; statut, rôle, objectif, « Inscrit » inchangés ; encart replié, « 11 champs remplis : vérifie-les avant d'enregistrer. ».
+- Distance changée à la main : son liseré disparaît. « Enregistrer » : la course est rangée avec les valeurs affichées, plus aucun liseré.
+- Nom « Trail des Hautes Terres » saisi avant de coller : il reste tel quel, les autres champs vides sont remplis.
+- Réponse avec un format hors de la liste et un lien sans `https://` : ces deux champs restent vides, sans message.
+- Réponse vide : « Aucune information à ajouter n'a été trouvée dans ce texte. », aucun champ changé.
+- Réponse 403 `reserve` : « Réservé aux comptes pilotes pour l'instant. » ; réponse 502 : « La lecture n'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main. ».
+- « Fermer » : l'encart se replie, la zone est vidée, la fiche est inchangée.
+- Téléphone (390 px) : l'encart sur toute la largeur, rien ne dépasse.

@@ -59,4 +59,4 @@ Spécification → validation → modèle de données si besoin → construction
 
 - Dernier lot : Saison sans rôle (statut sur les cartes, rôle de Mon plan en petit ; course mise en avant = Objectif principal). Évolution 043 passée, fonction `proposer-seances` recollée le 20 nov.
 - En suspens : inscription ouverte le 20 nov. 2026 ; plafond de l'IA à remettre, droits RGPD, polices (`docs/todo.md`, n° 6).
-- Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).
+- Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes ») ; « Remplir depuis la page de la course » spécifié (Objectif 0.81, § 3.9), à construire.
