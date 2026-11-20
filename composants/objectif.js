@@ -142,13 +142,13 @@
 
   function carteCourse(c, avecMini) {
     return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '"' + (avecMini && c.gpx ? ' data-mini="' + esc(c.id) + '"' : '') + '>' +
-      '<span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span>' + compteurHtml(c, true) +
+      '<span class="ob-role ' + classeRole(c) + '">' + (ROLES[c.role] || STATUTS_LIB[c.statut] || '') + '</span>' + compteurHtml(c, true) +
       titre(c, 'h3') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, true) + '</article>';
   }
   function carteGroupe(e) {
     const n = e.candidats.length;
     // Rôle du groupe : celui de ses candidats.
-    const roles = [...new Set(e.candidats.map(c => ROLES[c.role]))].join(' · ');
+    const roles = [...new Set(e.candidats.map(c => ROLES[c.role]).filter(Boolean))].join(' · ');
     return '<article class="ob-carte ob-groupe"><h3 class="ob-nom">' + esc(e.groupe) + '</h3>' +
       '<span class="ob-role">' + roles + ' • ' + n + (n > 1 ? ' options' : ' option') + '</span><div class="ob-cands">' +
       e.candidats.map(c => '<div class="ob-cand">' + titre(c, 'h4') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, false) + '</div>').join('') +
@@ -398,7 +398,7 @@
     // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
     const bas = parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
-      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
+      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + (ROLES[c.role] || STATUTS_LIB[c.statut] || '') + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
       (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres options' : 'autre option') + ' : ' +

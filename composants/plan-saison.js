@@ -28,9 +28,12 @@
     objectif: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14V2.5M3.5 3h8l-1.8 2.7 1.8 2.8h-8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' };
 
   // (9) Le bandeau de MyRunTools, toujours ouvert : les alertes, « Ton profil a changé… », la recommandation et « Refaire ».
-  function bandeauHtml(ctx, lundi, alertes) {
+  function bandeauHtml(ctx, lundi, alertes, o) {
     const al = alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('');
     const lignes = [];
+    // (16) La préparatoire conseillée, tant que sa fenêtre n'est pas passée et qu'aucune Préparatoire conseillée n'y est.
+    const sg = !ctx.lectureSeule && o ? P.suggestion(ctx, o) : null;
+    if (sg) lignes.push('<p class="ps-sg-ligne"><b>Préparatoire conseillée</b> : ' + sg.fenetre.texte + ', du ' + P.longue(sg.debut) + ' au ' + P.longue(sg.fin) + '. <button type="button" class="mrt-lien" data-prepa="fenetre">Ajouter</button></p>');
     if (!ctx.lectureSeule && IA() && ctx.profil !== undefined) {
       const etat = ctx.ia || {}, manque = manquants(ctx.profil), prop = couvrante(ctx, lundi), reste = IA().restantes(ctx);
       const refaire = '<button type="button" class="mrt-lien" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>Refaire</button>';
@@ -40,6 +43,8 @@
       else {
         if (derniere && ctx.profil && ctx.profil.maj && String(ctx.profil.maj) > String(derniere.cree))
           lignes.push('<p class="ps-profil-change">Ton profil a changé depuis la dernière proposition.</p>');
+        const pm = (ctx.prefs || {}).plan_maj;
+        if (derniere && pm && String(pm) > String(derniere.cree)) lignes.push('<p class="ps-profil-change ps-saison-change">Ta saison a changé depuis la dernière proposition.</p>');
         const reco = prop ? deuxPhrases(IA().recommandationDe(prop.reponse)) : '';
         lignes.push('<p class="ps-reco">' + (reco ? '<b>MyRunTools</b> : ' + esc(reco) + ' ' : '') + refaire +
           (Number.isFinite(reste) ? '<span class="ps-ia-reste"> · ' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span>' : '') + '</p>');
@@ -72,6 +77,39 @@
   }
 
   window.renderSaison = function (root, ctx) {
+    // (28) La feuille d'une course de la saison : son rôle et son avis ; Passer en Plaisir ou en Préparatoire, Retirer du plan, Voir la course.
+    function feuilleCourse(c) {
+      const role = roleDe(c), ROLE = { objectif: 'Objectif', preparatoire: 'Préparatoire', plaisir: 'Plaisir' }, nomS = x => '<b>' + esc(x.course) + '</b>';
+      const voile = document.createElement('div');
+      voile.className = 'mc-voile';
+      voile.innerHTML = '<div class="mc-panneau mc-etroit mc-court ps-feuille-c" role="dialog" aria-modal="true" aria-labelledby="ps-fc-titre" tabindex="-1"><div class="mc-corps">' +
+        '<div class="pc-barre ps-profil-barre"><span></span><button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
+        '<p class="fc-libelle" id="ps-fc-titre">' + ROLE[role] + '</p><h3 class="ps-fc-nom">' + esc(c.course) + '</h3><p class="ps-fc-d">' + esc([window.mrtFormat.date(c.date, { semaine: true }), window.mrtCartes.distance(c)].filter(Boolean).join(' · ')) + '</p>' +
+        (role === 'objectif' ? '' : P.avisHtml(P.avisCourse(ctx, c), nomS)) +
+        '<div class="ps-fc-actions">' + (role === 'preparatoire' ? '<button type="button" class="mrt-btn" data-role="plaisir">Passer en Plaisir</button>' : role === 'plaisir' ? '<button type="button" class="mrt-btn" data-role="preparatoire">Passer en Préparatoire</button>' : '') +
+        '<button type="button" class="mrt-btn" data-role="retirer">Retirer du plan</button><a class="mrt-lien" href="' + lien(c) + '">Voir la course →</a></div><p class="ps-msg" role="alert"></p></div></div>';
+      document.body.appendChild(voile);
+      document.documentElement.classList.add('mc-ouvert');
+      const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
+      const clavier = ev => { if (ev.key === 'Escape' && !document.querySelector('.mrt-dialogue')) fermer(); };
+      document.addEventListener('keydown', clavier);
+      voile.addEventListener('mousedown', ev => { if (ev.target === voile) fermer(); });
+      voile.addEventListener('click', async ev => {
+        if (ev.target.closest('[data-fermer]')) return fermer();
+        if (ev.target.closest('a[href^="course.html"]')) return fermer(); // la page de la course s'ouvre (modale du site)
+        const b = ev.target.closest('[data-role]');
+        if (!b) return;
+        const r = b.dataset.role;
+        if (r === 'retirer' && !(await window.mrtConfirmer({ texte: 'Retirer ' + c.course + ' du plan ? La course reste dans Saison ; elle n\'agit plus sur le plan.', action: 'Retirer du plan' }))) return;
+        const { error } = await window.mrtSupabase.from('courses').update({ role: r === 'retirer' ? null : r }).eq('id', c.id);
+        if (error) { console.warn(error); voile.querySelector('.ps-msg').textContent = 'Enregistrement impossible pour l\'instant.'; return; }
+        await ctx.saisonChangee();
+        fermer();
+        await ctx.actualiser();
+      });
+      voile.querySelector('.mc-panneau').focus({ preventScroll: true });
+    }
+
     ctx.actualiser = async () => { Object.assign(ctx, await ctx.relire()); dessiner(); };
 
     function dessiner() {
@@ -91,10 +129,18 @@
         '<button type="button" class="mrt-btn" data-profil>' + PICTO.profil + 'Mon profil</button>' +
         '<button type="button" class="mrt-btn" data-parcours>' + PICTO.objectif + 'Changer d\'Objectif</button>' +
         '<button type="button" class="mrt-btn" data-preparer="' + esc(o.id) + '">' + P.REGLAGES + 'Personnaliser</button></div>';
+      // (26) Les courses de la saison : les Préparatoires et les Plaisirs avant l'Objectif, puis lui ; chacune ouvre sa feuille (28).
+      const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
+        .sort((a, b) => (a.date < b.date ? -1 : 1));
+      const puce = (c, role) => '<button type="button" class="ps-sc" data-sc="' + esc(c.id) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span> <span class="ps-sc-d">' + P.dateCourte(c.date) + ' · ' + role + '</span></button>';
+      const saison = '<div class="ps-saison"><span class="ob-lib">Courses de la saison</span><div class="ps-sc-liste">' +
+        avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') +
+        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-btn ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
       let h = '<section class="ob-carte sans-cpt ps-objectif"><span class="ob-role is-obj">Objectif</span><span class="ps-j">J-' + jours + '</span>' +
         '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><p class="ps-sous">' + esc(infos) + '</p>' +
-        (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + reglages + '</section>';
-      h += friseHtml(ctx, ps, lundi) + bandeauHtml(ctx, lundi, ps.alertes);
+        (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + saison + reglages + '</section>';
+      h += friseHtml(ctx, ps, lundi) + bandeauHtml(ctx, lundi, ps.alertes, o);
+      ctx.objectifVise = o;
       // (19) Cette semaine, (20) son total, (22) le lien vers le Calendrier.
       const total = window.mrtTotalSemaine(ctx, lundi);
       h += '<section class="ps-semaine"><div class="ps-semaine-tete"><h3 class="ps-libelle">Cette semaine</h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
@@ -165,10 +211,21 @@
       await recharger();
     };
     ctx.ia = {};
+    // La saison a changé (un rôle donné, une course ajoutée ou retirée) : la date est retenue dans les préférences (§ 5.1, n° 9).
+    ctx.saisonChangee = async () => {
+      const t = new Date().toISOString();
+      ctx.prefs = Object.assign({}, ctx.prefs, { plan_maj: t });
+      const { error } = await window.mrtSupabase.from('preferences').upsert({ utilisateur: ctx.id, plan_maj: t });
+      if (error) console.warn(error);
+    };
     root.__ctx = ctx; // pour le banc d'essai
     root.addEventListener('click', async e => {
       if (e.target.closest('[data-profil]')) return ouvrirProfil(ctx);
       if (e.target.closest('[data-parcours]') && window.mrtParcours) { ctx.parcours = window.mrtParcours.nouveau(ctx); dessiner(); return window.scrollTo(0, 0); }
+      const pr = e.target.closest('[data-prepa]');
+      if (pr && window.mrtParcours && ctx.objectifVise) { ctx.parcours = window.mrtParcours.nouveau(ctx, { prepa: true, objectif: ctx.objectifVise.id, fenetre: pr.dataset.prepa === 'fenetre' }); dessiner(); return window.scrollTo(0, 0); }
+      const sc = e.target.closest('[data-sc]');
+      if (sc) { const c = ctx.courses.find(x => x.id === sc.dataset.sc); if (c) feuilleCourse(c); return; }
       const fl = e.target.closest('[data-fl]');
       if (fl) { const d = root.querySelector('.ps-frise-defile'), c = d.querySelector('.ps-sem'); return d.scrollBy({ left: Number(fl.dataset.fl) * 4 * (c ? c.offsetWidth + 4 : 80), behavior: 'smooth' }); }
       const b = e.target.closest('[data-ia="refaire"]');

@@ -196,3 +196,26 @@
 .ps-reco, .ps-bandeau .ps-ia-aide { margin: 0; font-size: var(--t-second); color: var(--text); }
 .ps-reco .ps-ia-reste { color: var(--muted); }
 .ps-bandeau .ps-ia-msg { margin: 0; }
+/* (26) Courses de la saison, dans la carte de l'Objectif : une puce par course (nom, date et rôle), « + Préparatoire ». */
+.ps-saison { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; }
+.ps-sc-liste { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.ps-sc { display: inline-flex; align-items: baseline; gap: 0.35rem; padding: 0.3rem 0.7rem; font: inherit; font-size: var(--t-second); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 14px; cursor: pointer; }
+.ps-sc-n { font-weight: 600; }
+.ps-sc-d { color: var(--muted); }
+.ps-sc:disabled { cursor: default; }
+.ps-sc-plus { padding: 0.3rem 0.8rem; }
+.ps-sc-plus .mrt-ico { width: 0.85rem; height: 0.85rem; }
+@media (hover: hover) { .ps-sc:not(:disabled):hover { border-color: var(--accent); } }
+.ps-sg-ligne { margin: 0; font-size: var(--t-second); color: var(--text); }
+/* (28) Feuille d'une course de la saison. */
+.ps-fc-nom { margin: 0.2rem 0 0; font-size: var(--t-nom); font-weight: 600; color: var(--text); }
+.ps-fc-d { margin: 0.1rem 0 0.6rem; font-size: var(--t-second); color: var(--muted); }
+.ps-fc-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.8rem; margin-top: 0.9rem; }
+/* (27) Ajout d'une préparatoire : l'avis de chaque course, les deux boutons de l'écran de l'avis. */
+.pp-avis { margin-left: 0.4rem; font-size: var(--t-petit); font-weight: 600; }
+.pp-avis.is-conseillee { color: var(--accent); }
+.pp-avis.is-possible { color: var(--muted); }
+.pp-avis.is-deconseillee { color: var(--red); }
+.pp-role.is-discret { color: var(--muted); font-weight: 400; }
+.pp-deux { flex-wrap: wrap; gap: 0.6rem; }
+.pp .pp-alerte span { min-width: 0; }

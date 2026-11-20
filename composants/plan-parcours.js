@@ -62,16 +62,26 @@
   // ----- Le parcours : la suite des écrans -----
   const PROFIL = ['niveau', 'blessures', 'volume', 'allure', 'semaine'];
   const TITRES = { plan: 'Ton plan', course: 'Ta course', conflit: 'Deux Objectifs se chevauchent', niveau: 'Ton niveau', blessures: 'Tes blessures', volume: 'Mon volume actuel',
-    allure: 'Repère d\'allure', semaine: 'Ma semaine', debut: 'Début', recap: 'Récapitulatif' };
+    allure: 'Repère d\'allure', semaine: 'Ma semaine', debut: 'Début', recap: 'Récapitulatif', prepa: 'Ta course préparatoire', avis: 'Ta course préparatoire' };
   const e = st => st.etat.entrainement || {};
   const semaineFaite = pr => !!PR().resumeCourse(pr) && PR().joursDe(pr, 'jours_course').length >= (pr.nb_sorties || 0);
   const FAIT = { niveau: pr => !!pr.niveau, blessures: pr => !!pr.antecedents, volume: pr => !!pr.volume_tranche && !!pr.sortie_tranche, allure: pr => PR().allureFaite(pr), semaine: semaineFaite };
 
-  function nouveau(ctx) {
-    return { pile: ['plan'], filtre: 'confirmees', etat: { id: ctx.id, mesures: ctx.mesures || {}, entrainement: ctx.profil || null, courses: ctx.courses }, sauter: null };
+  // opts.prepa : l'ajout d'une course préparatoire (§ 5.1, n° 27), pour l'Objectif opts.objectif ; opts.fenetre : la fenêtre conseillée d'abord.
+  function nouveau(ctx, opts) {
+    const etat = { id: ctx.id, mesures: ctx.mesures || {}, entrainement: ctx.profil || null, courses: ctx.courses };
+    if (opts && opts.prepa) return { mode: 'prepa', pile: ['prepa'], filtre: 'confirmees', objectifId: opts.objectif, fenetre: !!opts.fenetre, etat, sauter: [] };
+    return { pile: ['plan'], filtre: 'confirmees', etat, sauter: null };
   }
+  // L'avis d'une course si elle devenait Préparatoire (§ 3.5) : Conseillée, Possible ou Déconseillée.
+  function avisPrepa(ctx, c) {
+    const x = Object.assign({}, c, { role: 'preparatoire', statut: 'confirmee' });
+    return P.avisCourse(Object.assign({}, ctx, { courses: ctx.courses.map(k => (k.id === c.id ? x : k)) }), x);
+  }
+  const AVIS = { conseillee: 'Conseillée', possible: 'Possible', deconseillee: 'Déconseillée' };
   const course = (ctx, st) => ctx.courses.find(c => c.id === st.courseId) || null;
   function suite(ctx, st) {
+    if (st.mode === 'prepa') return ['prepa', 'avis'];
     const x = course(ctx, st);
     return ['plan', 'course'].concat(x && conflits(ctx, x).length ? ['conflit'] : [], PROFIL.filter(k => !(st.sauter || []).includes(k)), ['debut', 'recap']);
   }
@@ -117,6 +127,28 @@
 
   function ecran(ctx, st) {
     const k = courant(st), pr = e(st), x = course(ctx, st), PRf = PR();
+    if (k === 'prepa') {
+      // Les courses entre aujourd'hui et l'Objectif, la fenêtre conseillée d'abord ; chacune avec son avis en Préparatoire.
+      const o = ctx.courses.find(c => c.id === st.objectifId), sg = o && P.suggestion(ctx, o);
+      const dans = c => !!sg && c.date >= sg.debut && c.date <= sg.fin;
+      const cs = !o ? [] : ctx.courses.filter(c => aVenir(c) && c.id !== o.id && c.date < o.date && roleDe(c) !== 'objectif' &&
+        (st.filtre === 'toutes' ? ['confirmee', 'option', 'a_surveiller'].includes(c.statut) : c.statut === 'confirmee'))
+        .sort((a, b) => (st.fenetre && dans(a) !== dans(b) ? (dans(a) ? -1 : 1) : a.date < b.date ? -1 : 1));
+      return '<div class="pp-tete"><div class="ps-coches">' + pastille('data-filtre', 'confirmees', st.filtre !== 'toutes', 'Confirmées') + pastille('data-filtre', 'toutes', st.filtre === 'toutes', 'Toutes') + '</div>' +
+        (ctx.edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-pp="ajouter" title="Ajouter une course"><svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div>' +
+        (sg ? '<p class="pp-note">Conseillée avant ' + esc(o.course) + ' : ' + sg.fenetre.texte + ', du ' + longue(sg.debut) + ' au ' + longue(sg.fin) + '.</p>' : '') +
+        (cs.length ? '<div class="ps-groupe-l">' + cs.map(c => { const av = avisPrepa(ctx, c) || {};
+          return choix('data-prepa-c', c.id, false, texte('<b>' + esc(c.course) + '</b>' + (roleDe(c) ? ' <span class="pp-role is-discret">' + ROLE[roleDe(c)] + '</span>' : '') +
+            (av.niveau ? ' <span class="pp-avis is-' + av.niveau + '">' + AVIS[av.niveau] + '</span>' : ''), sousTitre(c))); }).join('') + '</div>'
+          : '<p class="pp-vide">' + (st.filtre === 'toutes' ? 'Aucune course avant ' + esc(o ? o.course : 'l\'Objectif') + '.' : 'Aucune course confirmée avant ' + esc(o ? o.course : 'l\'Objectif') + '.') + '</p>');
+    }
+    if (k === 'avis') {
+      // Déconseillée en Préparatoire : la raison, la course, « Ajouter en Plaisir » (conseillé) ou « Ajouter quand même en Préparatoire ».
+      const av = avisPrepa(ctx, x) || {}, nomS = c => '<b>' + esc(c.course) + '</b>';
+      return '<p class="pp-alerte" role="alert">' + window.mrtIcone.attention + '<span>' + (av.alerte ? P.texteAlerte(av.alerte, nomS) : 'Déconseillée en Préparatoire') + '</span></p>' +
+        carte(x, 'Déconseillée en Préparatoire', false) +
+        '<div class="pp-pied pp-deux"><button type="button" class="mrt-btn" data-avis="preparatoire">Ajouter quand même en Préparatoire</button><button type="button" class="mrt-btn is-principal" data-avis="plaisir">Ajouter en Plaisir</button></div>';
+    }
     if (k === 'plan') return '<div class="ps-groupe-l">' + choix('data-plan', 'course', false, 'Une course ou un trail') +
       '<button type="button" class="ps-choix pp-bientot" disabled><span>Me maintenir en forme</span><small>Bientôt</small></button></div>';
     if (k === 'course') {
@@ -194,13 +226,13 @@
     // Une course dont la date vient d'être précisée : elle est choisie, le parcours continue.
     if (st.attenteDate) {
       const c = ctx.courses.find(x => x.id === st.attenteDate);
-      if (c && !c.date_approx) { st.attenteDate = null; st.courseId = c.id; suivant(ctx, st); }
+      if (c && !c.date_approx) { st.attenteDate = null; st.courseId = c.id; if (st.mode === 'prepa') return void choisirPrepa(ctx, st, c.id); suivant(ctx, st); }
     }
     // Une course ajoutée depuis l'écran « Ta course » : elle est choisie, le parcours continue.
     if (st.avantAjout) {
       const nv = ctx.courses.find(c => !st.avantAjout.includes(c.id) && aVenir(c));
       st.avantAjout = null;
-      if (nv) { st.courseId = nv.id; suivant(ctx, st); }
+      if (nv) { st.courseId = nv.id; if (st.mode === 'prepa') return void choisirPrepa(ctx, st, nv.id); suivant(ctx, st); }
     }
     const k = courant(st), s = suite(ctx, st), i = Math.max(0, s.indexOf(k)), pct = Math.round(100 * i / (s.length - 1));
     // Repère d'allure : un résultat du Palmarès de moins de 12 mois, prérempli (la première fois, s'il n'y a pas encore de repère).
@@ -208,12 +240,12 @@
       st.palmares = PR().duPalmares(st.etat) || null;
       if (st.palmares && !PR().allureFaite(e(st))) { st.allure = st.palmares.type; st.allureVal = PR().enTemps(st.palmares.s); }
     }
-    const fermable = ctx.courses.some(c => c.statut === 'confirmee' && aVenir(c) && roleDe(c) === 'objectif');
+    const fermable = st.mode === 'prepa' || ctx.courses.some(c => c.statut === 'confirmee' && aVenir(c) && roleDe(c) === 'objectif');
     root.innerHTML = '<div class="pp" data-ecran="' + k + '"><div class="pp-barre">' +
       (st.pile.length > 1 ? '<button type="button" class="mrt-rond" data-pp="retour" aria-label="Écran précédent" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span class="pp-place"></span>') +
       '<span class="pp-prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></span>' +
       (fermable ? '<button type="button" class="mrt-rond is-fermer" data-pp="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button>' : '<span class="pp-place"></span>') + '</div>' +
-      (k === 'conflit' ? '' : '<p class="fc-libelle">' + TITRES[k] + '</p>') + '<p class="ps-msg" role="alert">' + esc(st.msg || '') + '</p>' + ecran(ctx, st) + '</div>';
+      (k === 'conflit' || k === 'avis' ? '' : '<p class="fc-libelle">' + TITRES[k] + '</p>') + '<p class="ps-msg" role="alert">' + esc(st.msg || '') + '</p>' + ecran(ctx, st) + '</div>';
     const champ = root.querySelector('.pp-form [name]');
     if (champ && k === 'allure') champ.focus({ preventScroll: true });
   }
@@ -243,6 +275,12 @@
       if (b('[data-plan]')) { aller(st, 'course'); return redessiner(); }
       if (b('[data-filtre]')) { st.filtre = b('[data-filtre]').dataset.filtre; return redessiner(); }
       if (act === 'ajouter' && ctx.edition) { st.avantAjout = ctx.courses.map(c => c.id); return ctx.edition.ajouter({ defauts: { statut: 'confirmee' } }); }
+      if (b('[data-prepa-c]')) {
+        const id = b('[data-prepa-c]').dataset.prepaC;
+        if (ctx.edition && (ctx.courses.find(c => c.id === id) || {}).date_approx) { st.attenteDate = id; return ctx.edition.modifier(id); }
+        return choisirPrepa(ctx, st, id);
+      }
+      if (b('[data-avis]')) return mettreRole(ctx, st, x, b('[data-avis]').dataset.avis);
       if (b('[data-course]') && ctx.edition && (ctx.courses.find(c => c.id === b('[data-course]').dataset.course) || {}).date_approx) {
         // Seul le mois est connu : la fiche de la course s'ouvre pour préciser la date ; enregistrée, la course est choisie.
         st.attenteDate = b('[data-course]').dataset.course; return ctx.edition.modifier(st.attenteDate);
@@ -322,6 +360,25 @@
       if (b('[data-recap]')) { const q = b('[data-recap]').dataset.recap; st.depuisRecap = true; aller(st, q); return redessiner(); }
       if (act === 'construire') return construire(ctx, st, x);
     });
+  }
+
+  // Ajout d'une préparatoire : Conseillée ou Possible, elle devient Préparatoire aussitôt ; Déconseillée, l'écran de l'avis.
+  async function choisirPrepa(ctx, st, id) {
+    const c = ctx.courses.find(k => k.id === id);
+    if (!c) return;
+    st.courseId = id;
+    if ((avisPrepa(ctx, c) || {}).niveau === 'deconseillee') { aller(st, 'avis'); return ctx.redessiner(); }
+    return mettreRole(ctx, st, c, 'preparatoire');
+  }
+  // Le rôle dans le plan (Confirmée si elle ne l'était pas ; une option quitte son groupe) ; la saison a changé (§ 5.1, n° 9).
+  async function mettreRole(ctx, st, c, role) {
+    const champs = { role, statut: 'confirmee' };
+    if (c.statut === 'option') champs.groupe_options = null;
+    const { error } = await window.mrtSupabase.from('courses').update(champs).eq('id', c.id);
+    if (error) { console.warn(error); st.msg = 'Enregistrement impossible pour l\'instant.'; return ctx.redessiner(); }
+    if (ctx.saisonChangee) await ctx.saisonChangee();
+    ctx.parcours = null;
+    return ctx.actualiser();
   }
 
   // « Construire mon plan » : le rôle Objectif (Confirmée), le rôle des courses qui chevauchent, la durée ; puis la page et l'IA.

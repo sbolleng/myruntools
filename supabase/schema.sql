@@ -108,7 +108,7 @@ create table courses (
 
   -- Place dans le plan
   statut         statut_course not null default 'confirmee',
-  role           role_course   not null default 'preparatoire',
+  role           role_course,   -- vide : hors plan (évolution 040) ; se donne dans Mon plan
   etat           etat_course   not null default 'a_venir',
   groupe_options text,
 
@@ -338,6 +338,7 @@ create table preferences (
   utilisateur       uuid primary key default auth.uid() references profils (id) on delete cascade,
   theme             theme,
   modules           text[],
+  plan_maj          timestamptz, -- Mon plan : dernier changement de la saison (évolution 040)
   course_cap        uuid, -- vide : cap par défaut (la course la plus lointaine)
   palmares_colonnes text[],
   palmares_groupe   boolean not null default true,

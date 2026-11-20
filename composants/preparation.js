@@ -146,7 +146,8 @@
   // La saison de chaque Objectif confirmé et à venir (le plan de sa course, raccourci s'il commence avant l'Objectif précédent),
   // les repères des courses (jours allégés, repos de la veille, récupération), et les alertes.
   function planSaison(ctx) {
-    const confirmees = ctx.courses.filter(c => c.statut === 'confirmee' && c.date && (c.etat === 'a_venir' || c.etat === 'courue'));
+    // Une course sans rôle (hors plan, évolution 040) n'agit pas sur le plan.
+    const confirmees = ctx.courses.filter(c => c.statut === 'confirmee' && c.role && c.date && (c.etat === 'a_venir' || c.etat === 'courue'));
     const objectifs = confirmees.filter(c => c.etat === 'a_venir' && roleDe(c) === 'objectif').sort((a, b) => (a.date < b.date ? -1 : 1));
     const saisons = [], alertes = [];
     let avant = null;
@@ -295,7 +296,7 @@
   // Avis sur une course à venir qui n'est pas un Objectif : conseillee, possible ou deconseillee (null : hors saison),
   // par rapport à l'Objectif de sa saison (ou au suivant) ; plaisirAide : passer en Plaisir ferait tomber ses alertes.
   function avisCourse(ctx, c) {
-    if (!aJuger(c) || roleDe(c) === 'objectif') return null;
+    if (!aJuger(c) || !roleDe(c) || roleDe(c) === 'objectif') return null;
     const alertesDe = cc => planSaison(avecCourse(ctx, cc)).alertes.filter(a => a.course.id === c.id && a.type !== 'proches');
     const ps = planSaison(avecCourse(ctx, c)), sx = ps.saisons.find(x => x.jourJ >= c.date);
     if (!sx) return { niveau: null };
@@ -343,7 +344,7 @@
   function placeHtml(ctx, c) {
     const role = roleDe(c), conf = avecCourse(ctx, c), ps = planSaison(conf);
     const ROLES = { objectif: 'Objectif', preparatoire: 'Préparatoire', plaisir: 'Plaisir' };
-    const tete = (ROLES[role] || 'Sans rôle') + (c.statut === 'option' ? ' (option)' : '');
+    const tete = (ROLES[role] || 'Hors plan') + (c.statut === 'option' ? ' (option)' : '');
     if (role === 'objectif') {
       const sx = ps.saisons.find(x => x.course.id === c.id);
       if (!sx) return '<p class="cal-plan-dates">' + tete + ' · pas encore de plan : ce format n\'a pas de durée de préparation par défaut.</p>';
@@ -359,7 +360,7 @@
     return '<p class="cal-plan-dates">' + [tete, place, reperes].filter(Boolean).join(' · ') + '</p>' + avisHtml(avisCourse(ctx, c), nomSimple);
   }
   function rubrique(ctx, c) {
-    const voir = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html#courses">Voir dans Mon plan →</a>' : '';
+    const voir = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html">Voir dans Mon plan →</a>' : '';
     return '<div class="cal-prep-haut">' + placeHtml(ctx, c) + voir + '</div>' +
       (c.date_approx ? '<p class="cal-vide">Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.</p>' : '');
   }

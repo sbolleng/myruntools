@@ -92,7 +92,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Classement | `format` (le type s'en déduit) ; circuits dans `courses_circuits` (§ 4.3) | Palmarès, records, badges |
 | Date | `date`, `heure` (heure locale), `date_approx` (vrai si seul le mois est connu) | Comptes à rebours, ordre, en-tête |
 | Profil officiel | `distance`, `dplus`, `dmoins` | En-tête, Palmarès, km-effort |
-| Place dans le plan | `statut`, `role`, `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
+| Place dans le plan | `statut`, `role` (vide : hors plan, évolution 040 ; se donne dans Mon plan), `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
 | Inscription | `inscrit`, `dossard`, `prix`, `ouverture_inscriptions`, `ouverture_heure` (heure locale, facultative), `ouverture_approx` (vrai si seul le mois est connu : date rangée au 1er du mois ; évolution 017) | Cellule Inscription |
 | Durée de prépa | `prepa_semaines` : durée de la préparation en semaines, de 1 à 52 ; vide : celle du format (§ 4.4) | Calendrier |
 | Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
