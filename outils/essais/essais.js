@@ -3145,7 +3145,7 @@ const CONTROLES = {
       await q.p.waitForSelector('.cal-analyse-texte');
       const an = d6.analyses[0] || {}, fiche = (an.contexte || {}).seance || {};
       pb.push(egal([1, 'Séance bien menée.', 'Jambes lourdes', 6, 'tendinite', 'Séance bien menée.', 0, 1],
-        [d6.analyses.length, await q.p.textContent('.cal-analyse-texte'), fiche.commentaire, fiche.ressenti_sur_10, ((an.contexte || {}).blessure_en_cours || {}).description, (d6.seances.find(x => x.id === 'se-a') || {}).analyse, d6.appels.length - avant, await q.p.locator('[data-adapter]').count()],
+        [d6.analyses.length, await q.p.textContent('.cal-analyse-texte'), fiche.commentaire, fiche.ressenti_sur_10, ((an.contexte || {}).blessure_en_cours || {}).description, (d6.seances.find(x => x.id === 'se-a') || {}).analyse_ia, d6.appels.length - avant, await q.p.locator('[data-adapter]').count()],
         'séance faite, effort noté : analyse demandée (fiche, commentaire, blessure), texte affiché et rangé sur la séance, aucune réadaptation sans accord ; « Adapter mon plan » proposé'));
       // « Adapter mon plan » : la réadaptation (hors plafond) s'écrit, sur l'accord de l'utilisateur.
       await q.p.click('[data-adapter]');

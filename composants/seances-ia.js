@@ -233,7 +233,7 @@
     if (r.erreur) return { message: 'Analyse impossible pour l\'instant, réessaie plus tard.' };
     const texte = String((r.data && r.data.analyse) || '').trim();
     if (!texte) return { message: 'Analyse impossible pour l\'instant, réessaie plus tard.' };
-    const { error } = await sb().from('seances').update({ analyse: texte }).eq('id', s.id);
+    const { error } = await sb().from('seances').update({ analyse_ia: texte }).eq('id', s.id);
     if (error) console.warn('analyse non rangée (évolution 040 passée ?)', error);
     return { analyse: texte, adapter: r.data.adapter === true };
   }

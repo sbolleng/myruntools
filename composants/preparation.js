@@ -428,7 +428,7 @@
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
       '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) +
-      (x.analyse ? '<div class="cal-analyse-lue"><h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(x.analyse) + '</p></div>' : '') + '</section>';
+      (x.analyse_ia ? '<div class="cal-analyse-lue"><h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(x.analyse_ia) + '</p></div>' : '') + '</section>';
   }
   // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
   // un second toucher la retire), « i », « + Signaler une douleur », case « faite » (absente de la feuille : la séance y est faite),
@@ -496,7 +496,7 @@
 
   // ----- Analyse de la séance faite par l'IA (spécification Préparation, § 6.3) -----
   // Elle se lance quand l'effort est noté, et seulement si le retour est nouveau ou changé (modifier la date ou la durée ne la relance pas).
-  // Le texte se range sur la séance (colonne « analyse ») ; adapter le plan reste à la demande de l'utilisateur.
+  // Le texte se range sur la séance (colonne « analyse_ia ») ; adapter le plan reste à la demande de l'utilisateur.
   const analysable = (avant, apres) => !!(window.mrtSeancesIA && apres.ressenti && (['ressenti', 'sensations', 'douleur', 'douleur_ou', 'commentaire'].some(k => (avant[k] == null ? null : avant[k]) !== (apres[k] == null ? null : apres[k]))));
   // Trois traits qui s'allument l'un après l'autre (figés si l'appareil demande moins de mouvement).
   const attente = texte => '<div class="cal-attente" role="status"><span class="cal-attente-traits" aria-hidden="true"><b></b><b></b><b></b></span><p>' + esc(texte) + '</p></div>';
