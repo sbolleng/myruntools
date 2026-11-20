@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.6 · 19 novembre 2026 · [Retour au sommaire](README.md) · Un changement du niveau, de la semaine ou de la santé, un Objectif à venir : « Mon plan : refais la proposition pour en tenir compte. » en tête de la liste ([Préparation](module-preparation-specification.md), § 5.0) · Avant (0.5) : **Niveau** (quatre choix décrits) à la place de « Je cours depuis » ; **Antécédents de blessures** dans Santé ; repère d'allure sur **marathon** ; profil express réduit à quatre questions (le repère d'allure se demande dans le parcours de Mon plan, [Préparation](module-preparation-specification.md), § 5.0) · Avant : prénom et nom dans Moi
+Version 0.7 · 20 novembre 2026 · [Retour au sommaire](README.md) · Date de naissance en trois champs (Jour, Mois, Année), sans calendrier · Avant (0.6) : Un changement du niveau, de la semaine ou de la santé, un Objectif à venir : « Mon plan : refais la proposition pour en tenir compte. » en tête de la liste ([Préparation](module-preparation-specification.md), § 5.0) · Avant (0.5) : **Niveau** (quatre choix décrits) à la place de « Je cours depuis » ; **Antécédents de blessures** dans Santé ; repère d'allure sur **marathon** ; profil express réduit à quatre questions (le repère d'allure se demande dans le parcours de Mon plan, [Préparation](module-preparation-specification.md), § 5.0) · Avant : prénom et nom dans Moi
 
 ## 1. Rôle
 
@@ -54,7 +54,7 @@ Site partagé en lecture seule : « Le profil n'est pas partagé. »
 | Moi | Prénom | Texte, 60 caractères au plus, obligatoire (vide refusé : « Le prénom ne peut pas être vide. ») | En-tête (« Bienvenue, prénom ») | `profils.prenom` |
 | Moi | Nom | Texte, 60 caractères au plus, obligatoire | — | `profils.nom` |
 | Moi | Sexe | Femme, Homme | Nutrition | `profils.sexe` |
-| Moi | Date de naissance | Date (de 10 à 110 ans) | Nutrition | `profils.naissance` |
+| Moi | Date de naissance | Date (de 10 à 110 ans), en trois champs : Jour (tapé), Mois (liste), Année (tapée) ; pas de calendrier à faire défiler | Nutrition | `profils.naissance` |
 | Moi | Poids | 20 à 300 kg, au dixième | Nutrition | `profils.poids` |
 | Moi | Taille | 100 à 250 cm | Nutrition | `profils.taille` |
 | Moi | Activité hors sport | Sédentaire, Peu actif, Actif, Très actif | Nutrition | `profils.activite` |
@@ -84,7 +84,7 @@ Jeu d'essai : données fictives du banc d'essai au mardi 20 octobre 2026 ; profi
 - Repère du Palmarès : « Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026 » ; 10 km en 45:30 saisi, puis « Reprendre » : semi en 6 965 secondes, la suggestion disparaît.
 - Même taille pour la liste et chaque question sur ordinateur, glissement à l'ouverture et au retour.
 - Ma semaine : mardi, jeudi, samedi ; 3 séances, longue le samedi ; renforcement mardi et jeudi, 1 : « mar., jeu., sam. · 3 séances, longue le samedi », « mar., jeu. · 1 séance » ; 8 refusé.
-- Refus : VMA 35, FC max 250, naissance en 2031, pointure 42,3 ; acceptés : FC max 186, FC de repos 52, pointure 42,5, poids 72,4 (virgule), taille 178, activité Peu actif ; mesures écrites dans `profils`, FC max et points fragiles avec le niveau ; « Moi 7 sur 7 » ; Mon plan : « Profil complet. ».
+- Refus : VMA 35, FC max 250, naissance en 2031, 31 février 1985, pointure 42,3 ; acceptés : FC max 186, FC de repos 52, pointure 42,5, poids 72,4 (virgule), taille 178, activité Peu actif ; mesures écrites dans `profils`, FC max et points fragiles avec le niveau ; « Moi 7 sur 7 » ; Mon plan : « Profil complet. ».
 - Page Mon profil : état de toutes les obligatoires qui manquent (« date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue sortie récente, repère d'allure, ma semaine ») ; onglet et titre « Mon profil » ; Taille touchée : la question seule, sans « ‹ » ; 181 enregistré : feuille fermée, « Taille | 181 cm », « Moi 4 sur 7 » ; prénom vide refusé, « Camille » enregistré.
 - Nutrition : « Calculé pour … » ouvre la feuille Mon profil, les mesures en tête ; poids 72,5 et activité Actif : deux écritures, besoin recalculé (2 401 kcal) ; panne : « Enregistrement impossible pour l'instant. », la question reste ouverte.
 - Profil express : voir le jeu d'essai de la [spécification générale](specification-generale.md), § 13 (Premiers pas).

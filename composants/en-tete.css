@@ -232,6 +232,11 @@ select.mrt-champ option { background: var(--surface); color: var(--text); }
 input.mrt-champ[type="date"], input.mrt-champ[type="month"] { min-height: 2.35rem; text-align: left; }
 .mrt-champ::-webkit-date-and-time-value { text-align: left; }
 textarea.mrt-champ { resize: vertical; }
+/* Date en trois champs (mrtDateTrois) : Jour, Mois, Année côte à côte, chacun son petit libellé. */
+.mrt-date3 { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) 6rem; gap: 0 0.6rem; align-items: end; }
+.mrt-date3 label { display: block; min-width: 0; }
+.mrt-date3 span { display: block; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.mrt-date3 .mrt-champ { display: block; width: 100%; }
 /* Tableau serré (phases de « Paramétrer le plan ») : le même champ, en plus petit. */
 .mrt-champ.is-compact { padding: 0.25rem 0.4rem; font-size: var(--t-second); }
 select.mrt-champ.is-compact { padding-right: 1.6rem; background-position: calc(100% - 0.8rem) 55%, calc(100% - 0.5rem) 55%; }

@@ -236,15 +236,16 @@
       versQuestion();
       const n = NOMBRES[cle], src = (TABLE[cle] === 'mesures' ? m() : e())[cle];
       const entree = type === 'ligne' ? '<input class="mrt-champ" name="valeur" maxlength="60" autocomplete="' + (cle === 'prenom' ? 'given-name' : 'family-name') + '" value="' + esc(src || '') + '">'
-        : type === 'date' ? '<input class="mrt-champ" type="date" name="valeur" value="' + esc(src || '') + '">'
+        : type === 'date' ? window.mrtDateTrois.html('valeur', src || '')
         : type === 'texte' ? '<textarea class="mrt-champ" name="valeur" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(src || '') + '</textarea>'
         : '<input class="mrt-champ" name="valeur" inputmode="decimal" placeholder="' + n.ex + '" value="' + esc(virgule(src)) + '">';
-      corps.innerHTML = barre(titre, true) + '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + titre + (n && n.unite ? ' (' + n.unite + ')' : '') + '</span>' + entree + '</label>' +
+      corps.innerHTML = barre(titre, true) + '<form class="ps-valeur" novalidate>' + (type === 'date' ? '<div class="cal-champ">' + entree + '</div>' // date : Jour, Mois, Année, sans redire le titre
+          : '<label class="cal-champ"><span>' + titre + (n && n.unite ? ' (' + n.unite + ')' : '') + '</span>' + entree + '</label>') +
         '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>';
       const f = corps.querySelector('form');
       f.addEventListener('submit', ev => {
         ev.preventDefault();
-        const v = f.valeur.value;
+        const v = type === 'date' ? window.mrtDateTrois.lire(f, 'valeur') : f.valeur.value;
         if (type === 'ligne') return v.trim() ? garder('mesures', { [cle]: v.trim() }) : void (msg().textContent = 'Le ' + titre.toLowerCase() + ' ne peut pas être vide.');
         if (type === 'date') {
           const a = window.mrtBesoin ? window.mrtBesoin.age(v, iso(new Date())) : 30;

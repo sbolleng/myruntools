@@ -66,6 +66,30 @@
     nombre: n => nf.format(Number(n)).replace(/ /g, ' ')
   };
 
+  // ===== Date en trois champs (design, § 11) : Jour, Mois (liste), Année ; pour une date connue par cœur (date de naissance),
+  // sans calendrier à faire défiler. html(nom, '1979-06-08') ; lire(conteneur, nom) : '1979-06-08', '' (tout vide) ou null (incomplète
+  // ou impossible). Les trois champs s'appellent <nom>_j, <nom>_m et <nom>_a.
+  window.mrtDateTrois = {
+    html(nom, iso) {
+      const p = /^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? iso.split('-').map(Number) : [];
+      const id = 'd3-' + nom + '-' + Math.random().toString(36).slice(2, 7);
+      return '<div class="mrt-date3" role="group">' +
+        '<label class="mrt-date3-j"><span>Jour</span><input class="mrt-champ" id="' + id + '" name="' + nom + '_j" inputmode="numeric" maxlength="2" autocomplete="bday-day" placeholder="ex. 8" value="' + (p[2] || '') + '"></label>' +
+        '<label class="mrt-date3-m"><span>Mois</span><select class="mrt-champ" name="' + nom + '_m" autocomplete="bday-month"><option value="">—</option>' +
+          MONTHS.map((m, i) => '<option value="' + (i + 1) + '"' + (p[1] === i + 1 ? ' selected' : '') + '>' + m + '</option>').join('') + '</select></label>' +
+        '<label class="mrt-date3-a"><span>Année</span><input class="mrt-champ" name="' + nom + '_a" inputmode="numeric" maxlength="4" autocomplete="bday-year" placeholder="ex. 1985" value="' + (p[0] || '') + '"></label></div>';
+    },
+    lire(el, nom) {
+      const v = k => String((el.querySelector('[name="' + nom + '_' + k + '"]') || {}).value || '').trim();
+      const j = v('j'), m = v('m'), a = v('a');
+      if (!j && !m && !a) return '';
+      if (!/^\d{1,2}$/.test(j) || !m || !/^\d{4}$/.test(a)) return null;
+      const d = new Date(Number(a), Number(m) - 1, Number(j));
+      if (d.getFullYear() !== Number(a) || d.getMonth() !== Number(m) - 1 || d.getDate() !== Number(j)) return null;
+      return a + '-' + pad(Number(m)) + '-' + pad(Number(j));
+    }
+  };
+
   // ===== Icônes communes (design, § 11) : dessinées en trait fin, de la couleur du texte ; plus aucun caractère tapé (×, +, ‹ ›, ↑ ↓) =====
   const icone = d => '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   window.mrtIcone = {
