@@ -25,7 +25,12 @@
   // Liens saisis par l'utilisateur : seulement des adresses web.
   const lienSur = u => (u && /^https?:\/\//i.test(u) ? u : null);
   const pageCourse = c => 'course.html?id=' + encodeURIComponent(c.id);
-  const classeRole = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'is-obj' : '');
+  // Saison s'utilise sans Mon plan : la course mise en avant est la course principale (« Cap sur », Préférences), pas un rôle.
+  // Chaque carte dit son statut ; le rôle, une notion de Mon plan, s'ajoute en petit quand la course en a un.
+  let capId = null;
+  const majCap = courses => { const c = window.mrtCap ? window.mrtCap(courses || [], window.mrtPrefs ? window.mrtPrefs() : {}) : null; capId = c ? c.id : null; };
+  const classeRole = c => (c.id === capId ? 'is-obj' : '');
+  const libelle = c => esc(STATUTS_LIB[c.statut] || '') + (ROLES[c.role] ? '<span class="ob-role-plan"> · ' + ROLES[c.role] + '</span>' : '');
 
   // Départ : jour et heure locale de la course, lus dans le fuseau du navigateur (§ 5.1) ;
   // mois seul : le 1er du mois, à minuit.
@@ -142,7 +147,7 @@
 
   function carteCourse(c, avecMini) {
     return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '"' + (avecMini && c.gpx ? ' data-mini="' + esc(c.id) + '"' : '') + '>' +
-      '<span class="ob-role ' + classeRole(c) + '">' + (ROLES[c.role] || STATUTS_LIB[c.statut] || '') + '</span>' + compteurHtml(c, true) +
+      '<span class="ob-role ' + classeRole(c) + '">' + libelle(c) + '</span>' + compteurHtml(c, true) +
       titre(c, 'h3') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, true) + '</article>';
   }
   function carteGroupe(e) {
@@ -150,7 +155,7 @@
     // Rôle du groupe : celui de ses candidats.
     const roles = [...new Set(e.candidats.map(c => ROLES[c.role]).filter(Boolean))].join(' · ');
     return '<article class="ob-carte ob-groupe"><h3 class="ob-nom">' + esc(e.groupe) + '</h3>' +
-      '<span class="ob-role">' + roles + ' • ' + n + (n > 1 ? ' options' : ' option') + '</span><div class="ob-cands">' +
+      '<span class="ob-role">' + (roles ? roles + ' • ' : '') + n + (n > 1 ? ' options' : ' option') + '</span><div class="ob-cands">' +
       e.candidats.map(c => '<div class="ob-cand">' + titre(c, 'h4') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, false) + '</div>').join('') +
       '</div></article>';
   }
@@ -191,6 +196,7 @@
   window.mrtCartes = { dossardEtat: c => dossard(c).etat, esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
 
   window.renderFeuilleDeRoute = function (el, courses, edition) {
+    majCap(courses);
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
     document.querySelectorAll('.ob-haut').forEach(h => { if (!el.contains(h)) h.remove(); }); // bouton déplacé par le dessin précédent
@@ -245,7 +251,8 @@
     if (!places.length) { el.hidden = true; el.innerHTML = ''; return; }
     el.hidden = false;
     // Trois signes : une course de préparation (point plein), une course en option (point à contour) et un objectif, principal ou intermédiaire (losange).
-    const forme = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
+    majCap(courses);
+    const forme = c => (c.id === capId ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
         const quand = c => dateCourte(c);
     const profil = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ');
     const points = places.map(c => {
@@ -377,6 +384,7 @@
   // ctx : données de préparation (séances, phases : composants/preparation.js), ancre demandée (ctx.ancre) et
   // modale (ctx.modale = { fermer } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
+    majCap(courses);
     el.classList.add('pc');
     const premier = el.dataset.pcId !== id;
     // Même course redessinée (séance ajoutée, plan paramétré, tracé importé) : les textes ouverts le restent.
@@ -414,7 +422,7 @@
     // Textes, dans un seul cadre : Inscription (toujours là), Parcours, Préparation, Logistique.
     const bas = inscriptionHtml(c) + parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
-      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + (ROLES[c.role] || STATUTS_LIB[c.statut] || '') + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
+      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + libelle(c) + '</span>' + (rang ? ' <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span>' : '') + '</p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
       (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres options' : 'autre option') + ' : ' +
