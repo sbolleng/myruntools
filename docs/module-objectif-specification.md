@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.80 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Saison sans rôle** : la page s'utilise sans Mon plan ; la course mise en avant (cadre Accent, losange de la difficulté) est l'Objectif principal des Préférences ; chaque carte dit son statut (Repérée, Option, Confirmée), puis, en petit, son rôle de Mon plan s'il en a un (pas sur téléphone) · Bloc Inscription (50) dans les textes, fermé ; depuis la page Courses, les blocs vides affichés fermés · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.80 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Saison sans rôle** : la page s'utilise sans Mon plan ; la course mise en avant (cadre Accent, losange de la difficulté) est l'Objectif principal des Préférences ; chaque carte dit son statut (Repérée, Option, Confirmée), puis, en petit, son rôle de Mon plan s'il en a un (pas sur téléphone)
 
 ## 1. Rôle
 

@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.28 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Mois V2** à l'essai, à côté de Mois (§ 4.5 : une ligne par semaine, séances en cartes à liseré, « Repos ») ; **Exporter** le Calendrier et Mon plan en page à imprimer ou en PDF (§ 4.6) · Avant : Vue Semaine enrichie : séances en cartes (27), total de la semaine (28, aussi sous chaque semaine du Mois), place dans la saison (29) ; Mon plan n'a plus de grille et y renvoie · Un seul plan : la rubrique d'une course montre sa place dans la saison (Préparation, § 5.4), « Paramétrer le plan » s'ouvre depuis Mon plan, sur un Objectif seulement · Avant : Rond « plein écran » (ordinateur) dans la barre du haut · Fenêtre d'une séance : durée, distance et intensité facultatives ; le fond de phase suit le plan de préparation du [module Préparation](module-preparation-specification.md)
+Version 0.28 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Mois V2** à l'essai, à côté de Mois (§ 4.5 : une ligne par semaine, séances en cartes à liseré, « Repos ») ; **Exporter** le Calendrier et Mon plan en page à imprimer ou en PDF (§ 4.6)
 
 ## 1. Rôle
 

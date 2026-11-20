@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.45 · 20 novembre 2026 · [Retour au sommaire](README.md) · Date de naissance de l'encart en trois champs · Avant (1.44) : Mesures modifiées dans la feuille Mon profil ; VMA lue dans Mon profil seulement · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 1.45 · 20 novembre 2026 · [Retour au sommaire](README.md) · Date de naissance de l'encart en trois champs
 
 ## 1. Rôle
 
