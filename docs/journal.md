@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Inscription, essai réel | Parcours complet vérifié : création du compte (deux accords, anti-robot), e-mail de confirmation au gabarit, retour « Adresse confirmée », « Bienvenue, prénom », Premiers pas, Découvrir MyRunTools, profil express coché. Réglage à ne pas oublier : « Allow new users to sign up » (Sign In / Providers, User Signups). |
 | 20 nov. 2026 | Fenêtre d'une séance : description, date, commentaire | Plus de titre « Modifier la séance » en haut. Champ « Description » (déroulé en étapes, surtout pour un fractionné ; l'IA l'écrit pour ses séances ; évolution 043). Séance de l'IA : la date n'apparaît qu'avec « Faite » ou « Modifier cette séance ». Le commentaire n'apparaît qu'avec « Faite ». Fonction `proposer-seances` à recoller. |
 | 20 nov. 2026 | Thème des mentions et de la confidentialité | Sans session (ouvertes depuis la page de connexion) : le thème de la page de connexion, même si un thème est retenu sur l'appareil ; connecté : le thème des préférences de l'utilisateur. Une session expirée revient au thème de la connexion. |
 | 20 nov. 2026 | Inscription ouverte | « Créer un compte » visible sur la connexion (`inscription: true`) et création de comptes activée dans Supabase ; modèles « Confirm signup » et « Reset password » collés et vérifiés. |
