@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Anti-robot en service | CAPTCHA activé dans Supabase avec le fournisseur Turnstile ; connexion et « Mot de passe oublié ? » vérifiés. Reste avant l'ouverture de l'inscription : la page RGPD, le modèle « Confirm signup » à coller. |
 | 20 nov. 2026 | Anti-robot, erreurs | Un contrôle anti-robot refusé par Supabase se dit (« Contrôle anti-robot non validé : réessaie. ») sur la connexion, « Mot de passe oublié ? », « Créer un compte » et « Changer le mot de passe » ; il n'est plus confondu avec un mauvais mot de passe ni caché derrière la réponse neutre. |
 | 20 nov. 2026 | Outils et services | Un document unique (`outils-et-services.md`) liste les outils administrés, les services appelés par le site et les outils prévus, avec adresse, rôle et état. Le domaine est chez OVH ; Cloudflare ne sert qu'à Turnstile. |
 | 20 nov. 2026 | Anti-robot | Clé du site Turnstile publiée : le contrôle s'affiche sur la connexion, « Créer un compte » et « Changer le mot de passe » ; la vérification par Supabase s'active ensuite. Banc d'essai et captures : clé vidée au chargement (pas de réseau). |
