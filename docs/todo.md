@@ -45,7 +45,7 @@ Dans l'ordre :
    - **Plus tard** : alerte par e-mail à l'administrateur quand l'IA est en panne ; abonnement ; validation de l'application par Strava avant l'import.
 7. [ ] **Changer son adresse e-mail** : dans les Préférences (bloc Compte), avec confirmation envoyée à la nouvelle adresse.
 8. [ ] **Refonte des Préférences utilisateur** : s'inspirer d'Oleno et de Babelio ; plan de page d'abord.
-9. [ ] **Catalogue des courses** : d'abord un catalogue partagé (une course saisie par un coureur sert aux suivants, recherche, doublons à gérer) ; ensuite, demander un partenariat d'accès aux données à Le Sportif (la plus large couverture), puis à Finishers. Pas de récupération automatique de leurs pages (conditions d'utilisation, droit des bases de données).
+9. [ ] **Catalogue des courses** : d'abord un catalogue partagé (une course saisie par un coureur sert aux suivants, recherche, doublons à gérer) ; ensuite, demander un partenariat d'accès aux données à Le Sportif (la plus large couverture), puis à Finishers. Pas de récupération automatique de leurs pages (conditions d'utilisation, droit des bases de données). En attendant : **Remplir depuis la page de la course** ([Objectif 0.81](module-objectif-specification.md), § 3.9), spécifié le 20 nov. 2026, **à construire** (encart de la fiche, fonction `lire-page-course` à coller, contrôles au banc).
 10. [ ] **Mon profil** ([spécification](module-profil-specification.md), en ligne ; évolution 033 passée) : section Connexions avec l'import (Strava ou fichier).
 11. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
 12. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.

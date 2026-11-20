@@ -59,4 +59,4 @@ Spécification → validation → modèle de données si besoin → construction
 
 - Dernier lot : liseré selon le type de séance dans toutes les vues du Calendrier (et Mon plan), intensité en trois traits, sans légende. Avant : Mon plan en essai réel (plan en entier, revue toutes les 4 semaines ; test de bout en bout en cours, Préparation 3.8, § 6).
 - En suspens : inscription ouverte le 20 nov. 2026 ; plafond de l'IA à remettre, droits RGPD, polices (`docs/todo.md`, n° 6).
-- Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).
+- Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes ») ; « Remplir depuis la page de la course » spécifié (Objectif 0.81, § 3.9), à construire.
