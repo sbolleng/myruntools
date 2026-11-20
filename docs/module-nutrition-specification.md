@@ -7,7 +7,7 @@ Version 1.45 · 20 novembre 2026 · [Retour au sommaire](README.md) · Date de n
 Le module Nutrition dit au coureur **combien il doit manger aujourd'hui** (calories, protéines, glucides, lipides) et lui permet de **noter ce qu'il mange en quelques secondes**, depuis son téléphone. Il répond à deux questions : quel est mon besoin du jour, où j'en suis.
 
 - **Dans cette version** : calories et macros seulement (protéines, glucides, lipides). Retenu le 5 nov. 2026.
-- **Hors périmètre, pour plus tard** : fibres, sel, eau, café, alcool ; conseils et propositions de repas ; recherche dans des bases d'aliments et scan de code-barres (§ 8, lot 6) ; import des séances depuis une application (todo du [sommaire](README.md)).
+- **Hors périmètre, pour plus tard** : fibres, sel, eau, café, alcool ; conseils et propositions de repas ; recherche dans des bases d'aliments et scan de code-barres (§ 8, lot 6) ; import des séances depuis une application ([todo](todo.md)).
 - **Aucun calcul par intelligence artificielle** : le besoin se calcule par une formule publiée (§ 3).
 
 ## 2. Principe : un profil, une calculatrice, une saisie
@@ -39,7 +39,7 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 | Veille de course | J-1 | 55 à 65 % | 15 à 25 % |
 
 - **La phase se déduit seule** : « Entraînement » tous les jours ; de J-3 à J-2 avant la course confirmée la plus proche, « Carbo-loading » ; à J-1, « Veille de course » ; ces deux phases changent les parts du tableau ci-dessus, jamais le total de calories. La phase du plan (Base, Développement, Affûtage…) ne change rien au calcul : elle n'est pas affichée dans Nutrition.
-- **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, todo du [sommaire](README.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
+- **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, [todo](todo.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
 - **Chevauchement** : la veille de course (J-1) l'emporte sur le carbo-loading (J-3 à J-1) ; la phase affichée est « Veille de course ».
 - **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche. Le coefficient du métabolisme de base n'existe que pour « femme » et « homme » : un sexe « non précisé » compte comme manquant, et l'encart demande de choisir l'un des deux pour le calcul.
 - **Source de référence** : la calculette « DEJ » (fichier Excel, versions journée et semaine), [lien de téléchargement](https://bonus-liv.re/a/tFHEPC) (il renvoie vers le fichier `qrcode1-calculettedej.xlsx`). Concordance vérifiée le 16 nov. 2026 : même formule de Black et al., mêmes coefficients d'activité (1,2 · 1,3 · 1,45 · 1,6), même dépense MET × poids × heures, mêmes MET pour les 14 sports repris. La calculette ne donne que la dépense totale : protéines, glucides, lipides et phases viennent d'ailleurs ; elle compte la course avec ses MET fixes, Nutrition avec l'équation de l'ACSM (§ ci-dessus).
@@ -138,7 +138,7 @@ Ajout en deux touches (option A, retenue le 5 nov. 2026) : choisir un aliment, r
 
 ### 4.5 Profil : encart et fenêtre
 
-Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tard (todo du [sommaire](README.md)).
+Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tard ([todo](todo.md)).
 
 - **Encart du premier usage** : tant que le profil est incomplet, une carte « POUR CALCULER TON BESOIN » remplace la page, avec **seulement les champs qui manquent** (sexe en deux pastilles, naissance en trois champs Jour, Mois, Année, poids et taille avec leur unité, activité hors sport en liste) et « Enregistrer ».
 - **Feuille Mon profil** (depuis le 12 nov. 2026 ; avant : fenêtre « Mes mesures ») : le lien « Calculé pour … » (21) ouvre la feuille commune de [Mon profil](module-profil-specification.md), les mesures en tête (section Moi) ; chaque mesure s'enregistre seule, le besoin se recalcule aussitôt.
@@ -211,7 +211,7 @@ Tables créées par l'évolution 019 ([modèle de données](modele-donnees.md), 
 | `profils.activite` | Niveau d'activité hors sport : sédentaire, peu actif, actif, très actif (ajouté le 5 nov. 2026) |
 
 - Les besoins et cibles **ne sont pas stockés** : ils se calculent à la demande.
-- Données de santé : règles par ligne comme le reste, **jamais** visibles par le site partagé en lecture seule ; concernées par le lot RGPD du [sommaire](README.md).
+- Données de santé : règles par ligne comme le reste, **jamais** visibles par le site partagé en lecture seule ; concernées par le lot RGPD de la [todo](todo.md).
 
 ## 8. Lots de construction
 

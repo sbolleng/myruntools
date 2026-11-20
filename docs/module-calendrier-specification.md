@@ -6,7 +6,7 @@ Version 0.28 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Mois V2
 
 Le Calendrier montre la saison à trois échelles : l'année, le mois et la semaine. C'est d'abord un calendrier classique (courses, séances, ouvertures d'inscriptions) ; un bouton « Plan » ajoute la préparation des courses, à la couleur de ses phases. La préparation détaillée d'une course vit sur la **page de la course** ([Objectif](module-objectif-specification.md), § 3.4) : toucher une course dans le Calendrier y mène directement. Il répond à trois questions : quoi faire cette semaine, quand courir, où sont les semaines sans objectif et à quelle phase on en est.
 
-- **Hors périmètre** : la saisie des courses (elle reste dans [Objectif](module-objectif-specification.md)) ; l'apparence détaillée (couleurs, tailles : [design](design.md)) ; l'import des séances depuis une application et la génération d'un plan par intelligence artificielle (todo du [sommaire](README.md)).
+- **Hors périmètre** : la saisie des courses (elle reste dans [Objectif](module-objectif-specification.md)) ; l'apparence détaillée (couleurs, tailles : [design](design.md)) ; l'import des séances depuis une application et la génération d'un plan par intelligence artificielle ([todo](todo.md)).
 - **Aucun calcul par intelligence artificielle** : les phases d'un plan se déduisent de règles générales de la course à pied et du trail (§ 5).
 
 - **Nutrition** : la fenêtre de séance (ajouter, modifier, supprimer) est aussi ouverte depuis la page Nutrition, au jour de la page ; les séances de course à pied et de renforcement y font l'activité du jour ([Nutrition](module-nutrition-specification.md), § 4.6).
