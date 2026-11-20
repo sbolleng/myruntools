@@ -262,11 +262,10 @@
 .cal-legende .cal-k.ph-entretien { background: var(--ph-entretien); }
 
 /* ----- Mois V2 (spécification § 4.5) et export (§ 4.6) : une ligne par semaine, son libellé à gauche, une colonne par jour ;
-   séances en cartes à liseré : couleur de l'intensité (gris facile, orange modérée, rouge intense), Renforcement en bleu-gris ----- */
-.cal-cadre, .xp-zone { --l-renfo: #7b9cff; }
-.t-blanc-orange .cal-cadre, .xp-zone { --l-renfo: #3056a8; }
-.cal-k.l-facile { background: var(--muted); } .cal-k.l-moderee { background: var(--int-moy); } .cal-k.l-intense { background: var(--red); }
-.cal-k.l-renfo { background: var(--l-renfo); } .cal-k.l-course { background: linear-gradient(90deg, var(--route) 50%, var(--trail) 50%); }
+   séances en cartes à liseré : couleur du type de séance, neutre (Bordure) pour Endurance, Récupération et un nom libre ;
+   Sortie longue bleu, Seuil jaune, Fractionné rouge, Côtes violet, Renforcement vert ; pas de légende. L'intensité : les trois traits. ----- */
+.cal-cadre, .xp-zone { --l-sl: #6b8cff; --l-seuil: #e8c547; --l-cotes: #b48ef0; --l-renfo: #5fbf7a; }
+.t-blanc-orange .cal-cadre, .xp-zone { --l-sl: #2f5fc4; --l-seuil: #a57a00; --l-cotes: #7a4fc4; --l-renfo: #2e8a4a; }
 .cal-m2 { display: flex; flex-direction: column; gap: 1px; }
 .cal-m2-tete, .cal-m2-ligne { display: grid; grid-template-columns: 5.6rem repeat(7, minmax(0, 1fr)); gap: 1px; }
 .cal-m2-tete span { padding-bottom: 0.35rem; text-align: center; }
@@ -288,9 +287,10 @@
 /* Carte d'une séance : liseré de 4 px à gauche, mesure en gras, nom dessous, détail discret ; case « faite » en haut à droite. */
 .cal-m2-se, .cal-m2-course { position: relative; display: flex; align-items: flex-start; gap: 0.2rem; min-width: 0; padding: 0.3rem 0.3rem 0.3rem 0.5rem; text-align: center;
   background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--l, var(--border)); border-radius: 5px; --l: var(--border); }
-.cal-m2-se.l-facile { --l: var(--muted); } .cal-m2-se.l-moderee { --l: var(--int-moy); } .cal-m2-se.l-intense { --l: var(--red); } .cal-m2-se.l-renfo { --l: var(--l-renfo); }
+.cal-m2-se.l-sl { --l: var(--l-sl); } .cal-m2-se.l-seuil { --l: var(--l-seuil); } .cal-m2-se.l-frac { --l: var(--red); } .cal-m2-se.l-cotes { --l: var(--l-cotes); } .cal-m2-se.l-renfo { --l: var(--l-renfo); }
+.cal-m2-mes .cal-int { height: 0.75rem; margin-right: 0.3rem; } .cal-m2-int-tel { display: none; }
 .cal-m2-txt { display: flex; flex: 1; flex-direction: column; align-items: center; min-width: 0; padding: 0; font: inherit; color: var(--text); background: none; border: 0; cursor: pointer; }
-.cal-m2-mes { font-size: var(--t-second); font-weight: 600; line-height: 1.3; }
+.cal-m2-mes { max-width: 100%; overflow: hidden; font-size: var(--t-second); font-weight: 600; line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; }
 .cal-m2-nom { max-width: 100%; overflow: hidden; font-size: var(--t-petit); line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; }
 b.cal-m2-nom { font-size: var(--t-second); }
 .cal-m2-det { max-width: 100%; overflow: hidden; font-size: var(--t-micro); line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); }
@@ -328,6 +328,7 @@ b.cal-m2-nom { font-size: var(--t-second); }
   .cal-m2-num { align-self: center; font-size: var(--t-libelle); }
   .cal-m2-case .cal-v-plus, .cal-m2-se input, .cal-m2-det, .cal-m2-case .cal-v-rdv, .cal-m2 .n-long, .cal-m2-se .cal-m2-mes:not(.cal-m2-nom), .cal-m2-course .cal-m2-mes { display: none; }
   .cal-m2 .n-court { display: inline; }
+  .cal-m2-int-tel { display: block; } .cal-m2-nom .cal-int { display: flex; width: max-content; height: 0.6rem; margin: 0.1rem auto 0.15rem; }
   .cal-m2-se, .cal-m2-course { padding: 0.15rem 0.1rem 0.15rem 0.2rem; border-left-width: 3px; }
   .cal-m2-nom, b.cal-m2-nom { font-size: var(--t-micro); }
   .cal-m2-case .cal-repos { font-size: var(--t-micro); }

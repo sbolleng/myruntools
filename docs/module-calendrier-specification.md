@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.29 · 20 novembre 2026 · [Retour au sommaire](README.md) · Une séance se touche sur toute sa carte, dans toutes les semaines (le glisser reste limité à la semaine en cours) · **Mois V2** à l'essai, à côté de Mois (§ 4.5 : une ligne par semaine, séances en cartes à liseré, « Repos ») ; **Exporter** le Calendrier et Mon plan en page à imprimer ou en PDF (§ 4.6)
+Version 0.30 · 20 novembre 2026 · [Retour au sommaire](README.md) · Mois V2 et export : le liseré d'une carte suit le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), l'intensité passe aux trois traits du Mois, plus de légende des liserés (§ 4.5, 4.6)
 
 ## 1. Rôle
 
@@ -199,40 +199,40 @@ Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Retour sur la s�
 
 ### 4.5 Vue Mois V2 (à l'essai) : plan de page
 
-Version à comparer avec le Mois (§ 4.1), dans l'esprit d'un plan d'entraînement imprimé : une ligne par semaine, son libellé dans une colonne à gauche, une colonne par jour ; chaque séance en carte, un liseré à gauche de la couleur de son intensité. Les deux vues restent au menu jusqu'au choix.
+Version à comparer avec le Mois (§ 4.1), dans l'esprit d'un plan d'entraînement imprimé : une ligne par semaine, son libellé dans une colonne à gauche, une colonne par jour ; chaque séance en carte, un liseré à gauche de la couleur de son type de séance, l'intensité en trois traits comme dans le Mois. Les deux vues restent au menu jusqu'au choix.
 
 ```
 (25) [Mois V2 ⌄]                                 (34) [⤓] (26) [Phases] (22) [Aujourd'hui]
 (9) ‹ sept.                    (18) Octobre 2026                        nov. ›
-(33) SÉANCES ▮ Facile ▮ Modérée ▮ Intense ▮ Renforcement ▮ Course      (2) PHASES … (Phases)
+(2) PHASES … (Phases ; pas de légende des liserés)
 (3)             LUN.       MAR.       MER.       JEU.       VEN.       SAM.       DIM.
 (30) SEM. 3   ┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐
      30 nov.  │ 30 (19) │ 1       │ 2       │ 3       │ 4       │ 5       │ 6       │
-     Base     │┃ 1 h  ☐ │ Repos   │┃ 7 km ☐ │ Repos   │ Repos   │┃12,5 km☐│▌ 24 km  │ (17)
+     Base     │┃▂▄▆1 h ☐│ Repos   │┃ 7 km ☐ │ Repos   │ Repos   │┃12,5 km☐│▌ 24 km  │ (17)
      (28) 1/4 │┃Fraction│  (32)   │┃Enduranc│         │         │┃Sortie l│▌Trail du│
      séances  │┃8×400 m │         │         │         │         │         │  Lac    │
               │      (+)│      (+)│      (+)│      (+)│      (+)│      (+)│      (+)│ (10)
               └─────────┴─────────┴─────────┴─────────┴─────────┴─────────┴─────────┘
-                (31) carte d'une séance : liseré, mesure en gras, nom, détail, case « faite »
+                (31) carte d'une séance : liseré (type), traits (intensité), mesure en gras, nom, détail, case « faite »
 ```
 
-Téléphone : le libellé de la semaine (30) passe au-dessus de ses sept jours, sur une ligne (« 19 oct. · Entretien », le total à droite) ; dans les cases, le numéro et le nom abrégé de chaque séance avec son liseré, ni mesure, ni case, ni « + » ; toucher la case ouvre sa semaine.
+Téléphone : le libellé de la semaine (30) passe au-dessus de ses sept jours, sur une ligne (« 19 oct. · Entretien », le total à droite) ; dans les cases, le numéro et le nom abrégé de chaque séance avec son liseré, les traits de l'intensité au-dessus du nom, ni mesure, ni case, ni « + » ; toucher la case ouvre sa semaine.
 
 | N° | Élément | Exemple | Place |
 | --- | --- | --- | --- |
 | 25, 26, 22, 9, 18 | Comme le Mois (§ 4.1) ; « Aujourd'hui » : le mois en cours | « Mois V2 ⌄ » | Barre du haut, période |
 | 34 | « Exporter » : rond à contour, picto de téléchargement (§ 4.6) | ⤓ | Barre du haut, à droite, avant « Phases » |
-| 33 | Légende des liserés | « SÉANCES Facile Modérée Intense Renforcement Course » | Sous la période ; la légende des phases à la suite (Phases) |
+| 33 | (retiré) Légende des liserés : aucune, à l'écran comme à l'export | | |
 | 30 | Libellé de la semaine : place dans la saison (« Sem. 3 », en libellé, seulement dans une saison), date du lundi, nom de la phase dans sa couleur, total (28) | « SEM. 3 · 30 nov. · Base · 1/4 séances » | Colonne de gauche |
 | 19 | Numéro du jour | « 20 » ; aujourd'hui dans un rond Accent | Coin haut gauche de la case |
-| 31 | Carte d'une séance : liseré de 4 px à gauche (gris Facile, orange Modérée, rouge Intense, bleu Renforcement, Bordure sans intensité) ; la mesure en gras (distance, sinon durée, sinon le nom), le nom dessous, le détail du libellé en discret ; case « faite » ; faite : barrée | « 7 km / Endurance » | Case du jour, une carte par séance |
+| 31 | Carte d'une séance : liseré de 4 px à gauche, couleur du type de séance (nom de la liste) : Sortie longue bleu, Seuil jaune, Fractionné rouge, Côtes violet, Renforcement vert ; Endurance, Récupération et un nom libre en Bordure (neutre) ; les trois traits de l'intensité (comme le Mois, rien sans intensité) devant la mesure en gras (distance, sinon durée, sinon le nom), le nom dessous, le détail du libellé en discret ; case « faite » ; faite : barrée | « 7 km / Endurance » | Case du jour, une carte par séance |
 | 17 | Course : carte au liseré et au contour de sa famille (fond teinté si confirmée), sa distance en gras, son nom | « 24 km / Trail du Lac » | Case du jour |
 | 32 | « Repos » en discret : un jour sans rien d'une semaine de la saison ou qui a des séances | « Repos » | Case du jour, au milieu |
 | 21 | Jours des mois voisins : contenu atténué (proposition B, retenue le 20 nov. 2026) | 28, 29, 30 sept. | Ligne de la semaine |
 | 10, 8 | « + », rendez-vous clé : comme le Mois | | Case du jour |
 | 5 | Fond de phase (Phases) : toute la ligne, liseré de la phase sur le libellé | | Ligne de la semaine |
 
-Règles : du lundi de la semaine du 1er au dimanche de la semaine du dernier jour ; adresse `#mois2=AAAA-MM` ; toucher : comme le Mois (§ 4.2 ; ailleurs dans une case : la vue Semaine de ce jour) ; glisser une séance (ordinateur) : comme le Mois. Les propositions de l'IA en attente n'y figurent pas. Plus tard : la couleur du liseré selon la nature de la séance (endurance, seuil, côtes, sortie longue), qui demande une évolution de la base (todo).
+Règles : du lundi de la semaine du 1er au dimanche de la semaine du dernier jour ; adresse `#mois2=AAAA-MM` ; toucher : comme le Mois (§ 4.2 ; ailleurs dans une case : la vue Semaine de ce jour) ; glisser une séance (ordinateur) : comme le Mois. Les propositions de l'IA en attente n'y figurent pas.
 
 ### 4.6 Exporter (Calendrier, Mon plan)
 
@@ -240,7 +240,7 @@ Le plan sur papier ou en PDF, à l'image d'un plan d'entraînement imprimé, dan
 
 - **Où** : le rond « Exporter » (34) de la barre du Calendrier, dans toutes les vues ; le bouton « Exporter » de Mon plan, avec les réglages du plan (Préparation, § 5.1, n° 29 ; aussi sur le site partagé).
 - **Quoi** : Calendrier, la période affichée (Semaine : les semaines de la liste ; Mois et Mois V2 : les semaines du mois ; Année : sa période) ; Mon plan, de la semaine en cours à celle de l'Objectif.
-- **Page** : A4 à l'horizontale, fond blanc (couleurs du thème Blanc et orange, quel que soit le thème) ; en haut, le titre (« Calendrier · Octobre 2026 », « Mon plan · Trail des Gorges ») et la légende des liserés, un filet Accent dessous ; la grille de Mois V2 (§ 4.5) sans « + » ni rendez-vous, la case « faite » dessinée (pleine si faite), le fond de phase (Calendrier : si Phases est enfoncé ; Mon plan : toujours) ; six semaines par page, l'en-tête répété ; en pied, « MyRunTools » et « Exporté le 20 oct. 2026 · page 1 sur 4 ».
+- **Page** : A4 à l'horizontale, fond blanc (couleurs du thème Blanc et orange, quel que soit le thème) ; en haut, le titre (« Calendrier · Octobre 2026 », « Mon plan · Trail des Gorges »), sans légende, un filet Accent dessous ; la grille de Mois V2 (§ 4.5) sans « + » ni rendez-vous, la case « faite » dessinée (pleine si faite), le fond de phase (Calendrier : si Phases est enfoncé ; Mon plan : toujours) ; six semaines par page, l'en-tête répété ; en pied, « MyRunTools » et « Exporté le 20 oct. 2026 · page 1 sur 4 ».
 - **Comment** : la fenêtre d'impression du navigateur s'ouvre ; « Enregistrer en PDF » donne le fichier. Seule la page exportée s'imprime ; rien ne change à l'écran.
 
 ## 5. Préparation d'une course
@@ -439,7 +439,7 @@ Résultats attendus, rubrique Préparation de la page d'une course :
 Résultats attendus, vue Mois V2 et export (§ 4.5, 4.6), séances d'essai du Mois avec durée et distance (Fractionné 1 h, Endurance 7 km, Sortie longue 12,5 km Modérée) :
 
 - `calendrier.html#mois2` : menu « Mois V2 » (choix : Semaine, Mois, Mois V2, 3 mois, 6 mois, Année) ; « Octobre 2026 » ; cinq lignes (lundis 28 sept. à 26 oct.) ; 28, 29, 30 sept. et 1er nov. atténués ; le numéro dans chaque case.
-- Cartes : 19, Renforcement (liseré bleu, « Renforcement » en gras, « Gainage 30 min », barrée) ; 20, « 1 h / Fractionné / 8×400 m » (rouge) ; 22, « 7 km / Endurance » (gris) ; 24, « 12,5 km / Sortie longue » (orange). « Repos » les 21, 23 et 25 ; libellé de la semaine du 19 : « 19 oct. », Entretien, « 1/4 séances · 0/19,5 km ». Ordinateur : 4 cases « faite », 35 « + » ; téléphone : ni l'un ni l'autre, noms abrégés ; aucun débordement.
+- Cartes : 19, Renforcement (liseré vert, sans traits, « Renforcement » en gras, « Gainage 30 min », barrée) ; 20, « 1 h / Fractionné / 8×400 m » (rouge, trois traits) ; 22, « 7 km / Endurance » (neutre, un trait) ; 24, « 12,5 km / Sortie longue » (bleu, deux traits). Pas de légende des liserés. « Repos » les 21, 23 et 25 ; libellé de la semaine du 19 : « 19 oct. », Entretien, « 1/4 séances · 0/19,5 km ». Ordinateur : 4 cases « faite », 35 « + » ; téléphone : ni l'un ni l'autre, noms abrégés ; aucun débordement.
 - `#mois2=2026-12`, Phases enfoncé : chaque libellé commence par « Sem. n », la semaine du 7 déc. en Deload (fond de phase) ; mois précédent : le Trail du Lac en carte le 15 nov. (« 24 km », trail) ; toucher le 18 nov. : `#semaines=2026-11-16`.
 - Exporter (Calendrier, Mois V2 d'octobre) : une page « Calendrier · Octobre 2026 », fond blanc, cinq semaines, ni case ni « + », la case du 19 dessinée pleine ; pied « MyRunTools » et « Exporté le 20 oct. 2026 » ; invisible à l'écran, seule à l'impression.
 - Exporter (Mon plan) : « Mon plan · Trail des Gorges », 20 semaines du 19 oct. 2026 au 1er mars 2027, quatre pages, fond de phase.

@@ -12,7 +12,6 @@
   .xp-page:last-child { break-after: auto; }
   .xp-tete { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; padding-bottom: 0.45rem; border-bottom: 2px solid var(--accent); }
   .xp-titre { font-size: 1.15rem; font-weight: 600; }
-  .xp-tete .cal-legende { margin: 0; font-size: var(--t-petit); }
   .xp-zone .cal-m2-tete { background: var(--text); border-radius: 4px 4px 0 0; }
   .xp-zone .cal-m2-tete span { padding: 0.3rem 0; color: #fff; }
   .xp-zone .cal-m2-ligne { break-inside: avoid; border-radius: 0; }

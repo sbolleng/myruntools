@@ -28,7 +28,6 @@ Dans l'ordre :
 4. [ ] **Calendrier** : [spécification 0.25](module-calendrier-specification.md) ; trois vues (Année, Mois, Semaine) au menu « Vue », bouton « Plan », modèle de données et séances en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
    - **Idée notée (13 nov. 2026, à décider plus tard)** : la frise de Mon plan comme vue du Calendrier (« Frise » dans le menu « Vue », plein écran, En cours / Tout ; toucher une phase ouvre la Semaine) ; Mon plan garderait sa frise.
    - **Mois V2** (à l'essai depuis le 20 nov. 2026, [§ 4.5](module-calendrier-specification.md)) : comparer avec Mois, puis n'en garder qu'une (retirer l'autre du menu).
-   - **Nature d'une séance** (proposition B du 20 nov. 2026, à faire plus tard) : endurance, seuil, côtes, sortie longue…, pour colorer le liseré des cartes (Mois V2, export) comme un plan imprimé ; évolution de la base et saisie en plus.
    - **Légende** : retravailler son intégration, surtout les différents événements (ajouté le 11 nov. 2026).
    - **Fonds de phase** (Mois, Semaine ; un seul fond par phase depuis le 0.17) : lisibilité à vérifier à l'usage, notamment sur fond blanc.
    - **Prépa des courses préparatoires et plaisir** : réglée par le module Préparation (plan de préparation), qui remplace la règle « course confirmée la plus proche ».

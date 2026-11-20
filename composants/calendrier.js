@@ -137,17 +137,21 @@
   window.mrtGrilleMois = grilleMois;
 
   // ----- Mois V2 et export (spécification du Calendrier, § 4.5 et 4.6) : une ligne par semaine, son libellé à gauche (place dans
-  // le plan, date du lundi, total), une colonne par jour ; chaque séance en carte à liseré (couleur de l'intensité ; Renforcement à part),
-  // la mesure en gras (distance, sinon durée), le nom dessous ; « Repos » les jours vides d'une semaine du plan ou qui a des séances.
+  // le plan, date du lundi, total), une colonne par jour ; chaque séance en carte à liseré (couleur du type de séance : Sortie longue,
+  // Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), les trois traits de l'intensité devant la mesure en gras (distance, sinon durée),
+  // le nom dessous ; « Repos » les jours vides d'une semaine du plan ou qui a des séances. Pas de légende des liserés.
   // opts.mois : rang du mois (jours voisins atténués) ; opts.phases : fond de phase ; opts.impression : sans « + » ni lien (export).
   const dureeTxt = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? String(m % 60).padStart(2, '0') : '') : m + ' min');
-  const lisereDe = s => (s.type === 'renfo' ? 'l-renfo' : s.intensite && P.INTENSITES[s.intensite] ? 'l-' + s.intensite : 'l-aucune');
+  const LISERES = { 'Sortie longue': 'l-sl', Seuil: 'l-seuil', 'Fractionné': 'l-frac', 'Côtes': 'l-cotes', Renforcement: 'l-renfo' };
+  const lisereDe = (s, l) => (s.type === 'renfo' ? 'l-renfo' : (l.def && LISERES[l.def.nom]) || 'l-neutre');
   function carteV2(ctx, s, imp) {
-    const l = P.lireLibelle(s.libelle), r = P.reel(s), ecr = !ctx.lectureSeule && !imp;
+    const l = P.lireLibelle(s.libelle), r = P.reel(s), ecr = !ctx.lectureSeule && !imp, tr = P.traits(s.intensite);
     const mesure = Number(r.distance_km) > 0 ? km(Number(r.distance_km)) + ' km' : Number(r.duree_min) > 0 ? dureeTxt(Number(r.duree_min)) : '';
-    const lignes = (mesure ? '<b class="cal-m2-mes">' + mesure + '</b><span class="cal-m2-nom"><span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span></span>'
-      : '<b class="cal-m2-mes cal-m2-nom"><span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span></b>') + (l.detail ? '<small class="cal-m2-det">' + esc(l.detail) + '</small>' : '');
-    return '<div class="cal-m2-se ' + lisereDe(s) + (s.faite ? ' faite' : '') + '"' + (ecr && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' +
+    // Téléphone : la mesure est masquée, les traits passent devant le nom abrégé (copie muette).
+    const noms = '<span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span>';
+    const lignes = (mesure ? '<b class="cal-m2-mes">' + tr + mesure + '</b><span class="cal-m2-nom">' + (tr ? '<span class="cal-m2-int-tel" aria-hidden="true">' + tr + '</span>' : '') + noms + '</span>'
+      : '<b class="cal-m2-mes cal-m2-nom">' + tr + noms + '</b>') + (l.detail ? '<small class="cal-m2-det">' + esc(l.detail) + '</small>' : '');
+    return '<div class="cal-m2-se ' + lisereDe(s, l) + (s.faite ? ' faite' : '') + '"' + (ecr && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' +
       (ecr ? '<button type="button" class="cal-m2-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m2-txt">') + lignes + (ecr ? '</button>' : '</span>') +
       (imp ? '<i class="cal-m2-coche' + (s.faite ? ' on' : '') + '" aria-hidden="true"></i>' : '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecr ? '' : ' disabled') + ' aria-label="Faite">') + '</div>';
   }
@@ -286,7 +290,7 @@
       const phases = phasesVisibles(), debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
       const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
       return haut('mois2') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois2=' + decaler(m, -1), 'Mois précédent'],
-        [court(decaler(m, 1)), '#mois2=' + decaler(m, 1), 'Mois suivant']) + '<div class="cal-legende">' + window.mrtExport.legende() + (phases ? legendePhases() : '') + '</div>' + grilleSemaines(ctx, debut, fin, { mois: rang(m), phases });
+        [court(decaler(m, 1)), '#mois2=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + grilleSemaines(ctx, debut, fin, { mois: rang(m), phases });
     }
 
     // ----- Semaine : un jour par ligne ; les semaines suivantes au fil du défilement, les passées par un lien (spécification § 4.3 et 4.4) -----
