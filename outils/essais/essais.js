@@ -2580,7 +2580,7 @@ const CONTROLES = {
       await p.waitForSelector('.ps-objectif');
       const r = await lire(p);
       pb.push(
-        egal(['Trail des Gorges', 'dim. 7 mars 2027 · 45 km · 2 100 m D+', 'J-138', null, ['Mon profil', 'Changer d\'Objectif', 'Personnaliser']], [r.titre, r.sous, r.j, r.court, r.reglages],
+        egal(['Trail des Gorges', 'dim. 7 mars 2027 · 45 km · 2 100 m D+', 'J-138', null, ['Mon profil', 'Changer d\'Objectif', 'Personnaliser', 'Exporter']], [r.titre, r.sous, r.j, r.court, r.reglages],
           nom + ', carte de l\'Objectif : nom, date complète, distance et D+, J-138 ; les trois réglages du plan'),
         egal(['2026-10-19', '2027-10-25', '2026-10-19'], [r.semaines[0], r.semaines[1], r.courante], nom + ', frise : tout le plan, de la semaine en cours à la fin de la dernière récupération ; la semaine en cours repérée'),
         egal(['ph-entretien', 'ph-base', 'ph-base', 'ph-recuperation', 'ph-recuperation', 'ph-entretien', 'ph-entretien', 'ph-base', 'ph-affutage', 'ph-recuperation'], r.phases,
@@ -2660,7 +2660,7 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, partage, { 'mrt-vue': autre }, PARIS));
     await p.waitForSelector('.ps-objectif');
     r = await lire(p);
-    pb.push(egal([true, 0, []], [/Trail des Gorges/.test(r.titre || ''), r.plus, r.reglages], 'lecture seule : la vue s\'affiche, sans réglages ni « + »'));
+    pb.push(egal([true, 0, ['Exporter']], [/Trail des Gorges/.test(r.titre || ''), r.plus, r.reglages], 'lecture seule : la vue s\'affiche, seul « Exporter » dans les réglages, pas de « + »'));
     await ctx.close();
     return pb;
   },
