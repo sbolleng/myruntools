@@ -192,7 +192,14 @@
 .cal-analyse-lue { margin-top: 0.8rem; }
 
 /* ----- Fenêtre d'une séance : séance de l'IA en lecture seule, réalisé d'une séance faite ----- */
-.cal-ia-bandeau { margin: 0 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
-.cal-seance .mrt-champ:disabled { opacity: 0.65; cursor: not-allowed; }
+/* Séance de l'IA : du texte structuré sur le fond de la fenêtre, jamais des champs (un champ a un cadre : il s'édite). */
+.cal-prevu-lecture { margin: 0.2rem 0 1rem; padding: 0.9rem 1rem; background: var(--surface2); border-radius: 8px; }
+.cal-prevu-lecture .fc-libelle { margin: 0 0 0.35rem; }
+.cal-prevu-nom { margin: 0; font-size: var(--t-nom); font-weight: 600; color: var(--text); }
+.cal-prevu-detail { margin: 0.15rem 0 0; font-size: var(--t-texte); color: var(--muted); }
+.cal-prevu-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); gap: 0.7rem 1rem; margin: 0.8rem 0 0.7rem; }
+.cal-prevu-stats dt { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-prevu-stats dd { display: flex; align-items: center; margin: 0.15rem 0 0; font-size: var(--t-texte); font-weight: 600; color: var(--text); }
+.cal-prevu-stats dd .cal-int { margin-right: 0.4rem; }
 .cal-realise-titre { margin: 0.2rem 0 0.5rem; }
 .cal-allure { min-height: 1.2em; margin: -0.2rem 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
