@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.42 · 20 novembre 2026 · [Retour au sommaire](README.md) · profil express en quatre questions (le repère d'allure passe dans le parcours de Mon plan)
+Version 0.43 · 20 novembre 2026 · [Retour au sommaire](README.md) · Mentions légales et confidentialité : thème de la page de connexion sans session, de l'utilisateur une fois connecté · Avant (0.42) : profil express en quatre questions (le repère d'allure passe dans le parcours de Mon plan)
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -270,7 +270,7 @@ Le propriétaire du projet Supabase garde, lui, l'accès à toute la base depuis
 
 ## 11 bis. Mentions légales
 
-Page publique `mentions-legales.html` : visible sans être connecté, non indexée comme les autres (décidé le 30 oct. 2026).
+Page publique `mentions-legales.html` : visible sans être connecté, non indexée comme les autres (décidé le 30 oct. 2026). **Thème** (aussi pour la confidentialité, § 11 ter) : sans session, celui de la page de connexion, même si un thème est retenu sur l'appareil ; connecté, celui des préférences de l'utilisateur (décidé le 20 nov. 2026).
 
 ```
 ┌────────────────────────────────────────────┐
