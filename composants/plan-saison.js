@@ -64,15 +64,19 @@
     const fin = lundiDe(recupDer && recupDer.recupFin > derniere.jourJ ? recupDer.recupFin : derniere.jourJ);
     const debut = ps.saisons[0].premier < lundi ? ps.saisons[0].premier : lundi;
     const jm = d => (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS[d.getMonth()];
-    const cases = [];
+    // Les semaines consécutives d'une même phase forment un seul bloc : un fond, le nom de la phase une fois ; chaque semaine garde sa date, sa course et son lien.
+    const blocs = [];
     for (let l = debut; l <= fin; l = addDays(l, 7)) {
       const x = P.phaseDe(ps, l), ph = x ? x.phase : 'entretien';
       const cs = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && lundiDe(c.date) === l);
-      cases.push('<a class="ps-sem ph-' + ph + (l === lundi ? ' is-courante' : '') + '" href="calendrier.html#semaines=' + l + '" data-lundi="' + l + '" title="' + esc('Semaine du ' + jm(parse(l)) + ' · ' + NOM_PHASE[ph]) + '">' +
+      const cas = '<a class="ps-sem ph-' + ph + (l === lundi ? ' is-courante' : '') + '" href="calendrier.html#semaines=' + l + '" data-lundi="' + l + '" title="' + esc('Semaine du ' + jm(parse(l)) + ' · ' + NOM_PHASE[ph]) + '">' +
         '<span class="ps-sem-d">' + jm(parse(l)) + '</span>' +
         cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '">▲ ' + esc(c.course) + '</span>').join('') +
-        '<span class="ps-sem-p">' + NOM_PHASE[ph] + '</span></a>');
+        '</a>';
+      const b = blocs[blocs.length - 1];
+      if (b && b.ph === ph) b.cases.push(cas); else blocs.push({ ph, cases: [cas] });
     }
+    const cases = blocs.map(b => '<div class="ps-bloc-ph ph-' + b.ph + '"><div class="ps-bloc-sems">' + b.cases.join('') + '</div><span class="ps-sem-p">' + NOM_PHASE[b.ph] + '</span></div>');
     return '<div class="ps-frise-z"><button type="button" class="mrt-rond ps-fl" data-fl="-1" aria-label="Semaines précédentes" hidden>' + window.mrtIcone.gauche + '</button>' +
       '<div class="ps-frise-defile"><div class="ps-semaines">' + cases.join('') + '</div></div>' +
       '<button type="button" class="mrt-rond ps-fl" data-fl="1" aria-label="Semaines suivantes" hidden>' + window.mrtIcone.droite + '</button></div>';
@@ -160,7 +164,7 @@
     function placerFrise() {
       const d = root.querySelector('.ps-frise-defile'), c = d && d.querySelector('.is-courante');
       if (!d) return;
-      if (c) d.scrollLeft = Math.max(0, c.offsetLeft - c.offsetWidth - d.offsetLeft);
+      if (c) d.scrollLeft = Math.max(0, c.getBoundingClientRect().left - d.getBoundingClientRect().left + d.scrollLeft - c.offsetWidth);
       majFleches();
       d.addEventListener('scroll', majFleches, { passive: true });
     }

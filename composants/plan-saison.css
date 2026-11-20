@@ -173,24 +173,28 @@
 .ps-frise-z { display: flex; align-items: center; gap: 0.4rem; }
 .ps-frise-z .ps-frise-defile { flex: 1; min-width: 0; margin: 0; padding: 2px 0 0.4rem; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }
 .ps-semaines { display: flex; gap: 4px; }
-.ps-sem { flex: 0 0 5.2rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.15rem; min-height: 4.6rem; padding: 0.4rem 0.45rem; overflow: hidden;
-  scroll-snap-align: start; text-decoration: none; color: var(--bg); border: 2px solid transparent; border-radius: 6px; background: var(--case); }
-.ps-sem.ph-base { background: var(--ph-base); }
-.ps-sem.ph-developpement { background: var(--ph-developpement); }
-.ps-sem.ph-affutage { background: var(--ph-affutage); }
-.ps-sem.ph-deload { background: var(--ph-deload); }
-.ps-sem.ph-recuperation { background: var(--ph-recuperation); }
-.ps-sem.ph-entretien { color: var(--muted); }
+.ps-bloc-ph { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 4.6rem; overflow: hidden; color: var(--bg); border-radius: 6px; background: var(--case); }
+.ps-bloc-ph.ph-base { background: var(--ph-base); }
+.ps-bloc-ph.ph-developpement { background: var(--ph-developpement); }
+.ps-bloc-ph.ph-affutage { background: var(--ph-affutage); }
+.ps-bloc-ph.ph-deload { background: var(--ph-deload); }
+.ps-bloc-ph.ph-recuperation { background: var(--ph-recuperation); }
+.ps-bloc-ph.ph-entretien { color: var(--muted); }
+.ps-bloc-sems { flex: 1; display: flex; }
+.ps-sem { flex: 0 0 5.2rem; display: flex; flex-direction: column; gap: 0.15rem; min-height: 3.3rem; padding: 0.4rem 0.45rem 0.2rem; overflow: hidden;
+  scroll-snap-align: start; text-decoration: none; color: inherit; border: 2px solid transparent; border-radius: 6px; }
 .ps-sem.is-courante { border-color: var(--accent); }
 .ps-sem-d { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); white-space: nowrap; }
 .ps-sem-c { overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
-.ps-sem.ph-entretien .ps-sem-c { color: var(--text); }
-.ps-sem.ph-entretien .ps-sem-c.r-objectif { color: var(--accent); }
+.ps-bloc-ph.ph-entretien .ps-sem-c { color: var(--text); }
+.ps-bloc-ph.ph-entretien .ps-sem-c.r-objectif { color: var(--accent); }
 .ps-sem-c.is-option { font-weight: 400; font-style: italic; }
-.ps-sem-p { overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.ps-sem-p { width: 0; min-width: 100%; box-sizing: border-box; padding: 0 0.6rem 0.45rem; overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .ps-fl[hidden] { display: none; }
-@media (hover: hover) { .ps-sem:hover { filter: brightness(1.08); } }
-@media (max-width: 600px) { .ps-sem { flex-basis: calc((100% - 12px) / 4); } .ps-objectif .ps-titre { font-size: 1.35rem; } }
+@media (hover: hover) { .ps-sem:hover { background: color-mix(in srgb, var(--text) 10%, transparent); } }
+/* Téléphone : 4 semaines à la fois (largeur prise sur la zone qui défile). */
+.ps-frise-z .ps-frise-defile { container-type: inline-size; }
+@media (max-width: 600px) { .ps-sem { flex-basis: calc((100cqw - 12px) / 4); } .ps-objectif .ps-titre { font-size: 1.35rem; } }
 /* Bandeau de MyRunTools : toujours ouvert, sous la frise. */
 .ps-bandeau { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.6rem 0.8rem; border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 6px 6px 0; }
 .ps-bandeau .ps-alertes { margin: 0; }
