@@ -21,7 +21,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 
 ## Spécifications
 
-- Une par module : `docs/module-<nom>-specification.md`, en tête « Version x.y · date · [Retour au sommaire](README.md) ».
+- Une par module : `docs/module-<nom>-specification.md`, en tête « Version x.y · date · [Retour au sommaire](README.md) · dernier changement, en une phrase » ; pas d'historique des versions (« Avant… ») : il est dans le journal.
 - Synthétiques, didactiques, compréhensibles par quelqu'un qui n'a jamais vu les anciens sites : aucune référence à l'existant ni aux personnes, pas de design (document séparé).
 - Chaque spécification finit par un jeu d'essai et des résultats attendus, rejoués avant chaque mise en ligne.
 - Chaque décision : une ligne dans `docs/journal.md`, la plus récente en haut.

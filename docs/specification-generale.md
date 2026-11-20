@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.44 · 20 novembre 2026 · [Retour au sommaire](README.md) · Mentions légales et confidentialité : thème de la page de connexion sans session, de l'utilisateur une fois connecté · Avant (0.42) : profil express en quatre questions (le repère d'allure passe dans le parcours de Mon plan)
+Version 0.44 · 20 novembre 2026 · [Retour au sommaire](README.md) · Mentions légales et confidentialité : thème de la page de connexion sans session, de l'utilisateur une fois connecté
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
