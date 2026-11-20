@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.30 · 20 novembre 2026 · [Retour au sommaire](README.md) · Mois V2 et export : le liseré d'une carte suit le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), l'intensité passe aux trois traits du Mois, plus de légende des liserés (§ 4.5, 4.6)
+Version 0.31 · 20 novembre 2026 · [Retour au sommaire](README.md) · Le liseré selon le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon) passe à toutes les vues : Semaine, Mois, Mois V2, export, « Cette semaine » de Mon plan ; pas de légende
 
 ## 1. Rôle
 
@@ -131,7 +131,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
 | 15 | Aujourd'hui | le numéro dans un rond plein (Accent) | Case du jour |
 | 17 | Course du jour, à sa couleur | « Trail du Lac » | Case du jour |
 | 8 | Rendez-vous clé : ouverture des inscriptions | « ◆ Inscriptions · Corrida de Noël » | Case du jour |
-| 6, 7 | Séance : case « faite », type, libellé (touché : sa fenêtre) | « ☐ Course à pied 8×400 m » | Case du jour, une ligne par séance |
+| 6, 7 | Séance : case « faite », type, libellé (touché : sa fenêtre) ; liseré de 3 px à gauche, couleur du type de séance (§ 4.5, n° 31), les trois traits de l'intensité devant le nom | « ☐ Course à pied 8×400 m » | Case du jour, une ligne par séance |
 | 28 | Total de la semaine (Semaine, § 4.4) | « 1/4 séances » | Sous la semaine, sur toute la largeur ; rien sans séance |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Coin bas droit de la case |
 | 21 | Jours des mois voisins | 28, 29, 30 sept. ; 1er nov. | Le fond des autres jours, numéro et contenu atténués |
@@ -178,7 +178,7 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 | 15 | Aujourd'hui | numéro dans un rond Accent, ligne cerclée | Ligne du jour |
 | 17 | Course du jour | « Trail du Lac » | Ligne du jour |
 | 8 | Rendez-vous clé | « ◆ Ouverture des inscriptions · Corrida de Noël » | Ligne du jour |
-| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : le nom en gras (le libellé jusqu'aux deux-points) avec le point d'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; « à noter » ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
+| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : liseré de 4 px à gauche, couleur du type de séance (§ 4.5, n° 31) ; le nom en gras (le libellé jusqu'aux deux-points) avec les trois traits de l'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; « à noter » ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
 | 28 | Total de la semaine | « 1/4 séances · 8/32 km · 1 h 45/3 h 10 » : fait sur prévu pour la semaine en cours et les passées, le prévu seul pour les suivantes ; séances proposées en attente non comptées ; rien sans séance | À droite du titre 4 |
 | 29 | Place dans la saison | « Semaine 3 sur 16 · Base » (la phase dans sa couleur), dates dessous ; seulement dans une saison | À la place du titre 4 |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Bout de la ligne |

@@ -3,6 +3,13 @@
    Partagé par le Calendrier (calendrier.html) et la page d'une course (course.html). */
 /* Couleurs fixes, les mêmes dans tous les thèmes ; l'encre : le texte écrit sur la couleur d'une course. */
 :root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --ph-entretien: #8c8c8c; --int-moy: #f0883e; }
+/* Liseré d'une séance selon son type (Calendrier, export ; Fractionné : Rouge ; les autres : Bordure). */
+:root { --l-sl: #6b8cff; --l-seuil: #e8c547; --l-cotes: #b48ef0; --l-renfo: #5fbf7a; }
+.t-blanc-orange { --l-sl: #2f5fc4; --l-seuil: #a57a00; --l-cotes: #7a4fc4; --l-renfo: #2e8a4a; }
+:is(.cal-m2-se, .cal-m-se, .cal-carte) { --l: var(--border); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte).l-sl { --l: var(--l-sl); } :is(.cal-m2-se, .cal-m-se, .cal-carte).l-seuil { --l: var(--l-seuil); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte).l-frac { --l: var(--red); } :is(.cal-m2-se, .cal-m-se, .cal-carte).l-cotes { --l: var(--l-cotes); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte).l-renfo { --l: var(--l-renfo); }
 /* Fond blanc : des phases plus foncées, lisibles quand leur nom est écrit dans leur couleur. */
 .t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; --ph-entretien: #6b6b6b; }
 

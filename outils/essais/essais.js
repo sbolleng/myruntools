@@ -2070,6 +2070,15 @@ const CONTROLES = {
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-mois2-' + nom.replace('é', 'e') + '.png'), fullPage: true });
       await ctx.close();
     }
+    // Le même liseré dans le Mois et la Semaine (Calendrier § 4.5) : type de séance, Endurance neutre.
+    for (const [vue, sel] of [['mois', '.cal-m-se'], ['semaines=2026-10-19', '.cal-carte']]) {
+      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#' + vue, 1200, copie(), {}, PARIS);
+      const l = await p.evaluate(q => [...document.querySelectorAll(q)].filter(e => e.closest('[data-jour], [data-jour-ligne]')).map(e => (j => [j.dataset.jour || j.dataset.jourLigne, [...e.classList].find(c => c.startsWith('l-')), getComputedStyle(e).borderLeftWidth])(e.closest('[data-jour], [data-jour-ligne]'))), sel);
+      const w = vue === 'mois' ? '3px' : '4px';
+      pb.push(egal([['2026-10-19', 'l-renfo', w], ['2026-10-20', 'l-frac', w], ['2026-10-22', 'l-neutre', w], ['2026-10-24', 'l-sl', w]], l, vue + ' : liseré selon le type de séance, comme Mois V2'));
+      pb.push(egal([], erreurs, vue + ' : erreurs JavaScript'));
+      await ctx.close();
+    }
     // Plan : décembre, semaines de la saison du Trail des Gorges (numéro, phase), fond de phase ; Trail du Lac en carte (novembre).
     {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois2=2026-12', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS);

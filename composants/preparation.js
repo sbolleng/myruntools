@@ -38,6 +38,10 @@
   const traits = i => (i && INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + INTENSITES[i] + '" title="' + INTENSITES[i] + '">' +
     [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
   const NOM_RENFO = { nom: 'Renforcement', abr: 'Renfo', titre: 'Renforcement', intensite: '' };
+  // Liseré d'une séance (toutes les vues du Calendrier, export) : couleur du type de séance, d'après le nom de la liste ;
+  // Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre (Bordure) pour Endurance, Récupération et un nom libre. Pas de légende.
+  const LISERES = { 'Sortie longue': 'l-sl', Seuil: 'l-seuil', 'Fractionné': 'l-frac', 'Côtes': 'l-cotes', Renforcement: 'l-renfo' };
+  const lisere = s => { if (s.type === 'renfo') return 'l-renfo'; const d = lireLibelle(s.libelle).def; return (d && LISERES[d.nom]) || 'l-neutre'; };
   const nomsDuType = type => (type === 'renfo' ? [NOM_RENFO] : NOMS);
   // « Côtes : 8 x 1 min » → { nom: 'Côtes', detail: '8 x 1 min', def } ; def vide pour un nom libre d'avant la liste (affiché tel quel).
   function lireLibelle(lib) {
@@ -839,7 +843,7 @@
     });
   }
 
-  window.mrtPreparation = { traits, reel, allure, deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { traits, lisere, reel, allure, deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();
