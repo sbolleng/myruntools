@@ -3529,7 +3529,7 @@ const CONTROLES = {
     };
     // Inscription fermée (réglage du site) : pas de lien sur la connexion ; la page dit que ce n'est pas ouvert, sans formulaire.
     d = neuve({ maintenant: null });
-    ({ p, ctx } = await visiteur('connexion.html', d));
+    ({ p, ctx } = await inscrit('connexion.html', d, { inscription: false }));
     pb.push(egal(false, await p.locator('#inscription').isVisible(), 'inscription fermée : pas de « Créer un compte » sur la connexion'));
     await p.goto(RACINE + 'creer-compte.html');
     await p.waitForFunction(() => /pas encore ouvertes/.test(document.getElementById('message').textContent));

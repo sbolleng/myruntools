@@ -10,7 +10,7 @@ window.MRT_SUPABASE = {
   captcha: '0x4AAAAAAGKDQ6ThlvwruQHX',
   // Inscription (page « Créer un compte ») : false tant qu'elle n'est pas ouverte (RGPD, anti-robot, envoi d'e-mails) ;
   // à passer à true en même temps que « Allow new users to sign up » dans Supabase.
-  inscription: false,
+  inscription: true,
   // Page de la politique de confidentialité : vide tant qu'elle n'existe pas ; renseignée, l'inscription demande de l'accepter.
   confidentialite: 'confidentialite.html',
   // Propositions de séances par l'IA, par mois et par compte (Mon plan) : 0, sans limite pendant les essais des pilotes ;
