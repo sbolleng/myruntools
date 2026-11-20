@@ -36,6 +36,8 @@ if (process.env.VIERGE) {
 }
 if (process.env.THEME) db0.preferences[0].theme = process.env.THEME;
 let db = db0;
+const reglagesSite = () => `(() => { let v; Object.defineProperty(window, 'MRT_SUPABASE', { configurable: true, get: () => v, set: x => { v = Object.assign(x, { captcha: '' }); } }); })()`;
+const SANS_CAPTCHA = reglagesSite();
 const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 // Fait défiler le formulaire jusqu'à un bloc, son titre juste sous le haut fixe du panneau.
 const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[data-bloc="' + b + '"]'), pan = document.querySelector('.mc-panneau');
@@ -116,6 +118,9 @@ const LARG = { tel: [390, 844], ordi: [1200, 900] };
 fs.mkdirSync(sortie, { recursive: true });
 (async () => {
   const nav = await chromium.launch(fs.existsSync('/opt/pw-browsers/chromium') ? { executablePath: '/opt/pw-browsers/chromium' } : {});
+  // Anti-robot (Turnstile) : jamais dans le banc (pas de réseau) ; la clé du site est vidée au chargement de chaque page.
+  const contexte0 = nav.newContext.bind(nav);
+  nav.newContext = async (...a) => { const c = await contexte0(...a); await c.addInitScript(SANS_CAPTCHA); return c; };
   for (const [nom, cfg] of Object.entries(PAGES)) {
     if (filtre && filtre !== 'toutes' && !filtre.split(',').includes(nom)) continue;
     for (const [l, [w, h]] of Object.entries(cfg.largeurs || LARG)) {
