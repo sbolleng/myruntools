@@ -53,15 +53,18 @@
   const VITESSE_PAR_DEFAUT = 9.5;
   const MET_RENFO = 3;
   const metCourse = kmh => (0.2 * (kmh * 1000 / 60) + 3.5) / 3.5;
+  // Une séance faite compte avec son réalisé quand il est saisi, sinon avec le prévu.
+  const dureeDe = s => (s.faite && s.duree_reelle_min != null ? s.duree_reelle_min : s.duree_min);
+  const distanceDe = s => (s.faite && s.distance_reelle_km != null ? s.distance_reelle_km : s.distance_km);
   function vitesseSeance(s, vma) {
-    const h = Number(s.duree_min) / 60, d = Number(s.distance_km);
+    const h = Number(dureeDe(s)) / 60, d = Number(distanceDe(s));
     if (h > 0 && d > 0) return d / h;
     if (vma > 0 && PART_VMA[s.intensite]) return vma * PART_VMA[s.intensite];
     return VITESSE_PAR_DEFAUT;
   }
   // Une séance → { met, heures } pour le calcul ; null sans durée.
   function activiteSeance(s, vma) {
-    const heures = Number(s.duree_min) / 60;
+    const heures = Number(dureeDe(s)) / 60;
     if (!(heures > 0)) return null;
     return { met: s.type === 'renfo' ? MET_RENFO : metCourse(vitesseSeance(s, vma)), heures };
   }

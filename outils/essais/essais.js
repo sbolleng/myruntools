@@ -2125,6 +2125,37 @@ const CONTROLES = {
     pb.push(egal(id(1), await p.evaluate(() => history.state && history.state.mrtCourse), 'course touchée : sa page en modale'));
     pb.push(egal([], erreurs, 'Mois : erreurs JavaScript'));
     await ctx.close();
+    // Séance de l'IA : prévu en lecture seule, « Modifier cette séance » en fait une séance à soi ; séance faite : réalisé (durée, distance, D+, FC), allure calculée.
+    {
+      const dI = copie();
+      dI.seances.push({ id: 'se-ia', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Seuil : 3 x 8 min', duree_min: 55, distance_km: 10, denivele_m: 120, intensite: 'moderee', origine: 'ia', etat: 'acceptee', faite: false, course: null });
+      const o = await ouvrir(nav, 'calendrier.html#mois', 1200, dI, {}, PARIS);
+      await o.p.click('[data-edit="se-ia"]'); await o.p.waitForSelector('.cal-seance');
+      const verrou = () => o.p.evaluate(() => ['nom', 'detail', 'duree', 'distance', 'denivele', 'intensite'].map(k => document.querySelector('.cal-seance [name="' + k + '"]').disabled));
+      pb.push(egal([[true, true, true, true, true, true], 1, false], [await verrou(), await o.p.locator('.cal-ia-bandeau [data-act="modifier"]').count(), await o.p.evaluate(() => document.querySelector('.cal-seance [name="date"]').disabled)],
+        'séance de l\'IA : prévu en lecture seule, date modifiable, bouton « Modifier cette séance »'));
+      await o.p.click('[data-act="modifier"]');
+      pb.push(egal([[false, false, false, false, false, false], 0], [await verrou(), await o.p.locator('.cal-ia-bandeau').count()], '« Modifier cette séance » : le prévu devient modifiable'));
+      await o.p.check('.cal-seance [name="faite"]');
+      pb.push(egal([true, '55', '10'], [await o.p.isVisible('.cal-seance [name="duree_reelle"]'), await o.p.getAttribute('.cal-seance [name="duree_reelle"]', 'placeholder'), await o.p.getAttribute('.cal-seance [name="distance_reelle"]', 'placeholder')], 'séance faite : bloc « Réalisé », le prévu en repère'));
+      await o.p.fill('.cal-seance [name="duree_reelle"]', '50'); await o.p.fill('.cal-seance [name="distance_reelle"]', '8,2'); await o.p.fill('.cal-seance [name="denivele_reel"]', '95');
+      await o.p.fill('.cal-seance [name="fc_moyenne"]', '152'); await o.p.fill('.cal-seance [name="fc_max"]', '171');
+      pb.push(egal('Allure moyenne : 6\'06"/km', await o.p.textContent('.cal-allure'), 'allure calculée du réalisé (50 min, 8,2 km)'));
+      await o.p.fill('.cal-seance [name="fc_moyenne"]', '180');
+      await o.p.click('.cal-seance button[type="submit"]');
+      pb.push(egal('La FC moyenne ne peut pas dépasser la FC max.', await o.p.textContent('.cal-msg'), 'FC moyenne au-dessus de la FC max : refusée'));
+      await o.p.fill('.cal-seance [name="fc_moyenne"]', '152');
+      dI.ecritures = [];
+      await o.p.click('.cal-seance button[type="submit"]');
+      await o.p.waitForSelector('.cal-seance', { state: 'detached' }); await pause();
+      const w = (dI.ecritures.find(e => e.table === 'seances' && e.methode === 'PATCH') || {}).corps || {};
+      pb.push(egal([{ origine: 'saisie', duree_reelle_min: 50, distance_reelle_km: 8.2, denivele_reel_m: 95, fc_moyenne: 152, fc_max: 171, duree_min: 55, distance_km: 10 }, true],
+        [(({ origine, duree_reelle_min, distance_reelle_km, denivele_reel_m, fc_moyenne, fc_max, duree_min, distance_km }) => ({ origine, duree_reelle_min, distance_reelle_km, denivele_reel_m, fc_moyenne, fc_max, duree_min, distance_km }))(w), w.faite === true],
+        'séance faite : réalisé enregistré à côté du prévu, séance de l\'IA devenue séance à soi'));
+      pb.push(egal([8.2, 55, 10], await o.p.evaluate(() => { const r = window.mrtPreparation.reel; return [r({ faite: true, distance_km: 10, distance_reelle_km: 8.2 }).distance_km, r({ faite: true, duree_min: 55 }).duree_min, r({ faite: false, distance_km: 10, distance_reelle_km: 8.2 }).distance_km]; }), 'réalisé prioritaire quand il est saisi, sinon le prévu'));
+      pb.push(egal([], o.erreurs, 'séance de l\'IA et réalisé : erreurs JavaScript'));
+      await o.ctx.close();
+    }
     // Lecture seule
     const autre = '00000000-0000-0000-0000-00000000000b';
     const partage = copie();

@@ -29,6 +29,11 @@
     { nom: 'Fractionné', abr: 'Frac.', titre: 'Fractionné (VMA)', intensite: 'intense' },
     { nom: 'Côtes', abr: 'Côtes', titre: 'Répétitions en côte', intensite: 'intense' }
   ];
+  // Une séance faite compte avec son réalisé quand il est saisi, sinon avec le prévu (la séance elle-même n'est pas modifiée).
+  const reel = s => (s && s.faite ? Object.assign({}, s, { duree_min: s.duree_reelle_min != null ? s.duree_reelle_min : s.duree_min,
+    distance_km: s.distance_reelle_km != null ? s.distance_reelle_km : s.distance_km, denivele_m: s.denivele_reel_m != null ? s.denivele_reel_m : s.denivele_m }) : s);
+  // Allure moyenne en min/km (« 6'20"/km ») ; vide sans durée ni distance.
+  const allure = (min, km) => { if (!(min > 0 && km > 0)) return ''; const t = Math.round(min / km * 60); return Math.floor(t / 60) + '\'' + String(t % 60).padStart(2, '0') + '"/km'; };
   const NOM_RENFO = { nom: 'Renforcement', abr: 'Renfo', titre: 'Renforcement', intensite: '' };
   const nomsDuType = type => (type === 'renfo' ? [NOM_RENFO] : NOMS);
   // « Côtes : 8 x 1 min » → { nom: 'Côtes', detail: '8 x 1 min', def } ; def vide pour un nom libre d'avant la liste (affiché tel quel).
@@ -417,18 +422,26 @@
     const dou = ['legere', 'forte'].includes(x.douleur) ? x.douleur : 'aucune', r = x.ressenti || null;
     return '<div class="cal-champ cal-effort"><span class="cal-titre-info">Effort perçu' + info('effort') + '</span>' +
         '<input type="range" class="cal-curseur' + (r ? '' : ' is-vide') + '" name="ressenti" min="1" max="10" step="1" value="' + (r || 1) + '"' + (r ? '' : ' data-vide="1"') + ' aria-label="Effort perçu, de 1 à 10">' +
-        '<p class="cal-ressenti-lib">' + ligneRessenti(r, x.duree_min) + '</p></div>' +
+        '<p class="cal-ressenti-lib">' + ligneRessenti(r, reel(x).duree_min) + '</p></div>' +
       '<div class="cal-champ"><span class="cal-titre-info">Sensations' + info('sensations') + '</span><div class="cal-visages" data-groupe="sensations">' + SENSATIONS.map(([v, lib, d]) =>
         '<button type="button" class="mrt-rond cal-visage-b v-' + v + '" data-val="' + v + '" aria-pressed="' + (String(x.sensations) === String(v)) + '" aria-label="' + lib + '" title="' + lib + '">' + visage(d) + '</button>').join('') + '</div></div>' +
       '<div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', Object.entries(DOULEURS), dou).replace('data-groupe="douleur"', 'data-groupe="douleur" data-requis') + '</div>' +
       '<label class="cal-champ cal-douleur-ou"' + (dou === 'aucune' ? ' hidden' : '') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>';
   }
   const champCommentaire = x => '<label class="cal-champ"><span>Commentaire</span><textarea class="mrt-champ" name="commentaire" maxlength="300" rows="2" placeholder="ex. genou sensible, pas disponible jeudi">' + esc(x.commentaire || '') + '</textarea><small class="cal-compteur">' + (x.commentaire || '').length + '/300</small></label>';
+  // Réalisé d'une séance faite : durée, distance, dénivelé (le prévu en repère), fréquence cardiaque moyenne et maximale ; l'allure se calcule.
+  const realiseHtml = x => '<p class="fc-libelle cal-realise-titre">Réalisé</p>' +
+    '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree_reelle" inputmode="numeric" placeholder="' + esc(x.duree_min != null ? x.duree_min : '') + '" value="' + esc(x.duree_reelle_min != null ? x.duree_reelle_min : '') + '"></label>' +
+    '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance_reelle" inputmode="decimal" placeholder="' + esc(x.distance_km != null ? String(x.distance_km).replace('.', ',') : '') + '" value="' + esc(x.distance_reelle_km != null ? String(x.distance_reelle_km).replace('.', ',') : '') + '"></label>' +
+    '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele_reel" inputmode="numeric" placeholder="' + esc(x.denivele_m != null ? x.denivele_m : '') + '" value="' + esc(x.denivele_reel_m != null ? x.denivele_reel_m : '') + '"></label></div>' +
+    '<div class="cal-champs2"><label class="cal-champ"><span>FC moyenne (bpm)</span><input class="mrt-champ" name="fc_moyenne" inputmode="numeric" value="' + esc(x.fc_moyenne != null ? x.fc_moyenne : '') + '"></label>' +
+    '<label class="cal-champ"><span>FC max (bpm)</span><input class="mrt-champ" name="fc_max" inputmode="numeric" value="' + esc(x.fc_max != null ? x.fc_max : '') + '"></label></div>' +
+    '<p class="cal-allure" aria-live="polite"></p>';
   function retourHtml(s) {
     const x = s || {}, faite = !!x.faite;
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
-      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) +
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + realiseHtml(x) + champsRetour(x) + '</div>' + champCommentaire(x) +
       (x.analyse_ia ? '<div class="cal-analyse-lue"><h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(x.analyse_ia) + '</p></div>' : '') + '</section>';
   }
   // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
@@ -482,7 +495,7 @@
     document.addEventListener('keydown', echap);
     voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
     voile.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermer(); });
-    const f = voile.querySelector('form'), lire = brancherRetour(f, () => s.duree_min || null);
+    const f = voile.querySelector('form'), lire = brancherRetour(f, () => reel(s).duree_min || null);
     voile.querySelector('.mc-panneau').focus({ preventScroll: true });
     f.addEventListener('submit', async e => {
       e.preventDefault();
@@ -593,15 +606,18 @@
 
   function ouvrirSeance(ctx, opts) {
     const s = opts.seance, dans = opts.dans, lu = lireLibelle(s ? s.libelle : '');
+    let degage = false; // « Modifier cette séance » : une séance de l'IA devient une séance à soi
+    const verrou = s && s.origine === 'ia' ? ' disabled' : ''; // le prévu d'une séance de l'IA est en lecture seule
     // Un seul choix de séance (le type s'en déduit : Renforcement ou course à pied) ; la date seule en tête, puis le détail,
     // puis durée, distance et dénivelé sur une ligne, l'intensité (proposée selon la séance) ; le retour (faite, effort, commentaire) dessous.
-    const champs = '<div class="cal-champs2"><label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
-      '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label></div>' +
-      '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
-      '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
-      '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
-      '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele" inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
-      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>' +
+    const champs = (verrou ? '<p class="cal-ia-bandeau">Proposée par MyRunTools · <button type="button" class="mrt-lien" data-act="modifier">Modifier cette séance</button></p>' : '') +
+      '<div class="cal-champs2"><label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
+      '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"' + verrou + '></select></label></div>' +
+      '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80"' + verrou + ' placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
+      '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree"' + verrou + ' inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
+      '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance"' + verrou + ' inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
+      '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele"' + verrou + ' inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
+      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"' + verrou + '><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>' +
       retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
@@ -613,7 +629,7 @@
       v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
         titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
     }
-    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
+    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
     // Le choix de séance : la liste des courses, puis Renforcement ; un nom libre d'avant la liste reste proposé tel quel (avec son type).
     // Le type s'en déduit ; Renforcement n'a ni distance ni dénivelé.
     const typeOuvert = s ? s.type : (opts.type && TYPES[opts.type] ? opts.type : 'run'); // type proposé par la page qui ouvre la fenêtre (Nutrition)
@@ -627,6 +643,20 @@
     f.nom.addEventListener('change', () => { proposer(); montrer(); });
     if (!s) proposer();
     montrer();
+    // Allure moyenne du réalisé (ou du prévu à défaut), mise à jour à la frappe.
+    const majAllure = () => {
+      const m = nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : nombre(f.duree.value), k = nombre(f.distance_reelle.value) != null ? nombre(f.distance_reelle.value) : nombre(f.distance.value);
+      const a = typeDe() === 'renfo' ? '' : allure(m, k);
+      f.querySelector('.cal-allure').textContent = a ? 'Allure moyenne : ' + a : '';
+    };
+    f.addEventListener('input', majAllure); majAllure();
+    // Séance de l'IA : le prévu est en lecture seule ; « Modifier cette séance » le rend modifiable et en fait une séance à soi.
+    const mod = f.querySelector('[data-act="modifier"]');
+    if (mod) mod.addEventListener('click', () => {
+      degage = true;
+      ['nom', 'detail', 'duree', 'distance', 'denivele', 'intensite'].forEach(k => { f[k].disabled = false; });
+      mod.closest('.cal-ia-bandeau').remove();
+    });
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
@@ -653,9 +683,20 @@
       if (typeDe() !== 'renfo' && distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
       const type = typeDe(), renfo = type === 'renfo', deniv = nombre(f.denivele.value);
       if (!renfo && deniv !== null && !(Number.isInteger(deniv) && deniv >= 1 && deniv < 10000)) return void (msg.textContent = 'Le dénivelé doit être un nombre de mètres entre 1 et 9 999.');
+      // Réalisé : seulement d'une séance faite ; envoyé s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir ses colonnes (évolution 042).
+      const faiteCochee = f.faite.checked, dureeR = nombre(f.duree_reelle.value), distR = nombre(f.distance_reelle.value), denivR = nombre(f.denivele_reel.value), fcM = nombre(f.fc_moyenne.value), fcX = nombre(f.fc_max.value);
+      if (faiteCochee) {
+        if (dureeR !== null && !(Number.isInteger(dureeR) && dureeR >= 1 && dureeR <= 1440)) return void (msg.textContent = 'La durée réalisée doit être un nombre de minutes entre 1 et 1 440.');
+        if (!renfo && distR !== null && !(distR >= 0.1 && distR < 1000)) return void (msg.textContent = 'La distance réalisée doit être comprise entre 0,1 et 999 km.');
+        if (!renfo && denivR !== null && !(Number.isInteger(denivR) && denivR >= 1 && denivR < 10000)) return void (msg.textContent = 'Le dénivelé réalisé doit être un nombre de mètres entre 1 et 9 999.');
+        if ([fcM, fcX].some(x => x !== null && !(Number.isInteger(x) && x >= 30 && x <= 250))) return void (msg.textContent = 'La fréquence cardiaque doit être comprise entre 30 et 250 battements par minute.');
+        if (fcM !== null && fcX !== null && fcM > fcX) return void (msg.textContent = 'La FC moyenne ne peut pas dépasser la FC max.');
+      }
+      const reelChamps = {}, brut = { duree_reelle_min: faiteCochee ? dureeR : null, distance_reelle_km: faiteCochee && !renfo && distR !== null ? Math.round(distR * 10) / 10 : null, denivele_reel_m: faiteCochee && !renfo ? denivR : null, fc_moyenne: faiteCochee ? fcM : null, fc_max: faiteCochee ? fcX : null };
+      Object.keys(brut).forEach(k => { if (brut[k] !== null || (s && s[k] != null)) reelChamps[k] = brut[k]; });
       const champs = Object.assign({ date, type, libelle, duree_min: duree, distance_km: renfo || distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null }, retour(),
         // Le dénivelé n'est envoyé que s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir sa colonne (évolution 039).
-        !renfo && deniv !== null ? { denivele_m: deniv } : (s && s.denivele_m != null ? { denivele_m: null } : {}),
+        !renfo && deniv !== null ? { denivele_m: deniv } : (s && s.denivele_m != null ? { denivele_m: null } : {}), reelChamps, degage ? { origine: 'saisie' } : {},
         s ? { date_prevue: date === s.date ? (s.date_prevue || null) : datePrevue(s, date) } : {});
       const { error } = s ? await sb.from('seances').update(champs).eq('id', s.id)
         : await sb.from('seances').insert(Object.assign({ course: opts.course || null }, champs));
@@ -776,7 +817,7 @@
     });
   }
 
-  window.mrtPreparation = { deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { reel, allure, deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();
