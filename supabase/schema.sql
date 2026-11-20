@@ -203,6 +203,7 @@ create table seances (
   fatigue     smallint check (fatigue between 1 and 5),
   sensations  smallint check (sensations between 1 and 5),         -- 1 très bien … 5 très mal (évolution 036)
   commentaire text check (char_length(commentaire) <= 300),
+  description text check (char_length(description) <= 800),   -- déroulé de la séance, une étape par ligne (évolution 043)
   duree_reelle_min    integer  check (duree_reelle_min between 1 and 1440),      -- réalisé d'une séance faite (évolution 042)
   distance_reelle_km  numeric(5,1) check (distance_reelle_km > 0 and distance_reelle_km < 1000),
   denivele_reel_m     integer  check (denivele_reel_m >= 1 and denivele_reel_m < 10000),

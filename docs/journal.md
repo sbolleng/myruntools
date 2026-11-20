@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Fenêtre d'une séance : description, date, commentaire | Plus de titre « Modifier la séance » en haut. Champ « Description » (déroulé en étapes, surtout pour un fractionné ; l'IA l'écrit pour ses séances ; évolution 043). Séance de l'IA : la date n'apparaît qu'avec « Faite » ou « Modifier cette séance ». Le commentaire n'apparaît qu'avec « Faite ». Fonction `proposer-seances` à recoller. |
 | 20 nov. 2026 | Thème des mentions et de la confidentialité | Sans session (ouvertes depuis la page de connexion) : le thème de la page de connexion, même si un thème est retenu sur l'appareil ; connecté : le thème des préférences de l'utilisateur. Une session expirée revient au thème de la connexion. |
 | 20 nov. 2026 | Inscription ouverte | « Créer un compte » visible sur la connexion (`inscription: true`) et création de comptes activée dans Supabase ; modèles « Confirm signup » et « Reset password » collés et vérifiés. |
 | 20 nov. 2026 | Mois V2 et export | Vue Mois V2 à l'essai, à côté de Mois (Calendrier 0.28, § 4.5) : une ligne par semaine (libellé à gauche : Sem. n, lundi, phase, total), séances en cartes à liseré d'intensité (Renforcement à part), « Repos », jours des mois voisins atténués (B). « Exporter » sur le Calendrier et Mon plan (§ 4.6 ; Préparation 3.2, n° 29) : A4 à l'horizontale, fond blanc, six semaines par page, par l'impression du navigateur. Liseré selon la nature de la séance : plus tard (todo). |

@@ -107,6 +107,7 @@
       if (!String(s.libelle || '').trim() || String(s.libelle).length > 100) err.push(quand + ' : libellé vide ou de plus de 100 caractères');
       const nomOk = P.lireLibelle(s.libelle), dispo = P.nomsDuType(s.type).map(x => x.nom);
       if (String(s.libelle || '').trim() && !dispo.includes(nomOk.nom)) err.push(quand + ' : le libellé doit commencer par un nom de la liste (' + dispo.join(', ') + ')');
+      if (String(s.description || '').length > 800) err.push(quand + ' : description de plus de 800 caractères');
       if (!Number.isInteger(s.duree_min) || s.duree_min < 1 || s.duree_min > 1440) err.push(quand + ' : durée invalide');
       const ok = possibles(pr, j);
       if (s.type === 'run' && !ok.includes('course')) err.push(quand + ' : jour non prévu pour courir');
@@ -178,7 +179,7 @@
   async function accepter(ctx, prop, lundis) {
     const lignes = seancesDe(prop.reponse).filter(s => lundis.includes(lundiDe(s.date))).map(s => ({
       date: s.date, type: s.type, libelle: String(s.libelle).trim().slice(0, 100), duree_min: s.duree_min,
-      distance_km: Number(s.distance_km) > 0 ? Math.round(Number(s.distance_km) * 10) / 10 : null, intensite: s.intensite, origine: 'ia', etat: 'acceptee', course: null }));
+      distance_km: Number(s.distance_km) > 0 ? Math.round(Number(s.distance_km) * 10) / 10 : null, intensite: s.intensite, description: String(s.description || '').trim().slice(0, 800) || null, origine: 'ia', etat: 'acceptee', course: null }));
     // Remplacer, pas ajouter : les séances de l'IA non faites de ces semaines partent avant l'écriture des nouvelles.
     const anciennes = aRemplacer(ctx, lundis).map(s => s.id);
     if (lignes.length && anciennes.length) { const { error } = await sb().from('seances').delete().in('id', anciennes); if (error) return error; }
@@ -218,7 +219,7 @@
     const prochaine = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date >= s.date).sort((a, b) => (a.date < b.date ? -1 : 1))[0];
     const fiche = Object.assign({ date: s.date, jour: NOMS_JOURS[parse(s.date).getDay()], type: TYPES[s.type] || s.type, nom: l.nom, detail: l.detail || null,
       duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), denivele_m: s.denivele_m == null ? null : Number(s.denivele_m),
-      intensite_prevue: s.intensite ? P.INTENSITES[s.intensite] : null }, realise(s), retour(Object.assign({}, s, { commentaire: s.commentaire })));
+      intensite_prevue: s.intensite ? P.INTENSITES[s.intensite] : null, description: s.description || null }, realise(s), retour(Object.assign({}, s, { commentaire: s.commentaire })));
     const historique = ctx.seances.filter(y => y.id !== s.id && y.date >= addDays(s.date, -28) && y.date < s.date).sort((a, b) => (a.date < b.date ? -1 : 1))
       .map(y => Object.assign({ date: y.date, type: y.type, libelle: y.libelle, duree_min: y.duree_min == null ? null : y.duree_min, distance_km: y.distance_km == null ? null : Number(y.distance_km),
         intensite: y.intensite || null, faite: !!y.faite }, y.faite ? Object.assign(realise(y), retour(y)) : {}));

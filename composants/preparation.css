@@ -203,3 +203,9 @@
 .cal-prevu-stats dd .cal-int { margin-right: 0.4rem; }
 .cal-realise-titre { margin: 0.2rem 0 0.5rem; }
 .cal-allure { min-height: 1.2em; margin: -0.2rem 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
+
+.cal-panneau-titre:empty { display: none; }
+/* Description d'une séance de l'IA : étapes numérotées, le numéro en Accent. */
+.cal-prevu-etapes { margin: 0.2rem 0 0.8rem; padding: 0.7rem 0 0; list-style: none; counter-reset: etape; border-top: 1px solid var(--border); }
+.cal-prevu-etapes li { counter-increment: etape; margin: 0 0 0.55rem; font-size: var(--t-texte); line-height: 1.5; color: var(--text); }
+.cal-prevu-etapes li::before { content: counter(etape) '. '; font-weight: 600; color: var(--accent); }
