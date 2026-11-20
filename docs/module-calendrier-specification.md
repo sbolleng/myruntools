@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.28 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Mois V2** à l'essai, à côté de Mois (§ 4.5 : une ligne par semaine, séances en cartes à liseré, « Repos ») ; **Exporter** le Calendrier et Mon plan en page à imprimer ou en PDF (§ 4.6)
+Version 0.29 · 20 novembre 2026 · [Retour au sommaire](README.md) · Une séance se touche sur toute sa carte, dans toutes les semaines (le glisser reste limité à la semaine en cours) · **Mois V2** à l'essai, à côté de Mois (§ 4.5 : une ligne par semaine, séances en cartes à liseré, « Repos ») ; **Exporter** le Calendrier et Mon plan en page à imprimer ou en PDF (§ 4.6)
 
 ## 1. Rôle
 

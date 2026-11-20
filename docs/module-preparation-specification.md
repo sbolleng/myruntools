@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 3.4 · 20 novembre 2026 · [Retour au sommaire](README.md) · Parcours : phrase d'invite à l'écran 1, « Continuer » sur l'écran Volume
+Version 3.5 · 20 novembre 2026 · [Retour au sommaire](README.md) · « Construire mon plan » : l'attente de l'IA se passe sur le récapitulatif
 
 ## 1. Rôle
 
@@ -169,7 +169,7 @@ Un choix unique enregistre la réponse (dans Mon profil pour les questions du co
 
 Les autres formats n'ont pas de minimum publié trouvé : pas de signal.
 
-**Construire mon plan** : la course prend le rôle Objectif (Confirmée si elle ne l'était pas) ; l'autre course d'un chevauchement prend son rôle ; la durée choisie s'écrit sur l'Objectif (`prepa_semaines`, vide pour la durée conseillée) ; l'IA propose aussitôt le premier bloc, écrit d'office (compte pour une proposition du mois ; profil incomplet ou plus de proposition : le plan s'affiche sans, avec le message habituel) ; puis la vue d'ensemble (§ 5.1). « Personnaliser » ouvre ensuite « Régler les phases ».
+**Construire mon plan** : la course prend le rôle Objectif (Confirmée si elle ne l'était pas) ; l'autre course d'un chevauchement prend son rôle ; la durée choisie s'écrit sur l'Objectif (`prepa_semaines`, vide pour la durée conseillée) ; l'IA propose aussitôt le premier bloc, écrit d'office (compte pour une proposition du mois ; profil incomplet ou plus de proposition : le plan s'affiche sans, avec le message habituel) ; pendant ce temps le récapitulatif reste à l'écran, « MyRunTools prépare tes séances… » à gauche du bouton grisé ; puis la vue d'ensemble (§ 5.1), séances comprises. « Personnaliser » ouvre ensuite « Régler les phases ».
 
 **Mon profil changé, le plan construit** : les phases ne bougent pas (elles ne dépendent que des courses et de la durée) ; les séances déjà acceptées non plus ; seules la prochaine proposition et les conseils de déplacement tiennent compte du profil. Le profil reste modifiable partout (une seule source). Deux signaux, rien de bloqué :
 
