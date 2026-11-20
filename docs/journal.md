@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Séance de l'IA et réalisé | Séance de l'IA : prévu en lecture seule, « Modifier cette séance » en fait une séance à soi. Séance faite : bloc « Réalisé » (durée, distance, D+, FC moyenne, FC max ; allure calculée, pas de champ en plus). Le réalisé remplace le prévu dans la charge, les totaux et Nutrition quand il est saisi ; l'analyse compare prévu et réalisé. Évolution 042 ; fonction `proposer-seances` à recoller. |
 | 20 nov. 2026 | Anti-robot en service | CAPTCHA activé dans Supabase avec le fournisseur Turnstile ; connexion et « Mot de passe oublié ? » vérifiés. Reste avant l'ouverture de l'inscription : la page RGPD, le modèle « Confirm signup » à coller. |
 | 20 nov. 2026 | Anti-robot, erreurs | Un contrôle anti-robot refusé par Supabase se dit (« Contrôle anti-robot non validé : réessaie. ») sur la connexion, « Mot de passe oublié ? », « Créer un compte » et « Changer le mot de passe » ; il n'est plus confondu avec un mauvais mot de passe ni caché derrière la réponse neutre. |
 | 20 nov. 2026 | Outils et services | Un document unique (`outils-et-services.md`) liste les outils administrés, les services appelés par le site et les outils prévus, avec adresse, rôle et état. Le domaine est chez OVH ; Cloudflare ne sert qu'à Turnstile. |

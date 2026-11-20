@@ -36,9 +36,18 @@
   // Retour sur une séance (lot 6a) : seulement ce qui est renseigné.
   const DOUL = { aucune: 'aucune', legere: 'légère', forte: 'forte' };
   const retour = s => Object.fromEntries(Object.entries({ ressenti_sur_10: s.ressenti, ressenti: s.ressenti ? (P.niveauRessenti(s.ressenti) || [])[1] : null,
-    charge_ua: P.charge(s.ressenti, s.duree_min), douleur: s.douleur ? DOUL[s.douleur] + (s.douleur_ou ? ' (' + s.douleur_ou + ')' : '') : null,
+    charge_ua: P.charge(s.ressenti, P.reel(s).duree_min), douleur: s.douleur ? DOUL[s.douleur] + (s.douleur_ou ? ' (' + s.douleur_ou + ')' : '') : null,
     sensations: s.sensations ? ['très bonnes', 'bonnes', 'moyennes', 'pas bonnes', 'très mauvaises'][s.sensations - 1] : null,
     fatigue_sur_5: s.fatigue, commentaire: s.commentaire, deplacee_du: s.date_prevue }).filter(([, v]) => v != null && v !== ''));
+  // Réalisé d'une séance faite (seulement ce qui est saisi) : durée, distance, dénivelé, FC, allure.
+  const realise = s => {
+    if (!s.faite) return {};
+    const r = P.reel(s), o = Object.fromEntries(Object.entries({ duree_min: s.duree_reelle_min, distance_km: s.distance_reelle_km == null ? null : Number(s.distance_reelle_km), denivele_m: s.denivele_reel_m,
+      fc_moyenne: s.fc_moyenne, fc_max: s.fc_max }).filter(([, v]) => v != null));
+    if (!Object.keys(o).length) return {};
+    if (s.type !== 'renfo' && P.allure(r.duree_min, Number(r.distance_km))) o.allure = P.allure(r.duree_min, Number(r.distance_km));
+    return { realise: o };
+  };
   function contexte(ctx, lundi) {
     const ps = P.planSaison(ctx), pr = ctx.profil || {}, fin = addDays(lundi, 7 * BLOC - 1);
     const semaines = [];
@@ -209,10 +218,10 @@
     const prochaine = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date >= s.date).sort((a, b) => (a.date < b.date ? -1 : 1))[0];
     const fiche = Object.assign({ date: s.date, jour: NOMS_JOURS[parse(s.date).getDay()], type: TYPES[s.type] || s.type, nom: l.nom, detail: l.detail || null,
       duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), denivele_m: s.denivele_m == null ? null : Number(s.denivele_m),
-      intensite_prevue: s.intensite ? P.INTENSITES[s.intensite] : null }, retour(Object.assign({}, s, { commentaire: s.commentaire })));
+      intensite_prevue: s.intensite ? P.INTENSITES[s.intensite] : null }, realise(s), retour(Object.assign({}, s, { commentaire: s.commentaire })));
     const historique = ctx.seances.filter(y => y.id !== s.id && y.date >= addDays(s.date, -28) && y.date < s.date).sort((a, b) => (a.date < b.date ? -1 : 1))
       .map(y => Object.assign({ date: y.date, type: y.type, libelle: y.libelle, duree_min: y.duree_min == null ? null : y.duree_min, distance_km: y.distance_km == null ? null : Number(y.distance_km),
-        intensite: y.intensite || null, faite: !!y.faite }, y.faite ? retour(y) : {}));
+        intensite: y.intensite || null, faite: !!y.faite }, y.faite ? Object.assign(realise(y), retour(y)) : {}));
     return {
       aujourd_hui: iso(new Date()), seance: fiche,
       phase_du_plan: x ? NOM_PHASE[x.phase] : 'Entretien',

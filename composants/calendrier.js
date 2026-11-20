@@ -45,8 +45,8 @@
     const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ ' + (court ? 'Inscriptions' : 'Ouverture des inscriptions') + ' · ' + esc(c.course) + '</a>';
     // La séance : glissable (ordinateur), son type, son libellé, puis durée et distance ; un point à la couleur de son intensité ;
     // un picto quand elle a un commentaire (jamais sur le site partagé : le retour sur une séance n'est pas partagé).
-    const detail = s => [s.duree_min ? (s.duree_min >= 60 ? Math.floor(s.duree_min / 60) + ' h' + (s.duree_min % 60 ? String(s.duree_min % 60).padStart(2, '0') : '') : s.duree_min + ' min') : '',
-      Number(s.distance_km) > 0 ? String(s.distance_km).replace('.', ',') + ' km' : '', Number(s.denivele_m) > 0 ? s.denivele_m + ' m D+' : ''].filter(Boolean).join(' · ');
+    const detail = s => { const r = P.reel(s); return [r.duree_min ? (r.duree_min >= 60 ? Math.floor(r.duree_min / 60) + ' h' + (r.duree_min % 60 ? String(r.duree_min % 60).padStart(2, '0') : '') : r.duree_min + ' min') : '',
+      Number(r.distance_km) > 0 ? String(r.distance_km).replace('.', ',') + ' km' : '', Number(r.denivele_m) > 0 ? r.denivele_m + ' m D+' : ''].filter(Boolean).join(' · '); };
     const COMMENTAIRE = '<svg class="cal-v-com" viewBox="0 0 16 16" aria-label="Commentaire" role="img"><path d="M3 3.5h10v7H7l-3 2.5v-2.5H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
     // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré dessous à la couleur de son intensité ;
     // glissable (ordinateur) ; toucher le nom ouvre sa fenêtre. On coche dans la vue Semaine.
@@ -54,7 +54,7 @@
     const traitsHtml = i => (i && P.INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + P.INTENSITES[i] + '" title="' + P.INTENSITES[i] + '">' +
       [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
     const seanceHtml = s => {
-      const l = P.lireLibelle(s.libelle), km = Number(s.distance_km) > 0 ? String(s.distance_km).replace('.', ',') + ' km' : '';
+      const l = P.lireLibelle(s.libelle), km = Number(P.reel(s).distance_km) > 0 ? String(P.reel(s).distance_km).replace('.', ',') + ' km' : '';
       const tit = esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '');
       return '<span class="cal-m-se' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + tit + '">' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-m-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m-se-txt">') +
@@ -84,7 +84,7 @@
     const ss = (ctx.seances || []).filter(s => s.date >= de && s.date <= a && s.etat !== 'proposee');
     if (!ss.length) return '';
     const somme = (l, f) => l.reduce((t, s) => t + (Number(f(s)) || 0), 0), faites = ss.filter(s => s.faite);
-    const prevu = { n: ss.length, km: somme(ss, s => s.distance_km) }, fait = { n: faites.length, km: somme(faites, s => s.distance_km) };
+    const prevu = { n: ss.length, km: somme(ss, s => s.distance_km) }, fait = { n: faites.length, km: somme(faites, s => P.reel(s).distance_km) };
     const seances = n => n + (n > 1 ? ' séances' : ' séance');
     if (avenir) return [seances(prevu.n), prevu.km ? km(prevu.km) + ' km' : ''].filter(Boolean).join(' · ');
     return [fait.n + '/' + seances(prevu.n), prevu.km ? km(fait.km) + '/' + km(prevu.km) + ' km' : ''].filter(Boolean).join(' · ');

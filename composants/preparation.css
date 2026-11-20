@@ -190,3 +190,9 @@
 .cal-analyse-texte { margin: 0 0 0.8rem; font-size: var(--t-texte); line-height: 1.55; white-space: pre-line; color: var(--text); }
 .cal-analyse-ok { margin: 0.4rem 0 0; font-size: var(--t-texte); color: var(--accent); }
 .cal-analyse-lue { margin-top: 0.8rem; }
+
+/* ----- Fenêtre d'une séance : séance de l'IA en lecture seule, réalisé d'une séance faite ----- */
+.cal-ia-bandeau { margin: 0 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
+.cal-seance .mrt-champ:disabled { opacity: 0.65; cursor: not-allowed; }
+.cal-realise-titre { margin: 0.2rem 0 0.5rem; }
+.cal-allure { min-height: 1.2em; margin: -0.2rem 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
