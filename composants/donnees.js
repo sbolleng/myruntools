@@ -141,9 +141,10 @@
   window.mrtObjectifsCap = courses => window.mrtCoursesCap(courses).filter(c => c.statut === 'confirmee' && (c.role === 'objectif' || c.role === 'objectif_intermediaire'));
   // Le cap (Préparation, § 5.0) : l'Objectif choisi dans les Préférences, sinon le dernier Objectif à venir ; sans Objectif,
   // la course à venir la plus lointaine.
+  // Toute course à venir peut être choisie (Saison s'utilise sans Mon plan) ; par défaut, le dernier Objectif s'il y a un plan.
   window.mrtCap = (courses, prefs) => {
     const aVenir = window.mrtCoursesCap(courses), objectifs = window.mrtObjectifsCap(courses);
-    return objectifs.find(c => c.id === (prefs || {}).course_cap) || objectifs[objectifs.length - 1] || aVenir[aVenir.length - 1] || null;
+    return aVenir.find(c => c.id === (prefs || {}).course_cap) || objectifs[objectifs.length - 1] || aVenir[aVenir.length - 1] || null;
   };
 
   function configEnTete(prefs, courses) {
@@ -261,6 +262,7 @@
     const lirePlan = async () => { try { return await window.mrtLirePlan(qui); } catch (err) { console.warn('Calendrier : séances illisibles', err); return { seances: [], semaines: [] }; } };
     const plan = opts.plan ? (avanceValable && avance.plan ? await avance.plan : await lirePlan()) : null;
     let prefsCourantes = prefs;
+    window.mrtPrefs = () => prefsCourantes || {}; // la course principale de Saison (objectif.js) les lit
     // Grand en-tête sur la page de démarrage seulement ; ailleurs, la barre fine.
     const dessiner = p => {
       prefsCourantes = p;

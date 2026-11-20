@@ -266,7 +266,7 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Notion | Mot retenu | À ne plus écrire |
 | --- | --- | --- |
 | Page des courses à venir (menu, titre, lien d'En un coup d'œil) | **Saison** (fichier `objectif.html`, clé « Objectif ») | Objectif & plan, Plan & objectifs, Feuille de route |
-| Course choisie pour l'en-tête | **Objectif principal** (Préférences) ; l'en-tête garde la formule « Cap sur … » | « Cap » seul, comme étiquette |
+| Course choisie pour l'en-tête et mise en avant dans Saison | **Objectif principal** (Préférences : toute course à venir ; par défaut le dernier Objectif de Mon plan, sinon la plus lointaine) ; l'en-tête garde la formule « Cap sur … » ; à ne pas confondre avec le **rôle** Objectif (Mon plan) | « Cap » seul, comme étiquette |
 | Rôle d'une course | **Objectif**, Préparatoire, Plaisir | |
 | Module qui construit le plan | Page **Mon plan** (menu, titre, lien d'En un coup d'œil ; clé « Préparation ») ; rubrique **Préparation** d'une course ; les phases se règlent **dans Mon plan seulement** (bouton **Personnaliser** de la carte de l'Objectif, qui ouvre la fenêtre « Régler les phases ») ; « plan » dans « Paramétrer le plan », « Place dans le plan », « Courses du plan » ; la frise montre tout le plan | plan de saison, prépa, Saison (pour la frise), Plans des courses, page Préparation |
 | Parcours de Mon plan | **Construire mon plan** (bouton final) ; **Changer d'Objectif** (le relancer, carte de l'Objectif) ; **Niveau** (Débutant, Intermédiaire, Confirmé, Expert) ; **Antécédents de blessures** | Je cours depuis, Générer mon plan, programme |

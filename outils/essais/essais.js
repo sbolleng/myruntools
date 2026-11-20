@@ -779,7 +779,7 @@ const CONTROLES = {
     await recharger();
     const options = await p.evaluate(() => [...document.querySelectorAll('#bloc-cap option')].map(o => o.textContent));
     pb.push(egal('Par défaut : le dernier Objectif (Trail des Crêtes)', options[0], 'cap, premier choix'));
-    pb.push(egal(['Trail du Lac', 'Trail des Crêtes'], options.slice(1).map(o => o.split(' · ')[0]), 'cap, seuls les Objectifs proposés'));
+    pb.push(egal(['Trail du Lac', 'Course A', 'Trail des Crêtes'], options.slice(1).map(o => o.split(' · ')[0]), 'cap : toutes les courses à venir (Saison s\'utilise sans Mon plan) ; par défaut le dernier Objectif'));
     await p.selectOption('#bloc-cap select', { label: options[1] }); await attendre();
     pb.push(egal('Trail du Lac', await capEnTete(), 'cap Trail du Lac dans l\'en-tête'));
     pb.push(egal(options[1], await q('#bloc-cap select', 'x.selectedOptions[0].textContent'), 'cap après rechargement'));
@@ -864,21 +864,21 @@ const CONTROLES = {
     pb.push(egal(['Trail des Crêtes', "5 courses | D'ici là", ''], await p.evaluate(() => [document.querySelector('h1 em').textContent,
       [...document.querySelectorAll('.mrt-stat')].map(s => s.querySelector('.mrt-stat-val').textContent + ' | ' + s.querySelector('.mrt-stat-label').textContent)[3], document.querySelector('.mrt-next').textContent]), 'en-tête (feuille de route en page de démarrage : pas de ligne « prochaine course »)'));
     const [lac, corrida, gorges, groupe, foret, cretes] = k;
-    pb.push(egal({ role: 'Préparatoire', compteur: '26j', date: '15 nov. 2026', info: 'Mont-Clair · Trail court',
+    pb.push(egal({ role: 'Confirmée · Préparatoire', compteur: '26j', date: '15 nov. 2026', info: 'Mont-Clair · Trail court',
       lignes: ['Distance | 24 km · 650 m D+', 'Objectif | 02:45:00', 'Inscription | Inscrit · n° 412'] },
       { role: lac.role, compteur: lac.compteur, date: lac.date, info: lac.info, lignes: lac.lignes }, 'Trail du Lac'));
-    pb.push(egal({ role: 'Plaisir', compteur: '54j', lignes: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'] },
+    pb.push(egal({ role: 'Confirmée · Plaisir', compteur: '54j', lignes: ['Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'] },
       { role: corrida.role, compteur: corrida.compteur, lignes: corrida.lignes }, 'Corrida de Noël'));
-    pb.push(egal({ role: 'Objectif', cle: true, compteur: '137j', objectif: 'Objectif | 06:30:00' },
+    pb.push(egal({ role: 'Confirmée · Objectif', cle: false, compteur: '137j', objectif: 'Objectif | 06:30:00' },
       { role: gorges.role, cle: /is-obj/.test(gorges.classes), compteur: gorges.compteur, objectif: gorges.lignes[1] }, 'Trail des Gorges'));
     pb.push(egal({ opt: true, role: 'Préparatoire • 2 options', cands: [
       { nom: 'Trail des Cimes', date: '30 mai 2027', lignes: ['Distance | 42 km · 2 500 m D+', 'Inscription | Ouvre le 10 janv. 2027'], compteur: false, role: false },
       { nom: 'Ultra du Plateau · Le 55', date: '26 juin 2027', lignes: ['Distance | 55 km · 2 800 m D+', 'Inscription | Inscription ouverte'], compteur: false, role: false }] },
       { opt: /is-opt/.test(groupe.classes), role: groupe.role, cands: groupe.cands }, 'Printemps 2027'));
     pb.push(egal(true, await p.evaluate(() => { const a = document.querySelectorAll('.ob-cand .ob-ins')[1]; return a.tagName === 'A' && a.classList.contains('is-ouvert') && a.target === '_blank' && a.getAttribute('href') === 'https://example.org/plateau/inscription'; }), 'inscription ouverte : lien, en Alerte'));
-    pb.push(egal({ opt: true, role: 'Préparatoire', date: 'juillet 2027', compteur: null, lignes: ['Distance | 30 km · 1 200 m D+', 'Inscription | Ouverture à venir'] },
+    pb.push(egal({ opt: true, role: 'Option · Préparatoire', date: 'juillet 2027', compteur: null, lignes: ['Distance | 30 km · 1 200 m D+', 'Inscription | Ouverture à venir'] },
       { opt: /is-opt/.test(foret.classes), role: foret.role, date: foret.date, compteur: foret.compteur, lignes: foret.lignes }, 'Trail de la Forêt'));
-    pb.push(egal({ obj: true, role: 'Objectif', compteur: '311j', objectif: 'Objectif | Finisher', dossard: 'Inscription | Inscrit · n° 88' },
+    pb.push(egal({ obj: true, role: 'Confirmée · Objectif', compteur: '311j', objectif: 'Objectif | Finisher', dossard: 'Inscription | Inscrit · n° 88' },
       { obj: /is-obj/.test(cretes.classes), role: cretes.role, compteur: cretes.compteur, objectif: cretes.lignes[1], dossard: cretes.lignes[2] }, 'Trail des Crêtes'));
     pb.push(egal(['311', '19 h 00 min 00 s'], await p.evaluate(() => [document.querySelector('.mrt-days').textContent, document.querySelector('.mrt-hms').textContent]), 'en-tête : compte à rebours jusqu\'à l\'heure de départ'));
     // Couleurs (thème bleu et orange) : nom en Texte, date en Texte discret, chiffres du compteur et objectif en Accent (un seul accent) ; libellés à 0,7 rem.
@@ -932,7 +932,7 @@ const CONTROLES = {
       return [r, o.erreurs];
     };
     let [r, err] = await pageCourse(id(3));
-    pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Trail long',
+    pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Confirmée · Objectif · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Trail long',
       compteur: '137j 22h 30min 00s', fiche: ['Lieu | Mont-Clair', 'Date / heure | dim. 7 mars 2027 · 7 h 30', 'Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00Sous 6 h 45 dans tous les cas.', 'Inscription | Inscrit · n° 1287'], dossards: 1 },
       { modale: r.modale, barre: r.barre, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
     pb.push(egal(['À propos de la course', 'Inscription', 'Parcours', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : À propos de la course, Inscription, Parcours, Préparation, Logistique en dernier'));
@@ -959,7 +959,7 @@ const CONTROLES = {
     [r] = await pageCourse(id(1), PARIS, jourJ);
     pb.push(egal(false, r.fiche.some(l => /^Résultats/.test(l)), 'veille du jour J : pas de ligne Résultats'));
     [r] = await pageCourse(id(4));
-    pb.push(egal({ sur: 'Préparatoire · Étape 4 sur 6', groupe: 'Printemps 2027 · autre option : Ultra du Plateau · Le 55' }, { sur: r.sur, groupe: r.groupe }, 'page Trail des Cimes'));
+    pb.push(egal({ sur: 'Option · Préparatoire · Étape 4 sur 6', groupe: 'Printemps 2027 · autre option : Ultra du Plateau · Le 55' }, { sur: r.sur, groupe: r.groupe }, 'page Trail des Cimes'));
     [r] = await pageCourse(id(1));
     pb.push(egal(['is-suivante | Corrida de Noël'], r.nav, 'page Trail du Lac, pas de course précédente'));
     [r] = await pageCourse(id(7));
@@ -1194,7 +1194,7 @@ const CONTROLES = {
     pb.push(egal([true, 6], [await p.evaluate(() => !!document.querySelector('.mrt-bandeau')), k.length], 'lecture seule, feuille de route'));
     await ctx.close();
     [r] = await pageCourse(id(3), PARIS, partage, { 'mrt-vue': autre });
-    pb.push(egal(['Trail des Gorges', 'Objectif · Étape 3 sur 6'], [r.titre, r.sur], 'lecture seule, page d\'une course'));
+    pb.push(egal(['Trail des Gorges', 'Confirmée · Objectif · Étape 3 sur 6'], [r.titre, r.sur], 'lecture seule, page d\'une course'));
     return pb;
   },
 
@@ -3188,7 +3188,7 @@ const CONTROLES = {
     await p.waitForSelector('.ob-carte');
     const roles = await p.evaluate(() => [...document.querySelectorAll('.ob-carte .ob-role')].slice(0, 3).map(e => e.textContent));
     await ctx.close();
-    pb.push(egal(['Préparatoire', 'Confirmée', 'Objectif'], roles, 'page Saison : une course sans rôle montre son statut (Confirmée)'));
+    pb.push(egal(['Confirmée · Préparatoire', 'Confirmée', 'Confirmée · Objectif'], roles, 'page Saison : le statut, puis le rôle de Mon plan s\'il y en a un (Préparation, § 5.1)'));
     return pb;
   },
   async preparationIA(nav, db0) {
@@ -3928,7 +3928,7 @@ const CONTROLES = {
     pb.push(egal(['600', '13.6px', true], await p.evaluate(() => { const t = getComputedStyle(document.querySelector('.mg-titre'));
       return [t.fontWeight, t.fontSize, t.color === getComputedStyle(document.body).color]; }), 'difficulté : titre repliable commun'));
     pb.push(egal(['Trail du Lac · Le Tour du Lac, 30,5 km-effort | is-plein', 'Corrida de Noël, 10,4 km-effort | is-plein',
-      'Trail des Gorges, 66,0 km-effort | is-losange', 'Trail des Cimes, 67,0 km-effort | is-vide', 'Ultra du Plateau · Le 55, 83,0 km-effort | is-vide',
+      'Trail des Gorges, 66,0 km-effort | is-plein', 'Trail des Cimes, 67,0 km-effort | is-vide', 'Ultra du Plateau · Le 55, 83,0 km-effort | is-vide',
       'Trail de la Forêt, 42,0 km-effort | is-vide', 'Trail des Crêtes, 95,0 km-effort | is-losange'], g.points,
       'difficulté : km-effort sans D− ; d\'aujourd\'hui à la dernière course, sans courues ; trois signes (point plein, point à contour pour une option, losange)'));
     pb.push(egal({ graduations: ['0', '20', '40', '60', '80', '100'], etiquettes: [], ligne: 4, periode: 0, jour: false, tendance: false },

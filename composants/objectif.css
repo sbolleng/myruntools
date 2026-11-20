@@ -11,6 +11,7 @@
 .ob-lib { color: var(--muted); }
 .ob-date { color: var(--muted); }
 .ob-role { color: var(--muted); }
+.ob-role-plan { color: var(--muted); } /* le rôle dans Mon plan, après le statut, discret (même sur la course principale) */
 .ob-role.is-cle { color: var(--accent); }
 .ob-role.is-obj { color: var(--accent); }
 .ob-val { color: var(--text); }
@@ -205,3 +206,4 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 /* Date / heure d'une course à venir : le rond « Ajouter à l'agenda » à droite de la date. */
 .pc-datelig { display: flex; align-items: center; justify-content: flex-start; gap: 0.6rem; } /* le rond juste à droite de la date */
 .pc-datelig .mrt-rond .ob-ico { width: 0.95rem; height: 0.95rem; }
+@media (max-width: 600px) { .ob-carte .ob-role-plan { display: none; } } /* téléphone : le statut seul sur les cartes, pour tenir sur une ligne */
