@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Anti-robot | Clé du site Turnstile publiée : le contrôle s'affiche sur la connexion, « Créer un compte » et « Changer le mot de passe » ; la vérification par Supabase s'active ensuite. Banc d'essai et captures : clé vidée au chargement (pas de réseau). |
 | 20 nov. 2026 | Analyse d'une séance faite | L'IA analyse la séance faite quand l'effort est noté (déclenchement automatique, texte de 1 000 caractères au plus, rangé sur la séance, évolution 041) ; animation d'attente en trois traits dans la feuille « Effort et sensations » ; « Adapter mon plan » lance la réadaptation, sur l'accord de l'utilisateur seulement. Fonction `proposer-seances` à recoller (mode `analyse`). |
 | 20 nov. 2026 | Bouton Finishers | Le logo de Finishers (fourni, réduit à 64 px, `composants/images/finishers.png`) devant « Finishers ↗ » sur la page Courses. |
 | 20 nov. 2026 | Date de naissance | Saisie en trois champs (Jour tapé, Mois en liste, Année tapée), dans Mon profil et l'encart de Nutrition : le calendrier du navigateur obligeait à remonter mois par mois (option A, approche des sites publics). Élément commun `mrtDateTrois`. Le titre de la question n'est plus répété au-dessus du champ. Palmarès : rien à ajouter, les pastilles d'année existent déjà. Bloc Inscription laissé avant Parcours (ordre du formulaire et chronologie). |
