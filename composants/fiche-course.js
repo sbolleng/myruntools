@@ -138,7 +138,7 @@
     .concat(Array.from({ length: 11 }, (_, i) => ['M' + i, 'Master ' + i + ' (M' + i + ', ' + (35 + 5 * i) + (i < 10 ? '-' + (39 + 5 * i) : ' et plus') + ' ans)']));
   const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'Repérée']];
   const APPROX = 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.';
-  const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
+  const DEFAUT = { statut: 'confirmee' }; // le rôle se donne dans Mon plan (vide : hors plan)
   const NOUVEAU = '__nouveau__';
   // Objectif : une liste à choix unique, puis une durée quand le choix en demande une. Rangé comme avant : « Finisher », « Sub 3h », « 02:45:00 ».
   const OBJECTIFS = [['', '— Aucun'], ['finisher', 'Finisher (terminer)'], ['sub', 'Moins de… (Sub)'], ['temps', 'Temps précis']];
@@ -208,9 +208,9 @@
           : sousDe(typeDe(c.format)).map(s => [s.id, s.libelle]);
         const vide = DEFAUT[k] ? '' : '<option value="">—</option>';
         const courant = (k === 'role' && valeur === 'objectif_intermediaire' ? 'objectif' : valeur) || DEFAUT[k] || '';
-        // Le rôle Objectif ne se donne que dans Mon plan (Préparation, § 5.0) : affiché sans choix ; sinon Préparatoire ou Plaisir.
-        if (k === 'role' && courant === 'objectif') input = '<input type="hidden" id="' + id + '" data-k="' + k + '" value="objectif"><p class="fc-fixe">Objectif · <a class="mrt-lien" href="preparation.html">réglé dans Mon plan</a></p>';
-        else input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '">' + vide + (k === 'role' ? opts.filter(o => o[0] !== 'objectif') : opts).map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
+        // Le rôle se donne dans Mon plan seulement (Préparation, § 5.1) : affiché sans choix ; vide, « Hors plan ».
+        if (k === 'role') input = '<input type="hidden" id="' + id + '" data-k="' + k + '" value="' + esc(courant) + '"><p class="fc-fixe">' + ((ROLES.find(o => o[0] === courant) || [])[1] || 'Hors plan') + ' · <a class="mrt-lien" href="preparation.html">réglé dans Mon plan</a></p>';
+        else input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
       } else if (genre === 'objectif') {
         const o = decouperObjectif(valeur), avec = o.type === 'sub' || o.type === 'temps';
         input = '<div class="fc-objectif"><select class="mrt-champ" id="fc-objectif_type" data-k="objectif_type" aria-label="Type d\'objectif">' +
