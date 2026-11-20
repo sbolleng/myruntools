@@ -4968,6 +4968,39 @@ const CONTROLES = {
     await o.ctx.close();
     return pb;
   },
+  // Outils et services (docs/outils-et-services.md, § 5) : chaque adresse externe appelée par le code est listée dans le document,
+  // et aucune clé secrète n'est versionnée. Contrôle sans navigateur ; les liens d'articles cités comme sources (Guide, avis des courses) sont exclus.
+  async outilsServices() {
+    const pb = [], { execSync } = require('child_process');
+    const racine = path.resolve(__dirname, '../..');
+    const doc = fs.readFileSync(path.join(racine, 'docs/outils-et-services.md'), 'utf8');
+    // Domaine « racine » d'une adresse : ses deux derniers éléments (tuile.opentopomap.org → opentopomap.org).
+    const domaine = h => h.replace(/^\*\./, '').split('.').slice(-2).join('.');
+    const documentes = new Set([...doc.matchAll(/`([^`\s]+)`/g)].map(m => m[1].replace(/^https?:\/\//, '').split(/[\/ ]/)[0]).filter(h => /^(\*\.)?[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(h)).map(domaine));
+    const fichiers = execSync('git ls-files', { cwd: racine, encoding: 'utf8' }).split('\n').filter(Boolean);
+    const code = f => (/^(composants\/[^/]+\.js|donnees\/supabase\.js|supabase\/functions\/.+\.ts|[^/]+\.html)$/.test(f)) && f !== 'guide.html' && f !== 'composants/preparation.js';
+    const absents = new Set();
+    for (const f of fichiers.filter(code)) {
+      for (const m of fs.readFileSync(path.join(racine, f), 'utf8').matchAll(/https?:\/\/(\{s\}\.)?([a-z0-9][a-z0-9.-]*\.[a-z]{2,})/gi)) {
+        const d = domaine(m[2].toLowerCase());
+        if (d === 'example.org' || d === 'w3.org' || d === 'myruntools.fr') continue;
+        if (!documentes.has(d)) absents.add(d + ' (' + f + ')');
+      }
+    }
+    pb.push(egal([], [...absents].sort(), 'adresses externes du code : toutes listées dans outils-et-services.md'));
+    pb.push(egal(true, ['supabase.co', 'cloudflare.com', 'openfoodfacts.org', 'opentopomap.org', 'github.com', 'ovh.com', 'resend.com', 'platform.claude.com'].every(d => documentes.has(domaine(d))),
+      'le document nomme GitHub, OVH, Supabase, Resend, Cloudflare, Anthropic, Open Food Facts et OpenTopoMap'));
+    // Aucune clé secrète dans les fichiers versionnés.
+    const SECRETS = [/sk-ant-[A-Za-z0-9_-]{20,}/, /sb_secret_[A-Za-z0-9_-]{10,}/, /eyJ[A-Za-z0-9_-]{30,}\.[A-Za-z0-9_-]{20,}\./];
+    const fuites = [];
+    for (const f of fichiers) {
+      if (/\.(png|jpe?g|gif|ico|woff2?|pdf)$/i.test(f) || f.startsWith('outils/essais/package-lock')) continue;
+      let t; try { t = fs.readFileSync(path.join(racine, f), 'utf8'); } catch (e) { continue; }
+      if (SECRETS.some(r => r.test(t))) fuites.push(f);
+    }
+    pb.push(egal([], fuites, 'aucune clé secrète (Anthropic, Supabase) dans les fichiers versionnés'));
+    return pb;
+  },
   // Repasse de vocabulaire (design, § 12 « Glossaire ») : une notion = un mot. Les anciens mots n'apparaissent plus dans aucun texte
   // affiché (libellés, boutons, infobulles, champs) ; le nom de l'onglet ouvert est celui du titre de la page.
   async vocabulaire(nav, db0) {
