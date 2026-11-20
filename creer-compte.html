@@ -86,7 +86,7 @@
       } catch (err) {
         captcha.reinitialiser();
         dire(err.nature === 'fermee' ? 'Les inscriptions ne sont pas encore ouvertes.'
-          : mrtNatureErreur(err) === 'limite' ? 'Trop de tentatives, réessaie dans quelques minutes.' : 'Création impossible pour l\'instant.', true);
+          : mrtNatureErreur(err) === 'captcha' ? mrtMessageCaptcha : mrtNatureErreur(err) === 'limite' ? 'Trop de tentatives, réessaie dans quelques minutes.' : 'Création impossible pour l\'instant.', true);
         btn.disabled = false;
       }
     });

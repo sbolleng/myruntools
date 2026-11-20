@@ -56,6 +56,7 @@ function simulerBase(ctx, db) {
       const utilisateur = { id: db.profils[0].id, aud: 'authenticated', role: 'authenticated', email: adresse, app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' };
       db.auth.appels.push({ chemin, methode: req.method(), requete: u.search, corps });
       const json = (statut, o) => route.fulfill({ status: statut, contentType: 'application/json', body: JSON.stringify(o) });
+      if (db.auth.captchaRefuse && ['recover', 'token', 'signup'].includes(chemin) && u.searchParams.get('grant_type') !== 'refresh_token') return json(400, { code: 400, error_code: 'captcha_failed', msg: 'captcha protection: request disallowed (invalid-input-response)' });
       if (chemin === 'token') {
         const t0 = Math.floor((db.auth.maintenant || new Date()).getTime() / 1000);
         if (u.searchParams.get('grant_type') === 'refresh_token') return json(200, { access_token: 'essai', token_type: 'bearer', expires_in: 3600, expires_at: t0 + 3600, refresh_token: 'essai', user: utilisateur });
@@ -3341,6 +3342,17 @@ const CONTROLES = {
     const recup = d.auth.appels.filter(a => a.chemin === 'recover');
     pb.push(egal([2, true], [recup.length, recup.every(a => /redirect_to=[^&]*nouveau-mot-de-passe\.html/.test(a.requete))], 'mot de passe oublié : deux demandes, lien de retour vers la page du nouveau mot de passe'));
     pb.push(egal([], erreurs, 'mot de passe oublié, erreurs JavaScript'));
+    await ctx.close();
+
+    // Contrôle anti-robot refusé par Supabase : dit tel quel, à la connexion comme pour « Mot de passe oublié ? ».
+    d = neuve({ maintenant: null, captchaRefuse: true });
+    ({ p, ctx } = await visiteur('connexion.html', d));
+    await p.fill('#email', ADRESSE); await p.click('#oubli');
+    await p.waitForFunction(() => /anti-robot/.test(document.getElementById('message').textContent));
+    const refusOubli = await message(p);
+    await p.fill('#mdp', MDP); await p.click('button[type="submit"]');
+    await p.waitForFunction(() => /anti-robot/.test(document.getElementById('message').textContent) && !document.querySelector('button[type="submit"]').disabled);
+    pb.push(egal(['Contrôle anti-robot non validé : réessaie.', 'Contrôle anti-robot non validé : réessaie.'], [refusOubli, await message(p)], 'anti-robot refusé : dit pour « Mot de passe oublié ? » et pour la connexion'));
     await ctx.close();
 
     // Lien reçu : nouveau mot de passe (14 caractères au moins, deux saisies identiques) ; autres appareils déconnectés ; accueil.
