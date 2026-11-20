@@ -4792,7 +4792,7 @@ const CONTROLES = {
       const vp = p.viewportSize();
       await p.setViewportSize({ width: 390, height: 844 });
       pb.push(egal([false, true, true, true], await p.evaluate(() => {
-        const pan = document.querySelector('.nu-feuille').getBoundingClientRect(), champs = [...document.querySelectorAll('.nu-feuille .cal-champs3 .mrt-champ')].map(c => Math.round(c.getBoundingClientRect().top));
+        const pan = document.querySelector('.nu-feuille').getBoundingClientRect(), champs = [...document.querySelector('.nu-feuille .cal-champs3').querySelectorAll('.mrt-champ')].map(c => Math.round(c.getBoundingClientRect().top));
         const b = document.querySelector('.nu-feuille .mc-pied').getBoundingClientRect();
         return [/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName), pan.width === innerWidth && pan.height === innerHeight, champs.length === 3 && champs.every(t => t === champs[0]), Math.abs(b.bottom - innerHeight) < 2];
       }), 'téléphone : aucun champ pris (pas de clavier), feuille plein écran, durée, distance et dénivelé alignés, « Enregistrer » en bas de l\'écran'));
