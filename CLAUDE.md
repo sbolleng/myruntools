@@ -57,6 +57,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Saison sans rôle (statut sur les cartes, rôle de Mon plan en petit ; course mise en avant = Objectif principal). Évolution 043 passée, fonction `proposer-seances` recollée le 20 nov.
+- Dernier lot : frise de Mon plan, une phase = un bloc (semaines consécutives fusionnées). Avant : Saison sans rôle, évolution 043 passée, fonction `proposer-seances` recollée le 20 nov.
 - En suspens : inscription ouverte le 20 nov. 2026 ; plafond de l'IA à remettre, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).
