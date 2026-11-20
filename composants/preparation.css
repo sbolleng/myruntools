@@ -2,9 +2,9 @@
    docs/module-calendrier-specification.md, § 4 et 5 ; couleurs : docs/design.md, § 9 et 10.
    Partagé par le Calendrier (calendrier.html) et la page d'une course (course.html). */
 /* Couleurs fixes, les mêmes dans tous les thèmes ; l'encre : le texte écrit sur la couleur d'une course. */
-:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --int-moy: #f0883e; }
+:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --ph-entretien: #8c8c8c; --int-moy: #f0883e; }
 /* Fond blanc : des phases plus foncées, lisibles quand leur nom est écrit dans leur couleur. */
-.t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; }
+.t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; --ph-entretien: #6b6b6b; }
 
 /* ----- Phases (base, développement, affûtage, deload ; hors saison : récupération, l'entretien sans couleur) ----- */
 .cal-k.ph-base, .cal-seg.ph-base { background: var(--ph-base); }

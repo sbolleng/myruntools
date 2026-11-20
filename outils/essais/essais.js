@@ -922,7 +922,7 @@ const CONTROLES = {
     pb.push(egal({ modale: true, barre: ['modifier', 'fermer'], sur: 'Objectif · Étape 3 sur 6', titre: 'Trail des Gorges', info: 'Trail long',
       compteur: '137j 22h 30min 00s', fiche: ['Lieu | Mont-Clair', 'Date / heure | dim. 7 mars 2027 · 7 h 30', 'Distance | 45 km · 2 100 m D+ · 2 100 m D−', 'Objectif | 06:30:00Sous 6 h 45 dans tous les cas.', 'Inscription | Inscrit · n° 1287'], dossards: 1 },
       { modale: r.modale, barre: r.barre, sur: r.sur, titre: r.titre, info: r.info, compteur: r.compteur, fiche: r.fiche, dossards: r.dossards }, 'page Trail des Gorges, haut et fiche'));
-    pb.push(egal(['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : À propos de la course, Parcours, Préparation, Logistique en dernier'));
+    pb.push(egal(['À propos de la course', 'Inscription', 'Parcours', 'Préparation', 'Logistique'], r.cellules, 'page Trail des Gorges, textes : À propos de la course, Inscription, Parcours, Préparation, Logistique en dernier'));
     pb.push(egal(true, r.descFiche, 'page Trail des Gorges, « À propos de la course » dans le cadre de la fiche'));
     pb.push(egal(['Rôle dans la préparation | Répétition générale du matériel et de la nutrition.', true], r.prepa, 'page Trail des Gorges, Préparation : le rôle, puis le lien « Régler le plan dans Préparation » et le plan'));
     pb.push(egal([['Site officiel'], true], [r.liens, r.officiel], 'page Trail des Gorges : site officiel en bas à droite de la fiche, sur la ligne d\'« À propos de la course », pas de « S\'inscrire » (inscrit)'));
@@ -932,8 +932,8 @@ const CONTROLES = {
     pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
     pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
     [r] = await pageCourse(id(2));
-    pb.push(egal({ cellules: ['Parcours', 'Préparation'], fiche: ['Lieu | Ville-Haute', 'Date / heure | dim. 13 déc. 2026 · 18 h 30', 'Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'], liens: ['Site officiel'] },
-      { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix ; Parcours pour importer un GPX'));
+    pb.push(egal({ cellules: ['Inscription', 'Parcours', 'Préparation'], fiche: ['Lieu | Ville-Haute', 'Date / heure | dim. 13 déc. 2026 · 18 h 30', 'Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'], liens: ['Site officiel'] },
+      { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix ; Inscription toujours là ; Parcours pour importer un GPX'));
     [r] = await pageCourse(id(5));
     pb.push(egal({ liens: ['S\'inscrire', 'Site officiel'], insLien: 0, fiche: ['Lieu | Plaine-Neuve', 'Date / heure | sam. 26 juin 2027', 'Distance | 55 km · 2 800 m D+', 'Inscription | Inscription ouverte'] }, { liens: r.liens, insLien: r.insLien, fiche: r.fiche },
       'page Ultra du Plateau : « S\'inscrire » en tête, la ligne Dossard sans lien'));
@@ -953,13 +953,13 @@ const CONTROLES = {
     pb.push(egal(['is-precedente | Trail de la Forêt'], r.nav, 'page Trail des Crêtes, pas de course suivante'));
     // Ordinateur : la modale (marges de 2 rem et cadre de 1 px : 896 px de texte, comme les pages), la fiche encadrée, tous les textes ouverts, sans pouvoir les replier.
     ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, db, {}, PARIS));
-    pb.push(egal({ largeur: 896, cadre: '1px', textes: 4, ouverts: ['Parcours'], repliable: 'auto', cadres: 2 },
+    pb.push(egal({ largeur: 896, cadre: '1px', textes: 5, ouverts: ['Parcours'], repliable: 'auto', cadres: 2 },
       await p.evaluate(() => {
         return { largeur: Math.round(document.querySelector('.pc').getBoundingClientRect().width),
           cadre: getComputedStyle(document.querySelector('.pc-fiche')).borderTopWidth, textes: document.querySelectorAll('.pc-cellule').length,
           ouverts: [...document.querySelectorAll('.pc-cellule[open] > summary')].map(x => x.textContent.trim()), repliable: getComputedStyle(document.querySelector('.pc-cellule > summary')).pointerEvents,
           cadres: document.querySelectorAll('.pc > .pc-fiche, .pc > .pc-textes').length
-        }; }), 'ordinateur : une colonne, deux cadres (fiche et Description, puis Parcours, Préparation, Logistique), tout replié sauf Parcours, renseigné'));
+        }; }), 'ordinateur : une colonne, deux cadres (fiche et Description, puis Inscription, Parcours, Préparation, Logistique), tout replié sauf Parcours, renseigné'));
     await p.locator('#preparation > summary').click();
     await p.waitForTimeout(400);
     pb.push(egal(true, await p.evaluate(() => document.querySelector('#preparation').open), 'ordinateur : toucher Préparation l\'ouvre'));
@@ -972,16 +972,16 @@ const CONTROLES = {
       return { debordement: document.documentElement.scrollWidth > innerWidth, compteurUneLigne: cases.every(c => Math.abs(c.top - cases[0].top) < 3),
         ouvertes: [...document.querySelectorAll('.pc-cellule')].map(d => d.open), haut: Math.round(document.querySelector('.pc-fiche').getBoundingClientRect().top) };
     });
-    pb.push(egal({ debordement: false, compteurUneLigne: true, ouvertes: [false, true, false, false] },
+    pb.push(egal({ debordement: false, compteurUneLigne: true, ouvertes: [false, false, true, false, false] },
       { debordement: tc.debordement, compteurUneLigne: tc.compteurUneLigne, ouvertes: tc.ouvertes }, 'téléphone : page d\'une course'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'objectif-course-telephone.png'), fullPage: false });
     pb.push(egal(true, tc.haut < 330, 'téléphone : la fiche commence dans le premier écran (' + tc.haut + ' px)'));
-    await p.locator('.pc-cellule > summary').nth(1).click();
+    await p.locator('.pc-cellule > summary').nth(2).click();
     await p.waitForTimeout(400);
-    pb.push(egal([false, false], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(0, 2).map(d => d.open)), 'téléphone : toucher le titre ferme la cellule ouverte'));
-    await p.locator('.pc-cellule > summary').nth(1).click();
+    pb.push(egal([false, false], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(1, 3).map(d => d.open)), 'téléphone : toucher le titre ferme la cellule ouverte'));
+    await p.locator('.pc-cellule > summary').nth(2).click();
     await p.waitForTimeout(400);
-    pb.push(egal([false, true], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(0, 2).map(d => d.open)), 'téléphone : toucher le titre ouvre la cellule'));
+    pb.push(egal([false, true], await p.evaluate(() => [...document.querySelectorAll('.pc-cellule')].slice(1, 3).map(d => d.open)), 'téléphone : toucher le titre ouvre la cellule'));
     pb.push(egal([], erreurs, 'téléphone, page d\'une course, erreurs JavaScript'));
     await ctx.close();
     // ----- Tracé GPX (§ 3.4, n° 25 à 28 et 32) -----
@@ -1963,7 +1963,7 @@ const CONTROLES = {
           nom + ', bouton « Plan » enfoncé (retenu sur l\'appareil) : le fond de phase du plan de saison (Entretien sans fond jusqu\'au 15 novembre, saison du Trail des Gorges dès le 16), pas de barres'),
         egal([['3px', 'rgb(143, 168, 201)'], ['3px', 'rgb(230, 184, 77)'], ['3px', 'rgb(180, 142, 240)'], 'rgb(255, 122, 69)', true],
           [r.l12, r.l20, r.lGorges, r.gorges, r.titre20.endsWith('aujourd\'hui · Course à pied 8×400 m · Renforcement Gainage 20 min')], nom + ', liseré de 3 px de la couleur pleine de la phase (deload le 8 décembre, développement le 12 janvier, affûtage le 7 mars), une course garde sa couleur, infobulle : les séances (Entretien : pas de phase)'),
-        egal(LEGENDE.concat([['Phases', 'Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']]), r.legende, nom + ', légende des phases, Récupération comprise'),
+        egal(LEGENDE.concat([['Phases', 'Base', 'Développement', 'Affûtage', 'Deload', 'Récupération', 'Entretien']]), r.legende, nom + ', légende des phases, Récupération et Entretien comprises'),
         egal(false, r.debordement, nom + ', Plan, débordement horizontal'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-annee-' + nom.replace('é', 'e') + '.png'), fullPage: true });
       await ctx.close();
@@ -2070,7 +2070,7 @@ const CONTROLES = {
     let d = copie();
     let { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', 1200, d, { 'mrt-calendrier-phases': '1' }, PARIS);
     let r = await lire(p);
-    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.length, r.legende], 'Plan, octobre : Entretien (pas encore de saison), aucun fond de phase ; légende avec Récupération'));
+    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération', 'Entretien']], [r.phases.length, r.legende], 'Plan, octobre : Entretien (pas encore de saison), aucun fond de phase ; légende avec Récupération et Entretien'));
     await p.goto(RACINE + 'calendrier.html#mois=2026-12'); await p.waitForSelector('.cal-m-grille');
     r = await lire(p);
     const fondM = j => p.evaluate(x => getComputedStyle(document.querySelector('.cal-m-case[data-jour="' + x + '"]')).backgroundColor, j);
@@ -2219,8 +2219,8 @@ const CONTROLES = {
     // Plan : le fond des jours à la couleur de la phase de la semaine (le même pour tous ses jours), et la légende ; pas de nom de phase.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
     let r = await lire(p);
-    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération']], [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, r.legende],
-      'Plan, semaine du 19 octobre : Entretien, pas de fond ; légende avec Récupération'));
+    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Deload', 'Récupération', 'Entretien']], [r.phases.filter(x => x[0] >= '2026-10-19' && x[0] <= '2026-10-25').length, r.legende],
+      'Plan, semaine du 19 octobre : Entretien, pas de fond ; légende avec Récupération et Entretien'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#semaines=2026-11-30', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
     r = await lire(p);
@@ -2426,7 +2426,7 @@ const CONTROLES = {
         bloc: [...document.querySelectorAll('.ps-semaine .cal-s-ligne')].map(e => e.dataset.jourLigne),
         reperes: [...document.querySelectorAll('.ps-semaine .cal-v-rep')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne + ' ' + e.textContent),
         repos: [...document.querySelectorAll('.ps-semaine .cal-repos')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne),
-        lien: (document.querySelector('.ps-vers-cal') || {}).textContent || null,
+        lien: (document.querySelector('.ps-semaine-tete a.ps-vers-cal') || { getAttribute: () => null }).getAttribute('href'),
         plus: document.querySelectorAll('.ps-semaine [data-ajout]').length,
         ordre: [...document.querySelectorAll('.ps-vue > *')].map(e => e.className.split(' ').find(c => c.startsWith('ps-'))),
         debordement: document.documentElement.scrollWidth > innerWidth
@@ -2459,7 +2459,7 @@ const CONTROLES = {
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
     await p.waitForSelector('.ps-objectif');
     let r = await lire(p);
-    pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'Voir les semaines dans le Calendrier →'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier'));
+    pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; picto du Calendrier à côté du titre'));
     pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
@@ -4005,11 +4005,12 @@ const CONTROLES = {
     await vue(p, 'surveiller');
     await p.click('.cs-site[href]');
     pb.push(egal(0, await p.locator('.fc-fiche').count(), 'le lien « Site officiel » n\'ouvre pas la fiche'));
-    const ouverts = () => p.evaluate(() => ({ ferme: document.querySelectorAll('.mc-panneau details.pc-cellule:not([open]), .mc-panneau details.is-montre:not([open])').length, total: document.querySelectorAll('.mc-panneau details.pc-cellule, .mc-panneau details.is-montre').length }));
+    const ouverts = () => p.evaluate(() => ({ ferme: document.querySelectorAll('.mc-panneau details.pc-cellule:not([open]):not(.is-vide), .mc-panneau details.is-montre:not([open]):not(.is-vide)').length,
+      vides: [...document.querySelectorAll('.mc-panneau details.is-vide')].filter(d => !d.open && /Non renseigné/.test(d.textContent)).length, total: document.querySelectorAll('.mc-panneau details.pc-cellule, .mc-panneau details.is-montre').length }));
     await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
     pb.push(egal(['Marathon de la Baie', 0], [await t(p, '.pc-titre'), await p.locator('.fc-fiche').count()], 'toucher la carte : la page de la course, pas la fiche'));
     let ov = await ouverts();
-    pb.push(egal([0, true], [ov.ferme, ov.total > 0], 'page ouverte depuis Courses : tous les blocs ouverts'));
+    pb.push(egal([0, true, true], [ov.ferme, ov.total > 0, ov.vides > 0], 'page ouverte depuis Courses : blocs renseignés ouverts, blocs vides affichés fermés (« Non renseigné »)'));
     // Rond « Ajouter à l'agenda » à droite de la date : un fichier .ics.
     const [tel] = await Promise.all([p.waitForEvent('download'), p.click('[data-ob="agenda"]')]);
     const ics = require('fs').readFileSync(await tel.path(), 'utf8');
@@ -4021,7 +4022,7 @@ const CONTROLES = {
     await vue(p, 'courue');
     await p.locator('.cs-carte').nth(0).click(); await p.waitForSelector('.mc-panneau .pc-titre');
     ov = await ouverts();
-    pb.push(egal(['Semi de San Sebastián', 0], [await t(p, '.pc-titre'), ov.ferme], 'course courue : sa page, Résultat, Montre et blocs ouverts'));
+    pb.push(egal(['Semi de San Sebastián', 0], [await t(p, '.pc-titre'), ov.ferme], 'course courue : sa page, Résultat, Montre et blocs renseignés ouverts'));
     await p.click('[data-ob="fermer"]'); await pause();
     // Le crayon de la page ouvre la fiche de modification.
     await vue(p, 'surveiller');

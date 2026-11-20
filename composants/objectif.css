@@ -143,6 +143,7 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 .pc-cellule > summary::-webkit-details-marker { display: none; }
 .pc-corps { padding-bottom: 1rem; }
 .pc-corps p + p { margin-top: 0.4rem; }
+.pc-vide { color: var(--muted); }
 .pc-liens { list-style: none; }
 .pc-liens li + li { margin-top: 0.3rem; }
 .pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
