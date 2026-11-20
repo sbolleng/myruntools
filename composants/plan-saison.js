@@ -2,7 +2,7 @@
 //
 // docs/module-preparation-specification.md, § 5.1. renderSaison(élément, ctx) dessine la page Mon plan : la carte de l'Objectif
 // visé et les réglages du plan (Mon profil, Changer d'Objectif, Personnaliser), la frise de tout le plan (une case par semaine),
-// le bandeau de MyRunTools (alertes, recommandation, « Refaire »), Cette semaine. Sans Objectif à venir : le parcours
+// le bandeau de MyRunTools (alertes, recommandation), Cette semaine. Sans Objectif à venir : le parcours
 // « Construire mon plan » (plan-parcours.js, § 5.0). Les séances proposées par l'IA s'écrivent d'office (§ 6) : il n'y a
 // rien à accepter ; chacune reste modifiable.
 // Le calcul (saisons, repères, alertes, phases) est dans preparation.js, partagé avec le Calendrier ; les séances aussi.
@@ -15,8 +15,8 @@
   const nom = c => '<a class="ps-course" href="' + lien(c) + '">' + esc(c.course) + '</a>';
   const texteAlerte = a => P.texteAlerte(a, nom);
   const manquants = pr => window.mrtProfil.manquants(pr);
-  const ouvrirProfil = ctx => window.mrtProfil.feuille({ etat: { id: ctx.id, mesures: ctx.mesures || {}, entrainement: ctx.profil || null, courses: ctx.courses },
-    surMaj: e => { ctx.profil = e.entrainement; ctx.mesures = e.mesures; ctx.redessiner(); } });
+  const ouvrirProfil = ctx => { ctx.profilOuvert = true; window.mrtProfil.feuille({ etat: { id: ctx.id, mesures: ctx.mesures || {}, entrainement: ctx.profil || null, courses: ctx.courses },
+    surMaj: e => { ctx.profil = e.entrainement; ctx.mesures = e.mesures; ctx.redessiner(); }, surFermer: () => { ctx.profilOuvert = false; if (ctx.majPlan) ctx.majPlan(); } }); };
   const IA = () => window.mrtSeancesIA;
   const lundisDu = lundi => [0, 1, 2, 3].map(i => addDays(lundi, 7 * i));
   // La recommandation en deux phrases au plus (§ 5.1, n° 9).
@@ -29,7 +29,7 @@
     exporter: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7.5M4.8 6.8L8 10l3.2-3.2M3 13h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     calendrier: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' };
 
-  // (9) Le bandeau de MyRunTools, toujours ouvert : les alertes, « Ton profil a changé… », la recommandation et « Refaire ».
+  // (9) Le bandeau de MyRunTools, toujours ouvert : les alertes, la préparatoire conseillée, la recommandation de l'IA.
   function bandeauHtml(ctx, lundi, alertes, o) {
     const al = alertes.map(a => '<li class="ps-alerte" data-alerte="' + a.type + '">' + texteAlerte(a) + '</li>').join('');
     const lignes = [];
@@ -37,19 +37,13 @@
     const sg = !ctx.lectureSeule && o ? P.suggestion(ctx, o) : null;
     if (sg) lignes.push('<p class="ps-sg-ligne"><b>Préparatoire conseillée</b> : ' + sg.fenetre.texte + ', du ' + P.longue(sg.debut) + ' au ' + P.longue(sg.fin) + '. <button type="button" class="mrt-lien" data-prepa="fenetre">Ajouter</button></p>');
     if (!ctx.lectureSeule && IA() && ctx.profil !== undefined) {
-      const etat = ctx.ia || {}, manque = manquants(ctx.profil), prop = couvrante(ctx, lundi), reste = IA().restantes(ctx);
-      const refaire = '<button type="button" class="mrt-lien" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>Refaire</button>';
-      const derniere = IA().historique(ctx).find(x => x.statut === 'brute' || x.statut === 'acceptee');
+      const etat = ctx.ia || {}, manque = manquants(ctx.profil), prop = couvrante(ctx, lundi);
+      const suite = etat.blocs > 1 ? ' (bloc ' + etat.bloc + ' sur ' + etat.blocs + ')' : '';
       if (manque.length) lignes.push('<p class="ps-ia-aide">Pour que MyRunTools propose tes séances : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>');
-      else if (etat.encours) lignes.push('<p class="ps-reco">' + (etat.revue ? 'MyRunTools révise tes prochaines semaines…' : etat.readaptation ? 'MyRunTools réadapte tes séances…' : 'MyRunTools prépare tes séances…' + (etat.blocs > 1 ? ' (bloc ' + etat.bloc + ' sur ' + etat.blocs + ')' : '')) + '</p>');
+      else if (etat.encours) lignes.push('<p class="ps-reco">' + (etat.revue ? 'MyRunTools révise tes prochaines semaines…' : etat.maj ? 'MyRunTools met à jour ton plan…' + suite : etat.readaptation ? 'MyRunTools réadapte tes séances…' : 'MyRunTools prépare tes séances…' + suite) + '</p>');
       else {
-        if (derniere && ctx.profil && ctx.profil.maj && String(ctx.profil.maj) > String(derniere.cree))
-          lignes.push('<p class="ps-profil-change">Ton profil a changé depuis la dernière proposition.</p>');
-        const pm = (ctx.prefs || {}).plan_maj;
-        if (derniere && pm && String(pm) > String(derniere.cree)) lignes.push('<p class="ps-profil-change ps-saison-change">Ta saison a changé depuis la dernière proposition.</p>');
         const reco = prop ? deuxPhrases(IA().recommandationDe(prop.reponse)) : '';
-        lignes.push('<p class="ps-reco">' + (reco ? '<b>MyRunTools</b> : ' + esc(reco) + ' ' : '') + refaire +
-          (Number.isFinite(reste) ? '<span class="ps-ia-reste"> · ' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci</span>' : '') + '</p>');
+        if (reco) lignes.push('<p class="ps-reco"><b>MyRunTools</b> : ' + esc(reco) + '</p>');
       }
       if (etat.message) lignes.push('<p class="ps-ia-msg" role="alert">' + etat.message + '</p>');
     }
@@ -64,13 +58,14 @@
     const fin = lundiDe(recupDer && recupDer.recupFin > derniere.jourJ ? recupDer.recupFin : derniere.jourJ);
     const debut = ps.saisons[0].premier < lundi ? ps.saisons[0].premier : lundi;
     const jm = d => (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS[d.getMonth()];
+    const jjmm = d => String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); // la date de la case : JJ/MM, pour gagner de la place
     // Les semaines consécutives d'une même phase forment un seul bloc : un fond, le nom de la phase une fois ; chaque semaine garde sa date, sa course et son lien.
     const blocs = [];
     for (let l = debut; l <= fin; l = addDays(l, 7)) {
       const x = P.phaseDe(ps, l), ph = x ? x.phase : 'entretien';
       const cs = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && lundiDe(c.date) === l);
       const cas = '<a class="ps-sem ph-' + ph + (l === lundi ? ' is-courante' : '') + '" href="calendrier.html#semaines=' + l + '" data-lundi="' + l + '" title="' + esc('Semaine du ' + jm(parse(l)) + ' · ' + NOM_PHASE[ph]) + '">' +
-        '<span class="ps-sem-d">' + jm(parse(l)) + '</span>' +
+        '<span class="ps-sem-d">' + jjmm(parse(l)) + '</span>' +
         cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '">▲ ' + esc(c.course) + '</span>').join('') +
         '</a>';
       const b = blocs[blocs.length - 1];
@@ -93,7 +88,7 @@
         '<p class="fc-libelle" id="ps-fc-titre">' + ROLE[role] + '</p><h3 class="ps-fc-nom">' + esc(c.course) + '</h3><p class="ps-fc-d">' + esc([window.mrtFormat.date(c.date, { semaine: true }), window.mrtCartes.distance(c)].filter(Boolean).join(' · ')) + '</p>' +
         (role === 'objectif' ? '' : P.avisHtml(P.avisCourse(ctx, c), nomS)) +
         '<div class="ps-fc-actions">' + (role === 'preparatoire' ? '<button type="button" class="mrt-btn" data-role="plaisir">Passer en Plaisir</button>' : role === 'plaisir' ? '<button type="button" class="mrt-btn" data-role="preparatoire">Passer en Préparatoire</button>' : '') +
-        '<button type="button" class="mrt-btn" data-role="retirer">Retirer du plan</button><a class="mrt-lien" href="' + lien(c) + '">Voir la course →</a></div><p class="ps-msg" role="alert"></p></div></div>';
+        '<a class="mrt-btn" href="' + lien(c) + '">Voir la course</a><button type="button" class="mrt-btn is-danger" data-role="retirer">Retirer du plan</button></div><p class="ps-msg" role="alert"></p></div></div>';
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');
       const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
@@ -179,12 +174,23 @@
 
     // Les séances de l'IA s'écrivent d'office (§ 6) : à la construction du plan, au début de chaque bloc (aucune proposition
     // ne couvre la semaine en cours), et une proposition restée en attente s'applique. Une fois par visite.
+    // Ce qui déclenche une mise à jour : la saison (rôle donné, course ajoutée ou retirée) ou le profil a changé depuis la dernière proposition.
+    const cleAuto = () => [(ctx.prefs || {}).plan_maj || '', (ctx.profil || {}).maj || ''].join('|');
+    function aMettreAJour() {
+      const d = IA().historique(ctx).find(x => x.statut === 'brute' || x.statut === 'acceptee'), pm = (ctx.prefs || {}).plan_maj;
+      return !!d && !!((ctx.profil && ctx.profil.maj && String(ctx.profil.maj) > String(d.cree)) || (pm && String(pm) > String(d.cree)));
+    }
+    // Une seule tentative par état (saison, profil) : un échec ne se rejoue pas en boucle.
     async function automatique(lundi) {
-      if (ctx.lectureSeule || !IA() || ctx.profil === undefined || ctx.propositions === undefined || ctx.ia.encours || ctx.autoFait) return;
+      if (ctx.lectureSeule || !IA() || ctx.profil === undefined || ctx.propositions === undefined || ctx.ia.encours || ctx.profilOuvert) return;
       if (manquants(ctx.profil).length) return;
-      ctx.autoFait = true;
+      const cle = cleAuto();
+      if (ctx.autoCle === cle) return;
+      ctx.autoCle = cle;
       const prop = couvrante(ctx, lundi);
       if (prop && prop.statut === 'brute') { await appliquer({ id: prop.id, reponse: prop.reponse }, prop.bloc); await recharger(); return; }
+      // Mise à jour (§ 6) : la saison ou le profil a changé, tout le plan est refait de la semaine en cours à l'Objectif (hors plafond).
+      if (aMettreAJour()) return proposerPlan(lundi, { tout: true });
       // Revue (§ 6) : la proposition qui couvre cette semaine date de 4 semaines ou plus : les 4 prochaines semaines sont refaites avec ce qui a été fait.
       if (prop && Date.now() - new Date(prop.cree).getTime() >= 28 * 864e5) {
         ctx.ia = { encours: true, readaptation: true, revue: true }; dessiner();
@@ -203,15 +209,16 @@
     // Propose, bloc après bloc, ceux qu'aucune proposition acceptée ne couvre encore (§ 6) ; chacun s'écrit aussitôt et sert d'historique au suivant.
     // Un bloc dont la proposition est restée en attente (page quittée en route) est écrit sans nouvel appel.
     // Seule la première proposition compte pour le plafond : les suivantes sont de motif « readaptation » (hors plafond).
-    async function proposerPlan(lundi) {
+    async function proposerPlan(lundi, opts) {
+      const tout = !!(opts && opts.tout);
       const { lundis, fin } = blocsDuPlan(lundi), ecrire = l => lundisDu(l).filter(x => x <= fin);
       const couvert = l => (ctx.propositions || []).some(x => x.statut === 'acceptee' && x.bloc <= l && l < addDays(x.bloc, 7 * BLOC));
       const enAttenteDe = l => (ctx.propositions || []).filter(x => x.statut === 'brute' && x.bloc === l).sort((a, b) => (a.cree < b.cree ? 1 : -1))[0];
-      const aFaire = lundis.filter(l => !couvert(l));
+      const aFaire = tout ? lundis : lundis.filter(l => !couvert(l));
       for (let i = 0; i < aFaire.length; i++) {
-        ctx.ia = { encours: true, bloc: i + 1, blocs: aFaire.length }; dessiner();
-        const att = enAttenteDe(aFaire[i]);
-        const r = att ? { id: att.id, reponse: att.reponse } : await IA().proposer(ctx, aFaire[i], i === 0 ? 'proposer' : 'readaptation');
+        ctx.ia = { encours: true, bloc: i + 1, blocs: aFaire.length, maj: tout }; dessiner();
+        const att = tout ? null : enAttenteDe(aFaire[i]);
+        const r = att ? { id: att.id, reponse: att.reponse } : await IA().proposer(ctx, aFaire[i], !tout && i === 0 ? 'proposer' : 'readaptation');
         if (r.message) { ctx.ia = { message: r.message }; break; }
         if (r.id) {
           const err = await IA().accepter(ctx, r, ecrire(aFaire[i]));
@@ -228,23 +235,14 @@
       return err;
     }
     const recharger = async () => { await IA().lirePropositions(ctx); await ctx.actualiser(); };
-    // Proposer (ou refaire) les séances du bloc qui commence cette semaine, et les écrire aussitôt.
-    async function proposer(act) {
-      const lundi = lundiDe(iso(new Date()));
-      ctx.ia = { encours: true }; dessiner();
-      const r = await IA().proposer(ctx, lundi, act);
-      let message = r.message || null;
-      if (r.id && await appliquer(r, lundi)) message = 'Enregistrement impossible pour l\'instant.';
-      ctx.ia = { message };
-      await recharger();
-    }
     ctx.proposer = async () => {
       if (ctx.lectureSeule || !IA() || ctx.profil === undefined || manquants(ctx.profil).length || !IA().restantes(ctx) || ctx.ia.encours || ctx.autoFait) return;
-      ctx.autoFait = true;
+      ctx.autoFait = true; ctx.autoCle = cleAuto();
       await proposerPlan(lundiDe(iso(new Date())));
     };
 
     ctx.redessiner = dessiner;
+    ctx.majPlan = () => automatique(lundiDe(iso(new Date())));
     // Un commentaire sur une séance : la réadaptation (hors plafond) s'écrit d'office, elle aussi.
     ctx.surCommentaire = async () => {
       if (!IA()) return;
@@ -275,12 +273,6 @@
       if (sc) { const c = ctx.courses.find(x => x.id === sc.dataset.sc); if (c) feuilleCourse(c); return; }
       const fl = e.target.closest('[data-fl]');
       if (fl) { const d = root.querySelector('.ps-frise-defile'), c = d.querySelector('.ps-sem'); return d.scrollBy({ left: Number(fl.dataset.fl) * 4 * (c ? c.offsetWidth + 4 : 80), behavior: 'smooth' }); }
-      const b = e.target.closest('[data-ia="refaire"]');
-      if (!b || b.disabled) return;
-      const reste = IA().restantes(ctx);
-      if (!(await window.mrtConfirmer({ texte: 'Refaire la proposition ? Les séances proposées par MyRunTools non faites seront remplacées (pas celles que tu as saisies, ni les faites).' +
-        (Number.isFinite(reste) ? ' Elle compte pour une (' + reste + (reste > 1 ? ' restantes' : ' restante') + ' ce mois-ci).' : ''), action: 'Refaire' }))) return;
-      await proposer('refaire');
     });
     P.brancher(root, ctx, null);
     dessiner();

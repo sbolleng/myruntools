@@ -129,6 +129,7 @@
 
 /* ----- Avis sur une course (Mon plan, page d'une course, fiche) : picto et niveau, raison, sources ----- */
 .pr-avis { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 0.4rem 0 0; font-size: var(--t-second); color: var(--text); }
+.pr-avis-c { margin: 0.2rem 0 0; font-size: var(--t-petit); color: var(--muted); }
 .pr-avis-n { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 600; white-space: nowrap; }
 .pr-avis-n .mrt-ico { align-self: center; }
 .pr-avis.is-conseillee .pr-avis-n { color: var(--accent); }

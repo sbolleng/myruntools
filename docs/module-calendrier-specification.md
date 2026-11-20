@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.30 · 20 novembre 2026 · [Retour au sommaire](README.md) · Mois V2 et export : le liseré d'une carte suit le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), l'intensité passe aux trois traits du Mois, plus de légende des liserés (§ 4.5, 4.6)
+Version 0.31 · 20 novembre 2026 · [Retour au sommaire](README.md) · La feuille « Effort et sensations » porte le bloc « Réalisé » (durée, distance, D+, FC) comme la fenêtre de la séance · Mois V2 et export : le liseré d'une carte suit le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), l'intensité passe aux trois traits du Mois, plus de légende des liserés (§ 4.5, 4.6)
 
 ## 1. Rôle
 

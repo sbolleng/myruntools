@@ -130,7 +130,8 @@
 .pp-prog { flex: 1; height: 4px; background: var(--case); border-radius: 2px; overflow: hidden; }
 .pp-prog i { display: block; height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.2s; }
 .pp .fc-libelle { margin-bottom: 0.2rem; }
-.pp .ps-groupe-l + .ps-groupe-l, .pp .ps-groupe-l + .pp-note { margin-top: 0.8rem; }
+.pp .ps-groupe-l + .ps-groupe-l, .pp .ps-groupe-l + .pp-pourquoi { display: block; margin-top: 0.2rem; font-size: var(--t-petit); color: var(--muted); }
+.pp-note { margin-top: 0.8rem; }
 .pp-tete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem; }
 .pp-types { margin-bottom: 0.4rem; }
 .pp-role { margin-left: 0.4rem; font-size: var(--t-petit); font-weight: 600; color: var(--accent); }
