@@ -48,25 +48,25 @@
     const detail = s => { const r = P.reel(s); return [r.duree_min ? (r.duree_min >= 60 ? Math.floor(r.duree_min / 60) + ' h' + (r.duree_min % 60 ? String(r.duree_min % 60).padStart(2, '0') : '') : r.duree_min + ' min') : '',
       Number(r.distance_km) > 0 ? String(r.distance_km).replace('.', ',') + ' km' : '', Number(r.denivele_m) > 0 ? r.denivele_m + ' m D+' : ''].filter(Boolean).join(' · '); };
     const COMMENTAIRE = '<svg class="cal-v-com" viewBox="0 0 16 16" aria-label="Commentaire" role="img"><path d="M3 3.5h10v7H7l-3 2.5v-2.5H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
-    // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré dessous à la couleur de son intensité ;
+    // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré à gauche à la couleur de son type (P.lisere) ;
     // glissable (ordinateur) ; toucher le nom ouvre sa fenêtre. On coche dans la vue Semaine.
     // Intensité : trois traits (comme un signal), un, deux ou trois allumés, du gris au rouge en passant par l'orange ; rien sans intensité.
     const traitsHtml = P.traits;
     const seanceHtml = s => {
       const l = P.lireLibelle(s.libelle), km = Number(P.reel(s).distance_km) > 0 ? String(P.reel(s).distance_km).replace('.', ',') + ' km' : '';
       const tit = esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '');
-      return '<span class="cal-m-se' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + tit + '">' +
+      return '<span class="cal-m-se ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + tit + '">' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-m-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m-se-txt">') +
         '<span class="cal-m-se-nom">' + traitsHtml(s.intensite) + '<span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span></span>' + (km ? '<small>' + km + '</small>' : '') +
         (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
     };
     const plusHtml = jour => (!ctx.lectureSeule ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
-    // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : nom (le libellé avant « : »), liseré d'intensité dessous,
+    // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : liseré à gauche (type de séance, P.lisere), traits de l'intensité et nom (le libellé avant « : »),
     // puis type, durée, distance et picto du commentaire ; la case « faite » à droite ; « à noter » ; toucher la carte ouvre sa fenêtre.
     const carteHtml = s => {
       const lib = String(s.libelle || ''), k = lib.indexOf(':'), nom = (k > 0 ? lib.slice(0, k) : lib).trim();
       const ligne2 = [TYPES[s.type], detail(s)].filter(Boolean).join(' · ');
-      return '<div class="cal-carte' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? (P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' data-carte="' + esc(s.id) + '"' : '') + '>' +
+      return '<div class="cal-carte ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? (P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' data-carte="' + esc(s.id) + '"' : '') + '>' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
         '<span class="cal-carte-nom">' + traitsHtml(s.intensite) + esc(nom) + '</span>' +
         '<span class="cal-carte-det">' + esc(ligne2) + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') +
@@ -142,8 +142,6 @@
   // le nom dessous ; « Repos » les jours vides d'une semaine du plan ou qui a des séances. Pas de légende des liserés.
   // opts.mois : rang du mois (jours voisins atténués) ; opts.phases : fond de phase ; opts.impression : sans « + » ni lien (export).
   const dureeTxt = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? String(m % 60).padStart(2, '0') : '') : m + ' min');
-  const LISERES = { 'Sortie longue': 'l-sl', Seuil: 'l-seuil', 'Fractionné': 'l-frac', 'Côtes': 'l-cotes', Renforcement: 'l-renfo' };
-  const lisereDe = (s, l) => (s.type === 'renfo' ? 'l-renfo' : (l.def && LISERES[l.def.nom]) || 'l-neutre');
   function carteV2(ctx, s, imp) {
     const l = P.lireLibelle(s.libelle), r = P.reel(s), ecr = !ctx.lectureSeule && !imp, tr = P.traits(s.intensite);
     const mesure = Number(r.distance_km) > 0 ? km(Number(r.distance_km)) + ' km' : Number(r.duree_min) > 0 ? dureeTxt(Number(r.duree_min)) : '';
@@ -151,7 +149,7 @@
     const noms = '<span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span>';
     const lignes = (mesure ? '<b class="cal-m2-mes">' + tr + mesure + '</b><span class="cal-m2-nom">' + (tr ? '<span class="cal-m2-int-tel" aria-hidden="true">' + tr + '</span>' : '') + noms + '</span>'
       : '<b class="cal-m2-mes cal-m2-nom">' + tr + noms + '</b>') + (l.detail ? '<small class="cal-m2-det">' + esc(l.detail) + '</small>' : '');
-    return '<div class="cal-m2-se ' + lisereDe(s, l) + (s.faite ? ' faite' : '') + '"' + (ecr && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' +
+    return '<div class="cal-m2-se ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (ecr && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' +
       (ecr ? '<button type="button" class="cal-m2-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m2-txt">') + lignes + (ecr ? '</button>' : '</span>') +
       (imp ? '<i class="cal-m2-coche' + (s.faite ? ' on' : '') + '" aria-hidden="true"></i>' : '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecr ? '' : ' disabled') + ' aria-label="Faite">') + '</div>';
   }

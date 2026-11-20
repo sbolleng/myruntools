@@ -57,6 +57,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Mon plan en essai réel (compte pilote) : plan proposé en entier bloc après bloc, revue toutes les 4 semaines, attente sur le récapitulatif, Continuer du profil express et du Volume. Test de bout en bout en cours (Préparation 3.8, § 6). Avant : Mois V2, frise par phase.
+- Dernier lot : liseré selon le type de séance dans toutes les vues du Calendrier (et Mon plan), intensité en trois traits, sans légende. Avant : Mon plan en essai réel (plan en entier, revue toutes les 4 semaines ; test de bout en bout en cours, Préparation 3.8, § 6).
 - En suspens : inscription ouverte le 20 nov. 2026 ; plafond de l'IA à remettre, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).

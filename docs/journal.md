@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Couleur par type de séance, partout | Le liseré du type de séance (Mois V2) s'applique à toutes les vues : Semaine et « Cette semaine » de Mon plan (4 px), Mois (3 px), Mois V2 et export ; une seule règle (`P.lisere`, couleurs dans `preparation.css`), toujours sans légende (Calendrier 0.31). L'Année n'affiche pas de séance une à une : rien à y colorer. |
 | 20 nov. 2026 | Mon plan, frise | Plus de barre de défilement sous la frise : les flèches ‹ › la remplacent (le doigt et la molette font toujours défiler). |
 | 20 nov. 2026 | Mois V2 : couleur par type de séance | Le liseré ne suit plus l'intensité mais le type de séance, d'après le nom de la liste, sans évolution de la base (proposition C) : Sortie longue bleu, Seuil jaune, Fractionné rouge, Côtes violet, Renforcement vert ; Endurance, Récupération et nom libre neutres. L'intensité reprend les trois traits du Mois (au-dessus du nom sur téléphone). Plus aucune légende des liserés, ni à l'écran ni à l'export (Calendrier 0.30). « Nature d'une séance » retirée de la todo. |
 | 20 nov. 2026 | Mon plan : bloc resté en attente | Quitter Mon plan pendant l'enchaînement des blocs laissait la proposition du bloc en cours « en attente », jugée couverte donc jamais écrite : le plan restait à 4 semaines. À l'arrivée, un bloc en attente est maintenant écrit sans nouvel appel, puis les blocs manquants sont proposés (contrôle ajouté). |
