@@ -422,7 +422,7 @@
     const x = s || {}, faite = !!x.faite;
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
-      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + champCommentaire(x) + '</div></section>';
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) + '</section>';
   }
   // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
   // un second toucher la retire), « i », « + Signaler une douleur », case « faite » (absente de la feuille : la séance y est faite),
@@ -529,9 +529,12 @@
     if (r.reserve) return;
     await window.mrtConfirmer({ texte: r.message || 'Commentaire pris en compte : une nouvelle proposition de MyRunTools attend dans Mon plan.', action: 'Fermer', seul: true });
   }
+  // Déplacer une séance (glisser) : à la main de l'utilisateur, dans la semaine en cours seulement (du lundi au dimanche soir).
+  const semaineEnCours = jour => lundiDe(jour) === lundiDe(iso(new Date()));
+  const deplacable = (s, jour) => !!s && semaineEnCours(s.date) && (jour == null || semaineEnCours(jour));
   async function deplacer(ctx, id, jour) {
     const s = ctx.seances.find(x => x.id === id);
-    if (!s || s.date === jour || ctx.lectureSeule) return;
+    if (!s || s.date === jour || ctx.lectureSeule || !deplacable(s, jour)) return;
     const { error } = await window.mrtSupabase.from('seances').update({ date: jour, date_prevue: datePrevue(s, jour) }).eq('id', id);
     if (error) { console.warn(error); return; }
     await conseiller(ctx, Object.assign({}, s, { date: jour }), s);
@@ -610,8 +613,8 @@
       v.fermer();
       if (s && date !== s.date) await conseiller(ctx, Object.assign({}, s, champs), s);
       await ctx.actualiser();
-      // Un commentaire nouveau ou changé relance aussitôt la réadaptation par l'IA (lot 6b).
-      if (champs.commentaire && champs.commentaire !== ((s && s.commentaire) || null)) relancer(ctx);
+      // Un commentaire nouveau ou changé relance la réadaptation par l'IA seulement si la séance est faite : l'IA n'intervient pas sur une séance à venir.
+      if (champs.faite && champs.commentaire && champs.commentaire !== ((s && s.commentaire) || null)) relancer(ctx);
     });
   }
 
@@ -693,7 +696,7 @@
     // Glisser une séance d'une case à l'autre (ordinateur ; sur téléphone, la date de la fenêtre).
     if (!ctx.lectureSeule) {
       let glisse = null;
-      const cible = e => e.target.closest && e.target.closest('[data-jour], [data-jour-ligne]');
+      const cible = e => { const c = e.target.closest && e.target.closest('[data-jour], [data-jour-ligne]'); return c && deplacable(ctx.seances.find(x => x.id === glisse), c.dataset.jour || c.dataset.jourLigne) ? c : null; };
       const nettoyer = () => root.querySelectorAll('.is-cible').forEach(x => x.classList.remove('is-cible'));
       root.addEventListener('dragstart', e => { const d = e.target.closest && e.target.closest('[data-drag]'); if (!d) return; glisse = d.dataset.drag; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', glisse); });
       root.addEventListener('dragover', e => { const c = cible(e); if (!c || !glisse) return; e.preventDefault(); if (!c.classList.contains('is-cible')) { nettoyer(); c.classList.add('is-cible'); } });
@@ -723,7 +726,7 @@
     });
   }
 
-  window.mrtPreparation = { NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();

@@ -2813,6 +2813,10 @@ const CONTROLES = {
     question = null; d.ecritures = [];
     await p.dragAndDrop('[data-drag="se-r"]', '[data-jour-ligne="2026-10-23"]'); await pause(); await pause();
     pb.push(egal([null, [{ date: '2026-10-23', date_prevue: '2026-10-21' }]], [question, ecrit().map(c => ({ date: c.date, date_prevue: c.date_prevue }))], 'glisser : séance déplacée, jour d\'origine gardé, pas de conseil'));
+    // Glisser vers la semaine suivante : refusé (on ne déplace que dans la semaine en cours, du lundi au dimanche).
+    d.ecritures = [];
+    await p.dragAndDrop('[data-drag="se-r"]', '[data-jour-ligne="2026-10-27"]'); await pause();
+    pb.push(egal(0, ecrit().length, 'glisser hors de la semaine en cours : refusé, aucune écriture'));
     // Cocher « faite » dans la vue : la feuille « Effort et sensations » ; « Plus tard » la ferme sans rien ranger ; puis effort et sensations enregistrés.
     await p.evaluate(() => { const c = document.querySelector('[data-fait="se-r"]'); if (c.checked) { c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); } }); await pause();
     d.ecritures = [];
@@ -3190,12 +3194,22 @@ const CONTROLES = {
       const q = await ouvrir(nav, 'preparation.html', 1200, d6, {}, PARIS);
       await pret(q.p);
       await q.p.click('[data-edit="se-a"]'); await q.p.waitForSelector('.cal-seance');
+      // Séance à venir : le commentaire est là, mais l'IA n'intervient pas (elle n'agit que sur une séance faite).
+      const avant = d6.appels.length;
+      pb.push(egal(true, await q.p.locator('.cal-seance [name="commentaire"]').isVisible(), 'séance à venir : champ « Commentaire » visible'));
       await q.p.fill('.cal-seance [name="commentaire"]', 'Pas disponible jeudi');
+      await q.p.click('.cal-seance button[type="submit"]');
+      await q.p.waitForSelector('.cal-seance', { state: 'detached' }); await pause();
+      pb.push(egal(avant, d6.appels.length, 'commentaire sur une séance à venir : aucun appel à l\'IA'));
+      // Séance faite : un commentaire nouveau relance la réadaptation (une proposition, à accepter dans Mon plan).
+      await q.p.click('[data-edit="se-a"]'); await q.p.waitForSelector('.cal-seance');
+      await q.p.check('.cal-seance [name="faite"]');
+      await q.p.fill('.cal-seance [name="commentaire"]', 'Jambes lourdes');
       await q.p.click('.cal-seance button[type="submit"]');
       await q.p.waitForSelector('.ps-reco');
       const ap = d6.appels[d6.appels.length - 1] || {}, cx = ap.contexte || {};
-      pb.push(egal(['readaptation', '2026-10-19', [{ date: '2026-10-20', type: 'run', libelle: 'Footing', commentaire: 'Pas disponible jeudi' }], { description: 'tendinite', depuis: '2026-10-10' }],
-        [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'commentaire : réadaptation relancée aussitôt, commentaire à venir et blessure envoyés'));
+      pb.push(egal(['readaptation', '2026-10-19', [], { description: 'tendinite', depuis: '2026-10-10' }],
+        [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'séance faite avec commentaire : réadaptation relancée, blessure envoyée, plus de commentaire à venir'));
       pb.push(egal({ ressenti_sur_10: 8, ressenti: 'Seuil, allure semi-marathon ou 10 km', charge_ua: 400, douleur: 'légère (mollet)', fatigue_sur_5: 4, commentaire: 'Dur', deplacee_du: '2026-10-12' }, (h => h && { ressenti_sur_10: h.ressenti_sur_10, ressenti: h.ressenti, charge_ua: h.charge_ua, douleur: h.douleur, fatigue_sur_5: h.fatigue_sur_5, commentaire: h.commentaire, deplacee_du: h.deplacee_du })((cx.historique || []).find(x => x.date === '2026-10-13')),
         'séances passées : ressenti, douleur, fatigue, commentaire et jour d\'origine envoyés'));
       pb.push(egal([4, 'Historique des propositions (1)', 'Réadaptation', 'En attente'], await q.p.evaluate(() => {
