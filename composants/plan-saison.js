@@ -26,6 +26,7 @@
     .sort((a, b) => (a.cree < b.cree ? 1 : -1))[0] || null;
   const PICTO = { profil: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.2" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.8 14c.6-2.9 2.6-4.4 5.2-4.4s4.6 1.5 5.2 4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
     objectif: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14V2.5M3.5 3h8l-1.8 2.7 1.8 2.8h-8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    exporter: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7.5M4.8 6.8L8 10l3.2-3.2M3 13h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     calendrier: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' };
 
   // (9) Le bandeau de MyRunTools, toujours ouvert : les alertes, « Ton profil a changé… », la recommandation et « Refaire ».
@@ -126,10 +127,12 @@
       // (1) La carte de l'Objectif : nom et parcours, date complète, distance et D+, J-138 ; un plan plus court que le minimum du format.
       const jours = Math.round((parse(prochaine.jourJ) - parse(auj)) / 86400000), n = prochaine.semaines.length, mini = P.minimumDe(o);
       const infos = [window.mrtFormat.date(o.date, { semaine: true }), M.distance(o)].filter(Boolean).join(' · ');
-      const reglages = ctx.lectureSeule ? '' : '<div class="ps-reglages">' +
+      // (29) « Exporter » : le plan, de la semaine en cours à l'Objectif, en page à imprimer (Calendrier, § 4.6) ; aussi sur le site partagé.
+      const exporter = window.mrtExport ? '<button type="button" class="mrt-btn" data-exporter>' + PICTO.exporter + 'Exporter</button>' : '';
+      const reglages = ctx.lectureSeule ? (exporter ? '<div class="ps-reglages">' + exporter + '</div>' : '') : '<div class="ps-reglages">' +
         '<button type="button" class="mrt-btn" data-profil>' + PICTO.profil + 'Mon profil</button>' +
         '<button type="button" class="mrt-btn" data-parcours>' + PICTO.objectif + 'Changer d\'Objectif</button>' +
-        '<button type="button" class="mrt-btn" data-preparer="' + esc(o.id) + '">' + P.REGLAGES + 'Personnaliser</button></div>';
+        '<button type="button" class="mrt-btn" data-preparer="' + esc(o.id) + '">' + P.REGLAGES + 'Personnaliser</button>' + exporter + '</div>';
       // (26) Les courses de la saison : les Préparatoires et les Plaisirs avant l'Objectif, puis lui ; chacune ouvre sa feuille (28).
       const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
         .sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -222,6 +225,10 @@
     root.__ctx = ctx; // pour le banc d'essai
     root.addEventListener('click', async e => {
       if (e.target.closest('[data-profil]')) return ouvrirProfil(ctx);
+      if (e.target.closest('[data-exporter]') && ctx.objectifVise) {
+        const o = ctx.objectifVise, l = P.lundiDe(iso(new Date()));
+        return window.mrtExport.imprimer(ctx, { titre: 'Mon plan · ' + o.course, debut: l, fin: P.addDays(P.lundiDe(o.date), 6), phases: true });
+      }
       if (e.target.closest('[data-parcours]') && window.mrtParcours) { ctx.parcours = window.mrtParcours.nouveau(ctx); dessiner(); return window.scrollTo(0, 0); }
       const pr = e.target.closest('[data-prepa]');
       if (pr && window.mrtParcours && ctx.objectifVise) { ctx.parcours = window.mrtParcours.nouveau(ctx, { prepa: true, objectif: ctx.objectifVise.id, fenetre: pr.dataset.prepa === 'fenetre' }); dessiner(); return window.scrollTo(0, 0); }
