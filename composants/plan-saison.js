@@ -41,7 +41,7 @@
       const refaire = '<button type="button" class="mrt-lien" data-ia="refaire"' + (etat.encours || !reste ? ' disabled' : '') + '>Refaire</button>';
       const derniere = IA().historique(ctx).find(x => x.statut === 'brute' || x.statut === 'acceptee');
       if (manque.length) lignes.push('<p class="ps-ia-aide">Pour que MyRunTools propose tes séances : <button type="button" class="mrt-lien" data-profil>Compléter mon profil</button></p>');
-      else if (etat.encours) lignes.push('<p class="ps-reco">' + (etat.readaptation ? 'MyRunTools réadapte tes séances…' : 'MyRunTools prépare tes séances…') + '</p>');
+      else if (etat.encours) lignes.push('<p class="ps-reco">' + (etat.revue ? 'MyRunTools révise tes prochaines semaines…' : etat.readaptation ? 'MyRunTools réadapte tes séances…' : 'MyRunTools prépare tes séances…' + (etat.blocs > 1 ? ' (bloc ' + etat.bloc + ' sur ' + etat.blocs + ')' : '')) + '</p>');
       else {
         if (derniere && ctx.profil && ctx.profil.maj && String(ctx.profil.maj) > String(derniere.cree))
           lignes.push('<p class="ps-profil-change">Ton profil a changé depuis la dernière proposition.</p>');
@@ -185,7 +185,37 @@
       ctx.autoFait = true;
       const prop = couvrante(ctx, lundi);
       if (prop && prop.statut === 'brute') { await appliquer({ id: prop.id, reponse: prop.reponse }, prop.bloc); await recharger(); return; }
-      if (!prop && IA().restantes(ctx)) await proposer('proposer');
+      // Revue (§ 6) : la proposition qui couvre cette semaine date de 4 semaines ou plus : les 4 prochaines semaines sont refaites avec ce qui a été fait.
+      if (prop && Date.now() - new Date(prop.cree).getTime() >= 28 * 864e5) {
+        ctx.ia = { encours: true, readaptation: true, revue: true }; dessiner();
+        const r = await IA().readapter(ctx);
+        ctx.ia = { message: r.reserve ? null : r.message || null };
+        return recharger();
+      }
+      if (IA().restantes(ctx)) await proposerPlan(lundi);
+    }
+    // Les blocs du plan : de la semaine en cours à la semaine de l'Objectif visé, 6 blocs de 4 semaines au plus (la revue ajoute la suite).
+    function blocsDuPlan(lundi) {
+      const x = P.planSaison(ctx).saisons.find(z => z.jourJ >= iso(new Date())), fin = x ? lundiDe(x.jourJ) : lundi, l = [];
+      for (let b = lundi; b <= fin && l.length < 6; b = addDays(b, 7 * BLOC)) l.push(b);
+      return { lundis: l.length ? l : [lundi], fin };
+    }
+    // Propose, bloc après bloc, ceux qu'aucune proposition ne couvre encore (§ 6) ; chacun s'écrit aussitôt et sert d'historique au suivant.
+    // Seule la première proposition compte pour le plafond : les suivantes sont de motif « readaptation » (hors plafond).
+    async function proposerPlan(lundi) {
+      const { lundis, fin } = blocsDuPlan(lundi), aFaire = lundis.filter(l => !couvrante(ctx, l));
+      for (let i = 0; i < aFaire.length; i++) {
+        ctx.ia = { encours: true, bloc: i + 1, blocs: aFaire.length }; dessiner();
+        const r = await IA().proposer(ctx, aFaire[i], i === 0 ? 'proposer' : 'readaptation');
+        if (r.message) { ctx.ia = { message: r.message }; break; }
+        if (r.id) {
+          const err = await IA().accepter(ctx, r, lundisDu(aFaire[i]).filter(l => l <= fin));
+          if (err) { console.warn(err); ctx.ia = { message: 'Enregistrement impossible pour l\'instant.' }; break; }
+        }
+        await IA().lirePropositions(ctx); await ctx.actualiser();
+      }
+      if (ctx.ia.encours) ctx.ia = {};
+      await recharger();
     }
     async function appliquer(r, bloc) {
       const err = await IA().accepter(ctx, r, lundisDu(bloc));
@@ -206,7 +236,7 @@
     ctx.proposer = async () => {
       if (ctx.lectureSeule || !IA() || ctx.profil === undefined || manquants(ctx.profil).length || !IA().restantes(ctx) || ctx.ia.encours || ctx.autoFait) return;
       ctx.autoFait = true;
-      await proposer('proposer');
+      await proposerPlan(lundiDe(iso(new Date())));
     };
 
     ctx.redessiner = dessiner;

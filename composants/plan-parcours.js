@@ -212,7 +212,7 @@
     return '<h2 class="ps-titre">' + esc(x.course) + '</h2><p class="ps-sous">' + longue(x.date) + (d.n ? ' · ' + d.n + (d.n > 1 ? ' semaines' : ' semaine') : '') + (Number(x.distance) ? ' · ' + nombreFr(Number(x.distance)) + ' km' : '') + '</p>' +
       (cs.length ? '<p class="pp-note">' + cs.map(c => devient(c.course, c.role)).join(' · ') + '</p>' : '') +
       '<div class="ps-groupe-l pp-recap">' + lignes.map(([q, lib, r]) => '<button type="button" class="ps-ligne-q" data-recap="' + q + '"><span>' + lib + '</span><span class="ps-rep' + (r ? '' : ' is-a-faire') + '">' + esc(r || 'À renseigner') + '</span><i aria-hidden="true">›</i></button>').join('') + '</div>' +
-      '<div class="pp-pied">' + (st.attente ? '<p class="pp-attente" role="status">MyRunTools prépare tes séances…</p>' : '') + '<button type="button" class="mrt-btn is-principal" data-pp="construire"' + (st.encours ? ' disabled' : '') + '>' + (st.encours ? 'Construction en cours…' : 'Construire mon plan') + '</button></div>';
+      '<div class="pp-pied">' + (st.attente ? '<p class="pp-attente" role="status">MyRunTools prépare tes séances…' + (ctx.ia && ctx.ia.blocs > 1 ? ' (bloc ' + ctx.ia.bloc + ' sur ' + ctx.ia.blocs + ')' : '') + '</p>' : '') + '<button type="button" class="mrt-btn is-principal" data-pp="construire"' + (st.encours ? ' disabled' : '') + '>' + (st.encours ? 'Construction en cours…' : 'Construire mon plan') + '</button></div>';
   }
 
   function dessiner(root, ctx) {
