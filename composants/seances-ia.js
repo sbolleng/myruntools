@@ -201,10 +201,46 @@
     const err = await accepter(c, { id: r.id, reponse: r.reponse }, [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)));
     return err ? { message: 'Enregistrement impossible pour l\'instant.' } : { id: r.id };
   }
+  // ----- Analyse d'une séance faite (fonction « proposer-seances », mode « analyse ») -----
+  // Contexte : la fiche de la séance et le retour de l'utilisateur (effort, sensations, douleur, commentaire), la phase du plan, la prochaine
+  // course (sans son nom), le profil utile et les séances des 4 semaines d'avant avec leur retour. Rien n'est rangé dans « propositions ».
+  function contexteAnalyse(ctx, s, pr) {
+    const ps = P.planSaison(ctx), x = P.phaseDe(ps, lundiDe(s.date)), l = P.lireLibelle(s.libelle);
+    const prochaine = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date >= s.date).sort((a, b) => (a.date < b.date ? -1 : 1))[0];
+    const fiche = Object.assign({ date: s.date, jour: NOMS_JOURS[parse(s.date).getDay()], type: TYPES[s.type] || s.type, nom: l.nom, detail: l.detail || null,
+      duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), denivele_m: s.denivele_m == null ? null : Number(s.denivele_m),
+      intensite_prevue: s.intensite ? P.INTENSITES[s.intensite] : null }, retour(Object.assign({}, s, { commentaire: s.commentaire })));
+    const historique = ctx.seances.filter(y => y.id !== s.id && y.date >= addDays(s.date, -28) && y.date < s.date).sort((a, b) => (a.date < b.date ? -1 : 1))
+      .map(y => Object.assign({ date: y.date, type: y.type, libelle: y.libelle, duree_min: y.duree_min == null ? null : y.duree_min, distance_km: y.distance_km == null ? null : Number(y.distance_km),
+        intensite: y.intensite || null, faite: !!y.faite }, y.faite ? retour(y) : {}));
+    return {
+      aujourd_hui: iso(new Date()), seance: fiche,
+      phase_du_plan: x ? NOM_PHASE[x.phase] : 'Entretien',
+      prochaine_course: prochaine ? { role: ROLES[P.roleDe(prochaine)] || prochaine.role, format: prochaine.formatLibelle || prochaine.format, distance_km: prochaine.distance != null ? Number(prochaine.distance) : null,
+        dplus_m: prochaine.dplus != null ? Number(prochaine.dplus) : null, jours_restants: Math.round((parse(prochaine.date) - parse(s.date)) / 864e5) } : null,
+      profil: pr ? { niveau: (window.mrtProfil && window.mrtProfil.libelleDe('niveau', pr.niveau)) || null, antecedents_blessures: (window.mrtProfil && window.mrtProfil.libelleDe('antecedents', pr.antecedents)) || null,
+        points_fragiles: pr.fragiles || null, fc_max: pr.fc_max == null ? null : pr.fc_max } : null,
+      blessure_en_cours: pr && pr.blessure ? { description: pr.blessure, depuis: pr.blessure_debut || null } : null,
+      historique
+    };
+  }
+  // Rend { analyse, adapter } (le texte est rangé sur la séance), { reserve } (compte non pilote : rien à dire) ou { message }.
+  async function analyser(ctx, s) {
+    const c = Object.assign({ courses: [], seances: [], semaines: [] }, ctx);
+    if (c.profil === undefined) { const { data } = await sb().from('profil_entrainement').select('*'); c.profil = (data && data[0]) || null; }
+    const r = await appel({ mode: 'analyse', contexte: contexteAnalyse(c, s, c.profil) });
+    if (r.erreur === 'Réservé aux comptes pilotes pour l\'instant.') return { reserve: true };
+    if (r.erreur) return { message: 'Analyse impossible pour l\'instant, réessaie plus tard.' };
+    const texte = String((r.data && r.data.analyse) || '').trim();
+    if (!texte) return { message: 'Analyse impossible pour l\'instant, réessaie plus tard.' };
+    const { error } = await sb().from('seances').update({ analyse: texte }).eq('id', s.id);
+    if (error) console.warn('analyse non rangée (évolution 040 passée ?)', error);
+    return { analyse: texte, adapter: r.data.adapter === true };
+  }
   // Historique (élément 10) : une ligne par proposition (la reprise d'une proposition refusée par les garde-fous n'en fait qu'une).
   const MOTIFS = { proposer: 'Proposer', refaire: 'Refaire', readaptation: 'Réadaptation' };
   const STATUTS = { brute: 'En attente', acceptee: 'Acceptée', abandonnee: 'Abandonnée', echec: 'Impossible à vérifier' };
   const historique = ctx => (ctx.propositions || []).filter(x => x.statut !== 'invalide' && !(x.statut === 'echec' && x.essai === 2)).sort((a, b) => (a.cree < b.cree ? 1 : -1));
 
-  window.mrtSeancesIA = { readapter, historique, MOTIFS, STATUTS, PLAFOND, seancesDe, recommandationDe, contexte, gardeFous, restantes, enAttente, proposer, accepter, aRemplacer, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
+  window.mrtSeancesIA = { analyser, readapter, historique, MOTIFS, STATUTS, PLAFOND, seancesDe, recommandationDe, contexte, gardeFous, restantes, enAttente, proposer, accepter, aRemplacer, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
 })();

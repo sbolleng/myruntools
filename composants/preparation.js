@@ -427,7 +427,8 @@
     const x = s || {}, faite = !!x.faite;
     return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
-      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) + '</section>';
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) +
+      (x.analyse ? '<div class="cal-analyse-lue"><h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(x.analyse) + '</p></div>' : '') + '</section>';
   }
   // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
   // un second toucher la retire), « i », « + Signaler une douleur », case « faite » (absente de la feuille : la séance y est faite),
@@ -487,10 +488,61 @@
       const champs = lire();
       const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
       if (error) { const m = voile.querySelector('.cal-msg'); m.textContent = error.code === 'PGRST204' || /column/i.test(String(error.message || '')) ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.'; m.scrollIntoView({ block: 'nearest' }); console.warn(error); return; }
-      fermer();
       if (ctx.actualiser) await ctx.actualiser();
-      if (champs.commentaire && champs.commentaire !== (s.commentaire || null)) relancer(ctx);
+      // L'effort est noté : l'IA analyse la séance, dans cette même feuille (animation d'attente, puis le texte).
+      if (analysable(s, champs)) analyseDans(voile, ctx, Object.assign({}, s, champs), fermer); else fermer();
     });
+  }
+
+  // ----- Analyse de la séance faite par l'IA (spécification Préparation, § 6.3) -----
+  // Elle se lance quand l'effort est noté, et seulement si le retour est nouveau ou changé (ou s'il n'y a pas encore d'analyse).
+  // Le texte se range sur la séance (colonne « analyse ») ; adapter le plan reste à la demande de l'utilisateur.
+  const analysable = (avant, apres) => !!(window.mrtSeancesIA && apres.ressenti && (!avant.analyse || ['ressenti', 'sensations', 'douleur', 'douleur_ou', 'commentaire'].some(k => (avant[k] == null ? null : avant[k]) !== (apres[k] == null ? null : apres[k]))));
+  // Trois traits qui s'allument l'un après l'autre (figés si l'appareil demande moins de mouvement).
+  const attente = texte => '<div class="cal-attente" role="status"><span class="cal-attente-traits" aria-hidden="true"><b></b><b></b><b></b></span><p>' + esc(texte) + '</p></div>';
+  async function analyseDans(voile, ctx, s, fermer) {
+    const f = voile.querySelector('form'), msg = voile.querySelector('.cal-msg');
+    const zone = document.createElement('div');
+    zone.className = 'cal-analyse'; zone.setAttribute('aria-live', 'polite');
+    if (f) f.replaceWith(zone); else voile.querySelector('.mc-corps').appendChild(zone);
+    if (msg) msg.textContent = '';
+    zone.innerHTML = attente('Analyse de ta séance…');
+    const r = await window.mrtSeancesIA.analyser(ctx, s);
+    if (r.reserve) return fermer();
+    if (r.message) { zone.innerHTML = '<p class="cal-msg" role="alert">' + esc(r.message) + '</p>'; return; }
+    zone.innerHTML = '<h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(r.analyse) + '</p>' +
+      (r.adapter ? '<div class="mc-pied"><button type="button" class="mrt-btn is-principal" data-adapter>Adapter mon plan</button></div>' : '');
+    if (ctx.actualiser) ctx.actualiser();
+    const b = zone.querySelector('[data-adapter]');
+    if (!b) return;
+    b.addEventListener('click', async () => {
+      zone.innerHTML = attente('Adaptation de ton plan…');
+      // Sur Mon plan, la page suit l'adaptation (ctx.surCommentaire) ; ailleurs, on appelle la réadaptation directement.
+      let a;
+      if (ctx.surCommentaire) { await ctx.surCommentaire(); a = ctx.ia && ctx.ia.message ? { message: ctx.ia.message } : { id: true }; } else a = await window.mrtSeancesIA.readapter(ctx);
+      zone.innerHTML = '<h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(r.analyse) + '</p>' +
+        '<p class="' + (a.id ? 'cal-analyse-ok' : 'cal-msg') + '" role="status">' + esc(a.id ? 'Plan adapté : les séances à venir sont à jour dans Mon plan.' : (a.message || 'Adaptation impossible pour l\'instant.')) + '</p>';
+      if (a.id && ctx.actualiser) ctx.actualiser();
+    });
+  }
+  // La même feuille, ouverte seule (après l'enregistrement d'une séance faite dans sa fenêtre).
+  function feuilleAnalyse(ctx, s) {
+    const l = lireLibelle(s.libelle), voile = document.createElement('div');
+    voile.className = 'mc-voile';
+    voile.innerHTML = '<div class="mc-panneau mc-etroit mc-court cal-feuille-retour" role="dialog" aria-modal="true" aria-labelledby="cal-retour-nom" tabindex="-1"><div class="mc-corps">' +
+      '<div class="pc-barre"><span></span><button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
+      '<p class="fc-libelle">' + esc(TYPES[s.type] || '') + ' · ' + esc(F.date(s.date, { semaine: true, annee: false })) + '</p>' +
+      '<h2 class="cal-retour-nom" id="cal-retour-nom">' + esc(l.nom.charAt(0).toUpperCase() + l.nom.slice(1)) + '</h2>' +
+      (l.detail ? '<p class="cal-retour-detail">' + esc(l.detail.charAt(0).toUpperCase() + l.detail.slice(1)) + '</p>' : '') + '</div></div>';
+    document.body.appendChild(voile);
+    document.documentElement.classList.add('mc-ouvert');
+    const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', echap); };
+    const echap = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue')) fermer(); };
+    document.addEventListener('keydown', echap);
+    voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
+    voile.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermer(); });
+    voile.querySelector('.mc-panneau').focus({ preventScroll: true });
+    analyseDans(voile, ctx, s, fermer);
   }
 
   // ----- Déplacer une séance : libre, avec un conseil quand une règle n'est pas respectée (spécification Préparation, § 5.5) -----
@@ -526,14 +578,6 @@
   }
   // Le jour d'origine reste celui d'avant le premier déplacement ; revenu à ce jour, la séance n'est plus « déplacée ».
   const datePrevue = (s, jour) => { const o = s.date_prevue || s.date; return o === jour ? null : o; };
-  // Réadaptation après un commentaire : sur Mon plan, la page la suit (ctx.surCommentaire) ; ailleurs, un message à la fin.
-  async function relancer(ctx) {
-    if (ctx.lectureSeule || !window.mrtSeancesIA) return;
-    if (ctx.surCommentaire) return ctx.surCommentaire();
-    const r = await window.mrtSeancesIA.readapter(ctx);
-    if (r.reserve) return;
-    await window.mrtConfirmer({ texte: r.message || 'Commentaire pris en compte : MyRunTools a réadapté tes séances.', action: 'Fermer', seul: true });
-  }
   // Déplacer une séance (glisser) : à la main de l'utilisateur, dans la semaine en cours seulement (du lundi au dimanche soir).
   const semaineEnCours = jour => lundiDe(jour) === lundiDe(iso(new Date()));
   const deplacable = (s, jour) => !!s && semaineEnCours(s.date) && (jour == null || semaineEnCours(jour));
@@ -618,8 +662,8 @@
       v.fermer();
       if (s && date !== s.date) await conseiller(ctx, Object.assign({}, s, champs), s);
       await ctx.actualiser();
-      // Un commentaire nouveau ou changé relance la réadaptation par l'IA seulement si la séance est faite : l'IA n'intervient pas sur une séance à venir.
-      if (champs.faite && champs.commentaire && champs.commentaire !== ((s && s.commentaire) || null)) relancer(ctx);
+      // Séance faite avec son effort noté : l'IA l'analyse (feuille « Effort et sensations ») ; elle n'intervient jamais sur une séance à venir.
+      if (s && champs.faite && analysable(s, champs)) feuilleAnalyse(ctx, Object.assign({}, s, champs, { date }));
     });
   }
 
