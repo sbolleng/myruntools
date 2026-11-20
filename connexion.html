@@ -71,7 +71,7 @@
     } catch (err) {
       captcha.reinitialiser();
       // Une seule erreur pour tout échec : on ne dit jamais si c'est l'adresse ou le mot de passe.
-      dire(mrtNatureErreur(err) === 'limite' ? limite : 'Adresse ou mot de passe incorrect.', true);
+      dire(mrtNatureErreur(err) === 'limite' ? limite : mrtNatureErreur(err) === 'captcha' ? mrtMessageCaptcha : 'Adresse ou mot de passe incorrect.', true);
       btn.disabled = false;
     }
   });
@@ -84,7 +84,7 @@
       await mrtMotDePasseOublie(email.value.trim(), new URL('nouveau-mot-de-passe.html', location.href).href, await captcha.jeton());
       dire('Si un compte existe pour cette adresse, un e-mail vient d\'être envoyé.');
     } catch (err) {
-      dire(mrtNatureErreur(err) === 'limite' ? limite : 'Envoi impossible pour l\'instant.', true);
+      dire(mrtNatureErreur(err) === 'limite' ? limite : mrtNatureErreur(err) === 'captcha' ? mrtMessageCaptcha : 'Envoi impossible pour l\'instant.', true);
     }
     captcha.reinitialiser();
     oubli.disabled = false;

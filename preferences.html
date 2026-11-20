@@ -405,7 +405,7 @@
       } catch (err) {
         const nature = mrtNatureErreur(err);
         dire(nature === 'identifiants' ? 'Mot de passe actuel incorrect.'
-          : nature === 'limite' ? 'Trop de tentatives, réessaie dans quelques minutes.'
+          : nature === 'captcha' ? mrtMessageCaptcha : nature === 'limite' ? 'Trop de tentatives, réessaie dans quelques minutes.'
           : err && (err.code === 'same_password' || /different from the old/i.test(err.message || '')) ? 'Choisis un mot de passe différent de l\'actuel.'
           : 'Changement impossible pour l\'instant.', true);
       }

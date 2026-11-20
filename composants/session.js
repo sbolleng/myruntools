@@ -53,10 +53,12 @@
     if (email && mdp.trim().toLowerCase() === String(email).trim().toLowerCase()) return 'Différent de l\'adresse e-mail.';
     return null;
   };
-  // Erreur de Supabase : « limite » (trop de demandes), « identifiants », ou autre.
-  const natureErreur = err => (err && (err.status === 429 || /rate|limit|too many/i.test(err.message || '')) ? 'limite'
+  // Erreur de Supabase : « captcha » (contrôle anti-robot refusé), « limite » (trop de demandes), « identifiants », ou autre.
+  const natureErreur = err => (err && /captcha/i.test((err.code || '') + ' ' + (err.message || '')) ? 'captcha'
+    : err && (err.status === 429 || /rate|limit|too many/i.test(err.message || '')) ? 'limite'
     : err && (err.code === 'invalid_credentials' || /invalid login|invalid credentials/i.test(err.message || '')) ? 'identifiants' : 'autre');
   window.mrtNatureErreur = natureErreur;
+  window.mrtMessageCaptcha = 'Contrôle anti-robot non validé : réessaie.';
 
   window.mrtConnecter = async function (email, motDePasse, captchaToken) {
     if (!client) throw new Error('Connexion indisponible');
@@ -81,7 +83,7 @@
   window.mrtMotDePasseOublie = async function (email, retour, captchaToken) {
     if (!client) throw new Error('Connexion indisponible');
     const { error } = await client.auth.resetPasswordForEmail(email, captchaToken ? { redirectTo: retour, captchaToken } : { redirectTo: retour });
-    if (error && natureErreur(error) === 'limite') throw error;
+    if (error && ['limite', 'captcha'].includes(natureErreur(error))) throw error;
   };
 
   // Nouveau mot de passe (lien reçu, ou page Préférences) ; les autres appareils sont déconnectés.

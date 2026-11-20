@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Anti-robot, erreurs | Un contrôle anti-robot refusé par Supabase se dit (« Contrôle anti-robot non validé : réessaie. ») sur la connexion, « Mot de passe oublié ? », « Créer un compte » et « Changer le mot de passe » ; il n'est plus confondu avec un mauvais mot de passe ni caché derrière la réponse neutre. |
 | 20 nov. 2026 | Outils et services | Un document unique (`outils-et-services.md`) liste les outils administrés, les services appelés par le site et les outils prévus, avec adresse, rôle et état. Le domaine est chez OVH ; Cloudflare ne sert qu'à Turnstile. |
 | 20 nov. 2026 | Anti-robot | Clé du site Turnstile publiée : le contrôle s'affiche sur la connexion, « Créer un compte » et « Changer le mot de passe » ; la vérification par Supabase s'active ensuite. Banc d'essai et captures : clé vidée au chargement (pas de réseau). |
 | 20 nov. 2026 | Analyse d'une séance faite | L'IA analyse la séance faite quand l'effort est noté (déclenchement automatique, texte de 1 000 caractères au plus, rangé sur la séance, évolution 041) ; animation d'attente en trois traits dans la feuille « Effort et sensations » ; « Adapter mon plan » lance la réadaptation, sur l'accord de l'utilisateur seulement. Fonction `proposer-seances` à recoller (mode `analyse`). |

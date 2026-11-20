@@ -51,7 +51,7 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 | L3 | Œil | Affiche ou masque le mot de passe |
 | L4 | « Mot de passe oublié ? » | Envoie le lien de réinitialisation à l'adresse saisie en L1 (message « Saisis ton adresse e-mail » si le champ est vide) ; la réponse est toujours « Si un compte existe pour cette adresse, un e-mail vient d'être envoyé. », que l'adresse existe ou non |
 | L5 | « Se connecter » | Désactivé pendant l'envoi ; connecté, direction l'accueil |
-| L6 | Message | Une seule erreur pour tout échec : « Adresse ou mot de passe incorrect. » (on ne dit jamais lequel) ; « Trop de tentatives, réessaie dans quelques minutes. » en cas de limitation |
+| L6 | Message | Une seule erreur pour tout échec : « Adresse ou mot de passe incorrect. » (on ne dit jamais lequel) ; « Trop de tentatives, réessaie dans quelques minutes. » en cas de limitation ; « Contrôle anti-robot non validé : réessaie. » quand le contrôle est refusé (connexion comme « Mot de passe oublié ? ») |
 | L7 | « Créer un compte » | Lien vers la page de création d'un compte ; absent tant que l'inscription n'est pas ouverte |
 
 **Règles du mot de passe** : 14 caractères au moins, aucune règle de composition (une phrase de passe longue protège mieux) ; refusé s'il est identique à l'adresse e-mail. Il est haché par Supabase ; il ne figure jamais dans le dépôt et n'est jamais affiché en dehors de l'œil (L3).
