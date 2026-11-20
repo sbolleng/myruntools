@@ -2707,13 +2707,15 @@ const CONTROLES = {
     await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit');
     await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
     pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur-ou').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
-    // Le commentaire relance une réadaptation (lot 6b) : son message, accepté ; puis le conseil d'un déplacement, refusé.
+    // L'effort noté ouvre l'analyse de l'IA ; puis le conseil d'un déplacement, refusé.
     let question = null, reponse = true;
     await surDialogue(p, q => { question = q; return reponse; });
     d.ecritures = [];
     await p.click('.cal-seance button[type="submit"]'); await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
-    for (let k = 0; k < 20 && !question; k++) await pause();
-    await p.waitForFunction(() => !document.querySelector('.mrt-dialogue')).catch(() => {});
+    // L'effort est noté : la feuille d'analyse s'ouvre ; sans réponse de l'IA (fonction absente dans l'essai), son message, puis la croix la ferme.
+    await p.waitForSelector('.cal-feuille-retour .cal-msg');
+    pb.push(egal('Analyse impossible pour l\'instant, réessaie plus tard.', await p.textContent('.cal-feuille-retour .cal-msg'), 'effort noté : feuille d\'analyse, message quand l\'IA ne répond pas'));
+    await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' });
     const ecrit = () => d.ecritures.filter(x => x.table === 'seances' && x.methode === 'PATCH').map(x => x.corps);
     pb.push(egal({ faite: true, ressenti: 7, sensations: 2, douleur: 'legere', douleur_ou: 'genou droit', fatigue: undefined, commentaire: 'Dur sur la fin', date_prevue: null },
       (c => c && { faite: c.faite, ressenti: c.ressenti, sensations: c.sensations, douleur: c.douleur, douleur_ou: c.douleur_ou, fatigue: c.fatigue, commentaire: c.commentaire, date_prevue: c.date_prevue })(ecrit()[0]), 'retour enregistré avec la séance'));
@@ -2755,7 +2757,8 @@ const CONTROLES = {
     for (let k = 0; k < 10 && !question; k++) await pause();
     pb.push(egal(true, (question || '').includes('indépendantes de l\'effort'), 'rond « i » : l\'explication des sensations'));
     await p.waitForFunction(() => !document.querySelector('.mrt-dialogue'));
-    await p.click('.cal-feuille-retour .mc-pied .is-principal'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
+    await p.click('.cal-feuille-retour .mc-pied .is-principal'); await p.waitForSelector('.cal-feuille-retour .cal-analyse'); // la feuille passe à l'analyse de l'IA
+    await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
     pb.push(egal({ ressenti: 4, sensations: 1 }, (c => c && { ressenti: c.ressenti, sensations: c.sensations })(ecrit()[1]), 'feuille : effort et sensations enregistrés'));
     // En tête de la feuille : le type et le jour, puis le nom de la séance (avant « : ») et son détail (après).
     await p.evaluate(() => window.mrtPreparation.feuilleRetour({}, { id: 'x', type: 'run', libelle: 'Côtes : échauffement, 8 x 1 min en côte, retour au trot', date: '2026-11-13' }));
@@ -3050,8 +3053,10 @@ const CONTROLES = {
     const copie = (reponses, f) => {
       const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = []; d.propositions = []; d.profil_entrainement = [Object.assign({}, PROFIL)];
       d.reglages = { plafondIA: 4 }; // le plafond se vérifie avec sa valeur d'ouverture ; le site est aujourd'hui sans limite (essais)
-      d.appels = [];
+      d.appels = []; d.analyses = [];
       d.relais = corps => {
+        // Analyse d'une séance faite : rangée à part, hors des appels de proposition.
+        if (corps.mode === 'analyse') { d.analyses.push(corps); if (d.analyseReponse) return d.analyseReponse; return { status: 200, body: { analyse: 'Séance bien menée.', adapter: true } }; }
         d.appels.push(corps);
         const r = reponses[Math.min(d.appels.length - 1, reponses.length - 1)];
         if (r.status) return r;
@@ -3203,35 +3208,58 @@ const CONTROLES = {
       await q.p.click('.cal-seance button[type="submit"]');
       await q.p.waitForSelector('.cal-seance', { state: 'detached' }); await pause();
       pb.push(egal(avant, d6.appels.length, 'commentaire sur une séance à venir : aucun appel à l\'IA'));
-      // Séance faite : un commentaire nouveau relance la réadaptation (une proposition, à accepter dans Mon plan).
+      // Séance faite, effort noté : l'IA l'analyse (animation puis texte, dans la feuille) ; adapter le plan ne se fait que sur demande.
       await q.p.click('[data-edit="se-a"]'); await q.p.waitForSelector('.cal-seance');
       await q.p.check('.cal-seance [name="faite"]');
+      await q.p.evaluate(() => { const c = document.querySelector('.cal-seance [name="ressenti"]'); c.value = '6'; c.dispatchEvent(new Event('input', { bubbles: true })); });
       await q.p.fill('.cal-seance [name="commentaire"]', 'Jambes lourdes');
       await q.p.click('.cal-seance button[type="submit"]');
+      await q.p.waitForSelector('.cal-analyse-texte');
+      const an = d6.analyses[0] || {}, fiche = (an.contexte || {}).seance || {};
+      pb.push(egal([1, 'Séance bien menée.', 'Jambes lourdes', 6, 'tendinite', 'Séance bien menée.', 0, 1],
+        [d6.analyses.length, await q.p.textContent('.cal-analyse-texte'), fiche.commentaire, fiche.ressenti_sur_10, ((an.contexte || {}).blessure_en_cours || {}).description, (d6.seances.find(x => x.id === 'se-a') || {}).analyse_ia, d6.appels.length - avant, await q.p.locator('[data-adapter]').count()],
+        'séance faite, effort noté : analyse demandée (fiche, commentaire, blessure), texte affiché et rangé sur la séance, aucune réadaptation sans accord ; « Adapter mon plan » proposé'));
+      // « Adapter mon plan » : la réadaptation (hors plafond) s'écrit, sur l'accord de l'utilisateur.
+      await q.p.click('[data-adapter]');
       for (let k = 0; k < 40 && !d6.propositions.some(x => x.motif === 'readaptation' && x.statut === 'acceptee'); k++) await pause();
       await fini(q.p);
       const ap = d6.appels[d6.appels.length - 1] || {}, cx = ap.contexte || {};
       pb.push(egal(['readaptation', '2026-10-19', [], { description: 'tendinite', depuis: '2026-10-10' }],
-        [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'séance faite avec commentaire : réadaptation relancée, blessure envoyée, plus de commentaire à venir'));
+        [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'adaptation acceptée : réadaptation relancée, blessure envoyée, plus de commentaire à venir'));
       pb.push(egal({ ressenti_sur_10: 8, ressenti: 'Seuil, allure semi-marathon ou 10 km', charge_ua: 400, douleur: 'légère (mollet)', fatigue_sur_5: 4, commentaire: 'Dur', deplacee_du: '2026-10-12' }, (h => h && { ressenti_sur_10: h.ressenti_sur_10, ressenti: h.ressenti, charge_ua: h.charge_ua, douleur: h.douleur, fatigue_sur_5: h.fatigue_sur_5, commentaire: h.commentaire, deplacee_du: h.deplacee_du })((cx.historique || []).find(x => x.date === '2026-10-13')),
         'séances passées : ressenti, douleur, fatigue, commentaire et jour d\'origine envoyés'));
       pb.push(egal([3, 'acceptee', 14], [await q.p.evaluate(() => window.mrtSeancesIA.restantes(document.getElementById('saison').__ctx)), (d6.propositions.find(x => x.motif === 'readaptation') || {}).statut, d6.seances.length],
         'réadaptation hors plafond (seule la proposition du 19 octobre compte : 3 restantes), ses 12 séances écrites d\'office ; la séance saisie et la passée restent'));
       pb.push(egal([], q.erreurs, 'réadaptation : erreurs JavaScript'));
       await q.ctx.close();
-      // Calendrier : la même relance, écrite d'office, puis un message.
+      // Calendrier : la même analyse ; « Adapter mon plan » écrit la réadaptation et le dit dans la feuille.
       const d7 = copie([bonne()], x => { x.seances = [{ id: 'se-a', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Footing', faite: false, origine: 'saisie', etat: 'acceptee', course: null }]; });
       const c = await ouvrir(nav, 'calendrier.html', 1200, d7, {}, PARIS);
-      let message = null;
-      await surDialogue(c.p, t => { message = t; return true; });
       await c.p.click('[data-edit="se-a"]'); await c.p.waitForSelector('.cal-seance');
       await c.p.check('.cal-seance [name="faite"]');
+      await c.p.evaluate(() => { const r = document.querySelector('.cal-seance [name="ressenti"]'); r.value = '5'; r.dispatchEvent(new Event('input', { bubbles: true })); });
       await c.p.fill('.cal-seance [name="commentaire"]', 'Genou sensible');
       await c.p.click('.cal-seance button[type="submit"]');
-      await c.p.waitForFunction(() => window.__mrtFini === undefined, null, { timeout: 100 }).catch(() => {});
-      for (let k = 0; k < 20 && !message; k++) await pause();
-      pb.push(egal(['readaptation', 'Commentaire pris en compte : MyRunTools a réadapté tes séances.'], [(d7.appels[0] || {}).motif, message], 'Calendrier : commentaire, réadaptation, message'));
+      await c.p.waitForSelector('[data-adapter]'); await c.p.click('[data-adapter]'); await c.p.waitForSelector('.cal-analyse-ok');
+      pb.push(egal([1, 'readaptation', 'Plan adapté : les séances à venir sont à jour dans Mon plan.'], [d7.analyses.length, (d7.appels[0] || {}).motif, await c.p.textContent('.cal-analyse-ok')], 'Calendrier : analyse, puis adaptation sur demande'));
+      // Rouvrir la séance : l'analyse est relue ; enregistrer sans rien changer ne relance pas l'IA.
+      await c.p.click('[data-fermer]'); await c.p.waitForSelector('.cal-feuille-retour', { state: 'detached' });
+      await c.p.click('[data-edit="se-a"]'); await c.p.waitForSelector('.cal-seance');
+      const relue = await c.p.textContent('.cal-analyse-lue .cal-analyse-texte');
+      await c.p.click('.cal-seance button[type="submit"]'); await c.p.waitForSelector('.cal-seance', { state: 'detached' }); await pause();
+      pb.push(egal(['Séance bien menée.', 1, 0], [relue, d7.analyses.length, await c.p.locator('.cal-analyse-texte').count()], 'séance rouverte : analyse relue ; rien de changé, pas de nouvelle analyse'));
       await c.ctx.close();
+      // Compte non pilote : l'IA répond « réservé » ; la feuille se referme sans rien dire.
+      const d8 = copie([bonne()], x => { x.seances = [{ id: 'se-a', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Endurance', faite: false, origine: 'saisie', etat: 'acceptee', course: null }]; });
+      d8.analyseReponse = { status: 403, body: { code: 'reserve' } };
+      const c8 = await ouvrir(nav, 'calendrier.html', 1200, d8, {}, PARIS);
+      await c8.p.click('[data-edit="se-a"]'); await c8.p.waitForSelector('.cal-seance');
+      await c8.p.check('.cal-seance [name="faite"]');
+      await c8.p.evaluate(() => { const r = document.querySelector('.cal-seance [name="ressenti"]'); r.value = '4'; r.dispatchEvent(new Event('input', { bubbles: true })); });
+      await c8.p.click('.cal-seance button[type="submit"]');
+      await c8.p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
+      pb.push(egal([1, 0, []], [d8.analyses.length, await c8.p.locator('.cal-analyse-texte, .cal-msg:not(:empty)').count(), c8.erreurs], 'compte non pilote : analyse refusée, feuille refermée sans message'));
+      await c8.ctx.close();
     }
     return pb;
   },
