@@ -3217,6 +3217,9 @@ const CONTROLES = {
       const d = new Date(l + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + k); const j = d.toISOString().slice(0, 10);
       return { date: j, type: k === 3 ? 'renfo' : 'run', libelle: k === 5 ? 'Sortie longue' : k === 3 ? 'Renforcement : Gainage' : 'Endurance', duree_min: k === 5 ? 90 : 45, distance_km: k === 3 ? 0 : k === 5 ? 15 : 8, intensite: 'facile' };
     })) });
+    // Le plan entier est déjà proposé (les 4 blocs après le premier) : seul le premier bloc reste à voir.
+    const couvrir = x => { ['2026-11-16', '2026-12-14', '2027-01-11', '2027-02-08'].forEach((b, i) => x.propositions.push({ id: 'plan-' + i, utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: b, essai: 1, statut: 'acceptee', motif: 'readaptation', reponse: { recommandation: 'Suite.', seances: [] } })); return x; };
+    const aPart = d => d.propositions.filter(x => !String(x.id).startsWith('plan-'));
     const mauvaise = () => { const r = bonne(); r.seances.push({ date: '2026-10-21', type: 'run', libelle: 'Fractionné', duree_min: 50, distance_km: 9, intensite: 'intense' }); return r; };
     // Base simulée : le relais range chaque appel dans « propositions », comme la fonction, et rend la réponse choisie.
     const copie = (reponses, f) => {
@@ -3227,8 +3230,17 @@ const CONTROLES = {
         // Analyse d'une séance faite : rangée à part, hors des appels de proposition.
         if (corps.mode === 'analyse') { d.analyses.push(corps); if (d.analyseReponse) return d.analyseReponse; return { status: 200, body: { analyse: 'Séance bien menée.', adapter: true } }; }
         d.appels.push(corps);
-        const r = reponses[Math.min(d.appels.length - 1, reponses.length - 1)];
+        let r = reponses[Math.min(d.appels.length - 1, reponses.length - 1)];
         if (r.status) return r;
+        // Un autre bloc que le premier (2026-10-19) : les séances de la réponse sont décalées d'autant de jours.
+        const decal = Math.round((Date.parse(corps.bloc) - Date.parse('2026-10-19')) / 864e5);
+        if (decal && Array.isArray(r.seances)) {
+          // Comme la vraie fonction : rien un jour de course, la veille d'une Plaisir ni un jour sans possibilité (le contexte les désigne).
+          const interdits = new Set(((corps.contexte && corps.contexte.semaines) || []).flatMap(w => w.jours).filter(j => j.course || (j.reperes || []).some(x => /repos/.test(x))).map(j => j.date));
+          // Semaines d'affûtage : durées réduites (le garde-fou veut 40 à 59 % des 3 semaines d'avant).
+          const affutage = new Set(((corps.contexte && corps.contexte.semaines) || []).filter(w => w.phase === 'Affûtage').flatMap(w => w.jours.map(j => j.date)));
+          r = Object.assign({}, r, { seances: r.seances.map(x => { const date = new Date(Date.parse(x.date) + decal * 864e5).toISOString().slice(0, 10); return Object.assign({}, x, { date }, affutage.has(date) ? { duree_min: Math.max(1, Math.round(x.duree_min * 0.45)) } : {}); }).filter(x => !interdits.has(x.date)) });
+        }
         const id = 'prop-' + d.appels.length;
         d.propositions.push({ id, utilisateur: moi, cree: '2026-10-20T10:00:00Z', bloc: corps.bloc, essai: corps.essai, statut: 'brute', motif: corps.motif || 'proposer', reponse: r });
         return { status: 200, body: { id, reponse: r } };
@@ -3252,22 +3264,23 @@ const CONTROLES = {
     await fini(p);
     let r = await lire(p);
     const envoi = d.appels[0];
-    pb.push(egal([1, 12, 'ia', 'acceptee', 'acceptee', null, '3 restantes ce mois-ci', 0],
+    pb.push(egal([5, 59, 'ia', 'acceptee', 'acceptee', null, '3 restantes ce mois-ci', 0],
       [d.appels.length, d.seances.length, d.seances[0].origine, d.seances[0].etat, d.propositions[0].statut, d.seances.find(x => x.type === 'renfo').distance_km, r.reste.replace(/^ · /, ''), r.anciens],
-      'à l\'arrivée : l\'IA propose d\'office, 12 séances écrites (origine IA), proposition acceptée, 3 restantes ; plus rien à accepter'));
+      'à l\'arrivée : l\'IA propose d\'office tout le plan, bloc après bloc (5 blocs jusqu\'à l\'Objectif), 59 séances écrites (origine IA), propositions acceptées, une seule comptée (3 restantes) ; plus rien à accepter'));
     pb.push(egal('MyRunTools : Entretien : deux footings et une sortie longue par semaine. Garde une allure facile. Refaire · 3 restantes ce mois-ci', r.reco, 'bandeau : la recommandation en deux phrases au plus, « Refaire »'));
     pb.push(egal([1, '2026-10-19', '2026-11-15', 'Entretien', false, false, [['mardi', 'samedi'], ['jeudi']], ['allégé (avant une course Préparatoire)']],
       [envoi.essai, envoi.contexte.bloc.debut, envoi.contexte.bloc.fin, envoi.contexte.semaines[0].phase, /Trail du Lac|Trail des Gorges|Corrida/.test(JSON.stringify(envoi)), JSON.stringify(envoi).includes(db.profils[0].prenom || '§§'),
         [envoi.contexte.profil.jours_possibles_course, envoi.contexte.profil.jours_possibles_renforcement], envoi.contexte.semaines[3].jours[3].reperes],
       'contexte envoyé : le bloc, ses phases et repères, le profil ; ni nom de course ni prénom'));
     await p.reload(); await fini(p);
-    pb.push(egal(1, d.appels.length, 'retour sur la page : la proposition couvre la semaine, pas de nouvel appel'));
+    pb.push(egal(5, d.appels.length, 'retour sur la page : le plan est couvert, pas de nouvel appel'));
     pb.push(egal([], erreurs, 'erreurs JavaScript'));
     await ctx.close();
 
     // « Refaire » : confirmé, remplace les séances de l'IA non faites du bloc, sans toucher aux séances saisies ni aux faites.
     d = copie([bonne()], x => {
       x.propositions.push({ id: 'p0', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Ancienne.', seances: [] } });
+      couvrir(x);
       x.seances.push(
         { id: 'ia-a', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Ancien footing', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: false },
         { id: 'ia-b', utilisateur: moi, date: '2026-10-22', type: 'run', libelle: 'Footing fait', duree_min: 30, origine: 'ia', etat: 'acceptee', faite: true },
@@ -3286,10 +3299,10 @@ const CONTROLES = {
     await ctx.close();
 
     // Garde-fou : un jour non disponible ; la demande est refaite une fois, avec la correction, puis écrite.
-    d = copie([mauvaise(), bonne()]);
+    d = copie([mauvaise(), bonne()], couvrir);
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
     await fini(p);
-    pb.push(egal([2, 2, true, 'invalide', 'acceptee', 12], [d.appels.length, d.appels[1].essai, (d.appels[1].corrections || []).some(x => /mer\. 21 oct.* : jour non prévu pour courir/.test(x)), d.propositions[0].statut, d.propositions[1].statut, d.seances.length],
+    pb.push(egal([2, 2, true, 'invalide', 'acceptee', 12], [d.appels.length, d.appels[1].essai, (d.appels[1].corrections || []).some(x => /mer\. 21 oct.* : jour non prévu pour courir/.test(x)), aPart(d)[0].statut, aPart(d)[1].statut, d.seances.length],
       'garde-fou : jour non prévu pour courir, proposition refaite (essai 2, avec la correction) ; la première marquée invalide, la seconde écrite'));
     await ctx.close();
 
@@ -3303,11 +3316,20 @@ const CONTROLES = {
     await ctx.close();
 
     // Une proposition restée en attente (d'avant) pour la semaine : écrite à l'arrivée, sans appel.
-    d = copie([bonne()], x => { x.propositions.push({ id: 'p-att', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'brute', motif: 'proposer', reponse: bonne() }); });
+    d = copie([bonne()], x => { x.propositions.push({ id: 'p-att', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'brute', motif: 'proposer', reponse: bonne() }); couvrir(x); });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
     await p.waitForFunction(() => document.querySelector('.ps-reco [data-ia="refaire"]') && /Entretien/.test(document.querySelector('.ps-reco').textContent));
     for (let k = 0; k < 40 && d.propositions[0].statut !== 'acceptee'; k++) await pause(); // l'écriture du statut suit celle des séances
     pb.push(egal([0, 12, 'acceptee'], [d.appels.length, d.seances.length, d.propositions[0].statut], 'proposition en attente d\'avant : écrite à l\'arrivée, sans appel'));
+    await ctx.close();
+
+    // Revue : la proposition qui couvre la semaine date de plus de 4 semaines (15 septembre) : les 4 prochaines semaines sont refaites (hors plafond), à l'arrivée.
+    d = copie([bonne()], x => { x.propositions.push({ id: 'p-vieille', utilisateur: moi, cree: '2026-09-15T10:00:00Z', bloc: '2026-09-28', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Ancienne.', seances: [] } }); couvrir(x); });
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await fini(p);
+    for (let k = 0; k < 40 && !d.appels.length; k++) await pause();
+    await p.waitForFunction(() => document.querySelector('.ps-reco [data-ia="refaire"]'));
+    pb.push(egal([1, 'readaptation', '2026-10-19'], [d.appels.length, d.appels[0] && d.appels[0].motif, d.appels[0] && d.appels[0].bloc], 'revue : une proposition de plus de 4 semaines est revue à l\'arrivée (un appel, hors plafond, bloc de la semaine en cours)'));
     await ctx.close();
 
     // Plafond atteint : rien d'office, « Refaire » grisé ; refus de la fonction (plafond, réservé aux pilotes) : son message.
@@ -3366,6 +3388,7 @@ const CONTROLES = {
           { id: 'se-a', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Footing', faite: false, duree_min: 45, distance_km: 8, intensite: 'facile', origine: 'saisie', etat: 'acceptee', course: null }];
         x.profil_entrainement[0].blessure = 'tendinite'; x.profil_entrainement[0].blessure_debut = '2026-10-10';
         x.propositions.push({ id: 'p0', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Ancienne.', seances: [] } });
+        couvrir(x);
       });
       const q = await ouvrir(nav, 'preparation.html', 1200, d6, {}, PARIS);
       await fini(q.p);
@@ -3389,14 +3412,14 @@ const CONTROLES = {
         'séance faite, effort noté : analyse demandée (fiche, commentaire, blessure), texte affiché et rangé sur la séance, aucune réadaptation sans accord ; « Adapter mon plan » proposé'));
       // « Adapter mon plan » : la réadaptation (hors plafond) s'écrit, sur l'accord de l'utilisateur.
       await q.p.click('[data-adapter]');
-      for (let k = 0; k < 40 && !d6.propositions.some(x => x.motif === 'readaptation' && x.statut === 'acceptee'); k++) await pause();
+      for (let k = 0; k < 40 && !aPart(d6).some(x => x.motif === 'readaptation' && x.statut === 'acceptee'); k++) await pause();
       await fini(q.p);
       const ap = d6.appels[d6.appels.length - 1] || {}, cx = ap.contexte || {};
       pb.push(egal(['readaptation', '2026-10-19', [], { description: 'tendinite', depuis: '2026-10-10' }],
         [ap.motif, ap.bloc, cx.commentaires_a_venir, cx.blessure_en_cours], 'adaptation acceptée : réadaptation relancée, blessure envoyée, plus de commentaire à venir'));
       pb.push(egal({ ressenti_sur_10: 8, ressenti: 'Seuil, allure semi-marathon ou 10 km', charge_ua: 400, douleur: 'légère (mollet)', fatigue_sur_5: 4, commentaire: 'Dur', deplacee_du: '2026-10-12' }, (h => h && { ressenti_sur_10: h.ressenti_sur_10, ressenti: h.ressenti, charge_ua: h.charge_ua, douleur: h.douleur, fatigue_sur_5: h.fatigue_sur_5, commentaire: h.commentaire, deplacee_du: h.deplacee_du })((cx.historique || []).find(x => x.date === '2026-10-13')),
         'séances passées : ressenti, douleur, fatigue, commentaire et jour d\'origine envoyés'));
-      pb.push(egal([3, 'acceptee', 14], [await q.p.evaluate(() => window.mrtSeancesIA.restantes(document.getElementById('saison').__ctx)), (d6.propositions.find(x => x.motif === 'readaptation') || {}).statut, d6.seances.length],
+      pb.push(egal([3, 'acceptee', 14], [await q.p.evaluate(() => window.mrtSeancesIA.restantes(document.getElementById('saison').__ctx)), (aPart(d6).find(x => x.motif === 'readaptation') || {}).statut, d6.seances.length],
         'réadaptation hors plafond (seule la proposition du 19 octobre compte : 3 restantes), ses 12 séances écrites d\'office ; la séance saisie et la passée restent'));
       pb.push(egal([], q.erreurs, 'réadaptation : erreurs JavaScript'));
       await q.ctx.close();

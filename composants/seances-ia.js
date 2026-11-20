@@ -62,7 +62,7 @@
     }
     const sx = ps.saisons.find(s => s.jourJ >= lundi);
     const historique = ctx.seances.filter(s => s.date >= addDays(lundi, -28) && s.date < lundi).sort((a, b) => (a.date < b.date ? -1 : 1))
-      .map(s => Object.assign({ date: s.date, type: s.type, libelle: s.libelle, duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), intensite: s.intensite || null, faite: !!s.faite }, retour(s)));
+      .map(s => Object.assign({ date: s.date, type: s.type, libelle: s.libelle, duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), intensite: s.intensite || null, faite: !!s.faite }, s.date >= iso(new Date()) ? { prevue_pas_encore_passee: true } : {}, retour(s)));
     // Séances à venir qui portent un commentaire (une contrainte, une envie : « pas disponible jeudi »).
     const commentaires_a_venir = ctx.seances.filter(s => s.date >= lundi && s.date <= fin && s.commentaire && !s.faite).sort((a, b) => (a.date < b.date ? -1 : 1))
       .map(s => ({ date: s.date, type: s.type, libelle: s.libelle, commentaire: s.commentaire }));
