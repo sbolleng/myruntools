@@ -495,9 +495,9 @@
   }
 
   // ----- Analyse de la séance faite par l'IA (spécification Préparation, § 6.3) -----
-  // Elle se lance quand l'effort est noté, et seulement si le retour est nouveau ou changé (ou s'il n'y a pas encore d'analyse).
+  // Elle se lance quand l'effort est noté, et seulement si le retour est nouveau ou changé (modifier la date ou la durée ne la relance pas).
   // Le texte se range sur la séance (colonne « analyse ») ; adapter le plan reste à la demande de l'utilisateur.
-  const analysable = (avant, apres) => !!(window.mrtSeancesIA && apres.ressenti && (!avant.analyse || ['ressenti', 'sensations', 'douleur', 'douleur_ou', 'commentaire'].some(k => (avant[k] == null ? null : avant[k]) !== (apres[k] == null ? null : apres[k]))));
+  const analysable = (avant, apres) => !!(window.mrtSeancesIA && apres.ressenti && (['ressenti', 'sensations', 'douleur', 'douleur_ou', 'commentaire'].some(k => (avant[k] == null ? null : avant[k]) !== (apres[k] == null ? null : apres[k]))));
   // Trois traits qui s'allument l'un après l'autre (figés si l'appareil demande moins de mouvement).
   const attente = texte => '<div class="cal-attente" role="status"><span class="cal-attente-traits" aria-hidden="true"><b></b><b></b><b></b></span><p>' + esc(texte) + '</p></div>';
   async function analyseDans(voile, ctx, s, fermer) {

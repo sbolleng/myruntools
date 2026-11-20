@@ -2707,13 +2707,15 @@ const CONTROLES = {
     await p.fill('.cal-seance [name="douleur_ou"]', 'genou droit');
     await p.fill('.cal-seance [name="commentaire"]', 'Dur sur la fin');
     pb.push(egal([false, false, '14/300'], [await p.evaluate(() => document.querySelector('.cal-si-faite').hidden), await p.evaluate(() => document.querySelector('.cal-douleur-ou').hidden), await p.textContent('.cal-compteur')], 'faite : ressenti affiché ; douleur légère : « Où » ; compteur du commentaire'));
-    // Le commentaire relance une réadaptation (lot 6b) : son message, accepté ; puis le conseil d'un déplacement, refusé.
+    // L'effort noté ouvre l'analyse de l'IA ; puis le conseil d'un déplacement, refusé.
     let question = null, reponse = true;
     await surDialogue(p, q => { question = q; return reponse; });
     d.ecritures = [];
     await p.click('.cal-seance button[type="submit"]'); await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
-    for (let k = 0; k < 20 && !question; k++) await pause();
-    await p.waitForFunction(() => !document.querySelector('.mrt-dialogue')).catch(() => {});
+    // L'effort est noté : la feuille d'analyse s'ouvre ; sans réponse de l'IA (fonction absente dans l'essai), son message, puis la croix la ferme.
+    await p.waitForSelector('.cal-feuille-retour .cal-msg');
+    pb.push(egal('Analyse impossible pour l\'instant, réessaie plus tard.', await p.textContent('.cal-feuille-retour .cal-msg'), 'effort noté : feuille d\'analyse, message quand l\'IA ne répond pas'));
+    await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' });
     const ecrit = () => d.ecritures.filter(x => x.table === 'seances' && x.methode === 'PATCH').map(x => x.corps);
     pb.push(egal({ faite: true, ressenti: 7, sensations: 2, douleur: 'legere', douleur_ou: 'genou droit', fatigue: undefined, commentaire: 'Dur sur la fin', date_prevue: null },
       (c => c && { faite: c.faite, ressenti: c.ressenti, sensations: c.sensations, douleur: c.douleur, douleur_ou: c.douleur_ou, fatigue: c.fatigue, commentaire: c.commentaire, date_prevue: c.date_prevue })(ecrit()[0]), 'retour enregistré avec la séance'));
@@ -2755,7 +2757,8 @@ const CONTROLES = {
     for (let k = 0; k < 10 && !question; k++) await pause();
     pb.push(egal(true, (question || '').includes('indépendantes de l\'effort'), 'rond « i » : l\'explication des sensations'));
     await p.waitForFunction(() => !document.querySelector('.mrt-dialogue'));
-    await p.click('.cal-feuille-retour .mc-pied .is-principal'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
+    await p.click('.cal-feuille-retour .mc-pied .is-principal'); await p.waitForSelector('.cal-feuille-retour .cal-analyse'); // la feuille passe à l'analyse de l'IA
+    await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
     pb.push(egal({ ressenti: 4, sensations: 1 }, (c => c && { ressenti: c.ressenti, sensations: c.sensations })(ecrit()[1]), 'feuille : effort et sensations enregistrés'));
     // En tête de la feuille : le type et le jour, puis le nom de la séance (avant « : ») et son détail (après).
     await p.evaluate(() => window.mrtPreparation.feuilleRetour({}, { id: 'x', type: 'run', libelle: 'Côtes : échauffement, 8 x 1 min en côte, retour au trot', date: '2026-11-13' }));
