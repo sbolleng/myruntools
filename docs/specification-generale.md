@@ -312,6 +312,7 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | Pages | Une page HTML par module ; en-tête et menu fournis par un composant partagé |
 | Hébergement | GitHub Pages, publication automatique à chaque mise à jour de `main` |
 | Base de données | Supabase (PostgreSQL), offre gratuite |
+| Outils et services | Liste complète, avec adresses et rôles : [Outils et services](outils-et-services.md) |
 | Météo | Open-Meteo : gratuit, sans clé, modèle européen ECMWF inclus |
 | Bilan hebdomadaire | Routine Claude |
 | Cache navigateur | Numéro de version posé automatiquement dans les liens CSS et JS à chaque publication |
