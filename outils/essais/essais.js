@@ -488,6 +488,7 @@ const CONTROLES = {
     await p.click('.ps-choix[data-val="femme"]');
     await p.waitForFunction(() => /2 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     pb.push(egal([3, 0], await p.evaluate(() => [document.querySelectorAll('.ps-valeur .mrt-date3 .mrt-champ').length, document.querySelectorAll('.ps-valeur [type="date"]').length]), 'profil express : date de naissance en trois champs (Jour, Mois, Année), sans calendrier'));
+    pb.push(egal(['Continuer', 'flex-end'], await p.evaluate(() => { const b = document.querySelector('.ps-valeur button[type="submit"]'); return [b.textContent, getComputedStyle(b.parentElement).justifyContent]; }), 'profil express : « Continuer » en bas à droite (pas « Enregistrer »)'));
     await dateTrois(p, '.ps-valeur', 'valeur', '1990-05-12'); await p.click('.ps-valeur button[type="submit"]');
     await p.waitForFunction(() => /3 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     await p.fill('.ps-valeur [name="valeur"]', '62'); await p.click('.ps-valeur button[type="submit"]');
@@ -2989,6 +2990,7 @@ const CONTROLES = {
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'parcours-plan.png') });
     pb.push(egal([['Une course ou un trail', 'Me maintenir en formeBientôt [inactif]'], 0, 0, 0],
       [await choix(p), await p.locator('.pp [data-pp="retour"]').count(), await p.locator('.pp [data-pp="fermer"]').count(), await prog(p)], 'écran 1 : deux plans, « Me maintenir en forme » inactif ; ni retour ni croix'));
+    pb.push(egal('Quel est ton objectif ?', (await p.textContent('.pp .pp-invite')).trim(), 'écran 1 : la phrase d\'invite sous le titre'));
     await p.click('[data-plan="course"]'); await vers(p, 'course');
     const confirmees = await choix(p);
     await p.click('[data-filtre="toutes"]'); await pause();
@@ -3015,9 +3017,13 @@ const CONTROLES = {
       'écran 4 : points fragiles, « Blessé en ce moment ? » Non d\'office, sans date ; Oui sans texte refusé, le texte tapé gardé'));
     await p.click('.pp [data-vol="volume_tranche|20-40"]'); await pause();
     const resteVolume = await ecran(p);
-    await p.click('.pp [data-vol="sortie_tranche|1h30-2h"]'); await vers(p, 'allure');
+    const contGrise = await p.locator('.pp [data-pp="continuer"]').isDisabled();
+    await p.click('.pp [data-vol="sortie_tranche|1h30-2h"]'); await pause();
+    const contActif = !(await p.locator('.pp [data-pp="continuer"]').isDisabled());
+    await p.click('.pp [data-pp="continuer"]'); await vers(p, 'allure');
+    pb.push(egal([true, true], [contGrise, contActif], 'écran 5 : « Continuer » grisé tant qu\'une des deux n\'est pas choisie, actif ensuite ; aucun passage automatique'));
     const allure0 = await p.evaluate(() => [document.querySelector('.pp [data-allure][aria-pressed="true"]').textContent, document.querySelector('.pp-form [name="valeur"]').value, document.querySelector('.pp-form .pp-note').textContent]);
-    pb.push(egal(['volume', ['Semi', '1:56:05', 'Palmarès · 4 oct. 2026']], [resteVolume, allure0], 'écran 5 : suite quand les deux sont choisies ; écran 6 : le semi du Palmarès prérempli'));
+    pb.push(egal(['volume', ['Semi', '1:56:05', 'Palmarès · 4 oct. 2026']], [resteVolume, allure0], 'écran 5 : « Continuer » ; écran 6 : le semi du Palmarès prérempli'));
     await p.click('.pp [data-allure="marathon"]'); await pause();
     await p.fill('.pp-form [name="valeur"]', '1:40:00'); await p.click('.pp [data-pp="continuer"]'); await pause();
     const m2 = await msg(p);
@@ -3042,9 +3048,9 @@ const CONTROLES = {
     // Le récapitulatif ramène à une question, puis revient.
     await p.click('[data-recap="volume"]'); await vers(p, 'volume');
     const contVol = await p.locator('.pp [data-pp="continuer"]').count();
-    await p.click('.pp [data-vol="volume_tranche|40-60"]'); await vers(p, 'recap');
-    pb.push(egal([0, '40 à 60 km · 1 h 30 à 2 h', 'Mon volume actuel'], [contVol, await p.evaluate(() => document.querySelector('[data-recap="volume"] .ps-rep').textContent), 'Mon volume actuel'],
-      'récapitulatif, volume : pas de « Continuer », un toucher range et ramène au récapitulatif'));
+    await p.click('.pp [data-vol="volume_tranche|40-60"]'); await pause(); await p.click('.pp [data-pp="continuer"]'); await vers(p, 'recap');
+    pb.push(egal([1, '40 à 60 km · 1 h 30 à 2 h', 'Mon volume actuel'], [contVol, await p.evaluate(() => document.querySelector('[data-recap="volume"] .ps-rep').textContent), 'Mon volume actuel'],
+      'récapitulatif, volume : « Continuer » (deux questions), il range et ramène au récapitulatif'));
     await p.click('[data-recap="niveau"]'); await vers(p, 'niveau');
     await p.click('.pp [data-val="confirme"]'); await vers(p, 'recap');
     const niveau2 = await p.evaluate(() => document.querySelector('[data-recap="niveau"] .ps-rep').textContent);

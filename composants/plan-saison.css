@@ -135,6 +135,7 @@
 .pp-types { margin-bottom: 0.4rem; }
 .pp-role { margin-left: 0.4rem; font-size: var(--t-petit); font-weight: 600; color: var(--accent); }
 .pp-note { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
+.pp-invite { margin: 0 0 0.8rem; }
 .pp-vide { font-size: var(--t-texte); color: var(--muted); }
 .pp-pied { display: flex; justify-content: flex-end; margin-top: 1rem; }
 .pp .ps-choix[disabled] { cursor: default; opacity: 0.45; }
