@@ -171,7 +171,9 @@
 @media (hover: hover) { .ps-objectif .ps-titre a:hover { text-decoration: underline; } }
 /* Frise : une case par semaine, à la hauteur d'une case de la vue Mois ; flèches de part et d'autre si tout ne tient pas. */
 .ps-frise-z { display: flex; align-items: center; gap: 0.4rem; }
-.ps-frise-z .ps-frise-defile { flex: 1; min-width: 0; margin: 0; padding: 2px 0 0.4rem; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }
+/* Pas de barre de défilement : les flèches la remplacent (le doigt et la molette font toujours défiler). */
+.ps-frise-z .ps-frise-defile { flex: 1; min-width: 0; margin: 0; padding: 2px 0; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; }
+.ps-frise-z .ps-frise-defile::-webkit-scrollbar { display: none; }
 .ps-semaines { display: flex; gap: 4px; }
 .ps-bloc-ph { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 4.6rem; overflow: hidden; color: var(--bg); border-radius: 6px; background: var(--case); }
 .ps-bloc-ph.ph-base { background: var(--ph-base); }

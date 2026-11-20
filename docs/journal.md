@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Mon plan, frise | Plus de barre de défilement sous la frise : les flèches ‹ › la remplacent (le doigt et la molette font toujours défiler). |
 | 20 nov. 2026 | Mon plan, frise | Les semaines consécutives d'une même phase forment un seul bloc (un fond, le nom de la phase une fois) ; chaque semaine y garde son lundi, sa course et son lien vers le Calendrier. |
 | 20 nov. 2026 | Économie de jetons, journal et banc d'essai | Journal : les décisions d'octobre 2026 (198 lignes) passent dans `docs/journal-archive.md` ; chaque mois écoulé y passera à son tour. Banc d'essai : sortie courte, seuls les groupes en échec sont détaillés, les autres comptés (`DETAIL=1` pour une ligne par groupe). |
 | 20 nov. 2026 | Mon plan, essai réel : attente et cartes | L'attente de l'IA après « Construire mon plan » se passe sur le récapitulatif (« MyRunTools prépare tes séances… », bouton grisé), le plan s'ouvre ensuite avec les séances. Une séance se touche sur toute sa carte dans toutes les semaines (le toucher n'était branché qu'avec le glisser, limité à la semaine en cours). |
