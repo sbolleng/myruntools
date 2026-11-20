@@ -40,6 +40,7 @@
 .ps-coches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .ps-valeur { margin-top: 1rem; }
 .ps-valeur .mrt-btn { margin-top: 0.2rem; }
+.ps-pied { display: flex; justify-content: flex-end; }
 .ps-profil textarea { resize: vertical; }
 @media (hover: hover) { .ps-ligne-q:hover, .ps-choix:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
   .ps-choix:not(:disabled):not(.is-on):hover { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 8px; } }

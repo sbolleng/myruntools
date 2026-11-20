@@ -149,7 +149,7 @@
         carte(x, 'Déconseillée en Préparatoire', false) +
         '<div class="pp-pied pp-deux"><button type="button" class="mrt-btn" data-avis="preparatoire">Ajouter quand même en Préparatoire</button><button type="button" class="mrt-btn is-principal" data-avis="plaisir">Ajouter en Plaisir</button></div>';
     }
-    if (k === 'plan') return '<div class="ps-groupe-l">' + choix('data-plan', 'course', false, 'Une course ou un trail') +
+    if (k === 'plan') return '<p class="pp-note pp-invite">Quel est ton objectif ?</p><div class="ps-groupe-l">' + choix('data-plan', 'course', false, 'Une course ou un trail') +
       '<button type="button" class="ps-choix pp-bientot" disabled><span>Me maintenir en forme</span><small>Bientôt</small></button></div>';
     if (k === 'course') {
       const cs = ctx.courses.filter(c => aVenir(c) && (st.filtre === 'toutes' ? ['confirmee', 'option', 'a_surveiller'].includes(c.statut) : c.statut === 'confirmee')).sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -179,7 +179,8 @@
     }
     if (k === 'volume') {
       const grp = (cle, lib) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + PRf.ECHELLES[cle].map(([v, l]) => pastille('data-vol', cle + '|' + v, pr[cle] === v, l)).join('') + '</div></div>';
-      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance moyenne par semaine') + grp('sortie_tranche', 'Plus longue sortie récente') + '</div>';
+      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance moyenne par semaine') + grp('sortie_tranche', 'Plus longue sortie récente') + '</div>' +
+        '<div class="pp-pied"><button type="button" class="mrt-btn is-principal" data-pp="continuer"' + (FAIT.volume(pr) ? '' : ' disabled') + '>Continuer</button></div>';
     }
     if (k === 'allure') {
       const t = st.allure || pr.allure_type || null, champ = PRf.CHAMP_TEMPS[t];
@@ -317,7 +318,7 @@
       }
       if (b('[data-vol]')) {
         const [cle, v] = b('[data-vol]').dataset.vol.split('|');
-        if (await ranger(ctx, st, { [cle]: v }) && FAIT.volume(e(st))) suivant(ctx, st); // les deux choisies : la suite
+        await ranger(ctx, st, { [cle]: v }); // deux questions sur l'écran : « Continuer » (actif quand les deux sont choisies) passe à la suite
         return redessiner();
       }
       if (act === 'continuer' && courant(st) === 'volume') { if (FAIT.volume(e(st))) suivant(ctx, st); else st.msg = 'Choisis la distance et la plus longue sortie.'; return redessiner(); }

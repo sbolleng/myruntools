@@ -241,7 +241,7 @@
         : '<input class="mrt-champ" name="valeur" inputmode="decimal" placeholder="' + n.ex + '" value="' + esc(virgule(src)) + '">';
       corps.innerHTML = barre(titre, true) + '<form class="ps-valeur" novalidate>' + (type === 'date' ? '<div class="cal-champ">' + entree + '</div>' // date : Jour, Mois, Année, sans redire le titre
           : '<label class="cal-champ"><span>' + titre + (n && n.unite ? ' (' + n.unite + ')' : '') + '</span>' + entree + '</label>') +
-        '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>';
+        (suite ? '<div class="ps-pied"><button type="submit" class="mrt-btn is-principal">Continuer</button></div>' : '<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') + '</form>';
       const f = corps.querySelector('form');
       f.addEventListener('submit', ev => {
         ev.preventDefault();
