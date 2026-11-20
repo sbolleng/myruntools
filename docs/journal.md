@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Partage et retours des séances | Gardé tel quel : le site partagé en lecture seule montre les séances avec leurs retours (effort, sensations, douleur, commentaire), jamais le profil ni les repas ; dit dans la politique de confidentialité (P6). |
 | 20 nov. 2026 | RGPD | Page `confidentialite.html` (§ 11 ter) : responsable « MyRunTools » et `contact@` (sans nom de personne, choix assumé), données nommées, santé sur accord explicite, sept prestataires et leur lieu, conservation tant que le compte existe, droits par e-mail (export et suppression dans les Préférences plus tard). Inscription : deux cases obligatoires (politique, données de santé), dates gardées avec le compte. Pied « Mentions légales · Confidentialité » ; M9 renvoie à la politique. Polices à héberger sur le site ensuite. |
 | 20 nov. 2026 | Séance de l'IA et réalisé | Séance de l'IA : prévu en lecture seule, « Modifier cette séance » en fait une séance à soi. Séance faite : bloc « Réalisé » (durée, distance, D+, FC moyenne, FC max ; allure calculée, pas de champ en plus). Le réalisé remplace le prévu dans la charge, les totaux et Nutrition quand il est saisi ; l'analyse compare prévu et réalisé. Évolution 042 ; fonction `proposer-seances` à recoller. |
 | 20 nov. 2026 | Anti-robot en service | CAPTCHA activé dans Supabase avec le fournisseur Turnstile ; connexion et « Mot de passe oublié ? » vérifiés. Reste avant l'ouverture de l'inscription : la page RGPD, le modèle « Confirm signup » à coller. |
