@@ -6,6 +6,7 @@ La plus récente en haut.
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 20 nov. 2026 | Anti-robot | Clé du site Turnstile publiée : le contrôle s'affiche sur la connexion, « Créer un compte » et « Changer le mot de passe » ; la vérification par Supabase s'active ensuite. Banc d'essai et captures : clé vidée au chargement (pas de réseau). |
 | 20 nov. 2026 | Bouton Finishers | Le logo de Finishers (fourni, réduit à 64 px, `composants/images/finishers.png`) devant « Finishers ↗ » sur la page Courses. |
 | 20 nov. 2026 | Date de naissance | Saisie en trois champs (Jour tapé, Mois en liste, Année tapée), dans Mon profil et l'encart de Nutrition : le calendrier du navigateur obligeait à remonter mois par mois (option A, approche des sites publics). Élément commun `mrtDateTrois`. Le titre de la question n'est plus répété au-dessus du champ. Palmarès : rien à ajouter, les pastilles d'année existent déjà. Bloc Inscription laissé avant Parcours (ordre du formulaire et chronologie). |
 | 20 nov. 2026 | Ajustements | Calendrier : Entretien dans la légende des phases, en gris neutre (`--ph-entretien`). Mon plan : « Voir les semaines dans le Calendrier → » remplacé par un petit rond au picto de calendrier à droite de « Cette semaine ». Courses : bouton « Finishers ↗ » (finishers.com) à gauche d'« Ajouter une course » (logo à fournir). Page d'une course : bloc Inscription (ouverture, dossard, prix, site d'inscription), toujours là, fermé ; ouverte depuis Courses, les blocs vides sont affichés fermés (« Non renseigné »), les autres ouverts. |

@@ -40,6 +40,9 @@ const LARGEURS = { ordinateur: 1200, tablette: 768, telephone: 390 };
 // les suppressions par id sont appliquées, les autres écritures acceptées sans rien changer ; db.panne : écritures en échec ;
 // db.ecritures (liste, si elle existe) : les écritures reçues, pour les relire ;
 // db.auth : connexion par mot de passe simulée (voir plus bas), db.auth.appels : les appels reçus.
+// Réglages du site (donnees/supabase.js) remplacés au chargement : sans anti-robot, plus ce que le contrôle demande.
+const reglagesSite = r => `(() => { let v; Object.defineProperty(window, 'MRT_SUPABASE', { configurable: true, get: () => v, set: x => { v = Object.assign(x, { captcha: '' }, ${JSON.stringify(r || {})}); } }); })()`;
+const SANS_CAPTCHA = reglagesSite();
 function simulerBase(ctx, db) {
   return ctx.route(PROJET + '/**', async route => {
     const req = route.request(), u = new URL(req.url());
@@ -3339,7 +3342,7 @@ const CONTROLES = {
     await ctx.close();
 
     // Créer un compte (spécification générale, § 3, C1 à C15). Réglages du site remplacés au chargement : inscription ouverte ou non, politique de confidentialité.
-    const reglages = r => `(() => { let v; Object.defineProperty(window, 'MRT_SUPABASE', { configurable: true, get: () => v, set: x => { v = Object.assign(x, ${JSON.stringify(r)}); } }); })()`;
+    const reglages = reglagesSite;
     const inscrit = async (page, d, r) => {
       const ctx = await nav.newContext({ viewport: { width: 390, height: 900 }, timezoneId: PARIS.fuseau });
       await ctx.route('https://cdn.jsdelivr.net/**', x => x.fulfill({ body: LIB, contentType: 'application/javascript' }));
@@ -5004,6 +5007,9 @@ const CONTROLES = {
   if (CAPTURES) fs.mkdirSync(path.join(__dirname, 'captures'), { recursive: true });
   const db = JSON.parse(fs.readFileSync(path.join(__dirname, 'donnees-fictives.json'), 'utf8'));
   const nav = await chromium.launch(navigateur());
+  // Anti-robot (Turnstile) : jamais dans le banc (pas de réseau) ; la clé du site est vidée au chargement de chaque page.
+  const contexte0 = nav.newContext.bind(nav);
+  nav.newContext = async (...a) => { const c = await contexte0(...a); await c.addInitScript(SANS_CAPTCHA); return c; };
   let echecs = 0;
   for (const [nom, f] of Object.entries(CONTROLES)) {
     if (SEULS.length && !SEULS.includes(nom)) continue;
