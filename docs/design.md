@@ -187,6 +187,8 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 | Trail | `#ff7a45` | Course de trail |
 | Encre | `#0b1220` | Texte écrit sur la couleur pleine d'une course, lisible sur fond blanc comme sur fond sombre |
 
+**Liseré d'une séance** (Mois V2, export ; pas de légende) : Sortie longue `#6b8cff`, Seuil `#e8c547`, Fractionné Rouge, Côtes `#b48ef0`, Renforcement `#5fbf7a` ; sur fond blanc `#2f5fc4`, `#a57a00`, Rouge, `#7a4fc4`, `#2e8a4a` ; Endurance, Récupération et nom libre : Bordure. L'intensité : les trois traits.
+
 **Phases** : Base `#5fb49c`, Développement `#e6b84d`, Affûtage `#b48ef0`, Deload `#8fa8c9`, dans les thèmes sombres ; sur fond blanc (Blanc et orange), plus foncées pour rester lisibles : Base `#2f7d69`, Développement `#946200`, Affûtage `#7a4fc4`, Deload `#52698a`. Hors saison ([Préparation](module-preparation-specification.md), § 4) : **Récupération** `#d98bb0` (`#a14d78` sur fond blanc), traitée comme les autres phases (fond, liseré, légende) ; **Entretien** sans couleur : pas de fond au Calendrier, la couleur des jours (Case) dans la frise.
 
 **Commun aux trois vues** (spécification § 2)
