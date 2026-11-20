@@ -3224,6 +3224,7 @@ const CONTROLES = {
       let message = null;
       await surDialogue(c.p, t => { message = t; return true; });
       await c.p.click('[data-edit="se-a"]'); await c.p.waitForSelector('.cal-seance');
+      await c.p.check('.cal-seance [name="faite"]');
       await c.p.fill('.cal-seance [name="commentaire"]', 'Genou sensible');
       await c.p.click('.cal-seance button[type="submit"]');
       await c.p.waitForFunction(() => window.__mrtFini === undefined, null, { timeout: 100 }).catch(() => {});
