@@ -7,7 +7,7 @@ window.MRT_SUPABASE = {
   cle: 'sb_publishable_85VoCMn5Qkd33Uq0qhSE5g_CTs-cUZy',
   // Clé du site (publique) du contrôle anti-robot Cloudflare Turnstile ; vide tant qu'il n'est pas activé dans Supabase.
   // La clé secrète du contrôle se saisit dans Supabase, jamais ici.
-  captcha: '',
+  captcha: '0x4AAAAAAGKDQ6ThlvwruQHX',
   // Inscription (page « Créer un compte ») : false tant qu'elle n'est pas ouverte (RGPD, anti-robot, envoi d'e-mails) ;
   // à passer à true en même temps que « Allow new users to sign up » dans Supabase.
   inscription: false,
