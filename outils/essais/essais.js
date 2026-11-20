@@ -2132,11 +2132,14 @@ const CONTROLES = {
       dI.seances.push({ id: 'se-ia', utilisateur: moi, date: '2026-10-21', type: 'run', libelle: 'Seuil : 3 x 8 min', duree_min: 55, distance_km: 10, denivele_m: 120, intensite: 'moderee', origine: 'ia', etat: 'acceptee', faite: false, course: null });
       const o = await ouvrir(nav, 'calendrier.html#mois', 1200, dI, {}, PARIS);
       await o.p.click('[data-edit="se-ia"]'); await o.p.waitForSelector('.cal-seance');
-      const verrou = () => o.p.evaluate(() => ['nom', 'detail', 'duree', 'distance', 'denivele', 'intensite'].map(k => document.querySelector('.cal-seance [name="' + k + '"]').disabled));
-      pb.push(egal([[true, true, true, true, true, true], 1, false], [await verrou(), await o.p.locator('.cal-ia-bandeau [data-act="modifier"]').count(), await o.p.evaluate(() => document.querySelector('.cal-seance [name="date"]').disabled)],
-        'séance de l\'IA : prévu en lecture seule, date modifiable, bouton « Modifier cette séance »'));
+      pb.push(egal([1, ['Seuil', '3 x 8 min'], ['Durée55min', 'Distance10km', 'D+120m', 'IntensitéModérée'], true, 0, 2],
+        [await o.p.locator('.cal-prevu-lecture').count(), await o.p.evaluate(() => [document.querySelector('.cal-prevu-nom').textContent, document.querySelector('.cal-prevu-detail').textContent]),
+          await o.p.evaluate(() => [...document.querySelectorAll('.cal-prevu-stats > div')].map(e => e.textContent.replace(/\s+/g, ''))),
+          await o.p.evaluate(() => document.querySelector('.cal-prevu-champs').hidden), await o.p.locator('.cal-prevu-lecture input, .cal-prevu-lecture select').count(), await o.p.locator('.cal-prevu-stats .cal-int.i-moderee .on').count()],
+        'séance de l\'IA : texte structuré (nom, précisions, durée, distance, D+, intensité en traits), aucun champ ; les champs restent cachés'));
+      pb.push(egal(false, await o.p.evaluate(() => document.querySelector('.cal-seance [name="date"]').disabled), 'séance de l\'IA : la date reste modifiable'));
       await o.p.click('[data-act="modifier"]');
-      pb.push(egal([[false, false, false, false, false, false], 0], [await verrou(), await o.p.locator('.cal-ia-bandeau').count()], '« Modifier cette séance » : le prévu devient modifiable'));
+      pb.push(egal([0, false, true], [await o.p.locator('.cal-prevu-lecture').count(), await o.p.evaluate(() => document.querySelector('.cal-prevu-champs').hidden), await o.p.isVisible('.cal-seance [name="duree"]')], '« Modifier cette séance » : le texte laisse place aux champs'));
       await o.p.check('.cal-seance [name="faite"]');
       pb.push(egal([true, '55', '10'], [await o.p.isVisible('.cal-seance [name="duree_reelle"]'), await o.p.getAttribute('.cal-seance [name="duree_reelle"]', 'placeholder'), await o.p.getAttribute('.cal-seance [name="distance_reelle"]', 'placeholder')], 'séance faite : bloc « Réalisé », le prévu en repère'));
       await o.p.fill('.cal-seance [name="duree_reelle"]', '50'); await o.p.fill('.cal-seance [name="distance_reelle"]', '8,2'); await o.p.fill('.cal-seance [name="denivele_reel"]', '95');

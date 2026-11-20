@@ -51,8 +51,7 @@
     // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré dessous à la couleur de son intensité ;
     // glissable (ordinateur) ; toucher le nom ouvre sa fenêtre. On coche dans la vue Semaine.
     // Intensité : trois traits (comme un signal), un, deux ou trois allumés, du gris au rouge en passant par l'orange ; rien sans intensité.
-    const traitsHtml = i => (i && P.INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + P.INTENSITES[i] + '" title="' + P.INTENSITES[i] + '">' +
-      [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
+    const traitsHtml = P.traits;
     const seanceHtml = s => {
       const l = P.lireLibelle(s.libelle), km = Number(P.reel(s).distance_km) > 0 ? String(P.reel(s).distance_km).replace('.', ',') + ' km' : '';
       const tit = esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '');
