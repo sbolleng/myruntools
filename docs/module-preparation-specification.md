@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 3.7 · 20 novembre 2026 · [Retour au sommaire](README.md) · Le plan est proposé en entier (bloc après bloc jusqu'à l'Objectif), revu toutes les 4 semaines ; frise : les semaines consécutives d'une même phase forment un seul bloc
+Version 3.8 · 20 novembre 2026 · [Retour au sommaire](README.md) · Un bloc resté en attente (page quittée pendant l'enchaînement) est écrit à l'arrivée · Le plan est proposé en entier (bloc après bloc jusqu'à l'Objectif), revu toutes les 4 semaines ; frise : les semaines consécutives d'une même phase forment un seul bloc
 
 ## 1. Rôle
 
@@ -336,7 +336,7 @@ La rubrique Préparation de la page d'une course ([Objectif](module-objectif-spe
 
 ## 6. Séances proposées par l'IA
 
-- **Unité** : un bloc de 4 semaines par appel. Le plan est proposé **en entier**, bloc après bloc, de la semaine en cours à la semaine de l'Objectif (6 blocs au plus, la revue ajoute la suite) : chaque bloc s'écrit aussitôt et sert d'historique au suivant (ses séances à venir sont signalées « prévue, pas encore passée »). Seule la première proposition compte pour le plafond ; les suivantes sont de motif « readaptation » (hors plafond). L'attente se passe sur le récapitulatif de « Construire mon plan » (« MyRunTools prépare tes séances… (bloc 2 sur 5) »). Si un bloc échoue, le plan s'arrête là avec le message habituel ; les blocs manquants sont proposés à la prochaine arrivée sur Mon plan.
+- **Unité** : un bloc de 4 semaines par appel. Le plan est proposé **en entier**, bloc après bloc, de la semaine en cours à la semaine de l'Objectif (6 blocs au plus, la revue ajoute la suite) : chaque bloc s'écrit aussitôt et sert d'historique au suivant (ses séances à venir sont signalées « prévue, pas encore passée »). Seule la première proposition compte pour le plafond ; les suivantes sont de motif « readaptation » (hors plafond). L'attente se passe sur le récapitulatif de « Construire mon plan » (« MyRunTools prépare tes séances… (bloc 2 sur 5) »). Si un bloc échoue, le plan s'arrête là avec le message habituel ; les blocs manquants sont proposés à la prochaine arrivée sur Mon plan. Quitter la page en route laisse le bloc en cours « en attente » : à l'arrivée suivante il est écrit sans nouvel appel, puis les blocs manquants sont proposés.
 - **Revue** (20 novembre 2026) : à l'arrivée sur Mon plan, quand la proposition qui couvre la semaine en cours date de 4 semaines ou plus, les 4 prochaines semaines sont refaites avec ce qui a été fait (réadaptation, hors plafond ; « MyRunTools révise tes prochaines semaines… ») ; les séances saisies et les faites ne bougent pas. « Refaire » reste la revue à la demande (4 semaines à partir d'aujourd'hui).
 - **Ce qui est envoyé** : la trame du bloc (phases, jours de mini-affûtage, de repos et de récupération), les courses du bloc avec leur rôle, le profil, les séances des 4 semaines passées (faites ou non). Ni nom, ni adresse, ni nom de course ; les courses sont désignées par leur format, leur distance, leur D+ et leur rôle.
 - **Ce qui revient** : dans un format imposé, une recommandation pour le bloc (deux phrases courtes au plus ; le site n'en montre jamais plus de deux) et la liste des séances (date, type, libellé, durée, distance, intensité).

@@ -200,16 +200,21 @@
       for (let b = lundi; b <= fin && l.length < 6; b = addDays(b, 7 * BLOC)) l.push(b);
       return { lundis: l.length ? l : [lundi], fin };
     }
-    // Propose, bloc après bloc, ceux qu'aucune proposition ne couvre encore (§ 6) ; chacun s'écrit aussitôt et sert d'historique au suivant.
+    // Propose, bloc après bloc, ceux qu'aucune proposition acceptée ne couvre encore (§ 6) ; chacun s'écrit aussitôt et sert d'historique au suivant.
+    // Un bloc dont la proposition est restée en attente (page quittée en route) est écrit sans nouvel appel.
     // Seule la première proposition compte pour le plafond : les suivantes sont de motif « readaptation » (hors plafond).
     async function proposerPlan(lundi) {
-      const { lundis, fin } = blocsDuPlan(lundi), aFaire = lundis.filter(l => !couvrante(ctx, l));
+      const { lundis, fin } = blocsDuPlan(lundi), ecrire = l => lundisDu(l).filter(x => x <= fin);
+      const couvert = l => (ctx.propositions || []).some(x => x.statut === 'acceptee' && x.bloc <= l && l < addDays(x.bloc, 7 * BLOC));
+      const enAttenteDe = l => (ctx.propositions || []).filter(x => x.statut === 'brute' && x.bloc === l).sort((a, b) => (a.cree < b.cree ? 1 : -1))[0];
+      const aFaire = lundis.filter(l => !couvert(l));
       for (let i = 0; i < aFaire.length; i++) {
         ctx.ia = { encours: true, bloc: i + 1, blocs: aFaire.length }; dessiner();
-        const r = await IA().proposer(ctx, aFaire[i], i === 0 ? 'proposer' : 'readaptation');
+        const att = enAttenteDe(aFaire[i]);
+        const r = att ? { id: att.id, reponse: att.reponse } : await IA().proposer(ctx, aFaire[i], i === 0 ? 'proposer' : 'readaptation');
         if (r.message) { ctx.ia = { message: r.message }; break; }
         if (r.id) {
-          const err = await IA().accepter(ctx, r, lundisDu(aFaire[i]).filter(l => l <= fin));
+          const err = await IA().accepter(ctx, r, ecrire(aFaire[i]));
           if (err) { console.warn(err); ctx.ia = { message: 'Enregistrement impossible pour l\'instant.' }; break; }
         }
         await IA().lirePropositions(ctx); await ctx.actualiser();

@@ -3323,6 +3323,19 @@ const CONTROLES = {
     pb.push(egal([0, 12, 'acceptee'], [d.appels.length, d.seances.length, d.propositions[0].statut], 'proposition en attente d\'avant : écrite à l\'arrivée, sans appel'));
     await ctx.close();
 
+    // Page quittée en route : la proposition du bloc du 16 novembre est restée en attente ; à l'arrivée elle est écrite sans appel (les autres blocs sont couverts).
+    d = copie([bonne()], x => {
+      x.propositions.push({ id: 'p0', utilisateur: moi, cree: '2026-10-19T10:00:00Z', bloc: '2026-10-19', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Ancienne.', seances: [] } });
+      couvrir(x);
+      const nov = x.propositions.find(y => y.id === 'plan-0'); nov.id = 'att-nov'; nov.statut = 'brute';
+      nov.reponse = { recommandation: 'Suite.', seances: bonne().seances.map(z => Object.assign({}, z, { date: new Date(Date.parse(z.date) + 28 * 864e5).toISOString().slice(0, 10) })) };
+    });
+    ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
+    await fini(p);
+    for (let k = 0; k < 40 && d.propositions.find(y => y.id === 'att-nov').statut !== 'acceptee'; k++) await pause();
+    pb.push(egal([0, 'acceptee', 12], [d.appels.length, d.propositions.find(y => y.id === 'att-nov').statut, d.seances.length], 'bloc resté en attente (page quittée en route) : écrit à l\'arrivée, sans appel'));
+    await ctx.close();
+
     // Revue : la proposition qui couvre la semaine date de plus de 4 semaines (15 septembre) : les 4 prochaines semaines sont refaites (hors plafond), à l'arrivée.
     d = copie([bonne()], x => { x.propositions.push({ id: 'p-vieille', utilisateur: moi, cree: '2026-09-15T10:00:00Z', bloc: '2026-09-28', essai: 1, statut: 'acceptee', motif: 'proposer', reponse: { recommandation: 'Ancienne.', seances: [] } }); couvrir(x); });
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS));
