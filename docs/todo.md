@@ -46,7 +46,7 @@ Dans l'ordre :
 7. [ ] **Changer son adresse e-mail** : dans les Préférences (bloc Compte), avec confirmation envoyée à la nouvelle adresse.
 8. [ ] **Refonte des Préférences utilisateur** : s'inspirer d'Oleno et de Babelio ; plan de page d'abord.
 9. [ ] **Catalogue des courses** : d'abord un catalogue partagé (une course saisie par un coureur sert aux suivants, recherche, doublons à gérer) ; ensuite, demander un partenariat d'accès aux données à Le Sportif (la plus large couverture), puis à Finishers. Pas de récupération automatique de leurs pages (conditions d'utilisation, droit des bases de données). En attendant : **Remplir depuis la page de la course** ([Objectif 0.81](module-objectif-specification.md), § 3.9), spécifié le 20 nov. 2026, **à construire** (encart de la fiche, fonction `lire-page-course` à coller, contrôles au banc).
-10. [ ] **Mon profil** ([spécification](module-profil-specification.md), en ligne ; évolution 033 passée) : section Connexions avec l'import (Strava ou fichier).
+10. [x] **Mon profil** ([spécification](module-profil-specification.md), en ligne ; évolution 033 passée) : section Connexions avec l'import de l'export Strava (21 nov. 2026, avec Mes stats).
 11. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
 12. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
 13. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
@@ -60,7 +60,7 @@ Dans l'ordre :
 18. [ ] **Prévoir un profil piste ?**
 19. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).
 20. [ ] **Guide** ([spécification 0.1](module-guide-specification.md), en ligne) : **rappel : me trouver les liens** des deux sources de nutrition, la formule de Black et al. (métabolisme de base) et l'équation de course de l'ACSM ; elles sont citées sans lien d'ici là (ajouté le 13 nov. 2026).
-21. [ ] **Mes stats** ([spécification 0.1](module-stats-specification.md), 21 nov. 2026) : à valider ; puis modèle de données (`activites`, `analyses_stats`, origine `import`, clé « Stats »), fonction `analyser-stats`, page `stats.html`, feuille d'import (aussi dans Mon profil, section Connexions, voir n° 10) ; avant la construction, vérifier sur une archive Strava réelle les intitulés des colonnes et l'unité de la cadence (archive jamais versée au dépôt). Seuils des allures (% de la VMA) et cible de l'écart de spécificité à confirmer.
+21. [ ] **Mes stats** ([spécification 0.2](module-stats-specification.md), construit le 21 nov. 2026) : **à faire dans Supabase** : coller l'évolution `044-mes-stats.sql`, créer la fonction `analyser-stats` (secrets `ANTHROPIC_API_KEY` et `PILOTES` déjà là) ; **essai réel** : importer l'archive Strava d'un pilote (intitulés des colonnes, en anglais ou en français, et unité de la cadence à vérifier ; archive jamais versée au dépôt) ; puis relire l'analyse de l'IA.
 
 ## Questions ouvertes
 

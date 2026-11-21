@@ -110,6 +110,7 @@
     ['Calendrier', 'Tes séances et tes courses, jour par jour.'],
     null, // les options
     ['Palmarès', 'Tes résultats et ta progression.'],
+    ['Stats', 'Ta progression mois par mois, tes meilleurs temps et une analyse.'],
     ['Nutrition', 'Ton besoin du jour et ton journal des repas.']
   ];
   const decouverteAffichee = (prefs, nutrition) => !!nutrition && !nutrition.lectureSeule && !!prefs && prefs.decouverte_vue === false;

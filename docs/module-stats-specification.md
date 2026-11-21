@@ -1,6 +1,6 @@
 # Mes stats · spécification fonctionnelle
 
-Version 0.1 · 21 novembre 2026 · [Retour au sommaire](README.md) · Première version : meilleurs temps, temps estimés, allures, graphiques mensuels, zones cardiaques, analyse de l'IA, import de l'export Strava
+Version 0.2 · 21 novembre 2026 · [Retour au sommaire](README.md) · Construit : page `stats.html`, import, fonction `analyser-stats`, évolution 044
 
 ## 1. Rôle
 
@@ -142,6 +142,8 @@ Ni FC de repos ni FC max (elles servent aux zones et restent dans Mon profil) ; 
 - Données envoyées : les valeurs mensuelles de la période, les meilleurs temps, les temps estimés, les allures, les zones, les Objectifs à venir (nom, date, distance, D+) et le niveau de Mon profil ; jamais le nom ni l'adresse.
 - Refaite après chaque import, ou par « Actualiser » (au plus trois fois par jour : au-delà, le bouton est grisé, « Reviens demain. ») ; l'analyse est enregistrée et s'affiche telle quelle à la visite suivante, avec sa date.
 - Réservée aux pilotes au début, comme les séances de l'IA (secret `PILOTES`) ; pour les autres, le bloc n'apparaît pas.
+- Première visite avec des séances faites et sans analyse : une première analyse est demandée ; rien ne s'affiche avant la réponse, et une panne reste alors silencieuse.
+- Par sécurité, une phrase qui citerait un appareil, une provenance ou le renforcement est retirée du texte affiché.
 - Fonction Supabase `analyser-stats` (secret `ANTHROPIC_API_KEY`) ; panne : « Analyse impossible pour l'instant. », l'analyse précédente reste.
 - Pendant le calcul : « Analyse en cours… » à la place du texte.
 
@@ -187,13 +189,9 @@ Ni FC de repos ni FC max (elles servent aux zones et restent dans Mon profil) ; 
 
 ## 7. Données
 
-Proposition, à valider puis à reporter dans le [modèle de données](modele-donnees.md) :
+Évolution `044-mes-stats.sql` ([modèle de données](modele-donnees.md), § 5 ter) : tables **`activites`** et **`analyses_stats`**, valeur `import` pour l'origine d'une séance ; règles par ligne (chacun ne lit et n'écrit que ses lignes). Préférences : clé de menu « Stats ».
 
-- Table **`activites`** (une ligne par activité importée) : utilisateur, identifiant Strava (unique par utilisateur), date et heure, pratique, temps de déplacement (s), distance (m), D+ (m), FC moyenne, FC max, cadence, meilleurs temps (`jsonb`, secondes par distance), séance rattachée.
-- Séance : valeur `import` pour l'origine.
-- Table **`analyses_stats`** : utilisateur, date, période, texte (1 500 caractères au plus), jetons, comme `propositions`.
-- Préférences : clé de menu « Stats ».
-- Règles par ligne : chacun ne lit et n'écrit que ses lignes.
+**À faire dans Supabase** : coller l'évolution 044 ; créer la fonction `analyser-stats` (`supabase/functions/analyser-stats/index.ts`), avec les secrets `ANTHROPIC_API_KEY` et `PILOTES` déjà en place.
 
 ## 8. Contrôles
 
@@ -212,7 +210,7 @@ Export fictif (`export-fictif.zip`, données fictives, traces à allure réguli�
 
 Résultats attendus :
 
-- **Import** : bilan « 6 activités : 4 nouvelles, 1 rattachée à une séance du plan, 1 ignorée » ; après « Importer » : « 4 séances ajoutées, 1 rattachée. » ; la séance du 15 octobre est faite, réalisé 12,0 km, 1:00:00, 60 m, FC 152 ; cadences enregistrées 168, 164, 172, 170. Second import du même fichier : « 0 nouvelle », rien d'écrit. Un fichier texte : « Ce fichier n'est pas un export Strava. »
+- **Import** : bilan « 6 activités : 4 nouvelles, 1 rattachée à une séance du plan, 1 ignorée » ; après « Importer » : « 4 séances ajoutées, 1 rattachée. » ; la séance du 15 octobre est faite, réalisé 12,0 km, 1:00:00, 60 m, FC 152 ; cadences enregistrées 168, 164, 172, 170. Second import du même fichier : « 6 activités : 0 nouvelle, 5 déjà importées, 1 ignorée », « Importer » grisé, rien d'écrit. Un fichier texte : « Ce fichier n'est pas un export Strava. »
 - **Rattachement sans écraser** : avec un réalisé saisi (11,0 km) sur la séance du 15 octobre avant l'import, il reste à 11,0 km ; la cadence 170 lui est rattachée.
 - **Volume** : août 10,0 ; sept. 28,0 ; oct. 32,0 km. **D+** : 100 ; 600 ; 900 m (le vélo n'y est pas).
 - **Allure-effort** : août 5:00 ; sept. 5:00 ; oct. 5:00 /km-effort (la randonnée n'y entre pas).

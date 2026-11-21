@@ -45,10 +45,10 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : toutes les courses au départ, filtres Statut (Confirmée, Option, Repérée, Courue), Ouvertes et Année ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul ; bouton Finishers | Version 0.10, construit |
 | [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 1.45, construit (reste Ciqual) |
 | [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Vue » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.25, construit |
-| [Mon profil](module-profil-specification.md) | Tout ce qui décrit le coureur, en une page et une feuille commune : Moi, Mon niveau, Ma semaine, Santé ; repère d'allure tiré du Palmarès | Version 0.7, construit |
+| [Mon profil](module-profil-specification.md) | Tout ce qui décrit le coureur, en une page et une feuille commune : Moi, Mon niveau, Ma semaine, Santé, Connexions ; repère d'allure tiré du Palmarès | Version 0.9, construit |
 | [Guide](module-guide-specification.md) | Article de lecture, hors du menu : comment MyRunTools construit un plan de préparation et calcule la nutrition ; sources et limites | Version 0.1, construit |
 | [Module Préparation](module-preparation-specification.md) | Un plan de préparation qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 1.3, lots 1 à 4 construits (lot 3 réservé aux pilotes ; lot 4 : un seul plan, page « Mon plan ») |
-| [Mes stats](module-stats-specification.md) | Progression mois par mois (volume, D+, allure-effort, cadence, efficience cardiaque, écart de spécificité), meilleurs temps, temps estimés, allures, zones cardiaques ; analyse de l'IA ; import de l'export Strava | Version 0.1, à valider |
+| [Mes stats](module-stats-specification.md) | Progression mois par mois (volume, D+, allure-effort, cadence, efficience cardiaque, écart de spécificité), meilleurs temps, temps estimés, allures, zones cardiaques ; analyse de l'IA ; import de l'export Strava | Version 0.2, construit (évolution 044 et fonction `analyser-stats` à passer dans Supabase) |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -84,5 +84,5 @@ En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [tod
 2. **Objectif** : essai réel du GPX à plusieurs tracés ; cap de l'en-tête depuis la page d'une course ; stratégie de course.
 4. **Calendrier** : Mois V2 à comparer avec Mois, puis n'en garder qu'une.
 6. **Ouverture à tous, suites** : plafond de l'IA à remettre, essai d'un compte non pilote, droits RGPD dans les Préférences, polices hébergées.
-21. **Mes stats** : [spécification 0.1](module-stats-specification.md) à valider, puis modèle de données et construction ; vérifier sur une archive Strava réelle les colonnes et la cadence.
+21. **Mes stats** : construit ([spécification 0.2](module-stats-specification.md)) ; passer l'évolution 044 et créer la fonction `analyser-stats` ; essai réel avec une archive Strava (colonnes, cadence).
 15. **Nutrition** : vue Semaine ; choix de l'unité dans la feuille d'ajout (en attente de décision) ; Ciqual.

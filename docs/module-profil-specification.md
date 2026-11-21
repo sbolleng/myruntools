@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.8 · 20 novembre 2026 · [Retour au sommaire](README.md) · Profil express : « Continuer » (en bas à droite) à la place d'« Enregistrer »
+Version 0.9 · 21 novembre 2026 · [Retour au sommaire](README.md) · Section Connexions : import de l'export Strava
 
 ## 1. Rôle
 
@@ -10,7 +10,7 @@ Une seule page rassemble tout ce qui décrit le coureur : ses mesures, son nivea
 - La **feuille Mon profil** reprend la même liste, au-dessus d'une autre page : le bouton « Mon profil » de Mon plan et le lien « Calculé pour … » de Nutrition l'ouvrent, pour compléter sans changer de page.
 - Le **profil express** (bloc Premiers pas d'En un coup d'œil, [spécification générale](specification-generale.md), § 5 bis) : la même feuille, réduite à quatre questions (sexe, date de naissance, poids, taille), posées l'une après l'autre en commençant par la première qui manque, avec « n sur 4 » dans le titre, sans retour à la liste, dans une petite feuille de la hauteur de chaque question ; la dernière enregistrée, la feuille se ferme. La croix la ferme à tout moment (« plus tard ») ; ce qui est enregistré reste. Le profil express est rempli quand ces quatre questions ont une réponse.
 - L'encart du premier usage de Nutrition (les seules mesures qui manquent au calcul) reste : il range les mêmes données.
-- Ressenti, douleur et fatigue se notent sur chaque séance ([Préparation](module-preparation-specification.md), § 5.5). Connexions (Strava, import d'un fichier) : avec l'import ; pas de section vide d'ici là.
+- Ressenti, douleur et fatigue se notent sur chaque séance ([Préparation](module-preparation-specification.md), § 5.5). Section **Connexions** (page seulement), après Santé : une ligne « Strava · Dernier import le 20 oct. 2026 » (ou « Jamais importé ») et le bouton « Importer », qui ouvre la feuille d'import de [Mes stats](module-stats-specification.md), § 6.
 
 ## 2. Plan de page
 
