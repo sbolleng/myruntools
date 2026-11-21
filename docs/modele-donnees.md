@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.25 · 13 novembre 2026 · `preferences.decouverte_vue` (évolution 037) · [Retour au sommaire](README.md)
+Version 0.26 · 21 novembre 2026 · Mes stats : tables `activites` et `analyses_stats`, origine `import` d'une séance (évolution 045) · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -203,6 +203,29 @@ Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'
 | `heures` | Durée, de plus de 0 à 24 h | Oui |
 
 Le besoin du jour et les cibles se calculent (§ 7), ils ne sont pas rangés.
+
+## 5 ter. Mes stats
+
+Évolution 045 ([Mes stats](module-stats-specification.md)). Données de santé : jamais lisibles par le site partagé.
+
+### `activites`
+
+Une ligne par activité importée de l'export Strava ; la trace elle-même n'est jamais rangée. Chaque activité est rattachée à une séance : celle du plan du même jour, ou une séance hors plan créée à l'import (origine `import`).
+
+| Champ | Contenu | Obligatoire |
+| --- | --- | --- |
+| `strava_id` | Identifiant de l'activité dans l'export ; unique par utilisateur (un second import ne la reprend pas) | Oui |
+| `debut`, `date` | Heure de départ ; jour (heure locale) | `date` oui |
+| `pratique` | `course`, `trail`, `tapis`, `marche`, `randonnee` | Oui |
+| `duree_s`, `distance_m`, `denivele_m` | Temps de déplacement, distance, D+ | Non |
+| `fc_moyenne`, `fc_max`, `cadence` | Fréquence cardiaque ; cadence en pas par minute (deux jambes) | Non |
+| `meilleurs` | Meilleurs temps de la trace, en secondes par distance (`{"1000": 300, "21097": 6965}`) | Non |
+| `seance` | Séance rattachée ; vidé si la séance est supprimée | Non |
+| `importe_le` | Date de l'import | Oui (d'office) |
+
+### `analyses_stats`
+
+Une ligne par analyse de l'IA de la page Mes stats : `cree`, `motif` (`import`, `actualiser`, `premiere`), `periode`, `texte` (1 500 caractères au plus), `modele`, jetons. La plus récente s'affiche ; « Actualiser » compte celles du jour.
 
 ## 6. Listes
 
