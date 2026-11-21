@@ -394,5 +394,5 @@
       '<circle class="tr-mini-depart" cx="' + X(0) + '" cy="' + Y(0) + '" r="3.4"/><circle class="tr-mini-arrivee" cx="' + X(n) + '" cy="' + Y(n) + '" r="3.4"/></svg>';
   }
 
-  window.mrtTrace = { verifier, choisir, ranger, retirer, telecharger, dessiner, miniature, lire, pente, chiffres, MAX };
+  window.mrtTrace = { texteDe, verifier, choisir, ranger, retirer, telecharger, dessiner, miniature, lire, pente, chiffres, MAX };
 })();

@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.25 · 13 novembre 2026 · `preferences.decouverte_vue` (évolution 037) · [Retour au sommaire](README.md)
+Version 0.26 · 21 novembre 2026 · Mes stats : tables `activites` et `analyses_stats`, origine `import` d'une séance (évolution 045) · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -95,7 +95,7 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Place dans le plan | `statut`, `role` (vide : hors plan, évolution 040 ; se donne dans Mon plan), `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
 | Inscription | `inscrit`, `dossard`, `prix`, `ouverture_inscriptions`, `ouverture_heure` (heure locale, facultative), `ouverture_approx` (vrai si seul le mois est connu : date rangée au 1er du mois ; évolution 017) | Cellule Inscription |
 | Durée de prépa | `prepa_semaines` : durée de la préparation en semaines, de 1 à 52 ; vide : celle du format (§ 4.4) | Calendrier |
-| Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
+| Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `ravitaillements_km` (kilomètres des ravitaillements, dans l'ordre ; évolution 044), `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
 | Suivi en course | `passages` : liste de points (distance depuis le départ, temps visé) ; `chronos_reference` : liste de chronos (libellé, temps) | Suivi en course (§ 4.2) |
 | Résultat officiel | `categorie` (catégorie d'âge FFA : CA, JU, ES, SE, M0 à M10 ; évolution 012), `temps`, `dnf`, `allure`, `vitesse`, `place`, `effectif`, `place_categorie`, `effectif_categorie`, `place_sexe`, `effectif_sexe` | Palmarès |
 | Données montre | `montre_distance`, `montre_dplus`, `montre_dmoins` (évolution 013), `montre_temps`, `montre_allure`, `montre_vitesse`, `fc_moyenne` | Palmarès |
@@ -203,6 +203,29 @@ Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'
 | `heures` | Durée, de plus de 0 à 24 h | Oui |
 
 Le besoin du jour et les cibles se calculent (§ 7), ils ne sont pas rangés.
+
+## 5 ter. Mes stats
+
+Évolution 045 ([Mes stats](module-stats-specification.md)). Données de santé : jamais lisibles par le site partagé.
+
+### `activites`
+
+Une ligne par activité importée de l'export Strava ; la trace elle-même n'est jamais rangée. Chaque activité est rattachée à une séance : celle du plan du même jour, ou une séance hors plan créée à l'import (origine `import`).
+
+| Champ | Contenu | Obligatoire |
+| --- | --- | --- |
+| `strava_id` | Identifiant de l'activité dans l'export ; unique par utilisateur (un second import ne la reprend pas) | Oui |
+| `debut`, `date` | Heure de départ ; jour (heure locale) | `date` oui |
+| `pratique` | `course`, `trail`, `tapis`, `marche`, `randonnee` | Oui |
+| `duree_s`, `distance_m`, `denivele_m` | Temps de déplacement, distance, D+ | Non |
+| `fc_moyenne`, `fc_max`, `cadence` | Fréquence cardiaque ; cadence en pas par minute (deux jambes) | Non |
+| `meilleurs` | Meilleurs temps de la trace, en secondes par distance (`{"1000": 300, "21097": 6965}`) | Non |
+| `seance` | Séance rattachée ; vidé si la séance est supprimée | Non |
+| `importe_le` | Date de l'import | Oui (d'office) |
+
+### `analyses_stats`
+
+Une ligne par analyse de l'IA de la page Mes stats : `cree`, `motif` (`import`, `actualiser`, `premiere`), `periode`, `texte` (1 500 caractères au plus), `modele`, jetons. La plus récente s'affiche ; « Actualiser » compte celles du jour.
 
 ## 6. Listes
 

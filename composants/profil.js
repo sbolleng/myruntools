@@ -364,8 +364,13 @@
     const dessiner = () => {
       const manque = tousManquants(etat.mesures, etat.entrainement);
       el.innerHTML = '<div class="mp-cadre"><p class="ps-profil-etat mp-etat' + (manque.length ? '' : ' is-complet') + '">' + (manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</p>' +
-        '<p class="ps-msg mp-msg" role="alert"></p>' + listeHtml(etat) + '</div>';
+        '<p class="ps-msg mp-msg" role="alert"></p>' + listeHtml(etat) + connexionsHtml() + '</div>';
     };
+    // Connexions (Mes stats, § 6) : l'import de l'export Strava, la même feuille que sur Mes stats.
+    let dernier = null;
+    const connexionsHtml = () => (window.mrtImport ? '<section class="mrt-section" id="connexions"><h2 class="mrt-section-titre ps-section-t">Connexions</h2><div class="ps-groupe-l">' +
+      '<div class="st-connexion"><span>Strava<small>' + (dernier ? 'Dernier import le ' + window.mrtFormat.date(String(dernier).slice(0, 10)) : 'Jamais importé') + '</small></span>' +
+      '<button type="button" class="mrt-btn" data-import>Importer</button></div></div></section>' : '');
     el.addEventListener('click', async ev => {
       if (ev.target.closest('[data-reprendre]')) {
         const sg = duPalmares(etat);
@@ -373,9 +378,14 @@
         else if (sg) el.querySelector('.mp-msg').textContent = 'Enregistrement impossible pour l\'instant.';
         return;
       }
+      if (ev.target.closest('[data-import]')) {
+        window.mrtImport.feuille({ id: etat.id, surFin: async r => { dernier = await window.mrtImport.dernierImport(); dessiner(); el.querySelector('.mp-msg').textContent = ''; const z = el.querySelector('#connexions small'); if (z) z.textContent += ' · ' + window.mrtImport.finTexte(r); } });
+        return;
+      }
       const q = ev.target.closest('[data-q]');
       if (q && !justeFermee()) feuille({ etat, question: q.dataset.q, surMaj: dessiner });
     });
+    if (window.mrtImport) dernier = await window.mrtImport.dernierImport();
     dessiner();
     if (location.hash) { const z = el.querySelector(location.hash); if (z) z.scrollIntoView(); }
   }

@@ -1,0 +1,40 @@
+/* ===== Mes stats (stats.js) et feuille d'import (import-strava.js) =====
+   docs/module-stats-specification.md. Éléments et variables communs seulement (en-tete.css) ; graphiques : graphique.css. */
+.st-haut { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0.6rem 1rem; margin-bottom: 1rem; }
+.st-periode { display: flex; align-items: center; gap: 0.6rem; }
+.st-libelle { margin: 0; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.st-info { margin: 0 0 1rem; font-size: var(--t-petit); color: var(--muted); }
+.st-analyse-haut { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.6rem; }
+.st-texte p { margin: 0 0 0.6rem; line-height: 1.55; }
+.st-texte p:last-child { margin-bottom: 0; }
+.st-msg { margin: 0 0 0.4rem; font-size: var(--t-petit); color: var(--red); }
+.st-msg:empty { display: none; }
+.st-demain { margin: -0.3rem 0 0.5rem; text-align: right; }
+.st-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; align-items: start; }
+.st-grille > * { min-width: 0; }
+@media (max-width: 860px) { .st-grille { grid-template-columns: 1fr; } }
+.st-titre { margin-bottom: 0.6rem; }
+.st-table td, .st-table th { padding: 0.45rem 0.5rem; }
+.st-table td:first-child, .st-table th:first-child { padding-left: 0; }
+.st-sous { display: block; font-size: var(--t-second); color: var(--muted); }
+.st-table td:not(:last-child) { white-space: nowrap; }
+.st-aide { margin: 0.6rem 0 0; font-size: var(--t-second); color: var(--muted); }
+.st-vide { margin: 0; font-size: var(--t-texte); color: var(--muted); }
+.st-vide + .mrt-btn { margin-top: 0.8rem; }
+.st-tuiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+.st-tuile { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.st-tuile-l { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.st-grand { font-size: 1.5rem; font-weight: 600; line-height: 1.2; color: var(--text); white-space: nowrap; } /* grands chiffres d'un résultat (design, § 3) */
+@media (max-width: 600px) { .st-grand { font-size: var(--t-nom); } }
+/* Feuille d'import */
+.st-import .st-aide { margin: 0 0 0.9rem; }
+.st-fichier { cursor: pointer; }
+.st-fichier:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.st-bilan { min-height: 1.2em; margin: 0.9rem 0 0.4rem; font-size: var(--t-texte); color: var(--text); }
+.st-avance { width: 100%; height: 6px; margin-bottom: 0.4rem; accent-color: var(--accent); }
+.st-avance[hidden] { display: none; }
+.st-boutons { display: flex; justify-content: space-between; gap: 0.6rem; margin-top: 0.8rem; }
+/* Mon profil : section Connexions */
+.st-connexion { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 0.8rem; padding: 0.4rem 0.6rem; }
+.st-connexion span { color: var(--text); }
+.st-connexion small { display: block; font-size: var(--t-second); color: var(--muted); }

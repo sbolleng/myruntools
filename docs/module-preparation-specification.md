@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 4.0 · 21 novembre 2026 · [Retour au sommaire](README.md) · Plus d'antécédents de blessures ni de durée maximale d'une séance : l'écran « Tes blessures » devient un texte libre et une blessure en cours
+Version 3.11 · 21 novembre 2026 · [Retour au sommaire](README.md) · Plus d'antécédents de blessures ni de durée maximale d'une séance : l'écran « Tes blessures » devient un texte libre et une blessure en cours
 
 ## 1. Rôle
 
@@ -370,11 +370,37 @@ La rubrique Préparation de la page d'une course ([Objectif](module-objectif-spe
 |---|---|---|
 | Rôle d'une course : objectif, préparatoire, plaisir | `courses.role` ; les `objectif_intermediaire` passent en `objectif` | Évolution à écrire |
 | Durée de prépa, phases modifiées à la main | `formats.prepa_semaines`, `courses.prepa_semaines`, `plan_semaines` | Existe (évolution 009) |
-| Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur : tranches (`anciennete`, `volume_tranche`, `sortie_tranche`), `jours_course`, `jours_renfo`, `nb_sorties`, `nb_renfo`, `jour_long` (évolution 027 ; la semaine type de l'évolution 026 n'est plus employée), repère d'allure (`allure_type`, `vma` ou temps en secondes), `terrain`, `renfo_niveau`, `fc_max`, `fragiles` (antécédents et durée maximale supprimés, évolution 044) | Créée (évolution 024), en tranches (évolution 026, avec conversion du profil déjà saisi) |
+| Profil d'entraînement (§ 5.2) | Table `profil_entrainement`, une ligne par utilisateur : tranches (`anciennete`, `volume_tranche`, `sortie_tranche`), `jours_course`, `jours_renfo`, `nb_sorties`, `nb_renfo`, `jour_long` (évolution 027 ; la semaine type de l'évolution 026 n'est plus employée), repère d'allure (`allure_type`, `vma` ou temps en secondes), `terrain`, `renfo_niveau`, `fc_max`, `fragiles` (antécédents et durée maximale supprimés, évolution 046) | Créée (évolution 024), en tranches (évolution 026, avec conversion du profil déjà saisi) |
 | Séance enrichie : durée (min), distance (km), intensité (facile, modérée, intense) ; origine (saisie, IA) ; état (proposée, acceptée) | Table `seances`, nouvelles colonnes (les séances existantes : saisies, acceptées) | Créée (évolution 024) |
 | Propositions : date, bloc, essai, modèle, jetons, statut, réponse | Table `propositions`, écrite par la fonction, lue par le site et la fonction (plafond) | Créée (évolution 025) |
 
 Ce qui se calcule n'est jamais rangé : saisons, phases non modifiées, jours de récupération, alertes.
+
+### 7.1 Remise à zéro d'un compte pilote
+
+Pour retester Mon plan de bout en bout : à coller dans l'éditeur SQL de Supabase, en remplaçant `ADRESSE` par l'adresse du compte (jamais écrite dans le dépôt). Le prénom, le nom, les courses, le Palmarès, Nutrition et les préférences d'affichage ne sont pas touchés.
+
+```sql
+do $$
+declare u uuid := (select id from auth.users where email = 'ADRESSE');
+begin
+  if u is null then raise exception 'compte introuvable'; end if;
+  -- Profil : mesures de Mon profil (le profil express revient dans les Premiers pas)
+  update profils set sexe = null, naissance = null, poids = null, taille = null,
+    pointure = null, fc_repos = null, vo2max = null, activite = null where id = u;
+  -- Réponses du parcours et blessure en cours
+  delete from profil_entrainement where utilisateur = u;
+  -- Plan : propositions de l'IA, phases réglées à la main, toutes les séances (saisies, de l'IA, faites)
+  delete from propositions where utilisateur = u;
+  delete from plan_semaines where utilisateur = u;
+  delete from seances where utilisateur = u;
+  -- Courses sans rôle ni durée de préparation ; date du dernier changement de saison et cap par défaut
+  update courses set role = null, prepa_semaines = null where utilisateur = u;
+  update preferences set plan_maj = null, course_cap = null where utilisateur = u;
+end $$;
+```
+
+Irréversible : l'effort, les sensations, le réalisé et les analyses de l'IA partent avec les séances. À la demande « reset », Claude donne cette requête (règle de `CLAUDE.md`).
 
 ## 8. Lots de construction
 
