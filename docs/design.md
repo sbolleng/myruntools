@@ -140,7 +140,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - **Nombres** : virgule décimale (« 24,4 »).
 - **Blocs** : titre repliable (§ 1 et § 3) : chevron à gauche, Space Grotesk 600, 0,85 rem, Texte, casse normale ; Accent au survol.
 - **Champs** : le champ commun (§ 1), libellé au-dessus en petites capitales, exemple en Texte discret dans le champ vide ; deux colonnes sur ordinateur, une sur téléphone ; la date seule sur sa ligne.
-- **Boutons** (§ 1) : « Enregistrer » bouton principal (Accent plein), le seul de la fiche ; « Annuler » à contour ; « Supprimer la course » bouton à contour en Alerte, avec une poubelle, seul en bas de la fiche (plein Alerte au survol).
+- **Boutons** (§ 1) : « Enregistrer » bouton principal (Accent plein), le seul de la fiche ; « Annuler » à contour ; « Supprimer la course » bouton à contour en Alerte, avec une poubelle, dans la barre du haut à gauche d'« Enregistrer », la poubelle seule sur téléphone (plein Alerte au survol).
 - **Fenêtres** (séance, Régler les phases) : présentées comme la fiche (§ 1), au-dessus de la page ; « Régler les phases » s'ouvre depuis Mon plan seulement (rond « Régler les phases »).
 - **Retour du navigateur ou du téléphone** : comme « Annuler », pour toute fiche, ouverte dans la feuille d'une course ou seule (« Ajouter une course », crayon du Palmarès).
 - **Message d'erreur** : 0,75 rem, couleur Alerte, sous le champ concerné.

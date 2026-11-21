@@ -224,9 +224,8 @@
       if (genre === 'fichier') {
         // Tracé GPX (Objectif, § 3.4, n° 28) : rangé à l'enregistrement de la course.
         return '<div class="fc-champ fc-large"><span class="fc-lib-seul">' + esc(lib) + '</span><div class="fc-gpx">' +
-          '<span class="fc-gpx-etat">' + (valeur ? 'Tracé importé' : 'Aucun tracé') + '</span>' +
-          '<button type="button" class="mrt-btn" data-fc="gpx-choisir">' + (valeur ? 'Remplacer' : 'Importer un GPX') + '</button>' +
-          (valeur ? '<button type="button" class="mrt-lien is-danger" data-fc="gpx-supprimer">Supprimer</button>' : '') +
+          '<button type="button" class="mrt-btn" data-fc="gpx-choisir">Importer un tracé</button>' +
+          (valeur ? '<button type="button" class="mrt-btn is-danger" data-fc="gpx-supprimer">Supprimer le tracé</button>' : '') +
           '<input type="file" class="fc-gpx-fichier" accept=".gpx" hidden></div><div class="tr-choix-zone" hidden></div><p class="fc-erreur" id="fc-gpx-err" aria-live="polite"></p></div>';
       }
       if (genre === 'choix') {
@@ -301,7 +300,8 @@
     racine.innerHTML =
       '<form novalidate>' +
         '<div class="pc-barre fc-barre"><button type="button" class="mrt-btn" data-fc="annuler">Annuler</button>' +
-          '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
+          '<span class="fc-barre-droite">' + (existe && !marquer ? '<button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer" aria-label="Supprimer la course" title="Supprimer la course">' + POUBELLE + '<span class="fc-supprimer-txt">Supprimer la course</span></button>' : '') +
+          '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></span></div>' +
         // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
         '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +
         '<p class="fc-msg" aria-live="polite"></p>' +
@@ -312,7 +312,6 @@
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
               (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && !['date_approx', 'ouverture_heure', 'ouverture_approx', 'dnf', 'allure'].includes(f[0])).map(champ).join('') + '</div>' +
           '</section>').join('') +
-        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' : '') +
       '</form>';
     hote.replaceChildren(racine);
     if (seule) {
@@ -405,8 +404,6 @@
             val(k).dispatchEvent(new Event('change', { bubbles: true }));
           });
         }
-        $('.fc-gpx-etat').textContent = 'Nouveau tracé : ' + f.name + ' (rangé à l\'enregistrement)' + (ch ? ' · distance, D+ et D− mis à jour d\'après le tracé' : '');
-        $('[data-fc="gpx-choisir"]').textContent = 'Remplacer';
       });
     }
 
@@ -648,8 +645,6 @@
       if (a === 'gpx-choisir') $('.fc-gpx-fichier').click();
       if (a === 'gpx-supprimer') {
         gpx.fichier = null; gpx.supprimer = true;
-        $('.fc-gpx-etat').textContent = 'Tracé supprimé à l\'enregistrement';
-        $('[data-fc="gpx-choisir"]').textContent = 'Importer un GPX';
         act.hidden = true;
         $('#fc-gpx-err').textContent = '';
       }

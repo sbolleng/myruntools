@@ -54,3 +54,6 @@ html.tr-plein-ouvert { overflow: hidden; }
 .tr-mini-trace { fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
 .tr-mini-depart { fill: var(--accent); }
 .tr-mini-arrivee { fill: var(--surface); stroke: var(--accent); stroke-width: 1.6; }
+/* Ravitaillements sur le profil (Objectif, § 3.10, n° 56) : trait pointillé vertical, km en haut. */
+.tr-ravito { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed var(--muted); pointer-events: none; }
+.tr-ravito i { position: absolute; top: 0; left: 3px; font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-style: normal; color: var(--muted); }

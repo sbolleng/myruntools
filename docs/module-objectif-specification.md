@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.85 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Pourquoi cette course », légende Course · Option · Objectif, flèches dessinées, page Saison vide qui dit quoi faire, agenda en rond normal.
+Version 0.86 · 21 novembre 2026 · [Retour au sommaire](README.md) · Ravitaillements sur le profil (56) ; ligne « Tracé GPX » réduite à « Importer un tracé » et « Supprimer le tracé » ; « Supprimer la course » en haut, à gauche d'« Enregistrer »
 
 ## 1. Rôle
 
@@ -170,7 +170,8 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 50 | Repère sur la carte | Pastille | Sur le tracé, à la position lue en 49, en Accent à contour sombre comme départ et arrivée ; disparaît avec la lecture |
 | 51 | Chiffres du tracé | Distance, D+ et D− | Dès qu'un tracé est importé, la distance (un chiffre après la virgule), le D+ et le D− de la course sont remis à jour d'après lui, et écrasent les valeurs saisies. Dans la fiche d'édition, les trois champs se remplissent aussitôt et restent corrigeables avant « Enregistrer » (une correction à la main est gardée) ; importé depuis la page (25), c'est rangé tout de suite. Une variation d'altitude ne compte qu'au-delà de 3 m depuis le dernier sommet ou creux (le GPS bouge de quelques mètres sans que le sol change). Sans altitudes dans le GPX, seule la distance est mise à jour. Retirer le tracé ne change rien aux chiffres |
 | 27 | GPX | « ↓ GPX » | Bouton à contour, à droite, juste sous la ligne des distances du profil ; télécharge le fichier rangé, au nom de la course ; aussi en lecture seule |
-| 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Formulaire, bloc Course, ligne « Tracé GPX » sous le D− : rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; fichier à plusieurs tracés (toutes les distances d'une épreuve) : « Ce fichier contient N tracés : lequel garder ? », un bouton par tracé (nom · longueur), le plus proche de la distance de la course en premier, et « Annuler » ; seul le tracé choisi est rangé ; un fichier déjà rangé avec plusieurs tracés montre le plus proche de la distance ; pour corriger, « Remplacer » ; absent en lecture seule et pour une course courue |
+| 28 | Import du GPX | « Importer un tracé », « Supprimer le tracé » | Formulaire, bloc Parcours, ligne « Tracé GPX » : deux boutons communs, sans ligne d'état ; « Importer un tracé » toujours présent, il remplace le tracé existant ; « Supprimer le tracé » (`mrt-btn is-danger`) quand il y en a un ; rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; fichier à plusieurs tracés (toutes les distances d'une épreuve) : « Ce fichier contient N tracés : lequel garder ? », un bouton par tracé (nom · longueur), le plus proche de la distance de la course en premier, et « Annuler » ; seul le tracé choisi est rangé ; un fichier déjà rangé avec plusieurs tracés montre le plus proche de la distance ; pour corriger, « Importer un tracé » ; absent en lecture seule et pour une course courue |
+| 56 | Ravitaillements sur le profil | Trait pointillé vertical à chaque km de F57, le km en haut (« 12 ») | Dans le profil (32), Texte discret, `--t-micro` ; un km au-delà du tracé n'est pas dessiné |
 | 16 | Stratégie de course | Plan de course, allures, liaison avec la course suivante | Dans 25, sous le GPX ; sous-titre « Stratégie de course » en libellé ; absente si vide |
 | 24 | Préparation | Dans l'ordre : 15, puis la place de la course dans le plan et son avis ([Préparation](module-preparation-specification.md), § 5.4), puis le lien « Voir dans Mon plan → » (`preparation.html#courses`) ; plus de plan propre à la course (12 nov. 2026) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : place calculée au 1er du mois, mentionnée sous la ligne ; ancre `#preparation` (ouverte quand on arrive par elle) ; lien absent en lecture seule |
 | 15 | Pourquoi cette course | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Pourquoi cette course » (le nom du champ de la fiche) en libellé ; absent si vide |
@@ -271,13 +272,13 @@ Site partagé en lecture seule : aucun de ces boutons.
 - **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la saison, sinon la feuille se ferme (course courue ajoutée au Palmarès).
 - **Toucher une ligne du Palmarès** : la feuille en consultation d'une course courue (ci-dessous). **Crayon d'une ligne** : la feuille directement en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
-- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, seul en bas de la fiche, loin d'« Enregistrer » ; après confirmation, la feuille se ferme.
+- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, dans la barre du haut, à gauche d'« Enregistrer » (sur téléphone, la poubelle seule) ; après confirmation, la feuille se ferme.
 - Le formulaire n'ouvre plus de fenêtre par-dessus : « Régler les phases » est dans la page Mon plan, sur un Objectif seulement (décidé le 11 novembre 2026, précisé le 12).
 
 ```
 Téléphone · consultation (plein écran)  Téléphone · édition (même écran)
 ┌─────────────────────────────────┐     ┌─────────────────────────────────┐
-│                   (C5) ✎ (C1) × │     │ (F24) Annuler   (F25) Enregistrer│
+│                   (C5) ✎ (C1) × │     │ (F24) Annuler    (F23) 🗑 (F25) Enregistrer│
 │ PRÉPARATOIRE · ÉTAPE 2 SUR 14   │     │ (F1) MODIFIER LA COURSE         │
 │ (C3) Trail des 2 Baies ↗        │     │ ⌄ (F3) Course                   │
 │ (C6) lieu · format · date       │     │   Course *  [                ]  │
@@ -285,7 +286,6 @@ Téléphone · consultation (plein écran)  Téléphone · édition (même écra
 │ └────────────────────────────┘  │     │ › (F15) Place dans le plan      │
 │ (C24) ⌄ Préparation …           │     │ › …                             │
 │ (C20) ← précédente suivante (C21)│     │ (F22) message                   │
-│                                 │     │ [🗑 Supprimer la course] (F23)   │
 └─────────────────────────────────┘     └─────────────────────────────────┘
 ```
 
@@ -807,7 +807,7 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Semi de San Sebastián ouvert par son adresse, ou touché dans la vue Année du Calendrier, ou depuis « Dernière course » sur l'accueil : sa consultation (section Résultat, ligne Temps) ; par son adresse, une seule course voisine (la plus récente n'a pas de « précédente ») ; la croix laisse la saison.
 - « + Ajouter une course » puis le retour du navigateur : sans saisie, la fiche se ferme et la saison reste ; après une saisie, « Abandonner les modifications ? » ; refusé, la fiche reste ; accepté, elle se ferme. « Annuler » retire aussi l'entrée d'historique de la fiche.
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon ni « Importer un GPX ».
-- Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.
+- Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, la poubelle seule, à gauche d'« Enregistrer » ; rien ne dépasse.
 
 Résultats attendus, remplir depuis la page de la course (§ 3.9) ; réponse de `lire-page-course` simulée par le banc (texte fictif « Trail des Hauts », type Trail, deux parcours : Le 25, 25 km, 900 m D+, 13 juin 2027 à 9 h ; Le 50, 50 km, 2 400 m D+, 12 juin 2027 à 6 h ; lieu Mont-Clair ; site officiel et site d'inscription en `https://` ; ouverture des inscriptions le 1er déc. 2026 ; 35 € et 60 €) :
 

@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 nov. 2026 | Fiche d'une course, Parcours et barre | Objectif 0.86 : ravitaillements en traits pointillés sur le profil (56) ; ligne « Tracé GPX » sans état (« Aucun tracé », « Tracé importé ») : « Importer un tracé », toujours là, remplace l'existant, et « Supprimer le tracé » en bouton commun ; « Supprimer la course » monte dans la barre du haut, à gauche d'« Enregistrer » (poubelle seule sur téléphone). |
 | 21 nov. 2026 | Repasse de cohérence : glossaire | Glossaire du design (§ 12) complété ; un nom par notion pour tout texte affiché, les spécifications et le banc ; noms en base et identifiants internes inchangés. |
 | 21 nov. 2026 | Vocabulaire : Objectif | « Objectif » garde ses trois emplois (rôle, Objectif principal, temps ou résultat visé) ; « course principale » ne s'écrit plus : Objectif principal. |
 | 21 nov. 2026 | Vocabulaire : préparation | La période qui mène à un Objectif s'appelle « préparation » (« Courses de la préparation », « préparation de 16 semaines ») ; « Saison » reste le nom de la page des courses à venir. |
