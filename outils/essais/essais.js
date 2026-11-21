@@ -2823,6 +2823,9 @@ const CONTROLES = {
         reperes: [...document.querySelectorAll('.ps-semaine .cal-v-rep')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne + ' ' + e.textContent),
         repos: [...document.querySelectorAll('.ps-semaine .cal-repos')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne),
         lien: (document.querySelector('.ps-semaine-tete a.ps-vers-cal') || { getAttribute: () => null }).getAttribute('href'),
+        texteLien: t('.ps-semaine-tete a.ps-vers-cal'), guideBas: document.querySelectorAll('.mrt-guide').length,
+        info: [...document.querySelectorAll('.ps-objectif .ps-droite > *')].map(e => (e.getAttribute('href') || e.textContent.trim()) + '|' + (e.getAttribute('aria-label') || '')),
+        libelleObjectif: document.querySelectorAll('.ps-objectif .ob-role, .ps-saison .ob-lib').length,
         plus: document.querySelectorAll('.ps-semaine [data-ajout]').length,
         ordre: [...document.querySelectorAll('.ps-vue > *')].map(e => e.className.split(' ').find(c => c.startsWith('ps-'))),
         debordement: document.documentElement.scrollWidth > innerWidth
@@ -2855,7 +2858,8 @@ const CONTROLES = {
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
     await p.waitForSelector('.ps-objectif');
     let r = await lire(p);
-    pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; picto du Calendrier à côté du titre'));
+    pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier à côté du titre'),
+        egal(['Calendrier ›', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » et le rond « i » vers le Guide ; plus de lien du Guide en bas ; « Calendrier › »'));
     pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
@@ -3045,8 +3049,8 @@ const CONTROLES = {
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
-    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue séance récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Connexions'], 'Mon profil', 'Mon profil', 1],
-      [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
+    pb.push(egal([0, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Connexions'], 'Mon profil', 'Mon profil', 1],
+      [await p.locator('.mp-etat, .ps-profil-etat, .mp-msg').count(), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : pas de ligne d\'état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
     // Petite feuille (comme Nutrition) : 30 rem de large au plus, hauteur selon le contenu.
@@ -3376,10 +3380,10 @@ const CONTROLES = {
     const miseAJour = [d.appels.length > 0, (d.appels[0] || {}).motif, (d.appels[0] || {}).bloc];
     await p.click('.ps-reglages [data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const infoAvant = await p.locator('.ps-profil .ps-info').count();
-    await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-info');
-    pb.push(egal([0, [true, 'readaptation', '2026-10-19'], 0, 'Mon plan : il sera mis à jour avec ces réponses.'],
-      [avant, miseAJour, infoAvant, await p.textContent('.ps-profil .ps-info')],
-      'profil changé après la dernière proposition : aucun appel avant ; à l\'arrivée, le plan est mis à jour d\'office (réadaptation, de la semaine en cours) ; dans Mon profil, après un changement, la ligne d\'information'));
+    await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    pb.push(egal([0, [true, 'readaptation', '2026-10-19'], 0, 0],
+      [avant, miseAJour, infoAvant, await p.locator('.ps-profil .ps-info').count()],
+      'profil changé après la dernière proposition : aucun appel avant ; à l\'arrivée, le plan est mis à jour d\'office (réadaptation, de la semaine en cours) ; dans Mon profil, aucune ligne d\'information'));
     pb.push(egal([], erreurs, 'profil changé, erreurs JavaScript'));
     await ctx.close();
     return pb;
@@ -3402,7 +3406,7 @@ const CONTROLES = {
     let d = copie(hiver);
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForSelector('.ps-saison');
-    pb.push(egal([['Trail du Lac 15 nov. · Préparatoire', 'Corrida de Noël 13 déc. · Plaisir', 'Trail des Gorges 7 mars · Objectif'], 1,
+    pb.push(egal([['Trail du Lac›', 'Corrida de Noël›', 'Trail des Gorges›', 'Préparatoire'], 1,
       'Préparatoire conseillée : un trail de 21 à 30 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027. Ajouter une course'],
       [await puces(p), await p.locator('.ps-saison [data-prepa]').count(), (await p.textContent('.ps-sg-ligne')).replace(/\s+/g, ' ').trim()],
       'carte : les Préparatoires et les Plaisirs avant l\'Objectif, puis lui, et « + Préparatoire » ; bandeau : la préparatoire conseillée'));
@@ -3413,7 +3417,7 @@ const CONTROLES = {
     await p.click('[data-prepa-c="' + id(40) + '"]');
     await p.waitForSelector('.ps-sc[data-sc="' + id(40) + '"]');
     pb.push(egal(['Trail de l\'Hiver Conseillée', ['?id=eq.' + id(40) + ' {"role":"preparatoire","statut":"confirmee"}'], true, true],
-      [liste[0], majCourses(d), planMaj(d), (await puces(p)).includes('Trail de l\'Hiver 31 janv. · Préparatoire')],
+      [liste[0], majCourses(d), planMaj(d), (await puces(p)).includes('Trail de l\'Hiver›')],
       'ajout : la course de la fenêtre en tête, Conseillée ; un toucher l\'ajoute en Préparatoire (Confirmée), la saison a changé'));
     pb.push(egal([], erreurs, 'ajout, erreurs JavaScript'));
     await ctx.close();
@@ -3440,7 +3444,7 @@ const CONTROLES = {
     await p.click('.ps-feuille-c [data-role="retirer"]');
     await p.waitForSelector('.ps-feuille-c', { state: 'detached' }); await pause();
     pb.push(egal([['Préparatoire', 'Trail du Lac', true, ['Passer en Plaisir', 'Voir la course', 'Retirer du plan']], ['?id=eq.' + id(1) + ' {"role":null}'], true, false],
-      [feuille, majCourses(d), planMaj(d), (await puces(p)).some(t => t.startsWith('Trail du Lac'))],
+      [feuille, majCourses(d), planMaj(d), (await puces(p)).some(t => t.startsWith('Trail du Lac›'))],
       'feuille : Préparatoire, son avis, ses actions ; « Retirer du plan » : rôle vide, la saison a changé, la course quitte la carte'));
     pb.push(egal([], erreurs, 'feuille d\'une course, erreurs JavaScript'));
     await ctx.close();

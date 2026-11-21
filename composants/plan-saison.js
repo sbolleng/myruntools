@@ -135,18 +135,19 @@
       // (26) Les courses de la saison : les Préparatoires et les Plaisirs avant l'Objectif, puis lui ; chacune ouvre sa feuille (28).
       const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
         .sort((a, b) => (a.date < b.date ? -1 : 1));
-      // (26) Une ligne par course : le nom en lien d'action (il ouvre sa feuille, 28), puis la date et le rôle en discret ; pas une pilule (design, § 11).
-      const puce = (c, role) => '<li class="ps-sc-l">' + (ctx.lectureSeule ? '<span class="ps-sc-n">' + esc(c.course) + '</span>' : '<button type="button" class="mrt-lien ps-sc" data-sc="' + esc(c.id) + '">' + esc(c.course) + '</button>') +
-        ' <span class="ps-sc-d">' + P.dateCourte(c.date) + ' · ' + role + '</span></li>';
-      const saison = '<div class="ps-saison"><span class="ob-lib">Courses de la préparation</span><ul class="ps-sc-liste">' +
-        avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') + '</ul>' +
-        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-btn ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div>';
-      let h = '<section class="ob-carte sans-cpt ps-objectif"><span class="ob-role is-obj">Objectif</span><span class="ps-j">' + jours + ' j</span>' +
-        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><p class="ps-sous">' + esc(infos) + '</p>' +
+      // Un lien commun par course (design, § 11) : le nom et le chevron dessiné ; la date et le rôle dans l'infobulle (la feuille de la course les donne).
+      const puce = (c, role) => '<button type="button" class="mrt-lien ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span><span class="ps-sc-f" aria-hidden="true">›</span></button>';
+      const saison = '<div class="ps-saison"><div class="ps-sc-liste">' +
+        avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') +
+        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-lien ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
+      // (30) Le rond « i » : comment MyRunTools construit le plan (le Guide demande une connexion : pas sur le site partagé).
+      const info = ctx.lectureSeule ? '' : '<a class="mrt-rond ps-guide" href="guide.html#saison" aria-label="Comment MyRunTools construit ton plan" title="Comment MyRunTools construit ton plan">' + window.mrtIcone.info + '</a>';
+      let h = '<section class="ob-carte sans-cpt ps-objectif">' +
+        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><span class="ps-droite"><span class="ps-j">' + jours + ' j</span>' + info + '</span><p class="ps-sous">' + esc(infos) + '</p>' +
         (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + saison + reglages + '</section>';
       h += friseHtml(ctx, ps, lundi) + bandeauHtml(ctx, lundi, ps.alertes, o);
       ctx.objectifVise = o;
-      // (19) Cette semaine, (22) le picto du Calendrier à côté, (20) son total.
+      // (19) Cette semaine, (22) le lien « Calendrier › » à côté, (20) son total.
       const total = window.mrtTotalSemaine(ctx, lundi);
       h += '<section class="ps-semaine"><div class="ps-semaine-tete"><h3 class="ps-libelle">Cette semaine' +
         '<a class="mrt-lien ps-vers-cal" href="calendrier.html" title="Voir les semaines dans le Calendrier">Calendrier' + window.mrtIcone.droite + '</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +

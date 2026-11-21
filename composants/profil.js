@@ -128,11 +128,9 @@
     window.mrtFormat.date(sg.course.date, { semaine: true }) + '</span><button type="button" class="mrt-btn" data-reprendre>Reprendre</button></div>';
 
   // La liste : un titre de section commun par section, le compte des obligatoires à droite ; chaque ligne ouvre sa question.
-  const PREVENIR = 'Mon plan : il sera mis à jour avec ces réponses.';
-  const prevenirHtml = etat => (etat.planAPrevenir ? '<p class="ps-info" role="status">' + PREVENIR + '</p>' : '');
   function listeHtml(etat) {
     const m = etat.mesures || {}, e = etat.entrainement || {}, sg = duPalmares(etat);
-    return prevenirHtml(etat) + SECTIONS.map(([id, titre, ls]) => {
+    return SECTIONS.map(([id, titre, ls]) => {
       const ob = ls.filter(l => l[3]), faites = ob.filter(l => l[2](m, e)).length;
       const compte = ob.length ? '<span class="ps-compte' + (faites === ob.length ? ' is-complet' : '') + '">' + faites + ' sur ' + ob.length + '</span>' : '';
       return '<section class="mrt-section" id="' + id + '"><h2 class="mrt-section-titre ps-section-t">' + titre + ' ' + compte + '</h2><div class="ps-groupe-l">' + ls.map(l => {
@@ -157,8 +155,6 @@
       const { error } = await sb.from('profil_entrainement').upsert(ligne);
       if (error) { console.warn(error); return false; }
       etat.entrainement = Object.assign({}, etat.entrainement, champs, { maj: ligne.maj });
-      // Un plan construit (un Objectif à venir) : ses séances ne changent pas d'elles-mêmes ; on le dit (Préparation, § 5.0).
-      etat.planAPrevenir = (etat.courses || []).some(c => c.statut === 'confirmee' && c.etat === 'a_venir' && (c.role === 'objectif' || c.role === 'objectif_intermediaire') && c.date && c.date >= iso(new Date()));
     }
     return true;
   }
@@ -362,9 +358,7 @@
     if (etat.lectureSeule) { el.innerHTML = '<div class="mp-cadre"><p class="mp-vide">Le profil n\'est pas partagé.</p></div>'; return; }
     await lireEntrainement(etat);
     const dessiner = () => {
-      const manque = tousManquants(etat.mesures, etat.entrainement);
-      el.innerHTML = '<div class="mp-cadre"><p class="ps-profil-etat mp-etat' + (manque.length ? '' : ' is-complet') + '">' + (manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</p>' +
-        '<p class="ps-msg mp-msg" role="alert"></p>' + listeHtml(etat) + connexionsHtml() + '</div>';
+      el.innerHTML = '<div class="mp-cadre">' + listeHtml(etat) + connexionsHtml() + '</div>';
     };
     // Connexions (Mes stats, § 6) : l'import de l'export Strava, la même feuille que sur Mes stats.
     let dernier = null;
@@ -375,11 +369,11 @@
       if (ev.target.closest('[data-reprendre]')) {
         const sg = duPalmares(etat);
         if (sg && await ranger(etat, 'entrainement', repereDe(sg))) dessiner();
-        else if (sg) el.querySelector('.mp-msg').textContent = 'Enregistrement impossible pour l\'instant.';
+        
         return;
       }
       if (ev.target.closest('[data-import]')) {
-        window.mrtImport.feuille({ id: etat.id, surFin: async r => { dernier = await window.mrtImport.dernierImport(); dessiner(); el.querySelector('.mp-msg').textContent = ''; const z = el.querySelector('#connexions small'); if (z) z.textContent += ' · ' + window.mrtImport.finTexte(r); } });
+        window.mrtImport.feuille({ id: etat.id, surFin: async r => { dernier = await window.mrtImport.dernierImport(); dessiner(); const z = el.querySelector('#connexions small'); if (z) z.textContent += ' · ' + window.mrtImport.finTexte(r); } });
         return;
       }
       const q = ev.target.closest('[data-q]');

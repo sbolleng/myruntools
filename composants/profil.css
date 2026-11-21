@@ -2,16 +2,11 @@
    docs/module-profil-specification.md ; design : docs/design.md, § 10. Partagée par Mon profil, Mon plan et Nutrition. */
 .mp-cadre { padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .mp-vide { font-size: var(--t-texte); color: var(--muted); }
-.mp-etat { margin-bottom: 0.4rem; }
 /* Repère du Palmarès : sous le repère d'allure, cadre en pointillé Accent, « Reprendre » à droite. */
 .mp-palmares { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 0.8rem; margin: 0.3rem 0.6rem 0.6rem; padding: 0.55rem 0.8rem; font-size: var(--t-second); color: var(--text); border: 1px dashed var(--accent); border-radius: 8px; }
 /* ----- Profil d'entraînement : bouton et état en tête de page ; fenêtre : une liste groupée, une question par écran ----- */
-.ps-profil-etat { font-size: var(--t-second); color: var(--muted); }
-.ps-profil-etat.is-complet { color: var(--text); }
 /* La feuille est celle d'une course (modale-course.css) : barre du haut avec « ‹ » à gauche et la croix à droite, titre en libellé. */
 .ps-profil-barre { justify-content: space-between; }
-/* Après un changement qui compte pour le plan : une ligne d'information, en Texte discret, cadre gauche Accent. */
-.ps-info { margin: 0 0 0.8rem; padding: 0.45rem 0.7rem; font-size: var(--t-second); color: var(--text); background: var(--case); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; }
 .ps-msg { min-height: 1.2em; margin: 0 0 0.4rem; font-size: var(--t-petit); color: var(--red); }
 .ps-section-t { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; }
 .ps-compte { flex: none; font-size: var(--t-second); font-weight: 400; white-space: nowrap; color: var(--accent); }

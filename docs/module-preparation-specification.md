@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 3.13 · 21 novembre 2026 · [Retour au sommaire](README.md) · Courses de la préparation en liste de liens ; « Calendrier › » en lien (panneau des boutons du design, § 11).
+Version 3.14 · 21 novembre 2026 · [Retour au sommaire](README.md) · Courses de la préparation et « + Préparatoire » en liens communs, chevron dessiné (panneau des boutons du design, § 11).
 
 ## 1. Rôle
 
@@ -187,9 +187,11 @@ Jeu d'essai, au 20 octobre 2026 (§ 10). Les numéros sont stables ; les éléme
 
 ```
 (1) ┌───────────────────────────────────────────────────────────────────┐
-    │ OBJECTIF                                                138 j     │
-    │ Trail des Gorges · Le grand                                       │
+    │ Trail des Gorges · Le grand                         138 j  (30)   │
     │ dim. 7 mars 2027 · 45 km · 2 100 m D+                             │
+    │                                                                   │
+    │ (26) Trail du Lac ›   Corrida de Noël ›   Trail des Gorges ›   + Préparatoire
+    │                                                                   │
     │ (25) [👤 Mon profil] [⚑ Changer d'Objectif] [⚙ Personnaliser] (29) (⤓)
     └───────────────────────────────────────────────────────────────────┘
 (3) ┌══════╤──────┬──────┬──────┬──────┬──────┬──────┬──────┐(›)
@@ -200,7 +202,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 10). Les numéros sont stables ; les éléme
 (9) ┃ ⚠ Lac : récupération jusqu'au ven. 4 déc., sur l'affûtage de Gorges          (s'il y en a)
     ┃ Ton profil a changé depuis la dernière proposition.                          (s'il y a lieu)
     ┃ MyRunTools : Entretien sur deux semaines…
-(19) CETTE SEMAINE (22)                    (20) 2/4 séances · 18/32 km · 1 h 45/3 h 10
+(19) CETTE SEMAINE  (22) Calendrier ›      (20) 2/4 séances · 18/32 km · 1 h 45/3 h 10
      19 lun. │ ● Footing · Course à pied · 45 min · 8 km     ☑ │ +
      20 mar. │ (21) Repos                                       │ +
 ```
@@ -209,13 +211,14 @@ Téléphone : même ordre ; la frise montre 4 semaines à la fois.
 
 | N° | Élément | Contenu |
 |---|---|---|
-| 1 | Carte de l'Objectif | L'Objectif visé (le prochain) : « Objectif » en libellé, 138 j à droite ; le nom de la course et du parcours (lien vers sa page) ; la date complète, la distance et le D+. Sous le minimum du format (§ 5.0, écran 8) : « Plan court : 8 semaines (12 au minimum) » |
-| 26 | Courses de la préparation | Dans la carte, sous la date : « Courses de la préparation », une ligne par Préparatoire et par Plaisir (le nom en lien, qui ouvre sa feuille, puis la date et le rôle en discret ; pas une pilule, design § 11) confirmées entre aujourd'hui et l'Objectif (nom, date, rôle), puis l'Objectif ; une puce ouvre la feuille de sa course (28) ; « + Préparatoire » ouvre l'ajout (27) ; sur le site partagé, sans action |
+| 1 | Carte de l'Objectif | L'Objectif visé (le prochain), sans libellé « Objectif » : le nom de la course et du parcours (lien vers sa page), « 138 j » à droite sur la même ligne ; la date complète, la distance et le D+. Sous le minimum du format (§ 5.0, écran 8) : « Plan court : 8 semaines (12 au minimum) » |
+| 26 | Courses de la préparation | Dans la carte, sous la date, sans titre, entre deux espaces : un lien par Préparatoire et par Plaisir confirmées entre aujourd'hui et l'Objectif, puis l'Objectif, en « Nom › » (la date et le rôle dans l'infobulle) ; un lien ouvre la feuille de sa course (28) ; « + Préparatoire », discret et sans contour, ouvre l'ajout (27) ; sur le site partagé, sans action |
 | 25 | Réglages du plan | Trois boutons de même forme, chacun son picto : **Mon profil** (la feuille Mon profil : les réponses du parcours ; absent quand le bandeau invite déjà à « Compléter mon profil », un seul accès à la fois), **Changer d'Objectif** (le parcours, § 5.0), **Personnaliser** (la fenêtre « Régler les phases » : durée et phases semaine par semaine) ; absents du site partagé |
 | 29 | Exporter | Le rond commun « Exporter » (le même qu'au Calendrier), après les boutons des réglages : le plan, de la semaine en cours à celle de l'Objectif, en page à imprimer ou en PDF ([Calendrier](module-calendrier-specification.md), § 4.6) ; seul bouton sur le site partagé |
 | 3 | Frise | Tout le plan, par semaine, de la semaine en cours (ou du début de la préparation, s'il est passé) à la fin de la dernière récupération : le lundi en **JJ/MM**, la course de la semaine (▲, par rôle ; une option en italique), la phase (fond de la phase) ; les semaines consécutives d'une même phase forment un seul bloc (un fond, le nom de la phase une fois), chaque semaine y gardant son lundi, sa course et son lien ; la semaine en cours cerclée d'Accent ; une case mène au Calendrier, sur sa semaine. La frise s'ouvre sur la semaine en cours ; « ‹ » et « › » font défiler de 4 semaines, seulement quand tout ne tient pas |
 | 9 | Bandeau de MyRunTools | Toujours ouvert, sous la frise : les alertes (§ 3.4), la **préparatoire conseillée** (16 : « Préparatoire conseillée : un trail de 21 à 30 km, sur un terrain proche, du … au …. Ajouter », tant que sa fenêtre n'est pas passée et qu'aucune Préparatoire conseillée n'y est ; « Ajouter » ouvre l'ajout, la fenêtre d'abord), la recommandation de l'IA (deux phrases au plus) ; pendant un travail de l'IA : « MyRunTools prépare tes séances… », « …met à jour ton plan… (bloc 2 sur 5) » ou « …révise tes prochaines semaines… » ; un profil incomplet : « Pour que MyRunTools propose tes séances : Compléter mon profil ». Ni « Refaire », ni compteur, ni message « a changé » : le plan se met à jour seul (§ 6) |
-| 19 à 22 | Cette semaine | Une ligne par jour (mise en page de la vue Semaine du Calendrier), le total fait sur prévu, « Repos » un jour vide ; (22) le lien « Calendrier › », à droite du titre|
+| 19 à 22 | Cette semaine | Une ligne par jour (mise en page de la vue Semaine du Calendrier), le total fait sur prévu, « Repos » un jour vide ; (22) le lien « Calendrier › » (lien commun, chevron dessiné) à droite du titre, vers le Calendrier |
+| 30 | Info | Rond « i » (même style que Exporter), à droite de « 138 j » : infobulle « Comment MyRunTools construit ton plan », vers le Guide (`guide.html#saison`) ; absent du site partagé (le Guide demande une connexion). Il remplace le lien du bas de page |
 
 **Ajout d'une préparatoire (27)**, dans la page, comme le parcours (barre, progression, croix) :
 

@@ -95,6 +95,8 @@
   window.mrtIcone = {
     fermer: icone('M4 4l8 8M12 4l-8 8'),
     plus: icone('M8 3.5v9M3.5 8h9'),
+    // « i » : bouton d'information (Mon plan, vers le Guide).
+    info: icone('M8 7.2v4.3M8 4.7h.01'),
     moins: icone('M3.5 8h9'),
     gauche: icone('M10 3.5L5.5 8l4.5 4.5'),
     droite: icone('M6 3.5L10.5 8 6 12.5'),

@@ -163,12 +163,14 @@
 .ps-vue { display: flex; flex-direction: column; gap: 1.1rem; }
 /* Carte de l'Objectif : première section du cadre de la page, pas un cadre dans le cadre (design, § 1) ; un filet la sépare de la frise. */
 .ps-objectif { margin: 0; padding: 0 0 1.1rem; background: none; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; }
-.ps-objectif .ps-j { justify-self: end; font-family: 'Space Mono', monospace; font-size: var(--t-nom); font-weight: 700; line-height: 1; color: var(--accent); }
-.ps-objectif .ps-titre { grid-column: 1 / -1; margin: 0.1rem 0 0; font-size: var(--t-titre); font-weight: 700; line-height: 1.25; color: var(--accent); }
+.ps-objectif { grid-template-areas: none; row-gap: 0.3rem; }
+.ps-droite { grid-column: 2; grid-row: 1; justify-self: end; display: inline-flex; align-items: center; gap: 0.6rem; }
+.ps-objectif .ps-j { font-family: 'Space Mono', monospace; font-size: var(--t-nom); font-weight: 700; line-height: 1; color: var(--accent); }
+.ps-objectif .ps-titre { grid-column: 1; grid-row: 1; margin: 0.1rem 0 0; font-size: var(--t-titre); font-weight: 700; line-height: 1.25; color: var(--accent); }
 .ps-objectif .ps-titre a { color: inherit; text-decoration: none; }
 .ps-objectif .ps-sous { grid-column: 1 / -1; margin: 0; font-size: var(--t-texte); color: var(--text); }
 .ps-court { grid-column: 1 / -1; margin: 0; font-size: var(--t-second); font-weight: 600; color: var(--red); }
-.ps-reglages { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.ps-reglages { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
 .ps-reglages .mrt-btn .mrt-ico, .ps-reglages .mrt-btn .cal-ico { width: 0.95rem; height: 0.95rem; }
 @media (hover: hover) { .ps-objectif .ps-titre a:hover { text-decoration: underline; } }
 /* Frise : une case par semaine, à la hauteur d'une case de la vue Mois ; flèches de part et d'autre si tout ne tient pas. */
@@ -207,14 +209,15 @@
 .ps-reco, .ps-bandeau .ps-ia-aide { margin: 0; font-size: var(--t-second); color: var(--text); }
 .ps-reco .ps-ia-reste { color: var(--muted); }
 .ps-bandeau .ps-ia-msg { margin: 0; }
-/* (26) Courses de la saison, dans la carte de l'Objectif : une puce par course (nom, date et rôle), « + Préparatoire ». */
-.ps-saison { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; }
-.ps-sc-liste { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.3rem 0 0.6rem; padding: 0; list-style: none; }
-.ps-sc-l { font-size: var(--t-texte); }
-.ps-sc { font-size: inherit; color: var(--text); font-weight: 600; } /* lien d'action commun (mrt-lien), le nom en Texte */
+/* (26) Courses de la saison, dans la carte de l'Objectif : un lien par course (nom et « › »), « + Préparatoire » ; de l'air avant et après. */
+.ps-saison { grid-column: 1 / -1; margin: 0.9rem 0 0; }
+.ps-sc-liste { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1.2rem; }
+.ps-sc { display: inline-flex; align-items: baseline; gap: 0.1rem; color: var(--text); } /* lien commun (mrt-lien), le nom en Texte */
 .ps-sc-n { font-weight: 600; }
-.ps-sc-d { color: var(--muted); font-size: var(--t-second); }
+.ps-sc:disabled { cursor: default; }
+.ps-sc-plus { display: inline-flex; align-items: center; gap: 0.25rem; } /* lien commun (mrt-lien) */
 .ps-sc-plus .mrt-ico { width: 0.85rem; height: 0.85rem; }
+@media (hover: hover) { .ps-sc:not(:disabled):hover .ps-sc-n, .ps-sc-plus:hover { color: var(--accent); } }
 .ps-sg-ligne { margin: 0; font-size: var(--t-second); color: var(--text); }
 /* (28) Feuille d'une course de la saison. */
 .ps-fc-nom { margin: 0.2rem 0 0; font-size: var(--t-nom); font-weight: 600; color: var(--text); }
