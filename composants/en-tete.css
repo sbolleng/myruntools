@@ -347,3 +347,14 @@ body.mrt-public { display: grid; place-items: center; grid-template-rows: 1fr au
 .mrt-coche::after { content: ''; position: absolute; inset: -0.6rem; }
 .mrt-coche input { position: relative; z-index: 1; margin: 0; } /* la case reste au-dessus de sa marge invisible */
 .mrt-guide { margin: 1.2rem 0 0; text-align: center; } /* lien vers le Guide, en bas de Mon plan et de Nutrition */
+
+/* Bouton Menu (design, § 11) : le secondaire et son chevron vers le bas ; la liste s'ouvre dessous, chaque choix sur une ligne. */
+.mrt-btn > .mrt-ico:last-child:not(:first-child) { margin-left: 0.1rem; transition: transform 0.15s; }
+.mrt-btn[aria-expanded="true"] > .mrt-ico:last-child:not(:first-child) { transform: rotate(180deg); }
+.mrt-menu { position: absolute; z-index: 30; margin-top: 0.4rem; display: flex; flex-direction: column; min-width: 14rem; padding: 0.45rem 0;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.mrt-menu[hidden] { display: none; }
+.mrt-menu-l { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1.1rem; font: inherit; font-size: var(--t-texte); text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
+.mrt-menu-l .mrt-ico { color: var(--muted); }
+.mrt-menu-l:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (hover: hover) { .mrt-menu-l:hover { background: var(--case); } }

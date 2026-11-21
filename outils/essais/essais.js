@@ -216,6 +216,15 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
   return { p, ctx, erreurs };
 }
 
+// Réglages du plan (Mon plan, design § 11) : rangés dans le menu « Réglages du plan ▾ » ; l'ouvrir s'il est fermé, puis toucher le réglage.
+async function reglage(p, sel) {
+  await p.waitForSelector('[data-reglages]');
+  // « Mon profil » n'est pas au menu quand le bandeau invite à le compléter (un seul accès) : le lien du bandeau.
+  if (!(await p.locator('#ps-reglages-menu ' + sel).count()) && (await p.locator('.ps-ia-aide ' + sel).count())) return p.click('.ps-ia-aide ' + sel);
+  if (await p.locator('#ps-reglages-menu').isHidden()) await p.click('[data-reglages]');
+  await p.click('#ps-reglages-menu ' + sel);
+}
+
 // Aucun saut au chargement : à l'instant où la page devient visible, le menu (et l'en-tête,
 // sur l'Accueil et la feuille de route) est déjà en place et le contenu de la page n'a plus à bouger.
 async function sansSaut(nav, db, page, w, nom, opts) {
@@ -2354,9 +2363,9 @@ const CONTROLES = {
     // Export depuis Mon plan : de la semaine en cours à celle de l'Objectif, six semaines par page.
     {
       const { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await p.waitForSelector('.ps-reglages [data-exporter]');
+      await p.waitForSelector('[data-reglages]');
       await p.evaluate(() => { window.print = () => {}; });
-      await p.click('.ps-reglages [data-exporter]');
+      await reglage(p, '[data-exporter]');
       const x = await p.evaluate(() => ({ pages: document.querySelectorAll('.xp-page').length, titre: document.querySelector('.xp-titre').textContent,
         lignes: [...document.querySelectorAll('.xp-zone .cal-m2-ligne')].map(l => l.dataset.semaine), course: [...document.querySelectorAll('.xp-zone .cal-m2-course')].map(e => e.closest('[data-jour]').dataset.jour),
         phases: document.querySelectorAll('.xp-zone .cal-m2-ligne[class*="ph-"]').length }));
@@ -2712,14 +2721,14 @@ const CONTROLES = {
     await ctx.close();
 
     // Régler les phases, depuis Mon plan (rond de la frise, ou de l'Objectif dans « Courses du plan ») : durée de 20 semaines, une semaine en Base, puis recalcul
-    const plans = async (largeur = 1200) => { const o = await ouvrir(nav, 'preparation.html', largeur, d, {}, PARIS); await o.p.waitForSelector('.ps-reglages [data-preparer]'); await surDialogue(o.p, () => true); return o; };
-    const regler = async (q, idCourse) => { await q.p.click('.ps-reglages [data-preparer="' + idCourse + '"]'); await q.p.waitForSelector('.cal-preparer'); };
+    const plans = async (largeur = 1200) => { const o = await ouvrir(nav, 'preparation.html', largeur, d, {}, PARIS); await o.p.waitForSelector('[data-reglages]'); await surDialogue(o.p, () => true); return o; };
+    const regler = async (q, idCourse) => { await reglage(q.p, '[data-preparer="' + idCourse + '"]'); await q.p.waitForSelector('.cal-preparer'); };
     const fini = async q => { await q.p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause(); };
     d = copie();
     let q = await plans();
     pb.push(egal([[GORGES], 'Personnaliser'], await q.p.evaluate(() => [[...document.querySelectorAll('[data-preparer]')].map(b => b.dataset.preparer), document.querySelector('.ps-reglages [data-preparer]').textContent.trim()]),
       'Mon plan : « Personnaliser » (Régler les phases) dans la carte de l\'Objectif visé, seul réglage des phases de la page'));
-    await q.p.click('.ps-reglages [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
+    await reglage(q.p, '[data-preparer]'); await q.p.waitForSelector('.cal-preparer');
     await q.p.fill('.cal-prep [name="duree"]', '20'); await q.p.dispatchEvent('.cal-prep [name="duree"]', 'change');
     pb.push(egal('Début : lun. 19 oct. 2026 ; jour J : dim. 7 mars 2027 · durée du format : 16 sem.', await q.p.textContent('.cal-prep .cal-plan-dates'), 'Régler les phases : 20 semaines, début le 19 octobre'));
     await q.p.selectOption('.cal-prep [data-sem="2026-12-07"]', 'base');
@@ -2790,7 +2799,7 @@ const CONTROLES = {
       await p.screenshot({ path: path.join(__dirname, 'captures', 'course-preparation.png'), fullPage: true });
       await ctx.close();
       const o = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await o.p.waitForSelector('.ps-reglages [data-preparer]'); await o.p.click('.ps-reglages [data-preparer]');
+      await o.p.waitForSelector('[data-reglages]'); await reglage(o.p, '[data-preparer]');
       await o.p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-preparer.png') });
       await o.ctx.close();
     }
@@ -2812,7 +2821,7 @@ const CONTROLES = {
       const ph = l => { const e = sem.find(x => x.dataset.lundi === l); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
       return {
         titre: t('.ps-objectif .ps-titre'), sous: t('.ps-objectif .ps-sous'), j: t('.ps-objectif .ps-j'), court: t('.ps-court'),
-        reglages: [...document.querySelectorAll('.ps-reglages .mrt-btn, .ps-reglages [data-exporter]')].map(b => b.textContent.trim() || b.getAttribute('aria-label')),
+        reglages: [...document.querySelectorAll('#ps-reglages-menu .mrt-menu-l')].map(b => b.textContent.trim()), menuBas: !!document.querySelector('.ps-semaine + .ps-reglages [data-reglages]'),
         semaines: sem.length ? [sem[0].dataset.lundi, sem[sem.length - 1].dataset.lundi] : [], courante: (document.querySelector('.ps-sem.is-courante') || {}).dataset ? document.querySelector('.ps-sem.is-courante').dataset.lundi : null,
         phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
         marques: [...document.querySelectorAll('.ps-sem-c')].map(e => e.closest('.ps-sem').dataset.lundi + ' ' + e.textContent + ' ' + [...e.classList].filter(c => c !== 'ps-sem-c').join(' ')),
@@ -2844,7 +2853,7 @@ const CONTROLES = {
           nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août'),
         egal(['2026-11-09 Trail du Lac r-preparatoire', '2026-12-07 Corrida de Noël r-plaisir', '2027-03-01 Trail des Gorges r-objectif', '2027-05-24 Trail des Cimes r-preparatoire is-option', '2027-06-21 Ultra du Plateau r-preparatoire is-option', '2027-06-28 Trail de la Forêt r-preparatoire is-option', '2027-08-23 Trail des Crêtes r-objectif'], r.marques,
           nom + ', courses dans leur semaine, repérées par leur rôle, options à part'),
-        egal([['Alertes (0)'], 0, ['ps-objectif', 'ps-frise-z', 'ps-bandeau', 'ps-semaine']], [r.alertes, r.retires, r.ordre], nom + ', pas d\'alerte ; plus de frise « En cours », de courses du plan, d\'historique ni de « Proposer » ; l\'ordre de la page'),
+        egal([['Alertes (0)'], 0, ['ps-objectif', 'ps-frise-z', 'ps-bandeau', 'ps-semaine', 'ps-reglages']], [r.alertes, r.retires, r.ordre], nom + ', pas d\'alerte ; plus de frise « En cours », de courses du plan, d\'historique ni de « Proposer » ; l\'ordre de la page'),
         egal([false, true], await fleches(p), nom + ', flèches : seule « suivantes » au départ (la frise ne tient pas)'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));
@@ -3210,7 +3219,7 @@ const CONTROLES = {
     await ctx.close();
     // Téléphone : la liste et la semaine type tiennent dans l'écran.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS));
-    await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await reglage(p, '[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const deborde = () => p.evaluate(() => document.documentElement.scrollWidth > innerWidth || document.querySelector('.ps-profil').scrollWidth > document.querySelector('.ps-profil').clientWidth);
     const l1 = await deborde();
     await p.click('.ps-profil [data-q="semaine"]');
@@ -3329,8 +3338,8 @@ const CONTROLES = {
     // 2. Deux Objectifs : le Trail des Crêtes avancé au 2 mai chevauche le Trail des Gorges (récupération jusqu'au 17 avril). Profil complet : sauté.
     d = copie(x => { x.courses.find(c => c.id === id(7)).date = '2027-05-02'; x.profil_entrainement = [Object.assign({}, COMPLET)]; });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 390, d, {}, PARIS));
-    await p.waitForSelector('[data-parcours]'); await pause();
-    await p.click('[data-parcours]'); await vers(p, 'plan');
+    await p.waitForSelector('[data-reglages]'); await pause();
+    await reglage(p, '[data-parcours]'); await vers(p, 'plan');
     pb.push(egal(1, await p.locator('.pp [data-pp="fermer"]').count(), '« + Objectif » : le parcours, avec la croix'));
     await p.click('[data-plan="course"]'); await vers(p, 'course');
     await p.click('[data-course="' + id(7) + '"]'); await vers(p, 'conflit');
@@ -3378,7 +3387,7 @@ const CONTROLES = {
     for (let k = 0; k < 60 && !d.appels.length; k++) await pause();
     await p.waitForSelector('.ps-bandeau .ps-reco');
     const miseAJour = [d.appels.length > 0, (d.appels[0] || {}).motif, (d.appels[0] || {}).bloc];
-    await p.click('.ps-reglages [data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await reglage(p, '[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const infoAvant = await p.locator('.ps-profil .ps-info').count();
     await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     pb.push(egal([0, [true, 'readaptation', '2026-10-19'], 0, 0],
@@ -3406,10 +3415,10 @@ const CONTROLES = {
     let d = copie(hiver);
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForSelector('.ps-saison');
-    pb.push(egal([['Trail du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Préparatoire'], 1,
+    pb.push(egal([['Trail du Lac', 'Corrida de Noël', 'Préparatoire'], 1,
       'Préparatoire conseillée : un trail de 21 à 30 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027. Ajouter une course'],
       [await puces(p), await p.locator('.ps-saison [data-prepa]').count(), (await p.textContent('.ps-sg-ligne')).replace(/\s+/g, ' ').trim()],
-      'carte : les Préparatoires et les Plaisirs avant l\'Objectif, puis lui, et « + Préparatoire » ; bandeau : la préparatoire conseillée'));
+      'carte : « Avant : » les Préparatoires et les Plaisirs avant l\'Objectif (sans lui), et « + Préparatoire » ; bandeau : la préparatoire conseillée'));
     // « Ajouter » : la fenêtre d'abord ; la course repérée, Conseillée, devient Préparatoire et Confirmée ; la saison a changé.
     await p.click('[data-prepa="fenetre"]'); await p.waitForSelector('.pp[data-ecran="prepa"]');
     await p.click('[data-filtre="toutes"]'); await pause();
@@ -4175,7 +4184,7 @@ const CONTROLES = {
     await ctx.close();
     {
       const q = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await q.p.waitForSelector('.ps-reglages [data-preparer]'); await q.p.click('.ps-reglages [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
+      await q.p.waitForSelector('[data-reglages]'); await reglage(q.p, '[data-preparer]'); await q.p.waitForSelector('.cal-preparer');
       pb.push(egal(COMMUN, await champs(q.p), 'fenêtre « Régler les phases » : champs communs'));
       pb.push(egal({ barre: ['Annuler', 'Enregistrer *'], titre: 'uppercase Space Mono', voile: true, libelles: ['11.2px'] }, await fenetre(q.p), 'fenêtre « Régler les phases » : comme la fiche'));
       await q.ctx.close();
@@ -5561,7 +5570,7 @@ const CONTROLES = {
       .map(b => ({ cls: b.className, t: b.textContent.replace(/\s+/g, ' ').trim(), a: b.getAttribute('aria-label') || '' })));
     const releves = [];
     for (const [page, action] of [['calendrier.html', p => p.click('[data-edit="se-v"]')], ['calendrier.html', p => p.click('[data-ajout]')],
-      ['preparation.html', p => p.click('[data-preparer]')], ['objectif.html', p => p.click('[data-ob="ajouter"]')], ['palmares.html', null], ['preferences.html', null], ['index.html', null]]) {
+      ['preparation.html', p => reglage(p, '[data-preparer]')], ['objectif.html', p => p.click('[data-ob="ajouter"]')], ['palmares.html', null], ['preferences.html', null], ['index.html', null]]) {
       const d = JSON.parse(JSON.stringify(db)); d.seances = [{ id: 'se-v', utilisateur: d.profils[0].id, date: '2026-10-20', type: 'run', libelle: 'Endurance', faite: false, course: null }];
       const q = await ouvrir(nav, page, 1200, d, {}, PARIS);
       if (action) { await action(q.p); await q.p.waitForTimeout(300); await interdits(q.p, page + ', feuille ouverte'); }
@@ -5592,7 +5601,7 @@ const CONTROLES = {
   async boutons(nav, db0) {
     const { db, id } = jeuObjectif(db0);
     const pb = [];
-    const COMMUNS = /\bmrt-(btn|rond|lien|pastille|choix|tri|gear|barre-cap|tab)\b/;
+    const COMMUNS = /\bmrt-(btn|rond|lien|pastille|choix|tri|gear|barre-cap|tab|menu-l)\b/;
     const AUTRES = /\b(mg-titre|mg-pt|fc-bloc-titre|cal-carte-txt|cal-m-se-txt|cal-se-txt|cal-m2-txt|cal-v-course|cal-v-rdv|cal-voisin|ob-carte|ps-sem|ps-choix|ps-ligne-q|is-precedente|is-suivante|ob-ins|pc-lieu|nu-ligne|nu-aliment|cal-info|cal-a-j|cal-m-num)\b/;
     const releve = p => p.evaluate(([c, a]) => {
       const COM = new RegExp(c), AUT = new RegExp(a);
@@ -5617,7 +5626,7 @@ const CONTROLES = {
     const ECRANS = [['index.html'], ['objectif.html'], ['objectif.html', p => p.click('[data-ob="ajouter"]'), 'fiche, ajout'], ['course.html?id=' + id(3)],
       ['course.html?id=' + id(3), p => p.click('[data-ob="modifier"]'), 'fiche, modification'], ['calendrier.html'], ['calendrier.html#mois'], ['calendrier.html#annee'],
       ['calendrier.html', p => p.click('[data-edit="se-b"]'), 'séance'], ['courses-a-surveiller.html'], ['palmares.html'], ['preferences.html'], ['preparation.html'],
-      ['preparation.html', p => p.click('[data-preparer]'), 'phases'], ['profil.html'], ['nutrition.html'], ['guide.html']];
+      ['preparation.html', p => reglage(p, '[data-preparer]'), 'phases'], ['profil.html'], ['nutrition.html'], ['guide.html']];
     for (const [page, action, quoi] of ECRANS) for (const w of [1200, 390]) {
       const o = await ouvrir(nav, page, w, avec(db), {}, Object.assign({}, PARIS, { mobile: w < 500 }));
       if (/^course\.html/.test(page)) await o.p.waitForSelector('.mc-panneau .pc-titre');

@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : panneau des boutons (design § 11 : sept boutons, un sens chacun ; Supprimer seul en bas, un seul principal, listes de liens dans Mon plan et « D'ici là », « Phases » en rond ; contrôle « boutons » au banc). Avant : Mon plan, carte de l'Objectif aérée (Préparation 3.13).
+- Dernier lot : Mon plan plus clair (Préparation 3.15 : réglages dans un menu « Réglages du plan ▾ » en bas de page, « Avant : » et les seules courses d'avant l'Objectif). Avant : panneau des boutons (design § 11).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).

@@ -106,6 +106,8 @@
     oeil: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM8 6.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 1 1 0-3.4z'),
     oeilBarre: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM3 13.5L13 2.5'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
+    // Chevron d'un bouton Menu (design, § 11) : vers le bas, il tourne quand le menu est ouvert.
+    chevronBas: icone('M4 6l4 4 4-4'),
     // Crayon : modifier une course (page d'une course, Palmarès).
     crayon: icone('M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z'),
     // Repère d'une course dans la frise de Mon plan : triangle plein.
