@@ -42,6 +42,17 @@
   // Temps : toujours hh:mm:ss. Allure (par km) : m:ss.
   const fmtDuree = s => (s == null ? '' : pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
   const fmtAllure = s => (s == null ? '' : Math.floor(s / 60) + ':' + pad(s % 60));
+  // Ravitaillements (Objectif, § 3.10, F57) : « 12, 25, 38 » ; séparés par une virgule suivie d'une espace, un point-virgule ou une espace,
+  // ou par des virgules seules (« 12,25,38 ») ; la virgule décimale reste lue (« 12,5, 25 »). Rend une liste, null (vide) ou NaN.
+  function parseKms(str) {
+    const t = String(str || '').trim();
+    if (!t) return null;
+    let parts = t.split(/\s*;\s*|,\s+|\s+/).filter(Boolean);
+    if (parts.length === 1 && (t.match(/,/g) || []).length > 1) parts = t.split(',');
+    const v = parts.map(x => (/^\d+([.,]\d)?$/.test(x) ? Number(x.replace(',', '.')) : NaN));
+    return v.some(Number.isNaN) ? NaN : v;
+  }
+  const fmtKms = l => (Array.isArray(l) && l.length ? l.map(x => String(x).replace('.', ',')).join(', ') : '');
   const parseNombre = str => { const s = String(str || '').trim().replace(',', '.'); return s === '' ? null : (isNaN(s) ? NaN : Number(s)); };
   const trailSelonDistance = km => (km < 21 ? 'trail_decouverte' : km < 42 ? 'trail_court' : km < 80 ? 'trail_long' : 'trail_ultra');
 
@@ -101,6 +112,7 @@
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['prix', 'Prix (€)', 'nombre', 'dossard'],
     ['gpx', 'Tracé GPX', 'fichier', 'parcours'],
+    ['ravitaillements_km', 'Ravitaillements (km)', 'kms', 'parcours'],
     ['strategie', 'Stratégie de course', 'long', 'parcours'],
     ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
     ['logistique', 'Logistique', 'long', 'logistique'],
@@ -150,7 +162,7 @@
     course: 'ex. Forez Trails', parcours: 'ex. L\'Olmetoise (facultatif)', distance: 'ex. 24,4', dplus: 'ex. 933', dmoins: 'ex. 930',
     heure: 'ex. 07:30', ouverture_heure: 'ex. 12:00', lieu: 'ex. Mont-Clair',
     description: 'Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique', objectif: 'ex. 02:45:00, Finisher ou Sub 3h', objectif_precisions: 'ex. Partir prudemment, sous 4 h dans tous les cas', dossard: 'ex. 412', prix: 'ex. 85',
-    inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027',
+    inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027', ravitaillements_km: 'ex. 12, 25, 38',
     temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524',
     place: 'ex. 99', effectif: 'ex. 873', place_categorie: 'ex. 12', effectif_categorie: 'ex. 140', place_sexe: 'ex. 15', effectif_sexe: 'ex. 310',
     montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_dmoins: 'ex. 935', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', fc_moyenne: 'ex. 163'
@@ -234,9 +246,10 @@
           : genre === 'heure' ? (valeur ? String(valeur).slice(0, 5) : '')
           : genre === 'date' && venir && c.date_approx && valeur ? String(valeur).slice(0, 7)
           : genre === 'dateLibre' && c.ouverture_approx && valeur ? String(valeur).slice(0, 7)
+          : genre === 'kms' ? fmtKms(valeur)
           : valeur == null ? '' : genre === 'nombre' ? String(valeur).replace('.', ',') : String(valeur);
         const type = genre === 'date' ? (venir && c.date_approx ? 'month' : 'date') : genre === 'dateLibre' ? (c.ouverture_approx ? 'month' : 'date') : 'text';
-        const saisie = genre === 'nombre' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'allure' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
+        const saisie = genre === 'nombre' || genre === 'kms' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'allure' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
         const borne = genre !== 'date' ? '' : venir ? ' min="' + (c.date_approx ? today().slice(0, 7) : today()) + '"' : ' max="' + today() + '"';
         input = '<input class="mrt-champ" type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + saisie + borne + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
       }
@@ -574,6 +587,11 @@
             if (!msg) v += '-01';
           } else if (venir && v && v < today() && v !== c.date) msg = 'La date d\'une course à venir ne peut pas être dans le passé.';
           else if (!venir && v && v > today()) msg = 'La date d\'une course courue ne peut pas être dans le futur.';
+        } else if (genre === 'kms') {
+          v = parseKms(el.value);
+          const dist = parseNombre(val('distance').value);
+          if (Number.isNaN(v)) { msg = 'Indique les km séparés par des virgules.'; v = null; }
+          else if (v && v.some((x, i) => x <= 0 || (dist > 0 && x >= dist) || (i && x <= v[i - 1]))) { msg = 'Des km dans l\'ordre, entre le départ et l\'arrivée.'; v = null; }
         } else if (genre === 'duree' || genre === 'allure') {
           v = parseDuree(el.value);
           if (Number.isNaN(v)) msg = 'Durée illisible (' + AIDE[k] + ').';

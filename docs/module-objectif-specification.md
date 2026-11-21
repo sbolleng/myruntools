@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.81 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Remplir depuis la page de la course** (§ 3.9) : en ajout, un encart reçoit le texte copié d'une page de course (Finishers, site officiel…) ; une IA remplit les champs vides, rien n'est enregistré sans « Enregistrer »
+Version 0.83 · 21 novembre 2026 · [Retour au sommaire](README.md) · **Proposer une stratégie** (§ 3.10) construit : repères de nutrition vérifiés, aliments favoris envoyés à l'IA, entraînement des 12 dernières semaines en attendant Mes stats
 
 ## 1. Rôle
 
@@ -449,6 +449,86 @@ Téléphone : le même ordre, l'encart sur toute la largeur.
 
 **Fonction `lire-page-course`** (Supabase, comme `proposer-seances`) : vérifie l'utilisateur connecté et la liste des pilotes (secret `PILOTES`) ; envoie le texte à l'IA (secret `ANTHROPIC_API_KEY`, modèle rapide) avec la consigne de ne rendre que ce qui figure dans le texte ; rend `{ parcours: [ … ] }`. Le texte collé n'est pas gardé. Pas de plafond tant qu'elle est réservée aux pilotes. Réponses : 401 (pas connecté), 403 `{ code: 'reserve' }`, 502 `{ code: 'ia' }`.
 
+### 3.10 Proposer une stratégie
+
+**Principe** : sur la page d'une course à venir, un bouton demande à une IA une stratégie de course, en deux parties : d'abord **la stratégie à adopter** (la plus développée), puis **quoi boire et manger**. Elle s'appuie sur la course (tracé, distance, D+, heure, objectif, ravitaillements), sur Mon profil, le Palmarès, l'entraînement récent et les aliments favoris de Nutrition. Au toucher de « OK », elle **remplace** le texte de la stratégie (16), qui reste modifiable dans la fiche. Rien n'est inventé : sans une donnée, l'IA s'en passe et ne la suppose pas. Décidé le 21 nov. 2026.
+
+**Où** : dans Parcours (25), sous la stratégie (16), pour une course **à venir** qui a une distance et un format. Jamais pour une course courue, ni sur un site partagé.
+
+```
+(25) ⌄ Parcours
+     (26) carte · (32) profil · (27) ↓ GPX
+     (52) Ravitaillements : km 12 · 25 · 38
+     (16) STRATÉGIE DE COURSE
+          texte actuel (absent si vide)
+     (53) [ Proposer une stratégie ]
+
+Après (53) : la proposition s'affiche sous le bouton
+     (54) ┌──────────────────────────────────────────┐
+          │ STRATÉGIE                                 │
+          │ Départ, tronçons (km, allure, temps visé),│
+          │ montées et descentes, fin de course       │
+          │ BOIRE ET MANGER                           │
+          │ Glucides et eau par heure, quoi et quand  │
+          │ (aux ravitaillements et entre eux)        │
+          │                                    [ OK ] │ (55)
+          └──────────────────────────────────────────┘
+```
+
+| N° | Élément | Contenu | Style |
+|---|---|---|---|
+| 52 | Ravitaillements | « Ravitaillements : km 12 · 25 · 38 » (F57) | Libellé, puis valeurs en Texte ; absent si vide |
+| 53 | Proposer une stratégie | Envoie le contexte à l'IA ; « Proposition en cours… » pendant l'attente (bouton grisé) ; masqué tant que la proposition (54) est affichée | Bouton commun |
+| 54 | Proposition | Deux parties titrées « Stratégie » (1 600 caractères au plus) et « Boire et manger » (900), en texte simple (paragraphes courts, tirets) ; rangée telle quelle, titres compris | Encadré en tirets fins (Bordure), coins de 8 px : pas de cadre dans le cadre des textes ; titres en libellé ; texte `--t-texte` |
+| 55 | OK | Range la proposition à la place de la stratégie (16), aussitôt, sans confirmation ; la proposition se ferme, 16 montre le nouveau texte, (53) revient | Bouton commun, à droite |
+
+Pas d'autre bouton : quitter la page sans « OK » abandonne la proposition ; (53) se retouche pour en avoir une autre.
+
+**Ravitaillements (F57)** : nouvelle ligne du bloc Parcours (F46) de la fiche d'édition, sous le GPX : « Ravitaillements (km) », les kilomètres séparés par des virgules (« 12, 25, 38 » ; aussi « 12; 25 », « 12,25,38 », virgule décimale « 20,5 » ; une décimale au plus). Illisible : « Indique les km séparés par des virgules. » ; dans le désordre, à 0 ou au-delà de la distance : « Des km dans l'ordre, entre le départ et l'arrivée. ». Facultatif ; vide, l'IA n'en parle pas comme d'une donnée connue.
+
+**Contexte envoyé à l'IA**, jamais le nom de la course, son lieu, ni le nom ou l'adresse du coureur :
+
+| Source | Données |
+|---|---|
+| Course | Date, format, route ou trail, distance, D+, D−, heure de départ, objectif et ses précisions, rôle (Objectif, Préparatoire, Plaisir), ravitaillements (F57) ; avec un GPX, l'altitude de départ et la plus haute, chaque kilomètre (D+, D−, pente moyenne, altitude lissée sur 50 m), les montées et descentes de plus de 100 m (extrêmes successifs à 30 m près) |
+| Mon profil | Sexe, âge, poids, FC de repos, niveau, ancienneté, volume par semaine, plus longue sortie récente, VMA ou temps sur 10 km ou semi, FC max, terrain, points fragiles, blessure en cours |
+| Palmarès | Les courses courues comparables (même format, ou même type et distance à ± 30 %), sans abandon, des 24 derniers mois, au plus 5 : date, format, distance, D+, temps, allure, FC moyenne |
+| Entraînement | Les séances de course faites des 12 dernières semaines (réalisé, sinon prévu) : par mois, nombre, km, D+ et durée ; la plus longue sortie |
+| Nutrition | Les aliments favoris : nom, portion, calories, glucides |
+| Mes stats | Plus tard : les valeurs de la page ([Mes stats](module-stats-specification.md), § 3), calculées dans un composant partagé avec elle, une fois construite (meilleurs temps, temps estimés, allures, zones) |
+
+La météo du jour J (§ 5.4) s'y ajoutera quand elle sera construite.
+
+**Consignes à l'IA** (tutoiement, vocabulaire du glossaire, chiffres tirés du contexte seulement) :
+
+- **Stratégie** : l'allure ou l'effort par tronçon (allure en min:s par km sur route, effort et allure-effort en trail), les temps de passage aux ravitaillements quand ils sont connus, la gestion des montées (marche au-delà d'une pente, d'après le niveau) et des descentes, le départ, le moment de relancer ; l'objectif est jugé réaliste ou non d'après les temps estimés et le Palmarès, et dit simplement.
+- **Boire et manger** : glucides et eau par heure, puis quoi et quand. Les aliments favoris qui conviennent en course passent d'abord (portion et glucides) ; sinon des familles d'aliments, jamais une marque. Ni avis médical.
+
+**Repères de nutrition** donnés à l'IA (vérifiés le 21 nov. 2026 ; les mêmes serviront à Nutrition, todo n° 15) :
+
+| Durée ou course | Glucides | Eau, sel | Source |
+|---|---|---|---|
+| Moins d'une heure | Pas nécessaires | — | Position commune 2016 (1) |
+| 1 h à 2 h 30 | 30 à 60 g par heure | — | (1) |
+| Plus de 2 h 30 | 60 à 70 g par heure, jusqu'à 90 g si l'estomac y est entraîné | — | (1) |
+| Ultra-trail | 30 à 50 g de glucides et 5 à 10 g de protéines par heure (150 à 400 kcal) | 450 à 750 ml par heure (150 à 250 ml toutes les 20 min), plus par forte chaleur ; sodium au-delà de 575 mg par litre | ISSN 2019 (2) |
+
+(1) *Position of the Academy of Nutrition and Dietetics, Dietitians of Canada, and the American College of Sports Medicine: Nutrition and Athletic Performance*, 2016 (chiffres lus dans une revue qui la cite ; le texte original n'a pas pu être ouvert). (2) Tiller et al., *International Society of Sports Nutrition Position Stand: nutritional considerations for single-stage ultra-marathon training and racing*, JISSN 16:50, 2019 (texte lu).
+
+**Messages**
+
+| Cas | Message |
+|---|---|
+| Distance ou format manquant | « Indique d'abord la distance et le format de la course. » (53 grisé) |
+| Compte non pilote | « Réservé aux comptes pilotes pour l'instant. » |
+| Panne (IA, réseau) | « La proposition n'a pas abouti. Réessaie dans un moment. » |
+
+**Accès** : réservé aux pilotes au début (secret `PILOTES`), ouvert à tous avec le plafond de l'IA (todo n° 6). En cas d'échec de l'enregistrement après « OK » : « Enregistrement impossible pour l'instant. », la proposition reste affichée.
+
+**Fonction `proposer-strategie`** (Supabase, comme `lire-page-course`) : vérifie l'utilisateur connecté et la liste des pilotes ; envoie le contexte à l'IA (secret `ANTHROPIC_API_KEY`) ; rend `{ strategie: '…', boire_manger: '…' }`, que le site assemble sous les deux titres ; rien n'est rangé par la fonction. Réponses : 401 (pas connecté), 403 `{ code: 'reserve' }`, 502 `{ code: 'ia' }`.
+
+**Données** : colonne `ravitaillements_km` (liste de nombres, 50 au plus) sur `courses`, évolution `044-ravitaillements.sql` ; la stratégie reste le champ texte `strategie`. Construit le 21 nov. 2026 : `composants/strategie.js` (contexte, appel, bouton), `supabase/functions/proposer-strategie`.
+
 ## 4. Données d'une course
 
 | Groupe | Champs | Sert à |
@@ -460,6 +540,7 @@ Téléphone : le même ordre, l'encart sur toute la largeur.
 | Place dans le plan | Statut, rôle, état, groupe d'options ([modèle de données](modele-donnees.md), § 4.1) | Rendu de l'étape |
 | Inscription | Inscrit, numéro, prix, ouverture des inscriptions | Cellule Inscription |
 | Préparation | Temps cible, rôle, enchaînement, stratégie, logistique | Cellules de l'étape |
+| Ravitaillements | Kilomètres des ravitaillements | Page (52), stratégie proposée (§ 3.10) |
 | Stratégie de course | Points de passage (distance, temps visé), objectifs chiffrés, lien des résultats en direct | Suivi en course |
 | Résultat | Temps réalisé | Comparaison à l'objectif ; plus tard, Palmarès |
 
@@ -741,3 +822,15 @@ Résultats attendus, remplir depuis la page de la course (§ 3.9) ; réponse de 
 - Réponse 403 `reserve` : « Réservé aux comptes pilotes pour l'instant. » ; réponse 502 : « La lecture n'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main. ».
 - « Fermer » : l'encart se replie, la zone est vidée, la fiche est inchangée.
 - Téléphone (390 px) : l'encart sur toute la largeur, rien ne dépasse.
+
+**Proposer une stratégie (§ 3.10)** : Trail des Gorges, ravitaillements « 12, 25, 38 » ; fonction simulée.
+
+- Fiche d'édition, Parcours : « Ravitaillements (km) » sous le GPX, « 12, 25, 38 », exemple « ex. 12, 25, 38 » ; « 12, 50 » et « 25, 12 » refusés (« Des km dans l'ordre, entre le départ et l'arrivée. ») ; « douze » refusé (« Indique les km séparés par des virgules. ») ; « 10; 20,5, 30 » rangé [10, 20.5, 30], la page montre « km 10 · 20,5 · 30 ».
+- Page : « Ravitaillements : km 12 · 25 · 38 » au-dessus de la stratégie ; « Proposer une stratégie » sous « Partir prudemment jusqu'au premier ravitaillement. ».
+- Contexte envoyé : un appel ; format Trail long, distance 45 km, D+ 2 100 m, objectif 06:30:00, départ 07:30, ravitaillements ; profil (FC max 182, points fragiles « genou ») ; un seul aliment, le favori « Gel coco » (1 pièce, 90 kcal, 22 g de glucides) ; ni « Trail des Gorges », ni « Mont-Clair », ni le nom du coureur.
+- Réponse simulée : « Proposition en cours… », puis l'encadré avec « Stratégie », « Boire et manger » et « OK » ; le bouton (53) masqué.
+- « OK » : la stratégie affichée est la proposition, rangée en base ; le cadre fermé, le bouton revenu.
+- Réponse 403 `reserve` : « Réservé aux comptes pilotes pour l'instant. » ; 502 : « La proposition n'a pas abouti. Réessaie dans un moment. » ; stratégie inchangée.
+- Course courue : pas de bouton. Corrida de Noël, format effacé : bouton grisé, « Indique d'abord la distance et le format de la course. », pas de ligne Ravitaillements.
+- Tronçons d'un tracé qui monte de 500 à 700 m en 2 km puis redescend : 4 tronçons, pente du premier 9,9 % (altitude lissée), une montée de 0 à 2 km et une descente de 2 à 4 km, de 198 m chacune.
+- Téléphone (390 px) : l'encadré sur toute la largeur, rien ne dépasse.

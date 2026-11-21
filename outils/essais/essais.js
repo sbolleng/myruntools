@@ -1008,11 +1008,11 @@ const CONTROLES = {
       pb.push(egal(true, await o.p.evaluate(() => document.querySelector('#parcours').open), 'Parcours renseigné (tracé GPX) : ouvert d\'emblée'));
       await o.p.evaluate(() => { const d = document.querySelector('#parcours'); if (!d.open) d.querySelector('summary').click(); });
       await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
-      pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'pc-strategie'], strategie: 'Stratégie de course', bouton: 'GPX', boutonClasse: true }, await o.p.evaluate(() => ({
+      pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'pc-strategie', 'st-zone'], strategie: 'Stratégie de course', bouton: 'GPX', boutonClasse: true }, await o.p.evaluate(() => ({
         alt: [...document.querySelectorAll('.tr-alt span')].map(x => x.textContent), km: [...document.querySelectorAll('.tr-km span')].map(x => x.textContent.replace(/[  ]/g, ' ')),
         bornes: document.querySelectorAll('.tr-carte .leaflet-overlay-pane path').length,
         ordre: [...document.querySelector('#parcours .pc-corps').children].map(x => x.className || x.tagName), strategie: document.querySelector('.pc-strategie .pc-sous-titre').textContent,
-        bouton: document.querySelector('.tr-profil .tr-bas .tr-telecharger').textContent.trim(), boutonClasse: document.querySelector('.tr-telecharger').classList.contains('mrt-btn') })), 'GPX : carte (tracé, départ, arrivée), profil, bouton à contour « ↓ GPX » sous les distances, puis la stratégie'));
+        bouton: document.querySelector('.tr-profil .tr-bas .tr-telecharger').textContent.trim(), boutonClasse: document.querySelector('.tr-telecharger').classList.contains('mrt-btn') })), 'GPX : carte (tracé, départ, arrivée), profil, bouton à contour « ↓ GPX » sous les distances, puis la stratégie et « Proposer une stratégie »'));
       // Lignes d'altitude (n° 48), pente au survol (n° 49), repère sur la carte (n° 50), plein écran (n° 47).
       pb.push(egal({ lignes: 2, etiquettes: ['550', '600'], pas: '1 trait = 50 m' }, await o.p.evaluate(() => ({
         lignes: document.querySelectorAll('.tr-profil .tr-ligne').length, etiquettes: [...document.querySelectorAll('.tr-alt i')].map(x => x.textContent),
@@ -1344,7 +1344,7 @@ const CONTROLES = {
     // Mêmes blocs qu'une course à venir ; seuls les champs sans objet pour une course passée sont retirés.
     const champsDe = b => p.evaluate(b => [...document.querySelector('.fc-bloc-titre[data-bloc="' + b + '"]').nextElementSibling.querySelectorAll('[data-k], .fc-gpx, .fc-prep')]
       .map(e => e.dataset.k || e.className), b);
-    pb.push(egal({ plan: ['role'], dossard: ['dossard', 'prix'], parcours: ['fc-gpx', 'strategie'], preparation: ['pourquoi'] },
+    pb.push(egal({ plan: ['role'], dossard: ['dossard', 'prix'], parcours: ['fc-gpx', 'ravitaillements_km', 'strategie'], preparation: ['pourquoi'] },
       { plan: await champsDe('plan'), dossard: await champsDe('dossard'), parcours: await champsDe('parcours'), preparation: await champsDe('preparation') },
       'Palmarès : Parcours comme une course à venir (tracé GPX, stratégie) ; Préparation sans plan ; ni statut ni inscription'));
     // Un champ toujours à la même place : sans « Date approximative », sa place reste vide ; l'heure reste sous la date, le lieu à sa droite.
@@ -1527,6 +1527,122 @@ const CONTROLES = {
   },
 
   // Objectif : saisie et édition d'une course à venir (module-objectif-specification.md, § 3.7 et § 10).
+  // Objectif, § 3.10 : Proposer une stratégie ; la fonction est remplacée par une réponse fixe, sans coût.
+  async strategie(nav, db0) {
+    const pb = [];
+    const { db, id } = jeuObjectif(db0);
+    const moi = db.profils[0].id;
+    db.courses.find(c => c.id === id(3)).ravitaillements_km = [12, 25, 38];
+    db.courses.find(c => c.id === id(2)).format = null;
+    db.aliments = [{ id: 'al-1', utilisateur: moi, nom: 'Gel coco', portion: '1 pièce', kcal: 90, proteines: 0, glucides: 22, lipides: 0, favori: true },
+      { id: 'al-2', utilisateur: moi, nom: 'Pain', portion: '100 g', kcal: 250, proteines: 8, glucides: 50, lipides: 1, favori: false }];
+    db.profil_entrainement = [{ utilisateur: moi, niveau: 'intermediaire', fc_max: 182, fragiles: 'genou' }];
+    const REPONSE = { strategie: 'Partir à l\'économie jusqu\'au km 12.\n- Marcher dès 15 % de pente.', boire_manger: '- 60 g de glucides par heure.' };
+    const copie = rep => { const d = JSON.parse(JSON.stringify(db)); d.persister = true; d.ecritures = []; d.appels = [];
+      d.relais = corps => { d.appels.push(corps); return rep || { status: 200, body: REPONSE }; }; return d; };
+    const etat = p => p.evaluate(() => {
+      const t = x => (x ? x.textContent.replace(/\s+/g, ' ').trim() : null), q = s => document.querySelector(s);
+      const b = q('[data-st="proposer"]');
+      return { ravitos: t(q('.pc-ravitos')), strategie: t(q('.pc-strategie')), bouton: b ? [t(b), b.disabled, b.hidden] : null, msg: t(q('.st-msg')),
+        proposition: q('.st-proposition') ? !q('.st-proposition').hidden : null, titres: [...document.querySelectorAll('.st-texte .pc-sous-titre')].map(t),
+        parcours: !!(q('#parcours') && q('#parcours').open) };
+    });
+
+    // 1. Trail des Gorges : ravitaillements, bouton sous la stratégie ; la proposition, puis « OK ».
+    let d = copie();
+    let { p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, d, {}, PARIS);
+    await p.waitForSelector('.pc-titre');
+    let e = await etat(p);
+    pb.push(egal({ ravitos: 'Ravitaillements km 12 · 25 · 38', strategie: 'Stratégie de coursePartir prudemment jusqu\'au premier ravitaillement.', bouton: ['Proposer une stratégie', false, false], msg: '', proposition: false, parcours: true },
+      { ravitos: e.ravitos, strategie: e.strategie, bouton: e.bouton, msg: e.msg, proposition: e.proposition, parcours: e.parcours }, 'Trail des Gorges : ravitaillements, stratégie, puis le bouton, Parcours ouvert'));
+    const ordre = await p.evaluate(() => [...document.querySelector('#parcours .pc-corps').children].map(x => x.className).filter(c => !/^tr-/.test(c)));
+    pb.push(egal(['pc-ravitos', 'pc-strategie', 'st-zone'], ordre, 'Parcours : sous le tracé, ravitaillements, stratégie, bouton, dans cet ordre'));
+    await p.click('[data-st="proposer"]');
+    await p.waitForSelector('.st-proposition:not([hidden])');
+    e = await etat(p);
+    pb.push(egal({ titres: ['Stratégie', 'Boire et manger'], bouton: true, msg: '' }, { titres: e.titres, bouton: e.bouton[2], msg: e.msg }, 'proposition : deux parties titrées, « OK » ; le bouton masqué'));
+    const cx = d.appels[0] && d.appels[0].contexte, brut = JSON.stringify(cx || {});
+    pb.push(egal([1, false, false, false], [d.appels.length, /Trail des Gorges/.test(brut), /Mont-Clair/.test(brut), /Essai|@/.test(JSON.stringify(cx.profil || {}))], 'contexte : un appel, ni nom de course, ni lieu, ni nom du coureur'));
+    pb.push(egal({ format: 'Trail long', distance_km: 45, dplus_m: 2100, objectif: '06:30:00', ravitaillements_km: [12, 25, 38], heure_depart: '07:30' },
+      (({ format, distance_km, dplus_m, objectif, ravitaillements_km, heure_depart }) => ({ format, distance_km, dplus_m, objectif, ravitaillements_km, heure_depart }))(cx.course), 'contexte : la course'));
+    pb.push(egal([[{ nom: 'Gel coco', portion: '1 pièce', kcal: 90, glucides_g: 22 }], 182, 'genou'], [cx.aliments_favoris, cx.profil.fc_max, cx.profil.points_fragiles], 'contexte : favoris seulement, profil'));
+    await p.click('[data-st="ok"]');
+    await p.waitForFunction(() => /Partir à l'économie/.test((document.querySelector('.pc-strategie') || {}).textContent || ''));
+    const texte = 'Stratégie\n' + REPONSE.strategie + '\n\nBoire et manger\n' + REPONSE.boire_manger;
+    e = await etat(p);
+    pb.push(egal([texte, false, false, true], [d.courses.find(c => c.id === id(3)).strategie, e.proposition, e.bouton[2], e.parcours], '« OK » : la stratégie remplacée et rangée ; la proposition fermée, le bouton revenu, Parcours ouvert'));
+    pb.push(egal([], erreurs, 'proposer une stratégie, erreurs JavaScript'));
+    await ctx.close();
+
+    // 2. Compte non pilote, panne : message, stratégie inchangée.
+    for (const [rep, msg] of [[{ status: 403, body: { code: 'reserve' } }, 'Réservé aux comptes pilotes pour l\'instant.'], [{ status: 502, body: { code: 'ia' } }, 'La proposition n\'a pas abouti. Réessaie dans un moment.']]) {
+      d = copie(rep);
+      ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, d, {}, PARIS));
+      await p.waitForSelector('[data-st="proposer"]');
+      await p.click('[data-st="proposer"]');
+      await p.waitForFunction(m => (document.querySelector('.st-msg') || {}).textContent === m, msg);
+      e = await etat(p);
+      pb.push(egal([msg, false, 'Partir prudemment jusqu\'au premier ravitaillement.'], [e.msg, e.proposition, d.courses.find(c => c.id === id(3)).strategie], 'réponse ' + rep.status + ' : message, stratégie inchangée'));
+      await ctx.close();
+    }
+
+    // 3. Course courue : pas de bouton ; course sans format : bouton grisé et message.
+    const courue = db.courses.find(c => c.etat === 'courue').id;
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + courue, 1200, copie(), {}, PARIS));
+    await p.waitForSelector('.pc-titre');
+    pb.push(egal(0, await p.locator('[data-st="proposer"]').count(), 'course courue : pas de bouton'));
+    await ctx.close();
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(2), 1200, copie(), {}, PARIS));
+    await p.waitForSelector('.pc-titre');
+    e = await etat(p);
+    pb.push(egal([['Proposer une stratégie', true, false], 'Indique d\'abord la distance et le format de la course.', null], [e.bouton, e.msg, e.ravitos], 'Corrida de Noël sans format : bouton grisé, message ; pas de ravitaillements'));
+    await ctx.close();
+
+    // 4. Fiche d'édition : « Ravitaillements (km) » dans Parcours.
+    d = copie();
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, d, {}, PARIS));
+    await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
+    await ouvrirBloc(p, 'parcours');
+    const lib = await p.evaluate(() => { const c = document.getElementById('fc-ravitaillements_km'); return [c.closest('.fc-champ').querySelector('label').textContent.trim(), c.value, c.getAttribute('placeholder')]; });
+    pb.push(egal(['Ravitaillements (km)', '12, 25, 38', 'ex. 12, 25, 38'], lib, 'fiche : « Ravitaillements (km) », valeur et exemple'));
+    for (const [saisie, msg] of [['12, 50', 'Des km dans l\'ordre, entre le départ et l\'arrivée.'], ['25, 12', 'Des km dans l\'ordre, entre le départ et l\'arrivée.'], ['douze', 'Indique les km séparés par des virgules.']]) {
+      await p.fill('#fc-ravitaillements_km', saisie);
+      await p.click('.fc-plein'); await pause();
+      pb.push(egal(msg, await p.textContent('#fc-ravitaillements_km-err'), 'fiche : « ' + saisie + ' » refusé'));
+    }
+    await p.fill('#fc-ravitaillements_km', '10; 20,5, 30');
+    await p.click('.fc-plein');
+    await p.waitForSelector('.fc-fiche', { state: 'detached' });
+    pb.push(egal([10, 20.5, 30], d.courses.find(c => c.id === id(3)).ravitaillements_km, 'fiche : « 10; 20,5, 30 » rangé'));
+    await p.waitForSelector('.pc-ravitos');
+    pb.push(egal('Ravitaillements km 10 · 20,5 · 30', (await p.textContent('.pc-ravitos')).replace(/\s+/g, ' ').trim(), 'page : les nouveaux ravitaillements'));
+    pb.push(egal([], erreurs, 'fiche, ravitaillements, erreurs JavaScript'));
+    await ctx.close();
+
+    // 5. Tracé en tronçons : une montée de 200 m sur 2 km, puis la descente.
+    ({ p, ctx } = await ouvrir(nav, 'course.html?id=' + id(3), 1200, copie(), {}, PARIS));
+    await p.waitForSelector('.pc-titre');
+    const tr = await p.evaluate(() => {
+      const pts = [];
+      for (let i = 0; i <= 400; i++) { const km = i / 100; pts.push([45, 4, km <= 2 ? 500 + km * 100 : 900 - km * 100, km, false]); }
+      const r = window.mrtStrategie.troncons(pts);
+      return [r.par_km.length, r.par_km[0].pente_pct, r.montees_descentes.map(x => x.sens + ' ' + x.du_km + '-' + x.au_km + ' ' + x.denivele_m)];
+    });
+    pb.push(egal([4, 9.9, ['montée 0-2 198', 'descente 2-4 198']], tr, 'tronçons : 4 km, pente de 10 % (altitude lissée sur 50 m), une montée et une descente de 200 m'));
+    await ctx.close();
+
+    // 6. Téléphone : la proposition sur toute la largeur, rien ne dépasse.
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(3), 390, copie(), {}, PARIS));
+    await p.waitForSelector('[data-st="proposer"]');
+    await p.click('[data-st="proposer"]');
+    await p.waitForSelector('.st-proposition:not([hidden])');
+    if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'strategie-telephone.png'), fullPage: true });
+    pb.push(egal(false, await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), 'téléphone : rien ne dépasse'));
+    pb.push(egal([], erreurs, 'téléphone, erreurs JavaScript'));
+    await ctx.close();
+    return pb;
+  },
+
   async saisie(nav, db0) {
     const { db, id } = jeuObjectif(db0);
     db.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès']; // Objectif en tête : la feuille de route porte le grand en-tête
@@ -1625,7 +1741,7 @@ const CONTROLES = {
     pb.push(egal(['POST', 'courses'], [w.methode, w.table], 'enregistrement : une insertion'));
     pb.push(egal({ etat: 'a_venir', course: 'Trail des Lacs', parcours: 'La Grande Boucle', date: '2027-06-12', date_approx: false, heure: '07:30', lieu: 'Mont-Clair', format: 'trail_court',
       distance: 28.5, dplus: 1200, dmoins: null, objectif: 'Sub 6h', objectif_precisions: 'Partir prudemment.', description: 'Boucle autour du lac.', lien: 'https://example.org/lacs', statut: 'confirmee', role: null, groupe_options: null,
-      ouverture_inscriptions: null, ouverture_heure: null, ouverture_approx: false, inscrit: true, inscription: null, dossard: '77', prix: 45.5, strategie: null, pourquoi: null, logistique: null, lien_resultats: null, id: w.corps.id }, w.corps, 'enregistrement : champs écrits'));
+      ouverture_inscriptions: null, ouverture_heure: null, ouverture_approx: false, inscrit: true, inscription: null, dossard: '77', prix: 45.5, ravitaillements_km: null, strategie: null, pourquoi: null, logistique: null, lien_resultats: null, id: w.corps.id }, w.corps, 'enregistrement : champs écrits'));
     await ctx.close();
 
     // Nouvelle course : plan réglé avant d'enregistrer ; date approximative : pas de plan

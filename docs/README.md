@@ -37,7 +37,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.43 |
 | [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables, confirmations, zones de toucher, formats), échelle de sept tailles, couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.51 |
 | [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.22 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : la saison (feuille de route des courses), page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.81 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : la saison (feuille de route des courses), page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.83 |
 | [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.15 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.34 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
@@ -81,7 +81,7 @@ Chaque module suit le même cycle : spécification, validation, modèle de donn�
 En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [todo.md](todo.md), même numéro.
 
 1. **Préparation, refonte de Mon plan** : ajouter le renforcement (section Renforcement de Ma semaine dans le parcours, séances de renforcement dans le plan) ; voir aussi le n° 13.
-2. **Objectif** : essai réel du GPX à plusieurs tracés ; cap de l'en-tête depuis la page d'une course ; stratégie de course.
+2. **Objectif** : essai réel du GPX à plusieurs tracés ; cap de l'en-tête depuis la page d'une course ; « Proposer une stratégie » construit (0.83, § 3.10) : évolution 044 et fonction `proposer-strategie` à passer dans Supabase.
 4. **Calendrier** : Mois V2 à comparer avec Mois, puis n'en garder qu'une.
 6. **Ouverture à tous, suites** : plafond de l'IA à remettre, essai d'un compte non pilote, droits RGPD dans les Préférences, polices hébergées.
 21. **Mes stats** : [spécification 0.1](module-stats-specification.md) à valider, puis modèle de données et construction ; vérifier sur une archive Strava réelle les colonnes et la cadence.
