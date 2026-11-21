@@ -29,21 +29,18 @@
   const ECHELLES = {
     sexe: [['femme', 'Femme'], ['homme', 'Homme']],
     anciennete: [['debut', 'Je débute'], ['1-3', '1 à 3 ans'], ['3-6', '3 à 6 ans'], ['6-10', '6 à 10 ans'], ['10+', 'Plus de 10 ans']],
-    // Niveau (remplace « Je cours depuis ») et antécédents de blessures : chaque choix a sa ligne (Préparation, § 5.0).
+    // Niveau (remplace « Je cours depuis ») : chaque choix a sa ligne (Préparation, § 5.0).
     niveau: [['debutant', 'Débutant', 'Tu cours depuis peu, jusqu\'à 10 km.'], ['intermediaire', 'Intermédiaire', 'Tu cours chaque semaine, jusqu\'au semi ou à un trail court.'],
       ['confirme', 'Confirmé', 'Marathon ou trails de plus de 40 km, entraînement suivi.'], ['expert', 'Expert', 'Entraînement structuré depuis des années, tu vises la performance.']],
-    antecedents: [['rares', 'Rarement ou jamais'], ['legeres', 'Légères, ou une grave guérie', 'Petites blessures de temps en temps, ou une grave aujourd\'hui guérie.'],
-      ['frequentes', 'Fréquentes ou récentes', 'Blessures fréquentes, gêne qui dure, ou blessure grave récente.'], ['non_dit', 'Je préfère ne rien dire']],
     volume_tranche: [['inconnu', 'Aucune idée'], ['0-20', '0 à 20 km'], ['20-40', '20 à 40 km'], ['40-60', '40 à 60 km'], ['60-80', '60 à 80 km'], ['80+', 'Plus de 80 km']],
     sortie_tranche: [['-1h', 'Moins de 1 h'], ['1h-1h30', '1 h à 1 h 30'], ['1h30-2h', '1 h 30 à 2 h'], ['2-3h', '2 à 3 h'], ['3h+', 'Plus de 3 h']],
-    seance_max_min: [[45, '45 min'], [60, '1 h'], [90, '1 h 30'], [120, '2 h'], [1440, 'Sans limite']],
     terrain: [['plat', 'Pas de dénivelé'], ['cotes', 'Petites côtes (moins de 50 m de D+)'], ['vallonne', 'Vallonné (50 à 500 m de D+)'], ['montagne', 'Montagne (plus de 500 m de D+)']],
     renfo_niveau: [['debutant', 'Débutant'], ['intermediaire', 'Intermédiaire'], ['confirme', 'Confirmé'], ['expert', 'Expert']],
     allure_type: [['vma', 'VMA'], ['10km', 'Temps sur 10 km'], ['semi', 'Temps sur semi-marathon'], ['marathon', 'Temps sur marathon'], ['inconnu', 'Je ne sais pas']]
   };
   const activites = () => Object.entries((window.mrtBesoin && window.mrtBesoin.ACTIVITES) || {}).map(([k, a]) => [k, a.libelle]);
   const echelle = cle => (cle === 'activite' ? activites() : ECHELLES[cle] || []);
-  // Un choix et, s'il en a une, sa ligne de description (niveau, antécédents).
+  // Un choix et, s'il en a une, sa ligne de description (niveau).
   const choixTexte = (cle, k, lib) => { const d = (echelle(cle).find(x => String(x[0]) === String(k)) || [])[2]; return d ? '<span class="ps-choix-t">' + esc(lib) + '<small>' + esc(d) + '</small></span>' : esc(lib); };
   const libelleDe = (cle, v) => (echelle(cle).find(x => String(x[0]) === String(v)) || [])[1] || null;
   const JOURS_COURTS = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
@@ -84,9 +81,8 @@
     ['niveau', 'Mon niveau', [
       ['niveau', 'Niveau', (m, e) => libelleDe('niveau', e.niveau), true, 'choix'],
       ['volume_tranche', 'Distance moyenne par semaine', (m, e) => libelleDe('volume_tranche', e.volume_tranche), true, 'choix'],
-      ['sortie_tranche', 'Plus longue sortie récente', (m, e) => libelleDe('sortie_tranche', e.sortie_tranche), true, 'choix'],
+      ['sortie_tranche', 'Plus longue séance récente', (m, e) => libelleDe('sortie_tranche', e.sortie_tranche), true, 'choix'],
       ['allure', 'Repère d\'allure', (m, e) => resumeAllure(e), true, 'allure'],
-      ['seance_max_min', 'Durée maximale d\'une séance', (m, e) => libelleDe('seance_max_min', e.seance_max_min), false, 'choix'],
       ['terrain', 'Terrains d\'entraînement', (m, e) => (libelleDe('terrain', e.terrain) || '').replace(/ \(.*\)$/, '') || null, false, 'choix'],
       ['renfo_niveau', 'Niveau en renforcement', (m, e) => libelleDe('renfo_niveau', e.renfo_niveau), false, 'choix']]],
     ['semaine', 'Ma semaine', [
@@ -95,15 +91,14 @@
     ['sante', 'Santé', [
       ['fc_max', 'FC max', (m, e) => unite('fc_max', e.fc_max), false, 'nombre'],
       ['fc_repos', 'FC de repos', m => unite('fc_repos', m.fc_repos), false, 'nombre'],
-      ['antecedents', 'Antécédents de blessures', (m, e) => libelleDe('antecedents', e.antecedents), false, 'choix'],
-      ['fragiles', 'Points fragiles', (m, e) => e.fragiles || null, false, 'texte'],
+      ['fragiles', 'Points fragiles et blessures passées', (m, e) => e.fragiles || null, false, 'texte'],
       ['blessure', 'Blessure en cours', (m, e) => (e.blessure ? e.blessure + (e.blessure_debut ? ', depuis le ' + window.mrtFormat.date(e.blessure_debut, { annee: false }) : '') : null), false, 'blessure']]]
   ];
   const LIGNES = SECTIONS.flatMap(s => s[2]);
   const ligneDe = cle => LIGNES.find(l => l[0] === cle);
   const TABLE = { prenom: 'mesures', nom: 'mesures', sexe: 'mesures', naissance: 'mesures', activite: 'mesures', poids: 'mesures', taille: 'mesures', pointure: 'mesures', fc_repos: 'mesures' };
   // Questions indispensables pour que l'IA propose des séances (Mon plan) : leur nom, dans l'ordre.
-  const IA = [['niveau', 'niveau'], ['volume_tranche', 'distance moyenne par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
+  const IA = [['niveau', 'niveau'], ['volume_tranche', 'distance moyenne par semaine'], ['sortie_tranche', 'plus longue séance récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
   // Profil express (premiers pas d'un nouveau compte) : ce qui sert tout de suite à Nutrition et à Mon plan.
   // Depuis le 17 nov. 2026, le repère d'allure se demande dans le parcours de Mon plan (Préparation, § 5.0).
   const EXPRESS = ['sexe', 'naissance', 'poids', 'taille'];
@@ -133,7 +128,7 @@
     window.mrtFormat.date(sg.course.date, { semaine: true }) + '</span><button type="button" class="mrt-btn" data-reprendre>Reprendre</button></div>';
 
   // La liste : un titre de section commun par section, le compte des obligatoires à droite ; chaque ligne ouvre sa question.
-  const PREVENIR = 'Mon plan : refais la proposition pour en tenir compte.';
+  const PREVENIR = 'Mon plan : il sera mis à jour avec ces réponses.';
   const prevenirHtml = etat => (etat.planAPrevenir ? '<p class="ps-info" role="status">' + PREVENIR + '</p>' : '');
   function listeHtml(etat) {
     const m = etat.mesures || {}, e = etat.entrainement || {}, sg = duPalmares(etat);
@@ -175,7 +170,7 @@
   }
 
   // La feuille (celle d'une course, modale-course.css) : la liste et ses questions (opts.question absent), ou une seule question
-  // (la page : opts.question ; la croix ou un enregistrement la ferme). opts.surMaj(etat) après chaque enregistrement.
+  // (la page : opts.question ; la croix ou un enregistrement la ferme). opts.surMaj(etat) après chaque enregistrement ; opts.surFermer(etat) à la fermeture.
   // Clic qui traverse : la feuille fermée, un clic de plus (double clic, rebond) tomberait sur la ligne de la liste juste
   // dessous et rouvrirait une autre question. La page ignore les clics pendant un court instant après une fermeture.
   let fermeeA = 0;
@@ -193,7 +188,7 @@
     const corps = voile.querySelector('.mc-corps');
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
-    const fermer = () => { fermeeA = Date.now(); voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); };
+    const fermer = () => { fermeeA = Date.now(); voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', clavier); if (opts.surFermer) opts.surFermer(etat); };
     const clavier = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue, .cal-voile')) fermer(); };
     document.addEventListener('keydown', clavier);
     voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
@@ -229,22 +224,23 @@
       corps.innerHTML = barre(titre, true) + '<div class="ps-groupe-l">' + echelle(cle).map(([k, lib]) =>
         '<button type="button" class="ps-choix' + (String((TABLE[cle] === 'mesures' ? m() : e())[cle]) === String(k) ? ' is-on' : '') + '" data-val="' + esc(k) + '">' + choixTexte(cle, k, lib) + '<i aria-hidden="true">✓</i></button>').join('') + '</div>';
       corps.querySelectorAll('[data-val]').forEach(b => b.addEventListener('click', () =>
-        garder(TABLE[cle] || 'entrainement', { [cle]: cle === 'seance_max_min' ? Number(b.dataset.val) : b.dataset.val })));
+        garder(TABLE[cle] || 'entrainement', { [cle]: b.dataset.val })));
     }
     // Un champ et « Enregistrer » : un nombre, une date, un texte.
     function champ(cle, titre, type) {
       versQuestion();
       const n = NOMBRES[cle], src = (TABLE[cle] === 'mesures' ? m() : e())[cle];
       const entree = type === 'ligne' ? '<input class="mrt-champ" name="valeur" maxlength="60" autocomplete="' + (cle === 'prenom' ? 'given-name' : 'family-name') + '" value="' + esc(src || '') + '">'
-        : type === 'date' ? '<input class="mrt-champ" type="date" name="valeur" value="' + esc(src || '') + '">'
+        : type === 'date' ? window.mrtDateTrois.html('valeur', src || '')
         : type === 'texte' ? '<textarea class="mrt-champ" name="valeur" maxlength="300" rows="3" placeholder="ex. tendon d\'Achille gauche">' + esc(src || '') + '</textarea>'
         : '<input class="mrt-champ" name="valeur" inputmode="decimal" placeholder="' + n.ex + '" value="' + esc(virgule(src)) + '">';
-      corps.innerHTML = barre(titre, true) + '<form class="ps-valeur" novalidate><label class="cal-champ"><span>' + titre + (n && n.unite ? ' (' + n.unite + ')' : '') + '</span>' + entree + '</label>' +
-        '<button type="submit" class="mrt-btn is-principal">Enregistrer</button></form>';
+      corps.innerHTML = barre(titre, true) + '<form class="ps-valeur" novalidate>' + (type === 'date' ? '<div class="cal-champ">' + entree + '</div>' // date : Jour, Mois, Année, sans redire le titre
+          : '<label class="cal-champ"><span>' + titre + (n && n.unite ? ' (' + n.unite + ')' : '') + '</span>' + entree + '</label>') +
+        (suite ? '<div class="ps-pied"><button type="submit" class="mrt-btn is-principal">Continuer</button></div>' : '<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') + '</form>';
       const f = corps.querySelector('form');
       f.addEventListener('submit', ev => {
         ev.preventDefault();
-        const v = f.valeur.value;
+        const v = type === 'date' ? window.mrtDateTrois.lire(f, 'valeur') : f.valeur.value;
         if (type === 'ligne') return v.trim() ? garder('mesures', { [cle]: v.trim() }) : void (msg().textContent = 'Le ' + titre.toLowerCase() + ' ne peut pas être vide.');
         if (type === 'date') {
           const a = window.mrtBesoin ? window.mrtBesoin.age(v, iso(new Date())) : 30;
@@ -366,20 +362,28 @@
     if (etat.lectureSeule) { el.innerHTML = '<div class="mp-cadre"><p class="mp-vide">Le profil n\'est pas partagé.</p></div>'; return; }
     await lireEntrainement(etat);
     const dessiner = () => {
-      const manque = tousManquants(etat.mesures, etat.entrainement);
-      el.innerHTML = '<div class="mp-cadre"><p class="ps-profil-etat mp-etat' + (manque.length ? '' : ' is-complet') + '">' + (manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</p>' +
-        '<p class="ps-msg mp-msg" role="alert"></p>' + listeHtml(etat) + '</div>';
+      el.innerHTML = '<div class="mp-cadre">' + listeHtml(etat) + connexionsHtml() + '</div>';
     };
+    // Connexions (Mes stats, § 6) : l'import de l'export Strava, la même feuille que sur Mes stats.
+    let dernier = null;
+    const connexionsHtml = () => (window.mrtImport ? '<section class="mrt-section" id="connexions"><h2 class="mrt-section-titre ps-section-t">Connexions</h2><div class="ps-groupe-l">' +
+      '<div class="st-connexion"><span>Strava<small>' + (dernier ? 'Dernier import le ' + window.mrtFormat.date(String(dernier).slice(0, 10)) : 'Jamais importé') + '</small></span>' +
+      '<button type="button" class="mrt-btn" data-import>Importer</button></div></div></section>' : '');
     el.addEventListener('click', async ev => {
       if (ev.target.closest('[data-reprendre]')) {
         const sg = duPalmares(etat);
         if (sg && await ranger(etat, 'entrainement', repereDe(sg))) dessiner();
-        else if (sg) el.querySelector('.mp-msg').textContent = 'Enregistrement impossible pour l\'instant.';
+        
+        return;
+      }
+      if (ev.target.closest('[data-import]')) {
+        window.mrtImport.feuille({ id: etat.id, surFin: async r => { dernier = await window.mrtImport.dernierImport(); dessiner(); const z = el.querySelector('#connexions small'); if (z) z.textContent += ' · ' + window.mrtImport.finTexte(r); } });
         return;
       }
       const q = ev.target.closest('[data-q]');
       if (q && !justeFermee()) feuille({ etat, question: q.dataset.q, surMaj: dessiner });
     });
+    if (window.mrtImport) dernier = await window.mrtImport.dernierImport();
     dessiner();
     if (location.hash) { const z = el.querySelector(location.hash); if (z) z.scrollIntoView(); }
   }

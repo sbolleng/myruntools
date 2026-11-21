@@ -27,42 +27,42 @@
 
   <header class="card gd-tete">
     <h2 class="gd-titre">Du plan à l'assiette</h2>
-    <p class="gd-chapeau">Comment MyRunTools bâtit une saison de course, place chaque course dans le plan, propose des séances, puis traduit tout cela en calories et en macros. Des règles simples, publiées, et des exemples chiffrés pour les voir à l'œuvre.</p>
+    <p class="gd-chapeau">Comment MyRunTools bâtit un plan d'entraînement, place chaque course dans le plan, propose des séances, puis traduit tout cela en calories et en macros. Des règles simples, publiées, et des exemples chiffrés pour les voir à l'œuvre.</p>
     <nav class="gd-sommaire" aria-label="Sommaire">
-      <a class="mrt-lien" href="#saison">1. Préparer une saison</a>
+      <a class="mrt-lien" href="#saison">1. Construire le plan</a>
       <a class="mrt-lien" href="#nutrition">2. Bien manger pour courir</a>
       <a class="mrt-lien" href="#sources">3. Nos sources et leurs limites</a>
     </nav>
   </header>
 
-  <!-- ===== 1. Préparer une saison ===== -->
+  <!-- ===== 1. Construire le plan ===== -->
   <article class="card gd-partie" id="saison" aria-labelledby="saison-t">
     <section class="mrt-section">
       <p class="gd-num">Partie 1</p>
-      <h2 class="gd-partie-titre" id="saison-t">Préparer une saison</h2>
+      <h2 class="gd-partie-titre" id="saison-t">Construire le plan</h2>
     </section>
 
     <section class="mrt-section">
-      <h3 class="gd-inter">Une saison plutôt qu'une course</h3>
-      <p>Une course se prépare rarement seule. Avant le grand rendez-vous de l'année, il y a souvent un 10 km pour se tester, un trail plus court pour répéter, une course entre amis pour le plaisir. Un plan par course ferait se chevaucher des préparations qui s'ignorent. MyRunTools construit donc <strong>un seul plan pour toute la saison</strong> : il se cale sur les Objectifs, et les autres courses s'y insèrent selon leur rôle.</p>
+      <h3 class="gd-inter">Un plan pour toutes les courses</h3>
+      <p>Une course se prépare rarement seule. Avant le grand rendez-vous de l'année, il y a souvent un 10 km pour se tester, un trail plus court pour répéter, une course entre amis pour le plaisir. Un plan par course ferait se chevaucher des préparations qui s'ignorent. MyRunTools construit donc <strong>un seul plan pour toute l'année</strong> : il se cale sur les Objectifs, et les autres courses s'y insèrent selon leur rôle.</p>
       <p>Le plan se monte en trois couches, de la plus solide à la plus souple :</p>
       <div class="gd-tableau">
         <table>
           <thead><tr><th>Couche</th><th>Qui la calcule</th><th>Ce qu'elle contient</th></tr></thead>
           <tbody>
-            <tr><td>1. Trame</td><td>Des règles fixes</td><td>La phase de chaque semaine, saison après saison</td></tr>
+            <tr><td>1. Trame</td><td>Des règles fixes</td><td>La phase de chaque semaine, préparation après préparation</td></tr>
             <tr><td>2. Courses</td><td>Des règles selon le rôle</td><td>Mini-affûtage, repos, récupération, alertes</td></tr>
             <tr><td>3. Séances</td><td>L'IA, puis le coureur, qui valide</td><td>Les séances de quatre semaines et une recommandation</td></tr>
           </tbody>
         </table>
       </div>
-      <p>Une <strong>saison</strong> va du premier jour de la préparation d'un Objectif au jour de la course. Plusieurs Objectifs dans l'année font plusieurs saisons, qui se suivent. Entre deux saisons viennent la récupération de l'Objectif couru, puis des semaines d'<strong>Entretien</strong> jusqu'à la saison suivante ; avant le premier Objectif, les semaines sont aussi en Entretien.</p>
+      <p>Une <strong>préparation</strong> va de la première semaine de phase d'un Objectif au jour de la course. Plusieurs Objectifs dans l'année font plusieurs préparations, qui se suivent. Entre deux préparations viennent la récupération de l'Objectif couru, puis des semaines d'<strong>Entretien</strong> jusqu'à la préparation suivante ; avant le premier Objectif, les semaines sont aussi en Entretien.</p>
       <figure class="gd-schema">
-        <div class="gd-frise" style="--n:27" role="img" aria-label="Frise d'une saison : 3 semaines d'Entretien, 16 semaines de préparation jusqu'à l'Objectif, environ 6 semaines de Récupération, puis l'Entretien">
+        <div class="gd-frise" style="--n:27" role="img" aria-label="Frise d'une préparation : 3 semaines d'Entretien, 16 semaines de préparation jusqu'à l'Objectif, environ 6 semaines de Récupération, puis l'Entretien">
           <span class="gd-sem ph-entretien"></span><span class="gd-sem ph-entretien"></span><span class="gd-sem ph-entretien"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-deload"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-base"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-deload"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-deload"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-developpement"></span><span class="gd-sem ph-affutage"></span><span class="gd-sem ph-affutage is-course"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-recuperation"></span><span class="gd-sem ph-entretien"></span><span class="gd-sem ph-entretien"></span>
         </div>
-        <div class="gd-legende" aria-hidden="true"><span><i></i>Entretien</span><span><i class="ph-base"></i>Base</span><span><i class="ph-developpement"></i>Développement</span><span><i class="ph-deload"></i>Deload</span><span><i class="ph-affutage"></i>Affûtage</span><span><i class="ph-recuperation"></i>Récupération</span></div>
-        <figcaption>Une saison de 16 semaines vers un trail long, une case par semaine ; la case cerclée porte l'Objectif. Après la course (66 km-effort), 41 jours de Récupération, soit environ six semaines, puis l'Entretien.</figcaption>
+        <div class="gd-legende" aria-hidden="true"><span><i></i>Entretien</span><span><i class="ph-base"></i>Base</span><span><i class="ph-developpement"></i>Développement</span><span><i class="ph-deload"></i>Allègement</span><span><i class="ph-affutage"></i>Affûtage</span><span><i class="ph-recuperation"></i>Récupération</span></div>
+        <figcaption>Une préparation de 16 semaines vers un trail long, une case par semaine ; la case cerclée porte l'Objectif. Après la course (66 km-effort), 41 jours de Récupération, soit environ six semaines, puis l'Entretien.</figcaption>
       </figure>
       <details class="mrt-deroule">
         <summary><svg class="mrt-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Durée de la préparation, format par format</summary>
@@ -91,7 +91,7 @@
         <table>
           <thead><tr><th>Rôle</th><th>Niveau</th><th>Dans le plan</th></tr></thead>
           <tbody>
-            <tr><td>Objectif</td><td>A</td><td>Façonne la trame : la saison, ses phases, un affûtage complet</td></tr>
+            <tr><td>Objectif</td><td>A</td><td>Façonne la trame : la préparation, ses phases, un affûtage complet</td></tr>
             <tr><td>Préparatoire</td><td>B</td><td>Trois jours allégés avant, puis une récupération ; compte comme la séance de qualité de sa semaine</td></tr>
             <tr><td>Plaisir</td><td>C</td><td>Pas d'affûtage : repos la veille, récupération après</td></tr>
           </tbody>
@@ -102,20 +102,20 @@
 
     <section class="mrt-section">
       <h3 class="gd-inter">Les phases, semaine après semaine</h3>
-      <p>La trame d'une saison suit trois règles, appliquées dans cet ordre :</p>
+      <p>La trame d'une préparation suit trois règles, appliquées dans cet ordre :</p>
       <ul>
         <li><strong>Affûtage</strong> : les deux dernières semaines, celle de la course comprise ;</li>
-        <li><strong>Deload</strong> : une semaine sur quatre (la 4<sup>e</sup>, la 8<sup>e</sup>, la 12<sup>e</sup>…), une semaine allégée ;</li>
+        <li><strong>Allègement</strong> : une semaine sur quatre (la 4<sup>e</sup>, la 8<sup>e</sup>, la 12<sup>e</sup>…), une semaine allégée ;</li>
         <li><strong>Base</strong> puis <strong>Développement</strong> : les semaines restantes se partagent par moitié, la première moitié (arrondie à l'inférieur) en Base, le reste en Développement.</li>
       </ul>
       <figure class="gd-schema">
-        <div class="gd-frise" style="--n:16" role="img" aria-label="Saison de 16 semaines : semaines 1 à 3 en Base, 4 en Deload, 5 et 6 en Base, 7 en Développement, 8 en Deload, 9 à 11 en Développement, 12 en Deload, 13 et 14 en Développement, 15 et 16 en Affûtage">
+        <div class="gd-frise" style="--n:16" role="img" aria-label="Préparation de 16 semaines : semaines 1 à 3 en Base, 4 en Allègement, 5 et 6 en Base, 7 en Développement, 8 en Allègement, 9 à 11 en Développement, 12 en Allègement, 13 et 14 en Développement, 15 et 16 en Affûtage">
           <span class="gd-sem ph-base">1</span><span class="gd-sem ph-base">2</span><span class="gd-sem ph-base">3</span><span class="gd-sem ph-deload">4</span><span class="gd-sem ph-base">5</span><span class="gd-sem ph-base">6</span><span class="gd-sem ph-developpement">7</span><span class="gd-sem ph-deload">8</span><span class="gd-sem ph-developpement">9</span><span class="gd-sem ph-developpement">10</span><span class="gd-sem ph-developpement">11</span><span class="gd-sem ph-deload">12</span><span class="gd-sem ph-developpement">13</span><span class="gd-sem ph-developpement">14</span><span class="gd-sem ph-affutage">15</span><span class="gd-sem ph-affutage is-course">16</span>
         </div>
-        <div class="gd-legende" aria-hidden="true"><span><i class="ph-base"></i>Base</span><span><i class="ph-developpement"></i>Développement</span><span><i class="ph-deload"></i>Deload</span><span><i class="ph-affutage"></i>Affûtage</span></div>
-        <figcaption>16 semaines : 2 d'affûtage, 3 de deload ; restent 11 semaines, 5 en Base, 6 en Développement. Avec 10 semaines : Base ×3, Deload, Développement ×3, Deload, Affûtage ×2.</figcaption>
+        <div class="gd-legende" aria-hidden="true"><span><i class="ph-base"></i>Base</span><span><i class="ph-developpement"></i>Développement</span><span><i class="ph-deload"></i>Allègement</span><span><i class="ph-affutage"></i>Affûtage</span></div>
+        <figcaption>16 semaines : 2 d'affûtage, 3 d'allègement ; restent 11 semaines, 5 en Base, 6 en Développement. Avec 10 semaines : Base ×3, Allègement, Développement ×3, Allègement, Affûtage ×2.</figcaption>
       </figure>
-      <p>Hors saison, deux phases de plus : <strong>Récupération</strong>, après un Objectif, et <strong>Entretien</strong>, jusqu'à la saison suivante. Les phases restent réglables à la main, sur l'Objectif, par le rond « Régler les phases » de Mon plan.</p>
+      <p>Hors préparation, deux phases de plus : <strong>Récupération</strong>, après un Objectif, et <strong>Entretien</strong>, jusqu'à la préparation suivante. Les phases restent réglables à la main, sur l'Objectif, par le bouton « Personnaliser » de Mon plan (fenêtre « Régler les phases »).</p>
     </section>
 
     <section class="mrt-section">
@@ -143,8 +143,8 @@
       <p>Un kilomètre de montagne ne vaut pas un kilomètre de plat. La distance se compte donc en <strong>km-effort</strong> : la distance plus le dénivelé positif divisé par 100. 1 000 m de D+ ajoutent ainsi 10 km-effort.</p>
       <div class="gd-exemple">
         <span class="gd-lib">Exemples</span>
-        <p class="gd-calcul">10 km sur route, 40 m D+<br>10 + 40 ÷ 100 = 10,4 km-effort<br>10,4 ÷ 1,609 = 6,46 → <b>6 jours</b></p>
-        <p class="gd-calcul">Trail de 45 km, 2 100 m D+<br>45 + 2 100 ÷ 100 = 66 km-effort<br>66 ÷ 1,609 = 41,02 → <b>41 jours</b></p>
+        <p class="gd-calcul">10 km sur route, 40 m D+<br>10 + 40 ÷ 100 = 10,4 km-effort<br>10,4 ÷ 1,609 = 6,46, arrondi à <b>6 jours</b></p>
+        <p class="gd-calcul">Trail de 45 km, 2 100 m D+<br>45 + 2 100 ÷ 100 = 66 km-effort<br>66 ÷ 1,609 = 41,02, arrondi à <b>41 jours</b></p>
       </div>
       <figure class="gd-schema">
         <p class="gd-jours-t">10 km sur route · 6 jours</p>
@@ -153,12 +153,12 @@
         <div class="gd-jours" role="img" aria-label="41 jours de récupération"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <figcaption>Un carré par jour de récupération.</figcaption>
       </figure>
-      <p>Après un Objectif, la récupération ouvre l'inter-saison : ses semaines s'affichent en Récupération.</p>
+      <p>Après un Objectif, la récupération sépare deux préparations : ses semaines s'affichent en Récupération.</p>
     </section>
 
     <section class="mrt-section">
       <h3 class="gd-inter">Quelle course avant l'Objectif ?</h3>
-      <p>Chaque course à venir qui n'est pas un Objectif reçoit un <strong>avis</strong>, par rapport à l'Objectif de sa saison (ou au suivant). Une option est jugée comme si elle était confirmée : c'est justement ce qui aide à décider.</p>
+      <p>Chaque course à venir qui n'est pas un Objectif reçoit un <strong>avis</strong>, par rapport à l'Objectif de sa préparation (ou au suivant). Une option est jugée comme si elle était confirmée : c'est justement ce qui aide à décider.</p>
       <div class="gd-tableau">
         <table>
           <thead><tr><th>Avis</th><th>Quand</th></tr></thead>
@@ -201,11 +201,11 @@
             <tr><td>Objectifs trop proches</td><td>Moins de 12 semaines entre deux Objectifs ; suggestion : passer l'un des deux en Préparatoire</td></tr>
             <tr><td>Récupération dans un affûtage</td><td>La récupération d'une Préparatoire ou d'une Plaisir finit pendant l'affûtage d'un Objectif</td></tr>
             <tr><td>Préparatoire trop proche</td><td>Moins de 3 semaines avant un Objectif de 42 km ou plus, moins de 2 semaines avant un Objectif plus court</td></tr>
-            <tr><td>Course plus longue que l'Objectif</td><td>Une Préparatoire ou une Plaisir de plus de km-effort que l'Objectif de sa saison</td></tr>
+            <tr><td>Course plus longue que l'Objectif</td><td>Une Préparatoire ou une Plaisir de plus de km-effort que l'Objectif de sa préparation</td></tr>
           </tbody>
         </table>
       </div>
-      <p>Si deux Objectifs trop proches sont gardés, la seconde saison commence juste après la première course, raccourcie d'autant : elle garde son affûtage, puis ses deloads et son développement ; la Base est réduite en premier.</p>
+      <p>Si deux Objectifs trop proches sont gardés, la seconde préparation commence juste après la première course, raccourcie d'autant : elle garde son affûtage, puis ses allègements et son développement ; la Base est réduite en premier.</p>
     </section>
 
     <section class="mrt-section">
@@ -321,7 +321,7 @@
     </section>
 
     <section class="mrt-section">
-      <h3 class="gd-inter">Préparer une saison</h3>
+      <h3 class="gd-inter">Construire le plan</h3>
       <ul class="gd-sources">
         <li><a href="https://pubmed.ncbi.nlm.nih.gov/17762369/" target="_blank" rel="noopener">Méta-analyse de Bosquet, 2007</a><span class="gd-note">Étude · affûtage de 2 semaines, volume réduit de 41 à 60 %</span></li>
         <li><a href="https://pubmed.ncbi.nlm.nih.gov/37163550/" target="_blank" rel="noopener">Méta-analyse de 2023 sur l'endurance</a><span class="gd-note">Étude · affûtage de 21 jours au plus</span></li>

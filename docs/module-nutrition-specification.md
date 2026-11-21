@@ -1,13 +1,13 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.44 · 12 novembre 2026 · [Retour au sommaire](README.md) · Mesures modifiées dans la feuille Mon profil ; VMA lue dans Mon profil seulement · Calories et macros du jour, calculatrice du besoin, saisie rapide sur téléphone
+Version 1.46 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Séance » au lieu d'« activité » (bouton, section, feuille, confirmation) ; lien vers le Guide en bas de page.
 
 ## 1. Rôle
 
 Le module Nutrition dit au coureur **combien il doit manger aujourd'hui** (calories, protéines, glucides, lipides) et lui permet de **noter ce qu'il mange en quelques secondes**, depuis son téléphone. Il répond à deux questions : quel est mon besoin du jour, où j'en suis.
 
 - **Dans cette version** : calories et macros seulement (protéines, glucides, lipides). Retenu le 5 nov. 2026.
-- **Hors périmètre, pour plus tard** : fibres, sel, eau, café, alcool ; conseils et propositions de repas ; recherche dans des bases d'aliments et scan de code-barres (§ 8, lot 6) ; import des séances depuis une application (todo du [sommaire](README.md)).
+- **Hors périmètre, pour plus tard** : fibres, sel, eau, café, alcool ; conseils et propositions de repas ; recherche dans des bases d'aliments et scan de code-barres (§ 8, lot 6) ; import des séances depuis une application ([todo](todo.md)).
 - **Aucun calcul par intelligence artificielle** : le besoin se calcule par une formule publiée (§ 3).
 
 ## 2. Principe : un profil, une calculatrice, une saisie
@@ -39,7 +39,7 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 | Veille de course | J-1 | 55 à 65 % | 15 à 25 % |
 
 - **La phase se déduit seule** : « Entraînement » tous les jours ; de J-3 à J-2 avant la course confirmée la plus proche, « Carbo-loading » ; à J-1, « Veille de course » ; ces deux phases changent les parts du tableau ci-dessus, jamais le total de calories. La phase du plan (Base, Développement, Affûtage…) ne change rien au calcul : elle n'est pas affichée dans Nutrition.
-- **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, todo du [sommaire](README.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
+- **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, [todo](todo.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
 - **Chevauchement** : la veille de course (J-1) l'emporte sur le carbo-loading (J-3 à J-1) ; la phase affichée est « Veille de course ».
 - **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche. Le coefficient du métabolisme de base n'existe que pour « femme » et « homme » : un sexe « non précisé » compte comme manquant, et l'encart demande de choisir l'un des deux pour le calcul.
 - **Source de référence** : la calculette « DEJ » (fichier Excel, versions journée et semaine), [lien de téléchargement](https://bonus-liv.re/a/tFHEPC) (il renvoie vers le fichier `qrcode1-calculettedej.xlsx`). Concordance vérifiée le 16 nov. 2026 : même formule de Black et al., mêmes coefficients d'activité (1,2 · 1,3 · 1,45 · 1,6), même dépense MET × poids × heures, mêmes MET pour les 14 sports repris. La calculette ne donne que la dépense totale : protéines, glucides, lipides et phases viennent d'ailleurs ; elle compte la course avec ses MET fixes, Nutrition avec l'équation de l'ACSM (§ ci-dessus).
@@ -88,7 +88,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 │ (50) Jogging à 8 km/h · 1 h                             │  ← toucher : Modifier (51)
 └─────────────────────────────────────────────────────────┘
 
-(47) Feuille « Ajouter un aliment » (ou « Ajouter une activité »), sans la date (celle de la page) : la feuille d'une course,
+(47) Feuille « Ajouter un aliment » (ou « Ajouter une séance »), sans la date (celle de la page) : la feuille d'une course,
      plein écran sur téléphone, croix ronde en haut à droite ; dessous, la recherche (30, 31, 35), les sources (14),
      l'aliment choisi (15), le repas, « Ajouter » (16) ; la feuille reste ouverte, sans message de confirmation.
 ```
@@ -107,9 +107,9 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 33 | Retour à aujourd'hui | Rond « » » | À droite de « › », sur un autre jour seulement (une cale à gauche garde le jour centré) | `mrt-rond` |
 | 34 | Séances du Calendrier | « Au calendrier : Gainage 30 min · Footing 1 h 15 · Reprendre » | Sous le 23, s'il y a des séances ce jour-là | Texte discret, `mrt-lien` |
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
-| 45 | Bouton Activité | « + Activité » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Le bouton « + Ajouter une course » (`mrt-btn is-principal`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
+| 45 | Bouton Séance | « + Séance » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Le bouton « + Ajouter une course » (`mrt-btn is-principal`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
 | 46 | Bouton Repas | « + Repas » et l'assiette | À droite du 45 | Même bouton ; ouvre la feuille d'ajout, repas d'après l'heure |
-| 47 | Feuilles | « Ajouter un aliment », « Ajouter une activité » | Par-dessus la page | Feuille de saisie rapide (design) : 30 × 40 rem sur ordinateur, plein écran sur téléphone, de la même taille d'un écran à l'autre, contenu qui glisse ; croix ronde, « ‹ » sur un deuxième écran, titre en libellé ; bouton qui valide collé en bas ; jamais de bouton « Fermer » |
+| 47 | Feuilles | « Ajouter un aliment », « Ajouter une séance » | Par-dessus la page | Feuille de saisie rapide (design) : 30 × 40 rem sur ordinateur, plein écran sur téléphone, de la même taille d'un écran à l'autre, contenu qui glisse ; croix ronde, « ‹ » sur un deuxième écran, titre en libellé ; bouton qui valide collé en bas ; jamais de bouton « Fermer » |
 | 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la feuille Activité |
 | 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
 | 51 | Feuille Modifier | « Riz cuit » | Par-dessus la page | La feuille de saisie rapide (comme 47) : titre = nom de la ligne, croix ; quantité (−, champ, +) et repas en liste à choix unique (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, en fin de contenu ; « Enregistrer » collé en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
@@ -138,9 +138,9 @@ Ajout en deux touches (option A, retenue le 5 nov. 2026) : choisir un aliment, r
 
 ### 4.5 Profil : encart et fenêtre
 
-Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tard (todo du [sommaire](README.md)).
+Un seul formulaire, à deux endroits ; le module Profil complet viendra plus tard ([todo](todo.md)).
 
-- **Encart du premier usage** : tant que le profil est incomplet, une carte « POUR CALCULER TON BESOIN » remplace la page, avec **seulement les champs qui manquent** (sexe en deux pastilles, naissance, poids et taille avec leur unité, activité hors sport en liste) et « Enregistrer ».
+- **Encart du premier usage** : tant que le profil est incomplet, une carte « POUR CALCULER TON BESOIN » remplace la page, avec **seulement les champs qui manquent** (sexe en deux pastilles, naissance en trois champs Jour, Mois, Année, poids et taille avec leur unité, activité hors sport en liste) et « Enregistrer ».
 - **Feuille Mon profil** (depuis le 12 nov. 2026 ; avant : fenêtre « Mes mesures ») : le lien « Calculé pour … » (21) ouvre la feuille commune de [Mon profil](module-profil-specification.md), les mesures en tête (section Moi) ; chaque mesure s'enregistre seule, le besoin se recalcule aussitôt.
 - **Contrôles** : poids de 20 à 300 kg (virgule acceptée, un chiffre après la virgule), taille de 100 à 250 cm, âge de 10 à 110 ans, sexe femme ou homme, niveau d'activité choisi. Un champ refusé : message sous le titre, rien n'est écrit. Seuls les champs affichés sont rangés ; en cas d'échec, « Enregistrement impossible pour l'instant. », la fenêtre reste ouverte.
 - **Site partagé en lecture seule** : la page n'affiche aucune donnée de nutrition.
@@ -211,7 +211,7 @@ Tables créées par l'évolution 019 ([modèle de données](modele-donnees.md), 
 | `profils.activite` | Niveau d'activité hors sport : sédentaire, peu actif, actif, très actif (ajouté le 5 nov. 2026) |
 
 - Les besoins et cibles **ne sont pas stockés** : ils se calculent à la demande.
-- Données de santé : règles par ligne comme le reste, **jamais** visibles par le site partagé en lecture seule ; concernées par le lot RGPD du [sommaire](README.md).
+- Données de santé : règles par ligne comme le reste, **jamais** visibles par le site partagé en lecture seule ; concernées par le lot RGPD de la [todo](todo.md).
 
 ## 8. Lots de construction
 
@@ -287,13 +287,13 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Relais en service, frappe « yaourt fr » | Aucun appel avant la pause ; après une demi-seconde, un appel ({ q : « yaourt fr » }) ; le champ reste en place |
 | Moteur de secours, « yaourt na » (réponse : « NA · Borges », « Yaourt nature · Marque F ») | Seul « Yaourt nature · Marque F » reste |
 | Relais absent, ancien moteur saturé deux fois | Deux appels à l'ancien moteur, puis « Open Food Facts est saturé, réessaie dans un instant. » |
-| Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; boutons « + Activité » et « + Repas » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
+| Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; boutons « + Séance » et « + Repas » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
 | Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : la feuille reste ouverte, sans message |
 | Journal vide ; « + » du soir | Les quatre repas, chacun avec son « + » ; la feuille d'ajout s'ouvre |
 | Feuille Activité : 1 h de jogging et 0,5 h de marche, puis la croix | « Activité · Mardi 20 octobre » ; case « 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche » ; rien n'est réécrit à la fermeture quand rien n'a changé |
 | Journal : toucher « Banane », Supprimer | Question « Supprimer cette ligne ? », rien d'écrit avant la réponse ; « Supprimer » : la ligne effacée, la fenêtre fermée ; aucun rond au bout des lignes |
 | Toucher « Riz cuit · 200 g » (midi) | Fenêtre de séance du Calendrier « Riz cuit », 200, Midi en liste ; Annuler : rien d'écrit ; 100 g au soir puis Enregistrer : la ligne à 1 portion, 130 kcal, 2,7 g, 28 g, 0,3 g, au soir |
-| Activités du jour : jogging 1 h, marche 0,5 h ; toucher la marche, Supprimer | 2 922 kcal ; « Supprimer cette activité ? » ; 2 817 kcal, la ligne du jogging seule, rangée dans la base |
+| Activités du jour : jogging 1 h, marche 0,5 h ; toucher la marche, Supprimer | 2 922 kcal ; « Supprimer cette séance ? » ; 2 817 kcal, la ligne du jogging seule, rangée dans la base |
 | Journal vide | Petit-déj, Midi, Encas, Soir, Activité, chacun avec son « + » |
 | Séances du 20 oct. : footing 10 km en 1 h, gainage 30 min, une proposition de l'IA | 2 959 kcal ; journal « Footing · Course à pied · 1 h · 10 km », « Gainage · Renforcement · 30 min » ; pas la proposition |
 | Feuille Activité, « Ajouter une séance » : Fractionné, 40 min, 8 km | Fenêtre « Ajouter une séance » du Calendrier, au 20 octobre, Course à pied ; séance rangée ; 3 539 kcal |

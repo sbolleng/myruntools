@@ -53,10 +53,12 @@
     if (email && mdp.trim().toLowerCase() === String(email).trim().toLowerCase()) return 'Différent de l\'adresse e-mail.';
     return null;
   };
-  // Erreur de Supabase : « limite » (trop de demandes), « identifiants », ou autre.
-  const natureErreur = err => (err && (err.status === 429 || /rate|limit|too many/i.test(err.message || '')) ? 'limite'
+  // Erreur de Supabase : « captcha » (contrôle anti-robot refusé), « limite » (trop de demandes), « identifiants », ou autre.
+  const natureErreur = err => (err && /captcha/i.test((err.code || '') + ' ' + (err.message || '')) ? 'captcha'
+    : err && (err.status === 429 || /rate|limit|too many/i.test(err.message || '')) ? 'limite'
     : err && (err.code === 'invalid_credentials' || /invalid login|invalid credentials/i.test(err.message || '')) ? 'identifiants' : 'autre');
   window.mrtNatureErreur = natureErreur;
+  window.mrtMessageCaptcha = 'Contrôle anti-robot non validé : réessaie.';
 
   window.mrtConnecter = async function (email, motDePasse, captchaToken) {
     if (!client) throw new Error('Connexion indisponible');
@@ -67,9 +69,10 @@
   // Création d'un compte : prénom et nom vont dans les métadonnées, d'où la base tire le profil (évolution 015).
   // Supabase répond de même pour une adresse déjà inscrite (pas d'erreur) : la réponse reste neutre.
   // Erreurs rendues : « fermee » (inscriptions désactivées dans Supabase), « limite », ou l'erreur de Supabase.
-  window.mrtCreerCompte = async function (prenom, nom, email, motDePasse, retour, captchaToken) {
+  // accords : dates des accords donnés (politique de confidentialité, données de santé), gardées avec le compte.
+  window.mrtCreerCompte = async function (prenom, nom, email, motDePasse, retour, captchaToken, accords) {
     if (!client) throw new Error('Connexion indisponible');
-    const options = { data: { prenom, nom }, emailRedirectTo: retour };
+    const options = { data: Object.assign({ prenom, nom }, accords || {}), emailRedirectTo: retour };
     if (captchaToken) options.captchaToken = captchaToken;
     const { error } = await client.auth.signUp({ email, password: motDePasse, options });
     if (!error) return;
@@ -81,7 +84,7 @@
   window.mrtMotDePasseOublie = async function (email, retour, captchaToken) {
     if (!client) throw new Error('Connexion indisponible');
     const { error } = await client.auth.resetPasswordForEmail(email, captchaToken ? { redirectTo: retour, captchaToken } : { redirectTo: retour });
-    if (error && natureErreur(error) === 'limite') throw error;
+    if (error && ['limite', 'captcha'].includes(natureErreur(error))) throw error;
   };
 
   // Nouveau mot de passe (lien reçu, ou page Préférences) ; les autres appareils sont déconnectés.
@@ -158,7 +161,7 @@
     h.classList.remove('mrt-attente', 'mrt-attente-contenu');
   };
   // Pages publiques : connexion, création d'un compte, nouveau mot de passe, mentions légales.
-  const surConnexion = /(connexion|creer-compte|nouveau-mot-de-passe|mentions-legales)\.html$/.test(location.pathname);
+  const surConnexion = /(connexion|creer-compte|nouveau-mot-de-passe|mentions-legales|confidentialite)\.html$/.test(location.pathname);
   window.mrtSession().then(s => {
     if (!s && !surConnexion) {
       location.replace('connexion.html' + location.search);

@@ -103,13 +103,25 @@
 /* Résultat : temps et allure sur une demi-ligne chacun, puis les classements. */
 .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: span 3; }
 .fc-fiche .fc-actions { justify-content: flex-start; margin-top: 1.4rem; }
-/* « Supprimer la course » : seul en bas de la fiche, loin d'« Enregistrer » ; à contour rouge (fc-danger), avec sa poubelle. */
+/* « Supprimer la course » : en haut, à gauche d'« Enregistrer » ; à contour rouge (fc-danger), la poubelle seule (nom dans aria-label et title). */
+.fc-barre-droite { display: flex; align-items: center; gap: 0.6rem; }
 .fc-ico { width: 0.9rem; height: 0.9rem; flex: none; }
 @media (max-width: 600px) {
   .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: auto; }
 }
 
-/* Tracé GPX : l'état, puis « Importer un GPX » ou « Remplacer » et « Supprimer ». */
+/* Tracé GPX : « Importer un tracé » (remplace celui qui existe) et « Supprimer le tracé ». */
 .fc-gpx { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
-.fc-gpx-etat { color: var(--muted); }
 .fc-fixe { margin: 0; padding: 0.45rem 0; font-size: var(--t-texte); color: var(--text); }
+
+/* Remplir depuis la page de la course (Objectif, § 3.9) : encart en tête de la fiche, en ajout seulement. */
+.fc-remplir { margin: 0.2rem 0 0.8rem; padding: 0.6rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.fc-rp-phrase, .fc-rp-question { margin: 0 0 0.5rem; color: var(--muted); }
+.fc-rp-consigne { margin: 0 0 0.5rem; font-size: var(--t-petit); color: var(--muted); }
+.fc-rp-texte { width: 100%; box-sizing: border-box; resize: vertical; }
+.fc-rp-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-top: 0.5rem; }
+.fc-rp-liste { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+.fc-rp-liste .mrt-btn { max-width: 100%; text-align: left; white-space: normal; }
+.fc-rp-msg { margin: 0.4rem 0 0; font-size: var(--t-petit); color: var(--muted); }
+.fc-rp-msg:empty { display: none; }
+.fc-rempli .mrt-champ { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }

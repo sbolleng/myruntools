@@ -1,0 +1,27 @@
+/* ===== Export du plan (export-plan.js) : la page imprimée, A4 à l'horizontale, fond blanc =====
+   docs/module-calendrier-specification.md, § 4.6. La grille est celle de Mois V2 (calendrier.css), en plus serré. */
+.xp-zone { display: none; }
+.xp-bouton .mrt-ico { width: 0.95rem; height: 0.95rem; }
+@media print {
+  @page { size: A4 landscape; margin: 9mm 10mm; }
+  html.xp-imprime, html.xp-imprime body { background: #fff !important; }
+  html.xp-imprime body > *:not(.xp-zone) { display: none !important; }
+  html.xp-imprime .xp-zone { display: block; color: var(--text); font-family: 'Space Grotesk', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .xp-zone { --bg: #fff; --surface: #fff; --case: #f4f6f9; }
+  .xp-page { display: flex; flex-direction: column; min-height: 188mm; break-after: page; }
+  .xp-page:last-child { break-after: auto; }
+  .xp-tete { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; padding-bottom: 0.45rem; border-bottom: 2px solid var(--accent); }
+  .xp-titre { font-size: 1.15rem; font-weight: 600; }
+  .xp-zone .cal-m2-tete { background: var(--text); border-radius: 4px 4px 0 0; }
+  .xp-zone .cal-m2-tete span { padding: 0.3rem 0; color: #fff; }
+  .xp-zone .cal-m2-ligne { break-inside: avoid; border-radius: 0; }
+  .xp-zone .cal-m2-sem { padding-left: 0.4rem; border-bottom: 1px solid var(--border); background: #fff; }
+  .xp-zone .cal-m2-case { min-height: 25mm; padding: 0.2rem 0.25rem 0.3rem; cursor: default; }
+  .xp-zone .cal-m2-se, .xp-zone .cal-m2-course { padding: 0.2rem 0.4rem 0.25rem 0.45rem; }
+  .xp-zone .cal-m2-txt { cursor: default; }
+  .xp-zone .cal-m2-case:hover { box-shadow: none; }
+  .xp-zone .cal-m2-nom { white-space: normal; }
+  .cal-m2-coche { flex: none; width: 0.7rem; height: 0.7rem; border: 1px solid var(--muted); border-radius: 2px; }
+  .cal-m2-coche.on { background: var(--accent); border-color: var(--accent); }
+  .xp-pied { display: flex; justify-content: space-between; margin-top: auto; padding-top: 0.5rem; font-size: var(--t-micro); color: var(--muted); border-top: 1px solid var(--border); }
+}

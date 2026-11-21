@@ -8,20 +8,13 @@ Ce dossier rassemble les spécifications de l'application : ce qu'elle fait, com
 
 Chaque discussion lit d'abord `CLAUDE.md` (règles du projet), puis ce fichier. Mot d'ordre : économiser les jetons sans baisser la qualité.
 
-**Règles communes** (détail dans `CLAUDE.md`)
-
-- Français, tutoiement, réponses courtes et factuelles ; ne jamais inventer de données : demander.
-- Dépôt public : aucune donnée personnelle, aucun secret ; le pilote route est « le compte test Rome ».
-- D'abord un plan de page en texte (schéma numéroté, tableau des éléments, options avec une recommandation) ; maquette en image seulement à la demande ou pour trancher, après accord.
-- Cycle : spécification → validation → construction → banc d'essai → mise en ligne ; chaque décision : une ligne au journal.
-- Apparence : les règles communes du [design](design.md), § 1 (un seul accent, peu de couleur, capitales pour les libellés, tout dans un cadre, trois sortes de boutons, pastilles et champ communs, fenêtres comme la fiche, un seul titre repliable, confirmations du site, zones de toucher de 2 rem, formats communs) et l'échelle de sept tailles (§ 3) : un module reprend les éléments et les variables de `en-tete.css`, il n'en invente pas.
-- Git : branche de la session, fusion dans `main` (`--no-ff`), vérifier que la publication a réussi avant d'annoncer la mise en ligne.
+Règles du projet : `CLAUDE.md` (toujours chargé, inutile de les répéter ici).
 
 **Outils**
 
 | Outil | Où | Usage |
 | --- | --- | --- |
-| Todo | Ce fichier, « À faire » | Prochaines étapes dans l'ordre, questions ouvertes, idées |
+| Todo | Ce fichier, « Prochaines étapes » (en bref) ; [todo.md](todo.md) (en détail) | Prochaines étapes dans l'ordre ; détail, questions ouvertes et idées dans `todo.md`, à lire seulement pour l'étape traitée |
 | Journal | [journal.md](journal.md) | Une ligne par décision, la plus récente en haut ; à lire seulement au besoin |
 | Spécifications | Sommaire ci-dessous | Une par module, avec plan de page, jeu d'essai et résultats attendus |
 | Banc d'essai | `outils/essais/` | `node essais.js` (dépendances installées au démarrage de la discussion) : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; `node essais.js repasse calendrier` : seulement les groupes nommés ; le Chromium de la session est pris d'office |
@@ -41,19 +34,21 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 
 | Document | Contenu | État |
 | --- | --- | --- |
-| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.36 |
-| [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables, confirmations, zones de toucher, formats), échelle de sept tailles, couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.51 |
-| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.22 |
-| [Module Objectif](module-objectif-specification.md) | Premier module : la saison (feuille de route des courses), page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.77 |
-| [Préférences utilisateur](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.15 |
-| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.34 |
-| [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.0 |
-| [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : toutes les courses au départ, filtres Statut (Confirmée, Option, Repérée, Courue), Ouvertes et Année ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul | Version 0.9, construit |
-| [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 1.41, construit (reste Ciqual) |
-| [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Vue » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.25, construit |
-| [Mon profil](module-profil-specification.md) | Tout ce qui décrit le coureur, en une page et une feuille commune : Moi, Mon niveau, Ma semaine, Santé ; repère d'allure tiré du Palmarès | Version 0.1, construit |
-| [Guide](module-guide-specification.md) | Article de lecture, hors du menu : comment MyRunTools construit un plan de préparation et calcule la nutrition ; sources et limites | Version 0.1, construit |
-| [Module Préparation](module-preparation-specification.md) | Un plan de préparation qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 1.3, lots 1 à 4 construits (lot 3 réservé aux pilotes ; lot 4 : un seul plan, page « Mon plan ») |
+| [Spécification générale](specification-generale.md) | Structure commune, en-tête, menu, page de connexion, thèmes, modules, préférences utilisateur, partage en lecture seule, données, e-mail de connexion, mesures communes (km-effort, allure-effort) | Version 0.45 |
+| [Design](design.md) | Règles communes (un seul accent, capitales, cadres, boutons, pastilles, champ, fenêtres, titres repliables, confirmations, zones de toucher, formats), échelle de sept tailles, couleurs des thèmes, typographies, tailles et disposition de l'en-tête, de la page de connexion et du menu, formulaires, bandeau, barre du Palmarès, panneau des boutons | Version 0.55 |
+| [Modèle de données](modele-donnees.md) | Tables Supabase, champs, liens, règles d'accès, partage, ce qui est calculé | Version 0.27 |
+| [Module Objectif](module-objectif-specification.md) | Premier module : la saison (feuille de route des courses), page d'une course, comptes à rebours, difficulté, suivi en course, météo | Version 0.86 |
+| [Préférences](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.17 |
+| [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.35 |
+| [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.1 |
+| [Outils et services](outils-et-services.md) | Tous les outils et services (GitHub, OVH, Supabase, Resend, Cloudflare Turnstile, API Anthropic, Open Food Facts, cartes, polices…) : adresse, rôle, état | Version 0.1 |
+| [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : toutes les courses au départ, filtres Statut (Confirmée, Option, Repérée, Courue), Ouvertes et Année ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul ; bouton Finishers | Version 0.11, construit |
+| [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 1.46, construit (reste Ciqual) |
+| [Module Calendrier](module-calendrier-specification.md) | Trois vues : semaine (par défaut ; un jour par ligne, liste continue), mois (grille du mois) et année (grille de 3, 6 ou 12 mois), au menu « Vue » ; bouton « Plan » (fond et liseré aux couleurs des phases) ; la préparation d'une course est sur sa page | Version 0.33, construit |
+| [Mon profil](module-profil-specification.md) | Tout ce qui décrit le coureur, en une page et une feuille commune : Moi, Mon niveau, Ma semaine, Santé, Connexions ; repère d'allure tiré du Palmarès | Version 0.11, construit |
+| [Guide](module-guide-specification.md) | Article de lecture, hors du menu : comment MyRunTools construit un plan de préparation et calcule la nutrition ; sources et limites | Version 0.2, construit |
+| [Module Préparation](module-preparation-specification.md) | Un plan de préparation qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 3.12, lots 1 à 4 construits (lot 3 réservé aux pilotes ; lot 4 : un seul plan, page « Mon plan ») |
+| [Mes stats](module-stats-specification.md) | Progression mois par mois (volume, D+, allure-effort, cadence, efficience cardiaque, écart de spécificité), meilleurs temps, temps estimés, allures, zones cardiaques ; analyse de l'IA ; import de l'export Strava | Version 0.2, construit (évolution 045 et fonction `analyser-stats` à passer dans Supabase) |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -81,80 +76,13 @@ Une application web modulaire pour les coureurs sur piste, sur route et en trail
 
 Chaque module suit le même cycle : spécification, validation, modèle de données si besoin, construction, contrôles, mise en ligne. Maquette seulement à la demande.
 
-## À faire
+## Prochaines étapes
 
-Todo globale du projet : tout ce qui reste à faire y est noté ; une ligne terminée disparaît (la trace reste dans le [journal](journal.md)).
+En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [todo.md](todo.md), même numéro.
 
-### Prochaines étapes
-
-Dans l'ordre :
-
-1. [ ] **Préparation** : [spécification 1.31](module-preparation-specification.md) ; **lot 4, un seul plan** (12 nov. 2026) : page « Mon plan », courses du plan avec leur avis et leurs sources, « Passer en Plaisir », préparatoire conseillée, place d'une course dans la saison ; sources de la préparatoire conseillée vérifiées (12 nov. 2026) ; lot 5 **Mon profil** fait (spécification Profil 0.1) ; lot 6a construit (retour sur une séance, déplacer avec un conseil ; **évolution 034 à passer**) ; lot 6b construit (réadaptation après un commentaire, historique ; **évolution 035 à passer, fonction `proposer-seances` à recoller**) ; lot 6 **adaptation** (déplacer une séance, la commenter, ressenti ; mention RGPD des données de santé) ; import des séances par fichier exporté si Strava refuse ; **abonnement** à prévoir pour l'ouverture à tous. **Construire mon plan pas à pas** (idée du 15 nov. 2026, d'après Kiprun) : un parcours en quatre étapes pour qui n'a pas encore de plan : l'Objectif (choisi parmi ses courses, ou nouvelle course : nom, date, distance, D+), le chrono visé (ou « plus tard »), le coureur (Mon profil, les seules questions qui manquent), la semaine ; puis une synthèse « Plan de 16 semaines · J-112 », « C'est parti » ; à faire après la refonte de Mon plan, en lien avec les Premiers pas d'En un coup d'œil. **Visite guidée de Mon plan** (idée du 15 nov. 2026, d'après Kiprun) : à la première ouverture, des bulles posées sur l'écran, une par élément, avec « Précédent », « Suivant », puis « C'est parti ! » ; à revoir après la refonte de la page. **À remettre avant l'ouverture : le plafond de l'IA** (levé le 13 nov. 2026 pour les essais des pilotes) : `plafondIA: 4` dans `donnees/supabase.js` et secret `PLAFOND` = 4 de la fonction `proposer-seances`. Lots 1 à 3 en ligne (plan de préparation, profil, séances proposées par l'IA, réservées aux pilotes). Évolution 028, fonction `proposer-seances` (une seule recommandation) et secret `PILOTES` en place, proposition et acceptation essayées en réel (11 nov. 2026). « Ma semaine » a « Annuler » et « Enregistrer » en haut (11 nov. 2026, à essayer en réel). **À vérifier** : avec 7 sorties par semaine et les 7 jours cochés, l'IA n'en propose que 4 ; piste : la consigne envoyée dit « au plus N » (la changer en « vise N, au plus N » ?), décision en attente de ton essai. **Idée notée (10 nov. 2026, à revoir plus tard)** : texte de la recommandation dans une voix de coach sportif qui accompagne son équipe, avec le détail de la préparation à venir (le ton reste formel pour l'instant ; changer les consignes de `proposer-seances` et recoller la fonction). Lots suivants : **ouverture à tous** après la mention RGPD, avec une alerte par e-mail à l'administrateur quand l'IA est en panne (crédit épuisé, clé refusée) ; sous-actions : vidéo tutoriel ; tester la page d'accueil avec le choix des modules ; tester le message « Réservé aux comptes pilotes pour l'instant. » (aucun compte non pilote pour l'essayer aujourd'hui) ; réajustement et historique ; affichage de la durée, de la distance et de l'intensité dans les vues.
-   - **Mon plan, refonte (en cours)** : étapes 1 (parcours « Construire mon plan ») et 2 (vue d'ensemble) **construites** ([Préparation 3.0](module-preparation-specification.md), § 5.0 et 5.1). **À faire : recoller la fonction `proposer-seances`** (recommandation en deux phrases). Ensuite, dans l'ordre : **ajouter une course préparatoire** (y revient la préparatoire conseillée et le passage en Plaisir ; Préparatoire et Plaisir quittent la fiche d'une course pour Mon plan ; « retirer un Objectif du plan » sans supprimer la course) ; **ajouter le renforcement** (section Renforcement de Ma semaine dans le parcours). À vérifier : les durées minimum par format sur les pages entières (seuls des extraits lus).
-   - **Rappel : me trouver les règles** de la préparatoire avant un ultra (bornes de distance avant un trail de 60 à 129 km et de 130 km ou plus) ; en attendant, Plaisir. Piste trouvée le 19 nov. (extrait de recherche, à vérifier) : Run-Motion cite une course d'environ 50 km 6 à 8 semaines avant un 100 km, ou une sortie de 40 à 60 km avant un premier 100 km.
-   - Plus tard : l'option « Me maintenir en forme » (affichée inactive en attendant).
-1. [ ] **Objectif** :
-   - **À essayer en réel** : « Remplacer » le GPX du Rock'Angel (fichier à plusieurs tracés : choix du bon tracé), puis « ↓ GPX ».
-   - Plus tard, chacun décidé à son tour (ajouter ou non, toujours à la même place) : badges UTMB, météo du jour J, suivi en course.
-   - **Page d'une course** : pouvoir choisir cette course comme cap de l'en-tête (pas depuis la saison ; aujourd'hui seulement dans les Préférences, `course_cap`).
-   - **Section stratégie de course** : ravitaillement en course, repères de référence (glucides et eau par heure).
-   - **Outil de calcul de stratégie de course** (idée du 13 nov. 2026) : reprendre l'outil de calcul de stratégie de RunMotion, à récupérer ; à préciser : ce qu'il calcule (temps de passage, allures par tronçon, ravitaillements ?), comment l'obtenir (fichier, tableur, lien) et où le placer (page de la course, section stratégie ci-dessus, ou module Calculatrice, n° 16). Pas de recopie du code ni des données d'un tiers sans son accord.
-   - **Calculer un plan de course (stratégie)** (ajouté le 15 nov. 2026) : à partir du tracé GPX, de l'objectif (temps ou allure) et du profil du coureur, calculer le plan de la course : temps de passage et allure par tronçon, ravitaillements, besoins en glucides et en eau ; à spécifier avant toute construction (plan de page d'abord), en lien avec l'outil de RunMotion ci-dessus et la section stratégie.
-   - **Nombre de ravitaillements** : pouvoir l'indiquer sur la course (fiche d'édition et page), distinct de la stratégie de ravitaillement ci-dessus ; format de saisie et place à décider (ajouté le 1er nov. 2026).
-   - **Règlement de la course** : pouvoir l'importer (fichier) et le consulter depuis la page de la course.
-   - **Retrait des dossards** : infos de retrait (lieu, jours et horaires, pièces à présenter), sur la page de la course ; à situer par rapport à la Logistique (ajouté le 1er nov. 2026).
-2. [ ] **Courses à surveiller** (spécification 0.7, en ligne) :
-   - **Dupliquer une course pour l'année suivante** (à rediscuter) : une ligne par édition ; bouton sur la fiche d'une course courue qui crée une copie À surveiller, un an plus tard (mois seul), sans résultat, dossard ni ouverture ; question ouverte : recopier le tracé GPX ?
-   - Index UTMB (plus tard).
-3. [ ] **Calendrier** : [spécification 0.25](module-calendrier-specification.md) ; trois vues (Année, Mois, Semaine) au menu « Vue », bouton « Plan », modèle de données et séances en ligne ; la préparation d'une course est une rubrique de sa page (Objectif, § 3.4). Reste :
-   - **Idée notée (13 nov. 2026, à décider plus tard)** : la frise de Mon plan comme vue du Calendrier (« Frise » dans le menu « Vue », plein écran, En cours / Tout ; toucher une phase ouvre la Semaine) ; Mon plan garderait sa frise.
-   - **Légende** : retravailler son intégration, surtout les différents événements (ajouté le 11 nov. 2026).
-   - **Fonds de phase** (Mois, Semaine ; un seul fond par phase depuis le 0.17) : lisibilité à vérifier à l'usage, notamment sur fond blanc.
-   - **Prépa des courses préparatoires et plaisir** : réglée par le module Préparation (plan de préparation), qui remplace la règle « course confirmée la plus proche ».
-   - **À essayer en conditions réelles** (Supabase) : ajout d'une séance, case « faite », « Paramétrer le plan » (durée, phases, depuis la page Préparation), la rubrique d'une course, nouvelle ou existante.
-   - **Semaine de récupération après la course** (décidée, § 5.1) : case facultative par course dans « Paramétrer le plan » ; évolution de la base, frise, jeu d'essai.
-   - **Durées de prépa par format** : valeurs du § 5.4 validées ; à fournir pour Trail découverte, Course en heure, Marche, Fast hiking, Triathlon.
-   - **Plus tard** : import des séances depuis une application, avec durée, distance, D+ et ressenti facultatifs ; génération des séances d'un plan par IA (les phases restent calculées par les règles générales, jamais par IA).
-4. [ ] **Refonte login et mot de passe** : en ligne le 30 oct. 2026 ; essais réels réussis (« Mot de passe oublié ? », « Changer le mot de passe »). Reste : premier mot de passe du compte test Rome.
-5. [x] **Mentions légales et crédits** : en ligne le 1er nov. 2026 ([Spécification générale 0.29](specification-generale.md), § 11 bis) ; contact `contact@myruntools.fr` (redirection OVH, réponse depuis Gmail par Resend). Le lien « Confidentialité » viendra avec le lot RGPD.
-6. [ ] **RGPD** : politique de confidentialité et droits des utilisateurs sur leurs données (consultation, suppression). À faire avant d'ouvrir les inscriptions (données de santé : poids, FC, VMA).
-7. [ ] **Anti-robot** (Cloudflare Turnstile) : plus tard, mais avant d'ouvrir l'inscription. Code prêt (`mrtCaptcha`, inactif) ; étapes : créer le widget pour `myruntools.fr`, me donner la clé du site, je publie, puis activer CAPTCHA dans Supabase avec la clé secrète ([réglages](reglages-supabase-connexion.md), n° 6). À mentionner dans la politique de confidentialité.
-8. [ ] **Inscription** (« Créer son compte ») : page `creer-compte.html` construite le 12 nov. 2026 ([spécification générale 0.37](specification-generale.md), § 3), fermée par le réglage `inscription` ; évolution 015 passée le 13 nov. 2026 (profil et préférences créés par la base). SMTP branché sur Resend, vérifié le 14 nov. 2026 (« Mot de passe oublié ? » reçu). Adresse de retour ajoutée le 15 nov. 2026. Reste pour l'ouvrir : RGPD (n° 6, la case de confidentialité apparaît dès que la page existe), anti-robot (n° 7), modèle « Confirm signup » en français, dans Supabase ([réglages](reglages-supabase-connexion.md), n° 3 et 4), puis activer la création de comptes et `inscription: true` ensemble.
-9. [ ] **Changer son adresse e-mail** : dans les Préférences (bloc Compte), avec confirmation envoyée à la nouvelle adresse.
-10. [ ] **Refonte des Préférences utilisateur** : s'inspirer d'Oleno et de Babelio ; plan de page d'abord.
-11. [ ] **Catalogue des courses** : d'abord un catalogue partagé (une course saisie par un coureur sert aux suivants, recherche, doublons à gérer) ; ensuite, demander un partenariat d'accès aux données à Le Sportif (la plus large couverture), puis à Finishers. Pas de récupération automatique de leurs pages (conditions d'utilisation, droit des bases de données).
-12. [x] **Mon profil** : [spécification 0.1](module-profil-specification.md), construit le 12 nov. 2026 (page et feuille communes, sixième onglet par défaut) ; **à faire : passer l'évolution 033** (VMA et FC max uniques, Mon profil au menu de chacun). **À faire (lot de l'adaptation)** : blessure en cours, ressenti, douleur et fatigue, avec la mention RGPD des données de santé ; section Connexions avec l'import.
-13. [ ] **Matériel** (module) : chaussures et leur usure, inventaire, matériel obligatoire, listes de sac ; périmètre à définir.
-14. [ ] **Logistique** (module) : transport, hébergement, retrait des dossards, horaires ; périmètre à définir.
-15. [ ] **Renforcement musculaire** (module) : module dédié, ou intégré à Profil ou à Cette semaine ?
-16. [ ] **Calculatrice** (module) : allure, vitesse, temps de passage, VMA, km-effort, pente ; liste des calculs à valider ; peut sortir tôt, car elle ne dépend d'aucune donnée.
-17. [ ] **Nutrition** : **à faire : vue Semaine** (ajoutée le 16 nov. 2026 ; comme la version semaine de la calculette de référence : le besoin et les apports sur sept jours, dépense du sport de la semaine répartie sur les jours ; plan de page à proposer) ; design des fenêtres d'ajout revu (feuilles de saisie rapide, 11 nov. 2026) ; [spécification 1.4](module-nutrition-specification.md) validée (5 nov. 2026) ; modèle de données 0.19 et évolution 019 écrits, évolution 019 passée dans Supabase (5 nov. 2026) ; `besoin.js`, profil minimal, sport du jour, jauges, ajout rapide et journal construits et testés (page `nutrition.html`, à cocher dans les Préférences ; évolution 020 pour l'ajouter aux menus rangés) ; mise en page en quatre cartes et recherche Open Food Facts (6 nov. 2026) ; sélecteur de jour, sport en base, bloc d'En un coup d'œil (0.7) ; évolutions 021, 022, 029 et 030 passées dans Supabase (10 nov. 2026) ; relais de recherche déployé (version du 9 nov., vérifié) ; ergonomie 1.4 (fenêtre Modifier du Calendrier, ajout en deux étapes) ; **à reprendre : choix de l'unité dans la feuille d'ajout** (grammes ou portion « pièce · 80 g », poids de la portion gardé par aliment, évolution SQL ; options A, B, C proposées le 10 nov. 2026, en attente de décision) ; reste : **Ciqual** (aliments génériques, dont les plats simples comme l'œuf au plat ; site de l'ANSES en maintenance le 6 nov., à réessayer), Strava ; repères glucides et eau par heure partagés avec la stratégie de course d'Objectif.
-18. [ ] **Partenariat nutrition** : contacter la nutritionniste pour un partenariat (en lien avec le module Nutrition).
-19. [ ] **En un coup d'œil** :
-   - **Découverte du site** : bloc « Découvrir MyRunTools » construit le 13 nov. 2026 ([spécification générale](specification-generale.md), § 5 bis) ; **à faire : passer l'évolution 037**. Plus tard, si besoin : une présentation plus ludique (visite guidée).
-   - Pense-bête : rappels tirés des courses et notes perso (table des notes, évolution à prévoir).
-   - Repasse sur les blocs et leur ordre, une fois la page utilisée quelque temps.
-20. [ ] **Prévoir un profil piste ?**
-21. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales, n° 5) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).
-22. [ ] **Guide** ([spécification 0.1](module-guide-specification.md), en ligne) : **rappel : me trouver les liens** des deux sources de nutrition, la formule de Black et al. (métabolisme de base) et l'équation de course de l'ACSM ; elles sont citées sans lien d'ici là (ajouté le 13 nov. 2026).
-
-## Questions ouvertes
-
-Aucune question générale ouverte pour l'instant (les questions propres à un module sont dans sa spécification).
-
-## Idées de modules
-
-Idées notées pour plus tard, sans jalon.
-
-### Calendrier annuel des courses (idée du 5 oct. 2026, devenue le [module Calendrier](module-calendrier-specification.md))
-
-Une vue de l'année d'un seul tenant, pour voir le planning en un coup d'œil, pas un simple récapitulatif.
-
-- Les 12 mois visibles ensemble, un petit carré par jour.
-- Chaque course est un carré de couleur vive à sa date (par exemple rouge ; l'objectif plus marqué).
-- Un liseré part de chaque course et remonte dans le temps sur la durée de sa préparation : deux liserés qui se superposent signalent deux préparations qui se chevauchent.
-- Les jours sans course ni liseré font apparaître les plages libres pour la récupération et la préparation.
-- Construit à partir de la même liste de courses que la page Objectif, sans double saisie.
-- **Prototype en ligne** depuis le 13 oct. 2026 sur l'ancien site du profil route, onglet Planning (composant `composants/planning.js`), avec des durées provisoires et deux vues : 12 mois glissants, ou jusqu'à l'objectif.
-
-Durée de prépa, période et module à part sont tranchés dans la spécification du module ; le liseré de récupération est remplacé par la phase Deload.
+1. **Préparation, refonte de Mon plan** : ajouter le renforcement (section Renforcement de Ma semaine dans le parcours, séances de renforcement dans le plan) ; voir aussi le n° 13.
+2. **Objectif** : essai réel du GPX à plusieurs tracés ; cap de l'en-tête depuis la page d'une course ; « Proposer une stratégie » construit (0.83, § 3.10) : évolution 044 et fonction `proposer-strategie` à passer dans Supabase.
+4. **Calendrier** : Mois V2 à comparer avec Mois, puis n'en garder qu'une.
+6. **Ouverture à tous, suites** : plafond de l'IA à remettre, essai d'un compte non pilote, droits RGPD dans les Préférences, polices hébergées.
+21. **Mes stats** : construit ([spécification 0.2](module-stats-specification.md)) ; passer l'évolution 045 et créer la fonction `analyser-stats` ; essai réel avec une archive Strava (colonnes, cadence).
+15. **Nutrition** : vue Semaine ; choix de l'unité dans la feuille d'ajout (en attente de décision) ; Ciqual.

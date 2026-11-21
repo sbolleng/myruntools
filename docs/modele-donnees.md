@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.25 · 13 novembre 2026 · `preferences.decouverte_vue` (évolution 037) · [Retour au sommaire](README.md)
+Version 0.27 · 21 novembre 2026 · Mes stats : tables `activites` et `analyses_stats`, origine `import` d'une séance (évolution 045) ; phase « Allègement » (valeur stockée `deload`) · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -92,10 +92,10 @@ Si la course du cap devient courue ou abandonnée, l'en-tête revient au cap par
 | Classement | `format` (le type s'en déduit) ; circuits dans `courses_circuits` (§ 4.3) | Palmarès, records, badges |
 | Date | `date`, `heure` (heure locale), `date_approx` (vrai si seul le mois est connu) | Comptes à rebours, ordre, en-tête |
 | Profil officiel | `distance`, `dplus`, `dmoins` | En-tête, Palmarès, km-effort |
-| Place dans le plan | `statut`, `role`, `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
+| Place dans le plan | `statut`, `role` (vide : hors plan, évolution 040 ; se donne dans Mon plan), `etat` (§ 4.1), `groupe_options` | Module d'affichage, en-tête |
 | Inscription | `inscrit`, `dossard`, `prix`, `ouverture_inscriptions`, `ouverture_heure` (heure locale, facultative), `ouverture_approx` (vrai si seul le mois est connu : date rangée au 1er du mois ; évolution 017) | Cellule Inscription |
 | Durée de prépa | `prepa_semaines` : durée de la préparation en semaines, de 1 à 52 ; vide : celle du format (§ 4.4) | Calendrier |
-| Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
+| Préparation | `objectif` (normé : temps `hh:mm:ss`, « Finisher », « Sub 3h », « Sub 45 min »), `objectif_precisions` (texte libre, 100 caractères au plus), `pourquoi` (rôle dans la préparation), `strategie`, `ravitaillements_km` (kilomètres des ravitaillements, dans l'ordre ; évolution 044), `logistique` | Cellules de l'étape, indicateur Objectif de l'en-tête |
 | Suivi en course | `passages` : liste de points (distance depuis le départ, temps visé) ; `chronos_reference` : liste de chronos (libellé, temps) | Suivi en course (§ 4.2) |
 | Résultat officiel | `categorie` (catégorie d'âge FFA : CA, JU, ES, SE, M0 à M10 ; évolution 012), `temps`, `dnf`, `allure`, `vitesse`, `place`, `effectif`, `place_categorie`, `effectif_categorie`, `place_sexe`, `effectif_sexe` | Palmarès |
 | Données montre | `montre_distance`, `montre_dplus`, `montre_dmoins` (évolution 013), `montre_temps`, `montre_allure`, `montre_vitesse`, `fc_moyenne` | Palmarès |
@@ -146,10 +146,10 @@ Le plan d'une course est calculé à l'affichage ([spécification du Calendrier]
 | --- | --- | --- |
 | Durée par défaut | `formats.prepa_semaines` | Nombre de semaines de préparation d'un format ; vide : pas de préparation affichée (Trail découverte, Course en heure, Marche, Fast hiking, Triathlon pour l'instant) |
 | Durée d'une course | `courses.prepa_semaines` | Remplace celle du format |
-| Phase modifiée | `plan_semaines` : `course`, `lundi` (le lundi de la semaine), `phase` | Une ligne par semaine dont la phase a été changée à la main ; les autres semaines se calculent. Phases : base, développement, affûtage, deload. Supprimée avec la course. |
+| Phase modifiée | `plan_semaines` : `course`, `lundi` (le lundi de la semaine), `phase` | Une ligne par semaine dont la phase a été changée à la main ; les autres semaines se calculent. Phases : base, développement, affûtage, allègement (valeur stockée `deload`). Supprimée avec la course. |
 | Séance | `seances` : `date`, `type` (run ou renfo), `libelle` (1 à 100 caractères), `faite`, `course` (facultative) ; `duree_min` (1 à 1 440), `distance_km` (0,1 à 999,9), `intensite` (facile, modérée, intense), facultatives ; `origine` (saisie, ia) et `etat` (proposée, acceptée), saisie et acceptée par défaut | Une séance saisie à la main, ou proposée par l'IA (Préparation, lot 3). Si la course est supprimée, la séance reste, sans course. |
 | Proposition | `propositions` : `cree`, `bloc` (lundi), `essai` (1 ou 2), `modele`, `jetons_entree`, `jetons_sortie`, `statut` (brute, invalide, echec, acceptee, abandonnee), `reponse` (les séances proposées, JSON) | Écrite par la fonction `proposer-seances` avec le jeton de l'utilisateur ; le site en change le statut. Sert au plafond (4 par mois) et à mesurer le coût. |
-| Profil d'entraînement | `profil_entrainement` : `anciennete` (debut, 1-3, 3-6, 6-10, 10+), `volume_tranche` (inconnu, 0-20 … 80+), `sortie_tranche` (-1h … 3h+), `jours_course` et `jours_renfo` (jours 1 lundi à 7 dimanche, un même jour possible dans les deux), `nb_sorties` (0 à 7, évolution 028), `nb_renfo` (0 à 7), `jour_long` (la sortie longue ; vide : peu importe), `allure_type` (vma, 10km, semi, inconnu) et sa valeur (`vma`, `temps_10km_s`, `temps_semi_s`), `seance_max_min` (45, 60, 90, 120 ; 1 440 : sans limite), `terrain` (plat, cotes, vallonne, montagne), `renfo_niveau`, `fc_max`, `fragiles`, `maj` ; les colonnes de l'évolution 024 qui ne servent plus (`annees`, `volume`, `sortie_longue`, `jours`, `jour_long`, `semaine_max_h`, `renfo`, `moyens` et leurs unités) restent, inemployées, comme `semaine_type` (évolution 026, remplacée par l'évolution 027) | Tout est facultatif dans la base ; le site dit ce qui manque pour proposer des séances ([Préparation](module-preparation-specification.md), § 5.2). Données de santé : jamais lisibles par le site partagé. |
+| Profil d'entraînement | `profil_entrainement` : `anciennete` (debut, 1-3, 3-6, 6-10, 10+), `volume_tranche` (inconnu, 0-20 … 80+), `sortie_tranche` (-1h … 3h+), `jours_course` et `jours_renfo` (jours 1 lundi à 7 dimanche, un même jour possible dans les deux), `nb_sorties` (0 à 7, évolution 028), `nb_renfo` (0 à 7), `jour_long` (la sortie longue ; vide : peu importe), `allure_type` (vma, 10km, semi, inconnu) et sa valeur (`vma`, `temps_10km_s`, `temps_semi_s`), `terrain` (plat, cotes, vallonne, montagne), `renfo_niveau`, `fc_max`, `fragiles` (points fragiles et blessures passées, texte libre), `maj` ; les colonnes de l'évolution 024 qui ne servent plus (`annees`, `volume`, `sortie_longue`, `jours`, `jour_long`, `semaine_max_h`, `renfo`, `moyens` et leurs unités) restent, inemployées, comme `semaine_type` (évolution 026, remplacée par l'évolution 027) | Tout est facultatif dans la base ; le site dit ce qui manque pour proposer des séances ([Préparation](module-preparation-specification.md), § 5.2). Données de santé : jamais lisibles par le site partagé. |
 
 ## 5. Équipement
 
@@ -204,6 +204,29 @@ Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'
 
 Le besoin du jour et les cibles se calculent (§ 7), ils ne sont pas rangés.
 
+## 5 ter. Mes stats
+
+Évolution 045 ([Mes stats](module-stats-specification.md)). Données de santé : jamais lisibles par le site partagé.
+
+### `activites`
+
+Une ligne par activité importée de l'export Strava ; la trace elle-même n'est jamais rangée. Chaque activité est rattachée à une séance : celle du plan du même jour, ou une séance hors plan créée à l'import (origine `import`).
+
+| Champ | Contenu | Obligatoire |
+| --- | --- | --- |
+| `strava_id` | Identifiant de l'activité dans l'export ; unique par utilisateur (un second import ne la reprend pas) | Oui |
+| `debut`, `date` | Heure de départ ; jour (heure locale) | `date` oui |
+| `pratique` | `course`, `trail`, `tapis`, `marche`, `randonnee` | Oui |
+| `duree_s`, `distance_m`, `denivele_m` | Temps de déplacement, distance, D+ | Non |
+| `fc_moyenne`, `fc_max`, `cadence` | Fréquence cardiaque ; cadence en pas par minute (deux jambes) | Non |
+| `meilleurs` | Meilleurs temps de la trace, en secondes par distance (`{"1000": 300, "21097": 6965}`) | Non |
+| `seance` | Séance rattachée ; vidé si la séance est supprimée | Non |
+| `importe_le` | Date de l'import | Oui (d'office) |
+
+### `analyses_stats`
+
+Une ligne par analyse de l'IA de la page Mes stats : `cree`, `motif` (`import`, `actualiser`, `premiere`), `periode`, `texte` (1 500 caractères au plus), `modele`, jetons. La plus récente s'affiche ; « Actualiser » compte celles du jour.
+
 ## 6. Listes
 
 ### Listes de référence (tables)
@@ -217,7 +240,7 @@ Le besoin du jour et les cibles se calculent (§ 7), ils ne sont pas rangés.
 
 ### Listes fermées (gravées dans la base)
 
-Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, deload) et type de séance (run, renfo) : le fonctionnement en dépend (Courue envoie au Palmarès, Repérée dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
+Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, allègement — valeur stockée `deload`) et type de séance (run, renfo) : le fonctionnement en dépend (Courue envoie au Palmarès, Repérée dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
 
 ## 7. Ce qui est calculé, jamais rangé
 
@@ -231,7 +254,7 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 | D'ici là | Blocs de la page Objectif à venir avant le cap : une course confirmée, une option isolée ou un groupe d'options comptent chacun pour un |
 | Prochaine course | Première course confirmée à venir |
 | Début d'un plan | Lundi de la semaine du jour J, moins (durée − 1) semaines |
-| Phase d'une semaine | Règles du Calendrier (§ 5.1) : affûtage les 2 dernières semaines, deload toutes les 4 semaines, le reste réparti entre base et développement ; sauf semaine modifiée dans `plan_semaines` |
+| Phase d'une semaine | Règles du Calendrier (§ 5.1) : affûtage les 2 dernières semaines, allègement toutes les 4 semaines, le reste réparti entre base et développement ; sauf semaine modifiée dans `plan_semaines` |
 | Besoin du jour, cibles, jauges | Calculatrice de Nutrition ([spécification](module-nutrition-specification.md), § 3) : profil + sport du jour + phase ; total du jour = somme des `repas_lignes` |
 | Semaine sans objectif clair | Semaine hors du plan de toute course confirmée |
 

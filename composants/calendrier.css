@@ -142,9 +142,10 @@
 .cal-m-case .cal-v-plus .mrt-ico { width: 0.65rem; height: 0.65rem; }
 .cal-m-case .cal-v-det { display: block; margin-left: 0; }
 .cal-m-points { display: none; }
-.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border-radius: 3px; }
+.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border-left: 3px solid var(--l); border-radius: 3px; }
 .cal-m-se[draggable="true"] { cursor: pointer; }
-.cal-m-se-txt { display: flex; flex-direction: column; min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
+.cal-m-se-txt { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
+.cal-m-se-txt::after { content: ''; position: absolute; inset: -0.2rem -0.1rem; } /* zone de toucher élargie (design, § 1) */
 .cal-m-se-nom { display: flex; align-items: center; overflow: hidden; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .cal-m-se small { font-size: var(--t-micro); color: var(--muted); }
 .cal-m-se .n-court { display: none; }
@@ -240,7 +241,7 @@
   .cal-s-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
 }
 /* Séance faite sans effort noté : « à noter », en Accent, qui rouvre la feuille « Effort et sensations ». */
-.cal-v-anoter { flex: none; margin-left: 0.3rem; padding: 0 0.35rem; font: inherit; font-size: var(--t-micro); line-height: 1.5; color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 1rem; cursor: pointer; white-space: nowrap; }
+.cal-v-anoter { flex: none; margin-left: 0.3rem; } /* « À noter » : lien d'action commun (mrt-lien) */
 
 /* ----- Refonte (Préparation 1.6) : titre de semaine avec sa place dans le plan, total de la semaine, cartes de séance ----- */
 .cal-s-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
@@ -248,8 +249,9 @@
 .cal-ph-nom.ph-base { color: var(--ph-base); } .cal-ph-nom.ph-developpement { color: var(--ph-developpement); } .cal-ph-nom.ph-affutage { color: var(--ph-affutage); }
 .cal-ph-nom.ph-deload { color: var(--ph-deload); } .cal-ph-nom.ph-recuperation { color: var(--ph-recuperation); } .cal-ph-nom.ph-entretien { color: var(--muted); }
 .cal-total { font-size: var(--t-second); color: var(--muted); white-space: nowrap; }
-.cal-carte { display: flex; align-items: center; gap: 0.6rem; width: 100%; margin: 0.15rem 0; padding: 0.45rem 0.7rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-.cal-carte input { flex: none; width: 1.05rem; height: 1.05rem; margin: 0 0 0 auto; accent-color: var(--accent); cursor: pointer; }
+.cal-carte { display: flex; align-items: center; gap: 0.6rem; width: 100%; margin: 0.15rem 0; padding: 0.45rem 0.7rem; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--l); border-radius: 8px; }
+.cal-carte .mrt-coche { margin-left: auto; }
+.cal-carte input { flex: none; width: 1.05rem; height: 1.05rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
 .cal-carte-txt { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
 .cal-carte-nom { overflow: hidden; font-size: var(--t-texte); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .cal-carte-det { font-size: var(--t-petit); color: var(--muted); }
@@ -258,3 +260,78 @@
 .cal-carte[data-carte]:hover { border-color: var(--accent); }
 .cal-carte .cal-v-anoter { margin-left: 0; }
 .cal-repos { font-size: var(--t-second); color: var(--muted); }
+/* Légende des phases : l'Entretien en gris (ses jours gardent le fond ordinaire). */
+.cal-legende .cal-k.ph-entretien { background: var(--ph-entretien); }
+
+/* ----- Mois V2 (spécification § 4.5) et export (§ 4.6) : une ligne par semaine, son libellé à gauche, une colonne par jour ;
+   séances en cartes à liseré : couleur du type de séance, neutre (Bordure) pour Endurance, Récupération et un nom libre ;
+   Sortie longue bleu, Seuil jaune, Fractionné rouge, Côtes violet, Renforcement vert ; pas de légende. L'intensité : les trois traits. -----
+   (couleurs et classes l-* : preparation.css, communes à toutes les vues) */
+.cal-m2 { display: flex; flex-direction: column; gap: 1px; }
+.cal-m2-tete, .cal-m2-ligne { display: grid; grid-template-columns: 5.6rem repeat(7, minmax(0, 1fr)); gap: 1px; }
+.cal-m2-tete span { padding-bottom: 0.35rem; text-align: center; }
+.cal-m2-ligne { border-radius: 4px; overflow: hidden; }
+.cal-m2-sem { display: flex; flex-direction: column; justify-content: center; gap: 0.1rem; padding: 0.35rem 0.5rem 0.35rem 0.2rem; }
+.cal-m2-sem .cal-libelle { color: var(--text); }
+.cal-m2-lundi { font-size: var(--t-petit); color: var(--muted); }
+.cal-m2-sem .cal-ph-nom { font-size: var(--t-micro); }
+.cal-m2-total { font-size: var(--t-micro); line-height: 1.3; color: var(--muted); }
+.cal-m2-ligne.is-courante .cal-m2-sem { box-shadow: inset 3px 0 0 var(--accent); padding-left: 0.5rem; }
+.cal-m2-case { position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; min-height: 5.5rem; padding: 0.3rem 0.3rem 1.9rem; background: var(--case); cursor: pointer; }
+.cal-m2-case.hors > * { opacity: 0.5; }
+.cal-m2-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: var(--t-petit); font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
+.cal-m2-case.passe .cal-m2-num { color: var(--muted); }
+.cal-m2-num.auj, .cal-m2-case.passe .cal-m2-num.auj { color: var(--bg); background: var(--accent); }
+.cal-m2-case .cal-repos { align-self: center; margin: auto 0; font-size: var(--t-petit); }
+.cal-m2-case .cal-v-plus { right: 0.3rem; bottom: 0.3rem; width: 1.15rem; height: 1.15rem; }
+.cal-m2-case .cal-v-plus .mrt-ico { width: 0.65rem; height: 0.65rem; }
+/* Carte d'une séance : liseré de 4 px à gauche, mesure en gras, nom dessous, détail discret ; case « faite » en haut à droite. */
+.cal-m2-se, .cal-m2-course { position: relative; display: flex; align-items: flex-start; gap: 0.2rem; min-width: 0; padding: 0.3rem 0.3rem 0.3rem 0.5rem; text-align: center;
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--l); border-radius: 5px; }
+.cal-m2-mes .cal-int { height: 0.75rem; margin-right: 0.3rem; } .cal-m2-int-tel { display: none; }
+.cal-m2-txt { display: flex; flex: 1; flex-direction: column; align-items: center; min-width: 0; padding: 0; font: inherit; color: var(--text); background: none; border: 0; cursor: pointer; }
+.cal-m2-mes { max-width: 100%; overflow: hidden; font-size: var(--t-second); font-weight: 600; line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; }
+.cal-m2-nom { max-width: 100%; overflow: hidden; font-size: var(--t-petit); line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; }
+b.cal-m2-nom { font-size: var(--t-second); }
+.cal-m2-det { max-width: 100%; overflow: hidden; font-size: var(--t-micro); line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); }
+.cal-m2 .n-court { display: none; }
+.cal-m2-se input { flex: none; width: 0.85rem; height: 0.85rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.cal-m2-se.faite .cal-m2-txt > * { color: var(--muted); text-decoration: line-through; }
+.cal-m2-se[draggable="true"] { cursor: grab; }
+/* Course : la carte à sa couleur (liseré plein ; confirmée : fond teinté). */
+.cal-m2-course { --l: var(--border); flex-direction: column; align-items: center; gap: 0; color: var(--text); text-decoration: none; }
+.cal-m2-course.c-route-v, .cal-m2-course.c-route-n { --l: var(--route); border-color: var(--route); }
+.cal-m2-course.c-trail-v, .cal-m2-course.c-trail-n { --l: var(--trail); border-color: var(--trail); }
+.cal-m2-course.c-route-v { background: color-mix(in srgb, var(--route) 22%, var(--surface)); }
+.cal-m2-course.c-trail-v { background: color-mix(in srgb, var(--trail) 22%, var(--surface)); }
+.cal-m2-course.courue { --l: var(--muted); color: var(--muted); }
+.cal-m2-course .cal-m2-nom { font-weight: 600; white-space: normal; }
+.cal-m2-case .cal-v-rdv { font-size: var(--t-micro); }
+/* Phases : le fond de la phase sur toute la ligne de la semaine, son liseré sur le libellé. */
+.cal-m2-ligne.ph-base .cal-m2-case { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
+.cal-m2-ligne.ph-developpement .cal-m2-case { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
+.cal-m2-ligne.ph-affutage .cal-m2-case { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
+.cal-m2-ligne.ph-deload .cal-m2-case { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
+.cal-m2-ligne.ph-recuperation .cal-m2-case { background: color-mix(in srgb, var(--ph-recuperation) 38%, var(--surface)); }
+.cal-m2-ligne[class*="ph-"] .cal-m2-sem { box-shadow: inset 3px 0 0 var(--ph); padding-left: 0.5rem; }
+.cal-m2-ligne.ph-base { --ph: var(--ph-base); } .cal-m2-ligne.ph-developpement { --ph: var(--ph-developpement); } .cal-m2-ligne.ph-affutage { --ph: var(--ph-affutage); }
+.cal-m2-ligne.ph-deload { --ph: var(--ph-deload); } .cal-m2-ligne.ph-recuperation { --ph: var(--ph-recuperation); }
+@media (hover: hover) { .cal-m2-case:hover { box-shadow: inset 0 0 0 1px var(--text); } .cal-m2-txt:hover { color: var(--accent); } }
+/* Téléphone : le libellé de la semaine passe au-dessus de ses jours ; dans les cases, le numéro et le nom abrégé, sans case ni « + ». */
+@media (max-width: 600px) {
+  .cal-m2-tete, .cal-m2-ligne { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .cal-m2-tete > span:first-child { display: none; }
+  .cal-m2-sem { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.5rem; padding: 0.5rem 0.2rem 0.25rem; }
+  .cal-m2-ligne + .cal-m2-ligne { margin-top: 0.3rem; }
+  .cal-m2-total { margin-left: auto; }
+  .cal-m2-case { align-items: stretch; min-height: 4.2rem; padding: 0.2rem 0.1rem; }
+  .cal-m2-num { align-self: center; font-size: var(--t-libelle); }
+  .cal-m2-case .cal-v-plus, .cal-m2-se input, .cal-m2-det, .cal-m2-case .cal-v-rdv, .cal-m2 .n-long, .cal-m2-se .cal-m2-mes:not(.cal-m2-nom), .cal-m2-course .cal-m2-mes { display: none; }
+  .cal-m2 .n-court { display: inline; }
+  .cal-m2-int-tel { display: block; } .cal-m2-nom .cal-int { display: flex; width: max-content; height: 0.6rem; margin: 0.1rem auto 0.15rem; }
+  .cal-m2-se, .cal-m2-course { padding: 0.15rem 0.1rem 0.15rem 0.2rem; border-left-width: 3px; }
+  .cal-m2-nom, b.cal-m2-nom { font-size: var(--t-micro); }
+  .cal-m2-case .cal-repos { font-size: var(--t-micro); }
+}
+.cal-menu-btn { white-space: nowrap; }
+.cal-vide { margin: 0 0 1rem; text-align: center; font-size: var(--t-second); color: var(--muted); }

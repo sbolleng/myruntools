@@ -12,7 +12,7 @@
   // Noms des mois et des jours, dates : les formats communs (en-tete.js, mrtFormat) ; le 1er du mois s'écrit « 1er ».
   const F = window.mrtFormat, { MOIS, JOURS } = F;
   // Phases d'un plan (au choix dans « Paramétrer le plan ») ; hors saison, deux phases de plus (spécification Préparation, § 4).
-  const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Deload']];
+  const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Allègement']];
   const NOM_PHASE = Object.assign(Object.fromEntries(PHASES), { recuperation: 'Récupération', entretien: 'Entretien' });
 
   // Types de séance, en toutes lettres : pour en ajouter un (vélo, tapis…), une ligne ici et une évolution SQL (valeur de `seance_type`) ; la fenêtre de saisie et les vues les reprennent seules.
@@ -23,20 +23,34 @@
   // l'intensité proposée ; le libellé d'une séance est « Nom » ou « Nom : détail » (le détail, libre, vient après « : »).
   const NOMS = [
     { nom: 'Endurance', abr: 'End.', titre: 'Endurance fondamentale', intensite: 'facile' },
-    { nom: 'Récupération', abr: 'Réc.', titre: 'Footing très lent entre deux séances dures', intensite: 'facile' },
+    { nom: 'Décrassage', abr: 'Décras.', titre: 'Footing très lent entre deux séances dures', intensite: 'facile', ancien: 'Récupération' }, // ancien : nom d'avant, encore lu dans les séances enregistrées
     { nom: 'Sortie longue', abr: 'S. longue', titre: 'Sortie longue', intensite: 'facile' },
     { nom: 'Seuil', abr: 'Seuil', titre: 'Allure seuil (tempo)', intensite: 'moderee' },
     { nom: 'Fractionné', abr: 'Frac.', titre: 'Fractionné (VMA)', intensite: 'intense' },
     { nom: 'Côtes', abr: 'Côtes', titre: 'Répétitions en côte', intensite: 'intense' }
   ];
-  const NOM_RENFO = { nom: 'Renforcement', abr: 'Renfo', titre: 'Renforcement', intensite: '' };
+  // Une séance faite compte avec son réalisé quand il est saisi, sinon avec le prévu (la séance elle-même n'est pas modifiée).
+  const reel = s => (s && s.faite ? Object.assign({}, s, { duree_min: s.duree_reelle_min != null ? s.duree_reelle_min : s.duree_min,
+    distance_km: s.distance_reelle_km != null ? s.distance_reelle_km : s.distance_km, denivele_m: s.denivele_reel_m != null ? s.denivele_reel_m : s.denivele_m }) : s);
+  // Allure moyenne en min/km (« 6'20"/km ») ; vide sans durée ni distance.
+  const allure = (min, km) => { if (!(min > 0 && km > 0)) return ''; const t = Math.round(min / km * 60); return Math.floor(t / 60) + '\'' + String(t % 60).padStart(2, '0') + '"/km'; };
+  // Intensité : trois traits montants (un, deux ou trois allumés), gris, orange, rouge ; rien sans intensité (Calendrier, fenêtre d'une séance).
+  const traits = i => (i && INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + INTENSITES[i] + '" title="' + INTENSITES[i] + '">' +
+    [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
+  // Confirmation pour quitter une saisie (la même que la fiche d'une course).
+  const ABANDON = { texte: 'Abandonner les modifications ?', action: 'Abandonner', annuler: 'Continuer', danger: true };
+  const NOM_RENFO = { nom: 'Renforcement', abr: 'Renf.', titre: 'Renforcement', intensite: '' };
+  // Liseré d'une séance (toutes les vues du Calendrier, export) : couleur du type de séance, d'après le nom de la liste ;
+  // Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre (Bordure) pour Endurance, Décrassage et un nom libre. Pas de légende.
+  const LISERES = { 'Sortie longue': 'l-sl', Seuil: 'l-seuil', 'Fractionné': 'l-frac', 'Côtes': 'l-cotes', Renforcement: 'l-renfo' };
+  const lisere = s => { if (s.type === 'renfo') return 'l-renfo'; const d = lireLibelle(s.libelle).def; return (d && LISERES[d.nom]) || 'l-neutre'; };
   const nomsDuType = type => (type === 'renfo' ? [NOM_RENFO] : NOMS);
   // « Côtes : 8 x 1 min » → { nom: 'Côtes', detail: '8 x 1 min', def } ; def vide pour un nom libre d'avant la liste (affiché tel quel).
   function lireLibelle(lib) {
     lib = String(lib || '');
     const k = lib.indexOf(' : ') >= 0 ? lib.indexOf(' : ') : lib.indexOf(': ');
     const nom = (k > 0 ? lib.slice(0, k) : lib).trim(), detail = k > 0 ? lib.slice(k + (lib[k] === ' ' ? 3 : 2)).trim() : '';
-    const def = NOMS.concat([NOM_RENFO]).find(x => x.nom.toLowerCase() === nom.toLowerCase()) || null;
+    const def = NOMS.concat([NOM_RENFO]).find(x => x.nom.toLowerCase() === nom.toLowerCase() || (x.ancien || '').toLowerCase() === nom.toLowerCase()) || null;
     return { nom: def ? def.nom : nom, detail, def, abr: def ? def.abr : nom };
   }
   // Nombre saisi (virgule acceptée) ; vide : null ; illisible : NaN.
@@ -146,7 +160,8 @@
   // La saison de chaque Objectif confirmé et à venir (le plan de sa course, raccourci s'il commence avant l'Objectif précédent),
   // les repères des courses (jours allégés, repos de la veille, récupération), et les alertes.
   function planSaison(ctx) {
-    const confirmees = ctx.courses.filter(c => c.statut === 'confirmee' && c.date && (c.etat === 'a_venir' || c.etat === 'courue'));
+    // Une course sans rôle (hors plan, évolution 040) n'agit pas sur le plan.
+    const confirmees = ctx.courses.filter(c => c.statut === 'confirmee' && c.role && c.date && (c.etat === 'a_venir' || c.etat === 'courue'));
     const objectifs = confirmees.filter(c => c.etat === 'a_venir' && roleDe(c) === 'objectif').sort((a, b) => (a.date < b.date ? -1 : 1));
     const saisons = [], alertes = [];
     let avant = null;
@@ -295,7 +310,7 @@
   // Avis sur une course à venir qui n'est pas un Objectif : conseillee, possible ou deconseillee (null : hors saison),
   // par rapport à l'Objectif de sa saison (ou au suivant) ; plaisirAide : passer en Plaisir ferait tomber ses alertes.
   function avisCourse(ctx, c) {
-    if (!aJuger(c) || roleDe(c) === 'objectif') return null;
+    if (!aJuger(c) || !roleDe(c) || roleDe(c) === 'objectif') return null;
     const alertesDe = cc => planSaison(avecCourse(ctx, cc)).alertes.filter(a => a.course.id === c.id && a.type !== 'proches');
     const ps = planSaison(avecCourse(ctx, c)), sx = ps.saisons.find(x => x.jourJ >= c.date);
     if (!sx) return { niveau: null };
@@ -318,12 +333,27 @@
     return { html: avant + (av.niveau === 'conseillee' ? ' : dans la fenêtre conseillée (' : ' (conseillé : ') + av.fenetre.min + ' à ' + av.fenetre.max + ' semaines)', sources: av.fenetre.sources };
   }
   const sourcesHtml = s => (s.length ? '<span class="pr-sources">Sources : ' + s.map(([n, u]) => '<a class="mrt-lien" href="' + u + '" target="_blank" rel="noopener">' + esc(n) + '</a>').join(', ') + '</span>' : '');
-  // L'avis en une ligne : picto et niveau, raison, sources.
+  // Le pourquoi de l'avis en une ou deux phrases, 200 caractères au plus (§ 3.5) : bâti par les règles, jamais par l'IA.
+  function commentaireAvis(av) {
+    const o = av.objectif.course, j = av.jours + ' jours', mini = 'mini-affûtage de 3 jours';
+    let t;
+    if (av.niveau === 'deconseillee') {
+      const a = av.alerte;
+      t = a.type === 'prepa-proche' ? 'Trop proche de ' + o + ' : ' + a.jours + ' jours seulement, pour ' + a.conseillees + ' semaines conseillées. Récupération de ' + j + ' : elle mordrait sur la préparation finale.'
+        : a.type === 'recup-affutage' ? 'Sa récupération (' + j + ') irait jusqu\'au ' + longue(a.fin) + ', pendant l\'affûtage de ' + o + ' : les deux dernières semaines doivent rester légères.'
+        : 'Plus longue que ' + o + ' : elle fatiguerait plus qu\'elle ne prépare. Récupération de ' + j + '.';
+    } else if (av.role === 'plaisir') t = 'Course plaisir : pas d\'affûtage, repos la veille, récupération de ' + j + ' finie avant l\'affûtage de ' + o + '.';
+    else if (!av.fenetre) t = 'Aucune fenêtre conseillée pour un Objectif de ce format, et aucun conflit : ' + mini + ', récupération de ' + j + ' finie avant l\'affûtage.';
+    else if (av.niveau === 'conseillee') t = av.semaines + ' semaines avant ' + o + ', dans la fenêtre conseillée (' + av.fenetre.min + ' à ' + av.fenetre.max + '). Elle compte comme séance de qualité de sa semaine : ' + mini + ', récupération de ' + j + '.';
+    else t = av.semaines + ' semaines avant ' + o + ' : hors de la fenêtre conseillée (' + av.fenetre.min + ' à ' + av.fenetre.max + '), mais sans conflit. ' + mini[0].toUpperCase() + mini.slice(1) + ', récupération de ' + j + ' finie avant l\'affûtage.';
+    return t.length > 200 ? t.slice(0, 199).replace(/\s+\S*$/, '') + '…' : t;
+  }
+  // L'avis : picto et niveau, raison, sources ; dessous, le pourquoi (200 caractères au plus).
   function avisHtml(av, nom) {
     if (!av || !av.niveau) return '';
     const r = raisonAvis(av, nom);
     return '<p class="pr-avis is-' + av.niveau + '"><span class="pr-avis-n">' + window.mrtIcone[PICTO_AVIS[av.niveau]] + NIVEAUX[av.niveau] + '</span>' +
-      '<span class="pr-avis-r">' + r.html + '</span>' + sourcesHtml(r.sources) + '</p>';
+      '<span class="pr-avis-r">' + r.html + '</span>' + sourcesHtml(r.sources) + '</p><p class="pr-avis-c">' + esc(commentaireAvis(av)) + '</p>';
   }
   // Préparatoire conseillée pour un Objectif : sa fenêtre (à partir d'aujourd'hui) et les courses repérées qui y tombent ;
   // null quand l'Objectif n'a pas de fenêtre, qu'elle est passée, ou qu'une Préparatoire conseillée y est déjà.
@@ -343,23 +373,23 @@
   function placeHtml(ctx, c) {
     const role = roleDe(c), conf = avecCourse(ctx, c), ps = planSaison(conf);
     const ROLES = { objectif: 'Objectif', preparatoire: 'Préparatoire', plaisir: 'Plaisir' };
-    const tete = (ROLES[role] || 'Sans rôle') + (c.statut === 'option' ? ' (option)' : '');
+    const tete = (ROLES[role] || 'Hors plan') + (c.statut === 'option' ? ' (option)' : '');
     if (role === 'objectif') {
       const sx = ps.saisons.find(x => x.course.id === c.id);
       if (!sx) return '<p class="cal-plan-dates">' + tete + ' · pas encore de plan : ce format n\'a pas de durée de préparation par défaut.</p>';
-      return '<p class="cal-plan-dates">' + tete + ' · saison de ' + sx.semaines.length + ' semaines' + (sx.raccourcie ? ' (raccourcie)' : '') + ', du ' + longue(sx.premier) + ' au ' + longue(sx.jourJ) + '</p>' +
+      return '<p class="cal-plan-dates">' + tete + ' · préparation de ' + sx.semaines.length + ' semaines' + (sx.raccourcie ? ' (raccourcie)' : '') + ', du ' + longue(sx.premier) + ' au ' + longue(sx.jourJ) + '</p>' +
         frise({ semaines: sx.semaines }, false);
     }
     const w = phaseDe(ps, lundiDe(c.date));
-    const place = !w ? 'hors saison' : w.saison ? 'semaine ' + w.n + ' sur ' + w.saison.semaines.length + ' de la saison de ' + nomSimple(w.saison.course)
-      : w.phase === 'recuperation' ? 'en Récupération après ' + nomSimple(w.apres) : 'en Entretien, avant la saison de ' + nomSimple(w.vers.course);
+    const place = !w ? 'hors préparation' : w.saison ? 'semaine ' + w.n + ' sur ' + w.saison.semaines.length + ' de la préparation de ' + nomSimple(w.saison.course)
+      : w.phase === 'recuperation' ? 'en Récupération après ' + nomSimple(w.apres) : 'en Entretien, avant la préparation de ' + nomSimple(w.vers.course);
     const j = joursRecup(c);
     const recup = j ? ', ' + j + (j > 1 ? ' jours' : ' jour') + ' de récupération' : '';
     const reperes = role === 'preparatoire' ? '3 jours allégés avant' + recup : role === 'plaisir' ? 'repos la veille' + recup : '';
     return '<p class="cal-plan-dates">' + [tete, place, reperes].filter(Boolean).join(' · ') + '</p>' + avisHtml(avisCourse(ctx, c), nomSimple);
   }
   function rubrique(ctx, c) {
-    const voir = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html#courses">Voir dans Mon plan →</a>' : '';
+    const voir = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html">Voir dans Mon plan' + window.mrtIcone.droite + '</a>' : '';
     return '<div class="cal-prep-haut">' + placeHtml(ctx, c) + voir + '</div>' +
       (c.date_approx ? '<p class="cal-vide">Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.</p>' : '');
   }
@@ -416,18 +446,27 @@
     const dou = ['legere', 'forte'].includes(x.douleur) ? x.douleur : 'aucune', r = x.ressenti || null;
     return '<div class="cal-champ cal-effort"><span class="cal-titre-info">Effort perçu' + info('effort') + '</span>' +
         '<input type="range" class="cal-curseur' + (r ? '' : ' is-vide') + '" name="ressenti" min="1" max="10" step="1" value="' + (r || 1) + '"' + (r ? '' : ' data-vide="1"') + ' aria-label="Effort perçu, de 1 à 10">' +
-        '<p class="cal-ressenti-lib">' + ligneRessenti(r, x.duree_min) + '</p></div>' +
+        '<p class="cal-ressenti-lib">' + ligneRessenti(r, reel(x).duree_min) + '</p></div>' +
       '<div class="cal-champ"><span class="cal-titre-info">Sensations' + info('sensations') + '</span><div class="cal-visages" data-groupe="sensations">' + SENSATIONS.map(([v, lib, d]) =>
         '<button type="button" class="mrt-rond cal-visage-b v-' + v + '" data-val="' + v + '" aria-pressed="' + (String(x.sensations) === String(v)) + '" aria-label="' + lib + '" title="' + lib + '">' + visage(d) + '</button>').join('') + '</div></div>' +
       '<div class="cal-champ"><span>Douleur</span>' + pastilles('douleur', Object.entries(DOULEURS), dou).replace('data-groupe="douleur"', 'data-groupe="douleur" data-requis') + '</div>' +
       '<label class="cal-champ cal-douleur-ou"' + (dou === 'aucune' ? ' hidden' : '') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>';
   }
   const champCommentaire = x => '<label class="cal-champ"><span>Commentaire</span><textarea class="mrt-champ" name="commentaire" maxlength="300" rows="2" placeholder="ex. genou sensible, pas disponible jeudi">' + esc(x.commentaire || '') + '</textarea><small class="cal-compteur">' + (x.commentaire || '').length + '/300</small></label>';
+  // Réalisé d'une séance faite : durée, distance, dénivelé (le prévu en repère), fréquence cardiaque moyenne et maximale ; l'allure se calcule.
+  const realiseHtml = x => '<p class="fc-libelle cal-realise-titre">Réalisé</p>' +
+    '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree_reelle" inputmode="numeric" placeholder="' + esc(x.duree_min != null ? x.duree_min : '') + '" value="' + esc(x.duree_reelle_min != null ? x.duree_reelle_min : '') + '"></label>' +
+    '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance_reelle" inputmode="decimal" placeholder="' + esc(x.distance_km != null ? String(x.distance_km).replace('.', ',') : '') + '" value="' + esc(x.distance_reelle_km != null ? String(x.distance_reelle_km).replace('.', ',') : '') + '"></label>' +
+    '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele_reel" inputmode="numeric" placeholder="' + esc(x.denivele_m != null ? x.denivele_m : '') + '" value="' + esc(x.denivele_reel_m != null ? x.denivele_reel_m : '') + '"></label></div>' +
+    '<div class="cal-champs2"><label class="cal-champ"><span>FC moyenne (bpm)</span><input class="mrt-champ" name="fc_moyenne" inputmode="numeric" value="' + esc(x.fc_moyenne != null ? x.fc_moyenne : '') + '"></label>' +
+    '<label class="cal-champ"><span>FC max (bpm)</span><input class="mrt-champ" name="fc_max" inputmode="numeric" value="' + esc(x.fc_max != null ? x.fc_max : '') + '"></label></div>' +
+    '<p class="cal-allure" aria-live="polite"></p>';
   function retourHtml(s) {
     const x = s || {}, faite = !!x.faite;
-    return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
+    return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Ressenti</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
-      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + champsRetour(x) + '</div>' + champCommentaire(x) + '</section>';
+      '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + realiseHtml(x) + champsRetour(x) + champCommentaire(x) + '</div>' +
+      (x.analyse_ia ? '<div class="cal-analyse-lue"><h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(x.analyse_ia) + '</p></div>' : '') + '</section>';
   }
   // Branche le retour : curseur de l'effort (sans note tant qu'il n'a pas bougé), visages et pastilles (une seule choisie par groupe,
   // un second toucher la retire), « i », « + Signaler une douleur », case « faite » (absente de la feuille : la séance y est faite),
@@ -449,6 +488,7 @@
       if (g === 'douleur') f.querySelector('.cal-douleur-ou').hidden = !['legere', 'forte'].includes(choix.douleur);
     });
     if (f.duree) f.duree.addEventListener('input', majRessenti);
+    if (f.duree_reelle) f.duree_reelle.addEventListener('input', majRessenti);
     if (f.faite) f.faite.addEventListener('change', () => { f.querySelector('.cal-si-faite').hidden = !f.faite.checked; });
     f.commentaire.addEventListener('input', () => { f.querySelector('.cal-compteur').textContent = f.commentaire.value.length + '/300'; });
     return () => {
@@ -471,7 +511,7 @@
       '<p class="fc-libelle">' + esc(TYPES[s.type] || '') + ' · ' + esc(F.date(s.date, { semaine: true, annee: false })) + '</p>' +
       '<h2 class="cal-retour-nom" id="cal-retour-nom">' + esc(nom.charAt(0).toUpperCase() + nom.slice(1)) + '</h2>' +
       (detail ? '<p class="cal-retour-detail">' + esc(detail.charAt(0).toUpperCase() + detail.slice(1)) + '</p>' : '') + '<p class="cal-msg" role="alert"></p>' +
-      '<form class="cal-ecran" novalidate>' + champsRetour(s) + champCommentaire(s) +
+      '<form class="cal-ecran" novalidate>' + realiseHtml(s) + champsRetour(s) + champCommentaire(s) +
       '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form></div></div>';
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
@@ -480,17 +520,88 @@
     document.addEventListener('keydown', echap);
     voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
     voile.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermer(); });
-    const f = voile.querySelector('form'), lire = brancherRetour(f, () => s.duree_min || null);
+    const f = voile.querySelector('form'), renfo = s.type === 'renfo';
+    const dureeCh = () => (nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : (s.duree_min || null));
+    const lire = brancherRetour(f, () => dureeCh() || (reel(s).duree_min || null));
+    if (renfo) f.querySelectorAll('.cal-seul-course').forEach(x => { x.hidden = true; });
+    // Allure moyenne du réalisé (ou du prévu à défaut), mise à jour à la frappe.
+    const majAllure = () => {
+      const k = nombre(f.distance_reelle.value) != null ? nombre(f.distance_reelle.value) : (s.distance_km != null ? Number(s.distance_km) : null);
+      const a = renfo ? '' : allure(dureeCh(), k);
+      f.querySelector('.cal-allure').textContent = a ? 'Allure moyenne : ' + a : '';
+    };
+    f.addEventListener('input', majAllure); majAllure();
     voile.querySelector('.mc-panneau').focus({ preventScroll: true });
     f.addEventListener('submit', async e => {
       e.preventDefault();
-      const champs = lire();
+      const m = voile.querySelector('.cal-msg');
+      // Réalisé : mêmes bornes que dans la fenêtre de la séance ; envoyé s'il y en a un (ou s'il y en avait un).
+      const dureeR = nombre(f.duree_reelle.value), distR = nombre(f.distance_reelle.value), denivR = nombre(f.denivele_reel.value), fcM = nombre(f.fc_moyenne.value), fcX = nombre(f.fc_max.value);
+      if (dureeR !== null && !(Number.isInteger(dureeR) && dureeR >= 1 && dureeR <= 1440)) return void (m.textContent = 'La durée réalisée doit être un nombre de minutes entre 1 et 1 440.');
+      if (!renfo && distR !== null && !(distR >= 0.1 && distR < 1000)) return void (m.textContent = 'La distance réalisée doit être comprise entre 0,1 et 999 km.');
+      if (!renfo && denivR !== null && !(Number.isInteger(denivR) && denivR >= 1 && denivR < 10000)) return void (m.textContent = 'Le dénivelé réalisé doit être un nombre de mètres entre 1 et 9 999.');
+      if ([fcM, fcX].some(x => x !== null && !(Number.isInteger(x) && x >= 30 && x <= 250))) return void (m.textContent = 'La fréquence cardiaque doit être comprise entre 30 et 250 battements par minute.');
+      if (fcM !== null && fcX !== null && fcM > fcX) return void (m.textContent = 'La FC moyenne ne peut pas dépasser la FC max.');
+      const brut = { duree_reelle_min: dureeR, distance_reelle_km: !renfo && distR !== null ? Math.round(distR * 10) / 10 : null, denivele_reel_m: renfo ? null : denivR, fc_moyenne: fcM, fc_max: fcX }, reelChamps = {};
+      Object.keys(brut).forEach(k => { if (brut[k] !== null || s[k] != null) reelChamps[k] = brut[k]; });
+      const champs = Object.assign(lire(), reelChamps);
       const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
       if (error) { const m = voile.querySelector('.cal-msg'); m.textContent = error.code === 'PGRST204' || /column/i.test(String(error.message || '')) ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.'; m.scrollIntoView({ block: 'nearest' }); console.warn(error); return; }
-      fermer();
       if (ctx.actualiser) await ctx.actualiser();
-      if (champs.commentaire && champs.commentaire !== (s.commentaire || null)) relancer(ctx);
+      // L'effort est noté : l'IA analyse la séance, dans cette même feuille (animation d'attente, puis le texte).
+      if (analysable(s, champs)) analyseDans(voile, ctx, Object.assign({}, s, champs), fermer); else fermer();
     });
+  }
+
+  // ----- Analyse de la séance faite par l'IA (spécification Préparation, § 6.3) -----
+  // Elle se lance quand l'effort est noté, et seulement si le retour est nouveau ou changé (modifier la date ou la durée ne la relance pas).
+  // Le texte se range sur la séance (colonne « analyse_ia ») ; adapter le plan reste à la demande de l'utilisateur.
+  const analysable = (avant, apres) => !!(window.mrtSeancesIA && apres.ressenti && (['ressenti', 'sensations', 'douleur', 'douleur_ou', 'commentaire'].some(k => (avant[k] == null ? null : avant[k]) !== (apres[k] == null ? null : apres[k]))));
+  // Trois traits qui s'allument l'un après l'autre (figés si l'appareil demande moins de mouvement).
+  const attente = texte => '<div class="cal-attente" role="status"><span class="cal-attente-traits" aria-hidden="true"><b></b><b></b><b></b></span><p>' + esc(texte) + '</p></div>';
+  async function analyseDans(voile, ctx, s, fermer) {
+    const f = voile.querySelector('form'), msg = voile.querySelector('.cal-msg');
+    const zone = document.createElement('div');
+    zone.className = 'cal-analyse'; zone.setAttribute('aria-live', 'polite');
+    if (f) f.replaceWith(zone); else voile.querySelector('.mc-corps').appendChild(zone);
+    if (msg) msg.textContent = '';
+    zone.innerHTML = attente('Analyse de ta séance…');
+    const r = await window.mrtSeancesIA.analyser(ctx, s);
+    if (r.reserve) return fermer();
+    if (r.message) { zone.innerHTML = '<p class="cal-msg" role="alert">' + esc(r.message) + '</p>'; return; }
+    zone.innerHTML = '<h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(r.analyse) + '</p>' +
+      (r.adapter ? '<div class="mc-pied"><button type="button" class="mrt-btn is-principal" data-adapter>Adapter mon plan</button></div>' : '');
+    if (ctx.actualiser) ctx.actualiser();
+    const b = zone.querySelector('[data-adapter]');
+    if (!b) return;
+    b.addEventListener('click', async () => {
+      zone.innerHTML = attente('Adaptation de ton plan…');
+      // Sur Mon plan, la page suit l'adaptation (ctx.surCommentaire) ; ailleurs, on appelle la réadaptation directement.
+      let a;
+      if (ctx.surCommentaire) { await ctx.surCommentaire(); a = ctx.ia && ctx.ia.message ? { message: ctx.ia.message } : { id: true }; } else a = await window.mrtSeancesIA.readapter(ctx);
+      zone.innerHTML = '<h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(r.analyse) + '</p>' +
+        '<p class="' + (a.id ? 'cal-analyse-ok' : 'cal-msg') + '" role="status">' + esc(a.id ? 'Plan adapté : les séances à venir sont à jour dans Mon plan.' : (a.message || 'Adaptation impossible pour l\'instant.')) + '</p>';
+      if (a.id && ctx.actualiser) ctx.actualiser();
+    });
+  }
+  // La même feuille, ouverte seule (après l'enregistrement d'une séance faite dans sa fenêtre).
+  function feuilleAnalyse(ctx, s) {
+    const l = lireLibelle(s.libelle), voile = document.createElement('div');
+    voile.className = 'mc-voile';
+    voile.innerHTML = '<div class="mc-panneau mc-etroit mc-court cal-feuille-retour" role="dialog" aria-modal="true" aria-labelledby="cal-retour-nom" tabindex="-1"><div class="mc-corps">' +
+      '<div class="pc-barre"><span></span><button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
+      '<p class="fc-libelle">' + esc(TYPES[s.type] || '') + ' · ' + esc(F.date(s.date, { semaine: true, annee: false })) + '</p>' +
+      '<h2 class="cal-retour-nom" id="cal-retour-nom">' + esc(l.nom.charAt(0).toUpperCase() + l.nom.slice(1)) + '</h2>' +
+      (l.detail ? '<p class="cal-retour-detail">' + esc(l.detail.charAt(0).toUpperCase() + l.detail.slice(1)) + '</p>' : '') + '</div></div>';
+    document.body.appendChild(voile);
+    document.documentElement.classList.add('mc-ouvert');
+    const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', echap); };
+    const echap = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue')) fermer(); };
+    document.addEventListener('keydown', echap);
+    voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
+    voile.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermer(); });
+    voile.querySelector('.mc-panneau').focus({ preventScroll: true });
+    analyseDans(voile, ctx, s, fermer);
   }
 
   // ----- Déplacer une séance : libre, avec un conseil quand une règle n'est pas respectée (spécification Préparation, § 5.5) -----
@@ -526,14 +637,6 @@
   }
   // Le jour d'origine reste celui d'avant le premier déplacement ; revenu à ce jour, la séance n'est plus « déplacée ».
   const datePrevue = (s, jour) => { const o = s.date_prevue || s.date; return o === jour ? null : o; };
-  // Réadaptation après un commentaire : sur Mon plan, la page la suit (ctx.surCommentaire) ; ailleurs, un message à la fin.
-  async function relancer(ctx) {
-    if (ctx.lectureSeule || !window.mrtSeancesIA) return;
-    if (ctx.surCommentaire) return ctx.surCommentaire();
-    const r = await window.mrtSeancesIA.readapter(ctx);
-    if (r.reserve) return;
-    await window.mrtConfirmer({ texte: r.message || 'Commentaire pris en compte : MyRunTools a réadapté tes séances.', action: 'Fermer', seul: true });
-  }
   // Déplacer une séance (glisser) : à la main de l'utilisateur, dans la semaine en cours seulement (du lundi au dimanche soir).
   const semaineEnCours = jour => lundiDe(jour) === lundiDe(iso(new Date()));
   const deplacable = (s, jour) => !!s && semaineEnCours(s.date) && (jour == null || semaineEnCours(jour));
@@ -548,15 +651,30 @@
 
   function ouvrirSeance(ctx, opts) {
     const s = opts.seance, dans = opts.dans, lu = lireLibelle(s ? s.libelle : '');
+    const degage = false; // une séance de l'IA garde son origine : son prévu ne se modifie pas
+    const verrou = !!(s && s.origine === 'ia'); // le prévu d'une séance de l'IA se lit, il ne s'édite pas 
     // Un seul choix de séance (le type s'en déduit : Renforcement ou course à pied) ; la date seule en tête, puis le détail,
     // puis durée, distance et dénivelé sur une ligne, l'intensité (proposée selon la séance) ; le retour (faite, effort, commentaire) dessous.
-    const champs = '<div class="cal-champs2"><label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>' +
-      '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label></div>' +
-      '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
+    const champDate = '<label class="cal-champ"><span>Date</span><input class="mrt-champ" type="date" name="date" value="' + esc(s ? s.date : opts.date) + '"></label>';
+    const champNom = '<label class="cal-champ"><span>Séance</span><select class="mrt-champ" name="nom"></select></label>';
+    const champsPrevu = '<label class="cal-champ"><span>Précisions</span><input class="mrt-champ" name="detail" maxlength="80" placeholder="ex. 8 x 1 min en côte" value="' + esc(lu.detail) + '"></label>' +
+      '<label class="cal-champ"><span>Description</span><textarea class="mrt-champ" name="description" maxlength="800" rows="4" placeholder="1. 20 min d\'échauffement&#10;2. 3 x 12 min à allure semi, 5 min de récupération&#10;3. 5 min de retour au calme">' + esc(s && s.description ? s.description : '') + '</textarea><small class="cal-compteur">' + (s && s.description ? s.description.length : 0) + '/800</small></label>' +
       '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
       '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
       '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele" inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
-      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>' +
+      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>';
+    // Séance de l'IA : un texte structuré (le nom, ses précisions, durée, distance, D+, intensité), pas des champs ; les champs existent mais restent cachés.
+    // Description : une étape par ligne, numérotée en Accent (une numérotation déjà écrite est reprise telle quelle).
+    const etapes = t => { const l = String(t || '').split(/\n+/).map(x => x.trim().replace(/^\d+[.)]\s*/, '')).filter(Boolean); return l.length ? '<ol class="cal-prevu-etapes">' + l.map(x => '<li>' + esc(x) + '</li>').join('') + '</ol>' : ''; };
+    const lecture = () => {
+      const duree = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + String(m % 60).padStart(2, '0') : '') : m + ' min'), course = s.type !== 'renfo';
+      const stat = (lib, val) => '<div><dt>' + lib + '</dt><dd>' + val + '</dd></div>';
+      return '<div class="cal-prevu-lecture"><h3 class="cal-prevu-nom">' + esc(lu.nom) + '</h3>' + (lu.detail ? '<p class="cal-prevu-detail">' + esc(lu.detail) + '</p>' : '') +
+        '<dl class="cal-prevu-stats">' + (s.duree_min ? stat('Durée', duree(s.duree_min)) : '') + (course && Number(s.distance_km) > 0 ? stat('Distance', esc(String(s.distance_km).replace('.', ',')) + ' km') : '') +
+        (course && Number(s.denivele_m) > 0 ? stat('D+', esc(s.denivele_m) + ' m') : '') + (s.intensite ? stat('Intensité', traits(s.intensite) + esc(INTENSITES[s.intensite] || '')) : '') + '</dl>' + etapes(s.description) + '</div>';
+    };
+    // Séance de l'IA : le prévu se lit sans se modifier ; seule la date se change (déplacer la séance) ; l'écart se dit dans le réalisé et le commentaire.
+    const champs = (verrou ? lecture() + '<div class="cal-date-ia">' + champDate + '</div><div class="cal-prevu-champs" hidden>' + champNom + champsPrevu + '</div>' : '<div class="cal-champs2">' + champDate + champNom + '</div>' + champsPrevu) +
       retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
@@ -566,9 +684,9 @@
       v = { querySelector: q => dans.querySelector(q), fermer: () => opts.apres && opts.apres() };
     } else {
       v = fenetre('<form novalidate>' + barre('<button type="submit" class="mrt-btn is-principal">Enregistrer</button>') +
-        titreFenetre(s ? 'Modifier la séance' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
+        titreFenetre(s ? '' : 'Ajouter une séance') + champs + '</form>', 'cal-seance');
     }
-    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
+    const f = v.querySelector('form'), msg = v.querySelector('.cal-msg'), retour = brancherRetour(f, () => { const d = nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : nombre(f.duree.value); return Number.isInteger(d) ? d : null; });
     // Le choix de séance : la liste des courses, puis Renforcement ; un nom libre d'avant la liste reste proposé tel quel (avec son type).
     // Le type s'en déduit ; Renforcement n'a ni distance ni dénivelé.
     const typeOuvert = s ? s.type : (opts.type && TYPES[opts.type] ? opts.type : 'run'); // type proposé par la page qui ouvre la fenêtre (Nutrition)
@@ -582,6 +700,14 @@
     f.nom.addEventListener('change', () => { proposer(); montrer(); });
     if (!s) proposer();
     montrer();
+    // Allure moyenne du réalisé (ou du prévu à défaut), mise à jour à la frappe.
+    const majAllure = () => {
+      const m = nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : nombre(f.duree.value), k = nombre(f.distance_reelle.value) != null ? nombre(f.distance_reelle.value) : nombre(f.distance.value);
+      const a = typeDe() === 'renfo' ? '' : allure(m, k);
+      f.querySelector('.cal-allure').textContent = a ? 'Allure moyenne : ' + a : '';
+    };
+    f.addEventListener('input', majAllure); majAllure();
+    f.description.addEventListener('input', () => { f.description.parentElement.querySelector('.cal-compteur').textContent = f.description.value.length + '/800'; });
     // Pas de focus sur un champ : sur téléphone, il ouvrirait le clavier et ferait remonter la fenêtre. La fenêtre prend la main (clavier d'ordinateur).
     if (!dans) v.querySelector('.cal-panneau').focus({ preventScroll: true });
     const sb = window.mrtSupabase;
@@ -591,7 +717,13 @@
       msg.textContent = colonne ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.';
       msg.scrollIntoView({ block: 'nearest' }); console.warn(err);
     };
-    if (!dans) v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+    // « Annuler » après une saisie : « Abandonner les modifications ? », comme la fiche d'une course (design, § 1, Confirmations).
+    const etatSaisie = () => [...f.querySelectorAll('input, select, textarea')].map(x => (x.type === 'checkbox' || x.type === 'radio' ? x.checked : x.value)).join('\u0001');
+    const saisieDepart = etatSaisie();
+    if (!dans) v.querySelector('[data-act="annuler"]').addEventListener('click', async () => {
+      if (etatSaisie() !== saisieDepart && !(await window.mrtConfirmer(ABANDON))) return;
+      v.fermer();
+    });
     if (s) v.querySelector('[data-act="supprimer"]').addEventListener('click', async e => {
       e.stopPropagation();
       if (!(await window.mrtConfirmer({ texte: 'Supprimer cette séance ?', action: 'Supprimer', danger: true }))) return;
@@ -608,9 +740,22 @@
       if (typeDe() !== 'renfo' && distance !== null && !(distance >= 0.1 && distance < 1000)) return void (msg.textContent = 'La distance doit être comprise entre 0,1 et 999 km.');
       const type = typeDe(), renfo = type === 'renfo', deniv = nombre(f.denivele.value);
       if (!renfo && deniv !== null && !(Number.isInteger(deniv) && deniv >= 1 && deniv < 10000)) return void (msg.textContent = 'Le dénivelé doit être un nombre de mètres entre 1 et 9 999.');
+      // Réalisé : seulement d'une séance faite ; envoyé s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir ses colonnes (évolution 042).
+      const faiteCochee = f.faite.checked, dureeR = nombre(f.duree_reelle.value), distR = nombre(f.distance_reelle.value), denivR = nombre(f.denivele_reel.value), fcM = nombre(f.fc_moyenne.value), fcX = nombre(f.fc_max.value);
+      if (faiteCochee) {
+        if (dureeR !== null && !(Number.isInteger(dureeR) && dureeR >= 1 && dureeR <= 1440)) return void (msg.textContent = 'La durée réalisée doit être un nombre de minutes entre 1 et 1 440.');
+        if (!renfo && distR !== null && !(distR >= 0.1 && distR < 1000)) return void (msg.textContent = 'La distance réalisée doit être comprise entre 0,1 et 999 km.');
+        if (!renfo && denivR !== null && !(Number.isInteger(denivR) && denivR >= 1 && denivR < 10000)) return void (msg.textContent = 'Le dénivelé réalisé doit être un nombre de mètres entre 1 et 9 999.');
+        if ([fcM, fcX].some(x => x !== null && !(Number.isInteger(x) && x >= 30 && x <= 250))) return void (msg.textContent = 'La fréquence cardiaque doit être comprise entre 30 et 250 battements par minute.');
+        if (fcM !== null && fcX !== null && fcM > fcX) return void (msg.textContent = 'La FC moyenne ne peut pas dépasser la FC max.');
+      }
+      const reelChamps = {}, brut = { duree_reelle_min: faiteCochee ? dureeR : null, distance_reelle_km: faiteCochee && !renfo && distR !== null ? Math.round(distR * 10) / 10 : null, denivele_reel_m: faiteCochee && !renfo ? denivR : null, fc_moyenne: faiteCochee ? fcM : null, fc_max: faiteCochee ? fcX : null };
+      Object.keys(brut).forEach(k => { if (brut[k] !== null || (s && s[k] != null)) reelChamps[k] = brut[k]; });
+      // Description : envoyée s'il y en a une (ou s'il y en avait une) : la base peut ne pas avoir sa colonne (évolution 043).
+      const texte = f.description.value.trim(), descChamps = texte || (s && s.description) ? { description: texte || null } : {};
       const champs = Object.assign({ date, type, libelle, duree_min: duree, distance_km: renfo || distance === null ? null : Math.round(distance * 10) / 10, intensite: f.intensite.value || null }, retour(),
         // Le dénivelé n'est envoyé que s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir sa colonne (évolution 039).
-        !renfo && deniv !== null ? { denivele_m: deniv } : (s && s.denivele_m != null ? { denivele_m: null } : {}),
+        !renfo && deniv !== null ? { denivele_m: deniv } : (s && s.denivele_m != null ? { denivele_m: null } : {}), reelChamps, descChamps, degage ? { origine: 'saisie' } : {},
         s ? { date_prevue: date === s.date ? (s.date_prevue || null) : datePrevue(s, date) } : {});
       const { error } = s ? await sb.from('seances').update(champs).eq('id', s.id)
         : await sb.from('seances').insert(Object.assign({ course: opts.course || null }, champs));
@@ -618,8 +763,8 @@
       v.fermer();
       if (s && date !== s.date) await conseiller(ctx, Object.assign({}, s, champs), s);
       await ctx.actualiser();
-      // Un commentaire nouveau ou changé relance la réadaptation par l'IA seulement si la séance est faite : l'IA n'intervient pas sur une séance à venir.
-      if (champs.faite && champs.commentaire && champs.commentaire !== ((s && s.commentaire) || null)) relancer(ctx);
+      // Séance faite avec son effort noté : l'IA l'analyse (feuille « Effort et sensations ») ; elle n'intervient jamais sur une séance à venir.
+      if (s && champs.faite && analysable(s, champs)) feuilleAnalyse(ctx, Object.assign({}, s, champs, { date }));
     });
   }
 
@@ -630,7 +775,7 @@
     if (!c) return;
     const draft = { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
     const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">Enregistrer</button>') +
-      titreFenetre('Paramétrer le plan · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
+      titreFenetre('Régler les phases · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
       '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Revenir aux règles générales</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
     const courant = () => planDe(c, draft.modifs, draft.duree);
@@ -638,7 +783,7 @@
     function dessinerPrep() {
       const plan = courant();
       corps.innerHTML = '<label class="cal-champ cal-duree"><span>Durée en semaines</span><input class="mrt-champ" type="number" min="1" max="52" name="duree" value="' + draft.duree + '"></label>' +
-        '<p class="cal-plan-dates">Début : ' + longue(plan.premier) + ' → jour J : ' + longue(c.date) + (c.prepaFormat ? ' · durée du format : ' + c.prepaFormat + ' sem.' : '') + '</p>' +
+        '<p class="cal-plan-dates">Début : ' + longue(plan.premier) + ' ; jour J : ' + longue(c.date) + (c.prepaFormat ? ' · durée du format : ' + c.prepaFormat + ' sem.' : '') + '</p>' +
         frise(plan, true) +
         '<div class="cal-tab">' + plan.semaines.map(w => '<div class="cal-tab-l"><span class="cal-tab-sem">Semaine ' + w.n + '<small>' + F.semaine(w.lundi) + '</small></span>' +
           '<select class="mrt-champ is-compact" data-sem="' + w.lundi + '" aria-label="Phase de la semaine ' + w.n + '">' + PHASES.map(p => '<option value="' + p[0] + '"' + (p[0] === w.phase ? ' selected' : '') + '>' + p[1] + '</option>').join('') + '</select></div>').join('') + '</div>';
@@ -676,7 +821,11 @@
       document.addEventListener('pointerup', fin);
     });
 
-    v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+    const phasesDepart = JSON.stringify([draft.duree, [...draft.modifs]]);
+    v.querySelector('[data-act="annuler"]').addEventListener('click', async () => {
+      if (JSON.stringify([draft.duree, [...draft.modifs]]) !== phasesDepart && !(await window.mrtConfirmer(ABANDON))) return;
+      v.fermer();
+    });
     v.querySelector('[data-act="recalculer"]').addEventListener('click', async () => {
       if (!(await window.mrtConfirmer({ texte: 'Revenir aux règles générales pour toutes les semaines ?', action: 'Revenir aux règles', danger: true }))) return;
       draft.modifs = new Map();
@@ -731,7 +880,7 @@
     });
   }
 
-  window.mrtPreparation = { deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { traits, lisere, reel, allure, deplacable, NOMS, NOM_RENFO, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
-    fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
+    fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, commentaireAvis, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();

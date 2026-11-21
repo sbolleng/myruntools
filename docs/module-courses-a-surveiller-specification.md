@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.9 · 11 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.11 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Pourquoi cette course », « Site officiel » en lien d'action commun, message d'une liste vide qui dit quoi faire.
 
 ## 1. Rôle
 
@@ -27,7 +27,7 @@ L'adresse `courses-a-surveiller.html?vue=surveiller` (ou `venir`, `courue`, `ouv
 ## 3. Plan de page
 
 ```
-(25) [Cartes ˅]  (30) (⚲ 2)   (31) 7 sur 17 courses   (32) Réinitialiser les filtres      (22) [+ Ajouter une course]
+(25) [Cartes ˅]  (30) (⚲ 2)   (31) 7 sur 17 courses   (32) Réinitialiser les filtres   (36) [Finishers ↗] (22) [+ Ajouter une course]
 ┌ panneau, replié par défaut ─────────────────────────────────────────────────────────────┐
 │ (33) STATUT  [Confirmée 5] [Option 2] [Repérée 3] [Courue 7]      INSCRIPTIONS [Ouvertes 1]   (35) ˄ │
 │ (34) ANNÉE   [Toutes] [2028] [2027] [2026] [2025]                                         │
@@ -58,6 +58,7 @@ Cartes les moins larges possibles (18 rem au moins), **toutes de la même hauteu
 | 14 | Site officiel ↗ | | Bas droite | Lien souligné en Texte ; **grisé, sans adresse, quand `lien` n'est pas renseigné** |
 | 17 | Titre de mois | NOVEMBRE 2026, DATE À DÉFINIR | Au-dessus de chaque groupe, en cartes | Libellé, Texte discret, filet dessous |
 | 22 | Ajouter | + Ajouter une course | Haut de page, à droite | Bouton principal ; absent en lecture seule |
+| 36 | Finishers | [logo] Finishers ↗ | À gauche d'« Ajouter une course » (à droite sans lui) | Bouton à contour (`mrt-btn`), le logo de Finishers (carré bleu aux coins arrondis, 1,1 rem) devant le nom, lien vers finishers.com dans un nouvel onglet, pour chercher une course ; aussi en lecture seule |
 | 25 | Affichage | Liste à choix unique : « Cartes » ou « Tableau » (le choix en cours sur le bouton, avec un chevron) | Haut de page, à gauche | Même liste que le menu « Vue » du Calendrier : bouton `mrt-btn`, liste Surface 2, choix en cours en Accent avec un trait à gauche ; se ferme au choix, en touchant ailleurs ou par Échap ; mêmes dimensions (12 rem au moins), même en-tête « Vue » dans la liste (jamais de libellé dans la barre) ; en Accent ; choix gardé sur l'appareil (`mrt-courses-affichage`), cartes par défaut |
 | 30 | Filtres | Rond à trois traits, badge « 2 » | À droite de la liste d'affichage | Rond `mrt-rond` du Palmarès ; en Accent, avec le nombre de groupes filtrés, quand un filtre est actif ou le panneau ouvert ; ouvre et ferme le panneau |
 | 31 | Compte | 7 sur 17 courses | Après le bouton Filtres | Texte discret ; seulement avec un filtre actif |

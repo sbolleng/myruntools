@@ -4,7 +4,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 
 ## Le projet
 
-- Lire d'abord `docs/README.md` : sommaire des spécifications, feuille de route, todo globale. Le journal des décisions est à part (`docs/journal.md`) : ne le lire qu'au besoin.
+- Lire d'abord `docs/README.md` : mode d'emploi, sommaire des spécifications, feuille de route, prochaines étapes en bref. Le détail de la todo (`docs/todo.md`) et le journal des décisions (`docs/journal.md`) : ne les lire qu'au besoin, par recherche (`grep`) plutôt qu'en entier.
 - Deux profils pilotes au lancement (trail et route), deux comptes créés à la main. Les anciens sites (dépôt `plan-entrainement_Seb`) servent d'inspiration et de source de données ; on n'y développe plus rien de neuf.
 
 ## Règles
@@ -15,14 +15,17 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 - Le pilote route est désigné « le compte test Rome », jamais par son nom ni son adresse, nulle part.
 - Le dépôt est public : aucune donnée personnelle, aucun nom complet de tiers, aucune référence de réservation. Jamais de secret (clé de service Supabase) ; seule la clé publique figure dans le code. Les scripts d'import de données personnelles ne sont jamais versionnés.
 - Vocabulaire : un mot par notion, celui du glossaire (`docs/design.md` § 12) ; tout nouveau texte le reprend (contrôle « vocabulaire » du banc d'essai).
+- Apparence : les règles communes du design (`docs/design.md`, § 1) et l'échelle de sept tailles (§ 3) ; un module reprend les éléments et les variables de `en-tete.css`, il n'en invente pas.
+- Économie de jetons : un fichier de plus de 30 Ko (spécifications Objectif, Préparation, Calendrier, Nutrition, design, gros composants `.js`) ne se lit pas en entier : lister d'abord ses titres (`grep -n '^#'`) ou chercher le mot utile, puis ne lire que les paragraphes ou les lignes concernés. Lancer `node essais.js repasse <groupe>` pendant la mise au point, le banc entier une seule fois avant la mise en ligne.
+- Quand l'utilisateur écrit « reset » : donner la requête SQL de remise à zéro d'un compte pilote (`docs/module-preparation-specification.md`, § 7.1), avec l'adresse qu'il indique dans la discussion ; l'adresse n'est jamais écrite dans le dépôt.
 - Pas d'indexation : chaque page porte `<meta name="robots" content="noindex">` ; `robots.txt` interdit tout.
 
 ## Spécifications
 
-- Une par module : `docs/module-<nom>-specification.md`, en tête « Version x.y · date · [Retour au sommaire](README.md) ».
+- Une par module : `docs/module-<nom>-specification.md`, en tête « Version x.y · date · [Retour au sommaire](README.md) · dernier changement, en une phrase » ; pas d'historique des versions (« Avant… ») : il est dans le journal.
 - Synthétiques, didactiques, compréhensibles par quelqu'un qui n'a jamais vu les anciens sites : aucune référence à l'existant ni aux personnes, pas de design (document séparé).
 - Chaque spécification finit par un jeu d'essai et des résultats attendus, rejoués avant chaque mise en ligne.
-- Chaque décision : une ligne dans `docs/journal.md`, la plus récente en haut.
+- Chaque décision : une ligne dans `docs/journal.md`, la plus récente en haut ; chaque mois écoulé passe dans `docs/journal-archive.md`.
 
 ## Plan de page
 
@@ -42,9 +45,9 @@ Spécification → validation → modèle de données si besoin → construction
 
 - HTML, CSS et JavaScript natifs, sans framework ni compilation.
 - Données : Supabase (offre gratuite), règles par ligne, connexion par adresse e-mail et mot de passe (réglages Supabase : `docs/reglages-supabase-connexion.md`).
-- `composants/` : composants partagés, avec leur feuille de style : En un coup d'œil (`accueil`, page `index.html`), en-tête et menu (`en-tete`, thèmes et éléments communs compris : boutons `mrt-btn` (`is-principal`, `is-danger`), `mrt-rond` (`is-fermer`), lien `mrt-lien`, pastille `mrt-pastille`, champ `mrt-champ` (`mrt-mdp` et son œil pour un mot de passe), section `mrt-section`, déroulé `mrtDeroule` et `details.mrt-deroule`), session et site partagé (`session`, `donnees`), palmarès, fiche d'une course (`fiche-course`), page Saison et page d'une course en modale (`objectif`, `modale-course`), calendrier (vues Semaine, par défaut, Mois et Année au menu « Vue » ; bouton « Phases »), tracé GPX d'une course (`trace` : import, carte Leaflet, profil, téléchargement), besoin du jour de Nutrition (`besoin`, `profil-champs`, `nutrition`), préparation d'une course (`preparation` : plan, phases, séances, plan de préparation `planSaison`, partagé par le Calendrier, la page d'une course et Nutrition), Guide (`guide`, page `guide.html`, hors du menu : mise en page seulement), Mon profil (`profil`, page `profil.html` et feuille commune de Mon plan et Nutrition), page Mon plan (`plan-saison`, page `preparation.html` ; parcours « Construire mon plan » `plan-parcours` ; avis des courses et préparatoire conseillée dans `preparation` ; séances proposées par l'IA `seances-ia`), cartes de toutes les courses avec filtres (`courses` : Statut dont Repérée, Ouvertes, Année), graphiques dans le temps (`graphique` : difficulté d'Objectif, progression du Palmarès).
+- `composants/` : composants partagés, avec leur feuille de style ; la liste (rôle de chaque fichier, éléments communs `mrt-*`) est dans `docs/composants.md`, à lire au besoin.
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
-- Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL) ; `supabase/functions/` : fonctions Supabase (Edge Functions), à coller dans le tableau de bord (relais de recherche d'aliments `recherche-aliments` ; séances proposées par l'IA `proposer-seances`, secrets `ANTHROPIC_API_KEY` et `PILOTES`).
+- Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL) ; `supabase/functions/` : fonctions Supabase (Edge Functions), à coller dans le tableau de bord (relais de recherche d'aliments `recherche-aliments` ; séances proposées par l'IA `proposer-seances`, stratégie de course `proposer-strategie`, analyse de Mes stats `analyser-stats` et lecture d'une page de course `lire-page-course`, secrets `ANTHROPIC_API_KEY` et `PILOTES`).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise` (sombres), `blanc-orange` (fond blanc) et `noir-orange` (fond noir) pour la lecture, et `auto` (blanc ou noir selon l'appareil) ; proposés à tous, choisis dans les Préférences seulement (plus de `?t=…` sur le site), retenus sur l'appareil (`mrt-theme`) et posés dès le chargement ; un seul accent (plus d'Accent 2).
 - `docs/maquettes/` : maquettes (en-tête, calendrier) ; le calendrier s'ouvre avec `?t=trail` ou `?t=route` (profils d'exemple).
 - Banc d'essai : `outils/essais/` (dépendances installées au démarrage de chaque discussion par le hook de `.claude/settings.json` ; `node essais.js`, `node essais.js repasse` pour quelques groupes seulement, `--captures` pour des images ; `node captures.js` photographie les pages pour une maquette, avant/après possible, `THEME=vert-rose` pour un autre thème). Chromium, base simulée par `donnees-fictives.json`, date figée au 20 octobre 2026. Chaque module construit y ajoute ses contrôles, tirés de son jeu d'essai. Données fictives seulement.
@@ -53,10 +56,8 @@ Spécification → validation → modèle de données si besoin → construction
 
 ## État en cours
 
-À tenir à jour à la fin de chaque lot (quelques lignes, pas d'historique : il est dans le journal).
+À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : séances du Calendrier (noms normalisés, intensité en trois traits, Mois aéré, fenêtre d'une séance revue, D+ : évolution 039 passée ; commentaire visible partout, IA seulement sur une séance faite, glisser limité à la semaine en cours). Avant : refonte de Mon plan, étape 2 : vue d'ensemble (Préparation 3.0 § 5.1 : carte de l'Objectif et ses trois réglages, frise en cases semaine, bandeau toujours ouvert), séances de l'IA écrites d'office, durée minimum par format (**fonction `proposer-seances` à recoller**). Avant : étape 1, parcours « Construire mon plan » (`plan-parcours`, § 5.0). Étapes suivantes : course préparatoire, renforcement.
-- Lots précédents récents : Mon plan en page de pilotage (J-138, frise fine, « Cette semaine » ; remplacée par la refonte en cours) ; effort et sensations allégé (feuille en un bloc, douleur en pastilles, repère « à noter ») ; En un coup d'œil, bloc « Découvrir MyRunTools » sous les Premiers pas (modules dans l'ordre où ils servent, case « Au menu », « J'ai compris », « Revoir la découverte » dans les Préférences ; **évolution 037 à passer**) ; avant : Mon profil, une question en petite feuille (`mc-court`, règle au design § 1) ; effort et sensations (évolutions 034 à 036 passées) ; parcours d'un nouvel utilisateur (Premiers pas, profil express) ; Mon plan, lots 6a et 6b (fonction `proposer-seances` recollée le 13 nov. ; plafond de l'IA levé pendant les essais, à remettre avant l'ouverture) ; Inscription (évolution 015 passée) ; Guide 0.1 ; Mon profil (évolution 033 passée) ; Mon plan, un seul plan (Préparation 1.3). Le détail et tout l'historique : `docs/journal.md`.
-- **Rappel en fin de lot**, tant que ce n'est pas fait : ouvrir l'inscription côté Supabase (SMTP par Resend et adresse de retour faits ; anti-robot Turnstile, page RGPD, modèle « Confirm signup » (`supabase/emails/`), puis « Allow new users to sign up » avec `inscription: true` ; README n° 8 et `docs/reglages-supabase-connexion.md`).
-- Prochaine étape : voir « Prochaines étapes » dans `docs/README.md`.
-- Mode d'emploi des discussions (règles, outils, modèle conseillé) : en tête de `docs/README.md`.
+- Dernier lot : fiche d'une course (Objectif 0.86) : ravitaillements sur le profil, « Importer un tracé » et « Supprimer le tracé », « Supprimer la course » en haut. Avant : repasse de cohérence (glossaire § 12 complété et appliqué partout : préparation, Allègement, Décrassage, Ressenti… ; contrastes, cadres, états vides, case « Faite », onglet hors menu, liens vers le Guide, Compte en haut des Préférences ; contrôle « vocabulaire » étendu).
+- En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
+- Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).

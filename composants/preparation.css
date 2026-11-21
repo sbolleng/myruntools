@@ -2,9 +2,16 @@
    docs/module-calendrier-specification.md, § 4 et 5 ; couleurs : docs/design.md, § 9 et 10.
    Partagé par le Calendrier (calendrier.html) et la page d'une course (course.html). */
 /* Couleurs fixes, les mêmes dans tous les thèmes ; l'encre : le texte écrit sur la couleur d'une course. */
-:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --int-moy: #f0883e; }
+:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --ph-entretien: #8c8c8c; --int-moy: #f0883e; }
+/* Liseré d'une séance selon son type (Calendrier, export ; Fractionné : Rouge ; les autres : Bordure). */
+:root { --l-sl: #6b8cff; --l-seuil: #e8c547; --l-cotes: #b48ef0; --l-renfo: #5fbf7a; }
+.t-blanc-orange { --l-sl: #2f5fc4; --l-seuil: #a57a00; --l-cotes: #7a4fc4; --l-renfo: #2e8a4a; }
+:is(.cal-m2-se, .cal-m-se, .cal-carte) { --l: var(--border); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte).l-sl { --l: var(--l-sl); } :is(.cal-m2-se, .cal-m-se, .cal-carte).l-seuil { --l: var(--l-seuil); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte).l-frac { --l: var(--red); } :is(.cal-m2-se, .cal-m-se, .cal-carte).l-cotes { --l: var(--l-cotes); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte).l-renfo { --l: var(--l-renfo); }
 /* Fond blanc : des phases plus foncées, lisibles quand leur nom est écrit dans leur couleur. */
-.t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; }
+.t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; --ph-entretien: #6b6b6b; }
 
 /* ----- Phases (base, développement, affûtage, deload ; hors saison : récupération, l'entretien sans couleur) ----- */
 .cal-k.ph-base, .cal-seg.ph-base { background: var(--ph-base); }
@@ -129,6 +136,7 @@
 
 /* ----- Avis sur une course (Mon plan, page d'une course, fiche) : picto et niveau, raison, sources ----- */
 .pr-avis { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 0.4rem 0 0; font-size: var(--t-second); color: var(--text); }
+.pr-avis-c { margin: 0.2rem 0 0; font-size: var(--t-petit); color: var(--muted); }
 .pr-avis-n { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 600; white-space: nowrap; }
 .pr-avis-n .mrt-ico { align-self: center; }
 .pr-avis.is-conseillee .pr-avis-n { color: var(--accent); }
@@ -177,3 +185,35 @@
 .cal-feuille-retour .fc-libelle { margin-bottom: 0.15rem; }
 .cal-feuille-retour .cal-retour-nom { margin-top: 0; }
 .cal-feuille-retour .cal-ecran { margin-top: 1.1rem; }
+
+/* ----- Analyse de la séance faite par l'IA : attente (trois traits qui s'allument), texte, retour de l'adaptation ----- */
+.cal-attente { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; padding: 1.6rem 0 1.2rem; color: var(--muted); font-size: var(--t-texte); }
+.cal-attente p { margin: 0; }
+.cal-attente-traits { display: inline-flex; align-items: flex-end; gap: 5px; height: 1.8rem; }
+.cal-attente-traits b { width: 6px; border-radius: 2px; background: var(--border); animation: cal-trait 1.3s ease-in-out infinite; }
+.cal-attente-traits b:nth-child(1) { height: 35%; } .cal-attente-traits b:nth-child(2) { height: 65%; animation-delay: 0.22s; } .cal-attente-traits b:nth-child(3) { height: 100%; animation-delay: 0.44s; }
+@keyframes cal-trait { 0%, 70%, 100% { background: var(--border); } 25%, 50% { background: var(--accent); } }
+@media (prefers-reduced-motion: reduce) { .cal-attente-traits b { animation: none; background: var(--accent); } }
+.cal-analyse .fc-libelle, .cal-analyse-lue .fc-libelle { margin: 0.6rem 0 0.4rem; }
+.cal-analyse-texte { margin: 0 0 0.8rem; font-size: var(--t-texte); line-height: 1.55; white-space: pre-line; color: var(--text); }
+.cal-analyse-ok { margin: 0.4rem 0 0; font-size: var(--t-texte); color: var(--accent); }
+.cal-analyse-lue { margin-top: 0.8rem; }
+
+/* ----- Fenêtre d'une séance : séance de l'IA en lecture seule, réalisé d'une séance faite ----- */
+/* Séance de l'IA : du texte structuré sur le fond de la fenêtre, jamais des champs (un champ a un cadre : il s'édite). */
+.cal-prevu-lecture { margin: 0.2rem 0 1rem; padding: 0.9rem 1rem; background: var(--surface2); border-radius: 8px; }
+.cal-prevu-lecture .fc-libelle { margin: 0 0 0.35rem; }
+.cal-prevu-nom { margin: 0; font-size: var(--t-nom); font-weight: 600; color: var(--text); }
+.cal-prevu-detail { margin: 0.15rem 0 0; font-size: var(--t-texte); color: var(--muted); }
+.cal-prevu-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); gap: 0.7rem 1rem; margin: 0.8rem 0 0.7rem; }
+.cal-prevu-stats dt { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cal-prevu-stats dd { display: flex; align-items: center; margin: 0.15rem 0 0; font-size: var(--t-texte); font-weight: 600; color: var(--text); }
+.cal-prevu-stats dd .cal-int { margin-right: 0.4rem; }
+.cal-realise-titre { margin: 0.2rem 0 0.5rem; }
+.cal-allure { min-height: 1.2em; margin: -0.2rem 0 0.8rem; font-size: var(--t-second); color: var(--muted); }
+
+.cal-panneau-titre:empty { display: none; }
+/* Description d'une séance de l'IA : étapes numérotées, le numéro en Accent. */
+.cal-prevu-etapes { margin: 0.2rem 0 0.8rem; padding: 0.7rem 0 0; list-style: none; counter-reset: etape; border-top: 1px solid var(--border); }
+.cal-prevu-etapes li { counter-increment: etape; margin: 0 0 0.55rem; font-size: var(--t-texte); line-height: 1.5; color: var(--text); }
+.cal-prevu-etapes li::before { content: counter(etape) '. '; font-weight: 600; color: var(--accent); }

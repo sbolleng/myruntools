@@ -42,6 +42,17 @@
   // Temps : toujours hh:mm:ss. Allure (par km) : m:ss.
   const fmtDuree = s => (s == null ? '' : pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60));
   const fmtAllure = s => (s == null ? '' : Math.floor(s / 60) + ':' + pad(s % 60));
+  // Ravitaillements (Objectif, § 3.10, F57) : « 12, 25, 38 » ; séparés par une virgule suivie d'une espace, un point-virgule ou une espace,
+  // ou par des virgules seules (« 12,25,38 ») ; la virgule décimale reste lue (« 12,5, 25 »). Rend une liste, null (vide) ou NaN.
+  function parseKms(str) {
+    const t = String(str || '').trim();
+    if (!t) return null;
+    let parts = t.split(/\s*;\s*|,\s+|\s+/).filter(Boolean);
+    if (parts.length === 1 && (t.match(/,/g) || []).length > 1) parts = t.split(',');
+    const v = parts.map(x => (/^\d+([.,]\d)?$/.test(x) ? Number(x.replace(',', '.')) : NaN));
+    return v.some(Number.isNaN) ? NaN : v;
+  }
+  const fmtKms = l => (Array.isArray(l) && l.length ? l.map(x => String(x).replace('.', ',')).join(', ') : '');
   const parseNombre = str => { const s = String(str || '').trim().replace(',', '.'); return s === '' ? null : (isNaN(s) ? NaN : Number(s)); };
   const trailSelonDistance = km => (km < 21 ? 'trail_decouverte' : km < 42 ? 'trail_court' : km < 80 ? 'trail_long' : 'trail_ultra');
 
@@ -101,8 +112,9 @@
     ['dossard', 'Numéro de dossard', 'texte', 'dossard'],
     ['prix', 'Prix (€)', 'nombre', 'dossard'],
     ['gpx', 'Tracé GPX', 'fichier', 'parcours'],
+    ['ravitaillements_km', 'Ravitaillements (km)', 'kms', 'parcours'],
     ['strategie', 'Stratégie de course', 'long', 'parcours'],
-    ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
+    ['pourquoi', 'Pourquoi cette course', 'long', 'preparation'],
     ['logistique', 'Logistique', 'long', 'logistique'],
     // Résultat, puis classements : un seul bloc. Général et sexe : deux champs sur toute la largeur ; catégorie : trois.
     ['temps', 'Temps', 'duree', 'resultat', true],
@@ -138,7 +150,7 @@
     .concat(Array.from({ length: 11 }, (_, i) => ['M' + i, 'Master ' + i + ' (M' + i + ', ' + (35 + 5 * i) + (i < 10 ? '-' + (39 + 5 * i) : ' et plus') + ' ans)']));
   const STATUTS = [['confirmee', 'Confirmée'], ['option', 'Option'], ['a_surveiller', 'Repérée']];
   const APPROX = 'Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.';
-  const DEFAUT = { role: 'preparatoire', statut: 'confirmee' };
+  const DEFAUT = { statut: 'confirmee' }; // le rôle se donne dans Mon plan (vide : hors plan)
   const NOUVEAU = '__nouveau__';
   // Objectif : une liste à choix unique, puis une durée quand le choix en demande une. Rangé comme avant : « Finisher », « Sub 3h », « 02:45:00 ».
   const OBJECTIFS = [['', '— Aucun'], ['finisher', 'Finisher (terminer)'], ['sub', 'Moins de… (Sub)'], ['temps', 'Temps précis']];
@@ -150,7 +162,7 @@
     course: 'ex. Forez Trails', parcours: 'ex. L\'Olmetoise (facultatif)', distance: 'ex. 24,4', dplus: 'ex. 933', dmoins: 'ex. 930',
     heure: 'ex. 07:30', ouverture_heure: 'ex. 12:00', lieu: 'ex. Mont-Clair',
     description: 'Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique', objectif: 'ex. 02:45:00, Finisher ou Sub 3h', objectif_precisions: 'ex. Partir prudemment, sous 4 h dans tous les cas', dossard: 'ex. 412', prix: 'ex. 85',
-    inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027',
+    inscription: 'ex. https://…', lien: 'ex. https://…', lien_resultats: 'ex. https://…', groupe_nouveau: 'ex. Printemps 2027', ravitaillements_km: 'ex. 12, 25, 38',
     temps: 'ex. 49:18 ou 4918', allure: 'ex. 5:24 ou 524',
     place: 'ex. 99', effectif: 'ex. 873', place_categorie: 'ex. 12', effectif_categorie: 'ex. 140', place_sexe: 'ex. 15', effectif_sexe: 'ex. 310',
     montre_distance: 'ex. 24,1', montre_dplus: 'ex. 932', montre_dmoins: 'ex. 935', montre_temps: 'ex. 3:00:23 ou 30023', montre_allure: 'ex. 7:18 ou 718', fc_moyenne: 'ex. 163'
@@ -158,6 +170,23 @@
   // Textes limités, avec un compteur sous le champ.
   const LONGUEURS = { description: 1000, objectif_precisions: 100 };
   const milliers = n => String(n).replace(/\B(?=(\d{3})+$)/g, ' ');
+  // Remplir depuis la page de la course (Objectif, § 3.9) : encart F47 à F56, en ajout seulement.
+  const REMPLIR = '<section class="fc-remplir">' +
+    '<div class="fc-rp-ferme"><p class="fc-rp-phrase">Tu as la page de la course (Finishers, site officiel…) ?</p>' +
+      '<button type="button" class="mrt-btn" data-fc="rp-ouvrir">Remplir depuis la page de la course</button></div>' +
+    '<div class="fc-rp-ouvert" hidden><p class="fc-rp-consigne">Copie tout le texte de la page (Ctrl+A puis Ctrl+C ; sur téléphone, « Tout sélectionner » puis « Copier ») et colle-le ici.</p>' +
+      '<textarea class="mrt-champ fc-rp-texte" rows="5" placeholder="Colle ici le texte de la page" aria-label="Texte de la page de la course"></textarea>' +
+      '<div class="fc-rp-actions"><button type="button" class="mrt-lien" data-fc="rp-fermer">Fermer</button>' +
+      '<button type="button" class="mrt-btn" data-fc="rp-remplir" disabled>Remplir</button></div></div>' +
+    '<div class="fc-rp-choix" hidden><p class="fc-rp-question">Plusieurs parcours trouvés : lequel ?</p><div class="fc-rp-liste"></div>' +
+      '<div class="fc-rp-actions"><button type="button" class="mrt-lien" data-fc="rp-fermer">Fermer</button></div></div>' +
+    '<p class="fc-rp-msg" aria-live="polite"></p></section>';
+  const RP_MAX = 30000;
+  const RP_MSG = {
+    attente: 'Lecture du texte…', rien: 'Aucune information à ajouter n\'a été trouvée dans ce texte.',
+    reserve: 'Réservé aux comptes pilotes pour l\'instant.', panne: 'La lecture n\'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main.',
+    fait: n => n + (n > 1 ? ' champs remplis' : ' champ rempli') + ' : vérifie-les avant d\'enregistrer.'
+  };
 
   // mrtFicheCourse({ course, references, apres, mode, groupes, marquer, preparation })
   //   mode     'courue' (défaut, Palmarès) ou 'a_venir' (Objectif) ; une course existante à venir s'ouvre en 'a_venir'
@@ -195,9 +224,8 @@
       if (genre === 'fichier') {
         // Tracé GPX (Objectif, § 3.4, n° 28) : rangé à l'enregistrement de la course.
         return '<div class="fc-champ fc-large"><span class="fc-lib-seul">' + esc(lib) + '</span><div class="fc-gpx">' +
-          '<span class="fc-gpx-etat">' + (valeur ? 'Tracé importé' : 'Aucun tracé') + '</span>' +
-          '<button type="button" class="mrt-btn" data-fc="gpx-choisir">' + (valeur ? 'Remplacer' : 'Importer un GPX') + '</button>' +
-          (valeur ? '<button type="button" class="mrt-lien is-danger" data-fc="gpx-supprimer">Supprimer</button>' : '') +
+          '<button type="button" class="mrt-btn" data-fc="gpx-choisir">Importer un tracé</button>' +
+          (valeur ? '<button type="button" class="mrt-btn is-danger" data-fc="gpx-supprimer">Supprimer le tracé</button>' : '') +
           '<input type="file" class="fc-gpx-fichier" accept=".gpx" hidden></div><div class="tr-choix-zone" hidden></div><p class="fc-erreur" id="fc-gpx-err" aria-live="polite"></p></div>';
       }
       if (genre === 'choix') {
@@ -208,9 +236,9 @@
           : sousDe(typeDe(c.format)).map(s => [s.id, s.libelle]);
         const vide = DEFAUT[k] ? '' : '<option value="">—</option>';
         const courant = (k === 'role' && valeur === 'objectif_intermediaire' ? 'objectif' : valeur) || DEFAUT[k] || '';
-        // Le rôle Objectif ne se donne que dans Mon plan (Préparation, § 5.0) : affiché sans choix ; sinon Préparatoire ou Plaisir.
-        if (k === 'role' && courant === 'objectif') input = '<input type="hidden" id="' + id + '" data-k="' + k + '" value="objectif"><p class="fc-fixe">Objectif · <a class="mrt-lien" href="preparation.html">réglé dans Mon plan</a></p>';
-        else input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '">' + vide + (k === 'role' ? opts.filter(o => o[0] !== 'objectif') : opts).map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
+        // Le rôle se donne dans Mon plan seulement (Préparation, § 5.1) : affiché sans choix ; vide, « Hors plan ».
+        if (k === 'role') input = '<input type="hidden" id="' + id + '" data-k="' + k + '" value="' + esc(courant) + '"><p class="fc-fixe">' + ((ROLES.find(o => o[0] === courant) || [])[1] || 'Hors plan') + ' · <a class="mrt-lien" href="preparation.html">réglé dans Mon plan</a></p>';
+        else input = '<select class="mrt-champ" id="' + id + '" data-k="' + k + '">' + vide + opts.map(o => '<option value="' + esc(o[0]) + '"' + (o[0] === courant ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>';
       } else if (genre === 'objectif') {
         const o = decouperObjectif(valeur), avec = o.type === 'sub' || o.type === 'temps';
         input = '<div class="fc-objectif"><select class="mrt-champ" id="fc-objectif_type" data-k="objectif_type" aria-label="Type d\'objectif">' +
@@ -234,9 +262,10 @@
           : genre === 'heure' ? (valeur ? String(valeur).slice(0, 5) : '')
           : genre === 'date' && venir && c.date_approx && valeur ? String(valeur).slice(0, 7)
           : genre === 'dateLibre' && c.ouverture_approx && valeur ? String(valeur).slice(0, 7)
+          : genre === 'kms' ? fmtKms(valeur)
           : valeur == null ? '' : genre === 'nombre' ? String(valeur).replace('.', ',') : String(valeur);
         const type = genre === 'date' ? (venir && c.date_approx ? 'month' : 'date') : genre === 'dateLibre' ? (c.ouverture_approx ? 'month' : 'date') : 'text';
-        const saisie = genre === 'nombre' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'allure' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
+        const saisie = genre === 'nombre' || genre === 'kms' ? ' inputmode="decimal"' : genre === 'entier' || genre === 'duree' || genre === 'allure' || genre === 'heure' ? ' inputmode="numeric"' : genre === 'url' ? ' inputmode="url"' : '';
         const borne = genre !== 'date' ? '' : venir ? ' min="' + (c.date_approx ? today().slice(0, 7) : today()) + '"' : ' max="' + today() + '"';
         input = '<input class="mrt-champ" type="' + type + '" id="' + id + '" data-k="' + k + '" value="' + esc(v) + '"' + saisie + borne + (AIDE[k] ? ' placeholder="' + AIDE[k] + '"' : '') + ' autocomplete="off">';
       }
@@ -271,17 +300,18 @@
     racine.innerHTML =
       '<form novalidate>' +
         '<div class="pc-barre fc-barre"><button type="button" class="mrt-btn" data-fc="annuler">Annuler</button>' +
-          '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
+          '<span class="fc-barre-droite">' + (existe && !marquer ? '<button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer" aria-label="Supprimer la course" title="Supprimer la course">' + POUBELLE + '</button>' : '') +
+          '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></span></div>' +
         // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
         '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +
         '<p class="fc-msg" aria-live="polite"></p>' +
+        (existe || marquer ? '' : REMPLIR) +
         BLOCS.map(([b, titre]) =>
           '<section class="fc-bloc">' +
             '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
               (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && !['date_approx', 'ouverture_heure', 'ouverture_approx', 'dnf', 'allure'].includes(f[0])).map(champ).join('') + '</div>' +
           '</section>').join('') +
-        (existe && !marquer ? '<div class="fc-actions"><button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' : '') +
       '</form>';
     hote.replaceChildren(racine);
     if (seule) {
@@ -374,8 +404,6 @@
             val(k).dispatchEvent(new Event('change', { bubbles: true }));
           });
         }
-        $('.fc-gpx-etat').textContent = 'Nouveau tracé : ' + f.name + ' (rangé à l\'enregistrement)' + (ch ? ' · distance, D+ et D− mis à jour d\'après le tracé' : '');
-        $('[data-fc="gpx-choisir"]').textContent = 'Remplacer';
       });
     }
 
@@ -574,6 +602,11 @@
             if (!msg) v += '-01';
           } else if (venir && v && v < today() && v !== c.date) msg = 'La date d\'une course à venir ne peut pas être dans le passé.';
           else if (!venir && v && v > today()) msg = 'La date d\'une course courue ne peut pas être dans le futur.';
+        } else if (genre === 'kms') {
+          v = parseKms(el.value);
+          const dist = parseNombre(val('distance').value);
+          if (Number.isNaN(v)) { msg = 'Indique les km séparés par des virgules.'; v = null; }
+          else if (v && v.some((x, i) => x <= 0 || (dist > 0 && x >= dist) || (i && x <= v[i - 1]))) { msg = 'Des km dans l\'ordre, entre le départ et l\'arrivée.'; v = null; }
         } else if (genre === 'duree' || genre === 'allure') {
           v = parseDuree(el.value);
           if (Number.isNaN(v)) msg = 'Durée illisible (' + AIDE[k] + ').';
@@ -612,8 +645,6 @@
       if (a === 'gpx-choisir') $('.fc-gpx-fichier').click();
       if (a === 'gpx-supprimer') {
         gpx.fichier = null; gpx.supprimer = true;
-        $('.fc-gpx-etat').textContent = 'Tracé supprimé à l\'enregistrement';
-        $('[data-fc="gpx-choisir"]').textContent = 'Importer un GPX';
         act.hidden = true;
         $('#fc-gpx-err').textContent = '';
       }
@@ -672,6 +703,103 @@
       // Nouvelle course à venir, ajoutée depuis sa propre feuille : sa consultation, si elle est sur la feuille de route.
       if (seule && !existe && venir && window.mrtOuvrirCourse) { await sortie; window.mrtOuvrirCourse(id, '', { siPresente: true }); }
     });
+    // ----- Remplir depuis la page de la course (§ 3.9) -----
+    const rp = $('.fc-remplir');
+    if (rp) {
+      const q = s => rp.querySelector(s), texte = q('.fc-rp-texte'), btn = q('[data-fc="rp-remplir"]'), msg = q('.fc-rp-msg');
+      const vue = v => { q('.fc-rp-ferme').hidden = v !== 'ferme'; q('.fc-rp-ouvert').hidden = v !== 'ouvert'; q('.fc-rp-choix').hidden = v !== 'choix'; };
+      q('[data-fc="rp-ouvrir"]').addEventListener('click', () => { msg.textContent = ''; vue('ouvert'); texte.focus(); });
+      rp.querySelectorAll('[data-fc="rp-fermer"]').forEach(b => b.addEventListener('click', () => { texte.value = ''; btn.disabled = true; msg.textContent = ''; vue('ferme'); }));
+      texte.addEventListener('input', () => { btn.disabled = !texte.value.trim(); });
+      // Un parcours choisi (ou le seul) : la fiche est remplie, l'encart se replie, le message reste dessous.
+      const appliquer = p => { const n = remplirAvec(p); texte.value = ''; btn.disabled = true; vue('ferme'); msg.textContent = n ? RP_MSG.fait(n) : RP_MSG.rien; };
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        msg.textContent = RP_MSG.attente;
+        const corps = { texte: texte.value.slice(0, RP_MAX), aujourdhui: today(), types: references.types.map(t => ({ id: t.id, libelle: t.libelle })),
+          formats: references.sous.map(x => ({ id: x.id, libelle: x.libelle, type: x.type })) };
+        let data = null, code = null, panne = false;
+        try {
+          const r = await window.mrtSupabase.functions.invoke('lire-page-course', { body: corps });
+          data = r.data;
+          if (r.error) { panne = true; try { code = (await r.error.context.json()).code; } catch (e) { /* réponse sans corps lisible */ } if (code !== 'reserve') console.warn(r.error); }
+        } catch (e) { panne = true; console.warn(e); }
+        if (panne) { msg.textContent = code === 'reserve' ? RP_MSG.reserve : RP_MSG.panne; btn.disabled = !texte.value.trim(); return; }
+        const liste = (data && Array.isArray(data.parcours) ? data.parcours : []).filter(p => p && typeof p === 'object');
+        if (liste.length <= 1) { appliquer(liste[0] || {}); return; }
+        // Plusieurs parcours : un bouton par parcours (nom, distance, D+ s'ils sont connus).
+        q('.fc-rp-liste').innerHTML = liste.map((p, i) => {
+          const km = parseNombre(p.distance), dp = parseNombre(p.dplus);
+          const lib = [p.parcours || p.course || 'Parcours ' + (i + 1), km > 0 ? String(km).replace('.', ',') + ' km' : '', dp > 0 ? milliers(Math.round(dp)) + ' m D+' : ''].filter(Boolean).join(' · ');
+          return '<button type="button" class="mrt-btn" data-rp="' + i + '">' + esc(lib) + '</button>';
+        }).join('');
+        q('.fc-rp-liste').querySelectorAll('[data-rp]').forEach(b => b.addEventListener('click', () => appliquer(liste[+b.dataset.rp])));
+        msg.textContent = '';
+        vue('choix');
+      });
+    }
+    // Remplit les seuls champs vides avec les valeurs qui passent les contrôles de saisie ; rend le nombre de champs remplis.
+    function remplirAvec(p) {
+      const brut = k => String((p && p[k]) || '').trim();
+      const vides = new Set(CHAMPS.map(f => f[0]).filter(k => { const e = val(k); return e && e.type !== 'checkbox' && e.type !== 'hidden' && !String(e.value).trim(); }));
+      const remplis = [];
+      const poser = (k, v) => {
+        const e = val(k);
+        if (!e || !vides.has(k) || v == null || v === '' || e.disabled) return false;
+        e.value = v;
+        if (e.value !== v) { e.value = ''; return false; } // valeur absente d'une liste
+        e.dispatchEvent(new Event('input', { bubbles: true }));
+        e.dispatchEvent(new Event('change', { bubbles: true }));
+        remplis.push(e);
+        return true;
+      };
+      const cocher = (k, oui) => { const e = val(k); if (e && e.checked !== oui) { e.checked = oui; e.dispatchEvent(new Event('change', { bubbles: true })); } };
+      const jourValide = d => /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d)) && new Date(d + 'T12:00:00Z').toISOString().slice(0, 10) === d;
+      const moisValide = d => /^\d{4}-(0[1-9]|1[0-2])$/.test(d);
+      const nombre = (k, entier) => { const x = parseNombre(brut(k).replace(/\s/g, '')); return x == null || isNaN(x) || x < 0 || (k === 'distance' && x === 0) ? null : entier ? String(Math.round(x)) : String(x).replace('.', ','); };
+      const heure = k => { const h = parseHeure(brut(k)); return typeof h === 'string' ? h : null; };
+      const url = k => (/^https?:\/\/\S+$/i.test(brut(k)) ? brut(k) : null);
+      ['course', 'parcours', 'lieu'].forEach(k => poser(k, brut(k).slice(0, 200)));
+      // Type, puis le format après la distance (la distance propose un format de trail) ; le format décide du type.
+      const sc = references.sous.find(x => x.id === brut('format')), tp = sc ? sc.type : (references.types.some(t => t.id === brut('type')) ? brut('type') : '');
+      poser('type', tp);
+      // Date : à venir, aujourd'hui ou plus tard (mois seul : ce mois-ci ou plus tard) ; courue, aujourd'hui ou avant.
+      const d = brut('date');
+      if (vides.has('date')) {
+        if (jourValide(d) && (venir ? d >= today() : d <= today())) { if (venir) cocher('date_approx', false); poser('date', d); }
+        else if (venir && moisValide(d) && d >= today().slice(0, 7)) { cocher('date_approx', true); if (!poser('date', d)) cocher('date_approx', false); }
+      }
+      poser('heure', heure('heure'));
+      poser('distance', nombre('distance'));
+      if (sc && vides.has('format') && val('type').value === sc.type) { vides.add('format'); val('format').value = ''; poser('format', sc.id); }
+      poser('dplus', nombre('dplus', true));
+      poser('dmoins', nombre('dmoins', true));
+      poser('description', brut('description').slice(0, LONGUEURS.description));
+      poser('lien', url('lien'));
+      if (venir) {
+        const o = brut('ouverture_inscriptions');
+        if (vides.has('ouverture_inscriptions')) {
+          if (jourValide(o)) { cocher('ouverture_approx', false); poser('ouverture_inscriptions', o); }
+          else if (moisValide(o)) { cocher('ouverture_approx', true); if (!poser('ouverture_inscriptions', o)) cocher('ouverture_approx', false); }
+        }
+        poser('ouverture_heure', heure('ouverture_heure'));
+        poser('inscription', url('inscription'));
+      }
+      poser('prix', nombre('prix'));
+      // Liseré Accent sur les champs remplis, blocs ouverts.
+      remplis.forEach(e => {
+        const ch = e.closest('.fc-champ');
+        if (ch) ch.classList.add('fc-rempli');
+        const bloc = e.closest('.fc-grille');
+        if (bloc && bloc.hidden) { bloc.hidden = false; bloc.previousElementSibling.setAttribute('aria-expanded', 'true'); }
+      });
+      return remplis.length;
+    }
+    // Le liseré disparaît à la première modification du champ par le coureur.
+    const garde = e => { if (!e.isTrusted || !e.target.dataset || !e.target.dataset.k) return; const ch = e.target.closest('.fc-rempli'); if (ch) ch.classList.remove('fc-rempli'); };
+    racine.addEventListener('input', garde);
+    racine.addEventListener('change', garde);
+
     depart = etat();
     return { annuler };
   };

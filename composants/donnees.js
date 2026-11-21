@@ -13,12 +13,13 @@
     { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
     { nom: 'Cette semaine' },
     { nom: 'Objectif', libelle: 'Saison', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
-    { nom: 'Préparation', libelle: 'Mon plan', page: 'preparation.html', defaut: false, aide: 'Ta saison, ses phases, tes courses et les séances proposées.' }, // à cocher dans les Préférences, comme Nutrition ; nom : la clé rangée dans les préférences
+    { nom: 'Préparation', libelle: 'Mon plan', page: 'preparation.html', defaut: false, aide: 'Ta préparation, ses phases, tes courses et les séances proposées.' }, // à cocher dans les Préférences, comme Nutrition ; nom : la clé rangée dans les préférences
     { nom: 'Calendrier', page: 'calendrier.html' },
     { nom: 'Nutrition', page: 'nutrition.html', defaut: false, aide: 'Ton besoin du jour et ton journal des repas.' }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
     { nom: 'Courses à surveiller', libelle: 'Courses', page: 'courses-a-surveiller.html' },
     { nom: 'Palmarès', page: 'palmares.html' },
     { nom: 'Profil', libelle: 'Mon profil', page: 'profil.html' }, // tout ce qui décrit le coureur ; au menu par défaut (sixième onglet)
+    { nom: 'Stats', libelle: 'Mes stats', page: 'stats.html', defaut: false, aide: 'Ta progression mois par mois, tes meilleurs temps et une analyse.' }, // à cocher dans les Préférences
     { nom: 'Guide', adresse: 'guide.html' } // article de lecture, hors du menu : accessible par son adresse seulement (pas de « page », qui le mettrait au menu)
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif
@@ -141,9 +142,10 @@
   window.mrtObjectifsCap = courses => window.mrtCoursesCap(courses).filter(c => c.statut === 'confirmee' && (c.role === 'objectif' || c.role === 'objectif_intermediaire'));
   // Le cap (Préparation, § 5.0) : l'Objectif choisi dans les Préférences, sinon le dernier Objectif à venir ; sans Objectif,
   // la course à venir la plus lointaine.
+  // Toute course à venir peut être choisie (Saison s'utilise sans Mon plan) ; par défaut, le dernier Objectif s'il y a un plan.
   window.mrtCap = (courses, prefs) => {
     const aVenir = window.mrtCoursesCap(courses), objectifs = window.mrtObjectifsCap(courses);
-    return objectifs.find(c => c.id === (prefs || {}).course_cap) || objectifs[objectifs.length - 1] || aVenir[aVenir.length - 1] || null;
+    return aVenir.find(c => c.id === (prefs || {}).course_cap) || objectifs[objectifs.length - 1] || aVenir[aVenir.length - 1] || null;
   };
 
   function configEnTete(prefs, courses) {
@@ -261,6 +263,7 @@
     const lirePlan = async () => { try { return await window.mrtLirePlan(qui); } catch (err) { console.warn('Calendrier : séances illisibles', err); return { seances: [], semaines: [] }; } };
     const plan = opts.plan ? (avanceValable && avance.plan ? await avance.plan : await lirePlan()) : null;
     let prefsCourantes = prefs;
+    window.mrtPrefs = () => prefsCourantes || {}; // la course principale de Saison (objectif.js) les lit
     // Grand en-tête sur la page de démarrage seulement ; ailleurs, la barre fine.
     const dessiner = p => {
       prefsCourantes = p;

@@ -36,9 +36,18 @@
   // Retour sur une séance (lot 6a) : seulement ce qui est renseigné.
   const DOUL = { aucune: 'aucune', legere: 'légère', forte: 'forte' };
   const retour = s => Object.fromEntries(Object.entries({ ressenti_sur_10: s.ressenti, ressenti: s.ressenti ? (P.niveauRessenti(s.ressenti) || [])[1] : null,
-    charge_ua: P.charge(s.ressenti, s.duree_min), douleur: s.douleur ? DOUL[s.douleur] + (s.douleur_ou ? ' (' + s.douleur_ou + ')' : '') : null,
+    charge_ua: P.charge(s.ressenti, P.reel(s).duree_min), douleur: s.douleur ? DOUL[s.douleur] + (s.douleur_ou ? ' (' + s.douleur_ou + ')' : '') : null,
     sensations: s.sensations ? ['très bonnes', 'bonnes', 'moyennes', 'pas bonnes', 'très mauvaises'][s.sensations - 1] : null,
     fatigue_sur_5: s.fatigue, commentaire: s.commentaire, deplacee_du: s.date_prevue }).filter(([, v]) => v != null && v !== ''));
+  // Réalisé d'une séance faite (seulement ce qui est saisi) : durée, distance, dénivelé, FC, allure.
+  const realise = s => {
+    if (!s.faite) return {};
+    const r = P.reel(s), o = Object.fromEntries(Object.entries({ duree_min: s.duree_reelle_min, distance_km: s.distance_reelle_km == null ? null : Number(s.distance_reelle_km), denivele_m: s.denivele_reel_m,
+      fc_moyenne: s.fc_moyenne, fc_max: s.fc_max }).filter(([, v]) => v != null));
+    if (!Object.keys(o).length) return {};
+    if (s.type !== 'renfo' && P.allure(r.duree_min, Number(r.distance_km))) o.allure = P.allure(r.duree_min, Number(r.distance_km));
+    return { realise: o };
+  };
   function contexte(ctx, lundi) {
     const ps = P.planSaison(ctx), pr = ctx.profil || {}, fin = addDays(lundi, 7 * BLOC - 1);
     const semaines = [];
@@ -53,7 +62,7 @@
     }
     const sx = ps.saisons.find(s => s.jourJ >= lundi);
     const historique = ctx.seances.filter(s => s.date >= addDays(lundi, -28) && s.date < lundi).sort((a, b) => (a.date < b.date ? -1 : 1))
-      .map(s => Object.assign({ date: s.date, type: s.type, libelle: s.libelle, duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), intensite: s.intensite || null, faite: !!s.faite }, retour(s)));
+      .map(s => Object.assign({ date: s.date, type: s.type, libelle: s.libelle, duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), intensite: s.intensite || null, faite: !!s.faite }, s.date >= iso(new Date()) ? { prevue_pas_encore_passee: true } : {}, retour(s)));
     // Séances à venir qui portent un commentaire (une contrainte, une envie : « pas disponible jeudi »).
     const commentaires_a_venir = ctx.seances.filter(s => s.date >= lundi && s.date <= fin && s.commentaire && !s.faite).sort((a, b) => (a.date < b.date ? -1 : 1))
       .map(s => ({ date: s.date, type: s.type, libelle: s.libelle, commentaire: s.commentaire }));
@@ -63,14 +72,13 @@
       semaines,
       profil: {
         niveau: (window.mrtProfil && window.mrtProfil.libelleDe('niveau', pr.niveau)) || null, je_cours_depuis: LIBELLES.anciennete[pr.anciennete] || null,
-        antecedents_blessures: (window.mrtProfil && window.mrtProfil.libelleDe('antecedents', pr.antecedents)) || null, distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
+        distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
         plus_longue_sortie_recente: LIBELLES.sortie_tranche[pr.sortie_tranche] || null,
         jours_possibles_course: joursDe(pr, 'jours_course').map(nomJour), jours_possibles_renforcement: joursDe(pr, 'jours_renfo').map(nomJour),
         sorties_course_par_semaine: pr.nb_sorties || null, renforcements_par_semaine: pr.nb_renfo || 0,
         jour_sortie_longue: pr.jour_long ? nomJour(pr.jour_long) + ' de préférence' : 'peu importe',
         consigne_semaine: 'Au plus ' + (pr.nb_sorties || 0) + ' sorties de course par semaine, seulement les jours possibles pour courir ; au plus ' + (pr.nb_renfo || 0) +
           ' renforcements, seulement les jours possibles pour le renforcement ; course et renforcement peuvent tomber le même jour : adapte alors le volume.',
-        seance_max_min: pr.seance_max_min && pr.seance_max_min < 1440 ? pr.seance_max_min : null,
         repere_allure: pr.allure_type === 'vma' ? 'VMA ' + pr.vma + ' km/h' : pr.allure_type === '10km' ? '10 km en ' + temps(pr.temps_10km_s) : pr.allure_type === 'semi' ? 'semi-marathon en ' + temps(pr.temps_semi_s) : pr.allure_type === 'marathon' ? 'marathon en ' + temps(pr.temps_marathon_s) : 'inconnu (rester prudent)',
         terrains: LIBELLES.terrain[pr.terrain] || null, niveau_renforcement: pr.renfo_niveau || null, fc_max: pr.fc_max == null ? null : pr.fc_max, points_fragiles: pr.fragiles || null
       },
@@ -98,6 +106,7 @@
       if (!String(s.libelle || '').trim() || String(s.libelle).length > 100) err.push(quand + ' : libellé vide ou de plus de 100 caractères');
       const nomOk = P.lireLibelle(s.libelle), dispo = P.nomsDuType(s.type).map(x => x.nom);
       if (String(s.libelle || '').trim() && !dispo.includes(nomOk.nom)) err.push(quand + ' : le libellé doit commencer par un nom de la liste (' + dispo.join(', ') + ')');
+      if (String(s.description || '').length > 800) err.push(quand + ' : description de plus de 800 caractères');
       if (!Number.isInteger(s.duree_min) || s.duree_min < 1 || s.duree_min > 1440) err.push(quand + ' : durée invalide');
       const ok = possibles(pr, j);
       if (s.type === 'run' && !ok.includes('course')) err.push(quand + ' : jour non prévu pour courir');
@@ -106,7 +115,6 @@
       const reps = P.reperesDuJour(ps, j);
       if (reps.some(r => r.type === 'repos')) err.push(quand + ' : jour de repos (veille de course), aucune séance');
       if (reps.some(r => r.type === 'recup') && s.intensite !== 'facile') err.push(quand + ' : jour de récupération, séance facile seulement');
-      if (pr.seance_max_min && pr.seance_max_min < 1440 && s.duree_min > pr.seance_max_min) err.push(quand + ' : séance de plus de ' + pr.seance_max_min + ' min');
       const l = lundiDe(j); vol[l] = (vol[l] || 0) + (Number(s.duree_min) || 0);
       nb[l] = nb[l] || { run: 0, renfo: 0 }; if (nb[l][s.type] != null) nb[l][s.type]++;
     });
@@ -169,7 +177,7 @@
   async function accepter(ctx, prop, lundis) {
     const lignes = seancesDe(prop.reponse).filter(s => lundis.includes(lundiDe(s.date))).map(s => ({
       date: s.date, type: s.type, libelle: String(s.libelle).trim().slice(0, 100), duree_min: s.duree_min,
-      distance_km: Number(s.distance_km) > 0 ? Math.round(Number(s.distance_km) * 10) / 10 : null, intensite: s.intensite, origine: 'ia', etat: 'acceptee', course: null }));
+      distance_km: Number(s.distance_km) > 0 ? Math.round(Number(s.distance_km) * 10) / 10 : null, intensite: s.intensite, description: String(s.description || '').trim().slice(0, 800) || null, origine: 'ia', etat: 'acceptee', course: null }));
     // Remplacer, pas ajouter : les séances de l'IA non faites de ces semaines partent avant l'écriture des nouvelles.
     const anciennes = aRemplacer(ctx, lundis).map(s => s.id);
     if (lignes.length && anciennes.length) { const { error } = await sb().from('seances').delete().in('id', anciennes); if (error) return error; }
@@ -201,10 +209,46 @@
     const err = await accepter(c, { id: r.id, reponse: r.reponse }, [0, 1, 2, 3].map(i => addDays(lundi, 7 * i)));
     return err ? { message: 'Enregistrement impossible pour l\'instant.' } : { id: r.id };
   }
+  // ----- Analyse d'une séance faite (fonction « proposer-seances », mode « analyse ») -----
+  // Contexte : la fiche de la séance et le retour de l'utilisateur (effort, sensations, douleur, commentaire), la phase du plan, la prochaine
+  // course (sans son nom), le profil utile et les séances des 4 semaines d'avant avec leur retour. Rien n'est rangé dans « propositions ».
+  function contexteAnalyse(ctx, s, pr) {
+    const ps = P.planSaison(ctx), x = P.phaseDe(ps, lundiDe(s.date)), l = P.lireLibelle(s.libelle);
+    const prochaine = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date >= s.date).sort((a, b) => (a.date < b.date ? -1 : 1))[0];
+    const fiche = Object.assign({ date: s.date, jour: NOMS_JOURS[parse(s.date).getDay()], type: TYPES[s.type] || s.type, nom: l.nom, detail: l.detail || null,
+      duree_min: s.duree_min == null ? null : s.duree_min, distance_km: s.distance_km == null ? null : Number(s.distance_km), denivele_m: s.denivele_m == null ? null : Number(s.denivele_m),
+      intensite_prevue: s.intensite ? P.INTENSITES[s.intensite] : null, description: s.description || null }, realise(s), retour(Object.assign({}, s, { commentaire: s.commentaire })));
+    const historique = ctx.seances.filter(y => y.id !== s.id && y.date >= addDays(s.date, -28) && y.date < s.date).sort((a, b) => (a.date < b.date ? -1 : 1))
+      .map(y => Object.assign({ date: y.date, type: y.type, libelle: y.libelle, duree_min: y.duree_min == null ? null : y.duree_min, distance_km: y.distance_km == null ? null : Number(y.distance_km),
+        intensite: y.intensite || null, faite: !!y.faite }, y.faite ? Object.assign(realise(y), retour(y)) : {}));
+    return {
+      aujourd_hui: iso(new Date()), seance: fiche,
+      phase_du_plan: x ? NOM_PHASE[x.phase] : 'Entretien',
+      prochaine_course: prochaine ? { role: ROLES[P.roleDe(prochaine)] || prochaine.role, format: prochaine.formatLibelle || prochaine.format, distance_km: prochaine.distance != null ? Number(prochaine.distance) : null,
+        dplus_m: prochaine.dplus != null ? Number(prochaine.dplus) : null, jours_restants: Math.round((parse(prochaine.date) - parse(s.date)) / 864e5) } : null,
+      profil: pr ? { niveau: (window.mrtProfil && window.mrtProfil.libelleDe('niveau', pr.niveau)) || null,
+        points_fragiles: pr.fragiles || null, fc_max: pr.fc_max == null ? null : pr.fc_max } : null,
+      blessure_en_cours: pr && pr.blessure ? { description: pr.blessure, depuis: pr.blessure_debut || null } : null,
+      historique
+    };
+  }
+  // Rend { analyse, adapter } (le texte est rangé sur la séance), { reserve } (compte non pilote : rien à dire) ou { message }.
+  async function analyser(ctx, s) {
+    const c = Object.assign({ courses: [], seances: [], semaines: [] }, ctx);
+    if (c.profil === undefined) { const { data } = await sb().from('profil_entrainement').select('*'); c.profil = (data && data[0]) || null; }
+    const r = await appel({ mode: 'analyse', contexte: contexteAnalyse(c, s, c.profil) });
+    if (r.erreur === 'Réservé aux comptes pilotes pour l\'instant.') return { reserve: true };
+    if (r.erreur) return { message: 'Analyse impossible pour l\'instant, réessaie plus tard.' };
+    const texte = String((r.data && r.data.analyse) || '').trim();
+    if (!texte) return { message: 'Analyse impossible pour l\'instant, réessaie plus tard.' };
+    const { error } = await sb().from('seances').update({ analyse_ia: texte }).eq('id', s.id);
+    if (error) console.warn('analyse non rangée (évolution 041 passée ?)', error);
+    return { analyse: texte, adapter: r.data.adapter === true };
+  }
   // Historique (élément 10) : une ligne par proposition (la reprise d'une proposition refusée par les garde-fous n'en fait qu'une).
   const MOTIFS = { proposer: 'Proposer', refaire: 'Refaire', readaptation: 'Réadaptation' };
   const STATUTS = { brute: 'En attente', acceptee: 'Acceptée', abandonnee: 'Abandonnée', echec: 'Impossible à vérifier' };
   const historique = ctx => (ctx.propositions || []).filter(x => x.statut !== 'invalide' && !(x.statut === 'echec' && x.essai === 2)).sort((a, b) => (a.cree < b.cree ? 1 : -1));
 
-  window.mrtSeancesIA = { readapter, historique, MOTIFS, STATUTS, PLAFOND, seancesDe, recommandationDe, contexte, gardeFous, restantes, enAttente, proposer, accepter, aRemplacer, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
+  window.mrtSeancesIA = { analyser, readapter, historique, MOTIFS, STATUTS, PLAFOND, seancesDe, recommandationDe, contexte, gardeFous, restantes, enAttente, proposer, accepter, aRemplacer, abandonner: prop => statut(prop.id, 'abandonnee'), lirePropositions };
 })();

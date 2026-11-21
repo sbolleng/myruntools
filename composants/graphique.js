@@ -20,6 +20,8 @@
 //   ligne      : identifiants des points reliés, dans l'ordre ; ligneDiscrete : ligne fine, Texte discret ;
 //                etiquettesDessous : étiquettes centrées sous les points ; etiquettesHautGauche : coin bas droit de l'étiquette sur le coin haut gauche du point (haut droite près du bord gauche)
 //   tendance   : { y0, y1 } droite de debut à fin, facultative
+//   barres     : largeur (en % du tracé) : chaque point de forme 'barre' porte une barre qui monte du bas du tracé (Mes stats)
+//   ligne2     : identifiants d'une seconde série reliée en pointillé discret (cible de Mes stats)
 //   vide       : texte à la place du tracé (pas assez de points)
 //   bas        : html sous le graphique (bilan, tableau des chiffres)
 // }
@@ -86,6 +88,9 @@
       svg += '<line class="mg-jour" x1="' + xAt(cfg.aujourdhui) + '" x2="' + xAt(cfg.aujourdhui) + '" y1="0" y2="100"/>';
     if (cfg.tendance) svg += '<line class="mg-tendance" x1="' + xAt(d0) + '" x2="' + xAt(d1) + '" y1="' + yAt(cfg.tendance.y0) + '" y2="' + yAt(cfg.tendance.y1) + '"/>';
     const chemin = (cfg.ligne || []).map(i => parId[i]).filter(Boolean);
+    if (cfg.barres) pts.filter(p => p.forme === 'barre').forEach(p => { svg += '<rect class="mg-barre" x="' + (p.x - cfg.barres / 2) + '" y="' + p.yy + '" width="' + cfg.barres + '" height="' + Math.max(0, 96 - p.yy) + '"/>'; });
+    const chemin2 = (cfg.ligne2 || []).map(i => parId[i]).filter(Boolean);
+    if (chemin2.length > 1) svg += '<polyline class="mg-ligne is-cible" points="' + chemin2.map(p => p.x + ',' + p.yy).join(' ') + '"/>';
     if (chemin.length > 1) svg += '<polyline class="mg-ligne' + (cfg.ligneDiscrete ? ' is-discrete' : '') + '" points="' + chemin.map(p => p.x + ',' + p.yy).join(' ') + '"/>';
     pts.filter(p => p.t2 != null).forEach(p => { svg += '<line class="mg-periode" x1="' + p.x1 + '" x2="' + p.x2 + '" y1="' + p.yy + '" y2="' + p.yy + '"/>'; });
 

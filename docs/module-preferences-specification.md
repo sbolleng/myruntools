@@ -1,6 +1,6 @@
-# Préférences utilisateur · spécification fonctionnelle
+# Préférences · spécification fonctionnelle
 
-Version 1.16 · 13 novembre 2026 · [Retour au sommaire](README.md)
+Version 1.17 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : section Compte (déconnexion) en haut de la page, « Espaces partagés avec moi », engrenage « Préférences ».
 
 ## 1. Objet
 
@@ -11,7 +11,7 @@ La page Préférences rassemble les réglages du site de l'utilisateur connecté
 
 ## 2. Organisation
 
-Une section par réglage, de la plus utilisée à la moins utilisée : **Thème**, **Objectif principal**, **Menu**, **En un coup d'œil**, **Partage**, **Compte** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
+**Compte** d'abord (le compte connecté, « Se déconnecter » et « Changer le mot de passe » : la déconnexion se trouve sans chercher, 21 nov. 2026), puis une section par réglage, de la plus utilisée à la moins utilisée : **Thème**, **Objectif principal**, **Menu**, **En un coup d'œil**, **Partage** ; un cadre pour toute la page, un filet entre deux sections (design, § 1).
 
 - **Enregistrement immédiat** : chaque changement est enregistré dès qu'il est fait, sans bouton « Enregistrer ». Un court message « Enregistré » apparaît sous le bloc ; en cas d'échec, « Enregistrement impossible pour l'instant », et le réglage revient à sa valeur précédente.
 - **Effet immédiat** : le thème et le menu de la page se mettent à jour sans recharger ; le cap se voit dans l'en-tête de la page de démarrage et dans la barre fine.
@@ -86,7 +86,7 @@ Résultats attendus :
 
 - L'engrenage ouvre la page ; elle a la barre fine (« Cap sur … » et l'engrenage), pas l'en-tête ; elle ne figure pas dans le menu.
 - Sans connexion, la page renvoie vers la connexion sans rien afficher.
-- Les blocs se suivent dans cet ordre : Compte, Objectif principal, Thème, Menu, Page d'accueil, Partage ; aucun thème ne porte de mention.
+- Les blocs se suivent dans cet ordre : Compte, Thème, Objectif principal, Menu, En un coup d'œil, Partage ; aucun thème ne porte de mention.
 - Thème : Bleu et orange est coché. Choisir Vert et rose : la page change de couleurs aussitôt, « Enregistré » apparaît ; recharger : Vert et rose est toujours coché, et l'accueil s'ouvre en vert et rose.
 - Page ouverte avec `?t=violet-turquoise` : sans effet, la page reste en vert et rose.
 - Menu : tous les modules sont cochés, dans l'ordre du catalogue ; les modules non construits sont grisés, « · bientôt » ; le menu de la page n'a que les modules construits : En un coup d'œil, Objectif, Calendrier, Courses à surveiller, Palmarès.

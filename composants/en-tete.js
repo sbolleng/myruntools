@@ -66,6 +66,30 @@
     nombre: n => nf.format(Number(n)).replace(/ /g, ' ')
   };
 
+  // ===== Date en trois champs (design, § 11) : Jour, Mois (liste), Année ; pour une date connue par cœur (date de naissance),
+  // sans calendrier à faire défiler. html(nom, '1979-06-08') ; lire(conteneur, nom) : '1979-06-08', '' (tout vide) ou null (incomplète
+  // ou impossible). Les trois champs s'appellent <nom>_j, <nom>_m et <nom>_a.
+  window.mrtDateTrois = {
+    html(nom, iso) {
+      const p = /^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? iso.split('-').map(Number) : [];
+      const id = 'd3-' + nom + '-' + Math.random().toString(36).slice(2, 7);
+      return '<div class="mrt-date3" role="group">' +
+        '<label class="mrt-date3-j"><span>Jour</span><input class="mrt-champ" id="' + id + '" name="' + nom + '_j" inputmode="numeric" maxlength="2" autocomplete="bday-day" placeholder="ex. 8" value="' + (p[2] || '') + '"></label>' +
+        '<label class="mrt-date3-m"><span>Mois</span><select class="mrt-champ" name="' + nom + '_m" autocomplete="bday-month"><option value="">—</option>' +
+          MONTHS.map((m, i) => '<option value="' + (i + 1) + '"' + (p[1] === i + 1 ? ' selected' : '') + '>' + m + '</option>').join('') + '</select></label>' +
+        '<label class="mrt-date3-a"><span>Année</span><input class="mrt-champ" name="' + nom + '_a" inputmode="numeric" maxlength="4" autocomplete="bday-year" placeholder="ex. 1985" value="' + (p[0] || '') + '"></label></div>';
+    },
+    lire(el, nom) {
+      const v = k => String((el.querySelector('[name="' + nom + '_' + k + '"]') || {}).value || '').trim();
+      const j = v('j'), m = v('m'), a = v('a');
+      if (!j && !m && !a) return '';
+      if (!/^\d{1,2}$/.test(j) || !m || !/^\d{4}$/.test(a)) return null;
+      const d = new Date(Number(a), Number(m) - 1, Number(j));
+      if (d.getFullYear() !== Number(a) || d.getMonth() !== Number(m) - 1 || d.getDate() !== Number(j)) return null;
+      return a + '-' + pad(Number(m)) + '-' + pad(Number(j));
+    }
+  };
+
   // ===== Icônes communes (design, § 11) : dessinées en trait fin, de la couleur du texte ; plus aucun caractère tapé (×, +, ‹ ›, ↑ ↓) =====
   const icone = d => '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   window.mrtIcone = {
@@ -80,6 +104,10 @@
     oeil: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM8 6.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 1 1 0-3.4z'),
     oeilBarre: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM3 13.5L13 2.5'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
+    // Crayon : modifier une course (page d'une course, Palmarès).
+    crayon: icone('M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z'),
+    // Repère d'une course dans la frise de Mon plan : triangle plein.
+    repere: '<svg class="mrt-ico mrt-repere" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5l5 9H3z" fill="currentColor"/></svg>',
     bas: icone('M8 3.5v9M4.5 9L8 12.5 11.5 9'),
     // Avis sur une course (Mon plan) : conseillée, possible, déconseillée.
     valide: icone('M3.5 8.5l3 3 6-7'),
@@ -154,7 +182,7 @@
     // Site partagé en lecture seule : pas d'engrenage, les Préférences sont celles du visiteur, pas du site regardé.
     const ROUE = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="2.356 2.356"/>' +
       '<circle cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
-    const engrenage = cfg.partage ? '' : '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur"' +
+    const engrenage = cfg.partage ? '' : '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences" title="Préférences"' +
       (cfg.courant === 'preferences.html' ? ' aria-current="page"' : '') + '>' + ROUE + '</a>';
     const marque = '<div class="mrt-brand"><a href="' + lien(cfg.accueil || 'index.html') + '">MyRunTools</a>' + engrenage + '</div>';
     const header = document.createElement('header');
@@ -192,7 +220,13 @@
     // Nom d'un onglet ; « œil » en picto pour En un coup d'œil (le nom complet reste lu par les lecteurs d'écran).
     const OEIL = '<svg class="mrt-picto" viewBox="0 0 24 16" aria-hidden="true"><path d="M1.5 8C4 3.5 7.8 1.5 12 1.5S20 3.5 22.5 8C20 12.5 16.2 14.5 12 14.5S4 12.5 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8" r="3" fill="currentColor"/></svg>';
     const nomOnglet = m => (m.picto === 'oeil' ? esc(m.nom.replace(/œil$/, '')) + OEIL : esc(m.libelle || m.nom));
-    nav.innerHTML = '<div class="mrt-nav-inner">' + (cfg.modules || []).map(m => {
+    // Page ouverte hors du menu (Mon plan, Nutrition non cochés) : son onglet s'ajoute au bout, le temps de la visite, pour savoir où l'on est.
+    let modules = cfg.modules || [];
+    if (cfg.courant && modules.length && !modules.some(m => m.page === cfg.courant)) {
+      const ici = (window.mrtModules || []).find(m => m.page === cfg.courant);
+      if (ici) modules = modules.concat([ici]);
+    }
+    nav.innerHTML = '<div class="mrt-nav-inner">' + modules.map(m => {
       const titre = m.picto ? ' aria-label="' + esc(m.nom) + '" title="' + esc(m.nom) + '"' : '';
       if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + nomOnglet(m) + '</span>';
       const on = m.page === cfg.courant;
@@ -362,11 +396,14 @@
   // Lien rangé d'après l'adresse de ce script (composants/en-tete.js) : juste aussi pour une page d'un sous-dossier.
   // Pas sur les maquettes (docs/), ni sur la page des mentions elle-même.
   const piedLien = document.currentScript ? new URL('../mentions-legales.html', document.currentScript.src).href : 'mentions-legales.html';
+  const piedConf = document.currentScript ? new URL('../confidentialite.html', document.currentScript.src).href : 'confidentialite.html';
   function poserPied() {
     if (/\/docs\//.test(location.pathname) || document.querySelector('.mrt-pied')) return;
     const f = document.createElement('footer');
     f.className = 'mrt-pied';
-    f.innerHTML = /mentions-legales\.html$/.test(location.pathname) ? '<span>Mentions légales</span>' : '<a href="' + piedLien + '">Mentions légales</a>';
+    // « Mentions légales · Confidentialité » ; sur l'une de ces deux pages, son nom en texte simple.
+    const lienOu = (re, href, nom) => (re.test(location.pathname) ? '<span>' + nom + '</span>' : '<a href="' + href + '">' + nom + '</a>');
+    f.innerHTML = lienOu(/mentions-legales\.html$/, piedLien, 'Mentions légales') + ' · ' + lienOu(/confidentialite\.html$/, piedConf, 'Confidentialité');
     document.body.appendChild(f);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', poserPied); else poserPied();

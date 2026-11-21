@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.41 · 17 novembre 2026 · [Retour au sommaire](README.md) · profil express en quatre questions (le repère d'allure passe dans le parcours de Mon plan)
+Version 0.45 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : l'onglet d'une page hors du menu s'ajoute le temps de la visite ; titre de l'accueil « En un coup d'œil » ; retour des pages légales vers la page quittée.
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -51,7 +51,7 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 | L3 | Œil | Affiche ou masque le mot de passe |
 | L4 | « Mot de passe oublié ? » | Envoie le lien de réinitialisation à l'adresse saisie en L1 (message « Saisis ton adresse e-mail » si le champ est vide) ; la réponse est toujours « Si un compte existe pour cette adresse, un e-mail vient d'être envoyé. », que l'adresse existe ou non |
 | L5 | « Se connecter » | Désactivé pendant l'envoi ; connecté, direction l'accueil |
-| L6 | Message | Une seule erreur pour tout échec : « Adresse ou mot de passe incorrect. » (on ne dit jamais lequel) ; « Trop de tentatives, réessaie dans quelques minutes. » en cas de limitation |
+| L6 | Message | Une seule erreur pour tout échec : « Adresse ou mot de passe incorrect. » (on ne dit jamais lequel) ; « Trop de tentatives, réessaie dans quelques minutes. » en cas de limitation ; « Contrôle anti-robot non validé : réessaie. » quand le contrôle est refusé (connexion comme « Mot de passe oublié ? ») |
 | L7 | « Créer un compte » | Lien vers la page de création d'un compte ; absent tant que l'inscription n'est pas ouverte |
 
 **Règles du mot de passe** : 14 caractères au moins, aucune règle de composition (une phrase de passe longue protège mieux) ; refusé s'il est identique à l'adresse e-mail. Il est haché par Supabase ; il ne figure jamais dans le dépôt et n'est jamais affiché en dehors de l'œil (L3).
@@ -87,7 +87,7 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 | C6 | Adresse e-mail | Obligatoire ; elle sert à se connecter |
 | C7 (C8) | Mot de passe | Règles du mot de passe ci-dessus ; « 14 caractères au moins » (C8) écrit dans le champ ; œil |
 | C9 | Confirmation | Identique au mot de passe (« Les deux saisies sont différentes. ») ; œil |
-| C10 | Politique de confidentialité | Case à cocher, avec le lien vers la politique ; présente dès que la politique existe, obligatoire alors |
+| C10 | Accords | Deux cases, obligatoires : « J'accepte la politique de confidentialité » (lien vers la page, § 11 ter) et « J'accepte que mes données de santé (poids, fréquences cardiaques, blessures, effort, repas) soient enregistrées pour calculer mon plan et ma nutrition » ; non cochées : « Accepte la politique de confidentialité. » ou « Accepte l'enregistrement de tes données de santé : le plan et la nutrition en dépendent. » ; la date des deux accords est gardée avec le compte |
 | C11 | Anti-robot | Le même que sur la connexion ; invisible tant qu'il n'est pas actif |
 | C12 | « Créer mon compte » | Désactivé pendant l'envoi ; un champ obligatoire vide : « Remplis les champs obligatoires. » ; rien n'est envoyé tant qu'une erreur demeure |
 | C13 | Message | Toujours le même après l'envoi, que l'adresse ait déjà un compte ou non : « Si l'adresse est valide, un e-mail de confirmation vient d'être envoyé. Ouvre le lien pour accéder à ton espace. » ; le formulaire disparaît. Inscription pas encore ouverte : « Les inscriptions ne sont pas encore ouvertes. », sans formulaire |
@@ -116,7 +116,7 @@ Règles transverses :
 
 ## 4. En-tête
 
-L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les Préférences utilisateur ou depuis la page Objectif, par défaut la dernière de la page Objectif (la plus lointaine à venir) ; ses chiffres clés et le temps qui reste. Si cette course est courue ou abandonnée, l'en-tête revient au cap par défaut.
+L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les Préférences ou depuis la page Objectif, par défaut la dernière de la page Objectif (la plus lointaine à venir) ; ses chiffres clés et le temps qui reste. Si cette course est courue ou abandonnée, l'en-tête revient au cap par défaut.
 
 ### Contenu
 
@@ -127,7 +127,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. Sur ordinateur, en bas à droite de l'en-tête, son bas au niveau du bas des indicateurs ; sur téléphone, sur une ligne, juste sous le nom de la course, à gauche |
 | Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours ; sur téléphone, à part, sous les indicateurs et un filet. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
-| Engrenage | Dessiné en trait fin, à droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) ; en Accent sur la page des Préférences, comme l'onglet de la page ouverte |
+| Engrenage | Dessiné en trait fin, à droite du nom de l'application ; ouvre les Préférences (§ 8) ; en Accent sur la page des Préférences, comme l'onglet de la page ouverte |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |
 
 **Barre fine**, sur les pages sans en-tête : « Cap sur » et le nom du cap à gauche, discrets, qui mènent à la page de démarrage ; l'engrenage à droite.
@@ -169,6 +169,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 - **En un coup d'œil** (l'ancien « Accueil ») : un module comme les autres, le premier par défaut ; il se masque et se déplace. Son onglet s'écrit « En un coup d' » suivi d'un picto d'œil.
 
 - Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur et déjà construit, dans l'ordre qu'il a choisi (§ 8). Un module « bientôt » n'a pas d'onglet : il reste dans les Préférences et entre dans le menu une fois construit. L'onglet de la page ouverte est mis en avant.
+- **Page hors du menu** (Mon plan ou Nutrition non cochés, ouverts par un lien) : son onglet s'ajoute au bout de la barre, actif, le temps de la visite, pour qu'on sache toujours où l'on est (21 nov. 2026). Le Guide et les Préférences n'en ont pas (l'engrenage est actif sur les Préférences).
 - Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené. Elle reste visible en haut de l'écran quand on fait défiler la page.
 
 ## 5 bis. En un coup d'œil et page de démarrage
@@ -215,7 +216,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 Pour que Cette semaine fonctionne, chaque module devra pouvoir dire ce qui compte dans les sept prochains jours.
 
-## 8. Préférences utilisateur
+## 8. Préférences
 
 Page ouverte par l'engrenage de l'en-tête ou de la barre fine ; elle n'est pas un module du menu. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit. Détail : [spécification des Préférences](module-preferences-specification.md).
 
@@ -240,7 +241,7 @@ Un utilisateur peut montrer son site à un autre, par exemple pour avoir son avi
 
 **Voir un site partagé** (même bloc) :
 
-- « Sites partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son espace ».
+- « Espaces partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son espace ».
 - Dans ce mode, sur toutes les pages, un bandeau sous le menu : « Lecture seule · espace de Prénom », avec « Revenir à mon espace ».
 - On voit son en-tête (cap, D'ici là, prochaine course), son menu, son thème et ses modules ; rien ne s'y ajoute, ne s'y modifie ni ne s'y supprime. Son thème s'applique sur toutes les pages, à la place de celui du visiteur, y compris en passant d'une page à l'autre.
 - Pas d'engrenage (Préférences) dans l'en-tête ni dans la barre fine : on en sort par « Revenir à mon espace ».
@@ -254,7 +255,7 @@ Le propriétaire du projet Supabase garde, lui, l'accès à toute la base depuis
 
 | Fonction | V1 · fichiers de données | V2 · Supabase |
 | --- | --- | --- |
-| Choisir ses modules et son thème | Configuration de l'utilisateur, modifiée dans le dépôt | Préférences utilisateur |
+| Choisir ses modules et son thème | Configuration de l'utilisateur, modifiée dans le dépôt | Préférences |
 | Saisir ou modifier le contenu (courses, repas…) | Fichiers de données modifiés via Claude | Formulaires dans l'application, ou dictée à Claude |
 | Importer ses séances | Saisie via Claude | Import automatique depuis Strava, après autorisation unique |
 | Voir ses données | Visibles de tous | Visibles du seul utilisateur connecté |
@@ -270,7 +271,7 @@ Le propriétaire du projet Supabase garde, lui, l'accès à toute la base depuis
 
 ## 11 bis. Mentions légales
 
-Page publique `mentions-legales.html` : visible sans être connecté, non indexée comme les autres (décidé le 30 oct. 2026).
+Page publique `mentions-legales.html` : visible sans être connecté, non indexée comme les autres (décidé le 30 oct. 2026). **Thème** (aussi pour la confidentialité, § 11 ter) : sans session, celui de la page de connexion, même si un thème est retenu sur l'appareil ; connecté, celui des préférences de l'utilisateur (décidé le 20 nov. 2026).
 
 ```
 ┌────────────────────────────────────────────┐
@@ -299,10 +300,31 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | M6 | Hébergement des données | Supabase, Inc., adresse recopiée de sa page légale ; données en Suède (région North EU, Stockholm) |
 | M7 | Propriété intellectuelle | Textes et code de l'éditeur ; les données saisies appartiennent à chaque utilisateur |
 | M8 | Crédits | Polices Space Grotesk et Space Mono (Google Fonts, licence SIL OFL) ; bibliothèque Supabase (licence MIT) ; Leaflet (licence BSD), fond OpenTopoMap (CC-BY-SA), données OpenStreetMap (ODbL), pour la carte des tracés ; anti-robot Cloudflare Turnstile une fois activé ; icônes dessinées pour le site |
-| M9 | Données personnelles | En attendant le lot RGPD : « La politique de confidentialité sera publiée ici avant l'ouverture du site à d'autres coureurs. » ; ensuite, le lien vers elle |
+| M9 | Données personnelles | Une phrase et le lien vers la politique de confidentialité (§ 11 ter) |
 | M10 | Mise à jour | Date de la dernière modification |
 | M11 | Retour | Vers l'accueil si connecté, sinon vers la page de connexion |
-| M12 | Pied de page | « Mentions légales · Confidentialité », petit, en Texte discret, en bas de **toutes** les pages, page de connexion comprise ; « Confidentialité » apparaît avec le lot RGPD |
+| M12 | Pied de page | « Mentions légales · Confidentialité », petit, en Texte discret, en bas de **toutes** les pages, page de connexion comprise ; sur l'une de ces deux pages, son nom en texte simple |
+
+## 11 ter. Confidentialité
+
+Page publique `confidentialite.html` (lot RGPD, 20 nov. 2026), au gabarit des mentions légales : visible sans être connecté, non indexée, liée au pied de page, aux mentions (M9) et aux accords de l'inscription (C10). Tutoiement, phrases courtes ; une proposition de rédaction, pas un avis juridique.
+
+| N° | Rubrique | Contenu |
+| --- | --- | --- |
+| P1 | Titre | « Confidentialité » |
+| P2 | En bref | Les données ne servent qu'à faire fonctionner les outils ; ni vendues, ni louées, ni publicité ; consultables, corrigibles, supprimables à tout moment |
+| P3 | Responsable | « MyRunTools », adresse de contact assemblée par le script (comme M4) |
+| P4 | Données recueillies | Compte, profil, courses, séances (effort, sensations, douleur, commentaire), nutrition, préférences ; les données de santé nommées, enregistrées avec l'accord explicite donné à l'inscription |
+| P5 | Pourquoi | Faire fonctionner le site ; base : l'inscription, et l'accord explicite (retirable) pour la santé |
+| P6 | Qui y accède | L'utilisateur seul (règles par ligne) ; en lecture seule, ceux à qui il ouvre son espace : courses et calendrier (séances et retours compris), jamais le profil ni les repas ; les prestataires, pour leur service |
+| P7 | Prestataires | Tableau prestataire, rôle, lieu : Supabase (UE, Suède), GitHub Pages, Cloudflare Turnstile, Resend, Anthropic (ce qui lui est envoyé, sans nom ni adresse), Google Fonts, jsDelivr et cdnjs (adresse IP), OpenTopoMap ; Open Food Facts interrogé depuis le serveur (seuls les mots cherchés) |
+| P8 | Durée | Tant que le compte existe ; tout est effacé à sa suppression |
+| P9 | Droits | Consulter, corriger, exporter, supprimer, retirer l'accord santé : dans Mon profil et la fenêtre d'une séance, ou par e-mail au contact (réponse sous un mois) ; réclamation à la CNIL |
+| P10 | Sur l'appareil | Ni cookie publicitaire ni mesure d'audience ; session et réglages d'affichage seulement |
+| P11 | Mise à jour | Date de la dernière modification |
+| P12 | Retour | Vers l'accueil si connecté, sinon vers la connexion |
+
+Tout changement de prestataire ou de donnée recueillie met la page à jour (P7, P4, P11).
 
 ## 12. Technique
 
@@ -312,6 +334,7 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | Pages | Une page HTML par module ; en-tête et menu fournis par un composant partagé |
 | Hébergement | GitHub Pages, publication automatique à chaque mise à jour de `main` |
 | Base de données | Supabase (PostgreSQL), offre gratuite |
+| Outils et services | Liste complète, avec adresses et rôles : [Outils et services](outils-et-services.md) |
 | Météo | Open-Meteo : gratuit, sans clé, modèle européen ECMWF inclus |
 | Bilan hebdomadaire | Routine Claude |
 | Cache navigateur | Numéro de version posé automatiquement dans les liens CSS et JS à chaque publication |
@@ -340,7 +363,7 @@ Résultats attendus :
 - Le compte à rebours vise le 1er août 2029 à minuit.
 - Même objectif, départ connu le 30 août 2029 à 5 h : le compte à rebours vise le 30 août 2029 à 5 h.
 - Compte neuf (prénom « Essai », aucune course, profil vide) : en-tête « Bienvenue, Essai » et « Ajoute une course pour fixer ton cap. », sans indicateurs ni compteur ; les Premiers pas seuls ; étapes « Compléter » et « Ajouter » ; barre fine du Palmarès : « Bienvenue, Essai ».
-- Profil express : « Sexe · 1 sur 4 », « Date de naissance · 2 sur 4 », « Poids · 3 sur 4 », « Taille · 4 sur 4 », sans retour à la liste ; Femme, 12 mai 1990, 62, 168 : quatre écritures dans `profils`, feuille fermée, étape cochée. Sexe et naissance déjà connus : reprise à « Poids · 3 sur 4 » ; la croix ferme, l'étape reste à faire. « Ajouter » ouvre la fiche d'ajout d'une course. Profil absent de la base : « Enregistrement impossible pour l'instant. », la question reste ouverte.
+- Profil express : « Sexe · 1 sur 4 », « Date de naissance · 2 sur 4 », « Poids · 3 sur 4 », « Taille · 4 sur 4 », sans retour à la liste, bouton « Continuer » en bas à droite ; Femme, 12 mai 1990, 62, 168 : quatre écritures dans `profils`, feuille fermée, étape cochée. Sexe et naissance déjà connus : reprise à « Poids · 3 sur 4 » ; la croix ferme, l'étape reste à faire. « Ajouter » ouvre la fiche d'ajout d'une course. Profil absent de la base : « Enregistrement impossible pour l'instant. », la question reste ouverte.
 - Découvrir MyRunTools (compte neuf) : sous les Premiers pas ; Courses, Saison, Mon profil, Mon plan, Calendrier, puis « Options » : Palmarès, Nutrition ; cochées : celles du menu par défaut ; Nutrition cochée : son onglet arrive à sa place (après Calendrier) ; Palmarès décoché : son onglet disparaît ; « J'ai compris » : enregistré, le bloc disparaît ; « Revoir la découverte » dans les Préférences le ramène.
 - Des courses, profil incomplet : seule l'étape du profil reste ; des courses et le profil express rempli : plus de Premiers pas, « Cap sur ».
 - Ligne sous le compteur, la page En un coup d'œil sans son bloc Prochaine course : « prochaine course · Trail du Lac · J-26 » ; avec le bloc : pas de ligne.
@@ -352,7 +375,7 @@ Résultats attendus :
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
 - Blanc et orange : fond blanc, cadres `#f3f5f8`, contrôles du navigateur en clair ; le nom d'une course pleine en Encre ; Développement en `#946200`. Noir et orange : fond noir, cadres `#121212`.
 - Automatique : appareil en mode sombre, Noir et orange ; passé en mode clair, Blanc et orange, sans recharger ; la page suivante s'affiche d'emblée dans le bon thème.
-- L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
+- L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences ; le menu ne montre que les modules choisis, dans l'ordre choisi. Mon plan ouvert sans être au menu : un onglet « Mon plan », actif, au bout de la barre.
 - Par défaut, l'en-tête figure sur En un coup d'œil seulement ; la saison, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
 - Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
@@ -364,10 +387,11 @@ Résultats attendus :
 - Inscription fermée : pas de « Créer un compte » sur la connexion ; la page « Créer un compte » dit « Les inscriptions ne sont pas encore ouvertes. », sans formulaire.
 - Inscription ouverte : le lien mène à la page ; cinq champs obligatoires, prénom et nom côte à côte à 390 px, deux yeux, pas de case de confidentialité sans politique.
 - Créer un compte : un champ vide, 13 caractères, deux saisies différentes, un mot de passe égal à l'adresse sont refusés, sans rien envoyer ; accepté, le prénom et le nom partent avec la demande, le lien de retour mène à la connexion, le message est neutre et le formulaire disparaît.
-- Politique renseignée : la case s'affiche ; non cochée, « Accepte la politique de confidentialité. ».
+- Politique renseignée : deux cases ; politique non cochée : « Accepte la politique de confidentialité. » ; santé non cochée : « Accepte l'enregistrement de tes données de santé… » ; les deux cochées : envoyé, avec la date des deux accords.
+- Confidentialité : page publique, rubriques P2 à P10, contact assemblé par le script (jamais en clair), sept prestataires, retour vers la connexion sans session ; pied « Mentions légales · Confidentialité » sur chaque page ; M9 mène à la politique.
 - Création de comptes désactivée dans Supabase : « Les inscriptions ne sont pas encore ouvertes. ».
 - Lien de confirmation : la session ouverte est refermée, l'adresse préremplie, « Adresse confirmée, tu peux te connecter. » ; lien périmé : « Lien expiré : crée de nouveau ton compte… ».
-- A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son espace » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · espace de A ».
+- A partage son site avec B : B voit A dans « Espaces partagés avec moi » ; « Voir son espace » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · espace de A ».
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».

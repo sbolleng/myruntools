@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="site-version" content="__VERSION__">
+<script>
+  // Page publique : connecté, le thème de l'utilisateur est posé tout de suite (« auto » : selon l'appareil) ; sans
+  // session (ouverte depuis la page de connexion), le thème de la page de connexion (celui par défaut).
+  (function () { var t = null, connecte = false; try { t = localStorage.getItem('mrt-theme');
+    for (var i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i))) connecte = true; } catch (e) {}
+    if (!connecte) t = null;
+    if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noir-orange' : 'blanc-orange';
+    if (t) document.documentElement.classList.add('t-' + t); })();
+</script>
+<title>Confidentialité · MyRunTools</title>
+<!-- Polices : liées ici (et non importées par la feuille de style), pour être chargées en même temps qu'elle. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="composants/en-tete.css?v=__VERSION__">
+<style>
+  /* Confidentialité : spécification générale § 11 ter. Page publique, sans en-tête ni menu, au gabarit des mentions légales. */
+  .ml { max-width: 44rem; }
+  .ml h1 { margin-bottom: 1.2rem; font-size: var(--t-titre); line-height: 1.2; letter-spacing: -0.02em; }
+  .ml p + p, .ml ul + p, .ml p + ul { margin-top: 0.4rem; }
+  .ml ul { padding-left: 1.2rem; }
+  .ml li + li { margin-top: 0.25rem; }
+  .ml table { margin-top: 0.4rem; }
+  .ml-maj { margin-top: 0.4rem; font-size: var(--t-petit); color: var(--muted); }
+  .ml-retour { display: inline-block; margin-top: 1.2rem; }
+  @media (max-width: 600px) { main.ml { padding: 1.2rem 1rem; } .ml td, .ml th { padding: 0.45rem 0.4rem; } }
+</style>
+</head>
+<body>
+<main class="ml">
+  <h1 id="p1">Confidentialité</h1>
+  <div class="card">
+    <section class="mrt-section" id="p2">
+      <h2 class="mrt-section-titre">En bref</h2>
+      <ul>
+        <li>Tes données ne servent qu'à faire fonctionner tes outils : ta saison, ton plan, ta nutrition.</li>
+        <li>Elles ne sont ni vendues, ni louées, ni utilisées pour de la publicité.</li>
+        <li>Tu peux les consulter, les corriger et tout supprimer, à tout moment.</li>
+      </ul>
+    </section>
+    <section class="mrt-section" id="p3">
+      <h2 class="mrt-section-titre">Responsable</h2>
+      <p>MyRunTools, joignable à l'adresse <a class="contact" href="#">contact (arobase) myruntools.fr</a>.</p>
+    </section>
+    <section class="mrt-section" id="p4">
+      <h2 class="mrt-section-titre">Données recueillies</h2>
+      <p>Seulement ce que tu saisis :</p>
+      <ul>
+        <li><strong>Compte</strong> : adresse e-mail, prénom, nom ; le mot de passe est chiffré et personne ne peut le lire.</li>
+        <li><strong>Profil</strong> : sexe, date de naissance, poids, taille, pointure, niveau, semaine type ; fréquences cardiaques maximale et de repos, VMA, points fragiles, blessure en cours.</li>
+        <li><strong>Courses</strong> : les courses suivies, leurs résultats, leurs tracés GPX.</li>
+        <li><strong>Séances</strong> : les séances prévues et faites, et pour chacune l'effort perçu, les sensations, la douleur et un commentaire.</li>
+        <li><strong>Nutrition</strong> : les repas et les aliments saisis.</li>
+        <li><strong>Préférences</strong> : thème, menu, page d'accueil.</li>
+      </ul>
+      <p>Le poids, les fréquences cardiaques, la VMA, les blessures, la douleur, l'effort perçu et les repas sont des <strong>données de santé</strong> : elles ne sont enregistrées qu'avec ton accord explicite, donné à la création du compte.</p>
+    </section>
+    <section class="mrt-section" id="p5">
+      <h2 class="mrt-section-titre">Pourquoi</h2>
+      <p>Pour faire fonctionner le site : afficher ta saison, calculer tes phases de préparation, proposer des séances, calculer ton besoin du jour.</p>
+      <p>Base légale : ton inscription (le service que tu demandes) et, pour les données de santé, ton accord explicite, que tu peux retirer à tout moment.</p>
+    </section>
+    <section class="mrt-section" id="p6">
+      <h2 class="mrt-section-titre">Qui y accède</h2>
+      <ul>
+        <li>Toi seul : chaque compte ne peut lire que ses propres données.</li>
+        <li>Les personnes à qui tu ouvres ton espace, en lecture seule, si tu le décides : elles voient tes courses et ton calendrier (séances comprises, avec leurs retours), jamais ton profil ni tes repas. Tu peux leur retirer cet accès dans les Préférences.</li>
+        <li>Les prestataires ci-dessous, seulement pour le service qu'ils rendent.</li>
+      </ul>
+    </section>
+    <section class="mrt-section" id="p7">
+      <h2 class="mrt-section-titre">Prestataires</h2>
+      <table>
+        <thead><tr><th>Prestataire</th><th>Rôle</th><th>Lieu</th></tr></thead>
+        <tbody>
+          <tr><td>Supabase</td><td>Base de données et comptes</td><td>Union européenne (Suède)</td></tr>
+          <tr><td>GitHub Pages</td><td>Hébergement des pages du site</td><td>États-Unis</td></tr>
+          <tr><td>Cloudflare Turnstile</td><td>Contrôle anti-robot à la connexion et à l'inscription</td><td>États-Unis</td></tr>
+          <tr><td>Resend</td><td>Envoi des e-mails (confirmation, mot de passe)</td><td>États-Unis</td></tr>
+          <tr><td>Anthropic</td><td>Séances proposées par l'IA : niveau, semaine type, points fragiles, blessure et séances récentes, sans nom, prénom, adresse ni nom de course</td><td>États-Unis</td></tr>
+          <tr><td>Google Fonts, jsDelivr, cdnjs</td><td>Polices et bibliothèques du site : ils reçoivent l'adresse IP du navigateur</td><td>Réseaux mondiaux</td></tr>
+          <tr><td>OpenTopoMap</td><td>Fond de carte des tracés</td><td>Allemagne</td></tr>
+        </tbody>
+      </table>
+      <p>La recherche d'aliments interroge Open Food Facts depuis le serveur : seuls les mots cherchés lui parviennent.</p>
+    </section>
+    <section class="mrt-section" id="p8">
+      <h2 class="mrt-section-titre">Durée de conservation</h2>
+      <p>Tant que ton compte existe. À sa suppression, toutes ses données sont effacées.</p>
+    </section>
+    <section class="mrt-section" id="p9">
+      <h2 class="mrt-section-titre">Tes droits</h2>
+      <p>Tu peux consulter, corriger, exporter ou supprimer tes données, et retirer ton accord pour les données de santé. La plupart se corrigent ou s'effacent directement dans Mon profil et dans la fenêtre d'une séance ; pour un export, une suppression complète ou toute question, écris à l'adresse de contact ci-dessus : réponse sous un mois.</p>
+      <p>Tu peux aussi adresser une réclamation à la CNIL (cnil.fr).</p>
+    </section>
+    <section class="mrt-section" id="p10">
+      <h2 class="mrt-section-titre">Sur ton appareil</h2>
+      <p>Aucun cookie publicitaire ni mesure d'audience. Le site garde seulement sur ton appareil ta session de connexion et quelques réglages d'affichage (thème, vue choisie).</p>
+    </section>
+  </div>
+  <p class="ml-maj" id="p11">Mise à jour : 20 novembre 2026</p>
+  <a class="mrt-lien ml-retour" id="p12" href="connexion.html" onclick="if (document.referrer && history.length > 1) { history.back(); return false; }">Retour</a>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="donnees/supabase.js?v=__VERSION__"></script>
+<script src="composants/en-tete.js?v=__VERSION__"></script>
+<script src="composants/session.js?v=__VERSION__"></script>
+<script>
+  // Contact : l'adresse est assemblée ici (jamais en clair dans la page).
+  const adresse = ['contact', 'myruntools.fr'].join('@');
+  document.querySelectorAll('.contact').forEach(l => { l.href = 'mailto:' + adresse; l.textContent = adresse; });
+  // Retour : vers l'accueil si connecté, sinon vers la page de connexion.
+  const retour = document.getElementById('p12');
+  // Session expirée : le thème de la page de connexion.
+  const sansTheme = () => [...document.documentElement.classList].filter(c => c.startsWith('t-')).forEach(c => document.documentElement.classList.remove(c));
+  mrtSession().then(s => { if (s) retour.href = 'index.html'; else sansTheme(); }).catch(sansTheme);
+</script>
+</body>
+</html>

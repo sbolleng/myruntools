@@ -25,7 +25,12 @@
   // Liens saisis par l'utilisateur : seulement des adresses web.
   const lienSur = u => (u && /^https?:\/\//i.test(u) ? u : null);
   const pageCourse = c => 'course.html?id=' + encodeURIComponent(c.id);
-  const classeRole = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'is-obj' : '');
+  // Saison s'utilise sans Mon plan : la course mise en avant est la course principale (« Cap sur », Préférences), pas un rôle.
+  // Chaque carte dit son statut ; le rôle, une notion de Mon plan, s'ajoute en petit quand la course en a un.
+  let capId = null;
+  const majCap = courses => { const c = window.mrtCap ? window.mrtCap(courses || [], window.mrtPrefs ? window.mrtPrefs() : {}) : null; capId = c ? c.id : null; };
+  const classeRole = c => (c.id === capId ? 'is-obj' : '');
+  const libelle = c => esc(STATUTS_LIB[c.statut] || '') + (ROLES[c.role] ? '<span class="ob-role-plan"> · ' + ROLES[c.role] + '</span>' : '');
 
   // Départ : jour et heure locale de la course, lus dans le fuseau du navigateur (§ 5.1) ;
   // mois seul : le 1er du mois, à minuit.
@@ -46,7 +51,8 @@
     : esc(c.course));
   function couperNoms() {
     document.querySelectorAll('.ob-p').forEach(p => {
-      const n = p.parentNode.closest('.ob-nom, .pc-titre');
+      const n = p.parentNode.closest('.ob-nom, .pc-titre, .ps-titre');
+      if (!n) return;
       n.classList.remove('is-coupe');
       if (p.offsetTop > p.previousElementSibling.offsetTop + 2) n.classList.add('is-coupe');
     });
@@ -142,15 +148,15 @@
 
   function carteCourse(c, avecMini) {
     return '<article class="ob-carte' + (sansCompteur(c) ? ' sans-cpt' : '') + '"' + (avecMini && c.gpx ? ' data-mini="' + esc(c.id) + '"' : '') + '>' +
-      '<span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span>' + compteurHtml(c, true) +
+      '<span class="ob-role ' + classeRole(c) + '">' + libelle(c) + '</span>' + compteurHtml(c, true) +
       titre(c, 'h3') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, true) + '</article>';
   }
   function carteGroupe(e) {
     const n = e.candidats.length;
     // Rôle du groupe : celui de ses candidats.
-    const roles = [...new Set(e.candidats.map(c => ROLES[c.role]))].join(' · ');
+    const roles = [...new Set(e.candidats.map(c => ROLES[c.role]).filter(Boolean))].join(' · ');
     return '<article class="ob-carte ob-groupe"><h3 class="ob-nom">' + esc(e.groupe) + '</h3>' +
-      '<span class="ob-role">' + roles + ' • ' + n + (n > 1 ? ' options' : ' option') + '</span><div class="ob-cands">' +
+      '<span class="ob-role">' + (roles ? roles + ' • ' : '') + n + (n > 1 ? ' options' : ' option') + '</span><div class="ob-cands">' +
       e.candidats.map(c => '<div class="ob-cand">' + titre(c, 'h4') + '<span class="ob-date">' + dateCourte(c) + '</span>' + info(c) + lignes(c, false) + '</div>').join('') +
       '</div></article>';
   }
@@ -191,6 +197,7 @@
   window.mrtCartes = { dossardEtat: c => dossard(c).etat, esc, nomHtml, couperNoms, dateCourte, ligne, distance, lieuFormat, dossardHtml, lienSur, pageCourse, FLECHE, PLUS, STATUTS_LIB };
 
   window.renderFeuilleDeRoute = function (el, courses, edition) {
+    majCap(courses);
     const etapes = window.mrtEtapes(courses);
     const option = e => !!e && (!!e.groupe || e.course.statut === 'option');
     document.querySelectorAll('.ob-haut').forEach(h => { if (!el.contains(h)) h.remove(); }); // bouton déplacé par le dessin précédent
@@ -200,7 +207,7 @@
           e.course ? classeRole(e.course) : ''].filter(Boolean).join(' ');
         return '<div class="' + k + '"><div class="ob-rail"><span class="ob-pt"></span></div>' + (e.groupe ? carteGroupe(e) : carteCourse(e.course, true)) + '</div>';
       }).join('') + '</div>'
-      : '<p class="ob-vide">Aucune course à venir.</p>');
+      : '<p class="ob-vide">Aucune course à venir. ' + (edition ? '« Ajouter une course » place ici ta prochaine course, avec son compte à rebours.' : '') + '</p>');
     if (edition) brancher(el, { ajouter: edition.ajouter });
     // Le bouton « Ajouter une course » passe au-dessus du cadre « Évolution de l’effort » (quand la page en a un).
     const haut = el.querySelector('.ob-haut'), effort = document.getElementById('difficulte');
@@ -245,7 +252,8 @@
     if (!places.length) { el.hidden = true; el.innerHTML = ''; return; }
     el.hidden = false;
     // Trois signes : une course de préparation (point plein), une course en option (point à contour) et un objectif, principal ou intermédiaire (losange).
-    const forme = c => (c.role === 'objectif' || c.role === 'objectif_intermediaire' ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
+    majCap(courses);
+    const forme = c => (c.id === capId ? 'losange' : c.statut === 'option' ? 'vide' : 'plein');
         const quand = c => dateCourte(c);
     const profil = c => [c.distance != null ? nombre(c.distance) + ' km' : '', c.dplus != null ? nombre(c.dplus) + ' m D+' : 'D+ non renseigné'].filter(Boolean).join(' · ');
     const points = places.map(c => {
@@ -262,8 +270,8 @@
     // La ligne : les étapes confirmées et l'objectif, dans l'ordre ; ni options, ni courues.
     const ligne = places.filter(c => c.etat !== 'courue' && c.statut === 'confirmee').map(c => c.id);
     // Sous le graphique : la légende, puis la définition du km-effort, en clair (spécification générale, § 12 bis).
-    const legende = '<ul class="mg-legende"><li><span class="mg-sym is-plein" aria-hidden="true"></span>Course de préparation</li>' +
-      '<li><span class="mg-sym is-vide" aria-hidden="true"></span>Course en option</li>' +
+    const legende = '<ul class="mg-legende"><li><span class="mg-sym is-plein" aria-hidden="true"></span>Course</li>' +
+      '<li><span class="mg-sym is-vide" aria-hidden="true"></span>Option</li>' +
       '<li><span class="mg-sym is-losange" aria-hidden="true"></span>Objectif</li></ul>';
     const definition = '<p class="mg-definition">L\'effort d\'une course se mesure ici en <b>km-effort</b>, la mesure normée de l\'ITRA (association internationale du trail). ' +
       'Le principe : on ajoute au kilométrage l\'effort de la montée, 100 m de dénivelé positif comptant pour 1 km de plus. ' +
@@ -278,10 +286,24 @@
   // ----- Page d'une course (§ 3.4, option A) -----
   // Texte repliable : le titre, précédé d'un chevron ; un toucher sur le titre l'ouvre ou le ferme.
   const CHEVRON = window.mrtIcone.chevron; // chevron commun des titres repliables (mrt-chev)
-  const cellule = (titreCellule, html, ancre) => (html ? '<details class="pc-cellule mrt-deroule"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + html + '</div></details>' : '');
+  // Un texte vide n'est pas affiché, sauf depuis la page Courses (ctx.toutOuvert : montrerVides) ou quand il est demandé
+  // (vide : Inscription, toujours là) : le bloc reste alors, fermé, avec « Non renseigné ».
+  let montrerVides = false;
+  const VIDE = '<p class="pc-vide">Non renseigné</p>';
+  const cellule = (titreCellule, html, ancre, vide) => (html || montrerVides || vide ? '<details class="pc-cellule mrt-deroule' + (html ? '' : ' is-vide') + '"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + (html || VIDE) + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   // Lien externe écrit en toutes lettres, suivi de la flèche dessinée.
-  const lienExterne = (url, txt, classe) => '<a class="pc-ext' + (classe ? ' ' + classe : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>';
+  const lienExterne = (url, txt, classe) => '<a class="mrt-lien pc-ext' + (classe ? ' ' + classe : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>';
+  // Bloc Inscription d'une course à venir (fermé à l'ouverture) : ouverture des inscriptions, dossard, prix, site d'inscription.
+  function inscriptionHtml(c) {
+    const o = c.ouverture_inscriptions;
+    const ouverture = !o ? '' : c.ouverture_approx ? F.date(o.slice(0, 7)) : F.date(o) + (c.ouverture_heure ? ' à ' + F.heure(String(c.ouverture_heure).slice(0, 5)) : '');
+    const lignes = [['Ouverture', ouverture ? '<span class="ob-val">' + esc(ouverture) + '</span>' : ''],
+      ['Dossard', c.dossard ? '<span class="ob-val">n° ' + esc(c.dossard) + '</span>' : ''],
+      ['Prix', c.prix != null ? '<span class="ob-val">' + esc(nombre(c.prix)) + ' €</span>' : ''],
+      ['Site', lienSur(c.inscription) ? lienExterne(c.inscription, 'Site d\'inscription') : '']].filter(r => r[1]);
+    return cellule('Inscription', lignes.map(r => '<div class="pc-res-ligne"><span class="ob-lib">' + r[0] + '</span><span>' + r[1] + '</span></div>').join(''), 'inscription', true);
+  }
   // Lieu (n° 6) : OpenStreetMap, sur les coordonnées si elles sont connues, sinon une recherche du nom.
   const REPERE = '<svg class="pc-repere" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11s3.6-3.4 3.6-6.1A3.6 3.6 0 0 0 2.4 4.9C2.4 7.6 6 11 6 11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="6" cy="4.9" r="1.2" fill="currentColor"/></svg>';
   function lieuHtml(c) {
@@ -305,7 +327,11 @@
       ? '<div class="tr-zone"></div>'
       : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
         '<div class="tr-choix-zone" hidden></div><p class="tr-erreur" aria-live="polite"></p>' : '';
-    return cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie"><p class="pc-sous-titre">Stratégie de course</p>' + texte(c.strategie) + '</div>' : ''), 'parcours');
+    // Ravitaillements (52) ; « Proposer une stratégie » (53, Objectif § 3.10) : course à venir, hors lecture seule.
+    const kms = Array.isArray(c.ravitaillements_km) && c.ravitaillements_km.length ? c.ravitaillements_km : null;
+    const ravitos = kms ? '<p class="pc-ravitos"><span class="ob-lib">Ravitaillements</span> <span>km ' + kms.map(x => esc(nombre(x))).join(' · ') + '</span></p>' : '';
+    const proposer = edition && c.etat === 'a_venir' && window.mrtStrategie ? window.mrtStrategie.html(c) : '';
+    return cellule('Parcours', trace + ravitos + (c.strategie ? '<div class="pc-strategie"><p class="pc-sous-titre">Stratégie de course</p>' + texte(c.strategie) + '</div>' : '') + proposer, 'parcours');
   }
   // Tracé : dessiné à la première ouverture de Parcours (la carte a besoin de sa taille) ; import depuis la consultation.
   function brancherParcours(el, c, ctx) {
@@ -334,7 +360,9 @@
       parcoursOuvert = c.id; // la page redessinée rouvre Parcours, avec la carte
       if (ctx.actualiser) await ctx.actualiser();
     });
-    if (parcoursOuvert === c.id && c.gpx) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
+    if (window.mrtStrategie) window.mrtStrategie.brancher(el, c, ctx, async () => { parcoursOuvert = c.id; if (ctx.actualiser) await ctx.actualiser(); });
+    if (parcoursOuvert === c.id && !c.gpx) { parcoursOuvert = null; parcours.open = true; }
+    else if (parcoursOuvert === c.id && c.gpx) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
     // Parcours renseigné (tracé GPX ou stratégie) : ouvert d'emblée, à l'ouverture de la course (les autres textes restent repliés).
     // Course courue sans tracé : Parcours reste refermé (le bouton d'import s'y trouve), même avec une stratégie.
     else if ((c.gpx || (c.strategie && c.etat !== 'courue')) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)
@@ -353,15 +381,17 @@
     telephone.addEventListener('change', regler);
   }
 
-  // Ouverte depuis la page Courses (ctx.toutOuvert) : tous les blocs sont ouverts à l'ouverture de la course.
+  // Ouverte depuis la page Courses (ctx.toutOuvert) : les blocs renseignés sont ouverts à l'ouverture de la course, les vides
+  // affichés fermés.
   function toutOuvrir(el, ctx, premier) {
     if (!ctx || !ctx.toutOuvert || !premier) return;
-    el.querySelectorAll('details.pc-cellule, details.is-montre').forEach(d => { d.open = true; });
+    el.querySelectorAll('details.pc-cellule:not(.is-vide), details.is-montre:not(.is-vide)').forEach(d => { d.open = true; });
   }
 
   // ctx : données de préparation (séances, phases : composants/preparation.js), ancre demandée (ctx.ancre) et
   // modale (ctx.modale = { fermer } : modale-course.js).
   window.renderPageCourse = function (el, courses, id, edition, ctx) {
+    majCap(courses);
     el.classList.add('pc');
     const premier = el.dataset.pcId !== id;
     // Même course redessinée (séance ajoutée, plan paramétré, tracé importé) : les textes ouverts le restent.
@@ -383,6 +413,7 @@
       return null;
     }
     const c = suite[i], prec = horsRoute ? null : suite[i - 1], suiv = horsRoute ? null : suite[i + 1];
+    montrerVides = !!(ctx && ctx.toutOuvert);
     const rang = etapes.findIndex(e => e.course === c || (e.candidats || []).includes(c)) + 1;
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
@@ -393,12 +424,12 @@
     const enDirect = !c.date_approx && c.date === aujourdhui() && lienSur(c.lien_resultats);
     // Sous-titres des textes : en libellé (Space Mono, capitales), comme ceux de la fiche.
     const sousTitre = t => '<p class="pc-sous-titre">' + t + '</p>';
-    const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Rôle dans la préparation') + texte(c.pourquoi) + '</div>' : '') +
+    const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Pourquoi cette course') + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
-    // Textes, dans un seul cadre : Parcours, Préparation, Logistique.
-    const bas = parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
+    // Textes, dans un seul cadre : Inscription (toujours là), Parcours, Préparation, Logistique.
+    const bas = inscriptionHtml(c) + parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre(true) +
-      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + ROLES[c.role] + '</span> <span class="ob-lib">· ' + (rang ? 'Étape ' + rang + ' sur ' + etapes.length : STATUTS_LIB[c.statut]) + '</span></p>' +
+      '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + libelle(c) + '</span>' + (rang ? ' <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span>' : '') + '</p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
       (c.formatLibelle ? '<p class="pc-info">' + esc(c.formatLibelle) + '</p>' : '') +
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres options' : 'autre option') + ' : ' +
@@ -412,18 +443,18 @@
       '<div class="ob-lignes pc-fiche">' +
         (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
         ligne('Date / heure', '<span class="pc-datelig"><span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>' +
-          (c.date && !c.date_approx ? '<button type="button" class="mrt-rond is-petit" data-ob="agenda" aria-label="Ajouter à l\'agenda" title="Ajouter à l\'agenda">' + AGENDA + '</button>' : '') + '</span>') +
+          (c.date && !c.date_approx ? '<button type="button" class="mrt-rond" data-ob="agenda" aria-label="Ajouter à l\'agenda" title="Ajouter à l\'agenda">' + AGENDA + '</button>' : '') + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>' + precisions(c)) : '') +
         ligne('Inscription', dossardHtml(c, true)) +
-        (c.description || officiel ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
+        (c.description || officiel || montrerVides ? '<div class="pc-fiche-bas">' + cellule('À propos de la course', texte(c.description)) + officiel + '</div>' : '') +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
-        (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
-        (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
+        (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>' + window.mrtIcone.gauche + 'Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
+        (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante' + window.mrtIcone.droite + '</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
     brancher(el, Object.assign({ fermer: ctx.modale.fermer, agenda: () => ajouterAgenda(c) }, edition && { modifier: () => edition.modifier(c.id), retenir: () => edition.retenir(c.id), marquer: () => edition.marquer(c.id),
       importer: () => el.querySelector('.tr-fichier').click() }));
@@ -462,6 +493,7 @@
     const barre = '<div class="pc-barre">' + (edition ? rond('modifier', 'Modifier la course', CRAYON) : '') +
       '<button type="button" class="pc-fermer mrt-rond is-fermer" data-ob="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>';
     const c = courses.find(x => x.id === id && x.etat === 'courue');
+    montrerVides = !!(ctx && ctx.toutOuvert);
     if (!c) {
       el.innerHTML = barre + '<p class="ob-vide">Course introuvable.</p>';
       brancher(el, { fermer: ctx.modale.fermer });
@@ -500,7 +532,7 @@
     // Sous le Résultat et la Montre, tout ce qui a été saisi, replié, dans un seul cadre comme pour une course à venir :
     // À propos, Parcours (carte, stratégie), Préparation (son rôle ; pas de plan : il n'est pas rangé), Logistique.
     const bas = cellule('À propos de la course', texte(c.description)) + parcoursHtml(c, edition) +
-      cellule('Préparation', c.pourquoi ? '<div class="pc-role"><p class="pc-sous-titre">Rôle dans la préparation</p>' + texte(c.pourquoi) + '</div>' : '', 'preparation') +
+      cellule('Préparation', c.pourquoi ? '<div class="pc-role"><p class="pc-sous-titre">Pourquoi cette course</p>' + texte(c.pourquoi) + '</div>' : '', 'preparation') +
       cellule('Logistique', texte(c.logistique));
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
@@ -509,12 +541,12 @@
       '<div class="pc-colonnes pc-resultats">' +
       (resultat.length ? section('Résultat', resultats ? '<a class="pc-lien-res mrt-lien" href="' + esc(resultats) + '" target="_blank" rel="noopener">Classement complet' + FLECHE + '</a>' : '',
         liste(resultat)) : '') +
-      (montre.length ? '<details class="pc-section is-montre mrt-deroule"><summary class="pc-intertitre">' + CHEVRON + '<span>Montre</span></summary><div class="pc-repli-corps">' + liste(montre) + '</div></details>' : '') +
+      (montre.length || montrerVides ? '<details class="pc-section is-montre mrt-deroule' + (montre.length ? '' : ' is-vide') + '"><summary class="pc-intertitre">' + CHEVRON + '<span>Montre</span></summary><div class="pc-repli-corps">' + (liste(montre) || VIDE) + '</div></details>' : '') +
       '</div>' +
       (bas ? '<div class="pc-textes is-bas">' + bas + '</div>' : '') +
       '<nav class="pc-nav" aria-label="Courses voisines">' +
-        (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>← Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
-        (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante →</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
+        (prec ? '<a class="is-precedente" href="' + pageCourse(prec) + '"><span>' + window.mrtIcone.gauche + 'Course précédente</span><b>' + esc(nom(prec)) + '</b></a>' : '') +
+        (suiv ? '<a class="is-suivante" href="' + pageCourse(suiv) + '"><span>Course suivante' + window.mrtIcone.droite + '</span><b>' + esc(nom(suiv)) + '</b></a>' : '') +
       '</nav>';
     brancher(el, Object.assign({ fermer: ctx.modale.fermer }, edition && { modifier: () => edition.modifier(c.id), importer: () => el.querySelector('.tr-fichier').click() }));
     replierCellules(el);

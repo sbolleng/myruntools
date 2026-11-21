@@ -12,7 +12,7 @@
 //                                             dans un autre thème que celui des données fictives (bleu-orange)
 // Pages : accueil, connexion, objectif, course, candidat, modale (téléphone), fiche (téléphone, édition), palmares,
 //         calendrier (vue Semaine, par défaut), calendrier-mois, calendrier-annee, et les mêmes bouton « Plan » enfoncé
-//         (calendrier-phases, calendrier-mois-phases, calendrier-annee-phases), calendrier-menu (menu « Périodicité » ouvert), preparation (plan de saison), preparation-profil (fenêtre du profil), preparation-ia (proposition de l'IA en attente), filtres, preferences,
+//         (calendrier-phases, calendrier-mois-phases, calendrier-annee-phases), calendrier-menu (menu « Vue » ouvert), preparation (Mon plan), preparation-profil (fenêtre du profil), preparation-ia (proposition de l'IA en attente), filtres, preferences,
 //         fiche-a-venir, palmares-paysage, fiche-courue. Chaque page : <nom>-<largeur>.png et <nom>-<largeur>-page.png (page entière).
 const path = require('path');
 const E = __dirname + '/';
@@ -36,6 +36,8 @@ if (process.env.VIERGE) {
 }
 if (process.env.THEME) db0.preferences[0].theme = process.env.THEME;
 let db = db0;
+const reglagesSite = () => `(() => { let v; Object.defineProperty(window, 'MRT_SUPABASE', { configurable: true, get: () => v, set: x => { v = Object.assign(x, { captcha: '' }); } }); })()`;
+const SANS_CAPTCHA = reglagesSite();
 const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 // Fait défiler le formulaire jusqu'à un bloc, son titre juste sous le haut fixe du panneau.
 const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[data-bloc="' + b + '"]'), pan = document.querySelector('.mc-panneau');
@@ -93,7 +95,7 @@ const PAGES = {
     action: async p => { await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q'); await p.click('.ps-profil [data-q="niveau"]'); } },
   // Semaine défilée : la barre collante sous le menu, les jours qui passent dessous.
   'calendrier-defile': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.evaluate(() => window.scrollTo(0, 700)); await p.waitForTimeout(300); } },
-  'calendrier-plein': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.click('[data-plein], .mrt-plein, [aria-label*="plein" i]'); await p.waitForTimeout(500); await p.evaluate(() => { const c = document.querySelector('[data-plein-cible]'); (c.matches(':fullscreen') ? c : document.documentElement).scrollTop = 700; c.scrollTop = 700; }); await p.waitForTimeout(300); } },
+  'calendrier-plein': { url: 'calendrier.html', largeurs: { ordi: [1200, 900] }, donnees: SEANCES, action: async p => { await p.click('[data-plein], .mrt-plein, [aria-label*="plein" i]'); await p.waitForTimeout(500); await p.evaluate(() => { const c = document.querySelector('[data-plein-cible]'); (c.matches(':fullscreen') ? c : document.documentElement).scrollTop = 700; c.scrollTop = 700; }); await p.waitForTimeout(300); } },
   // Mon profil : une question seule, en petite feuille (téléphone : feuille du bas).
   'profil-question': { url: 'profil.html', action: async p => { await p.waitForSelector('.mp-cadre .ps-ligne-q'); await p.click('.mp-cadre [data-q="sexe"]'); await p.waitForTimeout(500); } },
   'calendrier-menu': { url: 'calendrier.html', donnees: SEANCES, action: async p => { await p.click('[data-menu]'); await p.waitForTimeout(200); } },
@@ -107,15 +109,18 @@ const PAGES = {
   'fiche-a-venir': { url: 'objectif.html', hauteur: { tel: 1900, ordi: 1500 }, action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-fiche'); } },
   'palmares-paysage': { url: 'palmares.html', largeurs: { paysage: [844, 390] } },
   'fiche-courue': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-fiche'); } },
-  'fiche-classements': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-fiche'); await p.locator('[data-bloc="classements"]').click(); await voir(p, 'classements'); } },
+  'fiche-classements': { url: 'palmares.html', action: async p => { await p.locator('.pv2-add').click(); await p.waitForSelector('.fc-fiche'); await voir(p, 'resultat'); /* Résultat s'ouvre d'office sur une course courue */ } },
   'fiche-prep': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-fiche'); await voir(p, 'preparation'); } },
   'fiche-prep-nouvelle': { url: 'objectif.html', action: async p => { await p.locator('[data-ob="ajouter"]').click(); await p.waitForSelector('.fc-fiche'); await p.locator('[data-bloc="preparation"]').click(); await voir(p, 'preparation'); } },
-  'fiche-prep-parametrer': { url: 'course.html?id=' + id(3), action: async p => { await p.locator('[data-ob="modifier"]').first().click(); await p.waitForSelector('.fc-fiche'); await p.locator('[data-fc="preparer"]').click(); await p.waitForSelector('.cal-preparer'); } }
+  'fiche-prep-parametrer': { url: 'preparation.html', action: async p => { await p.locator('[data-preparer]').first().click(); await p.waitForSelector('.cal-preparer'); } } // fenêtre « Régler les phases » (bouton Personnaliser de Mon plan)
 };
 const LARG = { tel: [390, 844], ordi: [1200, 900] };
 fs.mkdirSync(sortie, { recursive: true });
 (async () => {
   const nav = await chromium.launch(fs.existsSync('/opt/pw-browsers/chromium') ? { executablePath: '/opt/pw-browsers/chromium' } : {});
+  // Anti-robot (Turnstile) : jamais dans le banc (pas de réseau) ; la clé du site est vidée au chargement de chaque page.
+  const contexte0 = nav.newContext.bind(nav);
+  nav.newContext = async (...a) => { const c = await contexte0(...a); await c.addInitScript(SANS_CAPTCHA); return c; };
   for (const [nom, cfg] of Object.entries(PAGES)) {
     if (filtre && filtre !== 'toutes' && !filtre.split(',').includes(nom)) continue;
     for (const [l, [w, h]] of Object.entries(cfg.largeurs || LARG)) {

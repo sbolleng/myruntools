@@ -13,7 +13,7 @@
   const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, planSaison, phaseDe, lienCourse } = P;
   const { MOIS_LONG } = window.mrtFormat;
   // Choix du menu « Périodicité » : [vue, nom, durée de l'Année en mois].
-  const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
+  const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['mois2', 'Mois V2'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
   const INITIALE = ['D', 'L', 'M', 'M', 'J', 'V', 'S']; // initiale du jour, de dimanche à samedi (Année)
   const CHEVRON = '<svg class="cal-menu-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -42,37 +42,36 @@
     const rdvDuJour = jour => ctx.courses.filter(c => aPlan(c) && c.ouverture_inscriptions === jour);
     // Course, rendez-vous clé (ouverture des inscriptions), séance (case « faite », libellé qui ouvre sa fenêtre), « + ».
     const courseHtml = c => '<a class="cal-v-course ' + couleur(c) + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + esc(c.nom) + '</a>';
-    const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ ' + (court ? 'Inscriptions' : 'Ouverture des inscriptions') + ' · ' + esc(c.course) + '</a>';
+    const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ Ouverture des inscriptions · ' + esc(c.course) + '</a>';
     // La séance : glissable (ordinateur), son type, son libellé, puis durée et distance ; un point à la couleur de son intensité ;
     // un picto quand elle a un commentaire (jamais sur le site partagé : le retour sur une séance n'est pas partagé).
-    const detail = s => [s.duree_min ? (s.duree_min >= 60 ? Math.floor(s.duree_min / 60) + ' h' + (s.duree_min % 60 ? String(s.duree_min % 60).padStart(2, '0') : '') : s.duree_min + ' min') : '',
-      Number(s.distance_km) > 0 ? String(s.distance_km).replace('.', ',') + ' km' : '', Number(s.denivele_m) > 0 ? s.denivele_m + ' m D+' : ''].filter(Boolean).join(' · ');
+    const detail = s => { const r = P.reel(s); return [r.duree_min ? (r.duree_min >= 60 ? Math.floor(r.duree_min / 60) + ' h' + (r.duree_min % 60 ? String(r.duree_min % 60).padStart(2, '0') : '') : r.duree_min + ' min') : '',
+      Number(r.distance_km) > 0 ? String(r.distance_km).replace('.', ',') + ' km' : '', Number(r.denivele_m) > 0 ? r.denivele_m + ' m D+' : ''].filter(Boolean).join(' · '); };
     const COMMENTAIRE = '<svg class="cal-v-com" viewBox="0 0 16 16" aria-label="Commentaire" role="img"><path d="M3 3.5h10v7H7l-3 2.5v-2.5H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
-    // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré dessous à la couleur de son intensité ;
+    // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré à gauche à la couleur de son type (P.lisere) ;
     // glissable (ordinateur) ; toucher le nom ouvre sa fenêtre. On coche dans la vue Semaine.
     // Intensité : trois traits (comme un signal), un, deux ou trois allumés, du gris au rouge en passant par l'orange ; rien sans intensité.
-    const traitsHtml = i => (i && P.INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + P.INTENSITES[i] + '" title="' + P.INTENSITES[i] + '">' +
-      [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
+    const traitsHtml = P.traits;
     const seanceHtml = s => {
-      const l = P.lireLibelle(s.libelle), km = Number(s.distance_km) > 0 ? String(s.distance_km).replace('.', ',') + ' km' : '';
+      const l = P.lireLibelle(s.libelle), km = Number(P.reel(s).distance_km) > 0 ? String(P.reel(s).distance_km).replace('.', ',') + ' km' : '';
       const tit = esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '');
-      return '<span class="cal-m-se' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + tit + '">' +
+      return '<span class="cal-m-se ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + tit + '">' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-m-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m-se-txt">') +
         '<span class="cal-m-se-nom">' + traitsHtml(s.intensite) + '<span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span></span>' + (km ? '<small>' + km + '</small>' : '') +
         (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
     };
     const plusHtml = jour => (!ctx.lectureSeule ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
-    // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : nom (le libellé avant « : »), liseré d'intensité dessous,
+    // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : liseré à gauche (type de séance, P.lisere), traits de l'intensité et nom (le libellé avant « : »),
     // puis type, durée, distance et picto du commentaire ; la case « faite » à droite ; « à noter » ; toucher la carte ouvre sa fenêtre.
     const carteHtml = s => {
-      const lib = String(s.libelle || ''), k = lib.indexOf(':'), nom = (k > 0 ? lib.slice(0, k) : lib).trim();
+      const lib = String(s.libelle || ''), nom = P.lireLibelle(lib).nom; // nom de la liste (un ancien nom reconnu prend le nouveau)
       const ligne2 = [TYPES[s.type], detail(s)].filter(Boolean).join(' · ');
-      return '<div class="cal-carte' + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '" data-carte="' + esc(s.id) + '"' : '') + '>' +
+      return '<div class="cal-carte ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? (P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' data-carte="' + esc(s.id) + '"' : '') + '>' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
         '<span class="cal-carte-nom">' + traitsHtml(s.intensite) + esc(nom) + '</span>' +
         '<span class="cal-carte-det">' + esc(ligne2) + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') +
-        (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="cal-v-anoter" data-noter="' + esc(s.id) + '">à noter</button>' : '') +
-        '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></div>';
+        (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="mrt-lien cal-v-anoter" data-noter="' + esc(s.id) + '">À noter</button>' : '') +
+        '<label class="mrt-coche">' + '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></label></div>';
     };
     return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml, detail };
   }
@@ -84,7 +83,7 @@
     const ss = (ctx.seances || []).filter(s => s.date >= de && s.date <= a && s.etat !== 'proposee');
     if (!ss.length) return '';
     const somme = (l, f) => l.reduce((t, s) => t + (Number(f(s)) || 0), 0), faites = ss.filter(s => s.faite);
-    const prevu = { n: ss.length, km: somme(ss, s => s.distance_km) }, fait = { n: faites.length, km: somme(faites, s => s.distance_km) };
+    const prevu = { n: ss.length, km: somme(ss, s => s.distance_km) }, fait = { n: faites.length, km: somme(faites, s => P.reel(s).distance_km) };
     const seances = n => n + (n > 1 ? ' séances' : ' séance');
     if (avenir) return [seances(prevu.n), prevu.km ? km(prevu.km) + ' km' : ''].filter(Boolean).join(' · ');
     return [fait.n + '/' + seances(prevu.n), prevu.km ? km(fait.km) + '/' + km(prevu.km) + ' km' : ''].filter(Boolean).join(' · ');
@@ -137,6 +136,54 @@
   }
   window.mrtGrilleMois = grilleMois;
 
+  // ----- Mois V2 et export (spécification du Calendrier, § 4.5 et 4.6) : une ligne par semaine, son libellé à gauche (place dans
+  // le plan, date du lundi, total), une colonne par jour ; chaque séance en carte à liseré (couleur du type de séance : Sortie longue,
+  // Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), les trois traits de l'intensité devant la mesure en gras (distance, sinon durée),
+  // le nom dessous ; « Repos » les jours vides d'une semaine du plan ou qui a des séances. Pas de légende des liserés.
+  // opts.mois : rang du mois (jours voisins atténués) ; opts.phases : fond de phase ; opts.impression : sans « + » ni lien (export).
+  const dureeTxt = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? String(m % 60).padStart(2, '0') : '') : m + ' min');
+  function carteV2(ctx, s, imp) {
+    const l = P.lireLibelle(s.libelle), r = P.reel(s), ecr = !ctx.lectureSeule && !imp, tr = P.traits(s.intensite);
+    const mesure = Number(r.distance_km) > 0 ? km(Number(r.distance_km)) + ' km' : Number(r.duree_min) > 0 ? dureeTxt(Number(r.duree_min)) : '';
+    // Téléphone : la mesure est masquée, les traits passent devant le nom abrégé (copie muette).
+    const noms = '<span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span>';
+    const lignes = (mesure ? '<b class="cal-m2-mes">' + tr + mesure + '</b><span class="cal-m2-nom">' + (tr ? '<span class="cal-m2-int-tel" aria-hidden="true">' + tr + '</span>' : '') + noms + '</span>'
+      : '<b class="cal-m2-mes cal-m2-nom">' + tr + noms + '</b>') + (l.detail ? '<small class="cal-m2-det">' + esc(l.detail) + '</small>' : '');
+    return '<div class="cal-m2-se ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (ecr && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' +
+      (ecr ? '<button type="button" class="cal-m2-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m2-txt">') + lignes + (ecr ? '</button>' : '</span>') +
+      (imp ? '<i class="cal-m2-coche' + (s.faite ? ' on' : '') + '" aria-hidden="true"></i>' : '<label class="mrt-coche">' + '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecr ? '' : ' disabled') + ' aria-label="Faite">' + '</label>') + '</div>';
+  }
+  function courseV2(ctx, c, imp) {
+    const o = ctx.courses.find(x => x.id === c.id) || {}, dist = o.distance != null ? String(o.distance).replace('.', ',') + ' km' : '';
+    const dedans = (dist ? '<b class="cal-m2-mes">' + dist + '</b>' : '') + '<span class="cal-m2-nom">' + esc(c.nom) + '</span>';
+    return imp ? '<div class="cal-m2-course ' + couleur(c) + '">' + dedans + '</div>'
+      : '<a class="cal-m2-course ' + couleur(c) + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + dedans + '</a>';
+  }
+  function grilleSemaines(ctx, debut, fin, opts) {
+    const o = opts || {}, auj = iso(new Date()), cc = contenus(ctx), imp = !!o.impression, courses = visibles(ctx.courses, debut, fin, auj), ps = planSaison(ctx);
+    let h = '<div class="cal-m2' + (imp ? ' is-imp' : '') + '"><div class="cal-m2-tete"><span></span>' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cal-libelle">' + j + '</span>').join('') + '</div>';
+    for (let l = lundiDe(debut); l <= fin; l = addDays(l, 7)) {
+      const x = phaseDe(ps, l), ph = o.phases && x && x.phase !== 'entretien' ? x.phase : null, d = parse(l);
+      const se7 = ctx.seances.filter(s => s.date >= l && s.date <= addDays(l, 6) && s.etat !== 'proposee'), repos = (x && x.saison) || se7.length;
+      const total = totalSemaine(ctx, l);
+      h += '<div class="cal-m2-ligne' + (ph ? ' ph-' + ph : '') + (l === lundiDe(auj) && !imp ? ' is-courante' : '') + '" data-semaine="' + l + '"><div class="cal-m2-sem">' +
+        (x && x.saison ? '<b class="cal-libelle">Sem. ' + x.n + '</b>' : '') + '<span class="cal-m2-lundi">' + (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS[d.getMonth()] + '</span>' +
+        (x ? '<span class="cal-ph-nom ph-' + x.phase + '">' + NOM_PHASE[x.phase] + '</span>' : '') + (total ? '<small class="cal-m2-total">' + total + '</small>' : '') + '</div>';
+      for (let i = 0; i < 7; i++) {
+        const j = addDays(l, i), jd = parse(j), cls = ['cal-m2-case'];
+        if (j < auj && !imp) cls.push('passe');
+        if (o.mois != null && jd.getMonth() !== o.mois) cls.push('hors');
+        const cs = courses.filter(c => c.date === j), rdv = imp ? [] : cc.rdvDuJour(j), se = ctx.seances.filter(s => s.date === j && s.etat !== 'proposee');
+        h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cal-m2-num' + (j === auj && !imp ? ' auj' : '') + '">' + jd.getDate() + '</span>' +
+          cs.map(c => courseV2(ctx, c, imp)).join('') + rdv.map(c => cc.rdvHtml(c, true)).join('') + se.map(s => carteV2(ctx, s, imp)).join('') +
+          (!cs.length && !se.length && !rdv.length && repos ? '<span class="cal-repos">Repos</span>' : '') + (imp ? '' : cc.plusHtml(j)) + '</div>';
+      }
+      h += '</div>';
+    }
+    return h + '</div>';
+  }
+  window.mrtGrilleSemaines = grilleSemaines;
+
   window.renderCalendrier = function (root, ctx) {
     const mobile = window.matchMedia('(max-width: 600px)');
     const ecrit = () => !ctx.lectureSeule;
@@ -144,7 +191,7 @@
     // Vue de l'adresse ; sans adresse, la semaine en cours (vue par défaut).
     function lireHash() {
       const [k, v] = location.hash.replace(/^#/, '').split('=');
-      if (k === 'annee' || k === 'mois') return { v: k, mois: /^\d{4}-\d\d$/.test(v || '') ? v : moisCourant() };
+      if (k === 'annee' || k === 'mois' || k === 'mois2') return { v: k, mois: /^\d{4}-\d\d$/.test(v || '') ? v : moisCourant() };
       return { v: 'semaines', lundi: lundiDe(/^\d{4}-\d\d-\d\d$/.test(v || '') ? v : iso(new Date())) };
     }
 
@@ -165,7 +212,7 @@
         '<nav class="cal-menu" id="cal-menu" aria-label="Vue" hidden><span class="cal-libelle">Vue</span>' + VUES.map(x =>
           '<a href="#' + x[0] + (x[2] && depart ? '=' + depart : '') + '" data-vue="' + x[0] + '"' + (x[2] ? ' data-periode="' + x[2] + '"' : '') +
           (est(x) ? ' class="is-on" aria-current="true"' : '') + '>' + x[1] + '</a>').join('') + '</nav></div>' +
-        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="' + (plan ? 'Masquer les phases de la préparation' : 'Afficher les phases de la préparation') + '">Phases' + (plan ? window.mrtIcone.oeil : window.mrtIcone.oeilBarre) + '</button>' +
+        '<div class="cal-options">' + window.mrtPleinEcran.bouton() + window.mrtExport.bouton() + '<button type="button" class="mrt-btn cal-plan' + (plan ? ' is-actif' : '') + '" data-plan aria-pressed="' + plan + '" title="' + (plan ? 'Masquer les phases de la préparation' : 'Afficher les phases de la préparation') + '">Phases' + (plan ? window.mrtIcone.oeil : window.mrtIcone.oeilBarre) + '</button>' +
         '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     };
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
@@ -173,7 +220,7 @@
       '<a class="cal-voisin" href="' + avant[1] + '" aria-label="' + avant[2] + '"><span class="mrt-rond">' + window.mrtIcone.gauche + '</span><span class="cal-voisin-txt">' + avant[0] + '</span></a>' +
       '<div class="cal-titre-bloc"><h2 class="cal-titre">' + titre + '</h2>' + (sous || '') + '</div>' +
       '<a class="cal-voisin is-suiv" href="' + apres[1] + '" aria-label="' + apres[2] + '"><span class="cal-voisin-txt">' + apres[0] + '</span><span class="mrt-rond">' + window.mrtIcone.droite + '</span></a></div>';
-    const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.concat([['recuperation', NOM_PHASE.recuperation]]).map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
+    const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.concat([['recuperation', NOM_PHASE.recuperation], ['entretien', NOM_PHASE.entretien]]).map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
     // Phase d'un jour : celle de sa semaine dans le plan de saison (spécification Préparation, § 4) ; l'Entretien n'a pas de fond.
     const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
     const { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml } = contenus(ctx);
@@ -236,6 +283,14 @@
         [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + h;
     }
 
+    // ----- Mois V2 : une ligne par semaine, une colonne par jour (spécification § 4.5) -----
+    function vueMois2(m) {
+      const phases = phasesVisibles(), debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
+      const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
+      return haut('mois2') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois2=' + decaler(m, -1), 'Mois précédent'],
+        [court(decaler(m, 1)), '#mois2=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + grilleSemaines(ctx, debut, fin, { mois: rang(m), phases });
+    }
+
     // ----- Semaine : un jour par ligne ; les semaines suivantes au fil du défilement, les passées par un lien (spécification § 4.3 et 4.4) -----
     const liste = { cle: null, debut: null, nb: 3 }; // semaines affichées : la première, leur nombre
     // « Semaine du 26 oct. au 1er nov. », l'année de fin quand ce n'est pas l'année en cours (formats communs, comme la préparation).
@@ -259,9 +314,22 @@
     function vueSemaine() {
       const phases = phasesVisibles(), plans = phases ? planSaison(ctx) : null;
       let h = haut('semaines') + '<div class="cal-sep"></div>' + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') +
-        '<button type="button" class="mrt-lien cal-passees" data-passees>↑ Afficher les semaines passées</button>';
+        '<button type="button" class="mrt-lien cal-passees" data-passees>' + window.mrtIcone.haut + 'Afficher les semaines passées</button>' +
+        // Rien du tout (compte neuf) : une phrase pour dire quoi faire.
+        (!ctx.lectureSeule && !(ctx.seances || []).length && !(ctx.courses || []).length ? '<p class="cal-vide">Touche « + » sur un jour pour ajouter une séance ; tes courses s\'y ajoutent d\'elles-mêmes.</p>' : '');
       for (let i = 0; i < liste.nb; i++) h += semaineHtml(addDays(liste.debut, 7 * i), plans);
       return h + '<div class="cal-fin" aria-hidden="true"></div>';
+    }
+
+    // Export (spécification § 4.6) : la période affichée, une ligne par semaine. Semaine : les semaines de la liste ;
+    // Mois et Mois V2 : les semaines du mois ; Année : sa période.
+    function exporter() {
+      const vue = lireHash(), auj = iso(new Date());
+      let debut, fin, titre;
+      if (vue.v === 'semaines') { debut = liste.debut; fin = addDays(liste.debut, 7 * liste.nb - 1); titre = 'Semaines ' + window.mrtFormat.semaine(debut).replace(/ au .*/, '') + ' au ' + window.mrtFormat.date(fin, { annee: false }); }
+      else if (vue.v === 'annee') { const nb = periode(); debut = vue.mois + '-01'; fin = iso(new Date(an(vue.mois), rang(vue.mois) + nb, 0)); titre = cap(MOIS_LONG[rang(vue.mois)]) + ' ' + an(vue.mois) + ' – ' + MOIS_LONG[rang(decaler(vue.mois, nb - 1))] + ' ' + an(decaler(vue.mois, nb - 1)); }
+      else { debut = vue.mois + '-01'; fin = iso(new Date(an(vue.mois), rang(vue.mois) + 1, 0)); titre = cap(MOIS_LONG[rang(vue.mois)]) + ' ' + an(vue.mois); }
+      window.mrtExport.imprimer(ctx, { titre: 'Calendrier · ' + titre, debut: lundiDe(debut), fin: addDays(lundiDe(fin), 6), phases: phasesVisibles(), auj });
     }
 
     // ----- Affichage et événements -----
@@ -271,6 +339,7 @@
       let h;
       if (vue.v === 'annee') h = vueAnnee(vue.mois, periode());
       else if (vue.v === 'mois') h = vueMois(vue.mois);
+      else if (vue.v === 'mois2') h = vueMois2(vue.mois);
       else {
         if (liste.cle !== vue.lundi) { liste.cle = vue.lundi; liste.debut = vue.lundi; liste.nb = 3; }
         h = vueSemaine();
@@ -316,6 +385,7 @@
         }
         return;
       }
+      if (t.closest('[data-exporter]')) { exporter(); return; }
       if (t.closest('[data-plan]')) { ranger('mrt-calendrier-phases', phasesVisibles() ? '0' : '1'); dessiner(); return; }
       if (t.closest('[data-passees]')) {
         // Quatre semaines passées de plus, au-dessus, sans que la semaine regardée ne bouge à l'écran.

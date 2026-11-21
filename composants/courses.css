@@ -3,7 +3,10 @@
    Cartes les moins larges possibles, de même hauteur, regroupées par mois et rangées côte à côte quand l'écran le permet (une colonne sur téléphone).
    Rien d'écrit en dur : les rôles de couleur du thème. */
 .cs-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 0.9rem; margin-bottom: 1.1rem; }
-.cs-barre .ob-ajout { margin-left: auto; }
+/* Finishers, puis « Ajouter une course », poussés à droite ensemble. */
+.cs-barre .cs-finishers { margin-left: auto; text-decoration: none; }
+.cs-finishers-logo { width: 1.1rem; height: 1.1rem; border-radius: 4px; flex: none; }
+.cs-barre .cs-finishers + .ob-ajout { margin-left: 0; }
 .cs-barre { position: relative; z-index: 2; } /* la liste d'affichage passe au-dessus du panneau */
 .cs-n { margin-left: 0.35rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
 /* Filtres : rond commun, comme le Palmarès ; Accent quand un filtre est actif ou le panneau ouvert, avec le nombre de filtres actifs. */
@@ -40,7 +43,7 @@
 .cs-carte .ob-ligne { grid-template-columns: 6.2rem minmax(0, 1fr); }
 /* Le lien « Site officiel » reste un lien à part ; grisé quand le site n'est pas renseigné. */
 .cs-bas { grid-area: bas; margin: 0.15rem 0 0.2rem; display: flex; justify-content: flex-start; }
-.cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--t-second); color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
+.cs-site { display: inline-flex; align-items: center; gap: 0.25rem; } /* lien d'action commun (mrt-lien), flèche à droite */
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
 

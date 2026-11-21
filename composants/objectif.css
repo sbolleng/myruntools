@@ -11,6 +11,7 @@
 .ob-lib { color: var(--muted); }
 .ob-date { color: var(--muted); }
 .ob-role { color: var(--muted); }
+.ob-role-plan { color: var(--muted); } /* le rôle dans Mon plan, après le statut, discret (même sur la course principale) */
 .ob-role.is-cle { color: var(--accent); }
 .ob-role.is-obj { color: var(--accent); }
 .ob-val { color: var(--text); }
@@ -115,7 +116,7 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 .pc-lieu { display: inline-flex; align-items: baseline; gap: 0.2rem; white-space: nowrap; color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
 .pc-repere { width: 0.8em; height: 0.8em; flex: none; align-self: center; }
 .pc-liens-haut { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.5rem; }
-.pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--t-second); color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; }
+.pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; } /* lien d'action commun (mrt-lien), flèche à droite */
 .pc-ext.is-ouvert { color: var(--red); } /* inscription ouverte : en Alerte, comme sur la carte */
 .pc-fiche .pc-ext { font-size: inherit; color: var(--text); }
 /* Description : repliée dans le cadre de la fiche, sous un filet. */
@@ -143,6 +144,7 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 .pc-cellule > summary::-webkit-details-marker { display: none; }
 .pc-corps { padding-bottom: 1rem; }
 .pc-corps p + p { margin-top: 0.4rem; }
+.pc-vide { color: var(--muted); }
 .pc-liens { list-style: none; }
 .pc-liens li + li { margin-top: 0.3rem; }
 .pc-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
@@ -204,3 +206,13 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 /* Date / heure d'une course à venir : le rond « Ajouter à l'agenda » à droite de la date. */
 .pc-datelig { display: flex; align-items: center; justify-content: flex-start; gap: 0.6rem; } /* le rond juste à droite de la date */
 .pc-datelig .mrt-rond .ob-ico { width: 0.95rem; height: 0.95rem; }
+@media (max-width: 600px) { .ob-carte .ob-role-plan { display: none; } } /* téléphone : le statut seul sur les cartes, pour tenir sur une ligne */
+/* Proposer une stratégie (Objectif, § 3.10) : ravitaillements (52), bouton (53), proposition (54) et « OK » (55), dans Parcours. */
+.pc-ravitos { margin: 0.2rem 0 0.5rem; }
+.st-zone { margin-top: 0.6rem; }
+.st-actions { margin: 0; }
+.st-msg { margin-top: 0.4rem; font-size: var(--t-second); color: var(--muted); }
+.st-msg:empty { display: none; }
+.st-proposition { margin-top: 0.6rem; padding: 0.55rem 0.8rem; border: 1px dashed var(--border); border-radius: 8px; }
+.st-texte p + .pc-sous-titre { margin-top: 0.7rem; }
+.st-ok { display: flex; justify-content: flex-end; margin-top: 0.6rem; }

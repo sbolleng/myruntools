@@ -62,16 +62,27 @@
   // ----- Le parcours : la suite des écrans -----
   const PROFIL = ['niveau', 'blessures', 'volume', 'allure', 'semaine'];
   const TITRES = { plan: 'Ton plan', course: 'Ta course', conflit: 'Deux Objectifs se chevauchent', niveau: 'Ton niveau', blessures: 'Tes blessures', volume: 'Mon volume actuel',
-    allure: 'Repère d\'allure', semaine: 'Ma semaine', debut: 'Début', recap: 'Récapitulatif' };
+    allure: 'Repère d\'allure', semaine: 'Ma semaine', debut: 'Début', recap: 'Récapitulatif', prepa: 'Ta course préparatoire', avis: 'Ta course préparatoire' };
   const e = st => st.etat.entrainement || {};
   const semaineFaite = pr => !!PR().resumeCourse(pr) && PR().joursDe(pr, 'jours_course').length >= (pr.nb_sorties || 0);
-  const FAIT = { niveau: pr => !!pr.niveau, blessures: pr => !!pr.antecedents, volume: pr => !!pr.volume_tranche && !!pr.sortie_tranche, allure: pr => PR().allureFaite(pr), semaine: semaineFaite };
+  // Blessures : facultatif, posé une fois, au premier parcours (donc fait dès que le niveau l'est).
+  const FAIT = { niveau: pr => !!pr.niveau, blessures: pr => !!(pr.niveau || pr.fragiles || pr.blessure), volume: pr => !!pr.volume_tranche && !!pr.sortie_tranche, allure: pr => PR().allureFaite(pr), semaine: semaineFaite };
 
-  function nouveau(ctx) {
-    return { pile: ['plan'], filtre: 'confirmees', etat: { id: ctx.id, mesures: ctx.mesures || {}, entrainement: ctx.profil || null, courses: ctx.courses }, sauter: null };
+  // opts.prepa : l'ajout d'une course préparatoire (§ 5.1, n° 27), pour l'Objectif opts.objectif ; opts.fenetre : la fenêtre conseillée d'abord.
+  function nouveau(ctx, opts) {
+    const etat = { id: ctx.id, mesures: ctx.mesures || {}, entrainement: ctx.profil || null, courses: ctx.courses };
+    if (opts && opts.prepa) return { mode: 'prepa', pile: ['prepa'], filtre: 'confirmees', objectifId: opts.objectif, fenetre: !!opts.fenetre, etat, sauter: [] };
+    return { pile: ['plan'], filtre: 'confirmees', etat, sauter: null };
   }
+  // L'avis d'une course si elle devenait Préparatoire (§ 3.5) : Conseillée, Possible ou Déconseillée.
+  function avisPrepa(ctx, c) {
+    const x = Object.assign({}, c, { role: 'preparatoire', statut: 'confirmee' });
+    return P.avisCourse(Object.assign({}, ctx, { courses: ctx.courses.map(k => (k.id === c.id ? x : k)) }), x);
+  }
+  const AVIS = { conseillee: 'Conseillée', possible: 'Possible', deconseillee: 'Déconseillée' };
   const course = (ctx, st) => ctx.courses.find(c => c.id === st.courseId) || null;
   function suite(ctx, st) {
+    if (st.mode === 'prepa') return ['prepa', 'avis'];
     const x = course(ctx, st);
     return ['plan', 'course'].concat(x && conflits(ctx, x).length ? ['conflit'] : [], PROFIL.filter(k => !(st.sauter || []).includes(k)), ['debut', 'recap']);
   }
@@ -117,7 +128,30 @@
 
   function ecran(ctx, st) {
     const k = courant(st), pr = e(st), x = course(ctx, st), PRf = PR();
-    if (k === 'plan') return '<div class="ps-groupe-l">' + choix('data-plan', 'course', false, 'Une course ou un trail') +
+    if (k === 'prepa') {
+      // Les courses entre aujourd'hui et l'Objectif, la fenêtre conseillée d'abord ; chacune avec son avis en Préparatoire.
+      const o = ctx.courses.find(c => c.id === st.objectifId), sg = o && P.suggestion(ctx, o);
+      const dans = c => !!sg && c.date >= sg.debut && c.date <= sg.fin;
+      const cs = !o ? [] : ctx.courses.filter(c => aVenir(c) && c.id !== o.id && c.date < o.date && roleDe(c) !== 'objectif' &&
+        (st.filtre === 'toutes' ? ['confirmee', 'option', 'a_surveiller'].includes(c.statut) : c.statut === 'confirmee'))
+        .sort((a, b) => (st.fenetre && dans(a) !== dans(b) ? (dans(a) ? -1 : 1) : a.date < b.date ? -1 : 1));
+      return '<div class="pp-tete"><div class="ps-coches">' + pastille('data-filtre', 'confirmees', st.filtre !== 'toutes', 'Confirmées') + pastille('data-filtre', 'toutes', st.filtre === 'toutes', 'Toutes') + '</div>' +
+        (ctx.edition ? '<button type="button" class="ob-ajout mrt-btn is-principal" data-pp="ajouter" title="Ajouter une course"><svg class="ob-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ob-ajout-long">Ajouter une course</span><span class="ob-ajout-court">Course</span></button>' : '') + '</div>' +
+        (sg ? '<p class="pp-note">Conseillée avant ' + esc(o.course) + ' : ' + sg.fenetre.texte + ', du ' + longue(sg.debut) + ' au ' + longue(sg.fin) + '.</p>' : '') +
+        (cs.length ? '<div class="ps-groupe-l">' + cs.map(c => { const av = avisPrepa(ctx, c) || {};
+          return choix('data-prepa-c', c.id, false, texte('<b>' + esc(c.course) + '</b>' + (roleDe(c) ? ' <span class="pp-role is-discret">' + ROLE[roleDe(c)] + '</span>' : '') +
+            (av.niveau ? ' <span class="pp-avis is-' + av.niveau + '">' + AVIS[av.niveau] + '</span>' : ''), sousTitre(c) + (av.niveau ? '<span class="pp-pourquoi">' + esc(P.commentaireAvis(av)) + '</span>' : ''))); }).join('') + '</div>'
+          : '<p class="pp-vide">' + (st.filtre === 'toutes' ? 'Aucune course avant ' + esc(o ? o.course : 'l\'Objectif') + '.' : 'Aucune course confirmée avant ' + esc(o ? o.course : 'l\'Objectif') + '.') + '</p>');
+    }
+    if (k === 'avis') {
+      // Déconseillée en Préparatoire : la raison, la course, « Ajouter en Plaisir » (conseillé) ou « Ajouter quand même en Préparatoire ».
+      const av = avisPrepa(ctx, x) || {}, nomS = c => '<b>' + esc(c.course) + '</b>';
+      return '<p class="pp-alerte" role="alert">' + window.mrtIcone.attention + '<span>' + (av.alerte ? P.texteAlerte(av.alerte, nomS) : 'Déconseillée en Préparatoire') + '</span></p>' +
+        (av.niveau ? '<p class="pp-note">' + esc(P.commentaireAvis(av)) + '</p>' : '') +
+        carte(x, 'Déconseillée en Préparatoire', false) +
+        '<div class="pp-pied pp-deux"><button type="button" class="mrt-btn" data-avis="preparatoire">Ajouter quand même en Préparatoire</button><button type="button" class="mrt-btn is-principal" data-avis="plaisir">Ajouter en Plaisir</button></div>';
+    }
+    if (k === 'plan') return '<p class="pp-note pp-invite">Quel est ton objectif ?</p><div class="ps-groupe-l">' + choix('data-plan', 'course', false, 'Une course ou un trail') +
       '<button type="button" class="ps-choix pp-bientot" disabled><span>Me maintenir en forme</span><small>Bientôt</small></button></div>';
     if (k === 'course') {
       const cs = ctx.courses.filter(c => aVenir(c) && (st.filtre === 'toutes' ? ['confirmee', 'option', 'a_surveiller'].includes(c.statut) : c.statut === 'confirmee')).sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -137,17 +171,17 @@
     }
     if (k === 'niveau') return '<div class="ps-groupe-l">' + PRf.ECHELLES.niveau.map(([v, lib]) => choix('data-val', v, pr.niveau === v, PRf.choixTexte('niveau', v, lib))).join('') + '</div>';
     if (k === 'blessures') {
-      // Points fragiles (durables) ; « Blessé en ce moment ? » Non (d'office) ou Oui, et alors « Quoi et où ? » ; la date : celle du jour.
-      const det = st.detail, bz = st.bless || (st.bless = { fragiles: pr.fragiles || '', oui: !!pr.blessure, blessure: pr.blessure || '' });
-      return '<div class="ps-groupe-l">' + PRf.ECHELLES.antecedents.map(([v, lib]) => choix('data-antecedent', v, pr.antecedents === v, PRf.choixTexte('antecedents', v, lib))).join('') + '</div>' +
-        (det ? '<form class="ps-valeur pp-form" novalidate><label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="2" placeholder="ex. tendon d\'Achille gauche">' + esc(bz.fragiles) + '</textarea></label>' +
+      // Points fragiles (durables, antécédents compris) ; « Blessé en ce moment ? » Non (d'office) ou Oui, et alors « Quoi et où ? » ; la date : celle du jour.
+      const bz = st.bless || (st.bless = { fragiles: pr.fragiles || '', oui: !!pr.blessure, blessure: pr.blessure || '' });
+      return '<form class="ps-valeur pp-form" novalidate><label class="cal-champ"><span>Points fragiles et blessures passées</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="2" placeholder="ex. tendinite d\'Achille en 2024, genou droit sensible">' + esc(bz.fragiles) + '</textarea></label>' +
           '<div class="cal-champ pp-blesse"><span>Blessé en ce moment ?</span><div class="ps-coches">' + pastille('data-blesse', 'non', !bz.oui, 'Non') + pastille('data-blesse', 'oui', bz.oui, 'Oui') + '</div></div>' +
           (bz.oui ? '<label class="cal-champ"><span>Quoi et où ?</span><textarea class="mrt-champ" name="blessure" maxlength="300" rows="2" placeholder="ex. entorse de la cheville droite">' + esc(bz.blessure) + '</textarea></label>' : '') +
-          '</form>' + continuer : '');
+          '</form>' + continuer;
     }
     if (k === 'volume') {
       const grp = (cle, lib) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + PRf.ECHELLES[cle].map(([v, l]) => pastille('data-vol', cle + '|' + v, pr[cle] === v, l)).join('') + '</div></div>';
-      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance moyenne par semaine') + grp('sortie_tranche', 'Plus longue sortie récente') + '</div>';
+      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance moyenne par semaine') + grp('sortie_tranche', 'Plus longue séance récente') + '</div>' +
+        '<div class="pp-pied"><button type="button" class="mrt-btn is-principal" data-pp="continuer"' + (FAIT.volume(pr) ? '' : ' disabled') + '>Continuer</button></div>';
     }
     if (k === 'allure') {
       const t = st.allure || pr.allure_type || null, champ = PRf.CHAMP_TEMPS[t];
@@ -171,7 +205,7 @@
       texte(o.titre + (o.reco ? ' <span class="pp-role">Recommandée</span>' : ''), o.sous))).join('') + '</div>';
     // Récapitulatif : une ligne par réponse, chacune ramène à son écran.
     const d = st.debut || {};
-    const lignes = [['niveau', 'Niveau', PRf.libelleDe('niveau', pr.niveau)], ['blessures', 'Blessures', PRf.libelleDe('antecedents', pr.antecedents)],
+    const lignes = [['niveau', 'Niveau', PRf.libelleDe('niveau', pr.niveau)], ['blessures', 'Blessures', pr.blessure ? 'En ce moment : ' + pr.blessure : pr.fragiles || 'Rien à signaler'],
       ['volume', 'Volume', pr.volume_tranche && pr.sortie_tranche ? PRf.libelleDe('volume_tranche', pr.volume_tranche) + ' · ' + PRf.libelleDe('sortie_tranche', pr.sortie_tranche) : null],
       ['allure', 'Repère d\'allure', PRf.resumeAllure(pr)], ['semaine', 'Ma semaine', PRf.resumeCourse(pr)],
       ['debut', 'Début', d.mode === 'perso' ? 'Personnalisé' : d.debut ? longue(d.debut) + ' · ' + d.n + (d.n > 1 ? ' semaines' : ' semaine') : null]];
@@ -179,7 +213,7 @@
     return '<h2 class="ps-titre">' + esc(x.course) + '</h2><p class="ps-sous">' + longue(x.date) + (d.n ? ' · ' + d.n + (d.n > 1 ? ' semaines' : ' semaine') : '') + (Number(x.distance) ? ' · ' + nombreFr(Number(x.distance)) + ' km' : '') + '</p>' +
       (cs.length ? '<p class="pp-note">' + cs.map(c => devient(c.course, c.role)).join(' · ') + '</p>' : '') +
       '<div class="ps-groupe-l pp-recap">' + lignes.map(([q, lib, r]) => '<button type="button" class="ps-ligne-q" data-recap="' + q + '"><span>' + lib + '</span><span class="ps-rep' + (r ? '' : ' is-a-faire') + '">' + esc(r || 'À renseigner') + '</span><i aria-hidden="true">›</i></button>').join('') + '</div>' +
-      '<div class="pp-pied"><button type="button" class="mrt-btn is-principal" data-pp="construire"' + (st.encours ? ' disabled' : '') + '>' + (st.encours ? 'Construction en cours…' : 'Construire mon plan') + '</button></div>';
+      '<div class="pp-pied">' + (st.attente ? '<p class="pp-attente" role="status">MyRunTools prépare tes séances…' + (ctx.ia && ctx.ia.blocs > 1 ? ' (bloc ' + ctx.ia.bloc + ' sur ' + ctx.ia.blocs + ')' : '') + '</p>' : '') + '<button type="button" class="mrt-btn is-principal" data-pp="construire"' + (st.encours ? ' disabled' : '') + '>' + (st.encours ? 'Construction en cours…' : 'Construire mon plan') + '</button></div>';
   }
 
   function dessiner(root, ctx) {
@@ -194,13 +228,13 @@
     // Une course dont la date vient d'être précisée : elle est choisie, le parcours continue.
     if (st.attenteDate) {
       const c = ctx.courses.find(x => x.id === st.attenteDate);
-      if (c && !c.date_approx) { st.attenteDate = null; st.courseId = c.id; suivant(ctx, st); }
+      if (c && !c.date_approx) { st.attenteDate = null; st.courseId = c.id; if (st.mode === 'prepa') return void choisirPrepa(ctx, st, c.id); suivant(ctx, st); }
     }
     // Une course ajoutée depuis l'écran « Ta course » : elle est choisie, le parcours continue.
     if (st.avantAjout) {
       const nv = ctx.courses.find(c => !st.avantAjout.includes(c.id) && aVenir(c));
       st.avantAjout = null;
-      if (nv) { st.courseId = nv.id; suivant(ctx, st); }
+      if (nv) { st.courseId = nv.id; if (st.mode === 'prepa') return void choisirPrepa(ctx, st, nv.id); suivant(ctx, st); }
     }
     const k = courant(st), s = suite(ctx, st), i = Math.max(0, s.indexOf(k)), pct = Math.round(100 * i / (s.length - 1));
     // Repère d'allure : un résultat du Palmarès de moins de 12 mois, prérempli (la première fois, s'il n'y a pas encore de repère).
@@ -208,12 +242,12 @@
       st.palmares = PR().duPalmares(st.etat) || null;
       if (st.palmares && !PR().allureFaite(e(st))) { st.allure = st.palmares.type; st.allureVal = PR().enTemps(st.palmares.s); }
     }
-    const fermable = ctx.courses.some(c => c.statut === 'confirmee' && aVenir(c) && roleDe(c) === 'objectif');
+    const fermable = st.mode === 'prepa' || ctx.courses.some(c => c.statut === 'confirmee' && aVenir(c) && roleDe(c) === 'objectif');
     root.innerHTML = '<div class="pp" data-ecran="' + k + '"><div class="pp-barre">' +
       (st.pile.length > 1 ? '<button type="button" class="mrt-rond" data-pp="retour" aria-label="Écran précédent" title="Retour">' + window.mrtIcone.gauche + '</button>' : '<span class="pp-place"></span>') +
       '<span class="pp-prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></span>' +
       (fermable ? '<button type="button" class="mrt-rond is-fermer" data-pp="fermer" aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button>' : '<span class="pp-place"></span>') + '</div>' +
-      (k === 'conflit' ? '' : '<p class="fc-libelle">' + TITRES[k] + '</p>') + '<p class="ps-msg" role="alert">' + esc(st.msg || '') + '</p>' + ecran(ctx, st) + '</div>';
+      (k === 'conflit' || k === 'avis' ? '' : '<p class="fc-libelle">' + TITRES[k] + '</p>') + '<p class="ps-msg" role="alert">' + esc(st.msg || '') + '</p>' + ecran(ctx, st) + '</div>';
     const champ = root.querySelector('.pp-form [name]');
     if (champ && k === 'allure') champ.focus({ preventScroll: true });
   }
@@ -243,6 +277,12 @@
       if (b('[data-plan]')) { aller(st, 'course'); return redessiner(); }
       if (b('[data-filtre]')) { st.filtre = b('[data-filtre]').dataset.filtre; return redessiner(); }
       if (act === 'ajouter' && ctx.edition) { st.avantAjout = ctx.courses.map(c => c.id); return ctx.edition.ajouter({ defauts: { statut: 'confirmee' } }); }
+      if (b('[data-prepa-c]')) {
+        const id = b('[data-prepa-c]').dataset.prepaC;
+        if (ctx.edition && (ctx.courses.find(c => c.id === id) || {}).date_approx) { st.attenteDate = id; return ctx.edition.modifier(id); }
+        return choisirPrepa(ctx, st, id);
+      }
+      if (b('[data-avis]')) return mettreRole(ctx, st, x, b('[data-avis]').dataset.avis);
       if (b('[data-course]') && ctx.edition && (ctx.courses.find(c => c.id === b('[data-course]').dataset.course) || {}).date_approx) {
         // Seul le mois est connu : la fiche de la course s'ouvre pour préciser la date ; enregistrée, la course est choisie.
         st.attenteDate = b('[data-course]').dataset.course; return ctx.edition.modifier(st.attenteDate);
@@ -258,13 +298,6 @@
         return ctx.actualiser();
       }
       if (b('[data-val]') && courant(st) === 'niveau') { if (await ranger(ctx, st, { niveau: b('[data-val]').dataset.val })) suivant(ctx, st); return redessiner(); }
-      if (b('[data-antecedent]')) {
-        const v = b('[data-antecedent]').dataset.antecedent, f0 = root.querySelector('.pp-form');
-        if (f0 && st.bless) { st.bless.fragiles = f0.fragiles.value; if (f0.blessure) st.bless.blessure = f0.blessure.value; } // le texte tapé reste
-        if (!(await ranger(ctx, st, { antecedents: v }))) return redessiner();
-        if (v === 'legeres' || v === 'frequentes') { st.detail = true; return redessiner(); }
-        suivant(ctx, st); return redessiner();
-      }
       // Les champs tapés restent quand l'écran se redessine.
       const lireBless = () => { const f = root.querySelector('.pp-form'); if (f && st.bless) { st.bless.fragiles = f.fragiles.value; if (f.blessure) st.bless.blessure = f.blessure.value; } };
       if (b('[data-blesse]') && st.bless) { lireBless(); st.bless.oui = b('[data-blesse]').dataset.blesse === 'oui'; st.msg = ''; return redessiner(); }
@@ -279,7 +312,7 @@
       }
       if (b('[data-vol]')) {
         const [cle, v] = b('[data-vol]').dataset.vol.split('|');
-        if (await ranger(ctx, st, { [cle]: v }) && FAIT.volume(e(st))) suivant(ctx, st); // les deux choisies : la suite
+        await ranger(ctx, st, { [cle]: v }); // deux questions sur l'écran : « Continuer » (actif quand les deux sont choisies) passe à la suite
         return redessiner();
       }
       if (act === 'continuer' && courant(st) === 'volume') { if (FAIT.volume(e(st))) suivant(ctx, st); else st.msg = 'Choisis la distance et la plus longue sortie.'; return redessiner(); }
@@ -324,10 +357,29 @@
     });
   }
 
+  // Ajout d'une préparatoire : Conseillée ou Possible, elle devient Préparatoire aussitôt ; Déconseillée, l'écran de l'avis.
+  async function choisirPrepa(ctx, st, id) {
+    const c = ctx.courses.find(k => k.id === id);
+    if (!c) return;
+    st.courseId = id;
+    if ((avisPrepa(ctx, c) || {}).niveau === 'deconseillee') { aller(st, 'avis'); return ctx.redessiner(); }
+    return mettreRole(ctx, st, c, 'preparatoire');
+  }
+  // Le rôle dans le plan (Confirmée si elle ne l'était pas ; une option quitte son groupe) ; la saison a changé (§ 5.1, n° 9).
+  async function mettreRole(ctx, st, c, role) {
+    const champs = { role, statut: 'confirmee' };
+    if (c.statut === 'option') champs.groupe_options = null;
+    const { error } = await window.mrtSupabase.from('courses').update(champs).eq('id', c.id);
+    if (error) { console.warn(error); st.msg = 'Enregistrement impossible pour l\'instant.'; return ctx.redessiner(); }
+    if (ctx.saisonChangee) await ctx.saisonChangee();
+    ctx.parcours = null;
+    return ctx.actualiser();
+  }
+
   // « Construire mon plan » : le rôle Objectif (Confirmée), le rôle des courses qui chevauchent, la durée ; puis la page et l'IA.
   async function construire(ctx, st, x) {
     const pr = e(st);
-    const manque = ['niveau', 'blessures', 'volume', 'allure', 'semaine'].find(k => !FAIT[k](pr));
+    const manque = ['niveau', 'volume', 'allure', 'semaine'].find(k => !FAIT[k](pr));
     if (manque) { st.msg = 'Il manque une réponse : ' + TITRES[manque].toLowerCase() + '.'; return ctx.redessiner(); }
     if (!st.debut) { st.msg = 'Choisis le début du plan.'; return ctx.redessiner(); }
     st.encours = true; ctx.redessiner();
@@ -337,11 +389,15 @@
       .concat(changements(ctx, st, x).map(c => sb.from('courses').update({ role: c.role }).eq('id', c.course.id)));
     const res = await Promise.all(maj), err = res.find(r => r.error);
     if (err) { console.warn(err.error); st.encours = false; st.msg = 'Enregistrement impossible pour l\'instant.'; return ctx.redessiner(); }
-    ctx.parcours = null;
+    // « Personnaliser » : la fenêtre « Régler les phases » de l'Objectif.
+    if (d.mode === 'perso') { ctx.parcours = null; await ctx.actualiser(); return P.ouvrirPreparer(ctx, x.id); }
+    // Sinon l'IA propose le premier bloc : on attend sur le récapitulatif (« MyRunTools prépare tes séances… »), puis la page du plan s'ouvre.
+    st.attente = true;
     await ctx.actualiser();
-    // « Personnaliser » : la fenêtre « Régler les phases » de l'Objectif ; sinon l'IA propose le premier bloc.
-    if (d.mode === 'perso') return P.ouvrirPreparer(ctx, x.id);
-    if (ctx.proposer) ctx.proposer();
+    if (ctx.proposer) await ctx.proposer();
+    ctx.parcours = null;
+    ctx.redessiner();
+    window.scrollTo(0, 0);
   }
 
   window.mrtParcours = { nouveau, dessiner: (root, ctx) => { brancher(root, ctx); dessiner(root, ctx); }, conflits, rolePerdant, departs };

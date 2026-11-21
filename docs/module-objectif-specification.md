@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.78 · 12 novembre 2026 · [Retour au sommaire](README.md) · Préparation d'une course : sa place dans la saison et son avis, lien « Voir dans Mon plan → » (C24, F39 à F42) · Jalon 1 (octobre 2026) · preuve de concept
+Version 0.86 · 21 novembre 2026 · [Retour au sommaire](README.md) · Ravitaillements sur le profil (56) ; ligne « Tracé GPX » réduite à « Importer un tracé » et « Supprimer le tracé » ; « Supprimer la course » en haut, à gauche d'« Enregistrer »
 
 ## 1. Rôle
 
@@ -94,7 +94,7 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 | Cas | Signification | Rendu |
 | --- | --- | --- |
 | Confirmée | Course retenue (rôle Préparatoire ou Plaisir) | Trait plein, pastille pleine en Texte discret |
-| Rôle Objectif (affiché « Objectif ») | Une course visée ; il peut y en avoir plusieurs, chacune ouvre une saison ([Préparation](module-preparation-specification.md), § 2) ; l'ancien rôle « Objectif intermédiaire » s'affiche et s'enregistre en Objectif (évolution 023) | Pastille en Accent, cerclée ; cadre en Accent |
+| Rôle Objectif (affiché « Objectif ») | Une course visée ; il peut y en avoir plusieurs, chacune ouvre une préparation ([Préparation](module-preparation-specification.md), § 2) ; l'ancien rôle « Objectif intermédiaire » s'affiche et s'enregistre en Objectif (évolution 023) | Pastille en Accent, cerclée ; cadre en Accent |
 | Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait et cadre en pointillé ; une seule étape (§ 3.6) |
 | Option isolée | Course envisagée, pas encore retenue | Trait et cadre en pointillé, pastille vide |
 
@@ -110,7 +110,7 @@ Une modale, comme le formulaire d'une course : au-dessus de la page d'origine, q
 
 **Téléphone** : la modale prend tout l'écran, en montant du bas (animation courte, supprimée si l'appareil demande moins de mouvements) ; la croix la ferme. (Le bord transparent essayé d'abord a été abandonné : de la place perdue et des fermetures par erreur.)
 
-Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; numéros stables ; (5) et (1) sont dans la barre du haut, fixe). Une seule colonne, sur ordinateur comme sur téléphone, de la largeur habituelle (896 px). Deux cadres : la fiche, avec « À propos de la course » repliée dedans ; puis les textes. Tous les textes sont repliés à l'ouverture (le titre seul, précédé d'un chevron) ; un toucher sur le titre les ouvre ou les ferme.
+Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; numéros stables ; (5) et (1) sont dans la barre du haut, fixe). Une seule colonne, sur ordinateur comme sur téléphone, de la largeur habituelle (896 px). Deux cadres : la fiche, avec « À propos de la course » repliée dedans ; puis les textes. Tous les textes sont repliés à l'ouverture (le titre seul, précédé d'un chevron) ; un toucher sur le titre les ouvre ou les ferme. Un texte vide n'est pas affiché, sauf **Inscription (50)**, toujours là (« Non renseigné » en Texte discret quand rien n'est saisi) : Ouverture (date et heure, ou mois seul), Dossard, Prix, Site d'inscription ↗, en liste « libellé, valeur » comme le Résultat. **Ouverte depuis la page Courses**, la feuille montre tous ses blocs, vides compris (fermés, « Non renseigné ») ; les blocs renseignés sont ouverts (décidé le 20 nov. 2026).
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -132,8 +132,9 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 │ │ (18) › À PROPOS DE LA COURSE            (30) Site officiel ↗ │ │
 │ └───────────────────────────────────────────────────────────────┘ │
 │ ┌──────────────────────────────────────────────────────────────┐ │
+│ │ (50) › Inscription (ouverture, dossard, prix, site d'inscription) │ │
 │ │ (25) › Parcours  (26 carte, 47 plein écran, 32 profil, 48 lignes, 49 pente, 27 GPX, STRATÉGIE DE COURSE 16) │
-│ │ (24) › Préparation (RÔLE DANS LE PLAN 15, place dans la saison, Voir dans Mon plan →) │
+│ │ (24) › Préparation (RÔLE DANS LE PLAN 15, place dans le plan, Voir dans Mon plan) │
 │ │ (17) › Logistique                                             │ │
 │ └──────────────────────────────────────────────────────────────┘ │
 │ (20) ← Course précédente                  Course suivante → (21) │
@@ -169,12 +170,13 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 50 | Repère sur la carte | Pastille | Sur le tracé, à la position lue en 49, en Accent à contour sombre comme départ et arrivée ; disparaît avec la lecture |
 | 51 | Chiffres du tracé | Distance, D+ et D− | Dès qu'un tracé est importé, la distance (un chiffre après la virgule), le D+ et le D− de la course sont remis à jour d'après lui, et écrasent les valeurs saisies. Dans la fiche d'édition, les trois champs se remplissent aussitôt et restent corrigeables avant « Enregistrer » (une correction à la main est gardée) ; importé depuis la page (25), c'est rangé tout de suite. Une variation d'altitude ne compte qu'au-delà de 3 m depuis le dernier sommet ou creux (le GPS bouge de quelques mètres sans que le sol change). Sans altitudes dans le GPX, seule la distance est mise à jour. Retirer le tracé ne change rien aux chiffres |
 | 27 | GPX | « ↓ GPX » | Bouton à contour, à droite, juste sous la ligne des distances du profil ; télécharge le fichier rangé, au nom de la course ; aussi en lecture seule |
-| 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Formulaire, bloc Course, ligne « Tracé GPX » sous le D− : rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; fichier à plusieurs tracés (toutes les distances d'une épreuve) : « Ce fichier contient N tracés : lequel garder ? », un bouton par tracé (nom · longueur), le plus proche de la distance de la course en premier, et « Annuler » ; seul le tracé choisi est rangé ; un fichier déjà rangé avec plusieurs tracés montre le plus proche de la distance ; pour corriger, « Remplacer » ; absent en lecture seule et pour une course courue |
+| 28 | Import du GPX | « Importer un tracé », « Supprimer le tracé » | Formulaire, bloc Parcours, ligne « Tracé GPX » : deux boutons communs, sans ligne d'état ; « Importer un tracé » toujours présent, il remplace le tracé existant ; « Supprimer le tracé » (`mrt-btn is-danger`) quand il y en a un ; rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; fichier à plusieurs tracés (toutes les distances d'une épreuve) : « Ce fichier contient N tracés : lequel garder ? », un bouton par tracé (nom · longueur), le plus proche de la distance de la course en premier, et « Annuler » ; seul le tracé choisi est rangé ; un fichier déjà rangé avec plusieurs tracés montre le plus proche de la distance ; pour corriger, « Importer un tracé » ; absent en lecture seule et pour une course courue |
+| 56 | Ravitaillements sur le profil | Trait pointillé vertical à chaque km de F57, le km en haut (« 12 ») | Dans le profil (32), Texte discret, `--t-micro` ; un km au-delà du tracé n'est pas dessiné |
 | 16 | Stratégie de course | Plan de course, allures, liaison avec la course suivante | Dans 25, sous le GPX ; sous-titre « Stratégie de course » en libellé ; absente si vide |
-| 24 | Préparation | Dans l'ordre : 15, puis la place de la course dans la saison et son avis ([Préparation](module-preparation-specification.md), § 5.4), puis le lien « Voir dans Mon plan → » (`preparation.html#courses`) ; plus de plan propre à la course (12 nov. 2026) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : place calculée au 1er du mois, mentionnée sous la ligne ; ancre `#preparation` (ouverte quand on arrive par elle) ; lien absent en lecture seule |
-| 15 | Rôle dans la préparation | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Rôle dans la préparation » (le nom du champ de la fiche) en libellé ; absent si vide |
+| 24 | Préparation | Dans l'ordre : 15, puis la place de la course dans le plan et son avis ([Préparation](module-preparation-specification.md), § 5.4), puis le lien « Voir dans Mon plan → » (`preparation.html#courses`) ; plus de plan propre à la course (12 nov. 2026) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : place calculée au 1er du mois, mentionnée sous la ligne ; ancre `#preparation` (ouverte quand on arrive par elle) ; lien absent en lecture seule |
+| 15 | Pourquoi cette course | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Pourquoi cette course » (le nom du champ de la fiche) en libellé ; absent si vide |
 | 17 | Logistique | Transport, horaires, retrait du dossard | Dernier texte du cadre, juste avant la navigation |
-| 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la saison | Libellé, puis le nom en Texte |
+| 20, 21 | Navigation | « Course précédente » et « Course suivante » (flèches dessinées) dans la saison | Libellé, puis le nom en Texte |
 
 Ne sont plus affichés sur la page (ils restent dans le formulaire) : Prix (14), Précisions de l'objectif (23), le bloc Liens (19), réparti entre 30, 29 et 31.
 
@@ -234,12 +236,12 @@ Site partagé en lecture seule : aucun de ces boutons.
 | --- | --- |
 | Course | Course et parcours ; date, ou mois seul (case « Seul le mois est connu » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ (vidée et grisée tant qu'il n'y a pas de date exacte : sans date, ou en mois seul) ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; **objectif**, choisi dans une liste (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), la durée n'apparaissant que pour les deux derniers ; **précisions sur l'objectif** (100 caractères au plus) ; description (1 000 caractères au plus), puis **site officiel** (sous la description, comme dans la consultation où il rejoint « À propos de la course »), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, Repérée) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
-| Préparation | En tête, la place de la course dans la saison, comme sur la page de la course (§ 3.4 ; [Préparation](module-preparation-specification.md), § 5.4) : rôle, place, repères, avis (39, 40), en lecture ; note 41 : « Les phases se règlent dans Mon plan, une fois la course enregistrée. ». Seulement pour une course Confirmée ou Option ; calculée sur la date, le format, la distance, le D+, le statut et le rôle saisis, elle suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) : « Choisis d'abord la date et le format. ». Date approximative : la place vise le 1er du mois, avec la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. ». Date précise changée : les phases réglées d'un Objectif suivent la course, au même numéro de semaine. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
+| Préparation | En tête, la place de la course dans le plan, comme sur la page de la course (§ 3.4 ; [Préparation](module-preparation-specification.md), § 5.4) : rôle, place, repères, avis (39, 40), en lecture ; note 41 : « Les phases se règlent dans Mon plan, une fois la course enregistrée. ». Seulement pour une course Confirmée ou Option ; calculée sur la date, le format, la distance, le D+, le statut et le rôle saisis, elle suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) : « Choisis d'abord la date et le format. ». Date approximative : la place vise le 1er du mois, avec la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. ». Date précise changée : les phases réglées d'un Objectif suivent la course, au même numéro de semaine. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Logistique | Logistique |
 | Inscription | Date d'ouverture des inscriptions, heure d'ouverture et case « Seul le mois est connu » **sur une seule ligne** (sur téléphone : la date seule, puis l'heure et la case ensemble) ; case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Résultat | Avant la course : « Résultats en direct » seul (lien à ouvrir le jour de la course). Voir § 3.8 |
 
-- **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Paramétrer le plan » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
+- **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Régler les phases » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
 - **Obligatoires** marqués d'une étoile en Accent, en exposant (en haut à droite du libellé), sans légende : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course Repérée peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « DNF » est cochée. Décidé le 10 nov. 2026.
 - **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 3h, 1h30 ou 45 min » (Moins de…), « ex. 02:45:00 » (Temps précis), « ex. Partir prudemment, sous 4 h dans tous les cas », « ex. https://… ».
 - **Objectif normé** : une liste à choix unique (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), puis la durée si le choix en demande une ; rangé comme avant : « Finisher », « Sub 3h » / « Sub 1h30 » / « Sub 45 min », ou un temps `hh:mm:ss`. Tout le reste (intention, fourchette, contexte) va dans **Précisions sur l'objectif** (nom décidé le 10 nov. 2026).
@@ -270,13 +272,13 @@ Site partagé en lecture seule : aucun de ces boutons.
 - **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la saison, sinon la feuille se ferme (course courue ajoutée au Palmarès).
 - **Toucher une ligne du Palmarès** : la feuille en consultation d'une course courue (ci-dessous). **Crayon d'une ligne** : la feuille directement en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
-- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, seul en bas de la fiche, loin d'« Enregistrer » ; après confirmation, la feuille se ferme.
-- Le formulaire n'ouvre plus de fenêtre par-dessus : « Paramétrer le plan » est dans la page Mon plan, sur un Objectif seulement (décidé le 11 novembre 2026, précisé le 12).
+- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, dans la barre du haut, à gauche d'« Enregistrer », la poubelle seule (son nom en info-bulle et pour les lecteurs d'écran) ; après confirmation, la feuille se ferme.
+- Le formulaire n'ouvre plus de fenêtre par-dessus : « Régler les phases » est dans la page Mon plan, sur un Objectif seulement (décidé le 11 novembre 2026, précisé le 12).
 
 ```
 Téléphone · consultation (plein écran)  Téléphone · édition (même écran)
 ┌─────────────────────────────────┐     ┌─────────────────────────────────┐
-│                   (C5) ✎ (C1) × │     │ (F24) Annuler   (F25) Enregistrer│
+│                   (C5) ✎ (C1) × │     │ (F24) Annuler    (F23) 🗑 (F25) Enregistrer│
 │ PRÉPARATOIRE · ÉTAPE 2 SUR 14   │     │ (F1) MODIFIER LA COURSE         │
 │ (C3) Trail des 2 Baies ↗        │     │ ⌄ (F3) Course                   │
 │ (C6) lieu · format · date       │     │   Course *  [                ]  │
@@ -284,7 +286,6 @@ Téléphone · consultation (plein écran)  Téléphone · édition (même écra
 │ └────────────────────────────┘  │     │ › (F15) Place dans le plan      │
 │ (C24) ⌄ Préparation …           │     │ › …                             │
 │ (C20) ← précédente suivante (C21)│     │ (F22) message                   │
-│                                 │     │ [🗑 Supprimer la course] (F23)   │
 └─────────────────────────────────┘     └─────────────────────────────────┘
 ```
 
@@ -356,7 +357,7 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 | 2 | (F15) Place dans le plan | ouvert | replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
 | 3 | (F19) Inscription | ouvert | replié si vide | Numéro, prix ; à venir seulement : ouverture des inscriptions, « Inscrit » (le numéro ne se saisit qu'inscrit), site d'inscription |
 | 4 | (F46) Parcours | replié (ouvert pour une course existante) | replié | Tracé GPX (importer, remplacer, supprimer ; F28) puis stratégie de course, à venir comme courue (depuis le 6 nov. 2026) |
-| 5 | (F20) Préparation | replié (ouvert pour une course existante) | replié | À venir : place dans la saison (F39 à F42), puis rôle dans la préparation ; courue : le rôle seulement (le plan n'est pas rangé : pour une course courue, il serait recalculé, donc inventé) |
+| 5 | (F20) Préparation | replié (ouvert pour une course existante) | replié | À venir : place dans le plan (F39 à F42), puis rôle dans la préparation ; courue : le rôle seulement (le plan n'est pas rangé : pour une course courue, il serait recalculé, donc inventé) |
 | 6 | (F38) Logistique | replié (ouvert pour une course existante) | replié | Logistique |
 | 7 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (**temps, case « DNF » et allure moyenne sur la même ligne**), puis les classements (général, catégorie, sexe : places et effectifs), puis « Résultats en direct », sur toute la largeur. Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé). **Avant la course, le bloc existe aussi, avec ce seul lien** (replié) ; la case ne porte que le libellé « DNF » (décidé le 10 nov. 2026) |
 | 8 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
@@ -374,6 +375,160 @@ Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès 
 - [x] Consultation d'une course courue : oui, en touchant une ligne du Palmarès ; crayon de la ligne gardé, ouverture aussi en lecture seule (décidé le 29 oct. 2026) ; sections Résultat et Montre en liste (décidé le 30 oct. 2026 ; construit) ; objectif dans le Résultat et textes repliés sous la Montre (décidé le 6 nov. 2026 ; construit).
 - [x] Ordre des blocs : le même pour tous ; Résultat et Classements fusionnés (résultat d'abord) ; Place dans le plan, Préparation et Logistique avant Résultat, Inscription juste sous Logistique (décidé le 28 oct. 2026).
 
+### 3.9 Remplir depuis la page de la course
+
+**Principe** : pour ajouter une course, on peut partir de sa page sur un autre site (Finishers, site de l'organisateur, un calendrier de courses). Le coureur copie tout le texte de la page et le colle dans la fiche. Une IA y repère les informations utiles et remplit les champs vides. **MyRunTools n'ouvre jamais la page lui-même** : c'est le coureur qui apporte le texte (pas de récupération automatique des pages d'un autre site, voir la [todo](todo.md), n° 9). Rien n'est enregistré avant « Enregistrer », et rien n'est inventé : une information absente du texte laisse le champ vide. Décidé le 20 nov. 2026.
+
+**Où** : dans la fiche, **en ajout seulement** (F1 « Ajouter une course »), d'où qu'elle s'ouvre (Objectif, Courses, Palmarès, En un coup d'œil). Jamais pour une course existante, ni sur un site partagé.
+
+```
+Fiche « Ajouter une course » (édition)
+┌──────────────────────────────────────────────┐
+│ (F24) Annuler                (F25) Enregistrer│
+│ (F1) AJOUTER UNE COURSE                      │
+│ ┌ (F47) ─────────────────────────────────┐   │
+│ │ (F48) Tu as la page de la course       │   │
+│ │ (Finishers, site officiel…) ?          │   │
+│ │ [ (F49) Remplir depuis la page de la course ]│
+│ └────────────────────────────────────────┘   │
+│ ⌄ (F3) Course                                │
+└──────────────────────────────────────────────┘
+
+Après (F49) : l'encart s'ouvre sur place
+┌ (F47) ───────────────────────────────────────┐
+│ (F50) Copie tout le texte de la page …        │
+│ ┌ (F51) ─────────────────────────────────┐   │
+│ └────────────────────────────────────────┘   │
+│ (F52) Fermer               [ (F53) Remplir ]  │
+│ (F54) message                                 │
+└──────────────────────────────────────────────┘
+
+Plusieurs parcours dans le texte : l'encart demande lequel
+┌ (F47) ───────────────────────────────────────┐
+│ (F55) Plusieurs parcours trouvés : lequel ?   │
+│ [ (F56) Le 25 · 25 km · 900 m D+ ]            │
+│ [ (F56) Le 50 · 50 km · 2 400 m D+ ]          │
+│ (F52) Fermer                                  │
+└──────────────────────────────────────────────┘
+```
+
+Téléphone : le même ordre, l'encart sur toute la largeur.
+
+| N° | Nom | Exemple | Place | Style |
+| --- | --- | --- | --- | --- |
+| F47 | Encart | — | En tête de la fiche, au-dessus du bloc Course | Carte secondaire commune (`en-tete.css`) |
+| F48 | Phrase | « Tu as la page de la course (Finishers, site officiel…) ? » | Dans l'encart, fermé | Texte courant, couleur discrète |
+| F49 | Ouvrir | « Remplir depuis la page de la course » | Sous la phrase | Bouton à contour |
+| F50 | Consigne | « Copie tout le texte de la page (Ctrl+A puis Ctrl+C ; sur téléphone, « Tout sélectionner » puis « Copier ») et colle-le ici. » | Remplace F48 et F49 | Petite taille, discrète |
+| F51 | Zone de collage | Exemple : « Colle ici le texte de la page » | Sous la consigne | Zone de texte commune, cinq lignes |
+| F52 | Fermer | « Fermer » | En bas à gauche | Lien discret ; replie l'encart (F48, F49), zone vidée |
+| F53 | Remplir | « Remplir » | En bas à droite | Bouton à contour (« Enregistrer » reste le seul bouton plein) ; grisé tant que F51 est vide |
+| F54 | Message | « Lecture du texte… » ; puis le résultat ou l'erreur (ci-dessous) | Sous les boutons | Message commun |
+| F55 | Question | « Plusieurs parcours trouvés : lequel ? » | Remplace F50 à F53 | Texte courant |
+| F56 | Un parcours | « Le 25 · 25 km · 900 m D+ » (nom, distance, D+ s'ils sont connus) | Un bouton par parcours, l'un sous l'autre | Boutons à contour |
+
+**Fonctionnement**
+
+1. F49 ouvre l'encart (F50 à F54) ; F53 envoie le texte (30 000 caractères au plus, la suite est ignorée) à la fonction Supabase `lire-page-course`.
+2. La fonction rend les informations trouvées, **par parcours**. Un seul parcours : la fiche est remplie aussitôt. Plusieurs : F55 et un F56 par parcours ; toucher un parcours remplit la fiche avec les informations communes à l'épreuve (nom, lieu, site officiel, inscription) et celles de ce parcours (nom du parcours, date et heure, distance, D+, D−, format, prix).
+3. Champs que l'IA peut remplir, s'ils sont dans la fiche ouverte : course, parcours, date (ou mois seul si le jour n'est pas connu), heure, lieu, type, format, distance, D+, D−, description (résumé de 1 000 caractères au plus), site officiel ; ouverture des inscriptions (date, heure, ou mois seul), site d'inscription, prix. **Jamais** : statut, rôle, groupe d'options, objectif, inscrit et numéro, GPX, stratégie, logistique, résultat.
+4. **Seuls les champs vides sont remplis** : ce qui a déjà été saisi n'est jamais écrasé.
+5. Chaque valeur passe les contrôles de saisie du § 3.7 ; type et format doivent être une valeur de leur liste. Comme à la main, une distance de trail propose son format : il est alors rempli sans liseré, et l'IA ne le remplace pas. Une valeur qui ne passe pas est laissée de côté (champ vide), sans message.
+6. Les champs remplis portent un liseré Accent jusqu'à leur première modification, ou jusqu'à « Enregistrer ». Leurs blocs s'ouvrent.
+7. Après le remplissage, l'encart se replie (F48, F49) et F54 reste dessous : « 9 champs remplis : vérifie-les avant d'enregistrer. ». On peut recommencer avec un autre texte (seuls les champs encore vides sont remplis).
+
+**Messages (F54)**
+
+| Cas | Message |
+| --- | --- |
+| Pendant l'attente | « Lecture du texte… » (F53 grisé) |
+| Champs remplis | « N champs remplis : vérifie-les avant d'enregistrer. » (« 1 champ rempli… ») |
+| Rien trouvé, ou tous les champs déjà remplis | « Aucune information à ajouter n'a été trouvée dans ce texte. » |
+| Compte non pilote | « Réservé aux comptes pilotes pour l'instant. » |
+| Panne (IA, réseau) | « La lecture n'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main. » |
+
+**Fonction `lire-page-course`** (Supabase, comme `proposer-seances`) : vérifie l'utilisateur connecté et la liste des pilotes (secret `PILOTES`) ; envoie le texte, la date du jour et les listes de types et de formats à l'IA (secret `ANTHROPIC_API_KEY`, modèle rapide, réglable par le secret facultatif `MODELE_LECTURE`) avec la consigne de ne rendre que ce qui figure dans le texte ; rend `{ parcours: [ … ] }`. Le texte collé n'est pas gardé. Pas de plafond tant qu'elle est réservée aux pilotes. Réponses : 401 (pas connecté), 403 `{ code: 'reserve' }`, 502 `{ code: 'ia' }`.
+
+### 3.10 Proposer une stratégie
+
+**Principe** : sur la page d'une course à venir, un bouton demande à une IA une stratégie de course, en deux parties : d'abord **la stratégie à adopter** (la plus développée), puis **quoi boire et manger**. Elle s'appuie sur la course (tracé, distance, D+, heure, objectif, ravitaillements), sur Mon profil, le Palmarès, l'entraînement récent et les aliments favoris de Nutrition. Au toucher de « OK », elle **remplace** le texte de la stratégie (16), qui reste modifiable dans la fiche. Rien n'est inventé : sans une donnée, l'IA s'en passe et ne la suppose pas. Décidé le 21 nov. 2026.
+
+**Où** : dans Parcours (25), sous la stratégie (16), pour une course **à venir** qui a une distance et un format. Jamais pour une course courue, ni sur un site partagé.
+
+```
+(25) ⌄ Parcours
+     (26) carte · (32) profil · (27) ↓ GPX
+     (52) Ravitaillements : km 12 · 25 · 38
+     (16) STRATÉGIE DE COURSE
+          texte actuel (absent si vide)
+     (53) [ Proposer une stratégie ]
+
+Après (53) : la proposition s'affiche sous le bouton
+     (54) ┌──────────────────────────────────────────┐
+          │ STRATÉGIE                                 │
+          │ Départ, tronçons (km, allure, temps visé),│
+          │ montées et descentes, fin de course       │
+          │ BOIRE ET MANGER                           │
+          │ Glucides et eau par heure, quoi et quand  │
+          │ (aux ravitaillements et entre eux)        │
+          │                                    [ OK ] │ (55)
+          └──────────────────────────────────────────┘
+```
+
+| N° | Élément | Contenu | Style |
+|---|---|---|---|
+| 52 | Ravitaillements | « Ravitaillements : km 12 · 25 · 38 » (F57) | Libellé, puis valeurs en Texte ; absent si vide |
+| 53 | Proposer une stratégie | Envoie le contexte à l'IA ; « Proposition en cours… » pendant l'attente (bouton grisé) ; masqué tant que la proposition (54) est affichée | Bouton commun |
+| 54 | Proposition | Deux parties titrées « Stratégie » (1 600 caractères au plus) et « Boire et manger » (900), en texte simple (paragraphes courts, tirets) ; rangée telle quelle, titres compris | Encadré en tirets fins (Bordure), coins de 8 px : pas de cadre dans le cadre des textes ; titres en libellé ; texte `--t-texte` |
+| 55 | OK | Range la proposition à la place de la stratégie (16), aussitôt, sans confirmation ; la proposition se ferme, 16 montre le nouveau texte, (53) revient | Bouton commun, à droite |
+
+Pas d'autre bouton : quitter la page sans « OK » abandonne la proposition ; (53) se retouche pour en avoir une autre.
+
+**Ravitaillements (F57)** : nouvelle ligne du bloc Parcours (F46) de la fiche d'édition, sous le GPX : « Ravitaillements (km) », les kilomètres séparés par des virgules (« 12, 25, 38 » ; aussi « 12; 25 », « 12,25,38 », virgule décimale « 20,5 » ; une décimale au plus). Illisible : « Indique les km séparés par des virgules. » ; dans le désordre, à 0 ou au-delà de la distance : « Des km dans l'ordre, entre le départ et l'arrivée. ». Facultatif ; vide, l'IA n'en parle pas comme d'une donnée connue.
+
+**Contexte envoyé à l'IA**, jamais le nom de la course, son lieu, ni le nom ou l'adresse du coureur :
+
+| Source | Données |
+|---|---|
+| Course | Date, format, route ou trail, distance, D+, D−, heure de départ, objectif et ses précisions, rôle (Objectif, Préparatoire, Plaisir), ravitaillements (F57) ; avec un GPX, l'altitude de départ et la plus haute, chaque kilomètre (D+, D−, pente moyenne, altitude lissée sur 50 m), les montées et descentes de plus de 100 m (extrêmes successifs à 30 m près) |
+| Mon profil | Sexe, âge, poids, FC de repos, niveau, ancienneté, volume par semaine, plus longue séance récente, VMA ou temps sur 10 km ou semi, FC max, terrain, points fragiles, blessure en cours |
+| Palmarès | Les courses courues comparables (même format, ou même type et distance à ± 30 %), sans abandon, des 24 derniers mois, au plus 5 : date, format, distance, D+, temps, allure, FC moyenne |
+| Entraînement | Les séances de course faites des 12 dernières semaines (réalisé, sinon prévu) : par mois, nombre, km, D+ et durée ; la plus longue sortie |
+| Nutrition | Les aliments favoris : nom, portion, calories, glucides |
+| Mes stats | Plus tard : les valeurs de la page ([Mes stats](module-stats-specification.md), § 3), calculées dans un composant partagé avec elle, une fois construite (meilleurs temps, temps estimés, allures, zones) |
+
+La météo du jour J (§ 5.4) s'y ajoutera quand elle sera construite.
+
+**Consignes à l'IA** (tutoiement, vocabulaire du glossaire, chiffres tirés du contexte seulement) :
+
+- **Stratégie** : l'allure ou l'effort par tronçon (allure en min:s par km sur route, effort et allure-effort en trail), les temps de passage aux ravitaillements quand ils sont connus, la gestion des montées (marche au-delà d'une pente, d'après le niveau) et des descentes, le départ, le moment de relancer ; l'objectif est jugé réaliste ou non d'après les temps estimés et le Palmarès, et dit simplement.
+- **Boire et manger** : glucides et eau par heure, puis quoi et quand. Les aliments favoris qui conviennent en course passent d'abord (portion et glucides) ; sinon des familles d'aliments, jamais une marque. Ni avis médical.
+
+**Repères de nutrition** donnés à l'IA (vérifiés le 21 nov. 2026 ; les mêmes serviront à Nutrition, todo n° 15) :
+
+| Durée ou course | Glucides | Eau, sel | Source |
+|---|---|---|---|
+| Moins d'une heure | Pas nécessaires | — | Position commune 2016 (1) |
+| 1 h à 2 h 30 | 30 à 60 g par heure | — | (1) |
+| Plus de 2 h 30 | 60 à 70 g par heure, jusqu'à 90 g si l'estomac y est entraîné | — | (1) |
+| Ultra-trail | 30 à 50 g de glucides et 5 à 10 g de protéines par heure (150 à 400 kcal) | 450 à 750 ml par heure (150 à 250 ml toutes les 20 min), plus par forte chaleur ; sodium au-delà de 575 mg par litre | ISSN 2019 (2) |
+
+(1) *Position of the Academy of Nutrition and Dietetics, Dietitians of Canada, and the American College of Sports Medicine: Nutrition and Athletic Performance*, 2016 (chiffres lus dans une revue qui la cite ; le texte original n'a pas pu être ouvert). (2) Tiller et al., *International Society of Sports Nutrition Position Stand: nutritional considerations for single-stage ultra-marathon training and racing*, JISSN 16:50, 2019 (texte lu).
+
+**Messages**
+
+| Cas | Message |
+|---|---|
+| Distance ou format manquant | « Indique d'abord la distance et le format de la course. » (53 grisé) |
+| Compte non pilote | « Réservé aux comptes pilotes pour l'instant. » |
+| Panne (IA, réseau) | « La proposition n'a pas abouti. Réessaie dans un moment. » |
+
+**Accès** : réservé aux pilotes au début (secret `PILOTES`), ouvert à tous avec le plafond de l'IA (todo n° 6). En cas d'échec de l'enregistrement après « OK » : « Enregistrement impossible pour l'instant. », la proposition reste affichée.
+
+**Fonction `proposer-strategie`** (Supabase, comme `lire-page-course`) : vérifie l'utilisateur connecté et la liste des pilotes ; envoie le contexte à l'IA (secret `ANTHROPIC_API_KEY`) ; rend `{ strategie: '…', boire_manger: '…' }`, que le site assemble sous les deux titres ; rien n'est rangé par la fonction. Réponses : 401 (pas connecté), 403 `{ code: 'reserve' }`, 502 `{ code: 'ia' }`.
+
+**Données** : colonne `ravitaillements_km` (liste de nombres, 50 au plus) sur `courses`, évolution `044-ravitaillements.sql` ; la stratégie reste le champ texte `strategie`. Construit le 21 nov. 2026 : `composants/strategie.js` (contexte, appel, bouton), `supabase/functions/proposer-strategie`.
+
 ## 4. Données d'une course
 
 | Groupe | Champs | Sert à |
@@ -385,6 +540,7 @@ Contrôles de saisie, obligatoires et exemples : ceux du § 3.7 et du Palmarès 
 | Place dans le plan | Statut, rôle, état, groupe d'options ([modèle de données](modele-donnees.md), § 4.1) | Rendu de l'étape |
 | Inscription | Inscrit, numéro, prix, ouverture des inscriptions | Cellule Inscription |
 | Préparation | Temps cible, rôle, enchaînement, stratégie, logistique | Cellules de l'étape |
+| Ravitaillements | Kilomètres des ravitaillements | Page (52), stratégie proposée (§ 3.10) |
 | Stratégie de course | Points de passage (distance, temps visé), objectifs chiffrés, lien des résultats en direct | Suivi en course |
 | Résultat | Temps réalisé | Comparaison à l'objectif ; plus tard, Palmarès |
 
@@ -569,14 +725,14 @@ Résultats attendus, graphique de difficulté :
 - La ligne relie, dans l'ordre, Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Crêtes.
 - Trail des Gorges : 66,0, et non 76,5 (le D− n'est pas compté).
 - Survol de Trail des Gorges : bulle « 66,0 km-effort », « Trail des Gorges · 7 mars 2027 · 45 km · 2 100 m D+ » ; le nom ouvre sa page.
-- Sous le graphique, la légende (« Course de préparation », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui cite l'ITRA et donne l'exemple 40 km + 2 000 m de D+ = 60 km-effort. Ligne entre les étapes fine et discrète.
+- Sous le graphique, la légende (« Course », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui cite l'ITRA et donne l'exemple 40 km + 2 000 m de D+ = 60 km-effort. Ligne entre les étapes fine et discrète.
 - Cadre ouvert puis page rechargée : refermé. Téléphone : pas d'étiquettes, rien ne dépasse.
 
 Résultats attendus, page d'une course :
 
 - Trail des Gorges : « Objectif · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Trail long » ; pas de « S'inscrire » (inscrit) ; « Site officiel ↗ » en bas à droite de la fiche, sur la ligne d'« À PROPOS DE LA COURSE ».
 - Trail des Gorges, fiche encadrée : LIEU Mont-Clair (lien vers OpenStreetMap, nouvel onglet) ; DATE / HEURE dim. 7 mars 2027 · 7 h 30 ; DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; INSCRIPTION ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
-- Trail des Gorges : « À propos de la course » repliée dans le cadre de la fiche, sans filet ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
+- Trail des Gorges : « À propos de la course » repliée dans le cadre de la fiche, sans filet ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Pourquoi cette course, « Régler les phases », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
 - Trail des Gorges avec un GPX (boucle fictive de 5,4 km, de 500 à 620 m) : Parcours ouvert, la carte (tracé, départ, arrivée), le profil (620 m et 500 m à gauche, 0 km et 5,4 km dessous), « ↓ GPX » sous les distances du profil, puis la stratégie ; le bouton télécharge « Trail des Gorges.gpx ».
 - Même tracé : lignes d'altitude à 550 et 600 m (légende « 1 trait = 50 m »). Survol à 500 m du départ : « km 0,5 · 536 m · +7 % » et un repère sur la carte ; la souris sort : tout disparaît. Bouton plein écran : la carte s'agrandit, le bouton devient « Quitter le plein écran » ; Échap : retour à la page, la page de la course reste ouverte.
 - Importer la boucle fictive (5,4 km, 500 → 620 → 500 m) sur une course de 10 km : distance 5,4 km, D+ 120 m, D− 120 m, sur la page comme dans la fiche d'édition (où D+ corrigé à 125 puis « Enregistrer » garde 125). Altitudes 100, 102, 100, 101, 110, 108, 111, 105 : D+ 11 m, D− 6 m (le bruit de 3 m ou moins ne compte pas).
@@ -609,7 +765,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - « + » : le bloc Préparation commence par « Choisis d'abord la date et le format. », sans bouton de réglage. Trail des Lacs, 12 juin 2027, Trail court : « Plan de 12 semaines · début : lun. 22 mars 2027 → jour J : sam. 12 juin 2027 » ; case « Seul le mois est connu » cochée : « Plan de 12 semaines · début : lun. 15 mars 2027 → jour J : mar. 1 juin 2027 » et la mention de la date approximative ; décochée, retour au 12 juin.  « Enregistrer » : une seule écriture, la course (durée du format ; le plan se règle ensuite dans Préparation).
 - Page Trail des Gorges, « Modifier » : formulaire rempli ; objectif changé en `6:15:00` : la page affiche « 06:15:00 ».
 - Page Trail de la Forêt (juillet 2027, date approximative) : la rubrique Préparation porte la mention. « Modifier » : « … jour J : jeu. 1 juil. 2027 » ; case décochée, date du 4 juillet : « … jour J : dim. 4 juil. 2027 », sans mention ; « Enregistrer » : la course, puis ses phases remises aux règles.
-- Trail des Gorges avec sa semaine 5 (14 décembre) réglée en Deload, date passée au 14 mars 2027 : « Plan de 16 semaines · début : lun. 23 nov. 2026 … » ; « Enregistrer » : la semaine réglée devient celle du 21 décembre, toujours la semaine 5.
+- Trail des Gorges avec sa semaine 5 (14 décembre) réglée en Allègement, date passée au 14 mars 2027 : « Plan de 16 semaines · début : lun. 23 nov. 2026 … » ; « Enregistrer » : la semaine réglée devient celle du 21 décembre, toujours la semaine 5.
 - Page Trail des Gorges, « Modifier » : le bloc Préparation commence par « Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 », et la frise, sans bouton de réglage. « Enregistrer » : une seule écriture, la durée et les phases du plan ne sont pas touchées.
 - Supprimer Corrida de Noël, confirmation acceptée : elle disparaît ; l'en-tête affiche « 4 courses ».
 - Page Trail des Cimes, « Retenir cette course », confirmation acceptée : Trail des Cimes devient une étape Confirmée au 30 mai 2027 ; Ultra du Plateau quitte la saison (Repérée) ; la carte Printemps 2027 disparaît ; l'en-tête affiche « 5 courses ».
@@ -651,5 +807,31 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Semi de San Sebastián ouvert par son adresse, ou touché dans la vue Année du Calendrier, ou depuis « Dernière course » sur l'accueil : sa consultation (section Résultat, ligne Temps) ; par son adresse, une seule course voisine (la plus récente n'a pas de « précédente ») ; la croix laisse la saison.
 - « + Ajouter une course » puis le retour du navigateur : sans saisie, la fiche se ferme et la saison reste ; après une saisie, « Abandonner les modifications ? » ; refusé, la fiche reste ; accepté, elle se ferme. « Annuler » retire aussi l'entrée d'historique de la fiche.
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon ni « Importer un GPX ».
-- Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.
+- Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, la poubelle seule, à gauche d'« Enregistrer » ; rien ne dépasse.
 
+Résultats attendus, remplir depuis la page de la course (§ 3.9) ; réponse de `lire-page-course` simulée par le banc (texte fictif « Trail des Hauts », type Trail, deux parcours : Le 25, 25 km, 900 m D+, 13 juin 2027 à 9 h ; Le 50, 50 km, 2 400 m D+, 12 juin 2027 à 6 h ; lieu Mont-Clair ; site officiel et site d'inscription en `https://` ; ouverture des inscriptions le 1er déc. 2026 ; 35 € et 60 €) :
+
+- « + Ajouter une course » (Objectif) : l'encart F47 en tête, « Remplir depuis la page de la course » ; absent avec le crayon d'une course existante, avec « Marquer comme courue » et sur un site partagé.
+- F49 : la consigne et la zone de collage ; « Remplir » grisé tant que la zone est vide.
+- Texte collé, « Remplir » : « Plusieurs parcours trouvés : lequel ? », deux boutons « Le 25 · 25 km · 900 m D+ » et « Le 50 · 50 km · 2 400 m D+ ».
+- « Le 50 » : course Trail des Hauts, parcours Le 50, 12 juin 2027, 06:00, Mont-Clair, Trail, format Trail long (proposé par la distance, sans liseré), 50 km, 2 400 m D+, site officiel ; Inscription : ouverture 1er déc. 2026, site d'inscription, 60 € ; ces champs portent le liseré Accent, les blocs Course et Inscription sont ouverts ; statut, rôle, objectif, « Inscrit » inchangés ; encart replié, « 12 champs remplis : vérifie-les avant d'enregistrer. ».
+- Distance changée à la main : son liseré disparaît. « Enregistrer » : la course est rangée avec les valeurs affichées, plus aucun liseré.
+- Nom « Trail des Hautes Terres » saisi avant de coller, réponse d'un seul parcours : remplie aussitôt, sans question ; le nom reste tel quel, les autres champs vides sont remplis. Une date passée (pour une course à venir) est laissée de côté. Un second texte ne remplit que les champs encore vides : « Aucune information à ajouter… » s'il n'y en a plus.
+- Réponse en mois seuls (juillet 2027, ouverture janvier 2027) : « Seul le mois est connu » coché pour la date et pour l'ouverture, heure vide.
+- Réponse avec un format hors de la liste et un lien sans `https://` : ces deux champs restent vides, sans message.
+- Réponse vide : « Aucune information à ajouter n'a été trouvée dans ce texte. », aucun champ changé.
+- Réponse 403 `reserve` : « Réservé aux comptes pilotes pour l'instant. » ; réponse 502 : « La lecture n'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main. ».
+- « Fermer » : l'encart se replie, la zone est vidée, la fiche est inchangée.
+- Téléphone (390 px) : l'encart sur toute la largeur, rien ne dépasse.
+
+**Proposer une stratégie (§ 3.10)** : Trail des Gorges, ravitaillements « 12, 25, 38 » ; fonction simulée.
+
+- Fiche d'édition, Parcours : « Ravitaillements (km) » sous le GPX, « 12, 25, 38 », exemple « ex. 12, 25, 38 » ; « 12, 50 » et « 25, 12 » refusés (« Des km dans l'ordre, entre le départ et l'arrivée. ») ; « douze » refusé (« Indique les km séparés par des virgules. ») ; « 10; 20,5, 30 » rangé [10, 20.5, 30], la page montre « km 10 · 20,5 · 30 ».
+- Page : « Ravitaillements : km 12 · 25 · 38 » au-dessus de la stratégie ; « Proposer une stratégie » sous « Partir prudemment jusqu'au premier ravitaillement. ».
+- Contexte envoyé : un appel ; format Trail long, distance 45 km, D+ 2 100 m, objectif 06:30:00, départ 07:30, ravitaillements ; profil (FC max 182, points fragiles « genou ») ; un seul aliment, le favori « Gel coco » (1 pièce, 90 kcal, 22 g de glucides) ; ni « Trail des Gorges », ni « Mont-Clair », ni le nom du coureur.
+- Réponse simulée : « Proposition en cours… », puis l'encadré avec « Stratégie », « Boire et manger » et « OK » ; le bouton (53) masqué.
+- « OK » : la stratégie affichée est la proposition, rangée en base ; le cadre fermé, le bouton revenu.
+- Réponse 403 `reserve` : « Réservé aux comptes pilotes pour l'instant. » ; 502 : « La proposition n'a pas abouti. Réessaie dans un moment. » ; stratégie inchangée.
+- Course courue : pas de bouton. Corrida de Noël, format effacé : bouton grisé, « Indique d'abord la distance et le format de la course. », pas de ligne Ravitaillements.
+- Tronçons d'un tracé qui monte de 500 à 700 m en 2 km puis redescend : 4 tronçons, pente du premier 9,9 % (altitude lissée), une montée de 0 à 2 km et une descente de 2 à 4 km, de 198 m chacune.
+- Téléphone (390 px) : l'encadré sur toute la largeur, rien ne dépasse.

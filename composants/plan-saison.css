@@ -119,7 +119,8 @@
 .ps-semaine { margin-top: 0; }
 .ps-semaine-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
 .ps-semaine-tete .ps-libelle { margin: 0 0 0.5rem; }
-.ps-vers-cal { display: inline-block; margin-top: 0.6rem; font-size: var(--t-second); }
+.ps-semaine-tete .ps-libelle { display: inline-flex; align-items: center; gap: 0.5rem; }
+.ps-vers-cal { letter-spacing: 0; }
 
 /* ===== Le parcours « Construire mon plan » (plan-parcours.js ; spécification Préparation, § 5.0) =====
    Les écrans de question de Mon profil (profil.css), dans la page, toute sa largeur (le cadre du plan) : la barre (‹, progression, croix). */
@@ -129,13 +130,16 @@
 .pp-prog { flex: 1; height: 4px; background: var(--case); border-radius: 2px; overflow: hidden; }
 .pp-prog i { display: block; height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.2s; }
 .pp .fc-libelle { margin-bottom: 0.2rem; }
-.pp .ps-groupe-l + .ps-groupe-l, .pp .ps-groupe-l + .pp-note { margin-top: 0.8rem; }
+.pp .ps-groupe-l + .ps-groupe-l, .pp .ps-groupe-l + .pp-pourquoi { display: block; margin-top: 0.2rem; font-size: var(--t-petit); color: var(--muted); }
+.pp-note { margin-top: 0.8rem; }
 .pp-tete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem; }
 .pp-types { margin-bottom: 0.4rem; }
 .pp-role { margin-left: 0.4rem; font-size: var(--t-petit); font-weight: 600; color: var(--accent); }
 .pp-note { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
+.pp-invite { margin: 0 0 0.8rem; }
 .pp-vide { font-size: var(--t-texte); color: var(--muted); }
-.pp-pied { display: flex; justify-content: flex-end; margin-top: 1rem; }
+.pp-pied { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
+.pp-attente { margin: 0; font-size: var(--t-texte); color: var(--muted); }
 .pp .ps-choix[disabled] { cursor: default; opacity: 0.45; }
 .pp .ps-choix.pp-bientot small { font-size: var(--t-second); color: var(--muted); }
 .pp-recap { margin-top: 0.8rem; }
@@ -157,9 +161,10 @@
 
 /* ===== Vue d'ensemble (§ 5.1) : carte de l'Objectif, frise en cases semaine, bandeau toujours ouvert ===== */
 .ps-vue { display: flex; flex-direction: column; gap: 1.1rem; }
-.ps-objectif { margin: 0; border-color: var(--accent); background: var(--case); }
+/* Carte de l'Objectif : première section du cadre de la page, pas un cadre dans le cadre (design, § 1) ; un filet la sépare de la frise. */
+.ps-objectif { margin: 0; padding: 0 0 1.1rem; background: none; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; }
 .ps-objectif .ps-j { justify-self: end; font-family: 'Space Mono', monospace; font-size: var(--t-nom); font-weight: 700; line-height: 1; color: var(--accent); }
-.ps-objectif .ps-titre { grid-column: 1 / -1; margin: 0.1rem 0 0; font-size: 1.6rem; font-weight: 700; line-height: 1.25; color: var(--accent); }
+.ps-objectif .ps-titre { grid-column: 1 / -1; margin: 0.1rem 0 0; font-size: var(--t-titre); font-weight: 700; line-height: 1.25; color: var(--accent); }
 .ps-objectif .ps-titre a { color: inherit; text-decoration: none; }
 .ps-objectif .ps-sous { grid-column: 1 / -1; margin: 0; font-size: var(--t-texte); color: var(--text); }
 .ps-court { grid-column: 1 / -1; margin: 0; font-size: var(--t-second); font-weight: 600; color: var(--red); }
@@ -168,26 +173,32 @@
 @media (hover: hover) { .ps-objectif .ps-titre a:hover { text-decoration: underline; } }
 /* Frise : une case par semaine, à la hauteur d'une case de la vue Mois ; flèches de part et d'autre si tout ne tient pas. */
 .ps-frise-z { display: flex; align-items: center; gap: 0.4rem; }
-.ps-frise-z .ps-frise-defile { flex: 1; min-width: 0; margin: 0; padding: 2px 0 0.4rem; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }
+/* Pas de barre de défilement : les flèches la remplacent (le doigt et la molette font toujours défiler). */
+.ps-frise-z .ps-frise-defile { flex: 1; min-width: 0; margin: 0; padding: 2px 0; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; }
+.ps-frise-z .ps-frise-defile::-webkit-scrollbar { display: none; }
 .ps-semaines { display: flex; gap: 4px; }
-.ps-sem { flex: 0 0 5.2rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.15rem; min-height: 4.6rem; padding: 0.4rem 0.45rem; overflow: hidden;
-  scroll-snap-align: start; text-decoration: none; color: var(--bg); border: 2px solid transparent; border-radius: 6px; background: var(--case); }
-.ps-sem.ph-base { background: var(--ph-base); }
-.ps-sem.ph-developpement { background: var(--ph-developpement); }
-.ps-sem.ph-affutage { background: var(--ph-affutage); }
-.ps-sem.ph-deload { background: var(--ph-deload); }
-.ps-sem.ph-recuperation { background: var(--ph-recuperation); }
-.ps-sem.ph-entretien { color: var(--muted); }
+.ps-bloc-ph { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 4.6rem; overflow: hidden; color: var(--bg); border-radius: 6px; background: var(--case); }
+.ps-bloc-ph.ph-base { background: var(--ph-base); }
+.ps-bloc-ph.ph-developpement { background: var(--ph-developpement); }
+.ps-bloc-ph.ph-affutage { background: var(--ph-affutage); }
+.ps-bloc-ph.ph-deload { background: var(--ph-deload); }
+.ps-bloc-ph.ph-recuperation { background: var(--ph-recuperation); }
+.ps-bloc-ph.ph-entretien { color: var(--muted); }
+.ps-bloc-sems { flex: 1; display: flex; }
+.ps-sem { flex: 0 0 5.2rem; display: flex; flex-direction: column; gap: 0.15rem; min-height: 3.3rem; padding: 0.4rem 0.45rem 0.2rem; overflow: hidden;
+  scroll-snap-align: start; text-decoration: none; color: inherit; border: 2px solid transparent; border-radius: 6px; }
 .ps-sem.is-courante { border-color: var(--accent); }
 .ps-sem-d { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); white-space: nowrap; }
 .ps-sem-c { overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
-.ps-sem.ph-entretien .ps-sem-c { color: var(--text); }
-.ps-sem.ph-entretien .ps-sem-c.r-objectif { color: var(--accent); }
+.ps-bloc-ph.ph-entretien .ps-sem-c { color: var(--text); }
+.ps-bloc-ph.ph-entretien .ps-sem-c.r-objectif { color: var(--accent); }
 .ps-sem-c.is-option { font-weight: 400; font-style: italic; }
-.ps-sem-p { overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.ps-sem-p { width: 0; min-width: 100%; box-sizing: border-box; padding: 0 0.6rem 0.45rem; overflow: hidden; font-size: var(--t-petit); font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .ps-fl[hidden] { display: none; }
-@media (hover: hover) { .ps-sem:hover { filter: brightness(1.08); } }
-@media (max-width: 600px) { .ps-sem { flex-basis: calc((100% - 12px) / 4); } .ps-objectif .ps-titre { font-size: 1.35rem; } }
+@media (hover: hover) { .ps-sem:hover { background: color-mix(in srgb, var(--text) 10%, transparent); } }
+/* Téléphone : 4 semaines à la fois (largeur prise sur la zone qui défile). */
+.ps-frise-z .ps-frise-defile { container-type: inline-size; }
+@media (max-width: 600px) { .ps-sem { flex-basis: calc((100cqw - 12px) / 4); } }
 /* Bandeau de MyRunTools : toujours ouvert, sous la frise. */
 .ps-bandeau { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.6rem 0.8rem; border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 6px 6px 0; }
 .ps-bandeau .ps-alertes { margin: 0; }
@@ -196,3 +207,26 @@
 .ps-reco, .ps-bandeau .ps-ia-aide { margin: 0; font-size: var(--t-second); color: var(--text); }
 .ps-reco .ps-ia-reste { color: var(--muted); }
 .ps-bandeau .ps-ia-msg { margin: 0; }
+/* (26) Courses de la saison, dans la carte de l'Objectif : une puce par course (nom, date et rôle), « + Préparatoire ». */
+.ps-saison { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; }
+.ps-sc-liste { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.ps-sc { display: inline-flex; align-items: baseline; gap: 0.35rem; padding: 0.3rem 0.7rem; font: inherit; font-size: var(--t-second); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 14px; cursor: pointer; }
+.ps-sc-n { font-weight: 600; }
+.ps-sc-d { color: var(--muted); }
+.ps-sc:disabled { cursor: default; }
+.ps-sc-plus { padding: 0.3rem 0.8rem; }
+.ps-sc-plus .mrt-ico { width: 0.85rem; height: 0.85rem; }
+@media (hover: hover) { .ps-sc:not(:disabled):hover { border-color: var(--accent); } }
+.ps-sg-ligne { margin: 0; font-size: var(--t-second); color: var(--text); }
+/* (28) Feuille d'une course de la saison. */
+.ps-fc-nom { margin: 0.2rem 0 0; font-size: var(--t-nom); font-weight: 600; color: var(--text); }
+.ps-fc-d { margin: 0.1rem 0 0.6rem; font-size: var(--t-second); color: var(--muted); }
+.ps-fc-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.8rem; margin-top: 0.9rem; }
+/* (27) Ajout d'une préparatoire : l'avis de chaque course, les deux boutons de l'écran de l'avis. */
+.pp-avis { margin-left: 0.4rem; font-size: var(--t-petit); font-weight: 600; }
+.pp-avis.is-conseillee { color: var(--accent); }
+.pp-avis.is-possible { color: var(--muted); }
+.pp-avis.is-deconseillee { color: var(--red); }
+.pp-role.is-discret { color: var(--muted); font-weight: 400; }
+.pp-deux { flex-wrap: wrap; gap: 0.6rem; }
+.pp .pp-alerte span { min-width: 0; }
