@@ -5623,12 +5623,20 @@ const CONTROLES = {
     const avec = d => { d = JSON.parse(JSON.stringify(d)); const moi = d.profils[0].id;
       d.seances = [{ id: 'se-b', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Endurance', faite: false, course: null }];
       d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Nutrition', 'Courses à surveiller', 'Palmarès', 'Profil']; return d; };
+    // Mes stats avec des séances faites : tableaux, tuiles et graphiques ; une analyse enregistrée.
+    const statsPleine = d => { const moi = d.profils[0].id; d.profils[0].fc_repos = 52; d.profil_entrainement = [{ utilisateur: moi, vma: 15, fc_max: 186 }];
+      d.seances.push({ id: 'se-f1', utilisateur: moi, date: '2026-09-12', type: 'run', libelle: 'Sortie longue', faite: true, distance_reelle_km: 20, duree_reelle_min: 130, denivele_reel_m: 600, fc_moyenne: 145 },
+        { id: 'se-f2', utilisateur: moi, date: '2026-10-15', type: 'run', libelle: 'Endurance', faite: true, distance_reelle_km: 12, duree_reelle_min: 60, denivele_reel_m: 60, fc_moyenne: 152 });
+      d.activites = [{ id: 'ac-1', utilisateur: moi, seance: 'se-f2', pratique: 'course', cadence: 170, meilleurs: { 1000: 300, 5000: 1500, 10000: 3000 }, date: '2026-10-15' }];
+      d.analyses_stats = [{ id: 'an-1', utilisateur: moi, cree: '2026-10-19T08:00:00Z', motif: 'import', texte: 'Analyse enregistrée.' }];
+      d.preferences[0].modules = d.preferences[0].modules.concat(['Stats']); return d; };
     const ECRANS = [['index.html'], ['objectif.html'], ['objectif.html', p => p.click('[data-ob="ajouter"]'), 'fiche, ajout'], ['course.html?id=' + id(3)],
       ['course.html?id=' + id(3), p => p.click('[data-ob="modifier"]'), 'fiche, modification'], ['calendrier.html'], ['calendrier.html#mois'], ['calendrier.html#annee'],
       ['calendrier.html', p => p.click('[data-edit="se-b"]'), 'séance'], ['courses-a-surveiller.html'], ['palmares.html'], ['preferences.html'], ['preparation.html'],
-      ['preparation.html', p => reglage(p, '[data-preparer]'), 'phases'], ['profil.html'], ['nutrition.html'], ['guide.html']];
-    for (const [page, action, quoi] of ECRANS) for (const w of [1200, 390]) {
-      const o = await ouvrir(nav, page, w, avec(db), {}, Object.assign({}, PARIS, { mobile: w < 500 }));
+      ['preparation.html', p => reglage(p, '[data-preparer]'), 'phases'], ['profil.html'], ['nutrition.html'], ['guide.html'],
+      ['stats.html', null, 'vide'], ['stats.html', null, 'avec séances', statsPleine], ['stats.html', p => p.click('.st-haut [data-importer]'), 'import', statsPleine]];
+    for (const [page, action, quoi, prep] of ECRANS) for (const w of [1200, 390]) {
+      const o = await ouvrir(nav, page, w, prep ? prep(avec(db)) : avec(db), {}, Object.assign({}, PARIS, { mobile: w < 500 }));
       if (/^course\.html/.test(page)) await o.p.waitForSelector('.mc-panneau .pc-titre');
       if (action) { await action(o.p); await o.p.waitForTimeout(400); }
       const r = await releve(o.p), nom = page + (quoi ? ' · ' + quoi : '') + ' (' + w + ' px)';
@@ -5783,7 +5791,7 @@ const CONTROLES = {
     pb.push(egal(1, await o.p.locator('.ps-profil').count(), 'lien vers la feuille Mon profil'));
     await o.ctx.close();
 
-    // Analyse de l'IA (réponses simulées) : bornée, nettoyée ; plafond de « Actualiser » ; panne ; compte non pilote.
+    // Analyse de l'IA (réponses simulées) : bornée, nettoyée ; pas de bouton « Actualiser » ; panne après un import ; compte non pilote.
     const long = 'Ton volume monte bien depuis août. '.repeat(40) + 'Ta montre Garmin le confirme. Fin.';
     db = jeu(d => { d.relais = c => ({ status: 200, body: { texte: long, cree: '2026-10-20T08:00:00Z' } }); });
     o = await ouvrir(nav, 'stats.html', 1200, db, {}, PARIS);
@@ -5791,14 +5799,11 @@ const CONTROLES = {
     const aff = await o.p.textContent('.st-analyse .st-texte');
     pb.push(egal([true, true, false], [aff.length <= 1500, /\.$/.test(aff.trim()), /huawei|garmin|strava|montre|renforcement/i.test(aff)], 'analyse : 1 500 caractères au plus, phrase entière, sans appareil ni renforcement'));
     await o.ctx.close();
-    const auj = '2026-10-20T07:00:00Z';
-    db = jeu(d => { d.analyses_stats = [1, 2, 3].map(i => ({ id: 'a' + i, utilisateur: U, cree: auj, motif: 'actualiser', texte: 'Analyse ' + i + '.' })); d.relais = () => ({ status: 502, body: { code: 'ia' } }); });
-    o = await ouvrir(nav, 'stats.html', 1200, db, {}, PARIS);
-    pb.push(egal([true, 'Reviens demain.', 'Analyse 1.'], [await o.p.isDisabled('[data-actualiser]'), (await o.p.textContent('.st-demain')).trim(), (await o.p.textContent('.st-texte')).trim()], 'quatrième « Actualiser » du jour grisé'));
-    await o.ctx.close();
     db = jeu(d => { d.analyses_stats = [{ id: 'a1', utilisateur: U, cree: '2026-10-19T07:00:00Z', motif: 'import', texte: 'Analyse précédente.' }]; d.relais = () => ({ status: 502, body: { code: 'ia' } }); });
     o = await ouvrir(nav, 'stats.html', 1200, db, {}, PARIS);
-    await o.p.click('[data-actualiser]');
+    pb.push(egal([0, 'Analyse précédente.'], [await o.p.locator('.st-analyse button').count(), (await o.p.textContent('.st-texte')).trim()], 'bloc d\'analyse : le texte et sa date, sans bouton'));
+    await importer(o.p, ZIP);
+    await o.p.click('.st-import [data-importer]');
     await o.p.waitForSelector('.st-analyse .st-msg');
     pb.push(egal(['Analyse impossible pour l\'instant.', 'Analyse précédente.'], [(await o.p.textContent('.st-analyse .st-msg')).trim(), (await o.p.textContent('.st-texte')).trim()], 'panne de l\'IA : l\'analyse précédente reste'));
     await o.ctx.close();

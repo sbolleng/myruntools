@@ -1,6 +1,6 @@
 # Mes stats · spécification fonctionnelle
 
-Version 0.2 · 21 novembre 2026 · [Retour au sommaire](README.md) · Construit : page `stats.html`, import, fonction `analyser-stats`, évolution 045
+Version 0.4 · 21 novembre 2026 · [Retour au sommaire](README.md) · Bloc d'analyse sans bouton « Actualiser » : refaite après chaque import seulement
 
 ## 1. Rôle
 
@@ -23,7 +23,7 @@ Le renforcement n'entre pas dans les stats (pour l'instant). Aucun texte de la p
 ┌───────────────────────────────────────────────────────────┐
 │ (1) Période : [12 mois ▾]                   (2) [Importer] │
 ├───────────────────────────────────────────────────────────┤
-│ (3) ANALYSE · au 21 nov. 2026                [Actualiser]  │
+│ (3) ANALYSE · au 21 nov. 2026                              │
 │     Texte de l'IA, 1 500 caractères au plus                │
 ├────────────────────────────┬──────────────────────────────┤
 │ (4) MEILLEURS TEMPS        │ (5) TEMPS ESTIMÉS            │
@@ -45,7 +45,7 @@ Sous chaque graphique (8 à 13) : (18) une ligne d'aide fixe
 |---|---|---|---|
 | 1 | Période | 12 mois (le mois en cours et les 11 précédents, par défaut), Année (civile en cours), Depuis le début ; retenue sur l'appareil | Champ commun |
 | 2 | Importer | Ouvre la feuille d'import (§ 6) | Bouton commun |
-| 3 | Analyse | Libellé « Analyse · au » + date ; texte de l'IA (§ 5) ; bouton « Actualiser » | Carte ; libellé `--t-libelle` ; texte `--t-texte` |
+| 3 | Analyse | Libellé « Analyse · au » + date ; texte de l'IA (§ 5) ; pas de bouton | Carte ; libellé `--t-libelle` ; texte `--t-texte` |
 | 4 | Meilleurs temps | Distance, temps, allure, date, séance (libellé, km, D+) (§ 3.1) | Tableau |
 | 5 | Temps estimés | 5 km, 10 km, semi-marathon, marathon : temps, allure ; une ligne d'aide dit la base du calcul (§ 3.2) | Tableau |
 | 6 | Allures d'entraînement | Cinq plages : n°, type, allure (§ 3.3) | Tableau |
@@ -59,7 +59,7 @@ Sous chaque graphique (8 à 13) : (18) une ligne d'aide fixe
 | 14 | Zones cardiaques | Z1 à Z5, nom et plage en bpm (§ 3.5) | Tableau, pleine largeur |
 | 18 | Aide | Une phrase fixe par graphique (§ 3.6) | Texte secondaire |
 
-Graphiques : même dessin que le graphique de progression du Palmarès ([Palmarès](module-palmares-specification.md), § 12), SVG natif, axes à `--t-micro`, un seul accent ; un point touché montre sa valeur. Un mois sans donnée n'a ni barre ni point.
+Graphiques : même dessin que le graphique de progression du Palmarès ([Palmarès](module-palmares-specification.md), § 12), SVG natif, axes à `--t-libelle` (comme les autres graphiques du site), un seul accent ; un point touché montre sa valeur. Un mois sans donnée n'a ni barre ni point.
 
 Page vide (aucune séance faite) : « Aucune séance faite pour l'instant. Importe ton historique Strava ou note tes séances dans le Calendrier. », bouton « Importer ».
 
@@ -140,7 +140,7 @@ Ni FC de repos ni FC max (elles servent aux zones et restent dans Mon profil) ; 
 
 - Un seul bloc (3), en haut de la page, **1 500 caractères au plus** : un court paragraphe par graphique qui a quelque chose à dire (progression, recul, point faible), puis deux ou trois pistes d'amélioration. Tutoiement, phrases factuelles, chiffres tirés des données seulement ; ni appareil, ni provenance, ni renforcement ; vocabulaire du glossaire.
 - Données envoyées : les valeurs mensuelles de la période, les meilleurs temps, les temps estimés, les allures, les zones, les Objectifs à venir (nom, date, distance, D+) et le niveau de Mon profil ; jamais le nom ni l'adresse.
-- Refaite après chaque import, ou par « Actualiser » (au plus trois fois par jour : au-delà, le bouton est grisé, « Reviens demain. ») ; l'analyse est enregistrée et s'affiche telle quelle à la visite suivante, avec sa date.
+- Refaite après chaque import, et seulement alors (pas de bouton pour la relancer) ; l'analyse est enregistrée et s'affiche telle quelle à la visite suivante, avec sa date.
 - Réservée aux pilotes au début, comme les séances de l'IA (secret `PILOTES`) ; pour les autres, le bloc n'apparaît pas.
 - Première visite avec des séances faites et sans analyse : une première analyse est demandée ; rien ne s'affiche avant la réponse, et une panne reste alors silencieuse.
 - Par sécurité, une phrase qui citerait un appareil, une provenance ou le renforcement est retirée du texte affiché.
@@ -221,6 +221,6 @@ Résultats attendus :
 - **Temps estimés**, d'après le semi : 5 km 25:14 (5:03/km), 10 km 52:37 (5:16/km), semi 1:56:05 (5:30/km), marathon 4:02:02 (5:44/km). Sans le semi au Palmarès, d'après la VMA : 21:03, 44:27, 1:39:17, 3:30:59.
 - **Allures** : 1 plus lente que 5:20 ; 2 de 5:20 à 4:42 ; 3 de 4:42 à 4:21 ; 4 de 4:13 à 3:49 ; 5 plus rapide que 3:49.
 - **Zones** : Z1 119–132, Z2 132–146, Z3 146–159, Z4 159–173, Z5 173–186 bpm ; sans FC de repos : le message et le lien vers Mon profil.
-- **Analyse** (réponse simulée) : au plus 1 500 caractères ; un texte de 1 600 est coupé à la dernière phrase entière ; aucun des mots « Huawei », « Garmin », « Strava », « montre », « renforcement » dans le texte affiché ; quatrième « Actualiser » du jour grisé ; panne : « Analyse impossible pour l'instant. », l'analyse précédente reste ; utilisateur non pilote : pas de bloc.
+- **Analyse** (réponse simulée) : au plus 1 500 caractères ; un texte de 1 600 est coupé à la dernière phrase entière ; aucun des mots « Huawei », « Garmin », « Strava », « montre », « renforcement » dans le texte affiché ; bloc sans bouton ; panne après un import : « Analyse impossible pour l'instant. », l'analyse précédente reste ; utilisateur non pilote : pas de bloc.
 - **Période** : « Année » donne les mêmes mois (tous en 2026) ; « Depuis le début » commence en août.
 - **Divers** : page absente du menu par défaut, présente une fois cochée ; site partagé : « Les stats ne sont pas partagées. » ; page vide : le message et le bouton « Importer » ; téléphone sans débordement ; contrôle « vocabulaire » sans écart.

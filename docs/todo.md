@@ -61,7 +61,7 @@ Dans l'ordre :
 18. [ ] **Prévoir un profil piste ?**
 19. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).
 20. [ ] **Guide** ([spécification 0.1](module-guide-specification.md), en ligne) : **rappel : me trouver les liens** des deux sources de nutrition, la formule de Black et al. (métabolisme de base) et l'équation de course de l'ACSM ; elles sont citées sans lien d'ici là (ajouté le 13 nov. 2026).
-21. [ ] **Mes stats** ([spécification 0.2](module-stats-specification.md), construit le 21 nov. 2026) : **à faire dans Supabase** : coller l'évolution `045-mes-stats.sql`, créer la fonction `analyser-stats` (secrets `ANTHROPIC_API_KEY` et `PILOTES` déjà là) ; **essai réel** : importer l'archive Strava d'un pilote (intitulés des colonnes, en anglais ou en français, et unité de la cadence à vérifier ; archive jamais versée au dépôt) ; puis relire l'analyse de l'IA.
+21. [ ] **Mes stats** ([spécification 0.4](module-stats-specification.md), construit le 21 nov. 2026) : **à faire dans Supabase** : coller l'évolution `045-mes-stats.sql`, créer la fonction `analyser-stats` (secrets `ANTHROPIC_API_KEY` et `PILOTES` déjà là) ; **essai réel** : importer l'archive Strava d'un pilote (intitulés des colonnes, en anglais ou en français, et unité de la cadence à vérifier ; archive jamais versée au dépôt) ; puis relire l'analyse de l'IA.
 
 ## Questions ouvertes
 

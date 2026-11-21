@@ -175,7 +175,6 @@
   const CLE_PERIODE = 'mrt-stats-periode';
   const lire = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const ecrire = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* stockage indisponible */ } };
-  const MAX_ACTUALISER = 3;
 
   const carte = (cls, titre, corps) => '<section class="card st-carte ' + cls + '"><h2 class="mg-titre is-fixe st-titre">' + titre + '</h2>' + corps + '</section>';
   const tableau = (tete, lignes) => '<div class="table-scroll"><table class="st-table"><thead><tr>' + tete.map(t => '<th>' + t + '</th>').join('') + '</tr></thead><tbody>' +
@@ -245,7 +244,7 @@
       db.from('seances').select('*').eq('utilisateur', ctx.id).order('date'),
       db.from('activites').select('id, seance, pratique, cadence, meilleurs, date'),
       db.from('profil_entrainement').select('*'),
-      db.from('analyses_stats').select('*').order('cree', { ascending: false }).limit(MAX_ACTUALISER + 1)
+      db.from('analyses_stats').select('*').order('cree', { ascending: false }).limit(1)
     ]);
     return { seances: s.data || [], activites: a.data || [], entrainement: (e.data && e.data[0]) || {}, analyses: an.error ? [] : (an.data || []) };
   }
@@ -272,15 +271,12 @@
     let analyse = donnees.analyses[0] ? Object.assign({}, donnees.analyses[0], { texte: nettoyer(donnees.analyses[0].texte) }) : null, enCours = false, panne = false, reserve = false;
     const aujourdhui = () => new Date();
     const calc = () => calculer({ seances: donnees.seances, activites: donnees.activites, courses: ctx.courses, mesures: ctx.mesures, entrainement: donnees.entrainement, periode, aujourdhui: aujourdhui() });
-    const actualisesAujourdhui = () => donnees.analyses.filter(a => a.motif === 'actualiser' && String(a.cree).slice(0, 10) === iso(aujourdhui())).length;
 
     const htmlAnalyse = () => {
       if (reserve || (!analyse && !enCours && !panne)) return '';
-      const grise = actualisesAujourdhui() >= MAX_ACTUALISER;
       const date = analyse ? F().date(String(analyse.cree).slice(0, 10)) : F().date(iso(aujourdhui()));
       return '<section class="card st-analyse" aria-live="polite"><div class="st-analyse-haut"><h2 class="st-libelle">Analyse · au ' + date + '</h2>' +
-        '<button type="button" class="mrt-btn" data-actualiser' + (grise || enCours ? ' disabled' : '') + '>Actualiser</button></div>' +
-        (grise ? '<p class="st-aide st-demain">Reviens demain.</p>' : '') +
+        '</div>' +
         (panne ? '<p class="st-msg">Analyse impossible pour l\'instant.</p>' : '') +
         (enCours ? '<p class="st-texte">Analyse en cours…</p>' : analyse ? '<div class="st-texte">' + esc(analyse.texte).split(/\n+/).map(x => '<p>' + x + '</p>').join('') + '</div>' : '') + '</section>';
     };
@@ -318,7 +314,7 @@
       }
     };
 
-    // Analyse de l'IA (§ 5) : réservée aux pilotes ; refaite après un import ou par « Actualiser ».
+    // Analyse de l'IA (§ 5) : réservée aux pilotes ; refaite après chaque import.
     // Première analyse (à l'arrivée) : rien ne s'affiche avant la réponse, et une panne reste silencieuse (la page ne bouge pas pour rien).
     const analyser = async motif => {
       if (reserve || enCours) return;
@@ -349,7 +345,6 @@
         dessiner(window.mrtImport.finTexte(res));
         analyser('import');
       } });
-      else if (ev.target.closest('[data-actualiser]')) analyser('actualiser');
       else if (ev.target.closest('[data-profil]') && window.mrtProfil) window.mrtProfil.feuille({ etat: { id: ctx.id, mesures: ctx.mesures, courses: ctx.courses }, surFermer: async () => { donnees = await lireTout(ctx); dessiner(); } });
     });
     dessiner();
