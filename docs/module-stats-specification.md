@@ -1,6 +1,6 @@
 # Mes stats · spécification fonctionnelle
 
-Version 0.2 · 21 novembre 2026 · [Retour au sommaire](README.md) · Construit : page `stats.html`, import, fonction `analyser-stats`, évolution 045
+Version 0.3 · 21 novembre 2026 · [Retour au sommaire](README.md) · Axes des graphiques à `--t-libelle`, comme le reste du site
 
 ## 1. Rôle
 
@@ -59,7 +59,7 @@ Sous chaque graphique (8 à 13) : (18) une ligne d'aide fixe
 | 14 | Zones cardiaques | Z1 à Z5, nom et plage en bpm (§ 3.5) | Tableau, pleine largeur |
 | 18 | Aide | Une phrase fixe par graphique (§ 3.6) | Texte secondaire |
 
-Graphiques : même dessin que le graphique de progression du Palmarès ([Palmarès](module-palmares-specification.md), § 12), SVG natif, axes à `--t-micro`, un seul accent ; un point touché montre sa valeur. Un mois sans donnée n'a ni barre ni point.
+Graphiques : même dessin que le graphique de progression du Palmarès ([Palmarès](module-palmares-specification.md), § 12), SVG natif, axes à `--t-libelle` (comme les autres graphiques du site), un seul accent ; un point touché montre sa valeur. Un mois sans donnée n'a ni barre ni point.
 
 Page vide (aucune séance faite) : « Aucune séance faite pour l'instant. Importe ton historique Strava ou note tes séances dans le Calendrier. », bouton « Importer ».
 
