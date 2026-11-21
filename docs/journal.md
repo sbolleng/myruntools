@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 nov. 2026 | Mon plan : carte de l'Objectif | Préparation 3.13 : plus de libellé « Objectif » ni de titre « Courses de la préparation » ; « 138 j » sur la ligne du nom, suivi du rond « i » (30) vers le Guide (compte connecté seulement), qui remplace le lien du bas de page ; courses de la préparation en liens « Nom › » (date et rôle en infobulle), carte aérée ; « Calendrier › » remplace le rond (22). |
 | 21 nov. 2026 | Fiche d'une course, Parcours et barre | Objectif 0.86 : ravitaillements en traits pointillés sur le profil (56) ; ligne « Tracé GPX » sans état (« Aucun tracé », « Tracé importé ») : « Importer un tracé », toujours là, remplace l'existant, et « Supprimer le tracé » en bouton commun ; « Supprimer la course » monte dans la barre du haut, à gauche d'« Enregistrer » (poubelle seule sur téléphone). |
 | 21 nov. 2026 | Consigne de l'IA, phases | `proposer-seances` : la consigne nomme la phase « allègement », comme le contexte envoyé par le site (plus « deload »). |
 | 21 nov. 2026 | Repasse de cohérence : glossaire | Glossaire du design (§ 12) complété ; un nom par notion pour tout texte affiché, les spécifications et le banc ; noms en base et identifiants internes inchangés. |
