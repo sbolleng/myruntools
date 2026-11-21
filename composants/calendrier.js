@@ -42,7 +42,7 @@
     const rdvDuJour = jour => ctx.courses.filter(c => aPlan(c) && c.ouverture_inscriptions === jour);
     // Course, rendez-vous clé (ouverture des inscriptions), séance (case « faite », libellé qui ouvre sa fenêtre), « + ».
     const courseHtml = c => '<a class="cal-v-course ' + couleur(c) + '" href="' + (c.courue ? lienCourse(c.id).replace(/#.*/, '') : lienCourse(c.id)) + '">' + esc(c.nom) + '</a>';
-    const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ ' + (court ? 'Inscriptions' : 'Ouverture des inscriptions') + ' · ' + esc(c.course) + '</a>';
+    const rdvHtml = (c, court) => '<a class="cal-v-rdv" href="' + lienCourse(c.id) + '">◆ Ouverture des inscriptions · ' + esc(c.course) + '</a>';
     // La séance : glissable (ordinateur), son type, son libellé, puis durée et distance ; un point à la couleur de son intensité ;
     // un picto quand elle a un commentaire (jamais sur le site partagé : le retour sur une séance n'est pas partagé).
     const detail = s => { const r = P.reel(s); return [r.duree_min ? (r.duree_min >= 60 ? Math.floor(r.duree_min / 60) + ' h' + (r.duree_min % 60 ? String(r.duree_min % 60).padStart(2, '0') : '') : r.duree_min + ' min') : '',
@@ -64,14 +64,14 @@
     // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : liseré à gauche (type de séance, P.lisere), traits de l'intensité et nom (le libellé avant « : »),
     // puis type, durée, distance et picto du commentaire ; la case « faite » à droite ; « à noter » ; toucher la carte ouvre sa fenêtre.
     const carteHtml = s => {
-      const lib = String(s.libelle || ''), k = lib.indexOf(':'), nom = (k > 0 ? lib.slice(0, k) : lib).trim();
+      const lib = String(s.libelle || ''), nom = P.lireLibelle(lib).nom; // nom de la liste (un ancien nom reconnu prend le nouveau)
       const ligne2 = [TYPES[s.type], detail(s)].filter(Boolean).join(' · ');
       return '<div class="cal-carte ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule ? (P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' data-carte="' + esc(s.id) + '"' : '') + '>' +
         (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
         '<span class="cal-carte-nom">' + traitsHtml(s.intensite) + esc(nom) + '</span>' +
         '<span class="cal-carte-det">' + esc(ligne2) + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') +
-        (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="cal-v-anoter" data-noter="' + esc(s.id) + '">à noter</button>' : '') +
-        '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></div>';
+        (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="mrt-lien cal-v-anoter" data-noter="' + esc(s.id) + '">À noter</button>' : '') +
+        '<label class="mrt-coche">' + '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></label></div>';
     };
     return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml, detail };
   }
@@ -151,7 +151,7 @@
       : '<b class="cal-m2-mes cal-m2-nom">' + tr + noms + '</b>') + (l.detail ? '<small class="cal-m2-det">' + esc(l.detail) + '</small>' : '');
     return '<div class="cal-m2-se ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (ecr && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' +
       (ecr ? '<button type="button" class="cal-m2-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m2-txt">') + lignes + (ecr ? '</button>' : '</span>') +
-      (imp ? '<i class="cal-m2-coche' + (s.faite ? ' on' : '') + '" aria-hidden="true"></i>' : '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecr ? '' : ' disabled') + ' aria-label="Faite">') + '</div>';
+      (imp ? '<i class="cal-m2-coche' + (s.faite ? ' on' : '') + '" aria-hidden="true"></i>' : '<label class="mrt-coche">' + '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecr ? '' : ' disabled') + ' aria-label="Faite">' + '</label>') + '</div>';
   }
   function courseV2(ctx, c, imp) {
     const o = ctx.courses.find(x => x.id === c.id) || {}, dist = o.distance != null ? String(o.distance).replace('.', ',') + ' km' : '';
@@ -314,7 +314,9 @@
     function vueSemaine() {
       const phases = phasesVisibles(), plans = phases ? planSaison(ctx) : null;
       let h = haut('semaines') + '<div class="cal-sep"></div>' + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') +
-        '<button type="button" class="mrt-lien cal-passees" data-passees>↑ Afficher les semaines passées</button>';
+        '<button type="button" class="mrt-lien cal-passees" data-passees>' + window.mrtIcone.haut + 'Afficher les semaines passées</button>' +
+        // Rien du tout (compte neuf) : une phrase pour dire quoi faire.
+        (!ctx.lectureSeule && !(ctx.seances || []).length && !(ctx.courses || []).length ? '<p class="cal-vide">Touche « + » sur un jour pour ajouter une séance ; tes courses s\'y ajoutent d\'elles-mêmes.</p>' : '');
       for (let i = 0; i < liste.nb; i++) h += semaineHtml(addDays(liste.debut, 7 * i), plans);
       return h + '<div class="cal-fin" aria-hidden="true"></div>';
     }

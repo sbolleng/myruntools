@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.44 · 20 novembre 2026 · [Retour au sommaire](README.md) · Mentions légales et confidentialité : thème de la page de connexion sans session, de l'utilisateur une fois connecté
+Version 0.45 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : l'onglet d'une page hors du menu s'ajoute le temps de la visite ; titre de l'accueil « En un coup d'œil » ; retour des pages légales vers la page quittée.
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -116,7 +116,7 @@ Règles transverses :
 
 ## 4. En-tête
 
-L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les Préférences utilisateur ou depuis la page Objectif, par défaut la dernière de la page Objectif (la plus lointaine à venir) ; ses chiffres clés et le temps qui reste. Si cette course est courue ou abandonnée, l'en-tête revient au cap par défaut.
+L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les Préférences ou depuis la page Objectif, par défaut la dernière de la page Objectif (la plus lointaine à venir) ; ses chiffres clés et le temps qui reste. Si cette course est courue ou abandonnée, l'en-tête revient au cap par défaut.
 
 ### Contenu
 
@@ -127,7 +127,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Compte à rebours | Nombre de jours en grand, « jours » dessous, puis heures, minutes et secondes ; mis à jour chaque seconde. Sur ordinateur, en bas à droite de l'en-tête, son bas au niveau du bas des indicateurs ; sur téléphone, sur une ligne, juste sous le nom de la course, à gauche |
 | Prochaine course | « prochaine course · nom de la course · J-n », sous le compte à rebours ; sur téléphone, à part, sous les indicateurs et un filet. Le nom est celui de la course, pas de son parcours (« L'Hivernale des Templiers », pas « Le Rock'Angel ») |
 | Nom de l'application | « MyRunTools », en petites capitales, en haut à droite, à la hauteur du titre |
-| Engrenage | Dessiné en trait fin, à droite du nom de l'application ; ouvre les Préférences utilisateur (§ 8) ; en Accent sur la page des Préférences, comme l'onglet de la page ouverte |
+| Engrenage | Dessiné en trait fin, à droite du nom de l'application ; ouvre les Préférences (§ 8) ; en Accent sur la page des Préférences, comme l'onglet de la page ouverte |
 | Filet | Barre fine aux couleurs du thème, sous l'en-tête |
 
 **Barre fine**, sur les pages sans en-tête : « Cap sur » et le nom du cap à gauche, discrets, qui mènent à la page de démarrage ; l'engrenage à droite.
@@ -169,6 +169,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 - **En un coup d'œil** (l'ancien « Accueil ») : un module comme les autres, le premier par défaut ; il se masque et se déplace. Son onglet s'écrit « En un coup d' » suivi d'un picto d'œil.
 
 - Une barre d'onglets, sous l'en-tête quand il y en a un, sinon en haut de la page : un onglet par module choisi par l'utilisateur et déjà construit, dans l'ordre qu'il a choisi (§ 8). Un module « bientôt » n'a pas d'onglet : il reste dans les Préférences et entre dans le menu une fois construit. L'onglet de la page ouverte est mis en avant.
+- **Page hors du menu** (Mon plan ou Nutrition non cochés, ouverts par un lien) : son onglet s'ajoute au bout de la barre, actif, le temps de la visite, pour qu'on sache toujours où l'on est (21 nov. 2026). Le Guide et les Préférences n'en ont pas (l'engrenage est actif sur les Préférences).
 - Sur téléphone, la barre défile horizontalement ; l'onglet de la page ouverte y est ramené. Elle reste visible en haut de l'écran quand on fait défiler la page.
 
 ## 5 bis. En un coup d'œil et page de démarrage
@@ -215,7 +216,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 Pour que Cette semaine fonctionne, chaque module devra pouvoir dire ce qui compte dans les sept prochains jours.
 
-## 8. Préférences utilisateur
+## 8. Préférences
 
 Page ouverte par l'engrenage de l'en-tête ou de la barre fine ; elle n'est pas un module du menu. Elle rassemble les réglages du site ; les données du coureur vont dans Profil, ses chaussures dans Matériel, pour qu'une donnée ne se saisisse qu'à un seul endroit. Détail : [spécification des Préférences](module-preferences-specification.md).
 
@@ -240,7 +241,7 @@ Un utilisateur peut montrer son site à un autre, par exemple pour avoir son avi
 
 **Voir un site partagé** (même bloc) :
 
-- « Sites partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son espace ».
+- « Espaces partagés avec moi » : les personnes qui me partagent leur site, chacune avec « Voir son espace ».
 - Dans ce mode, sur toutes les pages, un bandeau sous le menu : « Lecture seule · espace de Prénom », avec « Revenir à mon espace ».
 - On voit son en-tête (cap, D'ici là, prochaine course), son menu, son thème et ses modules ; rien ne s'y ajoute, ne s'y modifie ni ne s'y supprime. Son thème s'applique sur toutes les pages, à la place de celui du visiteur, y compris en passant d'une page à l'autre.
 - Pas d'engrenage (Préférences) dans l'en-tête ni dans la barre fine : on en sort par « Revenir à mon espace ».
@@ -254,7 +255,7 @@ Le propriétaire du projet Supabase garde, lui, l'accès à toute la base depuis
 
 | Fonction | V1 · fichiers de données | V2 · Supabase |
 | --- | --- | --- |
-| Choisir ses modules et son thème | Configuration de l'utilisateur, modifiée dans le dépôt | Préférences utilisateur |
+| Choisir ses modules et son thème | Configuration de l'utilisateur, modifiée dans le dépôt | Préférences |
 | Saisir ou modifier le contenu (courses, repas…) | Fichiers de données modifiés via Claude | Formulaires dans l'application, ou dictée à Claude |
 | Importer ses séances | Saisie via Claude | Import automatique depuis Strava, après autorisation unique |
 | Voir ses données | Visibles de tous | Visibles du seul utilisateur connecté |
@@ -374,7 +375,7 @@ Résultats attendus :
 - Thème changé : seules les couleurs changent, les positions et tailles restent identiques.
 - Blanc et orange : fond blanc, cadres `#f3f5f8`, contrôles du navigateur en clair ; le nom d'une course pleine en Encre ; Développement en `#946200`. Noir et orange : fond noir, cadres `#121212`.
 - Automatique : appareil en mode sombre, Noir et orange ; passé en mode clair, Blanc et orange, sans recharger ; la page suivante s'affiche d'emblée dans le bon thème.
-- L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences utilisateur ; le menu ne montre que les modules choisis, dans l'ordre choisi.
+- L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences ; le menu ne montre que les modules choisis, dans l'ordre choisi. Mon plan ouvert sans être au menu : un onglet « Mon plan », actif, au bout de la barre.
 - Par défaut, l'en-tête figure sur En un coup d'œil seulement ; la saison, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
 - Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.
 - Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
@@ -390,7 +391,7 @@ Résultats attendus :
 - Confidentialité : page publique, rubriques P2 à P10, contact assemblé par le script (jamais en clair), sept prestataires, retour vers la connexion sans session ; pied « Mentions légales · Confidentialité » sur chaque page ; M9 mène à la politique.
 - Création de comptes désactivée dans Supabase : « Les inscriptions ne sont pas encore ouvertes. ».
 - Lien de confirmation : la session ouverte est refermée, l'adresse préremplie, « Adresse confirmée, tu peux te connecter. » ; lien périmé : « Lien expiré : crée de nouveau ton compte… ».
-- A partage son site avec B : B voit A dans « Sites partagés avec moi » ; « Voir son espace » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · espace de A ».
+- A partage son site avec B : B voit A dans « Espaces partagés avec moi » ; « Voir son espace » affiche l'en-tête, le menu, le thème et le Palmarès de A, avec le bandeau « Lecture seule · espace de A ».
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».

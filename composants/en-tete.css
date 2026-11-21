@@ -18,9 +18,9 @@
   --pad-cadre: 1rem 1.1rem; --pad-cadre-v: 1rem; --pad-cadre-h: 1.1rem; --pad-carte: 0.85rem 1rem; }
 @media (max-width: 600px) { :root { --pad-cadre: 0.8rem; --pad-cadre-v: 0.8rem; --pad-cadre-h: 0.8rem; } }
 :root, .t-bleu-orange { color-scheme: dark; --bg:#060b14; --surface:#122a4a; --surface2:#163a66; --border:#1f4c80; --accent:#ffb700; --text:#eef3fa; --muted:#8fa8c9; --red:#ef6b6b; }
-.t-vert-rose { color-scheme: dark; --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D07B87; --text:#EDF2E9; --muted:#A2B4A4; --red:#f2766b; }
+.t-vert-rose { color-scheme: dark; --bg:#0E1D19; --surface:#18332E; --surface2:#21453D; --border:#2F5A4E; --accent:#D4848F; --text:#EDF2E9; --muted:#A2B4A4; --red:#f2766b; }
 .t-violet-turquoise { color-scheme: dark; --bg:#14101F; --surface:#221A35; --surface2:#2D2347; --border:#40335F; --accent:#2EC4B6; --text:#F1EEF7; --muted:#A49BB8; --red:#E0607E; }
-.t-blanc-orange { color-scheme: light; --bg:#ffffff; --surface:#f3f5f8; --surface2:#e7ecf2; --border:#d2dae4; --accent:#c2410c; --text:#132030; --muted:#5a6a7e; --red:#c62828; }
+.t-blanc-orange { color-scheme: light; --bg:#ffffff; --surface:#f3f5f8; --surface2:#e7ecf2; --border:#d2dae4; --accent:#b93d0b; --text:#132030; --muted:#5a6a7e; --red:#c62828; }
 .t-noir-orange { color-scheme: dark; --bg:#000000; --surface:#121212; --surface2:#1c1c1c; --border:#333333; --accent:#ffb700; --text:#f2f2f2; --muted:#9b9b9b; --red:#f0605d; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -206,6 +206,8 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 /* Petit rond (« + » d'une séance) : 1,5 rem dessiné, zone de toucher de 2 rem (marge invisible). */
 .mrt-rond.is-petit { position: relative; width: 1.5rem; height: 1.5rem; }
 .mrt-rond.is-petit .mrt-ico { width: 0.8rem; height: 0.8rem; }
+/* Icône dans un lien ou un texte (flèches des liens, repère d'une course) : à la taille du texte, alignée sur la ligne. */
+a:not(.mrt-rond):not(.mrt-btn) > .mrt-ico, .is-precedente span > .mrt-ico, .is-suivante span > .mrt-ico, .ps-sem-c > .mrt-ico, .mrt-lien > .mrt-ico { width: 0.85em; height: 0.85em; vertical-align: -0.1em; margin: 0 0.2em; }
 .mrt-rond.is-petit::after { content: ''; position: absolute; inset: -0.25rem; }
 .mrt-rond:disabled { opacity: 0.3; cursor: default; }
 .mrt-lien { position: relative; padding: 0; font: inherit; font-size: var(--t-second); color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; background: none; border: 0; cursor: pointer; }
@@ -339,3 +341,9 @@ body.mrt-public { display: grid; place-items: center; grid-template-rows: 1fr au
 /* Plein écran (mrtPleinEcran) : ordinateur seulement ; la zone prend l'écran sur le fond du site. */
 @media (max-width: 600px), (hover: none) { .mrt-plein { display: none; } }
 [data-plein-cible]:fullscreen { box-sizing: border-box; padding: 1.5rem 2rem; overflow: auto; background: var(--bg); }
+
+/* Case à cocher seule (« Faite » d'une séance) : zone de toucher de 2 rem au moins par une marge invisible ; le dessin ne change pas (design, § 1). */
+.mrt-coche { position: relative; flex: none; display: inline-flex; align-items: center; cursor: pointer; }
+.mrt-coche::after { content: ''; position: absolute; inset: -0.6rem; }
+.mrt-coche input { position: relative; z-index: 1; margin: 0; } /* la case reste au-dessus de sa marge invisible */
+.mrt-guide { margin: 1.2rem 0 0; text-align: center; } /* lien vers le Guide, en bas de Mon plan et de Nutrition */

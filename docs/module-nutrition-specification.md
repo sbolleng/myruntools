@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.45 · 20 novembre 2026 · [Retour au sommaire](README.md) · Date de naissance de l'encart en trois champs
+Version 1.46 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Séance » au lieu d'« activité » (bouton, section, feuille, confirmation) ; lien vers le Guide en bas de page.
 
 ## 1. Rôle
 
@@ -88,7 +88,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 │ (50) Jogging à 8 km/h · 1 h                             │  ← toucher : Modifier (51)
 └─────────────────────────────────────────────────────────┘
 
-(47) Feuille « Ajouter un aliment » (ou « Ajouter une activité »), sans la date (celle de la page) : la feuille d'une course,
+(47) Feuille « Ajouter un aliment » (ou « Ajouter une séance »), sans la date (celle de la page) : la feuille d'une course,
      plein écran sur téléphone, croix ronde en haut à droite ; dessous, la recherche (30, 31, 35), les sources (14),
      l'aliment choisi (15), le repas, « Ajouter » (16) ; la feuille reste ouverte, sans message de confirmation.
 ```
@@ -107,9 +107,9 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 33 | Retour à aujourd'hui | Rond « » » | À droite de « › », sur un autre jour seulement (une cale à gauche garde le jour centré) | `mrt-rond` |
 | 34 | Séances du Calendrier | « Au calendrier : Gainage 30 min · Footing 1 h 15 · Reprendre » | Sous le 23, s'il y a des séances ce jour-là | Texte discret, `mrt-lien` |
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
-| 45 | Bouton Activité | « + Activité » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Le bouton « + Ajouter une course » (`mrt-btn is-principal`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
+| 45 | Bouton Séance | « + Séance » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Le bouton « + Ajouter une course » (`mrt-btn is-principal`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
 | 46 | Bouton Repas | « + Repas » et l'assiette | À droite du 45 | Même bouton ; ouvre la feuille d'ajout, repas d'après l'heure |
-| 47 | Feuilles | « Ajouter un aliment », « Ajouter une activité » | Par-dessus la page | Feuille de saisie rapide (design) : 30 × 40 rem sur ordinateur, plein écran sur téléphone, de la même taille d'un écran à l'autre, contenu qui glisse ; croix ronde, « ‹ » sur un deuxième écran, titre en libellé ; bouton qui valide collé en bas ; jamais de bouton « Fermer » |
+| 47 | Feuilles | « Ajouter un aliment », « Ajouter une séance » | Par-dessus la page | Feuille de saisie rapide (design) : 30 × 40 rem sur ordinateur, plein écran sur téléphone, de la même taille d'un écran à l'autre, contenu qui glisse ; croix ronde, « ‹ » sur un deuxième écran, titre en libellé ; bouton qui valide collé en bas ; jamais de bouton « Fermer » |
 | 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la feuille Activité |
 | 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
 | 51 | Feuille Modifier | « Riz cuit » | Par-dessus la page | La feuille de saisie rapide (comme 47) : titre = nom de la ligne, croix ; quantité (−, champ, +) et repas en liste à choix unique (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, en fin de contenu ; « Enregistrer » collé en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
@@ -287,13 +287,13 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Relais en service, frappe « yaourt fr » | Aucun appel avant la pause ; après une demi-seconde, un appel ({ q : « yaourt fr » }) ; le champ reste en place |
 | Moteur de secours, « yaourt na » (réponse : « NA · Borges », « Yaourt nature · Marque F ») | Seul « Yaourt nature · Marque F » reste |
 | Relais absent, ancien moteur saturé deux fois | Deux appels à l'ancien moteur, puis « Open Food Facts est saturé, réessaie dans un instant. » |
-| Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; boutons « + Activité » et « + Repas » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
+| Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; boutons « + Séance » et « + Repas » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
 | Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : la feuille reste ouverte, sans message |
 | Journal vide ; « + » du soir | Les quatre repas, chacun avec son « + » ; la feuille d'ajout s'ouvre |
 | Feuille Activité : 1 h de jogging et 0,5 h de marche, puis la croix | « Activité · Mardi 20 octobre » ; case « 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche » ; rien n'est réécrit à la fermeture quand rien n'a changé |
 | Journal : toucher « Banane », Supprimer | Question « Supprimer cette ligne ? », rien d'écrit avant la réponse ; « Supprimer » : la ligne effacée, la fenêtre fermée ; aucun rond au bout des lignes |
 | Toucher « Riz cuit · 200 g » (midi) | Fenêtre de séance du Calendrier « Riz cuit », 200, Midi en liste ; Annuler : rien d'écrit ; 100 g au soir puis Enregistrer : la ligne à 1 portion, 130 kcal, 2,7 g, 28 g, 0,3 g, au soir |
-| Activités du jour : jogging 1 h, marche 0,5 h ; toucher la marche, Supprimer | 2 922 kcal ; « Supprimer cette activité ? » ; 2 817 kcal, la ligne du jogging seule, rangée dans la base |
+| Activités du jour : jogging 1 h, marche 0,5 h ; toucher la marche, Supprimer | 2 922 kcal ; « Supprimer cette séance ? » ; 2 817 kcal, la ligne du jogging seule, rangée dans la base |
 | Journal vide | Petit-déj, Midi, Encas, Soir, Activité, chacun avec son « + » |
 | Séances du 20 oct. : footing 10 km en 1 h, gainage 30 min, une proposition de l'IA | 2 959 kcal ; journal « Footing · Course à pied · 1 h · 10 km », « Gainage · Renforcement · 30 min » ; pas la proposition |
 | Feuille Activité, « Ajouter une séance » : Fractionné, 40 min, 8 km | Fenêtre « Ajouter une séance » du Calendrier, au 20 octobre, Course à pied ; séance rangée ; 3 539 kcal |

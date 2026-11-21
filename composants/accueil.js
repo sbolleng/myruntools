@@ -13,7 +13,7 @@
   // Blocs affichés : mrtBlocsAffiches (donnees.js), aussi lu par l'en-tête.
 
   const bloc = (id, titre, lien, corps, bientot) => '<section class="ac-bloc' + (bientot ? ' is-bientot' : '') + '" data-bloc="' + id + '">' +
-    '<h2 class="ac-titre"><span>' + esc(titre) + (bientot ? ' · bientôt' : '') + '</span>' + (lien ? '<a href="' + lien[0] + '">' + esc(lien[1]) + ' →</a>' : '') + '</h2>' + corps + '</section>';
+    '<h2 class="ac-titre"><span>' + esc(titre) + (bientot ? ' · bientôt' : '') + '</span>' + (lien ? '<a href="' + lien[0] + '">' + esc(lien[1]) + window.mrtIcone.droite + '</a>' : '') + '</h2>' + corps + '</section>';
   const vide = t => '<p class="ac-vide">' + esc(t) + '</p>';
 
   const BLOCS = {
@@ -26,7 +26,7 @@
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),
     // Le bilan du jour et l'ajout en une touche (nutrition.js, renderNutritionAccueil).
     // « Détail → » : le lien de titre commun (comme « Feuille de route → »), vers la page Nutrition.
-    nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a href="nutrition.html">Détail →</a></h2><div class="nu-accueil"></div></section>',
+    nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a href="nutrition.html">Détail' + window.mrtIcone.droite + '</a></h2><div class="nu-accueil"></div></section>',
     // Les étapes de la feuille de route jusqu'au cap compris.
     dicila: (courses, prefs) => {
       const cap = window.mrtCap(courses, prefs), etapes = [];
@@ -66,8 +66,8 @@
     // Comme les boutons « Activité » et « Repas » de la page Nutrition : bouton principal (Accent), « + », libellé et picto.
     const N = window.mrtNutrition || {};
     const saisies = (avecNutrition ? '<button type="button" class="mrt-btn is-principal" data-rapide="repas">' + plus + 'Ajouter un repas' + (N.PICTO_ASSIETTE || '') + '</button>' +
-      '<button type="button" class="mrt-btn is-principal" data-rapide="activite">' + plus + 'Ajouter une activité' + (N.PICTO_HALTERE || '') + '</button>' : '');
-    return '<section class="ac-bloc ac-aujourdhui" data-bloc="aujourdhui"><h2 class="ac-titre"><span>Aujourd\'hui</span><a href="calendrier.html">Calendrier →</a></h2>' +
+      '<button type="button" class="mrt-btn is-principal" data-rapide="activite">' + plus + 'Ajouter une séance' + (N.PICTO_HALTERE || '') + '</button>' : '');
+    return '<section class="ac-bloc ac-aujourdhui" data-bloc="aujourdhui"><h2 class="ac-titre"><span>Aujourd\'hui</span><a href="calendrier.html">Calendrier' + window.mrtIcone.droite + '</a></h2>' +
       (lignes.length ? '<ul class="ac-jour">' + lignes.join('') + '</ul>' : vide('Rien de prévu aujourd\'hui.')) +
       (saisies ? '<div class="ac-rapide">' + saisies + '</div>' : '') + '</section>';
   }
@@ -94,17 +94,19 @@
     if (profil && course) return '';
     const etape = (n, cle, nom, aide, fait, bouton) => '<li class="ac-pas' + (fait ? ' is-fait' : '') + '" data-pas="' + cle + '"><span class="ac-pas-n" aria-hidden="true">' + (fait ? '✓' : n) + '</span>' +
       '<span class="ac-module"><b>' + nom + '</b><span>' + aide + '</span></span>' +
-      (fait ? '<span class="ac-pas-fait">Fait</span>' : '<button type="button" class="mrt-btn is-principal" data-premier="' + cle + '">' + bouton + '</button>') + '</li>';
+      (fait ? '<span class="ac-pas-fait">Fait</span>' : '<button type="button" class="mrt-btn' + (premier(cle) ? ' is-principal' : '') + '" data-premier="' + cle + '">' + bouton + '</button>') + '</li>';
+    // Un seul bouton principal par écran (design, § 1) : celui de la première étape à faire.
+    const premier = cle => cle === (!profil ? 'profil' : 'course');
     return '<section class="ac-bloc ac-premiers" data-bloc="premiers"><h2 class="ac-titre"><span>Premiers pas</span></h2><ol>' +
       etape(1, 'profil', 'Mon profil', 'Quelques questions, pour ton plan et ta nutrition.', profil, 'Compléter') +
-      etape(2, 'course', 'Ma première course', 'Une course à venir, ou déjà courue.', course, 'Ajouter') + '</ol></section>';
+      etape(2, 'course', 'Ma première course', 'Une course à venir, ou déjà courue.', course, 'Ajouter une course') + '</ol></section>';
   };
 
   // ----- Découvrir MyRunTools : chaque module, dans l'ordre où il sert, une phrase et sa case « Au menu » ; jusqu'à « J'ai compris » -----
   // Affiché quand preferences.decouverte_vue vaut false (compte neuf) ; absent (colonne pas encore créée) : jamais.
   const DECOUVRIR = [
     ['Courses à surveiller', 'Toutes les courses qui t\'intéressent : repérées, en option, confirmées ou déjà courues.'],
-    ['Objectif', 'Le chemin vers ta course principale, ton cap : les courses à venir, dans l\'ordre.'],
+    ['Objectif', 'Le chemin vers ton Objectif principal, ton cap : les courses à venir, dans l\'ordre.'],
     ['Profil', 'Qui tu es, comment tu t\'entraînes : il règle Mon plan et Nutrition.'],
     ['Préparation', 'Ta préparation en phases, et des séances proposées.'],
     ['Calendrier', 'Tes séances et tes courses, jour par jour.'],

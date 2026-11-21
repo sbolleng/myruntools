@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.32 · 20 novembre 2026 · [Retour au sommaire](README.md) · La feuille « Effort et sensations » porte le bloc « Réalisé » (durée, distance, D+, FC) comme la fenêtre de la séance · Le liseré selon le type de séance (Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre sinon) passe à toutes les vues : Semaine, Mois, Mois V2, export, « Cette semaine » de Mon plan ; pas de légende
+Version 0.33 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : Allègement (ex-Deload), Décrassage, « Ressenti », « À noter » en lien d'action, case « Faite » à zone de toucher de 2 rem, phrase d'un Calendrier vide, « Ouverture des inscriptions » partout.
 
 ## 1. Rôle
 
@@ -44,7 +44,7 @@ Jeu d'essai, au 20 octobre 2026, Plan enfoncé ; ┃ : le liseré de 3 px à gau
 ```
 (25) [6 mois ⌄]                                       (26) [Plan]   (22) [Aujourd'hui]
 (14) ‹ avr.–sept. 26        (18) Octobre 2026 – mars 2027        avr.–sept. 27 ›
-(2) ROUTE ■ confirmée ▣ option  TRAIL ■ confirmée ▣ option  ■ courue  ▢ aujourd'hui  PHASES ■ base ■ développement ■ affûtage ■ deload ■ récupération
+(2) ROUTE ■ confirmée ▣ option  TRAIL ■ confirmée ▣ option  ■ courue  ▢ aujourd'hui  PHASES ■ base ■ développement ■ affûtage ■ allègement ■ récupération
 (3)  [ OCT. 26 ]   [ NOV. ]   [ DÉC. ]   [ JANV. 27 ]   [ FÉVR. ]   [ MARS ]      six colonnes de mois, détail d'une colonne :
 
          ┌────────── OCT. 26 ──────────┐ (3) onglet ; le mois en cours en Accent
@@ -125,7 +125,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
 | 25, 26, 22 | Menu « Vue », bouton « Plan », « Aujourd'hui » (le mois en cours) | « Mois ⌄ » | Barre du haut |
 | 18 | Titre du mois | « Octobre 2026 » | Au centre, entre deux filets |
 | 9 | Flèches, avec le mois voisin (son année quand elle change) | « ‹ sept. », « nov. › » | De chaque côté du titre |
-| 2 | Légende des phases (Plan) | « PHASES base développement affûtage deload » | Sous la période |
+| 2 | Légende des phases (Plan) | « PHASES base développement affûtage allègement » | Sous la période |
 | 3 | Jours de la semaine, une seule fois | « lun. » | Au-dessus de la grille |
 | 19 | Numéro du jour | « 20 » | Coin haut gauche de la case |
 | 15 | Aujourd'hui | le numéro dans un rond plein (Accent) | Case du jour |
@@ -178,15 +178,15 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 | 15 | Aujourd'hui | numéro dans un rond Accent, ligne cerclée | Ligne du jour |
 | 17 | Course du jour | « Trail du Lac » | Ligne du jour |
 | 8 | Rendez-vous clé | « ◆ Ouverture des inscriptions · Corrida de Noël » | Ligne du jour |
-| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : liseré de 4 px à gauche, couleur du type de séance (§ 4.5, n° 31) ; le nom en gras (le libellé jusqu'aux deux-points) avec les trois traits de l'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; « à noter » ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
+| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : liseré de 4 px à gauche, couleur du type de séance (§ 4.5, n° 31) ; le nom en gras (le libellé jusqu'aux deux-points) avec les trois traits de l'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; « À noter » ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
 | 28 | Total de la semaine | « 1/4 séances · 8/32 km · 1 h 45/3 h 10 » : fait sur prévu pour la semaine en cours et les passées, le prévu seul pour les suivantes ; séances proposées en attente non comptées ; rien sans séance | À droite du titre 4 |
-| 29 | Place dans la saison | « Semaine 3 sur 16 · Base » (la phase dans sa couleur), dates dessous ; seulement dans une saison | À la place du titre 4 |
+| 29 | Place dans la préparation | « Semaine 3 sur 16 · Base » (la phase dans sa couleur), dates dessous ; seulement dans une préparation | À la place du titre 4 |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Bout de la ligne |
 | 5 | Fond de phase (Plan) | | Toute la ligne |
 
 ### 4.4 Vue Semaine : règles
 
-Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Retour sur la séance » (faite, ressenti, douleur, fatigue, commentaire) et le déplacement avec un conseil ([Préparation](module-preparation-specification.md), § 5.5) ; durée et distance sous le libellé dans les vues, glisser une séance sur ordinateur.
+Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Ressenti » (faite, ressenti, douleur, fatigue, commentaire) et le déplacement avec un conseil ([Préparation](module-preparation-specification.md), § 5.5) ; durée et distance sous le libellé dans les vues, glisser une séance sur ordinateur.
 
 
 - **Liste** : la semaine en cours (ou celle de l'adresse) en tête, puis les suivantes ; trois au départ, deux de plus chaque fois que le bas de la liste approche de l'écran. Pas de flèches.
@@ -223,11 +223,11 @@ Téléphone : le libellé de la semaine (30) passe au-dessus de ses sept jours, 
 | 25, 26, 22, 9, 18 | Comme le Mois (§ 4.1) ; « Aujourd'hui » : le mois en cours | « Mois V2 ⌄ » | Barre du haut, période |
 | 34 | « Exporter » : rond à contour, picto de téléchargement (§ 4.6) | ⤓ | Barre du haut, à droite, avant « Phases » |
 | 33 | (retiré) Légende des liserés : aucune, à l'écran comme à l'export | | |
-| 30 | Libellé de la semaine : place dans la saison (« Sem. 3 », en libellé, seulement dans une saison), date du lundi, nom de la phase dans sa couleur, total (28) | « SEM. 3 · 30 nov. · Base · 1/4 séances » | Colonne de gauche |
+| 30 | Libellé de la semaine : place dans la préparation (« Sem. 3 », en libellé, seulement dans une préparation), date du lundi, nom de la phase dans sa couleur, total (28) | « SEM. 3 · 30 nov. · Base · 1/4 séances » | Colonne de gauche |
 | 19 | Numéro du jour | « 20 » ; aujourd'hui dans un rond Accent | Coin haut gauche de la case |
 | 31 | Carte d'une séance : liseré de 4 px à gauche, couleur du type de séance (nom de la liste) : Sortie longue bleu, Seuil jaune, Fractionné rouge, Côtes violet, Renforcement vert ; Endurance, Récupération et un nom libre en Bordure (neutre) ; les trois traits de l'intensité (comme le Mois, rien sans intensité) devant la mesure en gras (distance, sinon durée, sinon le nom), le nom dessous, le détail du libellé en discret ; case « faite » ; faite : barrée | « 7 km / Endurance » | Case du jour, une carte par séance |
 | 17 | Course : carte au liseré et au contour de sa famille (fond teinté si confirmée), sa distance en gras, son nom | « 24 km / Trail du Lac » | Case du jour |
-| 32 | « Repos » en discret : un jour sans rien d'une semaine de la saison ou qui a des séances | « Repos » | Case du jour, au milieu |
+| 32 | « Repos » en discret : un jour sans rien d'une semaine de préparation ou qui a des séances | « Repos » | Case du jour, au milieu |
 | 21 | Jours des mois voisins : contenu atténué (proposition B, retenue le 20 nov. 2026) | 28, 29, 30 sept. | Ligne de la semaine |
 | 10, 8 | « + », rendez-vous clé : comme le Mois | | Case du jour |
 | 5 | Fond de phase (Phases) : toute la ligne, liseré de la phase sur le libellé | | Ligne de la semaine |
@@ -253,38 +253,38 @@ La préparation d'une course est une **rubrique de la page de la course** (Objec
 
 **Date approximative** (mois seulement) : le plan vise le 1er du mois, et la rubrique le dit (« Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. »). Quand la date précise est saisie (case décochée), le plan se recalcule sur elle : les phases réglées à la main sont oubliées, les règles générales s'appliquent ; la durée reste.
 
-**Date précise changée** : les phases réglées à la main suivent la course et gardent leur numéro de semaine du plan (une semaine 5 en Deload reste la semaine 5).
+**Date précise changée** : les phases réglées à la main suivent la course et gardent leur numéro de semaine du plan (une semaine 5 en Allègement reste la semaine 5).
 
 **Règles de phases**, appliquées dans cet ordre :
 
 1. **Affûtage** : les deux dernières semaines (la semaine du jour J comprise).
-2. **Deload** : toutes les quatre semaines (semaines 4, 8, 12…), sauf si la semaine est déjà en affûtage.
+2. **Allègement** : toutes les quatre semaines (semaines 4, 8, 12…), sauf si la semaine est déjà en affûtage.
 3. **Base** puis **Développement** : les semaines restantes sont réparties par moitié, la première moitié (arrondie à l'inférieur) en Base, le reste en Développement.
 
-Exemple, plan de 10 semaines : Base ×3, Deload, Développement ×3, Deload, Affûtage ×2.
+Exemple, plan de 10 semaines : Base ×3, Allègement, Développement ×3, Allègement, Affûtage ×2.
 
-**Récupération après la course** (facultative, réglée course par course, décochée par défaut) : une semaine Deload de plus, la semaine qui suit celle du jour J. Elle n'entre pas dans la durée du plan (« 16 semaines » reste 16), apparaît à la suite de la frise et de la liste des semaines, et se modifie comme les autres semaines.
+**Récupération après la course** (facultative, réglée course par course, décochée par défaut) : une semaine Allègement de plus, la semaine qui suit celle du jour J. Elle n'entre pas dans la durée du plan (« 16 semaines » reste 16), apparaît à la suite de la frise et de la liste des semaines, et se modifie comme les autres semaines.
 
 ### 5.2 Rubrique Préparation d'une course
 
-Depuis le 12 novembre 2026, une course n'a plus de plan à elle : la rubrique Préparation de sa page montre sa **place dans la saison** ([Préparation](module-preparation-specification.md), § 5.4), avec le lien « Voir dans Mon plan → ». L'ancien plan de page (durée, frise, semaine mise en avant, « Toutes les semaines ») est retiré ; les séances s'ajoutent dans Mon plan ou le Calendrier.
+Depuis le 12 novembre 2026, une course n'a plus de plan à elle : la rubrique Préparation de sa page montre sa **place dans le plan** ([Préparation](module-preparation-specification.md), § 5.4), avec le lien « Voir dans Mon plan → ». L'ancien plan de page (durée, frise, semaine mise en avant, « Toutes les semaines ») est retiré ; les séances s'ajoutent dans Mon plan ou le Calendrier.
 
-### 5.3 Fenêtre « Paramétrer le plan »
+### 5.3 Fenêtre « Régler les phases »
 
-Le rond « Régler les phases » de la page Mon plan (sur la frise, pour l'Objectif visé, et sur chaque Objectif de « Courses du plan ») ouvre le réglage complet de la saison de cet Objectif ([Préparation](module-preparation-specification.md), § 5.1, n° 17). C'est le seul lieu de réglage : la rubrique d'une course et le formulaire d'une course n'en ont pas, ils renvoient vers Mon plan. Seul un Objectif se règle (décidé le 12 novembre 2026).
+Le bouton « Personnaliser » de la page Mon plan (fenêtre « Régler les phases ») (sur la frise, pour l'Objectif visé, et sur chaque Objectif de « Courses du plan ») ouvre le réglage complet de la saison de cet Objectif ([Préparation](module-preparation-specification.md), § 5.1, n° 17). C'est le seul lieu de réglage : la rubrique d'une course et le formulaire d'une course n'en ont pas, ils renvoient vers Mon plan. Seul un Objectif se règle (décidé le 12 novembre 2026).
 
 | N° | Élément | Rôle |
 | --- | --- | --- |
 | P1 | Durée en semaines | Valeur du format, modifiable pour cette course ; affiche le début du plan. |
 | P2 | Frise graphique | Phases côte à côte, bords à glisser pour allonger ou réduire une phase. |
-| P3 | Tableau, une ligne par semaine | Numéro, dates, phase à choisir dans une liste (Base, Développement, Affûtage, Deload). |
+| P3 | Tableau, une ligne par semaine | Numéro, dates, phase à choisir dans une liste (Base, Développement, Affûtage, Allègement). |
 | P4 | « Revenir aux règles générales » | Revient aux règles générales du § 5.1, après confirmation. |
 | P5 | « Enregistrer » | Range la durée, la récupération et les phases modifiées. |
-| P6 | Case « Semaine de récupération après la course » | Ajoute ou retire la semaine Deload qui suit le jour J (§ 5.1) ; décochée par défaut. |
+| P6 | Case « Semaine de récupération après la course » | Ajoute ou retire la semaine Allègement qui suit le jour J (§ 5.1) ; décochée par défaut. |
 
-Le bouton « Paramétrer le plan » ouvre une fenêtre, présentée comme la fiche d'une course : « Annuler » à gauche et « Enregistrer » à droite en haut, le titre en libellé, « Revenir aux règles générales » seul en bas ; « Revenir aux règles générales » (après confirmation) et les changements ne comptent qu'une fois « Enregistrer » pressé, « Annuler » ne range rien. Pour une course sans durée de prépa, la rubrique propose le même bouton, pour en choisir une. Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Paramétrer le plan », ni saisie.
+Le bouton « Régler les phases » ouvre une fenêtre, présentée comme la fiche d'une course : « Annuler » à gauche et « Enregistrer » à droite en haut, le titre en libellé, « Revenir aux règles générales » seul en bas ; « Revenir aux règles générales » (après confirmation) et les changements ne comptent qu'une fois « Enregistrer » pressé, « Annuler » ne range rien. Pour une course sans durée de prépa, la rubrique propose le même bouton, pour en choisir une. Seules les semaines modifiées à la main sont rangées ; les autres se recalculent à l'affichage. Le site partagé en lecture seule n'offre ni « Régler les phases », ni saisie.
 
-Dans le formulaire d'une course, le bloc Préparation montre sa place dans la saison, calculée sur ce qui est saisi, en lecture, avec la note « Les phases se règlent dans Mon plan, une fois la course enregistrée. » ; les phases réglées d'un Objectif suivent la date quand elle change (Objectif, § 3.7).
+Dans le formulaire d'une course, le bloc Préparation montre sa place dans le plan, calculée sur ce qui est saisi, en lecture, avec la note « Les phases se règlent dans Mon plan, une fois la course enregistrée. » ; les phases réglées d'un Objectif suivent la date quand elle change (Objectif, § 3.7).
 
 ### 5.4 Durées de prépa par défaut (validées, ajustables)
 
@@ -302,7 +302,7 @@ Valeurs validées le 28 octobre 2026, tirées de plans d'entraînement publiés 
 | Trail long | 16 | Estimation dans la fourchette publiée (12 à 20 semaines, [Campus Coach](https://www.campus.coach/blog/trail-de-80-km-plan-d-entrainement)) |
 | Ultra-trail | 16 | [Raidlight](https://raidlight.com/en/blogs/conseils-guides-plans-entrainement/plan-dentrainement-de-12-semaines-pour-un-ultra-trail) : 12 semaines ; 12 à 16 selon [Campus Coach](https://www.campus.coach/blog/bases-plan-entrainement-trail-100-km) |
 
-Sans valeur publiée trouvée, à fournir par l'utilisateur : Trail découverte, Course en heure, Marche (3 formats), Fast hiking (2 formats), Triathlon (7 formats). Ces formats n'ont pas de plan en attendant : le trait de prépa et les phases ne s'affichent pas, et la rubrique « Paramétrer le plan » demande la durée.
+Sans valeur publiée trouvée, à fournir par l'utilisateur : Trail découverte, Course en heure, Marche (3 formats), Fast hiking (2 formats), Triathlon (7 formats). Ces formats n'ont pas de plan en attendant : le trait de prépa et les phases ne s'affichent pas, et la rubrique « Régler les phases » demande la durée.
 
 Les sources donnent des fourchettes, souvent pour un public précis (débutant ou confirmé) : la valeur retenue ici est la plus prudente de la fourchette, sauf mention d'estimation.
 
@@ -326,7 +326,7 @@ Le [modèle de données](modele-donnees.md) (§ 4.4) décrit ces champs et table
 
 1. **Vue Année** : lecture seule, sans nouvelle donnée, avec la durée de prépa par défaut du format (§ 5.4). **Construit** (27 octobre 2026) : page `calendrier.html`, composant `composants/calendrier.js`.
 2. **Modèle de données** : durées, phases, séances. **Construit** (27 octobre 2026) : évolution `supabase/evolutions/009-calendrier-preparation.sql`, `schema.sql` à jour ; la vue Année lit désormais la durée de la course, sinon celle de son format, dans la base ; plus rien n'est écrit en dur dans le composant.
-3. **Vue 4 semaines et plan d'une course**, saisie des séances, rubrique « Paramétrer le plan ». **Construit** (27 octobre 2026) : vue 4 semaines dans `calendrier.js` ; la vue active se lit dans l'adresse (`#annee`, `#semaines=AAAA-MM-JJ`), le bouton retour du navigateur ramène à la vue précédente.
+3. **Vue 4 semaines et plan d'une course**, saisie des séances, rubrique « Régler les phases ». **Construit** (27 octobre 2026) : vue 4 semaines dans `calendrier.js` ; la vue active se lit dans l'adresse (`#annee`, `#semaines=AAAA-MM-JJ`), le bouton retour du navigateur ramène à la vue précédente.
 4. **Préparation sur la page de la course** (27 octobre 2026) : le plan d'une course quitte le Calendrier pour devenir une rubrique de la page de la course (`composants/preparation.js`, partagé) ; toucher une course dans le Calendrier mène à `course.html?id=…#preparation`.
 5. **Refonte en essai** (1er novembre 2026) : Année en frise, vue Semaine ouverte par défaut (la semaine en détail, trois à suivre, repère, bilan, consigne de phase), écarts entre courses, « Confirmée / Option » ; ancienne grille, ancienne vue 4 semaines et jours en colonnes gardés derrière des boutons violets, le temps de choisir (§ 2).
 6. **Nouvelle grille en essai** (2 novembre 2026) : deuxième bouton violet ; période de 3, 6 ou 12 mois (6 par défaut) et flèches, aussi pour la frise ; prépas des courses d'après la période, commencées dedans, affichées (frise et grilles).
@@ -352,7 +352,7 @@ Le prototype `composants/planning.js` a été remplacé par la première vue Ann
   - C. Toutes gardent leur prépa, mais le rôle départage les chevauchements (objectif principal, puis intermédiaire, puis préparatoire, puis plaisir), puis la date la plus proche.
 - [x] **Durées de prépa par format** : valeurs du § 5.4 validées (28 octobre 2026), à ajuster ensuite.
 - [ ] **Durées à fournir** pour Trail découverte, Course en heure, Marche, Fast hiking et Triathlon (aucune valeur publiée trouvée).
-- [x] **Semaine de récupération après la course** : oui, facultative par course, une semaine Deload hors durée du plan (retenu le 28 octobre 2026 ; à construire, évolution de la base).
+- [x] **Semaine de récupération après la course** : oui, facultative par course, une semaine Allègement hors durée du plan (retenu le 28 octobre 2026 ; à construire, évolution de la base).
 - [x] **Vue Année sur « six mois »** : non, douze mois suffisent (retenu le 28 octobre 2026) ; revu le 2 novembre 2026 : période au choix, 3, 6 ou 12 mois, 6 par défaut.
 - [x] **Couleurs** des quatre familles de course et des quatre phases : fixées dans le document de design (§ 10, 27 octobre 2026).
 - [x] **Semaine dans deux plans** : le plan de la course confirmée la plus proche l'emportait (27 octobre 2026) ; remplacé le 8 novembre 2026 par le plan de préparation (Préparation, § 4).
@@ -374,17 +374,17 @@ Résultats attendus, vue Année (`calendrier.html#annee`) :
 - Jours d'octobre : « J 1 », « S 3 » et « D 4 » (samedi et dimanche marqués, filet sous le dimanche), « L 5 » ; onglet « oct. 26 » en Accent ; un jour passé (jeudi 15) a le fond d'un jour à venir (jeudi 22), un samedi un fond plus marqué.
 - Bouton « Plan » éteint : ni fond de phase ni légende des phases ; légende « Route confirmée, option », « Trail confirmée, option », courue, aujourd'hui.
 - Séances d'essai (Renforcement le 19, cochée ; Course à pied et Renforcement le 20) : « Renforcement » barré le 19, « Course à pied · Renforcement » le 20, rien le 21 ; infobulle du 20 : les deux séances avec leur libellé.
-- Plan enfoncé (retenu sur l'appareil) : légende des phases (Récupération et Entretien, en gris, comprises), fond de phase de chaque jour, sans barres : 1er, 12 et 20 octobre en Entretien, sans fond (le Trail du Lac est une Préparatoire) ; 16 novembre, base (saison du Trail des Gorges) ; 8 février, développement. Liseré de 3 px à gauche de la case : deload (8 décembre), développement (12 janvier), affûtage (7 mars) ; le Trail des Gorges (7 mars) garde sa couleur ; infobulle du 20 octobre : la date, « aujourd'hui » et les séances, sans phase.
+- Plan enfoncé (retenu sur l'appareil) : légende des phases (Récupération et Entretien, en gris, comprises), fond de phase de chaque jour, sans barres : 1er, 12 et 20 octobre en Entretien, sans fond (le Trail du Lac est une Préparatoire) ; 16 novembre, base (saison du Trail des Gorges) ; 8 février, développement. Liseré de 3 px à gauche de la case : allègement (8 décembre), développement (12 janvier), affûtage (7 mars) ; le Trail des Gorges (7 mars) garde sa couleur ; infobulle du 20 octobre : la date, « aujourd'hui » et les séances, sans phase.
 - Période suivante : `#annee=2027-04`, « Avril – septembre 2027 » : Trail des Cimes, Ultra du Plateau, Trail de la Forêt (options), Trail des Crêtes ; pas d'aujourd'hui. « Aujourd'hui » : de nouveau octobre. Menu, « Année » : deux blocs de six, « Octobre 2026 – septembre 2027 », retenu ; « 3 mois » : « Octobre – décembre 2026 ».
 - Toucher le 22 octobre : `#semaines=2026-10-19` ; toucher le Trail des Gorges : sa page en modale, rubrique Préparation ; toucher le Semi de San Sebastián : son résultat.
-- Trail des Gorges à 20 semaines : son plan part le 19 octobre, la semaine 12 (4 janvier) est en deload ; Corrida de Noël en Triathlon S (format sans durée) : plus de plan, le 1er décembre n'est plus en affûtage (base du Trail des Gorges).
+- Trail des Gorges à 20 semaines : son plan part le 19 octobre, la semaine 12 (4 janvier) est en allègement ; Corrida de Noël en Triathlon S (format sans durée) : plus de plan, le 1er décembre n'est plus en affûtage (base du Trail des Gorges).
 - Téléphone : rien ne déborde.
 
 Résultats attendus, vue Mois (`calendrier.html#mois`, séances d'essai) :
 
 - Menu « Vue » sur « Mois » ; « Octobre 2026 », voisins « sept. » et « nov. » ; jours « lun. » à « dim. » ; 35 cases, du 28 septembre au 1er novembre ; 28, 29, 30 septembre et 1er novembre atténués ; aujourd'hui, le 20 ; un seul fond pour toutes les cases (28 septembre et 7 octobre, 19 et 21 octobre).
 - Semi de San Sebastián le 4 (courue) ; « ◆ Inscriptions · Corrida de Noël » le 1er novembre ; séances : Renforcement Gainage 30 min le 19 (cochée), Course à pied 8×400 m le 20, Course à pied Footing 45 min le 22, Course à pied Sortie 1 h 30 le 24 ; un « + » par case, à contour Accent ; ni phases ni légende.
-- Plan enfoncé : en octobre, aucune case colorée (Entretien) ; en décembre (`#mois=2026-12`), les 35 cases à la couleur de leur phase (base ; deload la semaine du 7 décembre ; développement le 1er janvier), le même fond pour toute une semaine, jours voisins compris, et la légende des phases.
+- Plan enfoncé : en octobre, aucune case colorée (Entretien) ; en décembre (`#mois=2026-12`), les 35 cases à la couleur de leur phase (base ; allègement la semaine du 7 décembre ; développement le 1er janvier), le même fond pour toute une semaine, jours voisins compris, et la légende des phases.
 - Mois suivant : `#mois=2026-11`, « Novembre 2026 », voisins « oct. » et « déc. », le Trail du Lac le 15 ; janvier : voisins « déc. 26 » et « févr. » ; « Aujourd'hui » : octobre.
 - Cocher 8×400 m : écriture de `faite` ; « + » du 21 : « Footing 30 min » ajouté ce jour-là ; toucher Footing 45 min : sa fenêtre ; toucher le 23 : `#semaines=2026-10-19` ; en novembre, le rendez-vous clé mène à la page de la Corrida de Noël et le Trail du Lac ouvre sa page.
 - Téléphone : des repères à la place du texte ; rien ne déborde. Lecture seule : ni « + » ni modification, cases « faite » grisées.
@@ -395,7 +395,7 @@ Résultats attendus, vue Semaine (`calendrier.html`, vue par défaut, séances d
 - Séances : Renforcement Gainage 30 min le 19 (cochée), Course à pied 8×400 m le 20, Course à pied Footing 45 min le 22, Course à pied Sortie 1 h 30 le 24 ; « ◆ Ouverture des inscriptions · Corrida de Noël » le 1er novembre ; un « + » par jour ; ni « Faites », ni nom de phase.
 - Défilement : les semaines suivantes arrivent. Semaines passées : la première devient « Semaine du 21 au 27 sept. », la semaine du 19 octobre ne bouge pas à l'écran. « Aujourd'hui » : de nouveau trois semaines à partir du 19 octobre.
 - Cocher 8×400 m : écriture ; « + » du 21 sans libellé : « Écris le libellé de la séance. » ; puis « Footing 30 min » ajouté le 21 ; Footing 45 min modifié en Renforcement « Gainage 20 min », puis supprimé (confirmation).
-- Plan enfoncé : la semaine du 19 octobre sans fond (Entretien) ; la semaine du 30 novembre en base (saison du Trail des Gorges), le même fond pour ses sept jours, la légende des phases, pas de nom de phase. Au 14 décembre, sans le Trail des Gorges : la semaine du 14 décembre sans fond de phase (Entretien avant le Trail des Crêtes).
+- Plan enfoncé : la semaine du 19 octobre sans fond (Entretien) ; la semaine du 30 novembre en base (préparation du Trail des Gorges), le même fond pour ses sept jours, la légende des phases, pas de nom de phase. Au 14 décembre, sans le Trail des Gorges : la semaine du 14 décembre sans fond de phase (Entretien avant le Trail des Crêtes).
 - `#semaines=2026-11-09` : « Semaine du 9 au 15 nov. » en tête, le Trail du Lac le 15, qui ouvre sa page.
 - Téléphone : un jour par ligne, rien ne déborde. Lecture seule : ni « + » ni modification, cases « faite » grisées.
 
@@ -407,11 +407,11 @@ Résultats attendus, barre du haut (repasse) :
 
 Résultats attendus, plan d'une course :
 
-- Trail des Gorges : plan de 16 semaines, du lundi 16 novembre 2026 au dimanche 7 mars 2027 ; phases : Base ×3 (16 nov., 23 nov., 30 nov.), Deload (7 déc.), Base ×2 (14 et 21 déc.), Développement (28 déc.), Deload (4 janv.), Développement ×3 (11, 18 et 25 janv.), Deload (1er févr.), Développement ×2 (8 et 15 févr.), Affûtage ×2 (22 févr., 1er mars) ; jour J le 7 mars.
-- Trail du Lac : 12 semaines, du 24 août au 15 novembre : Base ×3, Deload, Base, Développement ×2, Deload, Développement ×2, Affûtage ×2.
-- Corrida de Noël : 8 semaines, du 19 octobre au 13 décembre : Base ×2, Développement, Deload, Développement ×2, Affûtage ×2.
+- Trail des Gorges : plan de 16 semaines, du lundi 16 novembre 2026 au dimanche 7 mars 2027 ; phases : Base ×3 (16 nov., 23 nov., 30 nov.), Allègement (7 déc.), Base ×2 (14 et 21 déc.), Développement (28 déc.), Allègement (4 janv.), Développement ×3 (11, 18 et 25 janv.), Allègement (1er févr.), Développement ×2 (8 et 15 févr.), Affûtage ×2 (22 févr., 1er mars) ; jour J le 7 mars.
+- Trail du Lac : 12 semaines, du 24 août au 15 novembre : Base ×3, Allègement, Base, Développement ×2, Allègement, Développement ×2, Affûtage ×2.
+- Corrida de Noël : 8 semaines, du 19 octobre au 13 décembre : Base ×2, Développement, Allègement, Développement ×2, Affûtage ×2.
 - Trail des Crêtes : 16 semaines, du 10 mai au 28 août : même enchaînement que Trail des Gorges.
-- Depuis la page Mon plan (rond « Régler les phases »), sur Trail des Gorges, durée portée à 20 semaines : début du plan le 19 octobre ; les phases se recalculent. Mettre la semaine du 7 décembre en Base : seule cette semaine change ; « Revenir aux règles générales » (confirmé) la remet en Deload.
+- Depuis la page Mon plan (rond « Régler les phases »), sur Trail des Gorges, durée portée à 20 semaines : début du plan le 19 octobre ; les phases se recalculent. Mettre la semaine du 7 décembre en Base : seule cette semaine change ; « Revenir aux règles générales » (confirmé) la remet en Allègement.
 - Site partagé en lecture seule : le plan s'affiche, sans lien de réglage ni saisie de séance.
 - Adresse d'une course inconnue, d'un autre utilisateur ou sans date : « Course introuvable. » et un lien de retour.
 
@@ -421,13 +421,13 @@ Résultats attendus, durées de prépa (vue Année, Plan enfoncé) :
 
 Résultats attendus, fenêtres :
 
-- Fenêtre d'une séance (ajout ou modification) et fenêtre « Paramétrer le plan » : « Annuler » à gauche, le bouton principal à droite, en haut ; titre en libellé (Space Mono, capitales) ; libellés de champ à 0,7 rem ; le voile de la feuille d'une course ; « Supprimer la séance » à contour rouge, avec sa poubelle, seul en bas.
+- Fenêtre d'une séance (ajout ou modification) et fenêtre « Régler les phases » : « Annuler » à gauche, le bouton principal à droite, en haut ; titre en libellé (Space Mono, capitales) ; libellés de champ à 0,7 rem ; le voile de la feuille d'une course ; « Supprimer la séance » à contour rouge, avec sa poubelle, seul en bas.
 
 Résultats attendus, rubrique Préparation de la page d'une course :
 
-- Page du Trail des Gorges, ouverte sur `#preparation` : la rubrique est ouverte et à l'écran ; « Plan de 16 semaines », « Début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 » ; phases Base ×3, Deload, Base ×2, Développement, Deload, Développement ×3, Deload, Développement ×2, Affûtage ×2 ; la frise affiche neuf groupes ; la semaine mise en avant est la première (« Première semaine », semaine du 16 novembre, Base), le plan n'ayant pas commencé.
+- Page du Trail des Gorges, ouverte sur `#preparation` : la rubrique est ouverte et à l'écran ; « Plan de 16 semaines », « Début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 » ; phases Base ×3, Allègement, Base ×2, Développement, Allègement, Développement ×3, Allègement, Développement ×2, Affûtage ×2 ; la frise affiche neuf groupes ; la semaine mise en avant est la première (« Première semaine », semaine du 16 novembre, Base), le plan n'ayant pas commencé.
 - Page du Trail du Lac (plan de 12 semaines commencé le 24 août) : « Semaine en cours », semaine 9 (19 octobre), Développement, avec ses séances ; « Toutes les semaines (12) » repliée ; dépliée, douze blocs.
-- « Paramétrer le plan » : durée portée à 20 semaines, « Début : lun. 19 oct. 2026 » ; semaine du 7 décembre en Base puis « Enregistrer » : la durée de la course (20) et une seule semaine modifiée sont rangées, la semaine s'affiche « Base · modifiée » ; « Revenir aux règles générales » puis « Enregistrer » : plus de semaine modifiée, la semaine du 7 décembre est de nouveau en Deload ; « Annuler » ne range rien.
+- « Régler les phases » : durée portée à 20 semaines, « Début : lun. 19 oct. 2026 » ; semaine du 7 décembre en Base puis « Enregistrer » : la durée de la course (20) et une seule semaine modifiée sont rangées, la semaine s'affiche « Base · modifiée » ; « Revenir aux règles générales » puis « Enregistrer » : plus de semaine modifiée, la semaine du 7 décembre est de nouveau en Allègement ; « Annuler » ne range rien.
 - Frise : une poignée entre deux phases ; glisser la première d'une semaine vers la droite met la semaine 4 en Base dans le tableau.
 - Ajouter une séance depuis la rubrique : elle est liée à la course (`course` renseignée) ; la rubrique reste ouverte (les textes ouverts de la page le restent quand elle se redessine).
 - Course de format sans durée (Corrida de Noël en Triathlon S) : « Pas encore de plan… » et le lien vers Préparation ; durée 10 réglée dans Préparation : « Plan de 10 semaines ».
@@ -440,6 +440,6 @@ Résultats attendus, vue Mois V2 et export (§ 4.5, 4.6), séances d'essai du Mo
 
 - `calendrier.html#mois2` : menu « Mois V2 » (choix : Semaine, Mois, Mois V2, 3 mois, 6 mois, Année) ; « Octobre 2026 » ; cinq lignes (lundis 28 sept. à 26 oct.) ; 28, 29, 30 sept. et 1er nov. atténués ; le numéro dans chaque case.
 - Cartes : 19, Renforcement (liseré vert, sans traits, « Renforcement » en gras, « Gainage 30 min », barrée) ; 20, « 1 h / Fractionné / 8×400 m » (rouge, trois traits) ; 22, « 7 km / Endurance » (neutre, un trait) ; 24, « 12,5 km / Sortie longue » (bleu, deux traits). Pas de légende des liserés. « Repos » les 21, 23 et 25 ; libellé de la semaine du 19 : « 19 oct. », Entretien, « 1/4 séances · 0/19,5 km ». Ordinateur : 4 cases « faite », 35 « + » ; téléphone : ni l'un ni l'autre, noms abrégés ; aucun débordement.
-- `#mois2=2026-12`, Phases enfoncé : chaque libellé commence par « Sem. n », la semaine du 7 déc. en Deload (fond de phase) ; mois précédent : le Trail du Lac en carte le 15 nov. (« 24 km », trail) ; toucher le 18 nov. : `#semaines=2026-11-16`.
+- `#mois2=2026-12`, Phases enfoncé : chaque libellé commence par « Sem. n », la semaine du 7 déc. en Allègement (fond de phase) ; mois précédent : le Trail du Lac en carte le 15 nov. (« 24 km », trail) ; toucher le 18 nov. : `#semaines=2026-11-16`.
 - Exporter (Calendrier, Mois V2 d'octobre) : une page « Calendrier · Octobre 2026 », fond blanc, cinq semaines, ni case ni « + », la case du 19 dessinée pleine ; pied « MyRunTools » et « Exporté le 20 oct. 2026 » ; invisible à l'écran, seule à l'impression.
 - Exporter (Mon plan) : « Mon plan · Trail des Gorges », 20 semaines du 19 oct. 2026 au 1er mars 2027, quatre pages, fond de phase.

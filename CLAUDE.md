@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Mon profil simplifié (points fragiles et blessures passées en un texte ; durée maximale d'une séance supprimée ; évolution 046 à coller dans Supabase). Avant : Remplir depuis la page de la course (Objectif 0.84, § 3.9) construit ; fonction `lire-page-course` à coller dans Supabase, puis à essayer avec une page Finishers.
-- En suspens : inscription ouverte le 20 nov. 2026 ; plafond de l'IA à remettre, droits RGPD, polices (`docs/todo.md`, n° 6).
-- Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »)
+- Dernier lot : repasse de cohérence (glossaire § 12 complété et appliqué partout : préparation, Allègement, Décrassage, Ressenti… ; contrastes, cadres, états vides, case « Faite », onglet hors menu, liens vers le Guide, Compte en haut des Préférences ; contrôle « vocabulaire » étendu). Avant : Mon profil simplifié (évolution 046 à coller dans Supabase).
+- En suspens : V3 de la repasse (Événement / Course / Parcours, définitions attendues) ; à coller dans Supabase : évolution 046, fonctions `proposer-seances` (Décrassage) et `lire-page-course` ; plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
+- Prochaine étape : V3, puis renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).

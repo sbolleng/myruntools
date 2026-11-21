@@ -70,6 +70,27 @@
 <main>
   <h1 class="mrt-sr">Préférences</h1>
   <div class="card pref-cadre">
+  <section class="mrt-section" id="bloc-compte"><!-- en haut : la déconnexion se trouve sans chercher -->
+    <h2 class="mrt-section-titre">Compte</h2>
+    <p id="compte" class="muted">Chargement…</p>
+    <div id="mdp-zone" hidden>
+      <button type="button" class="mrt-btn" id="mdp-ouvrir" aria-expanded="false" aria-controls="form-mdp">Changer le mot de passe</button>
+      <form id="form-mdp" class="pref-mdp" hidden>
+        <label for="mdp-actuel">Mot de passe actuel</label>
+        <input class="mrt-champ" type="password" id="mdp-actuel" required autocomplete="current-password">
+        <label for="mdp-nouveau">Nouveau mot de passe</label>
+        <input class="mrt-champ" type="password" id="mdp-nouveau" required autocomplete="new-password" placeholder="14 caractères au moins">
+        <label for="mdp-confirmation">Confirmation</label>
+        <input class="mrt-champ" type="password" id="mdp-confirmation" required autocomplete="new-password">
+        <div id="mdp-captcha"></div>
+        <div class="pref-ligne pref-actions">
+          <button type="button" class="mrt-btn" id="mdp-annuler">Annuler</button>
+          <button type="submit" class="mrt-btn is-principal">Enregistrer</button>
+        </div>
+      </form>
+      <p class="pref-msg" id="mdp-msg" aria-live="polite"></p>
+    </div>
+  </section>
   <section class="mrt-section" id="bloc-theme">
     <h2 class="mrt-section-titre">Thème</h2>
     <div class="pref-corps"></div>
@@ -101,29 +122,8 @@
     <p class="pref-msg" id="partage-msg" aria-live="polite"></p>
     <div class="pref-legende">Je partage avec</div>
     <ul class="pref-liste" id="mes-partages"></ul>
-    <div class="pref-legende">Sites partagés avec moi</div>
+    <div class="pref-legende">Espaces partagés avec moi</div>
     <ul class="pref-liste" id="partages-avec-moi"></ul>
-  </section>
-  <section class="mrt-section" id="bloc-compte">
-    <h2 class="mrt-section-titre">Compte</h2>
-    <p id="compte" class="muted">Chargement…</p>
-    <div id="mdp-zone" hidden>
-      <button type="button" class="mrt-btn" id="mdp-ouvrir" aria-expanded="false" aria-controls="form-mdp">Changer le mot de passe</button>
-      <form id="form-mdp" class="pref-mdp" hidden>
-        <label for="mdp-actuel">Mot de passe actuel</label>
-        <input class="mrt-champ" type="password" id="mdp-actuel" required autocomplete="current-password">
-        <label for="mdp-nouveau">Nouveau mot de passe</label>
-        <input class="mrt-champ" type="password" id="mdp-nouveau" required autocomplete="new-password" placeholder="14 caractères au moins">
-        <label for="mdp-confirmation">Confirmation</label>
-        <input class="mrt-champ" type="password" id="mdp-confirmation" required autocomplete="new-password">
-        <div id="mdp-captcha"></div>
-        <div class="pref-ligne pref-actions">
-          <button type="button" class="mrt-btn" id="mdp-annuler">Annuler</button>
-          <button type="submit" class="mrt-btn is-principal">Enregistrer</button>
-        </div>
-      </form>
-      <p class="pref-msg" id="mdp-msg" aria-live="polite"></p>
-    </div>
   </section>
   </div>
 </main>
@@ -332,7 +332,7 @@
       });
       ul1.appendChild(li);
     });
-    ul2.innerHTML = (avec.data || []).length ? '' : '<li class="pref-vide">Aucun espace partagé avec toi.</li>';
+    ul2.innerHTML = (avec.data || []).length ? '' : '<li class="pref-vide">Aucun espace partagé avec moi.</li>';
     (avec.data || []).forEach(p => {
       const li = document.createElement('li');
       const regarde = page && page.proprietaire && page.proprietaire.id === p.id;

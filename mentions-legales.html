@@ -75,7 +75,7 @@
     </section>
   </div>
   <p class="ml-maj" id="m10">Mise à jour : 20 novembre 2026</p>
-  <a class="mrt-lien ml-retour" id="m11" href="connexion.html">← Retour</a>
+  <a class="mrt-lien ml-retour" id="m11" href="connexion.html" onclick="if (document.referrer && history.length > 1) { history.back(); return false; }">Retour</a>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="donnees/supabase.js?v=__VERSION__"></script>

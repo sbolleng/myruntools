@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.26 · 21 novembre 2026 · Mes stats : tables `activites` et `analyses_stats`, origine `import` d'une séance (évolution 045) · [Retour au sommaire](README.md)
+Version 0.27 · 21 novembre 2026 · Mes stats : tables `activites` et `analyses_stats`, origine `import` d'une séance (évolution 045) ; phase « Allègement » (valeur stockée `deload`) · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 
@@ -146,7 +146,7 @@ Le plan d'une course est calculé à l'affichage ([spécification du Calendrier]
 | --- | --- | --- |
 | Durée par défaut | `formats.prepa_semaines` | Nombre de semaines de préparation d'un format ; vide : pas de préparation affichée (Trail découverte, Course en heure, Marche, Fast hiking, Triathlon pour l'instant) |
 | Durée d'une course | `courses.prepa_semaines` | Remplace celle du format |
-| Phase modifiée | `plan_semaines` : `course`, `lundi` (le lundi de la semaine), `phase` | Une ligne par semaine dont la phase a été changée à la main ; les autres semaines se calculent. Phases : base, développement, affûtage, deload. Supprimée avec la course. |
+| Phase modifiée | `plan_semaines` : `course`, `lundi` (le lundi de la semaine), `phase` | Une ligne par semaine dont la phase a été changée à la main ; les autres semaines se calculent. Phases : base, développement, affûtage, allègement (valeur stockée `deload`). Supprimée avec la course. |
 | Séance | `seances` : `date`, `type` (run ou renfo), `libelle` (1 à 100 caractères), `faite`, `course` (facultative) ; `duree_min` (1 à 1 440), `distance_km` (0,1 à 999,9), `intensite` (facile, modérée, intense), facultatives ; `origine` (saisie, ia) et `etat` (proposée, acceptée), saisie et acceptée par défaut | Une séance saisie à la main, ou proposée par l'IA (Préparation, lot 3). Si la course est supprimée, la séance reste, sans course. |
 | Proposition | `propositions` : `cree`, `bloc` (lundi), `essai` (1 ou 2), `modele`, `jetons_entree`, `jetons_sortie`, `statut` (brute, invalide, echec, acceptee, abandonnee), `reponse` (les séances proposées, JSON) | Écrite par la fonction `proposer-seances` avec le jeton de l'utilisateur ; le site en change le statut. Sert au plafond (4 par mois) et à mesurer le coût. |
 | Profil d'entraînement | `profil_entrainement` : `anciennete` (debut, 1-3, 3-6, 6-10, 10+), `volume_tranche` (inconnu, 0-20 … 80+), `sortie_tranche` (-1h … 3h+), `jours_course` et `jours_renfo` (jours 1 lundi à 7 dimanche, un même jour possible dans les deux), `nb_sorties` (0 à 7, évolution 028), `nb_renfo` (0 à 7), `jour_long` (la sortie longue ; vide : peu importe), `allure_type` (vma, 10km, semi, inconnu) et sa valeur (`vma`, `temps_10km_s`, `temps_semi_s`), `terrain` (plat, cotes, vallonne, montagne), `renfo_niveau`, `fc_max`, `fragiles` (points fragiles et blessures passées, texte libre), `maj` ; les colonnes de l'évolution 024 qui ne servent plus (`annees`, `volume`, `sortie_longue`, `jours`, `jour_long`, `semaine_max_h`, `renfo`, `moyens` et leurs unités) restent, inemployées, comme `semaine_type` (évolution 026, remplacée par l'évolution 027) | Tout est facultatif dans la base ; le site dit ce qui manque pour proposer des séances ([Préparation](module-preparation-specification.md), § 5.2). Données de santé : jamais lisibles par le site partagé. |
@@ -240,7 +240,7 @@ Une ligne par analyse de l'IA de la page Mes stats : `cree`, `motif` (`import`, 
 
 ### Listes fermées (gravées dans la base)
 
-Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, deload) et type de séance (run, renfo) : le fonctionnement en dépend (Courue envoie au Palmarès, Repérée dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
+Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, allègement — valeur stockée `deload`) et type de séance (run, renfo) : le fonctionnement en dépend (Courue envoie au Palmarès, Repérée dans son module). La base refuse toute autre valeur ; leurs libellés affichés restent dans le code.
 
 ## 7. Ce qui est calculé, jamais rangé
 
@@ -254,7 +254,7 @@ Statut, rôle, état, thème, phase d'un plan (base, développement, affûtage, 
 | D'ici là | Blocs de la page Objectif à venir avant le cap : une course confirmée, une option isolée ou un groupe d'options comptent chacun pour un |
 | Prochaine course | Première course confirmée à venir |
 | Début d'un plan | Lundi de la semaine du jour J, moins (durée − 1) semaines |
-| Phase d'une semaine | Règles du Calendrier (§ 5.1) : affûtage les 2 dernières semaines, deload toutes les 4 semaines, le reste réparti entre base et développement ; sauf semaine modifiée dans `plan_semaines` |
+| Phase d'une semaine | Règles du Calendrier (§ 5.1) : affûtage les 2 dernières semaines, allègement toutes les 4 semaines, le reste réparti entre base et développement ; sauf semaine modifiée dans `plan_semaines` |
 | Besoin du jour, cibles, jauges | Calculatrice de Nutrition ([spécification](module-nutrition-specification.md), § 3) : profil + sport du jour + phase ; total du jour = somme des `repas_lignes` |
 | Semaine sans objectif clair | Semaine hors du plan de toute course confirmée |
 

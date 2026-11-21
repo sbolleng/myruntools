@@ -114,7 +114,7 @@
     ['gpx', 'Tracé GPX', 'fichier', 'parcours'],
     ['ravitaillements_km', 'Ravitaillements (km)', 'kms', 'parcours'],
     ['strategie', 'Stratégie de course', 'long', 'parcours'],
-    ['pourquoi', 'Rôle dans la préparation', 'long', 'preparation'],
+    ['pourquoi', 'Pourquoi cette course', 'long', 'preparation'],
     ['logistique', 'Logistique', 'long', 'logistique'],
     // Résultat, puis classements : un seul bloc. Général et sexe : deux champs sur toute la largeur ; catégorie : trois.
     ['temps', 'Temps', 'duree', 'resultat', true],

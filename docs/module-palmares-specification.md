@@ -1,6 +1,6 @@
 # Palmarès · spécification fonctionnelle
 
-Version 1.34 · 11 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 1.35 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : crayon d'une ligne en rond commun, message d'un Palmarès vide distinct de « aucune course ne correspond aux filtres ».
 
 ## 1. Objet
 

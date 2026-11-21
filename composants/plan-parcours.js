@@ -180,7 +180,7 @@
     }
     if (k === 'volume') {
       const grp = (cle, lib) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + PRf.ECHELLES[cle].map(([v, l]) => pastille('data-vol', cle + '|' + v, pr[cle] === v, l)).join('') + '</div></div>';
-      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance moyenne par semaine') + grp('sortie_tranche', 'Plus longue sortie récente') + '</div>' +
+      return '<div class="ps-groupe-l">' + grp('volume_tranche', 'Distance moyenne par semaine') + grp('sortie_tranche', 'Plus longue séance récente') + '</div>' +
         '<div class="pp-pied"><button type="button" class="mrt-btn is-principal" data-pp="continuer"' + (FAIT.volume(pr) ? '' : ' disabled') + '>Continuer</button></div>';
     }
     if (k === 'allure') {

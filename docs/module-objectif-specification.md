@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.84 · 21 novembre 2026 · [Retour au sommaire](README.md) · **Remplir depuis la page de la course** (§ 3.9) construit : encart en tête de la fiche d'ajout, fonction `lire-page-course` (pilotes seulement), contrôles au banc (groupe « remplir »)
+Version 0.85 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Pourquoi cette course », légende Course · Option · Objectif, flèches dessinées, page Saison vide qui dit quoi faire, agenda en rond normal.
 
 ## 1. Rôle
 
@@ -94,7 +94,7 @@ La page montre les courses au statut Option ou Confirmée, à l'état À venir (
 | Cas | Signification | Rendu |
 | --- | --- | --- |
 | Confirmée | Course retenue (rôle Préparatoire ou Plaisir) | Trait plein, pastille pleine en Texte discret |
-| Rôle Objectif (affiché « Objectif ») | Une course visée ; il peut y en avoir plusieurs, chacune ouvre une saison ([Préparation](module-preparation-specification.md), § 2) ; l'ancien rôle « Objectif intermédiaire » s'affiche et s'enregistre en Objectif (évolution 023) | Pastille en Accent, cerclée ; cadre en Accent |
+| Rôle Objectif (affiché « Objectif ») | Une course visée ; il peut y en avoir plusieurs, chacune ouvre une préparation ([Préparation](module-preparation-specification.md), § 2) ; l'ancien rôle « Objectif intermédiaire » s'affiche et s'enregistre en Objectif (évolution 023) | Pastille en Accent, cerclée ; cadre en Accent |
 | Groupe d'options | Plusieurs courses au statut Option pour un même créneau | Trait et cadre en pointillé ; une seule étape (§ 3.6) |
 | Option isolée | Course envisagée, pas encore retenue | Trait et cadre en pointillé, pastille vide |
 
@@ -134,7 +134,7 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 │ ┌──────────────────────────────────────────────────────────────┐ │
 │ │ (50) › Inscription (ouverture, dossard, prix, site d'inscription) │ │
 │ │ (25) › Parcours  (26 carte, 47 plein écran, 32 profil, 48 lignes, 49 pente, 27 GPX, STRATÉGIE DE COURSE 16) │
-│ │ (24) › Préparation (RÔLE DANS LE PLAN 15, place dans la saison, Voir dans Mon plan →) │
+│ │ (24) › Préparation (RÔLE DANS LE PLAN 15, place dans le plan, Voir dans Mon plan) │
 │ │ (17) › Logistique                                             │ │
 │ └──────────────────────────────────────────────────────────────┘ │
 │ (20) ← Course précédente                  Course suivante → (21) │
@@ -172,10 +172,10 @@ Plan de page (option A, retenue le 31 oct. 2026 après essai de l'option B ; num
 | 27 | GPX | « ↓ GPX » | Bouton à contour, à droite, juste sous la ligne des distances du profil ; télécharge le fichier rangé, au nom de la course ; aussi en lecture seule |
 | 28 | Import du GPX | « Importer un GPX », « Remplacer », « Supprimer » | Formulaire, bloc Course, ligne « Tracé GPX » sous le D− : rangé (ou effacé) à « Enregistrer », avec la course ; dans 25 quand il est vide : rangé aussitôt, Parcours rouvert avec la carte ; fichier `.gpx` avec des points, 5 Mo au plus, sinon « Fichier .gpx attendu. », « Fichier trop lourd : 5 Mo au plus. » ou « Tracé illisible… » ; fichier à plusieurs tracés (toutes les distances d'une épreuve) : « Ce fichier contient N tracés : lequel garder ? », un bouton par tracé (nom · longueur), le plus proche de la distance de la course en premier, et « Annuler » ; seul le tracé choisi est rangé ; un fichier déjà rangé avec plusieurs tracés montre le plus proche de la distance ; pour corriger, « Remplacer » ; absent en lecture seule et pour une course courue |
 | 16 | Stratégie de course | Plan de course, allures, liaison avec la course suivante | Dans 25, sous le GPX ; sous-titre « Stratégie de course » en libellé ; absente si vide |
-| 24 | Préparation | Dans l'ordre : 15, puis la place de la course dans la saison et son avis ([Préparation](module-preparation-specification.md), § 5.4), puis le lien « Voir dans Mon plan → » (`preparation.html#courses`) ; plus de plan propre à la course (12 nov. 2026) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : place calculée au 1er du mois, mentionnée sous la ligne ; ancre `#preparation` (ouverte quand on arrive par elle) ; lien absent en lecture seule |
-| 15 | Rôle dans la préparation | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Rôle dans la préparation » (le nom du champ de la fiche) en libellé ; absent si vide |
+| 24 | Préparation | Dans l'ordre : 15, puis la place de la course dans le plan et son avis ([Préparation](module-preparation-specification.md), § 5.4), puis le lien « Voir dans Mon plan → » (`preparation.html#courses`) ; plus de plan propre à la course (12 nov. 2026) | Repliée comme les autres ; course à venir avec une date seulement ; date approximative : place calculée au 1er du mois, mentionnée sous la ligne ; ancre `#preparation` (ouverte quand on arrive par elle) ; lien absent en lecture seule |
+| 15 | Pourquoi cette course | Pourquoi cette course figure dans le plan | En tête de 24, sous-titre « Pourquoi cette course » (le nom du champ de la fiche) en libellé ; absent si vide |
 | 17 | Logistique | Transport, horaires, retrait du dossard | Dernier texte du cadre, juste avant la navigation |
-| 20, 21 | Navigation | « ← course précédente » et « course suivante → » dans la saison | Libellé, puis le nom en Texte |
+| 20, 21 | Navigation | « Course précédente » et « Course suivante » (flèches dessinées) dans la saison | Libellé, puis le nom en Texte |
 
 Ne sont plus affichés sur la page (ils restent dans le formulaire) : Prix (14), Précisions de l'objectif (23), le bloc Liens (19), réparti entre 30, 29 et 31.
 
@@ -235,12 +235,12 @@ Site partagé en lecture seule : aucun de ces boutons.
 | --- | --- |
 | Course | Course et parcours ; date, ou mois seul (case « Seul le mois est connu » : à cocher quand le jour n'est pas encore fixé ; on ne saisit alors qu'un mois) ; heure de départ (vidée et grisée tant qu'il n'y a pas de date exacte : sans date, ou en mois seul) ; lieu ; type et format ; distance, seule sur sa ligne ; D+ et D− côte à côte ; **objectif**, choisi dans une liste (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), la durée n'apparaissant que pour les deux derniers ; **précisions sur l'objectif** (100 caractères au plus) ; description (1 000 caractères au plus), puis **site officiel** (sous la description, comme dans la consultation où il rejoint « À propos de la course »), dont l'exemple dit que c'est un texte libre : « Texte libre pour donner des détails sur la course : ex. boucle par les crêtes, 3 ravitaillements, barrière horaire au km 30, descente technique » |
 | Place dans le plan | Statut (Confirmée, Option, Repérée) ; rôle ; groupe d'options, seulement pour une Option : un groupe existant, ou « Nouveau groupe… » et son nom |
-| Préparation | En tête, la place de la course dans la saison, comme sur la page de la course (§ 3.4 ; [Préparation](module-preparation-specification.md), § 5.4) : rôle, place, repères, avis (39, 40), en lecture ; note 41 : « Les phases se règlent dans Mon plan, une fois la course enregistrée. ». Seulement pour une course Confirmée ou Option ; calculée sur la date, le format, la distance, le D+, le statut et le rôle saisis, elle suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) : « Choisis d'abord la date et le format. ». Date approximative : la place vise le 1er du mois, avec la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. ». Date précise changée : les phases réglées d'un Objectif suivent la course, au même numéro de semaine. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
+| Préparation | En tête, la place de la course dans le plan, comme sur la page de la course (§ 3.4 ; [Préparation](module-preparation-specification.md), § 5.4) : rôle, place, repères, avis (39, 40), en lecture ; note 41 : « Les phases se règlent dans Mon plan, une fois la course enregistrée. ». Seulement pour une course Confirmée ou Option ; calculée sur la date, le format, la distance, le D+, le statut et le rôle saisis, elle suit leurs changements. Tant que la date ou le format manque, une ligne d'attente (42) : « Choisis d'abord la date et le format. ». Date approximative : la place vise le 1er du mois, avec la mention « Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie. ». Date précise changée : les phases réglées d'un Objectif suivent la course, au même numéro de semaine. Puis objectif ; précisions (texte libre, 100 caractères au plus, compteur) ; rôle dans la préparation ; stratégie ou enchaînement |
 | Logistique | Logistique |
 | Inscription | Date d'ouverture des inscriptions, heure d'ouverture et case « Seul le mois est connu » **sur une seule ligne** (sur téléphone : la date seule, puis l'heure et la case ensemble) ; case « Inscrit » ; site d'inscription ; numéro de dossard et prix. Le numéro ne se saisit qu'une fois « Inscrit » coché (grisé sinon ; non rangé sans inscription) |
 | Résultat | Avant la course : « Résultats en direct » seul (lien à ouvrir le jour de la course). Voir § 3.8 |
 
-- **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Paramétrer le plan » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
+- **Boutons** : les boutons communs du site (design, § 1) ; « + Ajouter une course » est un bouton principal, le crayon « Modifier » un bouton rond ; « Retenir cette course », « Marquer comme courue » et « Régler les phases » des boutons à contour, comme « Annuler » ; « Enregistrer » est le bouton principal (plein), le seul de la fiche.
 - **Obligatoires** marqués d'une étoile en Accent, en exposant (en haut à droite du libellé), sans légende : course ; type et format ; date (ou mois) et **distance**, pour une course Confirmée ou Option (une course Repérée peut rester sans date ni distance : l'étoile disparaît) ; pour une course courue, le **temps**, sauf si « DNF » est cochée. Décidé le 10 nov. 2026.
 - **Exemples** dans les champs vides : « ex. 07:30 », « ex. Mont-Clair », « ex. 3h, 1h30 ou 45 min » (Moins de…), « ex. 02:45:00 » (Temps précis), « ex. Partir prudemment, sous 4 h dans tous les cas », « ex. https://… ».
 - **Objectif normé** : une liste à choix unique (« Aucun », « Finisher », « Moins de… (Sub) », « Temps précis »), puis la durée si le choix en demande une ; rangé comme avant : « Finisher », « Sub 3h » / « Sub 1h30 » / « Sub 45 min », ou un temps `hh:mm:ss`. Tout le reste (intention, fourchette, contexte) va dans **Précisions sur l'objectif** (nom décidé le 10 nov. 2026).
@@ -272,7 +272,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 - **Toucher une ligne du Palmarès** : la feuille en consultation d'une course courue (ci-dessous). **Crayon d'une ligne** : la feuille directement en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
 - **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, seul en bas de la fiche, loin d'« Enregistrer » ; après confirmation, la feuille se ferme.
-- Le formulaire n'ouvre plus de fenêtre par-dessus : « Paramétrer le plan » est dans la page Mon plan, sur un Objectif seulement (décidé le 11 novembre 2026, précisé le 12).
+- Le formulaire n'ouvre plus de fenêtre par-dessus : « Régler les phases » est dans la page Mon plan, sur un Objectif seulement (décidé le 11 novembre 2026, précisé le 12).
 
 ```
 Téléphone · consultation (plein écran)  Téléphone · édition (même écran)
@@ -357,7 +357,7 @@ Les mêmes blocs, **dans le même ordre**, pour une course à venir et une cours
 | 2 | (F15) Place dans le plan | ouvert | replié | À venir : statut, rôle, groupe d'options ; courue : rôle seulement |
 | 3 | (F19) Inscription | ouvert | replié si vide | Numéro, prix ; à venir seulement : ouverture des inscriptions, « Inscrit » (le numéro ne se saisit qu'inscrit), site d'inscription |
 | 4 | (F46) Parcours | replié (ouvert pour une course existante) | replié | Tracé GPX (importer, remplacer, supprimer ; F28) puis stratégie de course, à venir comme courue (depuis le 6 nov. 2026) |
-| 5 | (F20) Préparation | replié (ouvert pour une course existante) | replié | À venir : place dans la saison (F39 à F42), puis rôle dans la préparation ; courue : le rôle seulement (le plan n'est pas rangé : pour une course courue, il serait recalculé, donc inventé) |
+| 5 | (F20) Préparation | replié (ouvert pour une course existante) | replié | À venir : place dans le plan (F39 à F42), puis rôle dans la préparation ; courue : le rôle seulement (le plan n'est pas rangé : pour une course courue, il serait recalculé, donc inventé) |
 | 6 | (F38) Logistique | replié (ouvert pour une course existante) | replié | Logistique |
 | 7 | (F43) Résultat | — | ouvert | Dans l'ordre actuel : d'abord le résultat (**temps, case « DNF » et allure moyenne sur la même ligne**), puis les classements (général, catégorie, sexe : places et effectifs), puis « Résultats en direct », sur toute la largeur. Classements et Résultat ne font plus qu'un bloc (F44 n'est pas utilisé). **Avant la course, le bloc existe aussi, avec ce seul lien** (replié) ; la case ne porte que le libellé « DNF » (décidé le 10 nov. 2026) |
 | 8 | (F45) Montre | — | replié si vide | Temps, distance, D+, D−, allure, FC moyenne |
@@ -491,7 +491,7 @@ Pas d'autre bouton : quitter la page sans « OK » abandonne la proposition ; (5
 | Source | Données |
 |---|---|
 | Course | Date, format, route ou trail, distance, D+, D−, heure de départ, objectif et ses précisions, rôle (Objectif, Préparatoire, Plaisir), ravitaillements (F57) ; avec un GPX, l'altitude de départ et la plus haute, chaque kilomètre (D+, D−, pente moyenne, altitude lissée sur 50 m), les montées et descentes de plus de 100 m (extrêmes successifs à 30 m près) |
-| Mon profil | Sexe, âge, poids, FC de repos, niveau, ancienneté, volume par semaine, plus longue sortie récente, VMA ou temps sur 10 km ou semi, FC max, terrain, points fragiles, blessure en cours |
+| Mon profil | Sexe, âge, poids, FC de repos, niveau, ancienneté, volume par semaine, plus longue séance récente, VMA ou temps sur 10 km ou semi, FC max, terrain, points fragiles, blessure en cours |
 | Palmarès | Les courses courues comparables (même format, ou même type et distance à ± 30 %), sans abandon, des 24 derniers mois, au plus 5 : date, format, distance, D+, temps, allure, FC moyenne |
 | Entraînement | Les séances de course faites des 12 dernières semaines (réalisé, sinon prévu) : par mois, nombre, km, D+ et durée ; la plus longue sortie |
 | Nutrition | Les aliments favoris : nom, portion, calories, glucides |
@@ -725,14 +725,14 @@ Résultats attendus, graphique de difficulté :
 - La ligne relie, dans l'ordre, Trail du Lac, Corrida de Noël, Trail des Gorges, Trail des Crêtes.
 - Trail des Gorges : 66,0, et non 76,5 (le D− n'est pas compté).
 - Survol de Trail des Gorges : bulle « 66,0 km-effort », « Trail des Gorges · 7 mars 2027 · 45 km · 2 100 m D+ » ; le nom ouvre sa page.
-- Sous le graphique, la légende (« Course de préparation », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui cite l'ITRA et donne l'exemple 40 km + 2 000 m de D+ = 60 km-effort. Ligne entre les étapes fine et discrète.
+- Sous le graphique, la légende (« Course », « Course en option », « Objectif »), puis la définition (16), sans filet, en italique, qui cite l'ITRA et donne l'exemple 40 km + 2 000 m de D+ = 60 km-effort. Ligne entre les étapes fine et discrète.
 - Cadre ouvert puis page rechargée : refermé. Téléphone : pas d'étiquettes, rien ne dépasse.
 
 Résultats attendus, page d'une course :
 
 - Trail des Gorges : « Objectif · Étape 3 sur 6 » ; « Trail des Gorges », sans flèche ; « Trail long » ; pas de « S'inscrire » (inscrit) ; « Site officiel ↗ » en bas à droite de la fiche, sur la ligne d'« À PROPOS DE LA COURSE ».
 - Trail des Gorges, fiche encadrée : LIEU Mont-Clair (lien vers OpenStreetMap, nouvel onglet) ; DATE / HEURE dim. 7 mars 2027 · 7 h 30 ; DÉPART DANS `137 j` `22 h` `30 min` `00 s` ; DISTANCE 45 km · 2 100 m D+ · 2 100 m D− ; OBJECTIF 06:30:00 ; INSCRIPTION ● Inscrit · n° 1287 ; ni ligne D−, ni Prix, ni Précisions, ni Résultats en direct (pas le jour J). L'état du dossard n'est écrit qu'une fois sur la page.
-- Trail des Gorges : « À propos de la course » repliée dans le cadre de la fiche, sans filet ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Rôle dans la préparation, « Paramétrer le plan », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
+- Trail des Gorges : « À propos de la course » repliée dans le cadre de la fiche, sans filet ; puis un seul cadre : Parcours (la stratégie ; au lot GPX, « Importer un GPX »), Préparation, qui s'ouvre sur Pourquoi cette course, « Régler les phases », puis le plan de 16 semaines (durée par défaut du format Trail long ; Calendrier, § 5) ; Logistique en dernier ; pas de bloc Liens.
 - Trail des Gorges avec un GPX (boucle fictive de 5,4 km, de 500 à 620 m) : Parcours ouvert, la carte (tracé, départ, arrivée), le profil (620 m et 500 m à gauche, 0 km et 5,4 km dessous), « ↓ GPX » sous les distances du profil, puis la stratégie ; le bouton télécharge « Trail des Gorges.gpx ».
 - Même tracé : lignes d'altitude à 550 et 600 m (légende « 1 trait = 50 m »). Survol à 500 m du départ : « km 0,5 · 536 m · +7 % » et un repère sur la carte ; la souris sort : tout disparaît. Bouton plein écran : la carte s'agrandit, le bouton devient « Quitter le plein écran » ; Échap : retour à la page, la page de la course reste ouverte.
 - Importer la boucle fictive (5,4 km, 500 → 620 → 500 m) sur une course de 10 km : distance 5,4 km, D+ 120 m, D− 120 m, sur la page comme dans la fiche d'édition (où D+ corrigé à 125 puis « Enregistrer » garde 125). Altitudes 100, 102, 100, 101, 110, 108, 111, 105 : D+ 11 m, D− 6 m (le bruit de 3 m ou moins ne compte pas).
@@ -765,7 +765,7 @@ Résultats attendus, saisie et édition (mêmes données, même date) :
 - « + » : le bloc Préparation commence par « Choisis d'abord la date et le format. », sans bouton de réglage. Trail des Lacs, 12 juin 2027, Trail court : « Plan de 12 semaines · début : lun. 22 mars 2027 → jour J : sam. 12 juin 2027 » ; case « Seul le mois est connu » cochée : « Plan de 12 semaines · début : lun. 15 mars 2027 → jour J : mar. 1 juin 2027 » et la mention de la date approximative ; décochée, retour au 12 juin.  « Enregistrer » : une seule écriture, la course (durée du format ; le plan se règle ensuite dans Préparation).
 - Page Trail des Gorges, « Modifier » : formulaire rempli ; objectif changé en `6:15:00` : la page affiche « 06:15:00 ».
 - Page Trail de la Forêt (juillet 2027, date approximative) : la rubrique Préparation porte la mention. « Modifier » : « … jour J : jeu. 1 juil. 2027 » ; case décochée, date du 4 juillet : « … jour J : dim. 4 juil. 2027 », sans mention ; « Enregistrer » : la course, puis ses phases remises aux règles.
-- Trail des Gorges avec sa semaine 5 (14 décembre) réglée en Deload, date passée au 14 mars 2027 : « Plan de 16 semaines · début : lun. 23 nov. 2026 … » ; « Enregistrer » : la semaine réglée devient celle du 21 décembre, toujours la semaine 5.
+- Trail des Gorges avec sa semaine 5 (14 décembre) réglée en Allègement, date passée au 14 mars 2027 : « Plan de 16 semaines · début : lun. 23 nov. 2026 … » ; « Enregistrer » : la semaine réglée devient celle du 21 décembre, toujours la semaine 5.
 - Page Trail des Gorges, « Modifier » : le bloc Préparation commence par « Plan de 16 semaines · début : lun. 16 nov. 2026 → jour J : dim. 7 mars 2027 », et la frise, sans bouton de réglage. « Enregistrer » : une seule écriture, la durée et les phases du plan ne sont pas touchées.
 - Supprimer Corrida de Noël, confirmation acceptée : elle disparaît ; l'en-tête affiche « 4 courses ».
 - Page Trail des Cimes, « Retenir cette course », confirmation acceptée : Trail des Cimes devient une étape Confirmée au 30 mai 2027 ; Ultra du Plateau quitte la saison (Repérée) ; la carte Printemps 2027 disparaît ; l'en-tête affiche « 5 courses ».

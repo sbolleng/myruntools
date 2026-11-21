@@ -34,7 +34,7 @@
       '<span class="ob-role">' + esc(statut(c)) + '</span><span class="ob-date">' + dateCourte(c) + '</span>' +
       '<h3 class="ob-nom">' + nomHtml(c) + '</h3>' +
       '<p class="cs-bas">' + (site
-        ? '<a class="cs-site" href="' + esc(site) + '" target="_blank" rel="noopener">Site officiel ' + FLECHE + '</a>'
+        ? '<a class="mrt-lien cs-site" href="' + esc(site) + '" target="_blank" rel="noopener">Site officiel ' + FLECHE + '</a>'
         : '<span class="cs-site is-off" aria-disabled="true">Site officiel ' + FLECHE + '</span>') + '</p>' +
       (lieuFormat(c) ? '<p class="ob-info">' + esc(lieuFormat(c)) + '</p>' : '') +
       '<div class="ob-lignes">' + (dist ? ligne('Distance', '<span class="ob-val">' + esc(dist) + '</span>') : '') +
@@ -78,7 +78,7 @@
     { k: 'dossard', lib: 'Numéro de dossard', cle: c => c.dossard || null, txt: c => c.dossard || '' },
     { k: 'prix', lib: 'Prix', cle: c => (c.prix != null ? Number(c.prix) : null), txt: c => (c.prix != null ? nb(c.prix) + ' €' : '') },
     { k: 'strategie', lib: 'Stratégie de course', cle: c => c.strategie || null, html: c => texteLong(c.strategie) },
-    { k: 'pourquoi', lib: 'Rôle dans la préparation', cle: c => c.pourquoi || null, html: c => texteLong(c.pourquoi) },
+    { k: 'pourquoi', lib: 'Pourquoi cette course', cle: c => c.pourquoi || null, html: c => texteLong(c.pourquoi) },
     { k: 'logistique', lib: 'Logistique', cle: c => c.logistique || null, html: c => texteLong(c.logistique) },
     { k: 'gpx', lib: 'Tracé GPX', cle: c => (c.gpx ? '1' : null), txt: c => (c.gpx ? 'Importé' : '') },
     { k: 'temps', lib: 'Temps', cle: c => (c.dnf ? null : c.temps != null ? Number(c.temps) : null), txt: c => (c.dnf ? 'DNF' : dur(c.temps)) },
@@ -192,7 +192,7 @@
         return '<th aria-sort="' + (actif ? (sens === 'desc' ? 'descending' : 'ascending') : 'none') + '"><button type="button" class="mrt-tri" data-col="' + k + '">' + lib + TRI + '</button></th>';
       }).join('') + '</tr></thead><tbody>' +
       liste.map(c => ligneTableau(c, cols)).join('') + '</tbody></table></div></div>';
-    el.innerHTML = haut + (liste.length ? (etat.mode === 'tableau' ? tableau : '<div class="cs-liste">' + html + '</div>') : '<p class="ob-vide cs-vide">' + (actifs ? 'Aucune course ne correspond aux filtres.' : 'Aucune course.') + '</p>');
+    el.innerHTML = haut + (liste.length ? (etat.mode === 'tableau' ? tableau : '<div class="cs-liste">' + html + '</div>') : '<p class="ob-vide cs-vide">' + (actifs ? 'Aucune course ne correspond aux filtres.' : 'Aucune course pour l\'instant : « Ajouter une course » range ici celles qui t\'intéressent, à venir ou déjà courues.') + '</p>');
     couperNoms();
 
     const sur = (sel, f) => el.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => f(b)));

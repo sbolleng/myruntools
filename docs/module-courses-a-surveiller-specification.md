@@ -1,6 +1,6 @@
 # Courses à surveiller · spécification fonctionnelle
 
-Version 0.10 · 20 novembre 2026 · [Retour au sommaire](README.md) · Jalon 2
+Version 0.11 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Pourquoi cette course », « Site officiel » en lien d'action commun, message d'une liste vide qui dit quoi faire.
 
 ## 1. Rôle
 

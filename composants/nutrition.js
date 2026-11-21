@@ -256,7 +256,7 @@
         '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal</p><p class="nu-phase"></p>' +
         '<p class="nu-calcule"><button type="button" class="mrt-lien nu-profil-l" data-act="profil">Calculé pour ' + esc(htmlProfil()) + '</button></p>' +
         '<div class="nu-anneaux"></div>' +
-        '<div class="nu-tuiles"><button type="button" class="nu-tuile mrt-btn is-principal" data-act="activite" title="Ajouter une activité">' + mrtIcone.plus + '<span class="nu-tuile-l">Activité</span>' + PICTO_HALTERE + '</button>' +
+        '<div class="nu-tuiles"><button type="button" class="nu-tuile mrt-btn is-principal" data-act="activite" title="Ajouter une séance">' + mrtIcone.plus + '<span class="nu-tuile-l">Séance</span>' + PICTO_HALTERE + '</button>' +
         '<button type="button" class="nu-tuile mrt-btn is-principal" data-act="ajout-repas" title="Ajouter un repas">' + mrtIcone.plus + '<span class="nu-tuile-l">Repas</span>' + PICTO_ASSIETTE + '</button></div>' +
         '<p class="nu-msg nu-msg-sport" role="alert">' + esc(S.msgSport) + '</p>';
     }
@@ -366,7 +366,7 @@
       const lignesSeances = ss.map(x => '<li class="nu-seance-l' + (compte(x) ? '' : ' is-non-comptee') + '"><label class="nu-faite"><input type="checkbox" data-faite="' + x.id + '"' + (x.faite ? ' checked' : '') + ' aria-label="Faite : ' + esc(x.libelle) + '"></label>' +
         '<button type="button" class="nu-ligne" data-act="seance" data-id="' + x.id + '"><span class="nu-ligne-nom">' + esc(texteSeance(x)) + '</span>' + (compte(x) ? '' : '<span class="nu-ligne-k">non faite</span>') + '</button></li>').join('');
       const lignesAutres = S.sports.map((x, i) => ligne('data-act="ligne-sport" data-i="' + i + '"', esc(ligneSportTexte(x)), '')).join('');
-      const activite = '<div class="nu-repas nu-activites">' + tete('Activité', '', plus('activite', null, 'Activité')) +
+      const activite = '<div class="nu-repas nu-activites">' + tete('Séances', '', plus('activite', null, 'Séance')) +
         (lignesSeances || lignesAutres ? '<ul class="nu-lignes">' + lignesSeances + lignesAutres + '</ul>' : '') + '</div>';
       return '<h2 class="nu-titre">Journal du jour</h2>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') + repas + activite;
     }
@@ -412,7 +412,7 @@
       const z = zoneActivite();
       if (!z || feuille.seance) return;
       z.innerHTML = htmlActivite();
-      barreFeuille('Ajouter une activité', false);
+      barreFeuille('Ajouter une séance', false);
     };
     function ecranSeance(opts) {
       if (!feuille || feuille.type !== 'activite') ouvrirFeuille('activite'); else glisser('avant');
@@ -435,7 +435,7 @@
       voile.innerHTML = '<div class="mc-panneau mc-ecrans mc-etroit nu-feuille" role="dialog" aria-modal="true" aria-labelledby="nu-feuille-titre" tabindex="-1"><div class="mc-corps">' +
         '<div class="pc-barre"><button type="button" class="mrt-rond nu-retour" data-act="retour" aria-label="Retour" title="Retour" hidden>' + mrtIcone.gauche + '</button>' +
         '<button type="button" class="mrt-rond is-fermer" data-act="fermer" aria-label="Fermer" title="Fermer">' + mrtIcone.fermer + '</button></div>' +
-        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : type === 'activite' ? 'Ajouter une activité' : '') + '</p>' +
+        '<p class="fc-libelle" id="nu-feuille-titre">' + (type === 'repas' ? 'Ajouter un aliment' : type === 'activite' ? 'Ajouter une séance' : '') + '</p>' +
         '<div class="mc-ecran nu-' + ZONE[type] + '"></div></div></div>';
       document.body.appendChild(voile);
       document.documentElement.classList.add('mc-ouvert');
@@ -640,7 +640,7 @@
       }, async () => {
         S.sports.splice(i, 1);
         await ranger();
-      }, 'Supprimer cette activité ?');
+      }, 'Supprimer cette séance ?');
     }
 
     // ----- Sport du jour : rangé dans la base, jour par jour -----

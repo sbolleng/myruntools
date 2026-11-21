@@ -1,12 +1,12 @@
 # Guide · spécification fonctionnelle
 
-Version 0.1 · 12 novembre 2026 · [Retour au sommaire](README.md)
+Version 0.2 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Construire le plan », « préparation » pour la période vers un Objectif, Allègement ; lien depuis Mon plan et Nutrition.
 
 ## 1. Rôle
 
 Un article de lecture qui explique comment MyRunTools construit un plan de préparation et calcule la nutrition : règles, valeurs, exemples chiffrés, sources et limites.
 
-- Page `guide.html` (module « Guide » du catalogue, `composants/donnees.js`, avec `adresse` et sans `page`) : **hors du menu**, accessible seulement par son adresse ; connexion requise ; `noindex`.
+- Page `guide.html` (module « Guide » du catalogue, `composants/donnees.js`, avec `adresse` et sans `page`) : **hors du menu** ; on y arrive par les liens d'action en bas de Mon plan (« Comment MyRunTools construit ton plan », vers `#saison`) et de Nutrition (« Comment MyRunTools calcule ton besoin », vers `#nutrition`) ; connexion requise ; `noindex`.
 - Ton impersonnel (ni « tu », ni « vous »), style article ; vocabulaire du glossaire ([design](design.md), § 12).
 - **Rien d'inventé** : chaque règle, valeur ou source vient des spécifications [Préparation](module-preparation-specification.md) (§ 2 à 4, 3.5, 6), [Nutrition](module-nutrition-specification.md) (§ 2 et 3), [Mon profil](module-profil-specification.md) et [Calendrier](module-calendrier-specification.md) (§ 5.1, 5.4), ou du code (`preparation.js`, `besoin.js`). Une règle qui change là change ici.
 - Design commun seulement : cadres, `mrt-section`, `details.mrt-deroule`, liens, tableaux, échelle, couleurs des phases (`preparation.css`) ; `composants/guide.css` ne fait que la mise en page.
@@ -17,11 +17,11 @@ Un article de lecture qui explique comment MyRunTools construit un plan de prép
 (1) Guide                                           (h1 invisible)
 (2) ┌ Du plan à l'assiette ─────────────────────────────────┐
     │ (3) chapeau                                           │
-    │ (4) 1. Préparer une saison · 2. Bien manger… · 3. Nos sources… │
+    │ (4) 1. Construire le plan · 2. Bien manger… · 3. Nos sources… │
     └───────────────────────────────────────────────────────┘
-(5) ┌ PARTIE 1 · Préparer une saison ───────────────────────┐
-    │ (6) Une saison plutôt qu'une course (trois couches ;   │
-    │     (7) frise d'une saison : Entretien, 16 sem., Récupération ; │
+(5) ┌ PARTIE 1 · Construire le plan ─────────────────────────┐
+    │ (6) Un plan pour toutes les courses (trois couches ;   │
+    │     (7) frise d'une préparation : Entretien, 16 sem., Récupération ; │
     │     (8) ▸ Durée de la préparation, format par format)  │
     │ Trois rôles · Les phases (frise de 16 semaines numérotées) │
     │ L'affûtage ((9) jauges 100 % / 40 à 59 %)              │
@@ -69,4 +69,5 @@ Banc d'essai, groupe `guide` (et `uniformite`, `vocabulaire`, `affichage`) :
 - À 1 200 et 375 px : page affichée, sans erreur ; titre « Guide · MyRunTools » ; `noindex` ; un seul h1, « Guide », invisible ; titre visible « Du plan à l'assiette » ; trois parties dans l'ordre ; frises de 27 et 16 semaines ; 6 et 41 jours de récupération ; trois déroulés fermés ; ni « tu » ni « vous » ; liens des sources dans un nouvel onglet ; aucun débordement, déroulé ouvert compris (375 px).
 - Menu présent, aucun onglet Guide ni onglet actif, même avec « Guide » dans le menu enregistré.
 - Sans session : renvoi vers la connexion.
+- Mon plan et Nutrition : un lien d'action vers la partie du Guide qui les explique, en bas de page.
 - Tailles de l'échelle seulement (titre de l'article hors échelle permis) ; aucun ancien mot du glossaire ; page affichée sans saut.

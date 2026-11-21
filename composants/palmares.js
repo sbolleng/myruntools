@@ -65,7 +65,6 @@
   const REDUIRE = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const LAYERS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l6 3-6 3-6-3z M2 8l6 3 6-3 M2 11l6 3 6-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const PLUS = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-  const PENCIL = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
   // Filtres : trois traits de plus en plus courts, l'usage courant.
   const COLONNES = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v9h-11z M6.2 3.5v9 M9.8 3.5v9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   const FILTRE = '<svg class="pv2-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M4.75 8h6.5M7 11.5h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
@@ -261,7 +260,7 @@
         '</div></div>' +
       '</div>' +
       // Téléphone tenu en hauteur : le tableau déborde ; un site ne peut pas tourner l'écran, il y invite.
-      '<p class="pv2-paysage">↻ Tourne ton téléphone pour voir toutes les colonnes.</p>' +
+      '<p class="pv2-paysage">Tourne ton téléphone pour voir toutes les colonnes.</p>' +
       '<div class="card pv2-card"><h2 class="mg-titre is-fixe pv2-titre">Résultats</h2><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>' +
       '<div class="pv2-graphe"></div>';
 
@@ -324,9 +323,9 @@
         const rec = c.key === 'time' && r.record ? ' <span class="pv2-rec" role="img" aria-label="record" title="Record · ' + esc(r.v.sub) + '">🥇</span>' : '';
         const cls = c.kind === 'text' ? ' class="pv2-t"' : c.kind === 'choice' ? '' : ' class="pv2-n"';
         return '<td' + cls + '>' + fmtCell(c, r.v[c.key], r) + rec + '</td>';
-      }).join('') + '<td class="pv2-pad">' + (cfg.editable && r.id ? '<button type="button" class="pv2-edit" data-edit="' + esc(r.id) + '" aria-label="Modifier la course" title="Modifier la course">' + PENCIL + '</button>' : '') + '</td></tr>';
+      }).join('') + '<td class="pv2-pad">' + (cfg.editable && r.id ? '<button type="button" class="mrt-rond pv2-edit" data-edit="' + esc(r.id) + '" aria-label="Modifier la course" title="Modifier la course">' + window.mrtIcone.crayon + '</button>' : '') + '</td></tr>';
       let body;
-      if (!list.length) body = '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">Aucune course ne correspond aux filtres.</td></tr>';
+      if (!list.length) body = '<tr><td class="pv2-none" colspan="' + (cols.length + 1) + '">' + (rows.length ? 'Aucune course ne correspond aux filtres.' : 'Aucune course courue pour l\'instant : « Ajouter une course » range ici tes résultats.') + '</td></tr>';
       else if (!state.group) body = list.map(line).join('');
       else {
         // Un groupe par type présent, dans l'ordre de la liste de référence ;
