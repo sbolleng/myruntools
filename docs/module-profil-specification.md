@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.8 · 20 novembre 2026 · [Retour au sommaire](README.md) · Profil express : « Continuer » (en bas à droite) à la place d'« Enregistrer »
+Version 0.9 · 21 novembre 2026 · [Retour au sommaire](README.md) · Santé simplifiée (« Points fragiles et blessures passées » remplace les antécédents) ; durée maximale d'une séance supprimée
 
 ## 1. Rôle
 
@@ -27,12 +27,12 @@ Jeu d'essai, au 20 octobre 2026 (§ 5).
     │ Niveau · Distance moyenne par semaine · Plus longue sortie récente │
     │ Repère d'allure                 À renseigner › │
     │ (6) ┆ Dans ton Palmarès : Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026  [Reprendre] ┆
-    │ Durée maximale d'une séance · Terrains d'entraînement · Niveau en renforcement │
+    │ Terrains d'entraînement · Niveau en renforcement │
 (7) MA SEMAINE                                       0 sur 1
     │ Course          mar., jeu., sam. · 3 séances, longue le samedi › │
     │ Renforcement                         mar., jeu. · 1 séance     › │
 (8) SANTÉ
-    │ FC max · FC de repos · Points fragiles │
+    │ FC max · FC de repos · Points fragiles et blessures passées · Blessure en cours │
 ```
 
 | N° | Élément | Contenu |
@@ -61,14 +61,15 @@ Site partagé en lecture seule : « Le profil n'est pas partagé. »
 | Moi | Pointure | 30 à 55, demi-pointures | — | `profils.pointure` |
 | Mon niveau | Niveau (Débutant, Intermédiaire, Confirmé, Expert, chacun décrit ; remplace « Je cours depuis » le 17 nov. 2026), Distance moyenne par semaine, Plus longue sortie récente | Tranches ([Préparation](module-preparation-specification.md), § 5.2) | Mon plan (IA) | `profil_entrainement` |
 | Mon niveau | Repère d'allure | VMA (8 à 30 km/h), temps sur 10 km ou sur semi, ou « Je ne sais pas » | Mon plan (IA) | `profil_entrainement` |
-| Mon niveau | Durée maximale d'une séance, Terrains d'entraînement, Niveau en renforcement | Listes | — | `profil_entrainement` |
+| Mon niveau | Terrains d'entraînement, Niveau en renforcement | Listes | — | `profil_entrainement` |
 | Ma semaine | Course | Jours possibles, nombre de séances (0 à 7), jour de la sortie longue | Mon plan (IA) | `profil_entrainement` |
 | Ma semaine | Renforcement | Jours possibles, nombre de séances (0 à 7) | — | `profil_entrainement` |
 | Santé | FC max | 100 à 230 bpm | — | `profil_entrainement.fc_max` |
 | Santé | FC de repos | 30 à 120 bpm | — | `profils.fc_repos` |
-| Santé | Antécédents de blessures | Rarement ou jamais · Légères, ou une grave guérie · Fréquentes ou récentes · Je préfère ne rien dire (facultatif) | Mon plan (IA) | `profil_entrainement.antecedents` (évolution 038) |
-| Santé | Points fragiles | Texte, 300 caractères au plus | — | `profil_entrainement.fragiles` |
+| Santé | Points fragiles et blessures passées | Texte libre, 300 caractères au plus (« tendinite d'Achille en 2024, genou droit sensible ») | — | `profil_entrainement.fragiles` |
 | Santé | Blessure en cours | Texte (300 caractères) et date de début (pas dans le futur) ; « Plus de blessure » l'efface | — | `profil_entrainement.blessure`, `blessure_debut` (évolution 034) |
+
+Évolution `044-profil-simplifie.sql` : supprime `antecedents` et `seance_max_min`.
 
 **Une seule VMA, une seule FC max** : celles de `profil_entrainement` ; les colonnes en double de `profils` sont supprimées (évolution 033, qui reprend leurs valeurs quand elles manquent). Nutrition lit la VMA de Mon profil.
 

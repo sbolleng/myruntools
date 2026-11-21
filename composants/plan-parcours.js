@@ -65,7 +65,8 @@
     allure: 'Repère d\'allure', semaine: 'Ma semaine', debut: 'Début', recap: 'Récapitulatif', prepa: 'Ta course préparatoire', avis: 'Ta course préparatoire' };
   const e = st => st.etat.entrainement || {};
   const semaineFaite = pr => !!PR().resumeCourse(pr) && PR().joursDe(pr, 'jours_course').length >= (pr.nb_sorties || 0);
-  const FAIT = { niveau: pr => !!pr.niveau, blessures: pr => !!pr.antecedents, volume: pr => !!pr.volume_tranche && !!pr.sortie_tranche, allure: pr => PR().allureFaite(pr), semaine: semaineFaite };
+  // Blessures : facultatif, posé une fois, au premier parcours (donc fait dès que le niveau l'est).
+  const FAIT = { niveau: pr => !!pr.niveau, blessures: pr => !!(pr.niveau || pr.fragiles || pr.blessure), volume: pr => !!pr.volume_tranche && !!pr.sortie_tranche, allure: pr => PR().allureFaite(pr), semaine: semaineFaite };
 
   // opts.prepa : l'ajout d'une course préparatoire (§ 5.1, n° 27), pour l'Objectif opts.objectif ; opts.fenetre : la fenêtre conseillée d'abord.
   function nouveau(ctx, opts) {
@@ -170,13 +171,12 @@
     }
     if (k === 'niveau') return '<div class="ps-groupe-l">' + PRf.ECHELLES.niveau.map(([v, lib]) => choix('data-val', v, pr.niveau === v, PRf.choixTexte('niveau', v, lib))).join('') + '</div>';
     if (k === 'blessures') {
-      // Points fragiles (durables) ; « Blessé en ce moment ? » Non (d'office) ou Oui, et alors « Quoi et où ? » ; la date : celle du jour.
-      const det = st.detail, bz = st.bless || (st.bless = { fragiles: pr.fragiles || '', oui: !!pr.blessure, blessure: pr.blessure || '' });
-      return '<div class="ps-groupe-l">' + PRf.ECHELLES.antecedents.map(([v, lib]) => choix('data-antecedent', v, pr.antecedents === v, PRf.choixTexte('antecedents', v, lib))).join('') + '</div>' +
-        (det ? '<form class="ps-valeur pp-form" novalidate><label class="cal-champ"><span>Points fragiles</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="2" placeholder="ex. tendon d\'Achille gauche">' + esc(bz.fragiles) + '</textarea></label>' +
+      // Points fragiles (durables, antécédents compris) ; « Blessé en ce moment ? » Non (d'office) ou Oui, et alors « Quoi et où ? » ; la date : celle du jour.
+      const bz = st.bless || (st.bless = { fragiles: pr.fragiles || '', oui: !!pr.blessure, blessure: pr.blessure || '' });
+      return '<form class="ps-valeur pp-form" novalidate><label class="cal-champ"><span>Points fragiles et blessures passées</span><textarea class="mrt-champ" name="fragiles" maxlength="300" rows="2" placeholder="ex. tendinite d\'Achille en 2024, genou droit sensible">' + esc(bz.fragiles) + '</textarea></label>' +
           '<div class="cal-champ pp-blesse"><span>Blessé en ce moment ?</span><div class="ps-coches">' + pastille('data-blesse', 'non', !bz.oui, 'Non') + pastille('data-blesse', 'oui', bz.oui, 'Oui') + '</div></div>' +
           (bz.oui ? '<label class="cal-champ"><span>Quoi et où ?</span><textarea class="mrt-champ" name="blessure" maxlength="300" rows="2" placeholder="ex. entorse de la cheville droite">' + esc(bz.blessure) + '</textarea></label>' : '') +
-          '</form>' + continuer : '');
+          '</form>' + continuer;
     }
     if (k === 'volume') {
       const grp = (cle, lib) => '<div class="ps-sem-q"><p class="cal-champ"><span>' + lib + '</span></p><div class="ps-coches">' + PRf.ECHELLES[cle].map(([v, l]) => pastille('data-vol', cle + '|' + v, pr[cle] === v, l)).join('') + '</div></div>';
@@ -205,7 +205,7 @@
       texte(o.titre + (o.reco ? ' <span class="pp-role">Recommandée</span>' : ''), o.sous))).join('') + '</div>';
     // Récapitulatif : une ligne par réponse, chacune ramène à son écran.
     const d = st.debut || {};
-    const lignes = [['niveau', 'Niveau', PRf.libelleDe('niveau', pr.niveau)], ['blessures', 'Blessures', PRf.libelleDe('antecedents', pr.antecedents)],
+    const lignes = [['niveau', 'Niveau', PRf.libelleDe('niveau', pr.niveau)], ['blessures', 'Blessures', pr.blessure ? 'En ce moment : ' + pr.blessure : pr.fragiles || 'Rien à signaler'],
       ['volume', 'Volume', pr.volume_tranche && pr.sortie_tranche ? PRf.libelleDe('volume_tranche', pr.volume_tranche) + ' · ' + PRf.libelleDe('sortie_tranche', pr.sortie_tranche) : null],
       ['allure', 'Repère d\'allure', PRf.resumeAllure(pr)], ['semaine', 'Ma semaine', PRf.resumeCourse(pr)],
       ['debut', 'Début', d.mode === 'perso' ? 'Personnalisé' : d.debut ? longue(d.debut) + ' · ' + d.n + (d.n > 1 ? ' semaines' : ' semaine') : null]];
@@ -298,13 +298,6 @@
         return ctx.actualiser();
       }
       if (b('[data-val]') && courant(st) === 'niveau') { if (await ranger(ctx, st, { niveau: b('[data-val]').dataset.val })) suivant(ctx, st); return redessiner(); }
-      if (b('[data-antecedent]')) {
-        const v = b('[data-antecedent]').dataset.antecedent, f0 = root.querySelector('.pp-form');
-        if (f0 && st.bless) { st.bless.fragiles = f0.fragiles.value; if (f0.blessure) st.bless.blessure = f0.blessure.value; } // le texte tapé reste
-        if (!(await ranger(ctx, st, { antecedents: v }))) return redessiner();
-        if (v === 'legeres' || v === 'frequentes') { st.detail = true; return redessiner(); }
-        suivant(ctx, st); return redessiner();
-      }
       // Les champs tapés restent quand l'écran se redessine.
       const lireBless = () => { const f = root.querySelector('.pp-form'); if (f && st.bless) { st.bless.fragiles = f.fragiles.value; if (f.blessure) st.bless.blessure = f.blessure.value; } };
       if (b('[data-blesse]') && st.bless) { lireBless(); st.bless.oui = b('[data-blesse]').dataset.blesse === 'oui'; st.msg = ''; return redessiner(); }
@@ -386,7 +379,7 @@
   // « Construire mon plan » : le rôle Objectif (Confirmée), le rôle des courses qui chevauchent, la durée ; puis la page et l'IA.
   async function construire(ctx, st, x) {
     const pr = e(st);
-    const manque = ['niveau', 'blessures', 'volume', 'allure', 'semaine'].find(k => !FAIT[k](pr));
+    const manque = ['niveau', 'volume', 'allure', 'semaine'].find(k => !FAIT[k](pr));
     if (manque) { st.msg = 'Il manque une réponse : ' + TITRES[manque].toLowerCase() + '.'; return ctx.redessiner(); }
     if (!st.debut) { st.msg = 'Choisis le début du plan.'; return ctx.redessiner(); }
     st.encours = true; ctx.redessiner();

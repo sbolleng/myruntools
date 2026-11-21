@@ -241,7 +241,6 @@ create table profil_entrainement (
   sortie_longue_unite text check (sortie_longue_unite in ('km', 'h')),
   jours              smallint[] check (jours <@ array[1, 2, 3, 4, 5, 6, 7]::smallint[]),
   jour_long          smallint check (jour_long between 1 and 7),
-  seance_max_min     integer check (seance_max_min between 10 and 1440),
   semaine_max_h      numeric(4,1) check (semaine_max_h > 0 and semaine_max_h <= 60),
   vma                numeric(4,1) check (vma between 8 and 30),
   temps_10km_s       integer check (temps_10km_s between 1200 and 7200),
@@ -266,9 +265,8 @@ create table profil_entrainement (
   jours_renfo  smallint[] check (jours_renfo <@ array[1, 2, 3, 4, 5, 6, 7]::smallint[]),
   nb_sorties   smallint check (nb_sorties between 0 and 7),
   nb_renfo     smallint check (nb_renfo between 0 and 7),
-  -- Évolution 038 : niveau (remplace anciennete), antécédents de blessures, repère sur marathon.
+  -- Évolution 038 : niveau (remplace anciennete), repère sur marathon (les antécédents et la durée maximale d'une séance : supprimés, évolution 044).
   niveau           text check (niveau in ('debutant', 'intermediaire', 'confirme', 'expert')),
-  antecedents      text check (antecedents in ('rares', 'legeres', 'frequentes', 'non_dit')),
   temps_marathon_s integer check (temps_marathon_s between 6600 and 28800)
 );
 
