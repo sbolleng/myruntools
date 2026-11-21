@@ -60,6 +60,7 @@ Dans l'ordre :
 18. [ ] **Prévoir un profil piste ?**
 19. [ ] **Bouton « Laisser un avis »** : envoie un message à l'adresse contact@ du site, à mettre en place (lien avec les mentions légales) ; place du bouton et forme (lien e-mail ou formulaire) à décider (ajouté le 1er nov. 2026).
 20. [ ] **Guide** ([spécification 0.1](module-guide-specification.md), en ligne) : **rappel : me trouver les liens** des deux sources de nutrition, la formule de Black et al. (métabolisme de base) et l'équation de course de l'ACSM ; elles sont citées sans lien d'ici là (ajouté le 13 nov. 2026).
+21. [ ] **Mes stats** ([spécification 0.1](module-stats-specification.md), 21 nov. 2026) : à valider ; puis modèle de données (`activites`, `analyses_stats`, origine `import`, clé « Stats »), fonction `analyser-stats`, page `stats.html`, feuille d'import (aussi dans Mon profil, section Connexions, voir n° 10) ; avant la construction, vérifier sur une archive Strava réelle les intitulés des colonnes et l'unité de la cadence (archive jamais versée au dépôt). Seuils des allures (% de la VMA) et cible de l'écart de spécificité à confirmer.
 
 ## Questions ouvertes
 

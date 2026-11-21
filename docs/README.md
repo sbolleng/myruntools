@@ -48,6 +48,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Mon profil](module-profil-specification.md) | Tout ce qui décrit le coureur, en une page et une feuille commune : Moi, Mon niveau, Ma semaine, Santé ; repère d'allure tiré du Palmarès | Version 0.7, construit |
 | [Guide](module-guide-specification.md) | Article de lecture, hors du menu : comment MyRunTools construit un plan de préparation et calcule la nutrition ; sources et limites | Version 0.1, construit |
 | [Module Préparation](module-preparation-specification.md) | Un plan de préparation qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 1.3, lots 1 à 4 construits (lot 3 réservé aux pilotes ; lot 4 : un seul plan, page « Mon plan ») |
+| [Mes stats](module-stats-specification.md) | Progression mois par mois (volume, D+, allure-effort, cadence, efficience cardiaque, écart de spécificité), meilleurs temps, temps estimés, allures, zones cardiaques ; analyse de l'IA ; import de l'export Strava | Version 0.1, à valider |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -83,4 +84,5 @@ En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [tod
 2. **Objectif** : essai réel du GPX à plusieurs tracés ; cap de l'en-tête depuis la page d'une course ; stratégie de course.
 4. **Calendrier** : Mois V2 à comparer avec Mois, puis n'en garder qu'une.
 6. **Ouverture à tous, suites** : plafond de l'IA à remettre, essai d'un compte non pilote, droits RGPD dans les Préférences, polices hébergées.
+21. **Mes stats** : [spécification 0.1](module-stats-specification.md) à valider, puis modèle de données et construction ; vérifier sur une archive Strava réelle les colonnes et la cadence.
 15. **Nutrition** : vue Semaine ; choix de l'unité dans la feuille d'ajout (en attente de décision) ; Ciqual.
