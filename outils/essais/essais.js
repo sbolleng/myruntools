@@ -524,14 +524,14 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'index.html', 390, d, {}, PARIS));
     await p.waitForSelector('.ac-decouverte');
     const lignesDec = () => p.evaluate(() => [...document.querySelectorAll('.ac-decouverte li')].map(l => l.querySelector('b').textContent + (l.querySelector('input').checked ? ' ✓' : '')));
-    pb.push(egal([['premiers', 'decouverte'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès ✓', 'Nutrition'], 'Options'],
+    pb.push(egal([['premiers', 'decouverte'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès ✓', 'Mes stats', 'Nutrition'], 'Options'],
       [await blocs(p), await lignesDec(), await p.textContent('.ac-options')], 'découverte : sous les Premiers pas, sept modules dans l\'ordre, les options après, cases « Au menu »'));
     const onglets = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => (t.getAttribute('aria-label') || t.textContent).trim()));
     await p.check('[data-menu="Nutrition"]');
     await p.waitForFunction(() => [...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Nutrition'));
     await p.uncheck('[data-menu="Palmarès"]');
     await p.waitForFunction(() => ![...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Palmarès'));
-    pb.push(egal([['En un coup d\'œil', 'Saison', 'Calendrier', 'Nutrition', 'Courses', 'Mon profil'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès', 'Nutrition ✓']],
+    pb.push(egal([['En un coup d\'œil', 'Saison', 'Calendrier', 'Nutrition', 'Courses', 'Mon profil'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès', 'Mes stats', 'Nutrition ✓']],
       [await onglets(), await lignesDec()], 'découverte : Nutrition ajoutée au menu à sa place, Palmarès retiré'));
     await p.click('[data-compris]');
     await p.waitForFunction(() => !document.querySelector('.ac-decouverte'));
@@ -2808,7 +2808,7 @@ const CONTROLES = {
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
-    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue sortie récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 'Mon profil', 1],
+    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue sortie récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Connexions'], 'Mon profil', 'Mon profil', 1],
       [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
