@@ -1005,12 +1005,16 @@ const CONTROLES = {
       const moi = db.profils[0].id, chemin = n => 'traces/' + moi + '/' + n + '.gpx';
       const avecTrace = JSON.parse(JSON.stringify(db));
       avecTrace.courses.find(c => c.id === id(3)).gpx = moi + '/' + id(3) + '.gpx';
+      avecTrace.courses.find(c => c.id === id(3)).ravitaillements_km = [2, 4.5, 8];
       avecTrace.fichiers = { [chemin(id(3))]: GPX };
       let o = await ouvrir(nav, 'course.html?id=' + id(3), 1200, avecTrace, {}, PARIS);
       pb.push(egal(true, await o.p.evaluate(() => document.querySelector('#parcours').open), 'Parcours renseigné (tracé GPX) : ouvert d\'emblée'));
       await o.p.evaluate(() => { const d = document.querySelector('#parcours'); if (!d.open) d.querySelector('summary').click(); });
       await o.p.waitForSelector('.tr-carte .leaflet-overlay-pane path', { timeout: 8000 });
-      pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'pc-strategie', 'st-zone'], strategie: 'Stratégie de course', bouton: 'GPX', boutonClasse: true }, await o.p.evaluate(() => ({
+      // Ravitaillements sur le profil (§ 3.10, n° 56) : un trait par km du tracé (5,37 km) ; le km 8, au-delà, n'est pas dessiné.
+      pb.push(egal([['2', '4,5'], ['37.25%', '83.82%']], await o.p.evaluate(() => { const r = [...document.querySelectorAll('.tr-trace .tr-ravito')]; return [r.map(x => x.textContent), r.map(x => x.style.left)]; }),
+        'profil : les ravitaillements en traits pointillés, km en haut'));
+      pb.push(egal({ alt: ['620 m', '500 m'], km: ['0 km', '5,4 km'], bornes: 3, ordre: ['tr-zone', 'pc-ravitos', 'pc-strategie', 'st-zone'], strategie: 'Stratégie de course', bouton: 'GPX', boutonClasse: true }, await o.p.evaluate(() => ({
         alt: [...document.querySelectorAll('.tr-alt span')].map(x => x.textContent), km: [...document.querySelectorAll('.tr-km span')].map(x => x.textContent.replace(/[  ]/g, ' ')),
         bornes: document.querySelectorAll('.tr-carte .leaflet-overlay-pane path').length,
         ordre: [...document.querySelector('#parcours .pc-corps').children].map(x => x.className || x.tagName), strategie: document.querySelector('.pc-strategie .pc-sous-titre').textContent,
@@ -1099,9 +1103,9 @@ const CONTROLES = {
       form.persister = true; form.ecritures = [];
       o = await ouvrir(nav, 'course.html?id=' + id(1), 1200, form, {}, PARIS);
       await o.p.click('[data-ob="modifier"]'); await o.p.waitForSelector('.fc-fiche');
-      pb.push(egal('Aucun tracé', (await o.p.textContent('.fc-gpx-etat')).trim(), 'formulaire : bloc Course, « Tracé GPX », aucun tracé'));
+      pb.push(egal([['Importer un tracé'], 0], [await o.p.locator('.fc-gpx button').allTextContents(), await o.p.locator('.fc-gpx-etat').count()], 'formulaire : « Tracé GPX », sans tracé : « Importer un tracé » seul, sans ligne d\'état'));
       await o.p.setInputFiles('.fc-gpx-fichier', { name: 'lac.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(GPX) });
-      await o.p.waitForFunction(() => /Nouveau tracé/.test(document.querySelector('.fc-gpx-etat').textContent));
+      await o.p.waitForFunction(() => document.querySelector('[data-k="distance"]').value === '5,4');
       pb.push(egal(0, Object.keys(form.fichiers || {}).length, 'formulaire : rien n\'est rangé avant « Enregistrer »'));
       pb.push(egal(['5,4', '120', '120'], await o.p.evaluate(() => ['distance', 'dplus', 'dmoins'].map(k => document.querySelector('[data-k="' + k + '"]').value)), 'formulaire : distance, D+ et D− remplis d\'après le tracé'));
       await o.p.fill('[data-k="dplus"]', '125');
@@ -1282,7 +1286,7 @@ const CONTROLES = {
     const copie = () => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.persister = true; return d; };
     const titres = p => p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre')].map(b => b.textContent.trim()));
     // Barre du haut (« Annuler », « Enregistrer »), puis le libellé du mode.
-    const barre = p => p.evaluate(() => [...document.querySelectorAll('.fc-barre > *')].map(b => b.textContent.trim()).concat(document.querySelector('#fc-titre').textContent.trim()));
+    const barre = p => p.evaluate(() => [...document.querySelectorAll('.fc-barre button:not(.fc-supprimer)')].map(b => b.textContent.trim()).concat(document.querySelector('#fc-titre').textContent.trim()));
     const consultation = p => p.waitForSelector('.mc-panneau .pc-titre');
     // Consultation, puis crayon : la même feuille passe en édition.
     let d = copie();
@@ -1292,14 +1296,14 @@ const CONTROLES = {
     pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], croix: 0, couches: 0, feuilles: 1, blocs: ['Course', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique', 'Résultat'], dossard: ['dossard', '1287'] },
       { barre: await barre(p), croix: await p.locator('.pc-fermer').count(), couches: await p.locator('.cal-voile').count(), feuilles: await p.locator('.mc-voile').count(), blocs: await titres(p),
         dossard: await p.evaluate(() => { const e = document.querySelector('#fc-dossard'); return [e.closest('.fc-grille').previousElementSibling.dataset.bloc, e.value]; }) }, 'crayon : édition dans la même feuille'));
-    // Libellé du mode en capitales discrètes ; « Supprimer la course » : bouton à contour rouge avec sa poubelle, seul en bas de la fiche.
-    pb.push(egal({ auxBords: true, libelle: 'uppercase', texte: 'Supprimer la course', poubelle: true, rouge: true, enBas: true }, await p.evaluate(() => {
+    // Libellé du mode en capitales discrètes ; « Supprimer la course » : bouton à contour rouge avec sa poubelle, en haut, à gauche d'« Enregistrer ».
+    pb.push(egal({ auxBords: true, libelle: 'uppercase', texte: 'Supprimer la course', poubelle: true, rouge: true, enHaut: true }, await p.evaluate(() => {
       const b = document.querySelector('.fc-supprimer'), st = getComputedStyle(b), blocs = document.querySelectorAll('.fc-fiche .fc-bloc');
       const an = document.querySelector('.fc-barre [data-fc="annuler"]').getBoundingClientRect(), en = document.querySelector('.fc-barre .fc-plein').getBoundingClientRect(), br = document.querySelector('.fc-barre').getBoundingClientRect();
       return { auxBords: an.left - br.left < 40 && br.right - en.right < 40, libelle: getComputedStyle(document.querySelector('#fc-titre')).textTransform, texte: b.textContent.trim(), poubelle: !!b.querySelector('svg'),
         rouge: st.borderTopColor === st.color && st.color === getComputedStyle(document.documentElement).getPropertyValue('--red').trim().replace(/^#(..)(..)(..)$/, (m, r, g, bl) => 'rgb(' + [r, g, bl].map(x => parseInt(x, 16)).join(', ') + ')'),
-        enBas: b.getBoundingClientRect().top > blocs[blocs.length - 1].getBoundingClientRect().bottom };
-    }), 'Annuler à gauche, Enregistrer à droite ; libellé du mode ; Supprimer la course, à contour rouge, en bas'));
+        enHaut: !!b.closest('.fc-barre') && Math.abs(b.getBoundingClientRect().top - en.top) < 4 && b.getBoundingClientRect().right <= en.left && b.getBoundingClientRect().top < blocs[0].getBoundingClientRect().top };
+    }), 'Annuler à gauche, Enregistrer à droite ; libellé du mode ; Supprimer la course, à contour rouge, en haut à gauche d\'Enregistrer'));
     // Annuler sans saisie : retour à la consultation, sans question.
     let questions = [];
     await surDialogue(p, q => { questions.push(q); return false; });

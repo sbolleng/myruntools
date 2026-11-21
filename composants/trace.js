@@ -232,7 +232,8 @@
 
   // Profil altimétrique : courbe et aire en Accent ; altitudes mini et maxi à gauche, distances en bas ;
   // lignes horizontales à pas rond (n° 48) et lecture de la pente au survol (n° 49).
-  function profil(t, bouton) {
+  // kms : les ravitaillements de la course (Objectif, § 3.10, n° 56), en traits pointillés sur le profil.
+  function profil(t, bouton, kms) {
     const pts = t.points.filter(p => p[2] != null);
     if (pts.length < 2) return '';
     const L = 600, H = 120, pas = Math.max(1, Math.floor(pts.length / 600));
@@ -248,6 +249,7 @@
       '<div class="tr-alt"><span>' + Math.round(max) + ' m</span>' + etiq + '<span>' + Math.round(min) + ' m</span></div>' +
       '<div class="tr-trace" data-pas="' + li.pas + '"><svg viewBox="0 0 ' + L + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Profil altimétrique : de ' + Math.round(min) + ' à ' + Math.round(max) + ' m">' + traits +
         '<path class="tr-aire" d="' + ligne + ' L' + L + ' ' + H + ' L0 ' + H + ' Z"/><path class="tr-courbe" d="' + ligne + '" vector-effect="non-scaling-stroke"/></svg>' +
+        (Array.isArray(kms) ? kms.filter(k => k > 0 && k < t.km).map(k => '<span class="tr-ravito" style="left:' + (k / t.km * 100).toFixed(2) + '%" title="Ravitaillement · km ' + nombre(k) + '"><i>' + nombre(k) + '</i></span>').join('') : '') +
         '<div class="tr-reperes" hidden><span class="tr-trait"></span><span class="tr-bulle"></span></div></div>' +
       '<div class="tr-km"><span>0 km</span><i class="tr-pas">1 trait = ' + li.pas + ' m</i><span>' + nombre(t.km) + ' km</span></div>' +
       // Téléchargement (n° 27) : bouton à contour, à droite, sous la ligne des distances.
@@ -287,7 +289,7 @@
     const t = texte != null && lire(texte, Number(c.distance));
     if (!t) { el.innerHTML = '<p class="tr-attente">Tracé indisponible pour l\'instant.</p>'; el.__trace = false; return; }
     const bouton = '<div class="tr-bas"><button type="button" class="mrt-btn tr-telecharger" title="Télécharger le GPX">' + FLECHE_BAS + 'GPX</button></div>';
-    el.innerHTML = '<div class="tr-carte" role="img" aria-label="Carte du tracé"></div>' + (profil(t, bouton) || bouton);
+    el.innerHTML = '<div class="tr-carte" role="img" aria-label="Carte du tracé"></div>' + (profil(t, bouton, c.ravitaillements_km) || bouton);
     el.querySelector('.tr-telecharger').addEventListener('click', () => telecharger(c));
     let reperage = null;
     survol(el, t, p => { if (reperage) reperage(p); });
