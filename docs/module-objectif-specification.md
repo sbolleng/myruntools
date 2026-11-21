@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.84 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Pourquoi cette course », légende Course · Option · Objectif, flèches dessinées, page Saison vide qui dit quoi faire, agenda en rond normal.
+Version 0.85 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Pourquoi cette course », légende Course · Option · Objectif, flèches dessinées, page Saison vide qui dit quoi faire, agenda en rond normal.
 
 ## 1. Rôle
 
@@ -433,7 +433,7 @@ Téléphone : le même ordre, l'encart sur toute la largeur.
 2. La fonction rend les informations trouvées, **par parcours**. Un seul parcours : la fiche est remplie aussitôt. Plusieurs : F55 et un F56 par parcours ; toucher un parcours remplit la fiche avec les informations communes à l'épreuve (nom, lieu, site officiel, inscription) et celles de ce parcours (nom du parcours, date et heure, distance, D+, D−, format, prix).
 3. Champs que l'IA peut remplir, s'ils sont dans la fiche ouverte : course, parcours, date (ou mois seul si le jour n'est pas connu), heure, lieu, type, format, distance, D+, D−, description (résumé de 1 000 caractères au plus), site officiel ; ouverture des inscriptions (date, heure, ou mois seul), site d'inscription, prix. **Jamais** : statut, rôle, groupe d'options, objectif, inscrit et numéro, GPX, stratégie, logistique, résultat.
 4. **Seuls les champs vides sont remplis** : ce qui a déjà été saisi n'est jamais écrasé.
-5. Chaque valeur passe les contrôles de saisie du § 3.7 ; type et format doivent être une valeur de leur liste. Une valeur qui ne passe pas est laissée de côté (champ vide), sans message.
+5. Chaque valeur passe les contrôles de saisie du § 3.7 ; type et format doivent être une valeur de leur liste. Comme à la main, une distance de trail propose son format : il est alors rempli sans liseré, et l'IA ne le remplace pas. Une valeur qui ne passe pas est laissée de côté (champ vide), sans message.
 6. Les champs remplis portent un liseré Accent jusqu'à leur première modification, ou jusqu'à « Enregistrer ». Leurs blocs s'ouvrent.
 7. Après le remplissage, l'encart se replie (F48, F49) et F54 reste dessous : « 9 champs remplis : vérifie-les avant d'enregistrer. ». On peut recommencer avec un autre texte (seuls les champs encore vides sont remplis).
 
@@ -447,7 +447,7 @@ Téléphone : le même ordre, l'encart sur toute la largeur.
 | Compte non pilote | « Réservé aux comptes pilotes pour l'instant. » |
 | Panne (IA, réseau) | « La lecture n'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main. » |
 
-**Fonction `lire-page-course`** (Supabase, comme `proposer-seances`) : vérifie l'utilisateur connecté et la liste des pilotes (secret `PILOTES`) ; envoie le texte à l'IA (secret `ANTHROPIC_API_KEY`, modèle rapide) avec la consigne de ne rendre que ce qui figure dans le texte ; rend `{ parcours: [ … ] }`. Le texte collé n'est pas gardé. Pas de plafond tant qu'elle est réservée aux pilotes. Réponses : 401 (pas connecté), 403 `{ code: 'reserve' }`, 502 `{ code: 'ia' }`.
+**Fonction `lire-page-course`** (Supabase, comme `proposer-seances`) : vérifie l'utilisateur connecté et la liste des pilotes (secret `PILOTES`) ; envoie le texte, la date du jour et les listes de types et de formats à l'IA (secret `ANTHROPIC_API_KEY`, modèle rapide, réglable par le secret facultatif `MODELE_LECTURE`) avec la consigne de ne rendre que ce qui figure dans le texte ; rend `{ parcours: [ … ] }`. Le texte collé n'est pas gardé. Pas de plafond tant qu'elle est réservée aux pilotes. Réponses : 401 (pas connecté), 403 `{ code: 'reserve' }`, 502 `{ code: 'ia' }`.
 
 ### 3.10 Proposer une stratégie
 
@@ -809,14 +809,15 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon ni « Importer un GPX ».
 - Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, avec sa poubelle, sous le dernier bloc ; rien ne dépasse.
 
-Résultats attendus, remplir depuis la page de la course (§ 3.9) ; réponse de `lire-page-course` simulée par le banc (texte fictif « Trail des Hauts », deux parcours : Le 25, 25 km, 900 m D+, 13 juin 2027 à 9 h ; Le 50, 50 km, 2 400 m D+, 12 juin 2027 à 6 h ; lieu Mont-Clair ; site officiel et site d'inscription en `https://` ; ouverture des inscriptions le 1er déc. 2026 ; 35 € et 60 €) :
+Résultats attendus, remplir depuis la page de la course (§ 3.9) ; réponse de `lire-page-course` simulée par le banc (texte fictif « Trail des Hauts », type Trail, deux parcours : Le 25, 25 km, 900 m D+, 13 juin 2027 à 9 h ; Le 50, 50 km, 2 400 m D+, 12 juin 2027 à 6 h ; lieu Mont-Clair ; site officiel et site d'inscription en `https://` ; ouverture des inscriptions le 1er déc. 2026 ; 35 € et 60 €) :
 
 - « + Ajouter une course » (Objectif) : l'encart F47 en tête, « Remplir depuis la page de la course » ; absent avec le crayon d'une course existante, avec « Marquer comme courue » et sur un site partagé.
 - F49 : la consigne et la zone de collage ; « Remplir » grisé tant que la zone est vide.
 - Texte collé, « Remplir » : « Plusieurs parcours trouvés : lequel ? », deux boutons « Le 25 · 25 km · 900 m D+ » et « Le 50 · 50 km · 2 400 m D+ ».
-- « Le 50 » : course Trail des Hauts, parcours Le 50, 12 juin 2027, 06:00, Mont-Clair, 50 km, 2 400 m D+, site officiel ; Inscription : ouverture 1er déc. 2026, site d'inscription, 60 € ; ces champs portent le liseré Accent, les blocs Course et Inscription sont ouverts ; statut, rôle, objectif, « Inscrit » inchangés ; encart replié, « 11 champs remplis : vérifie-les avant d'enregistrer. ».
+- « Le 50 » : course Trail des Hauts, parcours Le 50, 12 juin 2027, 06:00, Mont-Clair, Trail, format Trail long (proposé par la distance, sans liseré), 50 km, 2 400 m D+, site officiel ; Inscription : ouverture 1er déc. 2026, site d'inscription, 60 € ; ces champs portent le liseré Accent, les blocs Course et Inscription sont ouverts ; statut, rôle, objectif, « Inscrit » inchangés ; encart replié, « 12 champs remplis : vérifie-les avant d'enregistrer. ».
 - Distance changée à la main : son liseré disparaît. « Enregistrer » : la course est rangée avec les valeurs affichées, plus aucun liseré.
-- Nom « Trail des Hautes Terres » saisi avant de coller : il reste tel quel, les autres champs vides sont remplis.
+- Nom « Trail des Hautes Terres » saisi avant de coller, réponse d'un seul parcours : remplie aussitôt, sans question ; le nom reste tel quel, les autres champs vides sont remplis. Une date passée (pour une course à venir) est laissée de côté. Un second texte ne remplit que les champs encore vides : « Aucune information à ajouter… » s'il n'y en a plus.
+- Réponse en mois seuls (juillet 2027, ouverture janvier 2027) : « Seul le mois est connu » coché pour la date et pour l'ouverture, heure vide.
 - Réponse avec un format hors de la liste et un lien sans `https://` : ces deux champs restent vides, sans message.
 - Réponse vide : « Aucune information à ajouter n'a été trouvée dans ce texte. », aucun champ changé.
 - Réponse 403 `reserve` : « Réservé aux comptes pilotes pour l'instant. » ; réponse 502 : « La lecture n'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main. ».

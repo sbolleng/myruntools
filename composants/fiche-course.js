@@ -170,6 +170,23 @@
   // Textes limités, avec un compteur sous le champ.
   const LONGUEURS = { description: 1000, objectif_precisions: 100 };
   const milliers = n => String(n).replace(/\B(?=(\d{3})+$)/g, ' ');
+  // Remplir depuis la page de la course (Objectif, § 3.9) : encart F47 à F56, en ajout seulement.
+  const REMPLIR = '<section class="fc-remplir">' +
+    '<div class="fc-rp-ferme"><p class="fc-rp-phrase">Tu as la page de la course (Finishers, site officiel…) ?</p>' +
+      '<button type="button" class="mrt-btn" data-fc="rp-ouvrir">Remplir depuis la page de la course</button></div>' +
+    '<div class="fc-rp-ouvert" hidden><p class="fc-rp-consigne">Copie tout le texte de la page (Ctrl+A puis Ctrl+C ; sur téléphone, « Tout sélectionner » puis « Copier ») et colle-le ici.</p>' +
+      '<textarea class="mrt-champ fc-rp-texte" rows="5" placeholder="Colle ici le texte de la page" aria-label="Texte de la page de la course"></textarea>' +
+      '<div class="fc-rp-actions"><button type="button" class="mrt-lien" data-fc="rp-fermer">Fermer</button>' +
+      '<button type="button" class="mrt-btn" data-fc="rp-remplir" disabled>Remplir</button></div></div>' +
+    '<div class="fc-rp-choix" hidden><p class="fc-rp-question">Plusieurs parcours trouvés : lequel ?</p><div class="fc-rp-liste"></div>' +
+      '<div class="fc-rp-actions"><button type="button" class="mrt-lien" data-fc="rp-fermer">Fermer</button></div></div>' +
+    '<p class="fc-rp-msg" aria-live="polite"></p></section>';
+  const RP_MAX = 30000;
+  const RP_MSG = {
+    attente: 'Lecture du texte…', rien: 'Aucune information à ajouter n\'a été trouvée dans ce texte.',
+    reserve: 'Réservé aux comptes pilotes pour l\'instant.', panne: 'La lecture n\'a pas abouti. Réessaie dans un moment, ou remplis la fiche à la main.',
+    fait: n => n + (n > 1 ? ' champs remplis' : ' champ rempli') + ' : vérifie-les avant d\'enregistrer.'
+  };
 
   // mrtFicheCourse({ course, references, apres, mode, groupes, marquer, preparation })
   //   mode     'courue' (défaut, Palmarès) ou 'a_venir' (Objectif) ; une course existante à venir s'ouvre en 'a_venir'
@@ -288,6 +305,7 @@
         // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
         '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +
         '<p class="fc-msg" aria-live="polite"></p>' +
+        (existe || marquer ? '' : REMPLIR) +
         BLOCS.map(([b, titre]) =>
           '<section class="fc-bloc">' +
             '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
@@ -690,6 +708,103 @@
       // Nouvelle course à venir, ajoutée depuis sa propre feuille : sa consultation, si elle est sur la feuille de route.
       if (seule && !existe && venir && window.mrtOuvrirCourse) { await sortie; window.mrtOuvrirCourse(id, '', { siPresente: true }); }
     });
+    // ----- Remplir depuis la page de la course (§ 3.9) -----
+    const rp = $('.fc-remplir');
+    if (rp) {
+      const q = s => rp.querySelector(s), texte = q('.fc-rp-texte'), btn = q('[data-fc="rp-remplir"]'), msg = q('.fc-rp-msg');
+      const vue = v => { q('.fc-rp-ferme').hidden = v !== 'ferme'; q('.fc-rp-ouvert').hidden = v !== 'ouvert'; q('.fc-rp-choix').hidden = v !== 'choix'; };
+      q('[data-fc="rp-ouvrir"]').addEventListener('click', () => { msg.textContent = ''; vue('ouvert'); texte.focus(); });
+      rp.querySelectorAll('[data-fc="rp-fermer"]').forEach(b => b.addEventListener('click', () => { texte.value = ''; btn.disabled = true; msg.textContent = ''; vue('ferme'); }));
+      texte.addEventListener('input', () => { btn.disabled = !texte.value.trim(); });
+      // Un parcours choisi (ou le seul) : la fiche est remplie, l'encart se replie, le message reste dessous.
+      const appliquer = p => { const n = remplirAvec(p); texte.value = ''; btn.disabled = true; vue('ferme'); msg.textContent = n ? RP_MSG.fait(n) : RP_MSG.rien; };
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        msg.textContent = RP_MSG.attente;
+        const corps = { texte: texte.value.slice(0, RP_MAX), aujourdhui: today(), types: references.types.map(t => ({ id: t.id, libelle: t.libelle })),
+          formats: references.sous.map(x => ({ id: x.id, libelle: x.libelle, type: x.type })) };
+        let data = null, code = null, panne = false;
+        try {
+          const r = await window.mrtSupabase.functions.invoke('lire-page-course', { body: corps });
+          data = r.data;
+          if (r.error) { panne = true; try { code = (await r.error.context.json()).code; } catch (e) { /* réponse sans corps lisible */ } if (code !== 'reserve') console.warn(r.error); }
+        } catch (e) { panne = true; console.warn(e); }
+        if (panne) { msg.textContent = code === 'reserve' ? RP_MSG.reserve : RP_MSG.panne; btn.disabled = !texte.value.trim(); return; }
+        const liste = (data && Array.isArray(data.parcours) ? data.parcours : []).filter(p => p && typeof p === 'object');
+        if (liste.length <= 1) { appliquer(liste[0] || {}); return; }
+        // Plusieurs parcours : un bouton par parcours (nom, distance, D+ s'ils sont connus).
+        q('.fc-rp-liste').innerHTML = liste.map((p, i) => {
+          const km = parseNombre(p.distance), dp = parseNombre(p.dplus);
+          const lib = [p.parcours || p.course || 'Parcours ' + (i + 1), km > 0 ? String(km).replace('.', ',') + ' km' : '', dp > 0 ? milliers(Math.round(dp)) + ' m D+' : ''].filter(Boolean).join(' · ');
+          return '<button type="button" class="mrt-btn" data-rp="' + i + '">' + esc(lib) + '</button>';
+        }).join('');
+        q('.fc-rp-liste').querySelectorAll('[data-rp]').forEach(b => b.addEventListener('click', () => appliquer(liste[+b.dataset.rp])));
+        msg.textContent = '';
+        vue('choix');
+      });
+    }
+    // Remplit les seuls champs vides avec les valeurs qui passent les contrôles de saisie ; rend le nombre de champs remplis.
+    function remplirAvec(p) {
+      const brut = k => String((p && p[k]) || '').trim();
+      const vides = new Set(CHAMPS.map(f => f[0]).filter(k => { const e = val(k); return e && e.type !== 'checkbox' && e.type !== 'hidden' && !String(e.value).trim(); }));
+      const remplis = [];
+      const poser = (k, v) => {
+        const e = val(k);
+        if (!e || !vides.has(k) || v == null || v === '' || e.disabled) return false;
+        e.value = v;
+        if (e.value !== v) { e.value = ''; return false; } // valeur absente d'une liste
+        e.dispatchEvent(new Event('input', { bubbles: true }));
+        e.dispatchEvent(new Event('change', { bubbles: true }));
+        remplis.push(e);
+        return true;
+      };
+      const cocher = (k, oui) => { const e = val(k); if (e && e.checked !== oui) { e.checked = oui; e.dispatchEvent(new Event('change', { bubbles: true })); } };
+      const jourValide = d => /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d)) && new Date(d + 'T12:00:00Z').toISOString().slice(0, 10) === d;
+      const moisValide = d => /^\d{4}-(0[1-9]|1[0-2])$/.test(d);
+      const nombre = (k, entier) => { const x = parseNombre(brut(k).replace(/\s/g, '')); return x == null || isNaN(x) || x < 0 || (k === 'distance' && x === 0) ? null : entier ? String(Math.round(x)) : String(x).replace('.', ','); };
+      const heure = k => { const h = parseHeure(brut(k)); return typeof h === 'string' ? h : null; };
+      const url = k => (/^https?:\/\/\S+$/i.test(brut(k)) ? brut(k) : null);
+      ['course', 'parcours', 'lieu'].forEach(k => poser(k, brut(k).slice(0, 200)));
+      // Type, puis le format après la distance (la distance propose un format de trail) ; le format décide du type.
+      const sc = references.sous.find(x => x.id === brut('format')), tp = sc ? sc.type : (references.types.some(t => t.id === brut('type')) ? brut('type') : '');
+      poser('type', tp);
+      // Date : à venir, aujourd'hui ou plus tard (mois seul : ce mois-ci ou plus tard) ; courue, aujourd'hui ou avant.
+      const d = brut('date');
+      if (vides.has('date')) {
+        if (jourValide(d) && (venir ? d >= today() : d <= today())) { if (venir) cocher('date_approx', false); poser('date', d); }
+        else if (venir && moisValide(d) && d >= today().slice(0, 7)) { cocher('date_approx', true); if (!poser('date', d)) cocher('date_approx', false); }
+      }
+      poser('heure', heure('heure'));
+      poser('distance', nombre('distance'));
+      if (sc && vides.has('format') && val('type').value === sc.type) { vides.add('format'); val('format').value = ''; poser('format', sc.id); }
+      poser('dplus', nombre('dplus', true));
+      poser('dmoins', nombre('dmoins', true));
+      poser('description', brut('description').slice(0, LONGUEURS.description));
+      poser('lien', url('lien'));
+      if (venir) {
+        const o = brut('ouverture_inscriptions');
+        if (vides.has('ouverture_inscriptions')) {
+          if (jourValide(o)) { cocher('ouverture_approx', false); poser('ouverture_inscriptions', o); }
+          else if (moisValide(o)) { cocher('ouverture_approx', true); if (!poser('ouverture_inscriptions', o)) cocher('ouverture_approx', false); }
+        }
+        poser('ouverture_heure', heure('ouverture_heure'));
+        poser('inscription', url('inscription'));
+      }
+      poser('prix', nombre('prix'));
+      // Liseré Accent sur les champs remplis, blocs ouverts.
+      remplis.forEach(e => {
+        const ch = e.closest('.fc-champ');
+        if (ch) ch.classList.add('fc-rempli');
+        const bloc = e.closest('.fc-grille');
+        if (bloc && bloc.hidden) { bloc.hidden = false; bloc.previousElementSibling.setAttribute('aria-expanded', 'true'); }
+      });
+      return remplis.length;
+    }
+    // Le liseré disparaît à la première modification du champ par le coureur.
+    const garde = e => { if (!e.isTrusted || !e.target.dataset || !e.target.dataset.k) return; const ch = e.target.closest('.fc-rempli'); if (ch) ch.classList.remove('fc-rempli'); };
+    racine.addEventListener('input', garde);
+    racine.addEventListener('change', garde);
+
     depart = etat();
     return { annuler };
   };
