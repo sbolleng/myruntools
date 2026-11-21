@@ -1,6 +1,6 @@
 -- Évolution 045 · 21 novembre 2026 · Mes stats (docs/module-stats-specification.md, § 7)
 -- Activités importées de l'export Strava (une ligne par activité, jamais la trace elle-même), séances d'origine « import »,
--- analyses de l'IA de la page Mes stats. À coller dans l'éditeur SQL de Supabase.
+-- analyses de l'IA de la page Mes stats. À coller dans l'éditeur SQL de Supabase ; peut être recollée sans risque.
 
 alter type seance_origine add value if not exists 'import';
 
@@ -39,7 +39,9 @@ create index if not exists analyses_stats_utilisateur_cree on analyses_stats (ut
 
 alter table activites      enable row level security;
 alter table analyses_stats enable row level security;
+drop policy if exists "ses activités" on activites;
 create policy "ses activités" on activites for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+drop policy if exists "ses analyses" on analyses_stats;
 create policy "ses analyses" on analyses_stats for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
