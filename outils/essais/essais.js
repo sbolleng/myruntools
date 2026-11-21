@@ -3376,10 +3376,10 @@ const CONTROLES = {
     const miseAJour = [d.appels.length > 0, (d.appels[0] || {}).motif, (d.appels[0] || {}).bloc];
     await p.click('.ps-reglages [data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const infoAvant = await p.locator('.ps-profil .ps-info').count();
-    await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-info');
-    pb.push(egal([0, [true, 'readaptation', '2026-10-19'], 0, 'Mon plan : il sera mis à jour avec ces réponses.'],
-      [avant, miseAJour, infoAvant, await p.textContent('.ps-profil .ps-info')],
-      'profil changé après la dernière proposition : aucun appel avant ; à l\'arrivée, le plan est mis à jour d\'office (réadaptation, de la semaine en cours) ; dans Mon profil, après un changement, la ligne d\'information'));
+    await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    pb.push(egal([0, [true, 'readaptation', '2026-10-19'], 0, 0],
+      [avant, miseAJour, infoAvant, await p.locator('.ps-profil .ps-info').count()],
+      'profil changé après la dernière proposition : aucun appel avant ; à l\'arrivée, le plan est mis à jour d\'office (réadaptation, de la semaine en cours) ; dans Mon profil, aucune ligne d\'information'));
     pb.push(egal([], erreurs, 'profil changé, erreurs JavaScript'));
     await ctx.close();
     return pb;
