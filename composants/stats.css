@@ -9,7 +9,6 @@
 .st-texte p:last-child { margin-bottom: 0; }
 .st-msg { margin: 0 0 0.4rem; font-size: var(--t-petit); color: var(--red); }
 .st-msg:empty { display: none; }
-.st-demain { margin: -0.3rem 0 0.5rem; text-align: right; }
 .st-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; align-items: start; }
 .st-grille > * { min-width: 0; }
 @media (max-width: 860px) { .st-grille { grid-template-columns: 1fr; } }

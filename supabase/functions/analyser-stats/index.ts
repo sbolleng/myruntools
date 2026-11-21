@@ -2,7 +2,7 @@
 //
 // docs/module-stats-specification.md, § 5. Le site envoie les chiffres de la page (valeurs mensuelles, meilleurs temps, temps
 // estimés, allures, zones, Objectifs sans leur nom, niveau) ; la fonction vérifie l'utilisateur connecté, la liste des pilotes
-// et le plafond du jour (« Actualiser », trois fois par jour), demande l'analyse à Claude, la range dans « analyses_stats » et la rend.
+// et, pour le motif « actualiser » (plus envoyé par le site depuis la version 0.4), trois fois par jour au plus ; demande l'analyse à Claude, la range dans « analyses_stats » et la rend.
 //   POST { motif: 'import' | 'actualiser' | 'premiere', periode: '12mois' | 'annee' | 'tout', contexte: {…} }
 //     → 200 { texte: '1 500 caractères au plus', cree }
 //     → 401 (pas connecté), 403 { code: 'reserve' } (pas pilote), 429 { code: 'plafond' }, 502 { code: 'ia' | 'refus' }
