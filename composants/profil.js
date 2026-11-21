@@ -362,9 +362,7 @@
     if (etat.lectureSeule) { el.innerHTML = '<div class="mp-cadre"><p class="mp-vide">Le profil n\'est pas partagé.</p></div>'; return; }
     await lireEntrainement(etat);
     const dessiner = () => {
-      const manque = tousManquants(etat.mesures, etat.entrainement);
-      el.innerHTML = '<div class="mp-cadre"><p class="ps-profil-etat mp-etat' + (manque.length ? '' : ' is-complet') + '">' + (manque.length ? 'Profil à compléter : ' + manque.join(', ') + '.' : 'Profil complet.') + '</p>' +
-        '<p class="ps-msg mp-msg" role="alert"></p>' + listeHtml(etat) + connexionsHtml() + '</div>';
+      el.innerHTML = '<div class="mp-cadre">' + listeHtml(etat) + connexionsHtml() + '</div>';
     };
     // Connexions (Mes stats, § 6) : l'import de l'export Strava, la même feuille que sur Mes stats.
     let dernier = null;
@@ -375,11 +373,11 @@
       if (ev.target.closest('[data-reprendre]')) {
         const sg = duPalmares(etat);
         if (sg && await ranger(etat, 'entrainement', repereDe(sg))) dessiner();
-        else if (sg) el.querySelector('.mp-msg').textContent = 'Enregistrement impossible pour l\'instant.';
+        
         return;
       }
       if (ev.target.closest('[data-import]')) {
-        window.mrtImport.feuille({ id: etat.id, surFin: async r => { dernier = await window.mrtImport.dernierImport(); dessiner(); el.querySelector('.mp-msg').textContent = ''; const z = el.querySelector('#connexions small'); if (z) z.textContent += ' · ' + window.mrtImport.finTexte(r); } });
+        window.mrtImport.feuille({ id: etat.id, surFin: async r => { dernier = await window.mrtImport.dernierImport(); dessiner(); const z = el.querySelector('#connexions small'); if (z) z.textContent += ' · ' + window.mrtImport.finTexte(r); } });
         return;
       }
       const q = ev.target.closest('[data-q]');

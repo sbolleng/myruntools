@@ -3045,8 +3045,8 @@ const CONTROLES = {
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
-    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue séance récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Connexions'], 'Mon profil', 'Mon profil', 1],
-      [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
+    pb.push(egal([0, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Connexions'], 'Mon profil', 'Mon profil', 1],
+      [await p.locator('.mp-etat, .ps-profil-etat, .mp-msg').count(), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : pas de ligne d\'état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
     // Petite feuille (comme Nutrition) : 30 rem de large au plus, hauteur selon le contenu.
