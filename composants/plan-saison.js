@@ -136,19 +136,22 @@
       // (26) Les courses de la saison : les Préparatoires et les Plaisirs avant l'Objectif, puis lui ; chacune ouvre sa feuille (28).
       const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
         .sort((a, b) => (a.date < b.date ? -1 : 1));
-      const puce = (c, role) => '<button type="button" class="ps-sc" data-sc="' + esc(c.id) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span> <span class="ps-sc-d">' + P.dateCourte(c.date) + ' · ' + role + '</span></button>';
-      const saison = '<div class="ps-saison"><span class="ob-lib">Courses de la préparation</span><div class="ps-sc-liste">' +
+      // Une puce : le nom de la course et « › » ; la date et le rôle dans l'infobulle (la feuille de la course les donne).
+      const puce = (c, role) => '<button type="button" class="ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span><span class="ps-sc-f" aria-hidden="true">›</span></button>';
+      const saison = '<div class="ps-saison"><div class="ps-sc-liste">' +
         avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') +
-        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-btn ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
-      let h = '<section class="ob-carte sans-cpt ps-objectif"><span class="ob-role is-obj">Objectif</span><span class="ps-j">' + jours + ' j</span>' +
-        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><p class="ps-sous">' + esc(infos) + '</p>' +
+        (ctx.lectureSeule ? '' : '<button type="button" class="ps-sc ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
+      // (30) Le rond « i » : comment MyRunTools construit le plan (le Guide demande une connexion : pas sur le site partagé).
+      const info = ctx.lectureSeule ? '' : '<a class="mrt-rond ps-guide" href="guide.html#saison" aria-label="Comment MyRunTools construit ton plan" title="Comment MyRunTools construit ton plan">' + window.mrtIcone.info + '</a>';
+      let h = '<section class="ob-carte sans-cpt ps-objectif">' +
+        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><span class="ps-droite"><span class="ps-j">' + jours + ' j</span>' + info + '</span><p class="ps-sous">' + esc(infos) + '</p>' +
         (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + saison + reglages + '</section>';
       h += friseHtml(ctx, ps, lundi) + bandeauHtml(ctx, lundi, ps.alertes, o);
       ctx.objectifVise = o;
-      // (19) Cette semaine, (22) le picto du Calendrier à côté, (20) son total.
+      // (19) Cette semaine, (22) le lien « Calendrier › » à côté, (20) son total.
       const total = window.mrtTotalSemaine(ctx, lundi);
       h += '<section class="ps-semaine"><div class="ps-semaine-tete"><h3 class="ps-libelle">Cette semaine' +
-        '<a class="mrt-rond is-petit ps-vers-cal" href="calendrier.html" aria-label="Voir les semaines dans le Calendrier" title="Voir les semaines dans le Calendrier">' + PICTO.calendrier + '</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
+        '<a class="mrt-lien ps-vers-cal" href="calendrier.html">Calendrier ›</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
         window.mrtCetteSemaine(ctx, lundi, { plus: j => [...new Set(P.reperesDuJour(ps, j).map(r => (r.type === 'allege' ? 'Allégé' : r.type === 'repos' ? 'Repos' : 'Récupération')))].map(t => '<span class="cal-v-rep">' + t + '</span>').join('') }) + '</section>';
       root.innerHTML = '<div class="ps-cadre ps-vue">' + h + '</div>';
       placerFrise();
