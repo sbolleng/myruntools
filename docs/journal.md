@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 nov. 2026 | Mes stats, axes des graphiques | Axes à `--t-libelle` (0,7 rem), comme tous les graphiques du site : la spécification est corrigée (0.3), le code ne change pas. |
 | 21 nov. 2026 | Panneau des boutons | Sept boutons, un sens chacun (design, § 11) : Principal (un par écran), Secondaire, Menu (▾), Danger (« Supprimer … », seul en bas), Rond, Petit rond + (ajouter une séance), Lien (› vers le site, ↗ vers l'extérieur) ; la pastille sert seulement à choisir ; avant tout nouveau bouton, reprendre l'un des sept. |
 | 21 nov. 2026 | Boutons, application | « Supprimer la course » seul en bas avec son texte (remplace la poubelle en haut) ; Nutrition et accueil : « Ajouter un repas » seul principal, « Ajouter une séance » en secondaire (et en secondaire aussi tant que les Premiers pas sont là) ; Courses de la préparation et « D'ici là » en listes de liens ; « Phases » en rond à l'œil ; « Calendrier › » en lien dans Mon plan ; liens unifiés. |
 | 21 nov. 2026 | Banc d'essai, boutons | Groupe « boutons » : aucun bouton hors du panneau, un seul principal visible, « Supprimer » seul en bas, pastille jamais lien, petit rond réservé à l'ajout d'une séance. |
