@@ -2859,7 +2859,7 @@ const CONTROLES = {
     await p.waitForSelector('.ps-objectif');
     let r = await lire(p);
     pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier à côté du titre'),
-        egal(['Calendrier ›', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » et le rond « i » vers le Guide ; plus de lien du Guide en bas ; « Calendrier › »'));
+        egal(['Calendrier', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » et le rond « i » vers le Guide ; plus de lien du Guide en bas ; « Calendrier › »'));
     pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
@@ -3395,7 +3395,7 @@ const CONTROLES = {
     const moi = db.profils[0].id;
     const copie = f => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = []; d.propositions = []; d.profil_entrainement = []; if (f) f(d); return d; };
     const hiver = x => x.courses.push(Object.assign({}, x.courses.find(k => k.id === id(1)), { id: id(40), course: 'Trail de l\'Hiver', parcours: null, date: '2027-01-31', statut: 'a_surveiller', inscrit: false, dossard: null, role: null }));
-    const puces = p => p.evaluate(() => [...document.querySelectorAll('.ps-sc-l')].map(b => b.textContent.replace(/\s+/g, ' ').trim()));
+    const puces = p => p.evaluate(() => [...document.querySelectorAll('.ps-sc, .ps-sc-plus')].map(b => b.textContent.replace(/\s+/g, ' ').trim()));
     const majCourses = d => d.ecritures.filter(x => x.table === 'courses').map(x => x.filtres + ' ' + JSON.stringify(x.corps));
     const planMaj = d => d.ecritures.some(x => x.table === 'preferences' && x.corps && x.corps.plan_maj);
     // Le plan entier est déjà proposé après le premier bloc : seule la mise à jour d'office est à voir ; le relais note les appels.
@@ -3406,7 +3406,7 @@ const CONTROLES = {
     let d = copie(hiver);
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForSelector('.ps-saison');
-    pb.push(egal([['Trail du Lac›', 'Corrida de Noël›', 'Trail des Gorges›', 'Préparatoire'], 1,
+    pb.push(egal([['Trail du Lac', 'Corrida de Noël', 'Trail des Gorges', 'Préparatoire'], 1,
       'Préparatoire conseillée : un trail de 21 à 30 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027. Ajouter une course'],
       [await puces(p), await p.locator('.ps-saison [data-prepa]').count(), (await p.textContent('.ps-sg-ligne')).replace(/\s+/g, ' ').trim()],
       'carte : les Préparatoires et les Plaisirs avant l\'Objectif, puis lui, et « + Préparatoire » ; bandeau : la préparatoire conseillée'));
@@ -3417,7 +3417,7 @@ const CONTROLES = {
     await p.click('[data-prepa-c="' + id(40) + '"]');
     await p.waitForSelector('.ps-sc[data-sc="' + id(40) + '"]');
     pb.push(egal(['Trail de l\'Hiver Conseillée', ['?id=eq.' + id(40) + ' {"role":"preparatoire","statut":"confirmee"}'], true, true],
-      [liste[0], majCourses(d), planMaj(d), (await puces(p)).includes('Trail de l\'Hiver›')],
+      [liste[0], majCourses(d), planMaj(d), (await puces(p)).includes('Trail de l\'Hiver')],
       'ajout : la course de la fenêtre en tête, Conseillée ; un toucher l\'ajoute en Préparatoire (Confirmée), la saison a changé'));
     pb.push(egal([], erreurs, 'ajout, erreurs JavaScript'));
     await ctx.close();
@@ -3444,7 +3444,7 @@ const CONTROLES = {
     await p.click('.ps-feuille-c [data-role="retirer"]');
     await p.waitForSelector('.ps-feuille-c', { state: 'detached' }); await pause();
     pb.push(egal([['Préparatoire', 'Trail du Lac', true, ['Passer en Plaisir', 'Voir la course', 'Retirer du plan']], ['?id=eq.' + id(1) + ' {"role":null}'], true, false],
-      [feuille, majCourses(d), planMaj(d), (await puces(p)).some(t => t.startsWith('Trail du Lac›'))],
+      [feuille, majCourses(d), planMaj(d), (await puces(p)).includes('Trail du Lac')],
       'feuille : Préparatoire, son avis, ses actions ; « Retirer du plan » : rôle vide, la saison a changé, la course quitte la carte'));
     pb.push(egal([], erreurs, 'feuille d\'une course, erreurs JavaScript'));
     await ctx.close();

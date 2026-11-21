@@ -136,7 +136,7 @@
       const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
         .sort((a, b) => (a.date < b.date ? -1 : 1));
       // Un lien commun par course (design, § 11) : le nom et le chevron dessiné ; la date et le rôle dans l'infobulle (la feuille de la course les donne).
-      const puce = (c, role) => '<button type="button" class="mrt-lien ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span><span class="ps-sc-f" aria-hidden="true">›</span></button>';
+      const puce = (c, role) => '<button type="button" class="mrt-lien ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span>' + window.mrtIcone.droite + '</button>';
       const saison = '<div class="ps-saison"><div class="ps-sc-liste">' +
         avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') +
         (ctx.lectureSeule ? '' : '<button type="button" class="mrt-lien ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
