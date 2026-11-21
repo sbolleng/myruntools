@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Remplir depuis la page de la course (Objectif 0.84, § 3.9) construit ; fonction `lire-page-course` à coller dans Supabase, puis à essayer avec une page Finishers. Avant : Mes stats construit (spécification 0.2) ; évolution 045 et fonction `analyser-stats` à passer dans Supabase.
+- Dernier lot : Mon profil simplifié (points fragiles et blessures passées en un texte ; durée maximale d'une séance supprimée ; évolution 046 à coller dans Supabase). Avant : Remplir depuis la page de la course (Objectif 0.84, § 3.9) construit ; fonction `lire-page-course` à coller dans Supabase, puis à essayer avec une page Finishers.
 - En suspens : inscription ouverte le 20 nov. 2026 ; plafond de l'IA à remettre, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »)

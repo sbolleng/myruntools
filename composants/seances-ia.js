@@ -72,14 +72,13 @@
       semaines,
       profil: {
         niveau: (window.mrtProfil && window.mrtProfil.libelleDe('niveau', pr.niveau)) || null, je_cours_depuis: LIBELLES.anciennete[pr.anciennete] || null,
-        antecedents_blessures: (window.mrtProfil && window.mrtProfil.libelleDe('antecedents', pr.antecedents)) || null, distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
+        distance_par_semaine: LIBELLES.volume_tranche[pr.volume_tranche] || null,
         plus_longue_sortie_recente: LIBELLES.sortie_tranche[pr.sortie_tranche] || null,
         jours_possibles_course: joursDe(pr, 'jours_course').map(nomJour), jours_possibles_renforcement: joursDe(pr, 'jours_renfo').map(nomJour),
         sorties_course_par_semaine: pr.nb_sorties || null, renforcements_par_semaine: pr.nb_renfo || 0,
         jour_sortie_longue: pr.jour_long ? nomJour(pr.jour_long) + ' de préférence' : 'peu importe',
         consigne_semaine: 'Au plus ' + (pr.nb_sorties || 0) + ' sorties de course par semaine, seulement les jours possibles pour courir ; au plus ' + (pr.nb_renfo || 0) +
           ' renforcements, seulement les jours possibles pour le renforcement ; course et renforcement peuvent tomber le même jour : adapte alors le volume.',
-        seance_max_min: pr.seance_max_min && pr.seance_max_min < 1440 ? pr.seance_max_min : null,
         repere_allure: pr.allure_type === 'vma' ? 'VMA ' + pr.vma + ' km/h' : pr.allure_type === '10km' ? '10 km en ' + temps(pr.temps_10km_s) : pr.allure_type === 'semi' ? 'semi-marathon en ' + temps(pr.temps_semi_s) : pr.allure_type === 'marathon' ? 'marathon en ' + temps(pr.temps_marathon_s) : 'inconnu (rester prudent)',
         terrains: LIBELLES.terrain[pr.terrain] || null, niveau_renforcement: pr.renfo_niveau || null, fc_max: pr.fc_max == null ? null : pr.fc_max, points_fragiles: pr.fragiles || null
       },
@@ -116,7 +115,6 @@
       const reps = P.reperesDuJour(ps, j);
       if (reps.some(r => r.type === 'repos')) err.push(quand + ' : jour de repos (veille de course), aucune séance');
       if (reps.some(r => r.type === 'recup') && s.intensite !== 'facile') err.push(quand + ' : jour de récupération, séance facile seulement');
-      if (pr.seance_max_min && pr.seance_max_min < 1440 && s.duree_min > pr.seance_max_min) err.push(quand + ' : séance de plus de ' + pr.seance_max_min + ' min');
       const l = lundiDe(j); vol[l] = (vol[l] || 0) + (Number(s.duree_min) || 0);
       nb[l] = nb[l] || { run: 0, renfo: 0 }; if (nb[l][s.type] != null) nb[l][s.type]++;
     });
@@ -228,7 +226,7 @@
       phase_du_plan: x ? NOM_PHASE[x.phase] : 'Entretien',
       prochaine_course: prochaine ? { role: ROLES[P.roleDe(prochaine)] || prochaine.role, format: prochaine.formatLibelle || prochaine.format, distance_km: prochaine.distance != null ? Number(prochaine.distance) : null,
         dplus_m: prochaine.dplus != null ? Number(prochaine.dplus) : null, jours_restants: Math.round((parse(prochaine.date) - parse(s.date)) / 864e5) } : null,
-      profil: pr ? { niveau: (window.mrtProfil && window.mrtProfil.libelleDe('niveau', pr.niveau)) || null, antecedents_blessures: (window.mrtProfil && window.mrtProfil.libelleDe('antecedents', pr.antecedents)) || null,
+      profil: pr ? { niveau: (window.mrtProfil && window.mrtProfil.libelleDe('niveau', pr.niveau)) || null,
         points_fragiles: pr.fragiles || null, fc_max: pr.fc_max == null ? null : pr.fc_max } : null,
       blessure_en_cours: pr && pr.blessure ? { description: pr.blessure, depuis: pr.blessure_debut || null } : null,
       historique
