@@ -82,7 +82,6 @@ const CONSIGNES = `Tu es un entraîneur de course à pied et de trail. Tu propos
 Le contexte (JSON) donne : la phase de chaque semaine (base, développement, affûtage, deload, récupération, entretien), calculée par des règles que tu ne changes jamais ; les repères de certains jours ; les courses du bloc (rôle Objectif, Préparatoire ou Plaisir ; format, distance, D+) ; le profil du coureur ; ses séances des 4 dernières semaines.
 Règles impératives :
 - Une séance seulement les jours disponibles du profil ; aucune séance le jour d'une course ni un jour de repos.
-- Chaque séance dure au plus la durée maximale d'une séance du profil ; le total d'une semaine reste sous le maximum par semaine du profil.
 - Les jours de récupération : seulement des séances d'intensité facile.
 - Les jours allégés : une séance courte et facile au plus.
 - Semaines d'affûtage : volume (somme des durées) réduit de 41 à 60 % par rapport à la moyenne des 3 semaines d'avant, intensité et nombre de séances maintenus.

@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : repasse de cohérence (glossaire § 12 complété et appliqué partout : préparation, Allègement, Décrassage, Ressenti… ; contrastes, cadres, états vides, case « Faite », onglet hors menu, liens vers le Guide, Compte en haut des Préférences ; contrôle « vocabulaire » étendu). Avant : Remplir depuis la page de la course (Objectif 0.84) ; fonction `lire-page-course` à coller dans Supabase.
-- En suspens : V3 de la repasse (Événement / Course / Parcours, définitions attendues) ; fonctions `proposer-seances` (Décrassage) et `lire-page-course` à coller ; plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
+- Dernier lot : repasse de cohérence (glossaire § 12 complété et appliqué partout : préparation, Allègement, Décrassage, Ressenti… ; contrastes, cadres, états vides, case « Faite », onglet hors menu, liens vers le Guide, Compte en haut des Préférences ; contrôle « vocabulaire » étendu). Avant : Mon profil simplifié (évolution 046 à coller dans Supabase).
+- En suspens : V3 de la repasse (Événement / Course / Parcours, définitions attendues) ; à coller dans Supabase : évolution 046, fonctions `proposer-seances` (Décrassage) et `lire-page-course` ; plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : V3, puis renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).

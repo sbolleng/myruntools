@@ -491,7 +491,7 @@ Pas d'autre bouton : quitter la page sans « OK » abandonne la proposition ; (5
 | Source | Données |
 |---|---|
 | Course | Date, format, route ou trail, distance, D+, D−, heure de départ, objectif et ses précisions, rôle (Objectif, Préparatoire, Plaisir), ravitaillements (F57) ; avec un GPX, l'altitude de départ et la plus haute, chaque kilomètre (D+, D−, pente moyenne, altitude lissée sur 50 m), les montées et descentes de plus de 100 m (extrêmes successifs à 30 m près) |
-| Mon profil | Sexe, âge, poids, FC de repos, niveau, ancienneté, volume par semaine, plus longue sortie récente, VMA ou temps sur 10 km ou semi, FC max, terrain, points fragiles, blessure en cours |
+| Mon profil | Sexe, âge, poids, FC de repos, niveau, ancienneté, volume par semaine, plus longue séance récente, VMA ou temps sur 10 km ou semi, FC max, terrain, points fragiles, blessure en cours |
 | Palmarès | Les courses courues comparables (même format, ou même type et distance à ± 30 %), sans abandon, des 24 derniers mois, au plus 5 : date, format, distance, D+, temps, allure, FC moyenne |
 | Entraînement | Les séances de course faites des 12 dernières semaines (réalisé, sinon prévu) : par mois, nombre, km, D+ et durée ; la plus longue sortie |
 | Nutrition | Les aliments favoris : nom, portion, calories, glucides |
