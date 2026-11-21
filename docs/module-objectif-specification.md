@@ -272,7 +272,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 - **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la saison, sinon la feuille se ferme (course courue ajoutée au Palmarès).
 - **Toucher une ligne du Palmarès** : la feuille en consultation d'une course courue (ci-dessous). **Crayon d'une ligne** : la feuille directement en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
-- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, dans la barre du haut, à gauche d'« Enregistrer » (sur téléphone, la poubelle seule) ; après confirmation, la feuille se ferme.
+- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, dans la barre du haut, à gauche d'« Enregistrer », la poubelle seule (son nom en info-bulle et pour les lecteurs d'écran) ; après confirmation, la feuille se ferme.
 - Le formulaire n'ouvre plus de fenêtre par-dessus : « Régler les phases » est dans la page Mon plan, sur un Objectif seulement (décidé le 11 novembre 2026, précisé le 12).
 
 ```

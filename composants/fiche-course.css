@@ -103,11 +103,8 @@
 /* Résultat : temps et allure sur une demi-ligne chacun, puis les classements. */
 .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: span 3; }
 .fc-fiche .fc-actions { justify-content: flex-start; margin-top: 1.4rem; }
-/* « Supprimer la course » : en haut, à gauche d'« Enregistrer » ; à contour rouge (fc-danger), avec sa poubelle ; sur téléphone, la poubelle seule. */
+/* « Supprimer la course » : en haut, à gauche d'« Enregistrer » ; à contour rouge (fc-danger), la poubelle seule (nom dans aria-label et title). */
 .fc-barre-droite { display: flex; align-items: center; gap: 0.6rem; }
-@media (max-width: 600px) {
-  .fc-supprimer-txt { display: none; }
-}
 .fc-ico { width: 0.9rem; height: 0.9rem; flex: none; }
 @media (max-width: 600px) {
   .fc-fiche .fc-grille-3 > .fc-champ:not(.fc-moitie):not(.fc-tiers):not(.fc-large) { grid-column: auto; }
