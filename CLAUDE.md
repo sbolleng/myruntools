@@ -17,6 +17,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 - Vocabulaire : un mot par notion, celui du glossaire (`docs/design.md` § 12) ; tout nouveau texte le reprend (contrôle « vocabulaire » du banc d'essai).
 - Apparence : les règles communes du design (`docs/design.md`, § 1) et l'échelle de sept tailles (§ 3) ; un module reprend les éléments et les variables de `en-tete.css`, il n'en invente pas.
 - Économie de jetons : un fichier de plus de 30 Ko (spécifications Objectif, Préparation, Calendrier, Nutrition, design, gros composants `.js`) ne se lit pas en entier : lister d'abord ses titres (`grep -n '^#'`) ou chercher le mot utile, puis ne lire que les paragraphes ou les lignes concernés. Lancer `node essais.js repasse <groupe>` pendant la mise au point, le banc entier une seule fois avant la mise en ligne.
+- Quand l'utilisateur écrit « reset » : donner la requête SQL de remise à zéro d'un compte pilote (`docs/module-preparation-specification.md`, § 7.1), avec l'adresse qu'il indique dans la discussion ; l'adresse n'est jamais écrite dans le dépôt.
 - Pas d'indexation : chaque page porte `<meta name="robots" content="noindex">` ; `robots.txt` interdit tout.
 
 ## Spécifications
