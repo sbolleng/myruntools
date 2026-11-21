@@ -65,7 +65,7 @@
       const cs = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && lundiDe(c.date) === l);
       const cas = '<a class="ps-sem ph-' + ph + (l === lundi ? ' is-courante' : '') + '" href="calendrier.html#semaines=' + l + '" data-lundi="' + l + '" title="' + esc('Semaine du ' + jm(parse(l)) + ' · ' + NOM_PHASE[ph]) + '">' +
         '<span class="ps-sem-d">' + jjmm(parse(l)) + '</span>' +
-        cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '">' + window.mrtIcone.repere + esc(c.course) + '</span>').join('') +
+        (cs.length ? '<span class="ps-sem-cs">' + cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '" title="' + esc(c.course) + '">' + window.mrtIcone.repere + esc(c.course) + '</span>').join('') + '</span>' : '') +
         '</a>';
       const b = blocs[blocs.length - 1];
       if (b && b.ph === ph) b.cases.push(cas); else blocs.push({ ph, cases: [cas] });
@@ -139,14 +139,16 @@
         .sort((a, b) => (a.date < b.date ? -1 : 1));
       // Un lien commun par course (design, § 11) : le nom et le chevron dessiné ; la date et le rôle dans l'infobulle (la feuille de la course les donne).
       const puce = (c, role) => '<button type="button" class="mrt-lien ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span>' + window.mrtIcone.droite + '</button>';
+      // (30) Le rond « i » : comment MyRunTools construit le plan (le Guide demande une connexion : pas sur le site partagé).
+      const info = ctx.lectureSeule ? '' : '<a class="mrt-rond ps-guide" href="guide.html#saison" aria-label="Comment MyRunTools construit ton plan" title="Comment MyRunTools construit ton plan">' + window.mrtIcone.info + '</a>';
       // (5) Seules les courses avant l'Objectif, après « Avant : » (l'Objectif est le titre) ; (6) « + Préparatoire » au bout de la ligne.
       const saison = '<div class="ps-saison"><div class="ps-sc-liste">' + (avant.length ? '<span class="ps-sc-avant">Avant :</span>' : '') +
         avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') +
-        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-lien ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
-      // (30) Le rond « i » : comment MyRunTools construit le plan (le Guide demande une connexion : pas sur le site partagé).
-      const info = ctx.lectureSeule ? '' : '<a class="mrt-rond ps-guide" href="guide.html#saison" aria-label="Comment MyRunTools construit ton plan" title="Comment MyRunTools construit ton plan">' + window.mrtIcone.info + '</a>';
+        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-lien ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div>' +
+        // (25) Réglages du plan, puis (30) le rond « i » : sur la même ligne, tout à droite.
+        '<span class="ps-saison-droite">' + reglages + info + '</span></div>';
       let h = '<section class="ob-carte sans-cpt ps-objectif">' +
-        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><span class="ps-droite"><span class="ps-j">' + jours + ' j</span>' + info + '</span><p class="ps-sous">' + esc(infos) + '</p>' +
+        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><span class="ps-droite"><span class="ps-j">' + jours + ' j</span></span><p class="ps-sous">' + esc(infos) + '</p>' +
         (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + saison + '</section>';
       h += friseHtml(ctx, ps, lundi) + bandeauHtml(ctx, lundi, ps.alertes, o);
       ctx.objectifVise = o;
@@ -154,7 +156,7 @@
       const total = window.mrtTotalSemaine(ctx, lundi);
       h += '<section class="ps-semaine"><div class="ps-semaine-tete"><h3 class="ps-libelle">Cette semaine' +
         '<a class="mrt-lien ps-vers-cal" href="calendrier.html" title="Voir les semaines dans le Calendrier">Calendrier' + window.mrtIcone.droite + '</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
-        window.mrtCetteSemaine(ctx, lundi, { plus: j => [...new Set(P.reperesDuJour(ps, j).map(r => (r.type === 'allege' ? 'Allégé' : r.type === 'repos' ? 'Repos' : 'Récupération')))].map(t => '<span class="cal-v-rep">' + t + '</span>').join('') }) + '</section>' + reglages;
+        window.mrtCetteSemaine(ctx, lundi, { plus: j => [...new Set(P.reperesDuJour(ps, j).map(r => (r.type === 'allege' ? 'Allégé' : r.type === 'repos' ? 'Repos' : 'Récupération')))].map(t => '<span class="cal-v-rep">' + t + '</span>').join('') }) + '</section>';
       root.innerHTML = '<div class="ps-cadre ps-vue">' + h + '</div>';
       placerFrise();
       if (M.couperNoms) M.couperNoms();
