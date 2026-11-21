@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 nov. 2026 | Mon plan, carte et frise | « Réglages du plan ▾ » (25) puis le rond « i » (30) tout à droite de la ligne des courses (26, 27) ; liens des courses rapprochés ; frise : noms de course à la verticale (case allongée), nom de phase dans une nuance foncée de sa couleur. |
 | 21 nov. 2026 | Mon plan, clarté | Préparation 3.15 : les quatre réglages (Mon profil, Changer d'Objectif, Personnaliser, Exporter) dans un seul bouton Menu « Réglages du plan ▾ », en bas de la page ; ligne des courses : « Avant : » et les seules courses d'avant l'Objectif (l'Objectif est le titre), « + Préparatoire » au bout ; menu commun `mrt-menu` ajouté au panneau (design, § 11). |
 | 21 nov. 2026 | Mes stats, bloc d'analyse | Bouton « Actualiser » supprimé (Mes stats 0.4) : l'analyse de l'IA n'est refaite qu'après un import. Contrôle « boutons » étendu à Mes stats (page vide, page remplie, feuille d'import). |
 | 21 nov. 2026 | Mes stats, axes des graphiques | Axes à `--t-libelle` (0,7 rem), comme tous les graphiques du site : la spécification est corrigée (0.3), le code ne change pas. |

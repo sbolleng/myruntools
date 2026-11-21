@@ -2833,7 +2833,7 @@ const CONTROLES = {
         repos: [...document.querySelectorAll('.ps-semaine .cal-repos')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne),
         lien: (document.querySelector('.ps-semaine-tete a.ps-vers-cal') || { getAttribute: () => null }).getAttribute('href'),
         texteLien: t('.ps-semaine-tete a.ps-vers-cal'), guideBas: document.querySelectorAll('.mrt-guide').length,
-        info: [...document.querySelectorAll('.ps-objectif .ps-droite > *')].map(e => (e.getAttribute('href') || e.textContent.trim()) + '|' + (e.getAttribute('aria-label') || '')),
+        info: [...document.querySelectorAll('.ps-objectif .ps-droite > *, .ps-saison-droite > a')].map(e => (e.getAttribute('href') || e.textContent.trim()) + '|' + (e.getAttribute('aria-label') || '')),
         libelleObjectif: document.querySelectorAll('.ps-objectif .ob-role, .ps-saison .ob-lib').length,
         plus: document.querySelectorAll('.ps-semaine [data-ajout]').length,
         ordre: [...document.querySelectorAll('.ps-vue > *')].map(e => e.className.split(' ').find(c => c.startsWith('ps-'))),
@@ -2853,7 +2853,7 @@ const CONTROLES = {
           nom + ', phases : Entretien avant la saison, saison du Trail des Gorges dès le 16 novembre, Récupération jusqu\'au 17 avril, Entretien, saison du Trail des Crêtes dès le 10 mai, affûtage dès le 16 août'),
         egal(['2026-11-09 Trail du Lac r-preparatoire', '2026-12-07 Corrida de Noël r-plaisir', '2027-03-01 Trail des Gorges r-objectif', '2027-05-24 Trail des Cimes r-preparatoire is-option', '2027-06-21 Ultra du Plateau r-preparatoire is-option', '2027-06-28 Trail de la Forêt r-preparatoire is-option', '2027-08-23 Trail des Crêtes r-objectif'], r.marques,
           nom + ', courses dans leur semaine, repérées par leur rôle, options à part'),
-        egal([['Alertes (0)'], 0, ['ps-objectif', 'ps-frise-z', 'ps-bandeau', 'ps-semaine', 'ps-reglages']], [r.alertes, r.retires, r.ordre], nom + ', pas d\'alerte ; plus de frise « En cours », de courses du plan, d\'historique ni de « Proposer » ; l\'ordre de la page'),
+        egal([['Alertes (0)'], 0, ['ps-objectif', 'ps-frise-z', 'ps-bandeau', 'ps-semaine']], [r.alertes, r.retires, r.ordre], nom + ', pas d\'alerte ; plus de frise « En cours », de courses du plan, d\'historique ni de « Proposer » ; l\'ordre de la page'),
         egal([false, true], await fleches(p), nom + ', flèches : seule « suivantes » au départ (la frise ne tient pas)'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));
@@ -2868,7 +2868,7 @@ const CONTROLES = {
     await p.waitForSelector('.ps-objectif');
     let r = await lire(p);
     pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier à côté du titre'),
-        egal(['Calendrier', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » et le rond « i » vers le Guide ; plus de lien du Guide en bas ; « Calendrier › »'));
+        egal(['Calendrier', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » sur la ligne du nom, le rond « i » vers le Guide à droite de la ligne des courses ; plus de lien du Guide en bas ; « Calendrier › »'));
     pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
