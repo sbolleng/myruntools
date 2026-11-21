@@ -7,10 +7,11 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 | Date | Sujet | Décision |
 | --- | --- | --- |
 | 21 nov. 2026 | Fiche d'une course, Parcours et barre | Objectif 0.86 : ravitaillements en traits pointillés sur le profil (56) ; ligne « Tracé GPX » sans état (« Aucun tracé », « Tracé importé ») : « Importer un tracé », toujours là, remplace l'existant, et « Supprimer le tracé » en bouton commun ; « Supprimer la course » monte dans la barre du haut, à gauche d'« Enregistrer » (poubelle seule sur téléphone). |
+| 21 nov. 2026 | Consigne de l'IA, phases | `proposer-seances` : la consigne nomme la phase « allègement », comme le contexte envoyé par le site (plus « deload »). |
 | 21 nov. 2026 | Repasse de cohérence : glossaire | Glossaire du design (§ 12) complété ; un nom par notion pour tout texte affiché, les spécifications et le banc ; noms en base et identifiants internes inchangés. |
 | 21 nov. 2026 | Vocabulaire : Objectif | « Objectif » garde ses trois emplois (rôle, Objectif principal, temps ou résultat visé) ; « course principale » ne s'écrit plus : Objectif principal. |
 | 21 nov. 2026 | Vocabulaire : préparation | La période qui mène à un Objectif s'appelle « préparation » (« Courses de la préparation », « préparation de 16 semaines ») ; « Saison » reste le nom de la page des courses à venir. |
-| 21 nov. 2026 | Vocabulaire : Événement / Course | En attente : définitions à recevoir (tableau des Courses « Événement / Course », fiche « Course / Parcours »). |
+| 21 nov. 2026 | Vocabulaire : Événement / Course | Abandonné : le tableau des Courses garde « Événement / Course », la fiche « Course / Parcours ». |
 | 21 nov. 2026 | Vocabulaire : phases et séances | Phase « Deload » → **Allègement** (valeur `deload` inchangée) ; séance « Récupération » → **Décrassage** (l'ancien nom reste reconnu dans les séances enregistrées ; consigne de l'IA mise à jour, fonction `proposer-seances` à recoller) ; abréviation « Renf. ». |
 | 21 nov. 2026 | Vocabulaire : libellés | « Pourquoi cette course » (texte libre), légende Course · Option · Objectif, fenêtre « Régler les phases » (bouton Personnaliser), « Ressenti », « À noter », « Séance » dans Nutrition, « Plus longue séance récente », « Espaces partagés avec moi », engrenage « Préférences », « Ouverture des inscriptions » partout, compte à rebours « 138 j », bouton « Exporter ». |
 | 21 nov. 2026 | Flèches dessinées | Plus aucune flèche tapée (→ ← ↑ ▲ ↻) : icônes communes (`mrtIcone`, dont `crayon` et `repere`). |
