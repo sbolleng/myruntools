@@ -15,7 +15,7 @@ La liste de tous les outils et services de MyRunTools : à quoi chacun sert, où
 | Resend | `resend.com` | Envoi des e-mails : réponses au contact, puis e-mails de confirmation et de réinitialisation (SMTP de Supabase) | Utilisé |
 | Gmail | `mail.google.com` | Réception et réponse aux messages de contact, l'envoi passant par Resend | Utilisé |
 | Cloudflare Turnstile | `dash.cloudflare.com` → Turnstile ; le site charge `challenges.cloudflare.com` | Contrôle anti-robot (connexion, « Créer un compte », changement de mot de passe) ; seul usage de Cloudflare. Clé du site publiée, reste à l'activer dans Supabase avec la clé secrète | À activer |
-| API Anthropic | `platform.claude.com` | Séances proposées par l'IA, par la fonction `proposer-seances` ; secrets `ANTHROPIC_API_KEY`, `PILOTES`, `MODELE`, `PLAFOND` ([Préparation](module-preparation-specification.md)) | Utilisé (pilotes) |
+| API Anthropic | `platform.claude.com` | Séances proposées par l'IA, par la fonction `proposer-seances`, et stratégie de course, par `proposer-strategie` ([Objectif](module-objectif-specification.md), § 3.10) ; secrets `ANTHROPIC_API_KEY`, `PILOTES`, `MODELE`, `PLAFOND` ([Préparation](module-preparation-specification.md)) | Utilisé (pilotes) |
 | Claude Code | `claude.ai/code` | Construction du site à partir des spécifications ; bilan hebdomadaire prévu en routine Claude | Utilisé |
 
 ## 2. Services appelés par le site (aucun compte)

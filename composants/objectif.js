@@ -327,7 +327,11 @@
       ? '<div class="tr-zone"></div>'
       : edition ? '<p class="tr-actions"><button type="button" class="mrt-btn" data-ob="importer">Importer un GPX</button><input type="file" class="tr-fichier" accept=".gpx" hidden></p>' +
         '<div class="tr-choix-zone" hidden></div><p class="tr-erreur" aria-live="polite"></p>' : '';
-    return cellule('Parcours', trace + (c.strategie ? '<div class="pc-strategie"><p class="pc-sous-titre">Stratégie de course</p>' + texte(c.strategie) + '</div>' : ''), 'parcours');
+    // Ravitaillements (52) ; « Proposer une stratégie » (53, Objectif § 3.10) : course à venir, hors lecture seule.
+    const kms = Array.isArray(c.ravitaillements_km) && c.ravitaillements_km.length ? c.ravitaillements_km : null;
+    const ravitos = kms ? '<p class="pc-ravitos"><span class="ob-lib">Ravitaillements</span> <span>km ' + kms.map(x => esc(nombre(x))).join(' · ') + '</span></p>' : '';
+    const proposer = edition && c.etat === 'a_venir' && window.mrtStrategie ? window.mrtStrategie.html(c) : '';
+    return cellule('Parcours', trace + ravitos + (c.strategie ? '<div class="pc-strategie"><p class="pc-sous-titre">Stratégie de course</p>' + texte(c.strategie) + '</div>' : '') + proposer, 'parcours');
   }
   // Tracé : dessiné à la première ouverture de Parcours (la carte a besoin de sa taille) ; import depuis la consultation.
   function brancherParcours(el, c, ctx) {
@@ -356,7 +360,9 @@
       parcoursOuvert = c.id; // la page redessinée rouvre Parcours, avec la carte
       if (ctx.actualiser) await ctx.actualiser();
     });
-    if (parcoursOuvert === c.id && c.gpx) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
+    if (window.mrtStrategie) window.mrtStrategie.brancher(el, c, ctx, async () => { parcoursOuvert = c.id; if (ctx.actualiser) await ctx.actualiser(); });
+    if (parcoursOuvert === c.id && !c.gpx) { parcoursOuvert = null; parcours.open = true; }
+    else if (parcoursOuvert === c.id && c.gpx) { parcoursOuvert = null; parcours.open = true; T.dessiner(parcours.querySelector('.tr-zone'), c); }
     // Parcours renseigné (tracé GPX ou stratégie) : ouvert d'emblée, à l'ouverture de la course (les autres textes restent repliés).
     // Course courue sans tracé : Parcours reste refermé (le bouton d'import s'y trouve), même avec une stratégie.
     else if ((c.gpx || (c.strategie && c.etat !== 'courue')) && el.dataset.pcOuvert !== c.id) { parcours.open = true; } // le tracé se dessine à l'ouverture (toggle)

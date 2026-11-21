@@ -125,6 +125,7 @@ create table courses (
   objectif_precisions text check (char_length(objectif_precisions) <= 100), -- texte libre qui accompagne l'objectif
   pourquoi   text, -- rôle dans la préparation
   strategie  text,
+  ravitaillements_km numeric[] check (ravitaillements_km is null or cardinality(ravitaillements_km) <= 50), -- évolution 044
   logistique text,
 
   -- Préparation du Calendrier : durée en semaines, vide = celle du format
