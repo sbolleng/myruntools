@@ -300,7 +300,7 @@
     racine.innerHTML =
       '<form novalidate>' +
         '<div class="pc-barre fc-barre"><button type="button" class="mrt-btn" data-fc="annuler">Annuler</button>' +
-          '<span class="fc-barre-droite">' + (existe && !marquer ? '<button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer" aria-label="Supprimer la course" title="Supprimer la course">' + POUBELLE + '<span class="fc-supprimer-txt">Supprimer la course</span></button>' : '') +
+          '<span class="fc-barre-droite">' + (existe && !marquer ? '<button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer" aria-label="Supprimer la course" title="Supprimer la course">' + POUBELLE + '</button>' : '') +
           '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></span></div>' +
         // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
         '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +

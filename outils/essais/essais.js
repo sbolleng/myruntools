@@ -1297,10 +1297,10 @@ const CONTROLES = {
       { barre: await barre(p), croix: await p.locator('.pc-fermer').count(), couches: await p.locator('.cal-voile').count(), feuilles: await p.locator('.mc-voile').count(), blocs: await titres(p),
         dossard: await p.evaluate(() => { const e = document.querySelector('#fc-dossard'); return [e.closest('.fc-grille').previousElementSibling.dataset.bloc, e.value]; }) }, 'crayon : édition dans la même feuille'));
     // Libellé du mode en capitales discrètes ; « Supprimer la course » : bouton à contour rouge avec sa poubelle, en haut, à gauche d'« Enregistrer ».
-    pb.push(egal({ auxBords: true, libelle: 'uppercase', texte: 'Supprimer la course', poubelle: true, rouge: true, enHaut: true }, await p.evaluate(() => {
+    pb.push(egal({ auxBords: true, libelle: 'uppercase', texte: ['', 'Supprimer la course'], poubelle: true, rouge: true, enHaut: true }, await p.evaluate(() => {
       const b = document.querySelector('.fc-supprimer'), st = getComputedStyle(b), blocs = document.querySelectorAll('.fc-fiche .fc-bloc');
       const an = document.querySelector('.fc-barre [data-fc="annuler"]').getBoundingClientRect(), en = document.querySelector('.fc-barre .fc-plein').getBoundingClientRect(), br = document.querySelector('.fc-barre').getBoundingClientRect();
-      return { auxBords: an.left - br.left < 40 && br.right - en.right < 40, libelle: getComputedStyle(document.querySelector('#fc-titre')).textTransform, texte: b.textContent.trim(), poubelle: !!b.querySelector('svg'),
+      return { auxBords: an.left - br.left < 40 && br.right - en.right < 40, libelle: getComputedStyle(document.querySelector('#fc-titre')).textTransform, texte: [b.textContent.trim(), b.getAttribute('aria-label')], poubelle: !!b.querySelector('svg'),
         rouge: st.borderTopColor === st.color && st.color === getComputedStyle(document.documentElement).getPropertyValue('--red').trim().replace(/^#(..)(..)(..)$/, (m, r, g, bl) => 'rgb(' + [r, g, bl].map(x => parseInt(x, 16)).join(', ') + ')'),
         enHaut: !!b.closest('.fc-barre') && Math.abs(b.getBoundingClientRect().top - en.top) < 4 && b.getBoundingClientRect().right <= en.left && b.getBoundingClientRect().top < blocs[0].getBoundingClientRect().top };
     }), 'Annuler à gauche, Enregistrer à droite ; libellé du mode ; Supprimer la course, à contour rouge, en haut à gauche d\'Enregistrer'));
