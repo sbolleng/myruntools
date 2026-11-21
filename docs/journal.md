@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 21 nov. 2026 | Mes stats, bloc d'analyse | Bouton « Actualiser » supprimé (Mes stats 0.4) : l'analyse de l'IA n'est refaite qu'après un import. Contrôle « boutons » étendu à Mes stats (page vide, page remplie, feuille d'import). |
 | 21 nov. 2026 | Mes stats, axes des graphiques | Axes à `--t-libelle` (0,7 rem), comme tous les graphiques du site : la spécification est corrigée (0.3), le code ne change pas. |
 | 21 nov. 2026 | Panneau des boutons | Sept boutons, un sens chacun (design, § 11) : Principal (un par écran), Secondaire, Menu (▾), Danger (« Supprimer … », seul en bas), Rond, Petit rond + (ajouter une séance), Lien (› vers le site, ↗ vers l'extérieur) ; la pastille sert seulement à choisir ; avant tout nouveau bouton, reprendre l'un des sept. |
 | 21 nov. 2026 | Boutons, application | « Supprimer la course » seul en bas avec son texte (remplace la poubelle en haut) ; Nutrition et accueil : « Ajouter un repas » seul principal, « Ajouter une séance » en secondaire (et en secondaire aussi tant que les Premiers pas sont là) ; Courses de la préparation et « D'ici là » en listes de liens ; « Phases » en rond à l'œil ; « Calendrier › » en lien dans Mon plan ; liens unifiés. |
