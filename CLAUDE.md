@@ -15,7 +15,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 - Le pilote route est désigné « le compte test Rome », jamais par son nom ni son adresse, nulle part.
 - Le dépôt est public : aucune donnée personnelle, aucun nom complet de tiers, aucune référence de réservation. Jamais de secret (clé de service Supabase) ; seule la clé publique figure dans le code. Les scripts d'import de données personnelles ne sont jamais versionnés.
 - Vocabulaire : un mot par notion, celui du glossaire (`docs/design.md` § 12) ; tout nouveau texte le reprend (contrôle « vocabulaire » du banc d'essai).
-- Apparence : les règles communes du design (`docs/design.md`, § 1) et l'échelle de sept tailles (§ 3) ; un module reprend les éléments et les variables de `en-tete.css`, il n'en invente pas.
+- Apparence : les règles communes du design (`docs/design.md`, § 1) et l'échelle de sept tailles (§ 3) ; un module reprend les éléments et les variables de `en-tete.css`, il n'en invente pas. Boutons : un des sept du panneau (§ 11), jamais un nouveau sans en parler (contrôle « boutons » du banc).
 - Économie de jetons : un fichier de plus de 30 Ko (spécifications Objectif, Préparation, Calendrier, Nutrition, design, gros composants `.js`) ne se lit pas en entier : lister d'abord ses titres (`grep -n '^#'`) ou chercher le mot utile, puis ne lire que les paragraphes ou les lignes concernés. Lancer `node essais.js repasse <groupe>` pendant la mise au point, le banc entier une seule fois avant la mise en ligne.
 - Quand l'utilisateur écrit « reset » : donner la requête SQL de remise à zéro d'un compte pilote (`docs/module-preparation-specification.md`, § 7.1), avec l'adresse qu'il indique dans la discussion ; l'adresse n'est jamais écrite dans le dépôt.
 - Pas d'indexation : chaque page porte `<meta name="robots" content="noindex">` ; `robots.txt` interdit tout.
@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Mon plan, carte de l'Objectif aérée (Préparation 3.13) : sans libellé « Objectif », « 138 j » et rond « i » (Guide) sur la ligne du nom, courses de la préparation en liens « Nom › », « Calendrier › » dans Cette semaine. Avant : fiche d'une course (Objectif 0.86) : ravitaillements, tracé, « Supprimer la course ».
+- Dernier lot : panneau des boutons (design § 11 : sept boutons, un sens chacun ; Supprimer seul en bas, un seul principal, listes de liens dans Mon plan et « D'ici là », « Phases » en rond ; contrôle « boutons » au banc). Avant : Mon plan, carte de l'Objectif aérée (Préparation 3.13).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).

@@ -13,7 +13,7 @@
   // Blocs affichés : mrtBlocsAffiches (donnees.js), aussi lu par l'en-tête.
 
   const bloc = (id, titre, lien, corps, bientot) => '<section class="ac-bloc' + (bientot ? ' is-bientot' : '') + '" data-bloc="' + id + '">' +
-    '<h2 class="ac-titre"><span>' + esc(titre) + (bientot ? ' · bientôt' : '') + '</span>' + (lien ? '<a href="' + lien[0] + '">' + esc(lien[1]) + window.mrtIcone.droite + '</a>' : '') + '</h2>' + corps + '</section>';
+    '<h2 class="ac-titre"><span>' + esc(titre) + (bientot ? ' · bientôt' : '') + '</span>' + (lien ? '<a class="mrt-lien" href="' + lien[0] + '">' + esc(lien[1]) + window.mrtIcone.droite + '</a>' : '') + '</h2>' + corps + '</section>';
   const vide = t => '<p class="ac-vide">' + esc(t) + '</p>';
 
   const BLOCS = {
@@ -26,18 +26,19 @@
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),
     // Le bilan du jour et l'ajout en une touche (nutrition.js, renderNutritionAccueil).
     // « Détail → » : le lien de titre commun (comme « Feuille de route → »), vers la page Nutrition.
-    nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a href="nutrition.html">Détail' + window.mrtIcone.droite + '</a></h2><div class="nu-accueil"></div></section>',
+    nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a class="mrt-lien" href="nutrition.html">Détail' + window.mrtIcone.droite + '</a></h2><div class="nu-accueil"></div></section>',
     // Les étapes de la feuille de route jusqu'au cap compris.
     dicila: (courses, prefs) => {
       const cap = window.mrtCap(courses, prefs), etapes = [];
       for (const e of window.mrtEtapes(courses)) {
         const avecCap = e.course ? e.course === cap : e.candidats.includes(cap);
-        etapes.push(e.course
-          ? '<a class="mrt-pastille ac-etape' + (avecCap ? ' is-cap' : '') + '" href="' + pageCourse(e.course) + '">' + esc(e.course.course) + '</a>'
-          : '<span class="mrt-pastille ac-etape is-groupe' + (avecCap ? ' is-cap' : '') + '">' + esc(e.groupe) + '</span>');
+        // Une ligne par étape : le nom en lien vers la course (une pastille sert à choisir, pas à naviguer : design, § 11) ; l'Objectif principal en Accent.
+        etapes.push('<li>' + (e.course
+          ? '<a class="mrt-lien ac-etape' + (avecCap ? ' is-cap' : '') + '" href="' + pageCourse(e.course) + '">' + esc(e.course.course) + '</a>'
+          : '<span class="ac-etape is-groupe' + (avecCap ? ' is-cap' : '') + '">' + esc(e.groupe) + '</span>') + '</li>');
         if (avecCap) break;
       }
-      return bloc('dicila', 'D\'ici là', window.mrtModulesAffiches(prefs).some(m => m.nom === 'Préparation') ? ['preparation.html', 'Mon plan'] : null, etapes.length ? '<div class="ac-etapes">' + etapes.join('<i aria-hidden="true">›</i>') + '</div>' : vide('Aucune course à venir.'));
+      return bloc('dicila', 'D\'ici là', window.mrtModulesAffiches(prefs).some(m => m.nom === 'Préparation') ? ['preparation.html', 'Mon plan'] : null, etapes.length ? '<ol class="ac-etapes">' + etapes.join('') + '</ol>' : vide('Aucune course à venir.'));
     },
     // La dernière course courue ; son nom ouvre son résultat (la page de la course, en modale).
     derniere: courses => {
@@ -63,11 +64,11 @@
       esc(x.libelle || '') + (x.duree_min ? ' · ' + esc(x.duree_min >= 60 ? Math.floor(x.duree_min / 60) + ' h' + (x.duree_min % 60 ? pad(x.duree_min % 60) : '') : x.duree_min + ' min') : '') + '</label></li>'));
     const avecNutrition = window.mrtModulesAffiches(prefs).some(m => m.nom === 'Nutrition');
     const plus = window.mrtIcone.plus;
-    // Comme les boutons « Activité » et « Repas » de la page Nutrition : bouton principal (Accent), « + », libellé et picto.
+    // Comme les boutons « Repas » et « Séance » de la page Nutrition : un seul principal (repas), la séance en secondaire (design, § 11).
     const N = window.mrtNutrition || {};
     const saisies = (avecNutrition ? '<button type="button" class="mrt-btn is-principal" data-rapide="repas">' + plus + 'Ajouter un repas' + (N.PICTO_ASSIETTE || '') + '</button>' +
-      '<button type="button" class="mrt-btn is-principal" data-rapide="activite">' + plus + 'Ajouter une séance' + (N.PICTO_HALTERE || '') + '</button>' : '');
-    return '<section class="ac-bloc ac-aujourdhui" data-bloc="aujourdhui"><h2 class="ac-titre"><span>Aujourd\'hui</span><a href="calendrier.html">Calendrier' + window.mrtIcone.droite + '</a></h2>' +
+      '<button type="button" class="mrt-btn" data-rapide="activite">' + plus + 'Ajouter une séance' + (N.PICTO_HALTERE || '') + '</button>' : '');
+    return '<section class="ac-bloc ac-aujourdhui" data-bloc="aujourdhui"><h2 class="ac-titre"><span>Aujourd\'hui</span><a class="mrt-lien" href="calendrier.html">Calendrier' + window.mrtIcone.droite + '</a></h2>' +
       (lignes.length ? '<ul class="ac-jour">' + lignes.join('') + '</ul>' : vide('Rien de prévu aujourd\'hui.')) +
       (saisies ? '<div class="ac-rapide">' + saisies + '</div>' : '') + '</section>';
   }
@@ -137,6 +138,8 @@
     // La découverte, tant qu'elle est là, tient lieu de « Pour aller plus loin ».
     const pas = premiers(courses, nutrition), dec = decouverteAffichee(prefs, nutrition) ? decouverte(prefs) : '';
     el.innerHTML = '<div class="ac-grille">' + pas + dec + (pas && !courses.length ? '' : aujourdhui(courses, nutrition, prefs) + blocs.map(b => BLOCS[b.id](courses, prefs)).join('') + (dec ? '' : decouvrir(prefs, nutrition && nutrition.lectureSeule))) + '</div>';
+    // Un seul bouton principal par écran (design, § 11) : tant que les Premiers pas sont là, « Ajouter un repas » passe en secondaire.
+    if (pas) el.querySelectorAll('[data-rapide].is-principal').forEach(b => b.classList.remove('is-principal'));
     el.querySelectorAll('[data-menu]').forEach(c => c.addEventListener('change', () => { c.disabled = true; nutrition.basculerModule(c.dataset.menu, c.checked); }));
     const compris = el.querySelector('[data-compris]');
     if (compris) compris.addEventListener('click', () => { compris.disabled = true; nutrition.decouverteVue(); });

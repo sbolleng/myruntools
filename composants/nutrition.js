@@ -256,8 +256,8 @@
         '<p class="nu-kcal"><span class="nu-kcal-val"></span> kcal</p><p class="nu-phase"></p>' +
         '<p class="nu-calcule"><button type="button" class="mrt-lien nu-profil-l" data-act="profil">Calculé pour ' + esc(htmlProfil()) + '</button></p>' +
         '<div class="nu-anneaux"></div>' +
-        '<div class="nu-tuiles"><button type="button" class="nu-tuile mrt-btn is-principal" data-act="activite" title="Ajouter une séance">' + mrtIcone.plus + '<span class="nu-tuile-l">Séance</span>' + PICTO_HALTERE + '</button>' +
-        '<button type="button" class="nu-tuile mrt-btn is-principal" data-act="ajout-repas" title="Ajouter un repas">' + mrtIcone.plus + '<span class="nu-tuile-l">Repas</span>' + PICTO_ASSIETTE + '</button></div>' +
+        '<div class="nu-tuiles"><button type="button" class="nu-tuile mrt-btn is-principal" data-act="ajout-repas" title="Ajouter un repas">' + mrtIcone.plus + '<span class="nu-tuile-l">Repas</span>' + PICTO_ASSIETTE + '</button>' +
+        '<button type="button" class="nu-tuile mrt-btn" data-act="activite" title="Ajouter une séance">' + mrtIcone.plus + '<span class="nu-tuile-l">Séance</span>' + PICTO_HALTERE + '</button></div>' +
         '<p class="nu-msg nu-msg-sport" role="alert">' + esc(S.msgSport) + '</p>';
     }
     // Feuille Activité : les séances du jour (celles du Calendrier, sa fenêtre pour les ajouter ou les modifier), puis les autres sports.

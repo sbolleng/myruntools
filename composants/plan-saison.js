@@ -25,8 +25,7 @@
   const couvrante = (ctx, lundi) => (ctx.propositions || []).filter(x => (x.statut === 'brute' || x.statut === 'acceptee') && x.bloc <= lundi && lundi < addDays(x.bloc, 7 * BLOC))
     .sort((a, b) => (a.cree < b.cree ? 1 : -1))[0] || null;
   const PICTO = { profil: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.2" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.8 14c.6-2.9 2.6-4.4 5.2-4.4s4.6 1.5 5.2 4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-    objectif: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14V2.5M3.5 3h8l-1.8 2.7 1.8 2.8h-8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    calendrier: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' };
+    objectif: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14V2.5M3.5 3h8l-1.8 2.7 1.8 2.8h-8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' };
 
   // (9) Le bandeau de MyRunTools, toujours ouvert : les alertes, la préparatoire conseillée, la recommandation de l'IA.
   function bandeauHtml(ctx, lundi, alertes, o) {
@@ -136,11 +135,11 @@
       // (26) Les courses de la saison : les Préparatoires et les Plaisirs avant l'Objectif, puis lui ; chacune ouvre sa feuille (28).
       const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
         .sort((a, b) => (a.date < b.date ? -1 : 1));
-      // Une puce : le nom de la course et « › » ; la date et le rôle dans l'infobulle (la feuille de la course les donne).
-      const puce = (c, role) => '<button type="button" class="ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span><span class="ps-sc-f" aria-hidden="true">›</span></button>';
+      // Un lien commun par course (design, § 11) : le nom et le chevron dessiné ; la date et le rôle dans l'infobulle (la feuille de la course les donne).
+      const puce = (c, role) => '<button type="button" class="mrt-lien ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span>' + window.mrtIcone.droite + '</button>';
       const saison = '<div class="ps-saison"><div class="ps-sc-liste">' +
         avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') +
-        (ctx.lectureSeule ? '' : '<button type="button" class="ps-sc ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
+        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-lien ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
       // (30) Le rond « i » : comment MyRunTools construit le plan (le Guide demande une connexion : pas sur le site partagé).
       const info = ctx.lectureSeule ? '' : '<a class="mrt-rond ps-guide" href="guide.html#saison" aria-label="Comment MyRunTools construit ton plan" title="Comment MyRunTools construit ton plan">' + window.mrtIcone.info + '</a>';
       let h = '<section class="ob-carte sans-cpt ps-objectif">' +
@@ -151,7 +150,7 @@
       // (19) Cette semaine, (22) le lien « Calendrier › » à côté, (20) son total.
       const total = window.mrtTotalSemaine(ctx, lundi);
       h += '<section class="ps-semaine"><div class="ps-semaine-tete"><h3 class="ps-libelle">Cette semaine' +
-        '<a class="mrt-lien ps-vers-cal" href="calendrier.html">Calendrier ›</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
+        '<a class="mrt-lien ps-vers-cal" href="calendrier.html" title="Voir les semaines dans le Calendrier">Calendrier' + window.mrtIcone.droite + '</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
         window.mrtCetteSemaine(ctx, lundi, { plus: j => [...new Set(P.reperesDuJour(ps, j).map(r => (r.type === 'allege' ? 'Allégé' : r.type === 'repos' ? 'Repos' : 'Récupération')))].map(t => '<span class="cal-v-rep">' + t + '</span>').join('') }) + '</section>';
       root.innerHTML = '<div class="ps-cadre ps-vue">' + h + '</div>';
       placerFrise();

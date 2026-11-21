@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 3.13 · 21 novembre 2026 · [Retour au sommaire](README.md) · Carte de l'Objectif aérée : sans libellé « Objectif », « 138 j » et rond « i » (Guide) sur la ligne du nom, courses de la préparation en liens courts « Nom › » ; « Calendrier › » dans Cette semaine.
+Version 3.14 · 21 novembre 2026 · [Retour au sommaire](README.md) · Courses de la préparation et « + Préparatoire » en liens communs, chevron dessiné (panneau des boutons du design, § 11).
 
 ## 1. Rôle
 
@@ -217,7 +217,7 @@ Téléphone : même ordre ; la frise montre 4 semaines à la fois.
 | 29 | Exporter | Le rond commun « Exporter » (le même qu'au Calendrier), après les boutons des réglages : le plan, de la semaine en cours à celle de l'Objectif, en page à imprimer ou en PDF ([Calendrier](module-calendrier-specification.md), § 4.6) ; seul bouton sur le site partagé |
 | 3 | Frise | Tout le plan, par semaine, de la semaine en cours (ou du début de la préparation, s'il est passé) à la fin de la dernière récupération : le lundi en **JJ/MM**, la course de la semaine (▲, par rôle ; une option en italique), la phase (fond de la phase) ; les semaines consécutives d'une même phase forment un seul bloc (un fond, le nom de la phase une fois), chaque semaine y gardant son lundi, sa course et son lien ; la semaine en cours cerclée d'Accent ; une case mène au Calendrier, sur sa semaine. La frise s'ouvre sur la semaine en cours ; « ‹ » et « › » font défiler de 4 semaines, seulement quand tout ne tient pas |
 | 9 | Bandeau de MyRunTools | Toujours ouvert, sous la frise : les alertes (§ 3.4), la **préparatoire conseillée** (16 : « Préparatoire conseillée : un trail de 21 à 30 km, sur un terrain proche, du … au …. Ajouter », tant que sa fenêtre n'est pas passée et qu'aucune Préparatoire conseillée n'y est ; « Ajouter » ouvre l'ajout, la fenêtre d'abord), la recommandation de l'IA (deux phrases au plus) ; pendant un travail de l'IA : « MyRunTools prépare tes séances… », « …met à jour ton plan… (bloc 2 sur 5) » ou « …révise tes prochaines semaines… » ; un profil incomplet : « Pour que MyRunTools propose tes séances : Compléter mon profil ». Ni « Refaire », ni compteur, ni message « a changé » : le plan se met à jour seul (§ 6) |
-| 19 à 22 | Cette semaine | Une ligne par jour (mise en page de la vue Semaine du Calendrier), le total fait sur prévu, « Repos » un jour vide ; (22) le lien « Calendrier › » à droite du titre, vers le Calendrier |
+| 19 à 22 | Cette semaine | Une ligne par jour (mise en page de la vue Semaine du Calendrier), le total fait sur prévu, « Repos » un jour vide ; (22) le lien « Calendrier › » (lien commun, chevron dessiné) à droite du titre, vers le Calendrier |
 | 30 | Info | Rond « i » (même style que Exporter), à droite de « 138 j » : infobulle « Comment MyRunTools construit ton plan », vers le Guide (`guide.html#saison`) ; absent du site partagé (le Guide demande une connexion). Il remplace le lien du bas de page |
 
 **Ajout d'une préparatoire (27)**, dans la page, comme le parcours (barre, progression, croix) :

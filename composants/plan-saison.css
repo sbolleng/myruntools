@@ -120,7 +120,7 @@
 .ps-semaine-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
 .ps-semaine-tete .ps-libelle { margin: 0 0 0.5rem; }
 .ps-semaine-tete .ps-libelle { display: inline-flex; align-items: center; gap: 0.5rem; }
-.ps-vers-cal { letter-spacing: 0; text-transform: none; }
+.ps-vers-cal { margin-left: 0.6rem; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0; text-transform: none; } /* lien commun « Calendrier › » dans le titre en libellé */
 
 /* ===== Le parcours « Construire mon plan » (plan-parcours.js ; spécification Préparation, § 5.0) =====
    Les écrans de question de Mon profil (profil.css), dans la page, toute sa largeur (le cadre du plan) : la barre (‹, progression, croix). */
@@ -212,11 +212,10 @@
 /* (26) Courses de la saison, dans la carte de l'Objectif : un lien par course (nom et « › »), « + Préparatoire » ; de l'air avant et après. */
 .ps-saison { grid-column: 1 / -1; margin: 0.9rem 0 0; }
 .ps-sc-liste { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1.2rem; }
-.ps-sc { display: inline-flex; align-items: baseline; gap: 0.3rem; padding: 0; font: inherit; font-size: var(--t-second); color: var(--text); background: none; border: 0; cursor: pointer; }
+.ps-sc { display: inline-flex; align-items: baseline; gap: 0.1rem; color: var(--text); } /* lien commun (mrt-lien), le nom en Texte */
 .ps-sc-n { font-weight: 600; }
-.ps-sc-f { color: var(--muted); }
 .ps-sc:disabled { cursor: default; }
-.ps-sc-plus { color: var(--muted); align-items: center; gap: 0.25rem; }
+.ps-sc-plus { display: inline-flex; align-items: center; gap: 0.25rem; } /* lien commun (mrt-lien) */
 .ps-sc-plus .mrt-ico { width: 0.85rem; height: 0.85rem; }
 @media (hover: hover) { .ps-sc:not(:disabled):hover .ps-sc-n, .ps-sc-plus:hover { color: var(--accent); } }
 .ps-sg-ligne { margin: 0; font-size: var(--t-second); color: var(--text); }
