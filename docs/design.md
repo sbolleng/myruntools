@@ -294,6 +294,7 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Séance de renforcement | **Renforcement** (abrégé « Renf. ») | Musculation, Renfo |
 | Inscription à une course | **Inscription** (bloc, ligne des cartes) ; **Ouverture des inscriptions** (Calendrier, toutes vues) ; **Dossard** pour le numéro seul | Dossard comme libellé d'un bloc |
 | Ce qui décrit le coureur (mesures, niveau, semaine, santé) | **Mon profil** (page, onglet, feuille commune ; sections **Moi**, **Mon niveau**, **Ma semaine**, **Santé**) | Mes mesures, Mon profil de coureur, profil d'entraînement |
+| Page des statistiques | **Mes stats** (menu, titre ; clé « Stats ») ; **activité** seulement pour ce qu'on importe (feuille « Importer mes activités ») : une fois importée, c'est une séance | Mes statistiques, Stats seul |
 | Compte d'un autre utilisateur | **espace** (« Voir son espace », « Revenir à mon espace », « Espaces partagés avec moi ») | site de, mon site, son site, Sites partagés |
 | Enregistrer une saisie en base | **Enregistrer** ; **Valider** seulement pour un brouillon pas encore rangé (aujourd'hui aucun écran : le formulaire d'une course neuve n'ouvre plus la fenêtre du plan) | Sauvegarder, Valider pour une saisie rangée |
 | Supprimer | **Supprimer** une donnée (course, séance, aliment) ; **Retirer** une personne ou un élément d'une liste | Effacer |

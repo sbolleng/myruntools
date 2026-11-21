@@ -17,6 +17,7 @@ Application web modulaire pour coureurs, construite à partir de spécifications
 - Vocabulaire : un mot par notion, celui du glossaire (`docs/design.md` § 12) ; tout nouveau texte le reprend (contrôle « vocabulaire » du banc d'essai).
 - Apparence : les règles communes du design (`docs/design.md`, § 1) et l'échelle de sept tailles (§ 3) ; un module reprend les éléments et les variables de `en-tete.css`, il n'en invente pas.
 - Économie de jetons : un fichier de plus de 30 Ko (spécifications Objectif, Préparation, Calendrier, Nutrition, design, gros composants `.js`) ne se lit pas en entier : lister d'abord ses titres (`grep -n '^#'`) ou chercher le mot utile, puis ne lire que les paragraphes ou les lignes concernés. Lancer `node essais.js repasse <groupe>` pendant la mise au point, le banc entier une seule fois avant la mise en ligne.
+- Quand l'utilisateur écrit « reset » : donner la requête SQL de remise à zéro d'un compte pilote (`docs/module-preparation-specification.md`, § 7.1), avec l'adresse qu'il indique dans la discussion ; l'adresse n'est jamais écrite dans le dépôt.
 - Pas d'indexation : chaque page porte `<meta name="robots" content="noindex">` ; `robots.txt` interdit tout.
 
 ## Spécifications
@@ -46,7 +47,7 @@ Spécification → validation → modèle de données si besoin → construction
 - Données : Supabase (offre gratuite), règles par ligne, connexion par adresse e-mail et mot de passe (réglages Supabase : `docs/reglages-supabase-connexion.md`).
 - `composants/` : composants partagés, avec leur feuille de style ; la liste (rôle de chaque fichier, éléments communs `mrt-*`) est dans `docs/composants.md`, à lire au besoin.
 - `composants/donnees.js` : lecture des données de l'utilisateur connecté (courses, en-tête, menu) ; `donnees/supabase.js` : adresse du projet et clé publique.
-- Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL) ; `supabase/functions/` : fonctions Supabase (Edge Functions), à coller dans le tableau de bord (relais de recherche d'aliments `recherche-aliments` ; séances proposées par l'IA `proposer-seances`, secrets `ANTHROPIC_API_KEY` et `PILOTES`).
+- Base : `supabase/schema.sql` (création) et `supabase/evolutions/` (changements, numérotés, à coller dans l'éditeur SQL) ; `supabase/functions/` : fonctions Supabase (Edge Functions), à coller dans le tableau de bord (relais de recherche d'aliments `recherche-aliments` ; séances proposées par l'IA `proposer-seances`, stratégie de course `proposer-strategie` et analyse de Mes stats `analyser-stats`, secrets `ANTHROPIC_API_KEY` et `PILOTES`).
 - Thèmes de couleur : `bleu-orange`, `vert-rose`, `violet-turquoise` (sombres), `blanc-orange` (fond blanc) et `noir-orange` (fond noir) pour la lecture, et `auto` (blanc ou noir selon l'appareil) ; proposés à tous, choisis dans les Préférences seulement (plus de `?t=…` sur le site), retenus sur l'appareil (`mrt-theme`) et posés dès le chargement ; un seul accent (plus d'Accent 2).
 - `docs/maquettes/` : maquettes (en-tête, calendrier) ; le calendrier s'ouvre avec `?t=trail` ou `?t=route` (profils d'exemple).
 - Banc d'essai : `outils/essais/` (dépendances installées au démarrage de chaque discussion par le hook de `.claude/settings.json` ; `node essais.js`, `node essais.js repasse` pour quelques groupes seulement, `--captures` pour des images ; `node captures.js` photographie les pages pour une maquette, avant/après possible, `THEME=vert-rose` pour un autre thème). Chromium, base simulée par `donnees-fictives.json`, date figée au 20 octobre 2026. Chaque module construit y ajoute ses contrôles, tirés de son jeu d'essai. Données fictives seulement.
@@ -57,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : repasse de cohérence (glossaire § 12 complété et appliqué partout : préparation, Allègement, Décrassage, Ressenti… ; contrastes, cadres, états vides, case « Faite », onglet hors menu, liens vers le Guide, Compte en haut des Préférences ; contrôle « vocabulaire » étendu).
+- Dernier lot : repasse de cohérence (glossaire § 12 complété et appliqué partout : préparation, Allègement, Décrassage, Ressenti… ; contrastes, cadres, états vides, case « Faite », onglet hors menu, liens vers le Guide, Compte en haut des Préférences ; contrôle « vocabulaire » étendu). Avant : Mes stats construit (0.2) ; à faire dans Supabase : évolution 045 et fonction `analyser-stats`.
 - En suspens : V3 de la repasse (Événement / Course / Parcours, définitions attendues) ; fonction `proposer-seances` à recoller (Décrassage) ; plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
-- Prochaine étape : V3, puis renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).
+- Prochaine étape : V3, puis renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes ») ; « Remplir depuis la page de la course » (Objectif, § 3.9), à construire.

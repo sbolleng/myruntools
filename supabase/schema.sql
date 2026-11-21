@@ -15,7 +15,7 @@ create type sexe          as enum ('femme', 'homme', 'non_precise');
 create type phase_plan    as enum ('base', 'developpement', 'affutage', 'deload');
 create type seance_type   as enum ('run', 'renfo');
 create type seance_intensite as enum ('facile', 'moderee', 'intense');
-create type seance_origine   as enum ('saisie', 'ia');
+create type seance_origine   as enum ('saisie', 'ia', 'import');  -- import : évolution 045
 create type seance_etat      as enum ('proposee', 'acceptee');
 create type activite      as enum ('sedentaire', 'peu', 'actif', 'tres');
 create type repas         as enum ('petit_dej', 'midi', 'encas', 'soir');
@@ -125,6 +125,7 @@ create table courses (
   objectif_precisions text check (char_length(objectif_precisions) <= 100), -- texte libre qui accompagne l'objectif
   pourquoi   text, -- rôle dans la préparation
   strategie  text,
+  ravitaillements_km numeric[] check (ravitaillements_km is null or cardinality(ravitaillements_km) <= 50), -- évolution 044
   logistique text,
 
   -- Préparation du Calendrier : durée en semaines, vide = celle du format
@@ -230,6 +231,41 @@ create table propositions (
   reponse       jsonb
 );
 create index propositions_utilisateur_cree on propositions (utilisateur, cree);
+
+-- ----- Mes stats : activités importées et analyses de l'IA (évolution 045)
+create table activites (
+  id          uuid primary key default gen_random_uuid(),
+  utilisateur uuid not null default auth.uid() references profils (id) on delete cascade,
+  strava_id   text not null check (char_length(strava_id) <= 40),       -- identifiant de l'activité dans l'export
+  debut       timestamptz,
+  date        date not null,
+  pratique    text not null check (pratique in ('course', 'trail', 'tapis', 'marche', 'randonnee')),
+  duree_s     integer check (duree_s between 1 and 400000),             -- temps de déplacement
+  distance_m  integer check (distance_m between 0 and 2000000),
+  denivele_m  integer check (denivele_m between 0 and 50000),
+  fc_moyenne  smallint check (fc_moyenne between 30 and 250),
+  fc_max      smallint check (fc_max between 30 and 250),
+  cadence     smallint check (cadence between 60 and 260),              -- pas par minute (deux jambes)
+  meilleurs   jsonb,                                                    -- { "1000": secondes, "5000": …, "21097": … }
+  seance      uuid references seances (id) on delete set null,
+  importe_le  timestamptz not null default now(),
+  unique (utilisateur, strava_id)
+);
+create index activites_utilisateur_date on activites (utilisateur, date);
+
+create table analyses_stats (
+  id            uuid primary key default gen_random_uuid(),
+  utilisateur   uuid not null default auth.uid() references profils (id) on delete cascade,
+  cree          timestamptz not null default now(),
+  motif         text not null default 'import' check (motif in ('import', 'actualiser', 'premiere')),
+  periode       text check (periode in ('12mois', 'annee', 'tout')),
+  texte         text not null check (char_length(texte) <= 1500),
+  modele        text check (char_length(modele) <= 60),
+  jetons_entree integer not null default 0,
+  jetons_sortie integer not null default 0
+);
+create index analyses_stats_utilisateur_cree on analyses_stats (utilisateur, cree);
+
 
 -- ----- Préparation : profil d'entraînement, une ligne par utilisateur (évolution 024)
 create table profil_entrainement (
@@ -374,6 +410,8 @@ alter table propositions enable row level security;
 alter table aliments         enable row level security;
 alter table repas_lignes     enable row level security;
 alter table sport_jour       enable row level security;
+alter table activites        enable row level security;
+alter table analyses_stats   enable row level security;
 
 create policy "son profil" on profils for all to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()));
@@ -394,6 +432,10 @@ create policy "ses propositions" on propositions for all to authenticated
 create policy "ses aliments" on aliments for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "ses repas" on repas_lignes for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "ses activités" on activites for all to authenticated
+  using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
+create policy "ses analyses" on analyses_stats for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));
 create policy "son sport" on sport_jour for all to authenticated
   using (utilisateur = (select auth.uid())) with check (utilisateur = (select auth.uid()));

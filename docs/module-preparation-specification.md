@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 3.10 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « préparation » pour la période vers un Objectif, Allègement, Décrassage, fenêtre « Régler les phases », compte à rebours « 138 j », carte de l'Objectif sans cadre dans le cadre, Exporter en rond, un seul accès au profil.
+Version 3.11 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « préparation » pour la période vers un Objectif, Allègement, Décrassage, fenêtre « Régler les phases », compte à rebours « 138 j », carte de l'Objectif sans cadre dans le cadre, Exporter en rond, un seul accès au profil.
 
 ## 1. Rôle
 
@@ -377,6 +377,32 @@ La rubrique Préparation de la page d'une course ([Objectif](module-objectif-spe
 | Propositions : date, bloc, essai, modèle, jetons, statut, réponse | Table `propositions`, écrite par la fonction, lue par le site et la fonction (plafond) | Créée (évolution 025) |
 
 Ce qui se calcule n'est jamais rangé : préparations, phases non modifiées, jours de récupération, alertes.
+
+### 7.1 Remise à zéro d'un compte pilote
+
+Pour retester Mon plan de bout en bout : à coller dans l'éditeur SQL de Supabase, en remplaçant `ADRESSE` par l'adresse du compte (jamais écrite dans le dépôt). Le prénom, le nom, les courses, le Palmarès, Nutrition et les préférences d'affichage ne sont pas touchés.
+
+```sql
+do $$
+declare u uuid := (select id from auth.users where email = 'ADRESSE');
+begin
+  if u is null then raise exception 'compte introuvable'; end if;
+  -- Profil : mesures de Mon profil (le profil express revient dans les Premiers pas)
+  update profils set sexe = null, naissance = null, poids = null, taille = null,
+    pointure = null, fc_repos = null, vo2max = null, activite = null where id = u;
+  -- Réponses du parcours et blessure en cours
+  delete from profil_entrainement where utilisateur = u;
+  -- Plan : propositions de l'IA, phases réglées à la main, toutes les séances (saisies, de l'IA, faites)
+  delete from propositions where utilisateur = u;
+  delete from plan_semaines where utilisateur = u;
+  delete from seances where utilisateur = u;
+  -- Courses sans rôle ni durée de préparation ; date du dernier changement de saison et cap par défaut
+  update courses set role = null, prepa_semaines = null where utilisateur = u;
+  update preferences set plan_maj = null, course_cap = null where utilisateur = u;
+end $$;
+```
+
+Irréversible : l'effort, les sensations, le réalisé et les analyses de l'IA partent avec les séances. À la demande « reset », Claude donne cette requête (règle de `CLAUDE.md`).
 
 ## 8. Lots de construction
 
