@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.46 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Séance » au lieu d'« activité » (bouton, section, feuille, confirmation) ; lien vers le Guide en bas de page.
+Version 1.47 · 21 novembre 2026 · [Retour au sommaire](README.md) · « + Repas » seul bouton principal, à gauche ; « + Séance » en secondaire (design, § 11).
 
 ## 1. Rôle
 
@@ -107,8 +107,8 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 33 | Retour à aujourd'hui | Rond « » » | À droite de « › », sur un autre jour seulement (une cale à gauche garde le jour centré) | `mrt-rond` |
 | 34 | Séances du Calendrier | « Au calendrier : Gainage 30 min · Footing 1 h 15 · Reprendre » | Sous le 23, s'il y a des séances ce jour-là | Texte discret, `mrt-lien` |
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
-| 45 | Bouton Séance | « + Séance » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à gauche | Le bouton « + Ajouter une course » (`mrt-btn is-principal`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
-| 46 | Bouton Repas | « + Repas » et l'assiette | À droite du 45 | Même bouton ; ouvre la feuille d'ajout, repas d'après l'heure |
+| 45 | Bouton Séance | « + Séance » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à droite du 46 | Le bouton secondaire (`mrt-btn`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
+| 46 | Bouton Repas | « + Repas » et l'assiette | Sous les anneaux, à gauche | Le bouton principal (`mrt-btn is-principal`), un seul par écran (design, § 11) ; ouvre la feuille d'ajout, repas d'après l'heure |
 | 47 | Feuilles | « Ajouter un aliment », « Ajouter une séance » | Par-dessus la page | Feuille de saisie rapide (design) : 30 × 40 rem sur ordinateur, plein écran sur téléphone, de la même taille d'un écran à l'autre, contenu qui glisse ; croix ronde, « ‹ » sur un deuxième écran, titre en libellé ; bouton qui valide collé en bas ; jamais de bouton « Fermer » |
 | 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la feuille Activité |
 | 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
