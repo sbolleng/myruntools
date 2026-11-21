@@ -261,7 +261,7 @@
         '</div></div>' +
       '</div>' +
       // Téléphone tenu en hauteur : le tableau déborde ; un site ne peut pas tourner l'écran, il y invite.
-      '<p class="pv2-paysage">↻ Tourne ton téléphone pour voir toutes les colonnes.</p>' +
+      '<p class="pv2-paysage">Tourne ton téléphone pour voir toutes les colonnes.</p>' +
       '<div class="card pv2-card"><h2 class="mg-titre is-fixe pv2-titre">Résultats</h2><div class="table-scroll"><table class="pv2-table' + (cfg.editable ? ' pv2-editable' : '') + '"><thead></thead><tbody></tbody></table></div></div>' +
       '<div class="pv2-graphe"></div>';
 

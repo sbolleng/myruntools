@@ -32,7 +32,7 @@
   }
 
   window.mrtExport = {
-    bouton: () => '<button type="button" class="mrt-rond xp-bouton" data-exporter aria-label="Exporter (imprimer ou PDF)" title="Exporter (imprimer ou PDF)">' + ICONE + '</button>',
+    bouton: () => '<button type="button" class="mrt-rond xp-bouton" data-exporter aria-label="Exporter" title="Exporter : imprimer ou PDF">' + ICONE + '</button>',
     imprimer
   };
 })();

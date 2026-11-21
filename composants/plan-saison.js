@@ -66,7 +66,7 @@
       const cs = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && lundiDe(c.date) === l);
       const cas = '<a class="ps-sem ph-' + ph + (l === lundi ? ' is-courante' : '') + '" href="calendrier.html#semaines=' + l + '" data-lundi="' + l + '" title="' + esc('Semaine du ' + jm(parse(l)) + ' · ' + NOM_PHASE[ph]) + '">' +
         '<span class="ps-sem-d">' + jjmm(parse(l)) + '</span>' +
-        cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '">▲ ' + esc(c.course) + '</span>').join('') +
+        cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '">' + window.mrtIcone.repere + esc(c.course) + '</span>').join('') +
         '</a>';
       const b = blocs[blocs.length - 1];
       if (b && b.ph === ph) b.cases.push(cas); else blocs.push({ ph, cases: [cas] });
@@ -136,10 +136,10 @@
       const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
         .sort((a, b) => (a.date < b.date ? -1 : 1));
       const puce = (c, role) => '<button type="button" class="ps-sc" data-sc="' + esc(c.id) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span> <span class="ps-sc-d">' + P.dateCourte(c.date) + ' · ' + role + '</span></button>';
-      const saison = '<div class="ps-saison"><span class="ob-lib">Courses de la saison</span><div class="ps-sc-liste">' +
+      const saison = '<div class="ps-saison"><span class="ob-lib">Courses de la préparation</span><div class="ps-sc-liste">' +
         avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') +
         (ctx.lectureSeule ? '' : '<button type="button" class="mrt-btn ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
-      let h = '<section class="ob-carte sans-cpt ps-objectif"><span class="ob-role is-obj">Objectif</span><span class="ps-j">J-' + jours + '</span>' +
+      let h = '<section class="ob-carte sans-cpt ps-objectif"><span class="ob-role is-obj">Objectif</span><span class="ps-j">' + jours + ' j</span>' +
         '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><p class="ps-sous">' + esc(infos) + '</p>' +
         (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + saison + reglages + '</section>';
       h += friseHtml(ctx, ps, lundi) + bandeauHtml(ctx, lundi, ps.alertes, o);

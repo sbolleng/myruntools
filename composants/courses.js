@@ -78,7 +78,7 @@
     { k: 'dossard', lib: 'Numéro de dossard', cle: c => c.dossard || null, txt: c => c.dossard || '' },
     { k: 'prix', lib: 'Prix', cle: c => (c.prix != null ? Number(c.prix) : null), txt: c => (c.prix != null ? nb(c.prix) + ' €' : '') },
     { k: 'strategie', lib: 'Stratégie de course', cle: c => c.strategie || null, html: c => texteLong(c.strategie) },
-    { k: 'pourquoi', lib: 'Rôle dans la préparation', cle: c => c.pourquoi || null, html: c => texteLong(c.pourquoi) },
+    { k: 'pourquoi', lib: 'Pourquoi cette course', cle: c => c.pourquoi || null, html: c => texteLong(c.pourquoi) },
     { k: 'logistique', lib: 'Logistique', cle: c => c.logistique || null, html: c => texteLong(c.logistique) },
     { k: 'gpx', lib: 'Tracé GPX', cle: c => (c.gpx ? '1' : null), txt: c => (c.gpx ? 'Importé' : '') },
     { k: 'temps', lib: 'Temps', cle: c => (c.dnf ? null : c.temps != null ? Number(c.temps) : null), txt: c => (c.dnf ? 'DNF' : dur(c.temps)) },

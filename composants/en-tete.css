@@ -206,6 +206,8 @@ html.mrt-fondu main { animation: mrt-fondu 0.2s ease-out; }
 /* Petit rond (« + » d'une séance) : 1,5 rem dessiné, zone de toucher de 2 rem (marge invisible). */
 .mrt-rond.is-petit { position: relative; width: 1.5rem; height: 1.5rem; }
 .mrt-rond.is-petit .mrt-ico { width: 0.8rem; height: 0.8rem; }
+/* Icône dans un lien ou un texte (flèches des liens, repère d'une course) : à la taille du texte, alignée sur la ligne. */
+a:not(.mrt-rond):not(.mrt-btn) > .mrt-ico, .is-precedente span > .mrt-ico, .is-suivante span > .mrt-ico, .ps-sem-c > .mrt-ico, .mrt-lien > .mrt-ico { width: 0.85em; height: 0.85em; vertical-align: -0.1em; margin: 0 0.2em; }
 .mrt-rond.is-petit::after { content: ''; position: absolute; inset: -0.25rem; }
 .mrt-rond:disabled { opacity: 0.3; cursor: default; }
 .mrt-lien { position: relative; padding: 0; font: inherit; font-size: var(--t-second); color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; background: none; border: 0; cursor: pointer; }

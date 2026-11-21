@@ -104,6 +104,8 @@
     oeil: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM8 6.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 1 1 0-3.4z'),
     oeilBarre: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM3 13.5L13 2.5'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
+    // Repère d'une course dans la frise de Mon plan : triangle plein.
+    repere: '<svg class="mrt-ico mrt-repere" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5l5 9H3z" fill="currentColor"/></svg>',
     bas: icone('M8 3.5v9M4.5 9L8 12.5 11.5 9'),
     // Avis sur une course (Mon plan) : conseillée, possible, déconseillée.
     valide: icone('M3.5 8.5l3 3 6-7'),
@@ -178,7 +180,7 @@
     // Site partagé en lecture seule : pas d'engrenage, les Préférences sont celles du visiteur, pas du site regardé.
     const ROUE = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="2.356 2.356"/>' +
       '<circle cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
-    const engrenage = cfg.partage ? '' : '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences utilisateur" title="Préférences utilisateur"' +
+    const engrenage = cfg.partage ? '' : '<a class="mrt-gear' + (cfg.courant === 'preferences.html' ? ' is-on' : '') + '" href="' + lien('preferences.html') + '" aria-label="Préférences" title="Préférences"' +
       (cfg.courant === 'preferences.html' ? ' aria-current="page"' : '') + '>' + ROUE + '</a>';
     const marque = '<div class="mrt-brand"><a href="' + lien(cfg.accueil || 'index.html') + '">MyRunTools</a>' + engrenage + '</div>';
     const header = document.createElement('header');

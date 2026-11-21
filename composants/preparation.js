@@ -12,7 +12,7 @@
   // Noms des mois et des jours, dates : les formats communs (en-tete.js, mrtFormat) ; le 1er du mois s'écrit « 1er ».
   const F = window.mrtFormat, { MOIS, JOURS } = F;
   // Phases d'un plan (au choix dans « Paramétrer le plan ») ; hors saison, deux phases de plus (spécification Préparation, § 4).
-  const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Deload']];
+  const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Allègement']];
   const NOM_PHASE = Object.assign(Object.fromEntries(PHASES), { recuperation: 'Récupération', entretien: 'Entretien' });
 
   // Types de séance, en toutes lettres : pour en ajouter un (vélo, tapis…), une ligne ici et une évolution SQL (valeur de `seance_type`) ; la fenêtre de saisie et les vues les reprennent seules.
@@ -23,7 +23,7 @@
   // l'intensité proposée ; le libellé d'une séance est « Nom » ou « Nom : détail » (le détail, libre, vient après « : »).
   const NOMS = [
     { nom: 'Endurance', abr: 'End.', titre: 'Endurance fondamentale', intensite: 'facile' },
-    { nom: 'Récupération', abr: 'Réc.', titre: 'Footing très lent entre deux séances dures', intensite: 'facile' },
+    { nom: 'Décrassage', abr: 'Décras.', titre: 'Footing très lent entre deux séances dures', intensite: 'facile', ancien: 'Récupération' }, // ancien : nom d'avant, encore lu dans les séances enregistrées
     { nom: 'Sortie longue', abr: 'S. longue', titre: 'Sortie longue', intensite: 'facile' },
     { nom: 'Seuil', abr: 'Seuil', titre: 'Allure seuil (tempo)', intensite: 'moderee' },
     { nom: 'Fractionné', abr: 'Frac.', titre: 'Fractionné (VMA)', intensite: 'intense' },
@@ -37,9 +37,9 @@
   // Intensité : trois traits montants (un, deux ou trois allumés), gris, orange, rouge ; rien sans intensité (Calendrier, fenêtre d'une séance).
   const traits = i => (i && INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + INTENSITES[i] + '" title="' + INTENSITES[i] + '">' +
     [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
-  const NOM_RENFO = { nom: 'Renforcement', abr: 'Renfo', titre: 'Renforcement', intensite: '' };
+  const NOM_RENFO = { nom: 'Renforcement', abr: 'Renf.', titre: 'Renforcement', intensite: '' };
   // Liseré d'une séance (toutes les vues du Calendrier, export) : couleur du type de séance, d'après le nom de la liste ;
-  // Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre (Bordure) pour Endurance, Récupération et un nom libre. Pas de légende.
+  // Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre (Bordure) pour Endurance, Décrassage et un nom libre. Pas de légende.
   const LISERES = { 'Sortie longue': 'l-sl', Seuil: 'l-seuil', 'Fractionné': 'l-frac', 'Côtes': 'l-cotes', Renforcement: 'l-renfo' };
   const lisere = s => { if (s.type === 'renfo') return 'l-renfo'; const d = lireLibelle(s.libelle).def; return (d && LISERES[d.nom]) || 'l-neutre'; };
   const nomsDuType = type => (type === 'renfo' ? [NOM_RENFO] : NOMS);
@@ -48,7 +48,7 @@
     lib = String(lib || '');
     const k = lib.indexOf(' : ') >= 0 ? lib.indexOf(' : ') : lib.indexOf(': ');
     const nom = (k > 0 ? lib.slice(0, k) : lib).trim(), detail = k > 0 ? lib.slice(k + (lib[k] === ' ' ? 3 : 2)).trim() : '';
-    const def = NOMS.concat([NOM_RENFO]).find(x => x.nom.toLowerCase() === nom.toLowerCase()) || null;
+    const def = NOMS.concat([NOM_RENFO]).find(x => x.nom.toLowerCase() === nom.toLowerCase() || (x.ancien || '').toLowerCase() === nom.toLowerCase()) || null;
     return { nom: def ? def.nom : nom, detail, def, abr: def ? def.abr : nom };
   }
   // Nombre saisi (virgule acceptée) ; vide : null ; illisible : NaN.
@@ -375,19 +375,19 @@
     if (role === 'objectif') {
       const sx = ps.saisons.find(x => x.course.id === c.id);
       if (!sx) return '<p class="cal-plan-dates">' + tete + ' · pas encore de plan : ce format n\'a pas de durée de préparation par défaut.</p>';
-      return '<p class="cal-plan-dates">' + tete + ' · saison de ' + sx.semaines.length + ' semaines' + (sx.raccourcie ? ' (raccourcie)' : '') + ', du ' + longue(sx.premier) + ' au ' + longue(sx.jourJ) + '</p>' +
+      return '<p class="cal-plan-dates">' + tete + ' · préparation de ' + sx.semaines.length + ' semaines' + (sx.raccourcie ? ' (raccourcie)' : '') + ', du ' + longue(sx.premier) + ' au ' + longue(sx.jourJ) + '</p>' +
         frise({ semaines: sx.semaines }, false);
     }
     const w = phaseDe(ps, lundiDe(c.date));
-    const place = !w ? 'hors saison' : w.saison ? 'semaine ' + w.n + ' sur ' + w.saison.semaines.length + ' de la saison de ' + nomSimple(w.saison.course)
-      : w.phase === 'recuperation' ? 'en Récupération après ' + nomSimple(w.apres) : 'en Entretien, avant la saison de ' + nomSimple(w.vers.course);
+    const place = !w ? 'hors préparation' : w.saison ? 'semaine ' + w.n + ' sur ' + w.saison.semaines.length + ' de la préparation de ' + nomSimple(w.saison.course)
+      : w.phase === 'recuperation' ? 'en Récupération après ' + nomSimple(w.apres) : 'en Entretien, avant la préparation de ' + nomSimple(w.vers.course);
     const j = joursRecup(c);
     const recup = j ? ', ' + j + (j > 1 ? ' jours' : ' jour') + ' de récupération' : '';
     const reperes = role === 'preparatoire' ? '3 jours allégés avant' + recup : role === 'plaisir' ? 'repos la veille' + recup : '';
     return '<p class="cal-plan-dates">' + [tete, place, reperes].filter(Boolean).join(' · ') + '</p>' + avisHtml(avisCourse(ctx, c), nomSimple);
   }
   function rubrique(ctx, c) {
-    const voir = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html">Voir dans Mon plan →</a>' : '';
+    const voir = ecriture(ctx) ? '<a class="mrt-lien cal-regler" href="preparation.html">Voir dans Mon plan' + window.mrtIcone.droite + '</a>' : '';
     return '<div class="cal-prep-haut">' + placeHtml(ctx, c) + voir + '</div>' +
       (c.date_approx ? '<p class="cal-vide">Date approximative : préparation prévue pour le début du mois ; elle sera recalculée une fois la date précise saisie.</p>' : '');
   }
@@ -461,7 +461,7 @@
     '<p class="cal-allure" aria-live="polite"></p>';
   function retourHtml(s) {
     const x = s || {}, faite = !!x.faite;
-    return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Retour sur la séance</h2>' +
+    return '<section class="mrt-section cal-retour"><h2 class="mrt-section-titre">Ressenti</h2>' +
       '<label class="cal-faite"><input type="checkbox" name="faite"' + (faite ? ' checked' : '') + '> Faite</label>' +
       '<div class="cal-si-faite"' + (faite ? '' : ' hidden') + '>' + realiseHtml(x) + champsRetour(x) + champCommentaire(x) + '</div>' +
       (x.analyse_ia ? '<div class="cal-analyse-lue"><h3 class="fc-libelle">Analyse de MyRunTools</h3><p class="cal-analyse-texte">' + esc(x.analyse_ia) + '</p></div>' : '') + '</section>';
@@ -767,7 +767,7 @@
     if (!c) return;
     const draft = { duree: c.prepaSemaines || c.prepaFormat || 12, modifs: modifsDe(ctx.semaines, id) };
     const v = fenetre(barre('<button type="button" class="mrt-btn is-principal" data-act="enregistrer">Enregistrer</button>') +
-      titreFenetre('Paramétrer le plan · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
+      titreFenetre('Régler les phases · ' + esc(c.course)) + '<div class="cal-prep"></div>' +
       '<div class="cal-bas"><button type="button" class="mrt-lien" data-act="recalculer">Revenir aux règles générales</button></div>', 'cal-preparer');
     const corps = v.querySelector('.cal-prep'), msg = v.querySelector('.cal-msg');
     const courant = () => planDe(c, draft.modifs, draft.duree);
@@ -775,7 +775,7 @@
     function dessinerPrep() {
       const plan = courant();
       corps.innerHTML = '<label class="cal-champ cal-duree"><span>Durée en semaines</span><input class="mrt-champ" type="number" min="1" max="52" name="duree" value="' + draft.duree + '"></label>' +
-        '<p class="cal-plan-dates">Début : ' + longue(plan.premier) + ' → jour J : ' + longue(c.date) + (c.prepaFormat ? ' · durée du format : ' + c.prepaFormat + ' sem.' : '') + '</p>' +
+        '<p class="cal-plan-dates">Début : ' + longue(plan.premier) + ' ; jour J : ' + longue(c.date) + (c.prepaFormat ? ' · durée du format : ' + c.prepaFormat + ' sem.' : '') + '</p>' +
         frise(plan, true) +
         '<div class="cal-tab">' + plan.semaines.map(w => '<div class="cal-tab-l"><span class="cal-tab-sem">Semaine ' + w.n + '<small>' + F.semaine(w.lundi) + '</small></span>' +
           '<select class="mrt-champ is-compact" data-sem="' + w.lundi + '" aria-label="Phase de la semaine ' + w.n + '">' + PHASES.map(p => '<option value="' + p[0] + '"' + (p[0] === w.phase ? ' selected' : '') + '>' + p[1] + '</option>').join('') + '</select></div>').join('') + '</div>';

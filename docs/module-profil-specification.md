@@ -24,7 +24,7 @@ Jeu d'essai, au 20 octobre 2026 (§ 5).
     │ Date de naissance            À renseigner   › │
     │ Poids · Taille · Activité hors sport · Pointure │
 (5) MON NIVEAU                                       0 sur 4
-    │ Niveau · Distance moyenne par semaine · Plus longue sortie récente │
+    │ Niveau · Distance moyenne par semaine · Plus longue séance récente │
     │ Repère d'allure                 À renseigner › │
     │ (6) ┆ Dans ton Palmarès : Semi en 1:56:05 · Semi de San Sebastián, dim. 4 oct. 2026  [Reprendre] ┆
     │ Durée maximale d'une séance · Terrains d'entraînement · Niveau en renforcement │
@@ -59,7 +59,7 @@ Site partagé en lecture seule : « Le profil n'est pas partagé. »
 | Moi | Taille | 100 à 250 cm | Nutrition | `profils.taille` |
 | Moi | Activité hors sport | Sédentaire, Peu actif, Actif, Très actif | Nutrition | `profils.activite` |
 | Moi | Pointure | 30 à 55, demi-pointures | — | `profils.pointure` |
-| Mon niveau | Niveau (Débutant, Intermédiaire, Confirmé, Expert, chacun décrit ; remplace « Je cours depuis » le 17 nov. 2026), Distance moyenne par semaine, Plus longue sortie récente | Tranches ([Préparation](module-preparation-specification.md), § 5.2) | Mon plan (IA) | `profil_entrainement` |
+| Mon niveau | Niveau (Débutant, Intermédiaire, Confirmé, Expert, chacun décrit ; remplace « Je cours depuis » le 17 nov. 2026), Distance moyenne par semaine, Plus longue séance récente | Tranches ([Préparation](module-preparation-specification.md), § 5.2) | Mon plan (IA) | `profil_entrainement` |
 | Mon niveau | Repère d'allure | VMA (8 à 30 km/h), temps sur 10 km ou sur semi, ou « Je ne sais pas » | Mon plan (IA) | `profil_entrainement` |
 | Mon niveau | Durée maximale d'une séance, Terrains d'entraînement, Niveau en renforcement | Listes | — | `profil_entrainement` |
 | Ma semaine | Course | Jours possibles, nombre de séances (0 à 7), jour de la sortie longue | Mon plan (IA) | `profil_entrainement` |

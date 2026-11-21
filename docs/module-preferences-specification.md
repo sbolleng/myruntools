@@ -1,4 +1,4 @@
-# Préférences utilisateur · spécification fonctionnelle
+# Préférences · spécification fonctionnelle
 
 Version 1.16 · 13 novembre 2026 · [Retour au sommaire](README.md)
 

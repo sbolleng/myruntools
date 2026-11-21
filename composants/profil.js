@@ -84,7 +84,7 @@
     ['niveau', 'Mon niveau', [
       ['niveau', 'Niveau', (m, e) => libelleDe('niveau', e.niveau), true, 'choix'],
       ['volume_tranche', 'Distance moyenne par semaine', (m, e) => libelleDe('volume_tranche', e.volume_tranche), true, 'choix'],
-      ['sortie_tranche', 'Plus longue sortie récente', (m, e) => libelleDe('sortie_tranche', e.sortie_tranche), true, 'choix'],
+      ['sortie_tranche', 'Plus longue séance récente', (m, e) => libelleDe('sortie_tranche', e.sortie_tranche), true, 'choix'],
       ['allure', 'Repère d\'allure', (m, e) => resumeAllure(e), true, 'allure'],
       ['seance_max_min', 'Durée maximale d\'une séance', (m, e) => libelleDe('seance_max_min', e.seance_max_min), false, 'choix'],
       ['terrain', 'Terrains d\'entraînement', (m, e) => (libelleDe('terrain', e.terrain) || '').replace(/ \(.*\)$/, '') || null, false, 'choix'],
