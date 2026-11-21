@@ -40,7 +40,7 @@ Les boutons, liens d'action, pastilles, champs et sections sont des éléments c
 | Surface | `#122a4a` | `#18332E` | `#221A35` | `#f3f5f8` | `#121212` |
 | Surface 2 | `#163a66` | `#21453D` | `#2D2347` | `#e7ecf2` | `#1c1c1c` |
 | Bordure | `#1f4c80` | `#2F5A4E` | `#40335F` | `#d2dae4` | `#333333` |
-| Accent | `#ffb700` | `#D07B87` | `#2EC4B6` | `#c2410c` | `#ffb700` |
+| Accent | `#ffb700` | `#D4848F` | `#2EC4B6` | `#b93d0b` | `#ffb700` |
 | Texte | `#eef3fa` | `#EDF2E9` | `#F1EEF7` | `#132030` | `#f2f2f2` |
 | Texte discret | `#8fa8c9` | `#A2B4A4` | `#A49BB8` | `#5a6a7e` | `#9b9b9b` |
 | Alerte | `#ef6b6b` | `#f2766b` | `#E0607E` | `#c62828` | `#f0605d` |
@@ -50,7 +50,7 @@ Les boutons, liens d'action, pastilles, champs et sections sont des éléments c
 
 Identifiants : `bleu-orange`, `vert-rose`, `violet-turquoise`, `blanc-orange`, `noir-orange`, et `auto` (« Automatique ») : Blanc et orange quand l'appareil est en mode clair, Noir et orange en mode sombre, et il suit ce réglage s'il change pendant la visite. Dans les maquettes seulement, `?t=bleu-orange`, `?t=vert-rose` ou `?t=violet-turquoise` choisit le thème.
 
-**Lecture claire et sombre** : Blanc et orange et Noir et orange sont faits pour lire, sur fond blanc ou noir. Sur fond blanc, l'orange du site (`#ffb700`) serait illisible (contraste 1,8) : l'Accent y est un orange foncé, `#c2410c` (5,2 sur blanc, texte blanc sur le bouton principal compris). Les contrôles du navigateur (dates, listes, barres de défilement) prennent la version claire ou sombre du thème. Le thème choisi est retenu sur l'appareil et posé dès le chargement de chaque page : jamais d'éclair d'un autre fond.
+**Lecture claire et sombre** : Blanc et orange et Noir et orange sont faits pour lire, sur fond blanc ou noir. Sur fond blanc, l'orange du site (`#ffb700`) serait illisible (contraste 1,8) : l'Accent y est un orange foncé, `#b93d0b` (5,6 sur blanc, 4,6 sur les cases ; texte blanc sur le bouton principal compris ; foncé le 21 nov. 2026 pour passer 4,5 partout). Les contrôles du navigateur (dates, listes, barres de défilement) prennent la version claire ou sombre du thème. Le thème choisi est retenu sur l'appareil et posé dès le chargement de chaque page : jamais d'éclair d'un autre fond.
 
 Contrastes vérifiés au calcul dans chaque thème (banc d'essai) : Alerte et Texte discret à 4,5 au moins sur la Surface et sur une Case ; Alerte de Vert et rose tirée vers le corail pour rester distincte du rose de l'Accent.
 

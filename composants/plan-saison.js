@@ -26,7 +26,6 @@
     .sort((a, b) => (a.cree < b.cree ? 1 : -1))[0] || null;
   const PICTO = { profil: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.2" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.8 14c.6-2.9 2.6-4.4 5.2-4.4s4.6 1.5 5.2 4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
     objectif: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14V2.5M3.5 3h8l-1.8 2.7 1.8 2.8h-8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    exporter: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7.5M4.8 6.8L8 10l3.2-3.2M3 13h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     calendrier: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' };
 
   // (9) Le bandeau de MyRunTools, toujours ouvert : les alertes, la préparatoire conseillée, la recommandation de l'IA.
@@ -35,7 +34,7 @@
     const lignes = [];
     // (16) La préparatoire conseillée, tant que sa fenêtre n'est pas passée et qu'aucune Préparatoire conseillée n'y est.
     const sg = !ctx.lectureSeule && o ? P.suggestion(ctx, o) : null;
-    if (sg) lignes.push('<p class="ps-sg-ligne"><b>Préparatoire conseillée</b> : ' + sg.fenetre.texte + ', du ' + P.longue(sg.debut) + ' au ' + P.longue(sg.fin) + '. <button type="button" class="mrt-lien" data-prepa="fenetre">Ajouter</button></p>');
+    if (sg) lignes.push('<p class="ps-sg-ligne"><b>Préparatoire conseillée</b> : ' + sg.fenetre.texte + ', du ' + P.longue(sg.debut) + ' au ' + P.longue(sg.fin) + '. <button type="button" class="mrt-lien" data-prepa="fenetre">Ajouter une course</button></p>');
     if (!ctx.lectureSeule && IA() && ctx.profil !== undefined) {
       const etat = ctx.ia || {}, manque = manquants(ctx.profil), prop = couvrante(ctx, lundi);
       const suite = etat.blocs > 1 ? ' (bloc ' + etat.bloc + ' sur ' + etat.blocs + ')' : '';
@@ -127,9 +126,11 @@
       const jours = Math.round((parse(prochaine.jourJ) - parse(auj)) / 86400000), n = prochaine.semaines.length, mini = P.minimumDe(o);
       const infos = [window.mrtFormat.date(o.date, { semaine: true }), M.distance(o)].filter(Boolean).join(' · ');
       // (29) « Exporter » : le plan, de la semaine en cours à l'Objectif, en page à imprimer (Calendrier, § 4.6) ; aussi sur le site partagé.
-      const exporter = window.mrtExport ? '<button type="button" class="mrt-btn" data-exporter>' + PICTO.exporter + 'Exporter</button>' : '';
+      const exporter = window.mrtExport ? window.mrtExport.bouton() : ''; // le rond commun, comme au Calendrier
+      // « Mon profil » : absent quand le bandeau invite déjà à « Compléter mon profil » (un seul accès à la fois).
+      const profilInvite = !ctx.lectureSeule && IA() && ctx.profil !== undefined && manquants(ctx.profil).length > 0;
       const reglages = ctx.lectureSeule ? (exporter ? '<div class="ps-reglages">' + exporter + '</div>' : '') : '<div class="ps-reglages">' +
-        '<button type="button" class="mrt-btn" data-profil>' + PICTO.profil + 'Mon profil</button>' +
+        (profilInvite ? '' : '<button type="button" class="mrt-btn" data-profil>' + PICTO.profil + 'Mon profil</button>') +
         '<button type="button" class="mrt-btn" data-parcours>' + PICTO.objectif + 'Changer d\'Objectif</button>' +
         '<button type="button" class="mrt-btn" data-preparer="' + esc(o.id) + '">' + P.REGLAGES + 'Personnaliser</button>' + exporter + '</div>';
       // (26) Les courses de la saison : les Préparatoires et les Plaisirs avant l'Objectif, puis lui ; chacune ouvre sa feuille (28).

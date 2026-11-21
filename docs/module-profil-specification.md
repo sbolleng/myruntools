@@ -1,6 +1,6 @@
 # Mon profil · spécification fonctionnelle
 
-Version 0.8 · 20 novembre 2026 · [Retour au sommaire](README.md) · Profil express : « Continuer » (en bas à droite) à la place d'« Enregistrer »
+Version 0.9 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Plus longue séance récente ».
 
 ## 1. Rôle
 

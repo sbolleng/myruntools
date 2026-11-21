@@ -126,8 +126,8 @@
 
 /* Crayon de ligne : nuance des flèches de tri, visible au survol de la ligne */
 /* Crayon : zone de toucher de 2 rem (marge invisible). */
-.pv2-edit::after { content: ''; position: absolute; inset: -0.4rem; }
-.pv2-edit { position: relative; display: inline-flex; padding: 0.15rem; color: var(--muted); background: none; border: none; border-radius: 3px; cursor: pointer; opacity: 0; }
+/* Crayon d'une ligne : le rond commun (mrt-rond), visible au survol de la ligne (souris) ou toujours (écran tactile). */
+.pv2-edit { opacity: 0; }
 .pv2-edit:focus-visible { opacity: 1; }
 .pv2-table td.pv2-pad { white-space: nowrap; vertical-align: middle; }
 .pv2-table tbody tr[data-id] { cursor: pointer; }
@@ -140,7 +140,6 @@
 @media (hover: hover) {
   .pv2-sort:hover { color: var(--text); }
   .pv2-table tbody tr:hover .pv2-edit { opacity: 1; }
-  .pv2-edit:hover { color: var(--accent); }
   .pv2-editable tbody tr:not(.pv2-group-row):hover td { background: color-mix(in srgb, var(--surface2) 45%, transparent); }
 }
 

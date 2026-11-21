@@ -70,8 +70,8 @@
         (!ctx.lectureSeule ? '<button type="button" class="cal-carte-txt" data-edit="' + esc(s.id) + '" title="' + esc(lib) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' : '<span class="cal-carte-txt" title="' + esc(lib) + '">') +
         '<span class="cal-carte-nom">' + traitsHtml(s.intensite) + esc(nom) + '</span>' +
         '<span class="cal-carte-det">' + esc(ligne2) + (s.commentaire && !ctx.lectureSeule ? COMMENTAIRE : '') + '</span>' + (!ctx.lectureSeule ? '</button>' : '</span>') +
-        (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="cal-v-anoter" data-noter="' + esc(s.id) + '">À noter</button>' : '') +
-        '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></div>';
+        (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="mrt-lien cal-v-anoter" data-noter="' + esc(s.id) + '">À noter</button>' : '') +
+        '<label class="mrt-coche">' + '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></label></div>';
     };
     return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml, detail };
   }
@@ -151,7 +151,7 @@
       : '<b class="cal-m2-mes cal-m2-nom">' + tr + noms + '</b>') + (l.detail ? '<small class="cal-m2-det">' + esc(l.detail) + '</small>' : '');
     return '<div class="cal-m2-se ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (ecr && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '') + '">' +
       (ecr ? '<button type="button" class="cal-m2-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m2-txt">') + lignes + (ecr ? '</button>' : '</span>') +
-      (imp ? '<i class="cal-m2-coche' + (s.faite ? ' on' : '') + '" aria-hidden="true"></i>' : '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecr ? '' : ' disabled') + ' aria-label="Faite">') + '</div>';
+      (imp ? '<i class="cal-m2-coche' + (s.faite ? ' on' : '') + '" aria-hidden="true"></i>' : '<label class="mrt-coche">' + '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (ecr ? '' : ' disabled') + ' aria-label="Faite">' + '</label>') + '</div>';
   }
   function courseV2(ctx, c, imp) {
     const o = ctx.courses.find(x => x.id === c.id) || {}, dist = o.distance != null ? String(o.distance).replace('.', ',') + ' km' : '';
@@ -314,7 +314,9 @@
     function vueSemaine() {
       const phases = phasesVisibles(), plans = phases ? planSaison(ctx) : null;
       let h = haut('semaines') + '<div class="cal-sep"></div>' + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') +
-        '<button type="button" class="mrt-lien cal-passees" data-passees>' + window.mrtIcone.haut + 'Afficher les semaines passées</button>';
+        '<button type="button" class="mrt-lien cal-passees" data-passees>' + window.mrtIcone.haut + 'Afficher les semaines passées</button>' +
+        // Rien du tout (compte neuf) : une phrase pour dire quoi faire.
+        (!ctx.lectureSeule && !(ctx.seances || []).length && !(ctx.courses || []).length ? '<p class="cal-vide">Touche « + » sur un jour pour ajouter une séance ; tes courses s\'y ajoutent d\'elles-mêmes.</p>' : '');
       for (let i = 0; i < liste.nb; i++) h += semaineHtml(addDays(liste.debut, 7 * i), plans);
       return h + '<div class="cal-fin" aria-hidden="true"></div>';
     }

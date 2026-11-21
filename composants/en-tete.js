@@ -104,6 +104,8 @@
     oeil: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM8 6.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 1 1 0-3.4z'),
     oeilBarre: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM3 13.5L13 2.5'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
+    // Crayon : modifier une course (page d'une course, Palmarès).
+    crayon: icone('M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z'),
     // Repère d'une course dans la frise de Mon plan : triangle plein.
     repere: '<svg class="mrt-ico mrt-repere" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5l5 9H3z" fill="currentColor"/></svg>',
     bas: icone('M8 3.5v9M4.5 9L8 12.5 11.5 9'),
@@ -218,7 +220,13 @@
     // Nom d'un onglet ; « œil » en picto pour En un coup d'œil (le nom complet reste lu par les lecteurs d'écran).
     const OEIL = '<svg class="mrt-picto" viewBox="0 0 24 16" aria-hidden="true"><path d="M1.5 8C4 3.5 7.8 1.5 12 1.5S20 3.5 22.5 8C20 12.5 16.2 14.5 12 14.5S4 12.5 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8" r="3" fill="currentColor"/></svg>';
     const nomOnglet = m => (m.picto === 'oeil' ? esc(m.nom.replace(/œil$/, '')) + OEIL : esc(m.libelle || m.nom));
-    nav.innerHTML = '<div class="mrt-nav-inner">' + (cfg.modules || []).map(m => {
+    // Page ouverte hors du menu (Mon plan, Nutrition non cochés) : son onglet s'ajoute au bout, le temps de la visite, pour savoir où l'on est.
+    let modules = cfg.modules || [];
+    if (cfg.courant && modules.length && !modules.some(m => m.page === cfg.courant)) {
+      const ici = (window.mrtModules || []).find(m => m.page === cfg.courant);
+      if (ici) modules = modules.concat([ici]);
+    }
+    nav.innerHTML = '<div class="mrt-nav-inner">' + modules.map(m => {
       const titre = m.picto ? ' aria-label="' + esc(m.nom) + '" title="' + esc(m.nom) + '"' : '';
       if (!m.page) return '<span class="mrt-tab is-soon" title="Bientôt">' + nomOnglet(m) + '</span>';
       const on = m.page === cfg.courant;

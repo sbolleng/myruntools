@@ -161,9 +161,10 @@
 
 /* ===== Vue d'ensemble (§ 5.1) : carte de l'Objectif, frise en cases semaine, bandeau toujours ouvert ===== */
 .ps-vue { display: flex; flex-direction: column; gap: 1.1rem; }
-.ps-objectif { margin: 0; border-color: var(--accent); background: var(--case); }
+/* Carte de l'Objectif : première section du cadre de la page, pas un cadre dans le cadre (design, § 1) ; un filet la sépare de la frise. */
+.ps-objectif { margin: 0; padding: 0 0 1.1rem; background: none; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; }
 .ps-objectif .ps-j { justify-self: end; font-family: 'Space Mono', monospace; font-size: var(--t-nom); font-weight: 700; line-height: 1; color: var(--accent); }
-.ps-objectif .ps-titre { grid-column: 1 / -1; margin: 0.1rem 0 0; font-size: 1.6rem; font-weight: 700; line-height: 1.25; color: var(--accent); }
+.ps-objectif .ps-titre { grid-column: 1 / -1; margin: 0.1rem 0 0; font-size: var(--t-titre); font-weight: 700; line-height: 1.25; color: var(--accent); }
 .ps-objectif .ps-titre a { color: inherit; text-decoration: none; }
 .ps-objectif .ps-sous { grid-column: 1 / -1; margin: 0; font-size: var(--t-texte); color: var(--text); }
 .ps-court { grid-column: 1 / -1; margin: 0; font-size: var(--t-second); font-weight: 600; color: var(--red); }
@@ -197,7 +198,7 @@
 @media (hover: hover) { .ps-sem:hover { background: color-mix(in srgb, var(--text) 10%, transparent); } }
 /* Téléphone : 4 semaines à la fois (largeur prise sur la zone qui défile). */
 .ps-frise-z .ps-frise-defile { container-type: inline-size; }
-@media (max-width: 600px) { .ps-sem { flex-basis: calc((100cqw - 12px) / 4); } .ps-objectif .ps-titre { font-size: 1.35rem; } }
+@media (max-width: 600px) { .ps-sem { flex-basis: calc((100cqw - 12px) / 4); } }
 /* Bandeau de MyRunTools : toujours ouvert, sous la frise. */
 .ps-bandeau { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.6rem 0.8rem; border-left: 3px solid var(--accent); background: var(--case); border-radius: 0 6px 6px 0; }
 .ps-bandeau .ps-alertes { margin: 0; }

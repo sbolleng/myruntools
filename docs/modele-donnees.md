@@ -1,6 +1,6 @@
 # Modèle de données
 
-Version 0.25 · 13 novembre 2026 · `preferences.decouverte_vue` (évolution 037) · [Retour au sommaire](README.md)
+Version 0.26 · 21 novembre 2026 · Phase « Allègement » (valeur stockée `deload`). · [Retour au sommaire](README.md)
 
 Ce document décrit les données que l'application range dans Supabase : les tables, leurs champs, leurs liens, et les règles qui protègent les données de chacun. Il couvre les modules déjà spécifiés (socle, Objectif, Palmarès) et l'équipement ; les autres modules (nutrition, séances Strava…) ajouteront leurs tables quand ils seront spécifiés.
 

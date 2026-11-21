@@ -43,7 +43,7 @@
 .cs-carte .ob-ligne { grid-template-columns: 6.2rem minmax(0, 1fr); }
 /* Le lien « Site officiel » reste un lien à part ; grisé quand le site n'est pas renseigné. */
 .cs-bas { grid-area: bas; margin: 0.15rem 0 0.2rem; display: flex; justify-content: flex-start; }
-.cs-site { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--t-second); color: var(--text); text-decoration: underline; text-underline-offset: 0.2em; }
+.cs-site { display: inline-flex; align-items: center; gap: 0.25rem; } /* lien d'action commun (mrt-lien), flèche à droite */
 .cs-site.is-off { color: var(--muted); opacity: 0.45; text-decoration: none; cursor: default; }
 .cs-vide { margin-top: 0.5rem; }
 

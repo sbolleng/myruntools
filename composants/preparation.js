@@ -37,6 +37,8 @@
   // Intensité : trois traits montants (un, deux ou trois allumés), gris, orange, rouge ; rien sans intensité (Calendrier, fenêtre d'une séance).
   const traits = i => (i && INTENSITES[i] ? '<i class="cal-int i-' + i + '" role="img" aria-label="Intensité : ' + INTENSITES[i] + '" title="' + INTENSITES[i] + '">' +
     [1, 2, 3].map(n => '<b' + (n <= ({ facile: 1, moderee: 2, intense: 3 })[i] ? ' class="on"' : '') + '></b>').join('') + '</i>' : '');
+  // Confirmation pour quitter une saisie (la même que la fiche d'une course).
+  const ABANDON = { texte: 'Abandonner les modifications ?', action: 'Abandonner', annuler: 'Continuer', danger: true };
   const NOM_RENFO = { nom: 'Renforcement', abr: 'Renf.', titre: 'Renforcement', intensite: '' };
   // Liseré d'une séance (toutes les vues du Calendrier, export) : couleur du type de séance, d'après le nom de la liste ;
   // Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre (Bordure) pour Endurance, Décrassage et un nom libre. Pas de légende.
@@ -715,7 +717,13 @@
       msg.textContent = colonne ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.';
       msg.scrollIntoView({ block: 'nearest' }); console.warn(err);
     };
-    if (!dans) v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+    // « Annuler » après une saisie : « Abandonner les modifications ? », comme la fiche d'une course (design, § 1, Confirmations).
+    const etatSaisie = () => [...f.querySelectorAll('input, select, textarea')].map(x => (x.type === 'checkbox' || x.type === 'radio' ? x.checked : x.value)).join('\u0001');
+    const saisieDepart = etatSaisie();
+    if (!dans) v.querySelector('[data-act="annuler"]').addEventListener('click', async () => {
+      if (etatSaisie() !== saisieDepart && !(await window.mrtConfirmer(ABANDON))) return;
+      v.fermer();
+    });
     if (s) v.querySelector('[data-act="supprimer"]').addEventListener('click', async e => {
       e.stopPropagation();
       if (!(await window.mrtConfirmer({ texte: 'Supprimer cette séance ?', action: 'Supprimer', danger: true }))) return;
@@ -813,7 +821,11 @@
       document.addEventListener('pointerup', fin);
     });
 
-    v.querySelector('[data-act="annuler"]').addEventListener('click', v.fermer);
+    const phasesDepart = JSON.stringify([draft.duree, [...draft.modifs]]);
+    v.querySelector('[data-act="annuler"]').addEventListener('click', async () => {
+      if (JSON.stringify([draft.duree, [...draft.modifs]]) !== phasesDepart && !(await window.mrtConfirmer(ABANDON))) return;
+      v.fermer();
+    });
     v.querySelector('[data-act="recalculer"]').addEventListener('click', async () => {
       if (!(await window.mrtConfirmer({ texte: 'Revenir aux règles générales pour toutes les semaines ?', action: 'Revenir aux règles', danger: true }))) return;
       draft.modifs = new Map();

@@ -94,10 +94,12 @@
     if (profil && course) return '';
     const etape = (n, cle, nom, aide, fait, bouton) => '<li class="ac-pas' + (fait ? ' is-fait' : '') + '" data-pas="' + cle + '"><span class="ac-pas-n" aria-hidden="true">' + (fait ? '✓' : n) + '</span>' +
       '<span class="ac-module"><b>' + nom + '</b><span>' + aide + '</span></span>' +
-      (fait ? '<span class="ac-pas-fait">Fait</span>' : '<button type="button" class="mrt-btn is-principal" data-premier="' + cle + '">' + bouton + '</button>') + '</li>';
+      (fait ? '<span class="ac-pas-fait">Fait</span>' : '<button type="button" class="mrt-btn' + (premier(cle) ? ' is-principal' : '') + '" data-premier="' + cle + '">' + bouton + '</button>') + '</li>';
+    // Un seul bouton principal par écran (design, § 1) : celui de la première étape à faire.
+    const premier = cle => cle === (!profil ? 'profil' : 'course');
     return '<section class="ac-bloc ac-premiers" data-bloc="premiers"><h2 class="ac-titre"><span>Premiers pas</span></h2><ol>' +
       etape(1, 'profil', 'Mon profil', 'Quelques questions, pour ton plan et ta nutrition.', profil, 'Compléter') +
-      etape(2, 'course', 'Ma première course', 'Une course à venir, ou déjà courue.', course, 'Ajouter') + '</ol></section>';
+      etape(2, 'course', 'Ma première course', 'Une course à venir, ou déjà courue.', course, 'Ajouter une course') + '</ol></section>';
   };
 
   // ----- Découvrir MyRunTools : chaque module, dans l'ordre où il sert, une phrase et sa case « Au menu » ; jusqu'à « J'ai compris » -----

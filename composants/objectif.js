@@ -207,7 +207,7 @@
           e.course ? classeRole(e.course) : ''].filter(Boolean).join(' ');
         return '<div class="' + k + '"><div class="ob-rail"><span class="ob-pt"></span></div>' + (e.groupe ? carteGroupe(e) : carteCourse(e.course, true)) + '</div>';
       }).join('') + '</div>'
-      : '<p class="ob-vide">Aucune course à venir.</p>');
+      : '<p class="ob-vide">Aucune course à venir. ' + (edition ? '« Ajouter une course » place ici ta prochaine course, avec son compte à rebours.' : '') + '</p>');
     if (edition) brancher(el, { ajouter: edition.ajouter });
     // Le bouton « Ajouter une course » passe au-dessus du cadre « Évolution de l’effort » (quand la page en a un).
     const haut = el.querySelector('.ob-haut'), effort = document.getElementById('difficulte');
@@ -293,7 +293,7 @@
   const cellule = (titreCellule, html, ancre, vide) => (html || montrerVides || vide ? '<details class="pc-cellule mrt-deroule' + (html ? '' : ' is-vide') + '"' + (ancre ? ' id="' + ancre + '"' : '') + '><summary>' + CHEVRON + titreCellule + '</summary><div class="pc-corps">' + (html || VIDE) + '</div></details>' : '');
   const texte = t => (t ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '');
   // Lien externe écrit en toutes lettres, suivi de la flèche dessinée.
-  const lienExterne = (url, txt, classe) => '<a class="pc-ext' + (classe ? ' ' + classe : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>';
+  const lienExterne = (url, txt, classe) => '<a class="mrt-lien pc-ext' + (classe ? ' ' + classe : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>';
   // Bloc Inscription d'une course à venir (fermé à l'ouverture) : ouverture des inscriptions, dossard, prix, site d'inscription.
   function inscriptionHtml(c) {
     const o = c.ouverture_inscriptions;
@@ -437,7 +437,7 @@
       '<div class="ob-lignes pc-fiche">' +
         (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
         ligne('Date / heure', '<span class="pc-datelig"><span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>' +
-          (c.date && !c.date_approx ? '<button type="button" class="mrt-rond is-petit" data-ob="agenda" aria-label="Ajouter à l\'agenda" title="Ajouter à l\'agenda">' + AGENDA + '</button>' : '') + '</span>') +
+          (c.date && !c.date_approx ? '<button type="button" class="mrt-rond" data-ob="agenda" aria-label="Ajouter à l\'agenda" title="Ajouter à l\'agenda">' + AGENDA + '</button>' : '') + '</span>') +
         (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +

@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.81 · 20 novembre 2026 · [Retour au sommaire](README.md) · **Remplir depuis la page de la course** (§ 3.9) : en ajout, un encart reçoit le texte copié d'une page de course (Finishers, site officiel…) ; une IA remplit les champs vides, rien n'est enregistré sans « Enregistrer »
+Version 0.82 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Pourquoi cette course », légende Course · Option · Objectif, flèches dessinées, page Saison vide qui dit quoi faire, agenda en rond normal.
 
 ## 1. Rôle
 

@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.45 · 20 novembre 2026 · [Retour au sommaire](README.md) · Date de naissance de l'encart en trois champs
+Version 1.46 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Séance » au lieu d'« activité » (bouton, section, feuille, confirmation) ; lien vers le Guide en bas de page.
 
 ## 1. Rôle
 

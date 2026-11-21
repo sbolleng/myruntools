@@ -103,7 +103,7 @@
   const ligneDe = cle => LIGNES.find(l => l[0] === cle);
   const TABLE = { prenom: 'mesures', nom: 'mesures', sexe: 'mesures', naissance: 'mesures', activite: 'mesures', poids: 'mesures', taille: 'mesures', pointure: 'mesures', fc_repos: 'mesures' };
   // Questions indispensables pour que l'IA propose des séances (Mon plan) : leur nom, dans l'ordre.
-  const IA = [['niveau', 'niveau'], ['volume_tranche', 'distance moyenne par semaine'], ['sortie_tranche', 'plus longue sortie récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
+  const IA = [['niveau', 'niveau'], ['volume_tranche', 'distance moyenne par semaine'], ['sortie_tranche', 'plus longue séance récente'], ['semaine', 'ma semaine'], ['allure', 'repère d\'allure']];
   // Profil express (premiers pas d'un nouveau compte) : ce qui sert tout de suite à Nutrition et à Mon plan.
   // Depuis le 17 nov. 2026, le repère d'allure se demande dans le parcours de Mon plan (Préparation, § 5.0).
   const EXPRESS = ['sexe', 'naissance', 'poids', 'taille'];

@@ -116,7 +116,7 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 .pc-lieu { display: inline-flex; align-items: baseline; gap: 0.2rem; white-space: nowrap; color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
 .pc-repere { width: 0.8em; height: 0.8em; flex: none; align-self: center; }
 .pc-liens-haut { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.5rem; }
-.pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--t-second); color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; }
+.pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; } /* lien d'action commun (mrt-lien), flèche à droite */
 .pc-ext.is-ouvert { color: var(--red); } /* inscription ouverte : en Alerte, comme sur la carte */
 .pc-fiche .pc-ext { font-size: inherit; color: var(--text); }
 /* Description : repliée dans le cadre de la fiche, sous un filet. */
