@@ -2924,7 +2924,7 @@ const CONTROLES = {
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
-    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue séance récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé'], 'Mon profil', 'Mon profil', 1],
+    pb.push(egal(['Profil à compléter : date de naissance, poids, taille, activité hors sport, niveau, distance moyenne par semaine, plus longue séance récente, repère d\'allure, ma semaine.', ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Connexions'], 'Mon profil', 'Mon profil', 1],
       [await p.textContent('.mp-etat'), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
@@ -5631,7 +5631,8 @@ const CONTROLES = {
     await o.ctx.close();
     db = jeu(d => { d.preferences[0].modules = null; });
     o = await ouvrir(nav, 'stats.html', 1200, db, {}, PARIS);
-    pb.push(egal(false, (await o.p.$$eval('.mrt-tab', l => l.map(x => x.textContent.trim()))).includes('Mes stats'), 'menu par défaut sans Mes stats'));
+    // Menu par défaut sans Mes stats : sur sa page, son onglet s'ajoute au bout, actif, le temps de la visite (repasse de cohérence).
+    pb.push(egal(['Mes stats', true], await o.p.evaluate(() => { const t = [...document.querySelectorAll('.mrt-tab')], on = document.querySelector('.mrt-tab.is-on'); return [on && on.textContent.trim(), t[t.length - 1] === on]; }), 'menu par défaut sans Mes stats : onglet de la page, actif, au bout'));
     await o.ctx.close();
     const autre = '00000000-0000-0000-0000-00000000000b';
     db = jeu(d => { d.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] }; d.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false }); });
