@@ -4060,14 +4060,15 @@ const CONTROLES = {
     pb.push(egal(['Semi de San Sebastián', 'Résultat'], [(await p.textContent('.pc-titre')).trim(), (await resultat(p)).sur], 'En un coup d\'œil, Dernière course : son nom ouvre son résultat'));
     await ctx.close();
 
-    // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
+    // N3 : sur téléphone, le menu défile et l'onglet de la page ouverte est ramené dans l'écran (23 nov. 2026).
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil'], visibles: true }, await p.evaluate(() => {
-        const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil'], visibles: true }, await p.evaluate(async () => {
+        await new Promise(r => setTimeout(r, 300));
+        const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')], on = t.filter(x => x.classList.contains('is-on'));
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
-          visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
-      }), 'menu à ' + w + ' px, ' + pg + ' : les modules construits, tous dans l\'écran'));
+          visibles: on.length === 1 && on.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
+      }), 'menu à ' + w + ' px, ' + pg + ' : les modules construits, l\'onglet ouvert est dans l\'écran'));
       await ctx.close();
     }
 

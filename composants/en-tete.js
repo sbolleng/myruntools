@@ -236,6 +236,10 @@
       const on = m.page === cfg.courant;
       return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + titre + (on ? ' aria-current="page"' : '') + '>' + nomOnglet(m) + '</a>';
     }).join('') + '</div>';
+    // Téléphone : le menu défile ; l'onglet de la page ouverte est ramené dans l'écran (au centre), une fois la barre posée dans la page.
+    const ramener = () => { const dedans = nav.querySelector('.mrt-nav-inner'), ici = nav.querySelector('.mrt-tab.is-on');
+      if (dedans && ici && dedans.scrollWidth > dedans.clientWidth) dedans.scrollLeft = Math.max(0, ici.offsetLeft - (dedans.clientWidth - ici.offsetWidth) / 2); };
+    requestAnimationFrame(ramener); setTimeout(ramener, 150);
 
     // Grand en-tête sur la page de démarrage seulement ; ailleurs une barre fine : le rappel du cap et l'engrenage.
     let haut = header;
