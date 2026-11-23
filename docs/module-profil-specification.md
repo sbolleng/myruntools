@@ -6,7 +6,7 @@ Version 0.11 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse d
 
 Une seule page rassemble tout ce qui décrit le coureur : ses mesures, son niveau, sa semaine type, sa santé. Chaque donnée se saisit **à un seul endroit** et sert à tous les modules : le besoin du jour (Nutrition), les séances proposées par l'IA (Mon plan), les vitesses des séances.
 
-- La page **Mon profil** (`profil.html`) est au menu par défaut (sixième onglet, après Palmarès ; clé des préférences « Profil »).
+- La page **Mon profil** (`profil.html`) est au menu par défaut (dernier onglet, après Mon palmarès et Mes stats ; clé des préférences « Profil ») ; ses questions se posent d'abord là où elles servent (inscription, Premiers pas, Ma nutrition, parcours de Mon plan), la page les réunit ensuite.
 - La **feuille Mon profil** reprend la même liste, au-dessus d'une autre page : le bouton « Mon profil » de Mon plan et le lien « Calculé pour … » de Nutrition l'ouvrent, pour compléter sans changer de page.
 - Le **profil express** (bloc Premiers pas d'En un coup d'œil, [spécification générale](specification-generale.md), § 5 bis) : la même feuille, réduite à quatre questions (sexe, date de naissance, poids, taille), posées l'une après l'autre en commençant par la première qui manque, avec « n sur 4 » dans le titre, sans retour à la liste, dans une petite feuille de la hauteur de chaque question ; la dernière enregistrée, la feuille se ferme. La croix la ferme à tout moment (« plus tard ») ; ce qui est enregistré reste. Le profil express est rempli quand ces quatre questions ont une réponse.
 - L'encart du premier usage de Nutrition (les seules mesures qui manquent au calcul) reste : il range les mêmes données.

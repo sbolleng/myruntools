@@ -276,17 +276,17 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 
 | Notion | Mot retenu | À ne plus écrire |
 | --- | --- | --- |
-| Page des courses à venir (menu, titre, lien d'En un coup d'œil) | **Saison** (fichier `objectif.html`, clé « Objectif ») | Objectif & plan, Plan & objectifs, Feuille de route |
-| Course choisie pour l'en-tête et mise en avant dans Saison | **Objectif principal** (Préférences : toute course à venir ; par défaut le dernier Objectif de Mon plan, sinon la plus lointaine) ; l'en-tête garde la formule « Cap sur … » ; à ne pas confondre avec le **rôle** Objectif (Mon plan) | « Cap » seul, comme étiquette ; course principale |
+| Page des courses à venir (menu, titre, lien d'En un coup d'œil) | **Ma saison** (fichier `objectif.html`, clé « Objectif ») : les courses choisies, rangées en saison | Saison seul, Objectif & plan, Plan & objectifs, Feuille de route |
+| Course choisie pour l'en-tête et mise en avant dans Ma saison | **Objectif principal** (Préférences : toute course à venir ; par défaut le dernier Objectif de Mon plan, sinon la plus lointaine) ; l'en-tête garde la formule « Cap sur … » ; à ne pas confondre avec le **rôle** Objectif (Mon plan) | « Cap » seul, comme étiquette ; course principale |
 | Rôle d'une course | **Objectif**, Préparatoire, Plaisir | |
 | Module qui construit le plan | Page **Mon plan** (menu, titre, lien d'En un coup d'œil ; clé « Préparation ») ; rubrique **Préparation** d'une course ; les phases se règlent **dans Mon plan seulement** (bouton **Personnaliser** de la carte de l'Objectif, qui ouvre la fenêtre **Régler les phases**) ; « plan » dans « Paramétrer le plan », « Place dans le plan », « Courses du plan » ; la frise montre tout le plan | plan de saison, prépa, Saison (pour la frise), Plans des courses, page Préparation, Paramétrer le plan, rond « Régler les phases » |
 | Parcours de Mon plan | **Construire mon plan** (bouton final) ; **Changer d'Objectif** (le relancer, carte de l'Objectif) ; **Niveau** (Débutant, Intermédiaire, Confirmé, Expert) | Je cours depuis, Générer mon plan, programme |
 | Jugement d'une course dans le plan | **avis** : **Conseillée**, **Possible**, **Déconseillée** ; **Préparatoire conseillée** (type de course et fenêtre) | recommandée, à éviter |
 | Phases affichées au Calendrier | bouton **Phases** | Plan (bouton), Phases de prépa |
-| Période qui mène à un Objectif (de la première semaine de phase au jour de la course) | **préparation** (« Courses de la préparation », « préparation de 16 semaines », « hors préparation ») ; **Saison** reste seulement le nom de la page des courses à venir | saison (pour cette période), inter-saison |
+| Période qui mène à un Objectif (de la première semaine de phase au jour de la course) | **préparation** (« Courses de la préparation », « préparation de 16 semaines », « hors préparation ») ; **Ma saison** reste seulement le nom de la page des courses à venir | saison (pour cette période), inter-saison |
 | Phase d'allègement (semaine plus légère dans le développement) | **Allègement** (valeur stockée `deload`) | Deload |
 | Texte libre d'une course : pourquoi on la court | **Pourquoi cette course** | Rôle dans la préparation |
-| Légende des points du graphique de Saison | **Course** (point plein), **Option** (point vide), **Objectif** (losange) | Course de préparation, Course en option |
+| Légende des points du graphique de Ma saison | **Course** (point plein), **Option** (point vide), **Objectif** (losange) | Course de préparation, Course en option |
 | Section du ressenti d'une séance faite | **Ressenti** ; bouton **À noter** sur la carte d'une séance faite | Retour sur la séance, « à noter » |
 | Type de séance très facile entre deux séances dures | **Décrassage** (abrégé « Décras. ») ; la phase garde le nom **Récupération** | Récupération (pour une séance) |
 | Compte à rebours | « 138 j » (pages), « 311 jours » (en-tête) | J-138 |
@@ -294,15 +294,16 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Exporter | bouton **Exporter** (infobulle « Exporter : imprimer ou PDF ») | Exporter (imprimer ou PDF) comme libellé |
 | Flèches | icônes dessinées (`mrtIcone`), jamais un caractère tapé (→, ←, ↑, ▲) | |
 | Choix du Calendrier (Semaine, Mois, Année…) | menu **Vue** | Périodicité |
-| Module de toutes les courses | **Courses** (menu et titre) ; toutes les courses au départ, resserrées par le bouton **Filtres** | Courses à surveiller, vues À surveiller / À venir |
+| Module de toutes les courses | **Les courses** (menu et titre ; clé « Courses à surveiller ») : on y choisit les courses qui comptent, toutes au départ, resserrées par le bouton **Filtres** | Mes courses, Courses à surveiller, vues À surveiller / À venir |
 | Statut d'une course pas encore décidée | **Repérée** (valeur stockée `a_surveiller`) | À surveiller, candidate |
-| Courses déjà courues | vue et pastille **Courues** ; module **Palmarès** | Déjà couru |
+| Courses déjà courues | vue et pastille **Courues** ; module **Mon palmarès** (menu et titre ; clé « Palmarès ») | Déjà couru |
 | Page d'accueil du site | **En un coup d'œil** | Accueil |
 | Une course d'un groupe d'options | **option** | candidat, candidate |
 | Séance de course | **Séance** ; type **Course à pied** ; « sortie » seulement dans « sortie longue » ; **Séance** aussi dans Nutrition (« Ajouter une séance ») | Sortie, Entraînement (séance), activité (séance), Plus longue sortie |
 | Séance de renforcement | **Renforcement** (abrégé « Renf. ») | Musculation, Renfo |
 | Inscription à une course | **Inscription** (bloc, ligne des cartes) ; **Ouverture des inscriptions** (Calendrier, toutes vues) ; **Dossard** pour le numéro seul | Dossard comme libellé d'un bloc |
 | Ce qui décrit le coureur (mesures, niveau, semaine, santé) | **Mon profil** (page, onglet, feuille commune ; sections **Moi**, **Mon niveau**, **Ma semaine**, **Santé**) | Mes mesures, Mon profil de coureur, profil d'entraînement |
+| Ma nutrition (menu et titre ; clé « Nutrition ») | **Ma nutrition** | Nutrition seul dans le menu |
 | Page des statistiques | **Mes stats** (menu, titre ; clé « Stats ») ; **activité** seulement pour ce qu'on importe (feuille « Importer mes activités ») : une fois importée, c'est une séance | Mes statistiques, Stats seul |
 | Compte d'un autre utilisateur | **espace** (« Voir son espace », « Revenir à mon espace », « Espaces partagés avec moi ») | site de, mon site, son site, Sites partagés |
 | Enregistrer une saisie en base | **Enregistrer** ; **Valider** seulement pour un brouillon pas encore rangé (aujourd'hui aucun écran : le formulaire d'une course neuve n'ouvre plus la fenêtre du plan) | Sauvegarder, Valider pour une saisie rangée |

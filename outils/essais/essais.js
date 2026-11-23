@@ -533,14 +533,14 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'index.html', 390, d, {}, PARIS));
     await p.waitForSelector('.ac-decouverte');
     const lignesDec = () => p.evaluate(() => [...document.querySelectorAll('.ac-decouverte li')].map(l => l.querySelector('b').textContent + (l.querySelector('input').checked ? ' ✓' : '')));
-    pb.push(egal([['premiers', 'decouverte'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès ✓', 'Mes stats', 'Nutrition'], 'Options'],
+    pb.push(egal([['premiers', 'decouverte'], ['Les courses ✓', 'Ma saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Mon palmarès ✓', 'Mes stats', 'Ma nutrition'], 'Options'],
       [await blocs(p), await lignesDec(), await p.textContent('.ac-options')], 'découverte : sous les Premiers pas, sept modules dans l\'ordre, les options après, cases « Au menu »'));
     const onglets = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => (t.getAttribute('aria-label') || t.textContent).trim()));
     await p.check('[data-menu="Nutrition"]');
-    await p.waitForFunction(() => [...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Nutrition'));
+    await p.waitForFunction(() => [...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Ma nutrition'));
     await p.uncheck('[data-menu="Palmarès"]');
-    await p.waitForFunction(() => ![...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Palmarès'));
-    pb.push(egal([['En un coup d\'œil', 'Saison', 'Calendrier', 'Nutrition', 'Courses', 'Mon profil'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès', 'Mes stats', 'Nutrition ✓']],
+    await p.waitForFunction(() => ![...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Mon palmarès'));
+    pb.push(egal([['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Ma nutrition', 'Mon profil'], ['Les courses ✓', 'Ma saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Mon palmarès', 'Mes stats', 'Ma nutrition ✓']],
       [await onglets(), await lignesDec()], 'découverte : Nutrition ajoutée au menu à sa place, Palmarès retiré'));
     await p.click('[data-compris]');
     await p.waitForFunction(() => !document.querySelector('.ac-decouverte'));
@@ -651,7 +651,7 @@ const CONTROLES = {
     pb.push(egal([0, ['En un coup d\'œil']], [await p.locator('.pref-modules input[type="radio"]').count(), await ouverture()], 'menu : pas de choix de démarrage, le premier module marqué « à l\'ouverture »'));
     await p.uncheck('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
-    pb.push(egal(['Saison'], await ouverture(), 'En un coup d\'œil décoché : Saison s\'ouvre en arrivant'));
+    pb.push(egal(['Les courses'], await ouverture(), 'En un coup d\'œil décoché : Les courses s\'ouvre en arrivant'));
     await p.check('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
     pb.push(egal([['Prochaine course', 'Nutrition', 'D\'ici là', 'Dernière course'], 'Bientôt : Pense-bête.'], await p.evaluate(() => [[...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim()),
@@ -664,7 +664,7 @@ const CONTROLES = {
     {
       const neuf = jeuObjectif(db0).db; neuf.ecritures = [];
       const o = await ouvrir(nav, 'index.html', 1200, neuf, {}, PARIS);
-      pb.push(egal([['Mon plan', 'Nutrition', 'Mes stats'], ['Ajouter au menu', 'Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil']],
+      pb.push(egal([['Mon plan', 'Ma nutrition', 'Mes stats'], ['Ajouter au menu', 'Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.ac-decouvrir button')].map(b => b.textContent),
           document.querySelector('.ac-decouvrir .ac-titre').textContent, [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'Pour aller plus loin : une ligne et son bouton par module absent du menu'));
@@ -672,8 +672,8 @@ const CONTROLES = {
       await o.p.click('.ac-decouvrir [data-module="Préparation"]');
       await o.p.waitForSelector('.mrt-tab:has-text("Mon plan")');
       const e = neuf.ecritures.filter(x => x.table === 'preferences')[0];
-      pb.push(egal(['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès', 'Profil', 'Cette semaine'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
-      pb.push(egal([['Nutrition', 'Mes stats'], ['En un coup d\'œil', 'Saison', 'Mon plan', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil']],
+      pb.push(egal(['En un coup d\'œil', 'Courses à surveiller', 'Objectif', 'Préparation', 'Calendrier', 'Palmarès', 'Profil'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
+      pb.push(egal([['Ma nutrition', 'Mes stats'], ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Mon plan', 'Calendrier', 'Mon palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'après l\'ajout : l\'onglet Mon plan apparaît, sa ligne disparaît'));
       pb.push(egal(['Mon plan', 'preparation.html'], await o.p.evaluate(() => { const l = document.querySelector('[data-bloc="dicila"] .ac-titre a'); return [l && l.textContent.trim(), l && l.getAttribute('href')]; }),
@@ -757,10 +757,10 @@ const CONTROLES = {
     // Menu
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     // Le menu ne montre que les modules construits ; les autres sont sur une ligne, « bientôt ».
-    const construits = ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil'];
+    const construits = ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(6, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les six modules par défaut cochés, En un coup d\'œil et Mon profil compris, sauf Mon plan et Nutrition (à cocher)'));
-    pb.push(egal('Bientôt dans le menu : Cette semaine.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
+    pb.push(egal(0, await p.locator('#bloc-menu .pref-bientot').count(), 'plus aucun module « bientôt » dans le menu (Cette semaine est fondue dans En un coup d\'œil)'));
     // Réglage rare : les flèches n'apparaissent qu'après « Réorganiser » (Menu et En un coup d'œil), qui devient « Terminé ».
     pb.push(egal([0, 0, 'Réorganiser', 'Réorganiser', 0], await p.evaluate(() => [document.querySelectorAll('.pref-fleches').length, document.querySelectorAll('[data-monter]').length,
       document.querySelector('#bloc-menu .pref-reorg').textContent, document.querySelector('#bloc-accueil .pref-reorg').textContent, document.querySelectorAll('.pref-defaut').length]), 'Préférences : ni flèches ni « Réinitialiser l\'ordre » tant qu\'on ne réorganise pas'));
@@ -770,7 +770,7 @@ const CONTROLES = {
     // Préparation (non cochée) est entre Saison et Calendrier dans la liste : deux clics pour passer devant Saison.
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Calendrier', 'Saison', 'Courses', 'Palmarès', 'Mon profil'];
+    const monte = ['En un coup d\'œil', 'Les courses', 'Calendrier', 'Ma saison', 'Mon palmarès', 'Mon profil'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -783,7 +783,7 @@ const CONTROLES = {
     pb.push(egal(['En un coup d\'œil'], await menu(), 'un seul module affiché'));
     pb.push(egal(true, await q('.pref-modules input[data-i]:checked', 'x.disabled'), 'dernière case non décochable'));
     // Les modules « bientôt » restent dans la liste enregistrée, à la fin : ils entreront dans le menu une fois construits.
-    pb.push(egal(['En un coup d\'œil', 'Cette semaine'], db.preferences[0].modules, 'modules « bientôt » gardés dans la liste enregistrée'));
+    pb.push(egal(['En un coup d\'œil'], db.preferences[0].modules, 'la liste enregistrée ne garde que le module affiché'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
 
     // Cap (Préparation, § 5.0) : seuls les Objectifs à venir se choisissent ; par défaut, le dernier. Le Trail du Lac devient un Objectif.
@@ -4063,7 +4063,7 @@ const CONTROLES = {
     // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil'], visibles: true }, await p.evaluate(() => {
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil'], visibles: true }, await p.evaluate(() => {
         const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
           visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
@@ -4851,14 +4851,14 @@ const CONTROLES = {
     // Nutrition n'est pas dans le menu par défaut ; une fois cochée dans les Préférences, elle a son onglet.
     d = copie(COMPLET); d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, d));
-    pb.push(egal(['En un coup d\'œil', 'Saison', 'Nutrition'], await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent)), 'Nutrition cochée : onglet dans le menu'));
+    pb.push(egal(['En un coup d\'œil', 'Ma saison', 'Ma nutrition'], await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent)), 'Nutrition cochée : onglet dans le menu'));
     await ctx.close();
     // Menu par défaut : pas d'onglet Nutrition ailleurs ; sur la page Nutrition, son onglet s'ajoute au bout, actif, le temps de la visite.
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, copie(COMPLET)));
-    pb.push(egal(false, (await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent))).includes('Nutrition'), 'menu par défaut : pas d\'onglet Nutrition'));
+    pb.push(egal(false, (await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent))).includes('Ma nutrition'), 'menu par défaut : pas d\'onglet Nutrition'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, copie(COMPLET)));
-    pb.push(egal(['Nutrition', true], await p.evaluate(() => { const t = [...document.querySelectorAll('.mrt-tab')], on = document.querySelector('.mrt-tab.is-on'); return [on && on.textContent, t[t.length - 1] === on]; }), 'page Nutrition hors du menu : son onglet, actif, au bout'));
+    pb.push(egal(['Ma nutrition', true], await p.evaluate(() => { const t = [...document.querySelectorAll('.mrt-tab')], on = document.querySelector('.mrt-tab.is-on'); return [on && on.textContent, t[t.length - 1] === on]; }), 'page Nutrition hors du menu : son onglet, actif, au bout'));
     await ctx.close();
 
     // Site partagé en lecture seule : aucune donnée de nutrition.
@@ -5409,7 +5409,7 @@ const CONTROLES = {
       return [...vu].sort();
     });
     for (const [page, quoi] of [['index.html', 'Accueil'], ['objectif.html', 'Objectif'], ['course.html?id=' + id(3), 'page d\'une course'], ['palmares.html', 'Palmarès'],
-      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats']]) {
+      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Ma nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats']]) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);
         if (page.startsWith('course.html')) await o.p.waitForSelector('.mc-panneau .pc-titre');
@@ -5516,6 +5516,8 @@ const CONTROLES = {
       /^Dossard$/i, /^Cap$/, /Mes mesures/, /Mon profil de coureur/, /^Modifier$/, /Fermer la fiche/, /Plans des courses/, /dans Préparation/,
       // Courses (glossaire) : le statut s'appelle « Repérée », les vues « À surveiller » et « À venir » n'existent plus.
       /À surveiller/, /Courses à surveiller/, /^À venir( \d+)?$/,
+      // Menu de parcours (23 nov. 2026) : Les courses, Ma saison, Ma nutrition, Mon palmarès.
+      /Mes courses/, /\b(dans|de|vers|à|sur) (la )?Saison\b/,
       // Repasse de cohérence (21 nov. 2026) : la période vers un Objectif s'appelle « préparation » (Saison reste le nom de la page) ;
       // Allègement, Décrassage, Ressenti, Pourquoi cette course, Régler les phases, Séance (Nutrition), Espaces partagés, Préférences.
       /\bsaisons? de \d/, /Courses de la saison/, /\bhors saison\b/, /inter-saison/, /Préparer une saison/, /Deload/, /Paramétrer le plan/, /Rôle dans la préparation/,
@@ -5542,9 +5544,9 @@ const CONTROLES = {
       const trouves = (await textes(p)).filter(t => INTERDITS.some(r => (t[0] === '§' ? !SEULS_LIBELLES.includes(String(r)) && r.test(t.slice(1)) : r.test(t))));
       pb.push(egal([], trouves, quoi + ' : aucun ancien mot dans les textes affichés'));
     };
-    const PAGES = [['index.html', 'En un coup d\'œil'], ['objectif.html', 'Saison'], ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'],
-      ['courses-a-surveiller.html?vue=tout', 'Courses'], ['palmares.html', 'Palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Mon plan'], ['profil.html', 'Mon profil'],
-      ['nutrition.html', 'Nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats'], ['course.html?id=' + id(3), 'page d\'une course']];
+    const PAGES = [['index.html', 'En un coup d\'œil'], ['objectif.html', 'Ma saison'], ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'],
+      ['courses-a-surveiller.html?vue=tout', 'Les courses'], ['palmares.html', 'Mon palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Mon plan'], ['profil.html', 'Mon profil'],
+      ['nutrition.html', 'Ma nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats'], ['course.html?id=' + id(3), 'page d\'une course']];
     for (const [page, quoi] of PAGES) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);

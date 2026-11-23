@@ -20,7 +20,7 @@
     // La prochaine course confirmée de la feuille de route.
     prochaine: courses => {
       const c = window.mrtCoursesRoute(courses).find(x => x.statut === 'confirmee');
-      return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Saison'],
+      return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Ma saison'],
         c ? '<div class="ac-carte" data-course="' + esc(c.id) + '"></div>' : vide('Aucune course confirmée à venir.'));
     },
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),
@@ -43,10 +43,10 @@
     // La dernière course courue ; son nom ouvre son résultat (la page de la course, en modale).
     derniere: courses => {
       const c = courses.filter(x => x.etat === 'courue' && x.date).sort((a, b) => (a.date < b.date ? 1 : -1))[0];
-      if (!c) return bloc('derniere', 'Dernière course', ['palmares.html', 'Palmarès'], vide('Aucune course courue pour l\'instant.'));
+      if (!c) return bloc('derniere', 'Dernière course', ['palmares.html', 'Mon palmarès'], vide('Aucune course courue pour l\'instant.'));
       const temps = c.dnf ? 'DNF' : c.temps != null ? duree(c.temps) + (c.allure ? ' · ' + allure(c.allure) : '') : '—';
       const ligne = (lib, html) => '<div class="ob-ligne"><span class="ob-lib">' + lib + '</span><span class="ob-val">' + html + '</span></div>';
-      return bloc('derniere', 'Dernière course', ['palmares.html', 'Palmarès'],
+      return bloc('derniere', 'Dernière course', ['palmares.html', 'Mon palmarès'],
         '<div class="ob-lignes ac-lignes">' + ligne('Course', '<a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a>') + ligne('Date', esc(dateCourte(c.date))) + ligne('Temps', esc(temps)) + '</div>');
     }
   };
