@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Mon plan, carte et frise (Préparation 3.16 : réglages et « i » à droite de la ligne des courses, noms de course verticaux, phases en nuance de leur couleur). Avant : réglages dans un menu (3.15).
+- Dernier lot : menu selon le parcours (Les courses, Ma saison, Mon plan, Calendrier, Ma nutrition, Mon palmarès, Mes stats, Mon profil ; évolution 047, à passer)  ; menu défilant sur téléphone. Avant : Mon plan, carte et frise (3.16).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
-- Prochaine étape : renforcement dans Mon plan, dans une autre discussion (`docs/README.md`, « Prochaines étapes »).
+- Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).

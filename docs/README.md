@@ -80,6 +80,8 @@ Chaque module suit le même cycle : spécification, validation, modèle de donn�
 
 En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [todo.md](todo.md), même numéro.
 
+22. **Priorité : Mon plan et la fréquence cardiaque** : lier l'intensité du plan aux zones cardiaques (FC max, FC de repos).
+23. **Menu selon le parcours, suites** : onglets à 375 px (décision), pas à pas ludique, évolution 047 à passer, « Cette semaine » fondu dans En un coup d'œil.
 1. **Préparation, refonte de Mon plan** : ajouter le renforcement (section Renforcement de Ma semaine dans le parcours, séances de renforcement dans le plan) ; voir aussi le n° 13.
 2. **Objectif** : essai réel du GPX à plusieurs tracés ; cap de l'en-tête depuis la page d'une course ; « Proposer une stratégie » construit (0.83, § 3.10) : évolution 044 et fonction `proposer-strategie` à passer dans Supabase.
 4. **Calendrier** : Mois V2 à comparer avec Mois, puis n'en garder qu'une.

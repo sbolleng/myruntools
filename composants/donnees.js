@@ -11,15 +11,14 @@
   // « En un coup d'œil » (index.html) : un module comme les autres, le premier par défaut ; son « œil » est un picto.
   const MODULES = [
     { nom: 'En un coup d\'œil', page: 'index.html', picto: 'oeil' },
-    { nom: 'Cette semaine' },
-    { nom: 'Objectif', libelle: 'Saison', page: 'objectif.html' }, // nom : la clé rangée dans les préférences
-    { nom: 'Préparation', libelle: 'Mon plan', page: 'preparation.html', defaut: false, aide: 'Ta préparation, ses phases, tes courses et les séances proposées.' }, // à cocher dans les Préférences, comme Nutrition ; nom : la clé rangée dans les préférences
-    { nom: 'Calendrier', page: 'calendrier.html' },
-    { nom: 'Nutrition', page: 'nutrition.html', defaut: false, aide: 'Ton besoin du jour et ton journal des repas.' }, // à cocher dans les Préférences : six onglets ne tiennent pas sur un téléphone
-    { nom: 'Courses à surveiller', libelle: 'Courses', page: 'courses-a-surveiller.html' },
-    { nom: 'Palmarès', page: 'palmares.html' },
-    { nom: 'Profil', libelle: 'Mon profil', page: 'profil.html' }, // tout ce qui décrit le coureur ; au menu par défaut (sixième onglet)
-    { nom: 'Stats', libelle: 'Mes stats', page: 'stats.html', defaut: false, aide: 'Ta progression mois par mois, tes meilleurs temps et une analyse.' }, // à cocher dans les Préférences
+    { nom: 'Courses à surveiller', libelle: 'Les courses', page: 'courses-a-surveiller.html' }, // nom : la clé rangée dans les préférences ; on choisit ici les courses qui comptent
+    { nom: 'Objectif', libelle: 'Ma saison', page: 'objectif.html' }, // les courses choisies, rangées en saison
+    { nom: 'Préparation', libelle: 'Mon plan', page: 'preparation.html', defaut: false, aide: 'Ta préparation, ses phases, tes courses et les séances proposées.' }, // facultatif : à cocher dans les Préférences ou au pas à pas d'En un coup d'œil
+    { nom: 'Calendrier', page: 'calendrier.html' }, // ta saison en calendrier, avec tes propres rendez-vous
+    { nom: 'Nutrition', libelle: 'Ma nutrition', page: 'nutrition.html', defaut: false, aide: 'Ton besoin du jour et ton journal des repas.' }, // facultatif
+    { nom: 'Palmarès', libelle: 'Mon palmarès', page: 'palmares.html' },
+    { nom: 'Stats', libelle: 'Mes stats', page: 'stats.html', defaut: false, aide: 'Ta progression mois par mois, tes meilleurs temps et une analyse.' }, // facultatif
+    { nom: 'Profil', libelle: 'Mon profil', page: 'profil.html' }, // tout ce qui décrit le coureur ; dernier du menu : ses questions se posent au fil du parcours, quand on en a besoin
     { nom: 'Guide', adresse: 'guide.html' } // article de lecture, hors du menu : accessible par son adresse seulement (pas de « page », qui le mettrait au menu)
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif

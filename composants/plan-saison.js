@@ -100,7 +100,7 @@
         const b = ev.target.closest('[data-role]');
         if (!b) return;
         const r = b.dataset.role;
-        if (r === 'retirer' && !(await window.mrtConfirmer({ texte: 'Retirer ' + c.course + ' du plan ? La course reste dans Saison ; elle n\'agit plus sur le plan.', action: 'Retirer du plan' }))) return;
+        if (r === 'retirer' && !(await window.mrtConfirmer({ texte: 'Retirer ' + c.course + ' du plan ? La course reste dans Ma saison ; elle n\'agit plus sur le plan.', action: 'Retirer du plan' }))) return;
         const { error } = await window.mrtSupabase.from('courses').update({ role: r === 'retirer' ? null : r }).eq('id', c.id);
         if (error) { console.warn(error); voile.querySelector('.ps-msg').textContent = 'Enregistrement impossible pour l\'instant.'; return; }
         await ctx.saisonChangee();
