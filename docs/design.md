@@ -1,6 +1,6 @@
 # Design
 
-Version 0.55 · 21 novembre 2026 · [Retour au sommaire](README.md) · glossaire complété par la repasse de cohérence (préparation, Allègement, Décrassage, Ressenti…)
+Version 0.56 · 21 novembre 2026 · [Retour au sommaire](README.md) · Panneau des boutons : sept boutons, un sens chacun, et la règle pour en ajouter un
 
 Ce document décrit l'apparence commune à toute l'application : couleurs, typographies, tailles et disposition de l'en-tête et du menu. Le contenu et les règles sont dans la [spécification générale](specification-generale.md).
 
@@ -19,7 +19,7 @@ Ce document décrit l'apparence commune à toute l'application : couleurs, typog
 | Le reste en blanc et gris | Valeurs et noms en Texte ; libellés et informations secondaires en Texte discret ; liens dans le texte soulignés, en Texte. |
 | Capitales pour les libellés seulement | Libellés de données (à gauche ou au-dessus d'une valeur, d'un champ, en-tête de colonne), toujours en Space Mono 0,7 rem, en-tête compris ; seuls le nom du jour (Semaine) et les numéros de l'Année du Calendrier sont plus fins (§ 10). Onglets, boutons, titres de section en casse normale. |
 | Tout dans un cadre | Chaque bloc de la page a son cadre (fond Surface, bordure fine, coins de 8 px) : tableau du Palmarès, carte d'une étape, fiche d'une course, liste des textes d'une course, Préférences (un cadre pour toute la page), panneaux. Dans un cadre, les sections sont séparées par un filet (Bordure). Jamais de cadre dans un cadre. |
-| Trois sortes de boutons | Principal : Accent plein, un par écran au plus (Enregistrer, Partager, Recevoir le lien, Ajouter une course) ; au survol, l'Accent s'éclaircit (mêlé de Texte). À contour : bordure fine, texte en Texte (Annuler, Retenir cette course, Régler les phases, Aujourd'hui) ; en Alerte, avec une poubelle, pour Supprimer (la course, la séance), plein Alerte au survol. Rond : une icône dessinée, jamais un caractère tapé (filtres, crayon, regroupement, flèches, fermer, « + ») ; petit rond (1,5 rem) pour le « + » d'une séance ; « × » pour fermer une feuille, la même croix partout ; un panneau qui se replie (filtres, colonnes) a un rond « Réduire », chevron vers le haut. Et le lien d'action : souligné, Texte discret (Se déconnecter, Rétablir l'ordre, Réinitialiser les filtres, Revenir aux règles générales). Tous en casse normale, Accent au survol. |
+| Sept boutons, un sens chacun | Principal (un par écran), Secondaire, Menu (chevron ▾), Danger (« Supprimer … », seul en bas), Rond (icône), Petit rond + (ajouter une séance), Lien (› vers le site, ↗ vers l'extérieur) ; la pastille sert seulement à choisir. Détail, exemples et règle pour en ajouter un : § 11. |
 | Tuiles de choix | Une question, une ligne par choix (Mon profil, parcours de Mon plan) : fond Case, filet entre deux ; choisie : texte Accent 600, coche, **contour Accent** (1,5 px, coins de 8 px) ; au survol (souris), contour Accent atténué ; jamais remplie d'Accent. |
 | Pastilles | Un choix parmi d'autres (filtres, tri et colonnes du Palmarès, vue du Calendrier) : arrondies, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond. |
 | Un seul champ | Fiche, fenêtres, filtres, Préférences (changement du mot de passe compris), connexion et nouveau mot de passe : fond Champ (§ 2), bordure fine (Bordure), coins de 6 px, 0,85 rem, exemple en Texte discret dans le champ vide, bordure en Accent pendant la saisie, en Alerte sur une erreur ; listes avec un chevron dessiné. Seul le tableau des phases de « Régler les phases » le prend en plus petit. |
@@ -173,7 +173,7 @@ Ils reprennent le style du site : rien de nouveau, des éléments déjà présen
 - Titre de bloc : le titre de cadre commun (0,85 rem, 600, Texte) ; à droite, un lien « … → » en 0,75 rem, Texte discret.
 - Un bloc « bientôt » n'est jamais affiché sur la page (annoncé sur une ligne dans les Préférences) ; Dernière course : les libellés des cartes (Space Mono, capitales).
 - **Pour aller plus loin** : un bloc sur toute la largeur, toujours en dernier ; titre de cadre commun, une ligne par module absent du menu (nom en 0,85 rem Texte, phrase d'aide en 0,8 rem Texte discret, sous le nom), bouton à contour « Ajouter au menu » à droite (sous le texte sur téléphone). Il disparaît quand plus rien ne manque.
-- Prochaine course : la carte de la saison, sans son propre cadre (compte à rebours en jours). D'ici là : la pastille commune par étape, le cap en Accent (texte et contour, sans fond).
+- Prochaine course : la carte de la saison, sans son propre cadre (compte à rebours en jours). D'ici là : une ligne par étape, le nom en lien (`mrt-lien`), l'Objectif principal en Accent ; pas de pastille (elle sert à choisir, § 11).
 - **Passage** grand en-tête ↔ barre fine : 0,45 s, ease-out ; la barre part de la hauteur de l'en-tête (5 rem de marge haute et basse), le nom du cap grossi 1,8 fois et en Accent, et se réduit ; l'en-tête part de la hauteur de la barre et se déplie. Aucun passage si l'utilisateur a demandé à réduire les animations.
 - **Sans page blanche** : pendant la visite, l'en-tête et le menu de la page précédente sont gardés ; la page suivante les dessine aussitôt (le passage commence tout de suite), seul le contenu attend la base, puis arrive en fondu (0,2 s).
 
@@ -242,24 +242,33 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 
 ## 11. Panneau des boutons
 
-Les boutons du site, à reprendre tels quels (feuille de style partagée, `composants/en-tete.css`) : un module n'en dessine pas d'autre. Tous en Space Grotesk, casse normale ; Accent au survol (souris seulement) ; contour Accent de 2 px au focus clavier ; estompés quand ils sont inactifs.
+**Sept boutons, un sens chacun** (21 nov. 2026) : une forme dit ce qui va se passer avant qu'on touche. Tous dans la feuille de style partagée (`composants/en-tete.css`), en Space Grotesk, casse normale ; Accent au survol (souris seulement) ; contour Accent de 2 px au focus clavier ; estompés quand ils sont inactifs.
 
-| Bouton | Classe | Apparence | Exemples sur le site |
-| --- | --- | --- | --- |
-| Principal | `mrt-btn is-principal` | Accent plein, texte Fond, 0,8 rem, 600, coins arrondis (20 px) ; au survol, l'Accent mêlé de Texte. Un par écran au plus | Enregistrer, Valider, Se connecter, Partager, + Ajouter une course |
-| À contour | `mrt-btn` | Bordure fine (Bordure), texte en Texte, même taille que le principal ; icône facultative à gauche | Annuler, Retenir cette course, Marquer comme courue, Régler les phases, Aujourd'hui, Changer le mot de passe |
-| Actif | `mrt-btn is-actif` | À contour, texte et bordure en Accent | Bouton à contour dont l'état est en cours |
-| Danger | `mrt-btn is-danger` | À contour en Alerte, avec une poubelle ; plein Alerte au survol | Supprimer la course, Supprimer la séance, Supprimer (confirmation) |
-| Rond | `mrt-rond` | Cercle de 2 rem, bordure fine, icône dessinée (`mrtIcone`) en Texte discret ; en Accent quand il est actif ou enfoncé | Filtres, Grouper par type, Colonnes, crayon, ‹ et ›, ↑ et ↓, Cartes et Tableau, plein écran de la carte |
-| Petit rond | `mrt-rond is-petit` | Cercle de 1,5 rem, « + » dessiné, zone de toucher de 2 rem | Ajouter une séance (Calendrier, préparation) |
-| Plein écran | `mrt-rond mrt-plein` (`mrtPleinEcran.bouton()`) | Rond avec quatre coins (agrandir) ou leurs flèches vers l'intérieur (réduire), dans une zone qui porte `data-plein-cible` ; ordinateur seulement (absent sur téléphone et écran tactile) ; le plein écran du navigateur, fond du site, Échap pour sortir | Frise de Préparation, Calendrier |
-| Fermer | `mrt-rond is-fermer` | Rond avec « × » de 1,2 rem, la même croix partout | Fermer une feuille |
-| Réduire | `mrt-rond` | Rond avec un chevron vers le haut | Replier un panneau (filtres, colonnes du Palmarès) |
-| Lien d'action | `mrt-lien` | Souligné, Texte discret, 0,8 rem, sans cadre ; `is-danger` en Alerte | Se déconnecter, Mot de passe oublié ?, Retour à la connexion, Réinitialiser l'ordre, Réinitialiser les filtres, Revenir aux règles générales, Retirer |
-| Pastille | `mrt-pastille` | Arrondie, contour Bordure, texte en Texte, 0,8 rem ; choisie : fond Accent, texte Fond | Vues du Calendrier, filtres de Courses et du Palmarès, filtres, tri et colonnes du Palmarès, étapes « D'ici là » |
-| Réglage discret | `mrt-choix` | Choix en texte, 0,8 rem, Texte discret ; le choisi en Texte, souligné d'Accent | Durée de l'Année (3, 6, 12 mois) |
-| En-tête triable | `mrt-tri` | Libellé de colonne et deux triangles ; la colonne triée en Accent | Palmarès, tableau de Courses |
-| Confirmation | `mrtConfirmer` | Encadré (Surface, contour Alerte pour une action dangereuse) sur le voile : question, « Annuler », action | Supprimer la course ou la séance, Abandonner les modifications, Retenir cette course, Revenir aux règles générales |
+| Bouton | Classe | Apparence | Sens, et lui seul | Exemples |
+| --- | --- | --- | --- | --- |
+| Principal | `mrt-btn is-principal` | Pilule Accent pleine, texte Fond, 0,8 rem, 600 | L'action qui conclut l'écran ; **un seul par écran** | Enregistrer, Ajouter une course, Ajouter un repas, Se connecter, Partager, Compléter |
+| Secondaire | `mrt-btn` | Pilule à contour fin (Bordure), texte en Texte ; icône facultative à gauche | Toute autre action | Annuler, Personnaliser, Changer d'Objectif, Proposer une stratégie, Importer un tracé, Aujourd'hui, + Préparatoire, Ajouter une séance (Nutrition) |
+| Menu | `mrt-btn` + chevron (`mrtIcone.chevronBas`) à droite ; la liste : `mrt-menu`, une ligne par choix `mrt-menu-l` | Le secondaire, chevron vers le bas (il tourne à l'ouverture) | Ouvre une liste de choix ou d'actions rarement utiles, pour ne pas charger l'écran | Vue (Calendrier), Affichage (Courses), Réglages du plan (Mon plan) |
+| Danger | `mrt-btn is-danger` | Pilule à contour Alerte, poubelle **et texte** « Supprimer … » ; plein Alerte au survol | Supprimer ; **toujours seul, en bas** de la fenêtre, loin d'« Enregistrer » | Supprimer la course, Supprimer la séance |
+| Rond | `mrt-rond` (`is-fermer` pour la croix ; `aria-pressed` pour une bascule) | Cercle de 2 rem, icône dessinée (`mrtIcone`) en Texte discret ; Accent quand il est actif ou enfoncé | Une action connue par son icône ; nom dans `aria-label` et `title` | Fermer, Modifier la course (crayon, Palmarès compris), Filtres, Colonnes, Grouper, Réduire, Exporter, Plein écran, Ajouter à l'agenda, ‹ ›, Phases (œil, bascule) |
+| Petit rond + | `mrt-rond is-petit` | Cercle de 1,5 rem, « + » dessiné, zone de toucher de 2 rem | Ajouter une séance dans la case d'un jour, **rien d'autre** | Calendrier, Cette semaine de Mon plan |
+| Lien | `mrt-lien` (`is-danger` en Alerte) | Souligné, Texte discret, 0,8 rem, sans cadre ; chevron › (`mrtIcone.droite`) pour aller à une page du site, flèche ↗ pour un site extérieur | Aller ailleurs, ou une action mineure | Calendrier ›, Voir dans Mon plan ›, Site officiel ↗, Se déconnecter, Réorganiser, Compléter mon profil, À noter, Revenir aux règles générales, une course de « D'ici là » ou de « Courses de la préparation » |
+
+**Pas des boutons**, à garder distincts :
+
+| Élément | Classe | Sens, et lui seul |
+| --- | --- | --- |
+| Pastille | `mrt-pastille` | **Choisir** parmi d'autres (filtres, tri et colonnes, sexe) ; choisie : fond Accent, texte Fond ; jamais pour agir ni pour aller ailleurs |
+| Réglage discret | `mrt-choix` | Un choix en texte (durée de l'Année : 3, 6, 12 mois) |
+| En-tête triable | `mrt-tri` | Trier une colonne (Palmarès, tableau des Courses) |
+| Tuile de choix | `ps-choix`, `ps-ligne-q` | Une question, une ligne par réponse (Mon profil, parcours de Mon plan) |
+| Carte, case, point | `ob-carte`, `cal-carte`, `ps-sem`, `mg-pt` | Tout le bloc s'ouvre d'un toucher |
+| Case à cocher | `mrt-coche` | « Faite » d'une séance, « Au menu » |
+| Confirmation | `mrtConfirmer` | Encadré sur le voile : question, « Annuler » (ou « Continuer »), l'action (en Alerte pour Supprimer, Abandonner) |
+
+**Exception unique** : « Inscription ouverte » reste un lien souligné en Alerte, parce qu'elle signale un état (on peut s'inscrire).
+
+**Avant tout nouveau bouton** : chercher dans les sept celui qui a le même sens et le reprendre tel quel. Si aucun ne convient, on en discute avant d'en créer un huitième. Le banc d'essai (groupe « boutons ») vérifie qu'aucun bouton n'est hors de ces classes, qu'il n'y a jamais deux boutons principaux sur un écran, et que « Supprimer » est seul en bas.
 
 ## 12. Glossaire
 
@@ -267,17 +276,17 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 
 | Notion | Mot retenu | À ne plus écrire |
 | --- | --- | --- |
-| Page des courses à venir (menu, titre, lien d'En un coup d'œil) | **Saison** (fichier `objectif.html`, clé « Objectif ») | Objectif & plan, Plan & objectifs, Feuille de route |
-| Course choisie pour l'en-tête et mise en avant dans Saison | **Objectif principal** (Préférences : toute course à venir ; par défaut le dernier Objectif de Mon plan, sinon la plus lointaine) ; l'en-tête garde la formule « Cap sur … » ; à ne pas confondre avec le **rôle** Objectif (Mon plan) | « Cap » seul, comme étiquette ; course principale |
+| Page des courses à venir (menu, titre, lien d'En un coup d'œil) | **Ma saison** (fichier `objectif.html`, clé « Objectif ») : les courses choisies, rangées en saison | Saison seul, Objectif & plan, Plan & objectifs, Feuille de route |
+| Course choisie pour l'en-tête et mise en avant dans Ma saison | **Objectif principal** (Préférences : toute course à venir ; par défaut le dernier Objectif de Mon plan, sinon la plus lointaine) ; l'en-tête garde la formule « Cap sur … » ; à ne pas confondre avec le **rôle** Objectif (Mon plan) | « Cap » seul, comme étiquette ; course principale |
 | Rôle d'une course | **Objectif**, Préparatoire, Plaisir | |
 | Module qui construit le plan | Page **Mon plan** (menu, titre, lien d'En un coup d'œil ; clé « Préparation ») ; rubrique **Préparation** d'une course ; les phases se règlent **dans Mon plan seulement** (bouton **Personnaliser** de la carte de l'Objectif, qui ouvre la fenêtre **Régler les phases**) ; « plan » dans « Paramétrer le plan », « Place dans le plan », « Courses du plan » ; la frise montre tout le plan | plan de saison, prépa, Saison (pour la frise), Plans des courses, page Préparation, Paramétrer le plan, rond « Régler les phases » |
 | Parcours de Mon plan | **Construire mon plan** (bouton final) ; **Changer d'Objectif** (le relancer, carte de l'Objectif) ; **Niveau** (Débutant, Intermédiaire, Confirmé, Expert) | Je cours depuis, Générer mon plan, programme |
 | Jugement d'une course dans le plan | **avis** : **Conseillée**, **Possible**, **Déconseillée** ; **Préparatoire conseillée** (type de course et fenêtre) | recommandée, à éviter |
 | Phases affichées au Calendrier | bouton **Phases** | Plan (bouton), Phases de prépa |
-| Période qui mène à un Objectif (de la première semaine de phase au jour de la course) | **préparation** (« Courses de la préparation », « préparation de 16 semaines », « hors préparation ») ; **Saison** reste seulement le nom de la page des courses à venir | saison (pour cette période), inter-saison |
+| Période qui mène à un Objectif (de la première semaine de phase au jour de la course) | **préparation** (« Courses de la préparation », « préparation de 16 semaines », « hors préparation ») ; **Ma saison** reste seulement le nom de la page des courses à venir | saison (pour cette période), inter-saison |
 | Phase d'allègement (semaine plus légère dans le développement) | **Allègement** (valeur stockée `deload`) | Deload |
 | Texte libre d'une course : pourquoi on la court | **Pourquoi cette course** | Rôle dans la préparation |
-| Légende des points du graphique de Saison | **Course** (point plein), **Option** (point vide), **Objectif** (losange) | Course de préparation, Course en option |
+| Légende des points du graphique de Ma saison | **Course** (point plein), **Option** (point vide), **Objectif** (losange) | Course de préparation, Course en option |
 | Section du ressenti d'une séance faite | **Ressenti** ; bouton **À noter** sur la carte d'une séance faite | Retour sur la séance, « à noter » |
 | Type de séance très facile entre deux séances dures | **Décrassage** (abrégé « Décras. ») ; la phase garde le nom **Récupération** | Récupération (pour une séance) |
 | Compte à rebours | « 138 j » (pages), « 311 jours » (en-tête) | J-138 |
@@ -285,15 +294,16 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Exporter | bouton **Exporter** (infobulle « Exporter : imprimer ou PDF ») | Exporter (imprimer ou PDF) comme libellé |
 | Flèches | icônes dessinées (`mrtIcone`), jamais un caractère tapé (→, ←, ↑, ▲) | |
 | Choix du Calendrier (Semaine, Mois, Année…) | menu **Vue** | Périodicité |
-| Module de toutes les courses | **Courses** (menu et titre) ; toutes les courses au départ, resserrées par le bouton **Filtres** | Courses à surveiller, vues À surveiller / À venir |
+| Module de toutes les courses | **Les courses** (menu et titre ; clé « Courses à surveiller ») : on y choisit les courses qui comptent, toutes au départ, resserrées par le bouton **Filtres** | Mes courses, Courses à surveiller, vues À surveiller / À venir |
 | Statut d'une course pas encore décidée | **Repérée** (valeur stockée `a_surveiller`) | À surveiller, candidate |
-| Courses déjà courues | vue et pastille **Courues** ; module **Palmarès** | Déjà couru |
+| Courses déjà courues | vue et pastille **Courues** ; module **Mon palmarès** (menu et titre ; clé « Palmarès ») | Déjà couru |
 | Page d'accueil du site | **En un coup d'œil** | Accueil |
 | Une course d'un groupe d'options | **option** | candidat, candidate |
 | Séance de course | **Séance** ; type **Course à pied** ; « sortie » seulement dans « sortie longue » ; **Séance** aussi dans Nutrition (« Ajouter une séance ») | Sortie, Entraînement (séance), activité (séance), Plus longue sortie |
 | Séance de renforcement | **Renforcement** (abrégé « Renf. ») | Musculation, Renfo |
 | Inscription à une course | **Inscription** (bloc, ligne des cartes) ; **Ouverture des inscriptions** (Calendrier, toutes vues) ; **Dossard** pour le numéro seul | Dossard comme libellé d'un bloc |
 | Ce qui décrit le coureur (mesures, niveau, semaine, santé) | **Mon profil** (page, onglet, feuille commune ; sections **Moi**, **Mon niveau**, **Ma semaine**, **Santé**) | Mes mesures, Mon profil de coureur, profil d'entraînement |
+| Ma nutrition (menu et titre ; clé « Nutrition ») | **Ma nutrition** | Nutrition seul dans le menu |
 | Page des statistiques | **Mes stats** (menu, titre ; clé « Stats ») ; **activité** seulement pour ce qu'on importe (feuille « Importer mes activités ») : une fois importée, c'est une séance | Mes statistiques, Stats seul |
 | Compte d'un autre utilisateur | **espace** (« Voir son espace », « Revenir à mon espace », « Espaces partagés avec moi ») | site de, mon site, son site, Sites partagés |
 | Enregistrer une saisie en base | **Enregistrer** ; **Valider** seulement pour un brouillon pas encore rangé (aujourd'hui aucun écran : le formulaire d'une course neuve n'ouvre plus la fenêtre du plan) | Sauvegarder, Valider pour une saisie rangée |

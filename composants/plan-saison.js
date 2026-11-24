@@ -24,9 +24,9 @@
   // La proposition qui couvre une semaine : la plus récente en attente ou acceptée dont le bloc de 4 semaines la contient.
   const couvrante = (ctx, lundi) => (ctx.propositions || []).filter(x => (x.statut === 'brute' || x.statut === 'acceptee') && x.bloc <= lundi && lundi < addDays(x.bloc, 7 * BLOC))
     .sort((a, b) => (a.cree < b.cree ? 1 : -1))[0] || null;
-  const PICTO = { profil: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.2" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.8 14c.6-2.9 2.6-4.4 5.2-4.4s4.6 1.5 5.2 4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-    objectif: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14V2.5M3.5 3h8l-1.8 2.7 1.8 2.8h-8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    calendrier: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' };
+  const PICTO = { exporter: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7.5M4.8 7L8 10.2 11.2 7M3 13h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    profil: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.2" r="2.7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.8 14c.6-2.9 2.6-4.4 5.2-4.4s4.6 1.5 5.2 4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    objectif: '<svg class="mrt-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14V2.5M3.5 3h8l-1.8 2.7 1.8 2.8h-8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' };
 
   // (9) Le bandeau de MyRunTools, toujours ouvert : les alertes, la préparatoire conseillée, la recommandation de l'IA.
   function bandeauHtml(ctx, lundi, alertes, o) {
@@ -65,7 +65,7 @@
       const cs = ctx.courses.filter(c => c.date && c.etat === 'a_venir' && (c.statut === 'confirmee' || c.statut === 'option') && lundiDe(c.date) === l);
       const cas = '<a class="ps-sem ph-' + ph + (l === lundi ? ' is-courante' : '') + '" href="calendrier.html#semaines=' + l + '" data-lundi="' + l + '" title="' + esc('Semaine du ' + jm(parse(l)) + ' · ' + NOM_PHASE[ph]) + '">' +
         '<span class="ps-sem-d">' + jjmm(parse(l)) + '</span>' +
-        cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '">' + window.mrtIcone.repere + esc(c.course) + '</span>').join('') +
+        (cs.length ? '<span class="ps-sem-cs">' + cs.map(c => '<span class="ps-sem-c r-' + roleDe(c) + (c.statut === 'option' ? ' is-option' : '') + '" title="' + esc(c.course) + '">' + window.mrtIcone.repere + esc(c.course) + '</span>').join('') + '</span>' : '') +
         '</a>';
       const b = blocs[blocs.length - 1];
       if (b && b.ph === ph) b.cases.push(cas); else blocs.push({ ph, cases: [cas] });
@@ -100,7 +100,7 @@
         const b = ev.target.closest('[data-role]');
         if (!b) return;
         const r = b.dataset.role;
-        if (r === 'retirer' && !(await window.mrtConfirmer({ texte: 'Retirer ' + c.course + ' du plan ? La course reste dans Saison ; elle n\'agit plus sur le plan.', action: 'Retirer du plan' }))) return;
+        if (r === 'retirer' && !(await window.mrtConfirmer({ texte: 'Retirer ' + c.course + ' du plan ? La course reste dans Ma saison ; elle n\'agit plus sur le plan.', action: 'Retirer du plan' }))) return;
         const { error } = await window.mrtSupabase.from('courses').update({ role: r === 'retirer' ? null : r }).eq('id', c.id);
         if (error) { console.warn(error); voile.querySelector('.ps-msg').textContent = 'Enregistrement impossible pour l\'instant.'; return; }
         await ctx.saisonChangee();
@@ -125,30 +125,37 @@
       // (1) La carte de l'Objectif : nom et parcours, date complète, distance et D+, J-138 ; un plan plus court que le minimum du format.
       const jours = Math.round((parse(prochaine.jourJ) - parse(auj)) / 86400000), n = prochaine.semaines.length, mini = P.minimumDe(o);
       const infos = [window.mrtFormat.date(o.date, { semaine: true }), M.distance(o)].filter(Boolean).join(' · ');
-      // (29) « Exporter » : le plan, de la semaine en cours à l'Objectif, en page à imprimer (Calendrier, § 4.6) ; aussi sur le site partagé.
-      const exporter = window.mrtExport ? window.mrtExport.bouton() : ''; // le rond commun, comme au Calendrier
+      // (29) « Exporter » (dans le menu des réglages) : le plan, de la semaine en cours à l'Objectif, en page à imprimer (Calendrier, § 4.6) ; aussi sur le site partagé.
       // « Mon profil » : absent quand le bandeau invite déjà à « Compléter mon profil » (un seul accès à la fois).
       const profilInvite = !ctx.lectureSeule && IA() && ctx.profil !== undefined && manquants(ctx.profil).length > 0;
-      const reglages = ctx.lectureSeule ? (exporter ? '<div class="ps-reglages">' + exporter + '</div>' : '') : '<div class="ps-reglages">' +
-        (profilInvite ? '' : '<button type="button" class="mrt-btn" data-profil>' + PICTO.profil + 'Mon profil</button>') +
-        '<button type="button" class="mrt-btn" data-parcours>' + PICTO.objectif + 'Changer d\'Objectif</button>' +
-        '<button type="button" class="mrt-btn" data-preparer="' + esc(o.id) + '">' + P.REGLAGES + 'Personnaliser</button>' + exporter + '</div>';
+      // (10) Les réglages du plan, rarement touchés : un seul bouton Menu (design, § 11), en bas de la page ; sur le site partagé, Exporter seul.
+      const item = (attr, picto, texte) => '<button type="button" class="mrt-menu-l" role="menuitem" ' + attr + '>' + picto + texte + '</button>';
+      const items = (ctx.lectureSeule ? '' : (profilInvite ? '' : item('data-profil', PICTO.profil, 'Mon profil')) + item('data-parcours', PICTO.objectif, 'Changer d\'Objectif') +
+        item('data-preparer="' + esc(o.id) + '"', P.REGLAGES, 'Personnaliser')) + (window.mrtExport ? item('data-exporter', PICTO.exporter, 'Exporter') : '');
+      const reglages = items ? '<div class="ps-reglages"><button type="button" class="mrt-btn ps-reglages-btn" data-reglages aria-expanded="false" aria-controls="ps-reglages-menu">Réglages du plan' + window.mrtIcone.chevronBas + '</button>' +
+        '<div class="mrt-menu" id="ps-reglages-menu" role="menu" hidden>' + items + '</div></div>' : '';
       // (26) Les courses de la saison : les Préparatoires et les Plaisirs avant l'Objectif, puis lui ; chacune ouvre sa feuille (28).
       const avant = ctx.courses.filter(c => c.statut === 'confirmee' && c.etat === 'a_venir' && c.date && c.date >= auj && c.date < o.date && (roleDe(c) === 'preparatoire' || roleDe(c) === 'plaisir'))
         .sort((a, b) => (a.date < b.date ? -1 : 1));
-      const puce = (c, role) => '<button type="button" class="ps-sc" data-sc="' + esc(c.id) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span> <span class="ps-sc-d">' + P.dateCourte(c.date) + ' · ' + role + '</span></button>';
-      const saison = '<div class="ps-saison"><span class="ob-lib">Courses de la préparation</span><div class="ps-sc-liste">' +
-        avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') + puce(o, 'Objectif') +
-        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-btn ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div></div>';
-      let h = '<section class="ob-carte sans-cpt ps-objectif"><span class="ob-role is-obj">Objectif</span><span class="ps-j">' + jours + ' j</span>' +
-        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><p class="ps-sous">' + esc(infos) + '</p>' +
-        (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + saison + reglages + '</section>';
+      // Un lien commun par course (design, § 11) : le nom et le chevron dessiné ; la date et le rôle dans l'infobulle (la feuille de la course les donne).
+      const puce = (c, role) => '<button type="button" class="mrt-lien ps-sc" data-sc="' + esc(c.id) + '" title="' + esc(c.course + ' · ' + P.dateCourte(c.date) + ' · ' + role) + '"' + (ctx.lectureSeule ? ' disabled' : '') + '><span class="ps-sc-n">' + esc(c.course) + '</span>' + window.mrtIcone.droite + '</button>';
+      // (30) Le rond « i » : comment MyRunTools construit le plan (le Guide demande une connexion : pas sur le site partagé).
+      const info = ctx.lectureSeule ? '' : '<a class="mrt-rond ps-guide" href="guide.html#saison" aria-label="Comment MyRunTools construit ton plan" title="Comment MyRunTools construit ton plan">' + window.mrtIcone.info + '</a>';
+      // (5) Seules les courses avant l'Objectif, après « Avant : » (l'Objectif est le titre) ; (6) « + Préparatoire » au bout de la ligne.
+      const saison = '<div class="ps-saison"><div class="ps-sc-liste">' + (avant.length ? '<span class="ps-sc-avant">Avant :</span>' : '') +
+        avant.map(c => puce(c, roleDe(c) === 'preparatoire' ? 'Préparatoire' : 'Plaisir')).join('') +
+        (ctx.lectureSeule ? '' : '<button type="button" class="mrt-lien ps-sc-plus" data-prepa>' + window.mrtIcone.plus + 'Préparatoire</button>') + '</div>' +
+        // (25) Réglages du plan, puis (30) le rond « i » : sur la même ligne, tout à droite.
+        '<span class="ps-saison-droite">' + reglages + info + '</span></div>';
+      let h = '<section class="ob-carte sans-cpt ps-objectif">' +
+        '<h2 class="ps-titre"><a href="' + lien(o) + '">' + M.nomHtml(o) + '</a></h2><span class="ps-droite"><span class="ps-j">' + jours + ' j</span></span><p class="ps-sous">' + esc(infos) + '</p>' +
+        (mini && n < mini ? '<p class="ps-court">Plan court : ' + n + (n > 1 ? ' semaines' : ' semaine') + ' (' + mini + ' au minimum)</p>' : '') + saison + '</section>';
       h += friseHtml(ctx, ps, lundi) + bandeauHtml(ctx, lundi, ps.alertes, o);
       ctx.objectifVise = o;
-      // (19) Cette semaine, (22) le picto du Calendrier à côté, (20) son total.
+      // (19) Cette semaine, (22) le lien « Calendrier › » à côté, (20) son total.
       const total = window.mrtTotalSemaine(ctx, lundi);
       h += '<section class="ps-semaine"><div class="ps-semaine-tete"><h3 class="ps-libelle">Cette semaine' +
-        '<a class="mrt-rond is-petit ps-vers-cal" href="calendrier.html" aria-label="Voir les semaines dans le Calendrier" title="Voir les semaines dans le Calendrier">' + PICTO.calendrier + '</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
+        '<a class="mrt-lien ps-vers-cal" href="calendrier.html" title="Voir les semaines dans le Calendrier">Calendrier' + window.mrtIcone.droite + '</a></h3>' + (total ? '<span class="cal-total">' + total + '</span>' : '') + '</div>' +
         window.mrtCetteSemaine(ctx, lundi, { plus: j => [...new Set(P.reperesDuJour(ps, j).map(r => (r.type === 'allege' ? 'Allégé' : r.type === 'repos' ? 'Repos' : 'Récupération')))].map(t => '<span class="cal-v-rep">' + t + '</span>').join('') }) + '</section>';
       root.innerHTML = '<div class="ps-cadre ps-vue">' + h + '</div>';
       placerFrise();
@@ -262,6 +269,10 @@
     };
     root.__ctx = ctx; // pour le banc d'essai
     root.addEventListener('click', async e => {
+      // (10) Menu « Réglages du plan » : il s'ouvre et se ferme d'un toucher ; un choix le referme.
+      const bouton = e.target.closest('[data-reglages]'), menu = root.querySelector('#ps-reglages-menu');
+      if (bouton && menu) { const ouvert = menu.hidden; menu.hidden = !ouvert; bouton.setAttribute('aria-expanded', String(ouvert)); return; }
+      if (menu && !menu.hidden && e.target.closest('.mrt-menu-l')) { menu.hidden = true; root.querySelector('[data-reglages]').setAttribute('aria-expanded', 'false'); }
       if (e.target.closest('[data-profil]')) return ouvrirProfil(ctx);
       if (e.target.closest('[data-exporter]') && ctx.objectifVise) {
         const o = ctx.objectifVise, l = P.lundiDe(iso(new Date()));

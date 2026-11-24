@@ -300,8 +300,7 @@
     racine.innerHTML =
       '<form novalidate>' +
         '<div class="pc-barre fc-barre"><button type="button" class="mrt-btn" data-fc="annuler">Annuler</button>' +
-          '<span class="fc-barre-droite">' + (existe && !marquer ? '<button type="button" class="fc-supprimer mrt-btn is-danger fc-danger" data-fc="supprimer" aria-label="Supprimer la course" title="Supprimer la course">' + POUBELLE + '</button>' : '') +
-          '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></span></div>' +
+          '<button type="submit" class="mrt-btn is-principal fc-plein">Enregistrer</button></div>' +
         // Le mode, en libellé (capitales discrètes), comme le rôle et l'étape en consultation.
         '<p class="fc-libelle" id="fc-titre">' + titreForm + '</p>' +
         '<p class="fc-msg" aria-live="polite"></p>' +
@@ -312,6 +311,8 @@
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
               (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && !['date_approx', 'ouverture_heure', 'ouverture_approx', 'dnf', 'allure'].includes(f[0])).map(champ).join('') + '</div>' +
           '</section>').join('') +
+        // « Supprimer la course » : seul en bas, loin d'« Enregistrer », comme « Supprimer la séance » (design, § 11).
+        (existe && !marquer ? '<div class="fc-bas-actions"><button type="button" class="mrt-btn is-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' : '') +
       '</form>';
     hote.replaceChildren(racine);
     if (seule) {

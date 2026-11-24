@@ -95,6 +95,8 @@
   window.mrtIcone = {
     fermer: icone('M4 4l8 8M12 4l-8 8'),
     plus: icone('M8 3.5v9M3.5 8h9'),
+    // « i » : bouton d'information (Mon plan, vers le Guide).
+    info: icone('M8 7.2v4.3M8 4.7h.01'),
     moins: icone('M3.5 8h9'),
     gauche: icone('M10 3.5L5.5 8l4.5 4.5'),
     droite: icone('M6 3.5L10.5 8 6 12.5'),
@@ -104,6 +106,8 @@
     oeil: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM8 6.3a1.7 1.7 0 1 1 0 3.4a1.7 1.7 0 1 1 0-3.4z'),
     oeilBarre: icone('M1.5 8C3 5 5.3 3.5 8 3.5S13 5 14.5 8C13 11 10.7 12.5 8 12.5S3 11 1.5 8zM3 13.5L13 2.5'),
     haut: icone('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
+    // Chevron d'un bouton Menu (design, § 11) : vers le bas, il tourne quand le menu est ouvert.
+    chevronBas: icone('M4 6l4 4 4-4'),
     // Crayon : modifier une course (page d'une course, Palmarès).
     crayon: icone('M11.3 1.9l2.8 2.8-8.6 8.6-3.4.6.6-3.4z'),
     // Repère d'une course dans la frise de Mon plan : triangle plein.
@@ -232,6 +236,10 @@
       const on = m.page === cfg.courant;
       return '<a class="mrt-tab' + (on ? ' is-on' : '') + '" href="' + lien(m.page) + '"' + titre + (on ? ' aria-current="page"' : '') + '>' + nomOnglet(m) + '</a>';
     }).join('') + '</div>';
+    // Téléphone : le menu défile ; l'onglet de la page ouverte est ramené dans l'écran (au centre), une fois la barre posée dans la page.
+    const ramener = () => { const dedans = nav.querySelector('.mrt-nav-inner'), ici = nav.querySelector('.mrt-tab.is-on');
+      if (dedans && ici && dedans.scrollWidth > dedans.clientWidth) dedans.scrollLeft = Math.max(0, ici.offsetLeft - (dedans.clientWidth - ici.offsetWidth) / 2); };
+    requestAnimationFrame(ramener); setTimeout(ramener, 150);
 
     // Grand en-tête sur la page de démarrage seulement ; ailleurs une barre fine : le rappel du cap et l'engrenage.
     let haut = header;

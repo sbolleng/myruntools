@@ -3,18 +3,17 @@
 .ac-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
 .ac-bloc { min-width: 0; padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .ac-titre { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.7rem; font-size: var(--t-texte); font-weight: 600; color: var(--text); } /* titre de cadre commun (design, § 1) */
-.ac-titre a { font-size: var(--t-petit); font-weight: 400; color: var(--muted); white-space: nowrap; }
+.ac-titre a { font-weight: 400; white-space: nowrap; } /* lien commun (mrt-lien) */
 .ac-vide { font-size: var(--t-second); color: var(--muted); }
 /* Bloc pas encore construit : grisé, comme un module « bientôt » du menu. */
 .ac-bloc.is-bientot { opacity: 0.5; border-style: dashed; background: transparent; }
 /* Prochaine course : la carte de la feuille de route, sans son propre cadre. */
 .ac-carte .ob-carte { margin: 0; padding: 0; background: none; border: none; }
-/* D'ici là : une pastille par étape, le cap en Accent. */
-.ac-etapes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; font-size: var(--t-second); }
-/* Étapes : la pastille commune (mrt-pastille) ; le cap en Accent, sans fond (ce n'est pas un choix). */
-.ac-etape.is-cap { color: var(--accent); border-color: var(--accent); }
+/* D'ici là : une ligne par étape, le nom en lien ; l'Objectif principal en Accent. */
+.ac-etapes { display: flex; flex-direction: column; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: var(--t-texte); }
+.ac-etape { font-size: inherit; color: var(--text); }
+.ac-etape.is-cap { color: var(--accent); font-weight: 600; }
 .ac-etape.is-groupe { cursor: default; }
-.ac-etapes i { font-style: normal; color: var(--muted); }
 /* Dernière course : libellé à gauche, valeur à droite. */
 .ac-lignes { font-size: var(--t-second); } /* lignes des cartes (ob-ligne, ob-lib) */
 /* Pour aller plus loin : sur toute la largeur ; une ligne par module (nom et aide à gauche, bouton à droite). */

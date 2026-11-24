@@ -118,7 +118,7 @@ details.pc-section:not([open]) > summary { margin-bottom: 0; }
 .pc-liens-haut { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.5rem; }
 .pc-ext { display: inline-flex; align-items: center; gap: 0.25rem; } /* lien d'action commun (mrt-lien), flèche à droite */
 .pc-ext.is-ouvert { color: var(--red); } /* inscription ouverte : en Alerte, comme sur la carte */
-.pc-fiche .pc-ext { font-size: inherit; color: var(--text); }
+.pc-fiche .pc-ext { font-size: inherit; }
 /* Description : repliée dans le cadre de la fiche, sous un filet. */
 /* Bas de la fiche : « À propos de la course » à gauche, le site officiel à droite, sur la même ligne. */
 .pc-fiche-bas { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; margin-top: 0.2rem; }

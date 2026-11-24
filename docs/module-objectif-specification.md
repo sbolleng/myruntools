@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.86 · 21 novembre 2026 · [Retour au sommaire](README.md) · Ravitaillements sur le profil (56) ; ligne « Tracé GPX » réduite à « Importer un tracé » et « Supprimer le tracé » ; « Supprimer la course » en haut, à gauche d'« Enregistrer »
+Version 0.87 · 21 novembre 2026 · [Retour au sommaire](README.md) · « Supprimer la course » seul en bas de la fiche, avec son texte (panneau des boutons du design, § 11).
 
 ## 1. Rôle
 
@@ -272,7 +272,7 @@ Site partagé en lecture seule : aucun de ces boutons.
 - **« + Ajouter une course »** (Objectif et Palmarès) ouvre la feuille directement en édition (F1 « Ajouter une course ») ; après Enregistrer, la consultation de la nouvelle course si elle est sur la saison, sinon la feuille se ferme (course courue ajoutée au Palmarès).
 - **Toucher une ligne du Palmarès** : la feuille en consultation d'une course courue (ci-dessous). **Crayon d'une ligne** : la feuille directement en édition (F1 « Modifier la course ») ; Enregistrer ou Annuler la ferme.
 - **« Marquer comme courue » (C8)** : la feuille bascule en édition, état Courue, pré-remplie ; « Supprimer » absent.
-- **« Supprimer la course » (F23)** : bouton à contour rouge (Alerte) avec une poubelle, dans la barre du haut, à gauche d'« Enregistrer », la poubelle seule (son nom en info-bulle et pour les lecteurs d'écran) ; après confirmation, la feuille se ferme.
+- **« Supprimer la course » (F23)** : bouton danger (contour rouge, poubelle et texte « Supprimer la course »), **seul en bas de la fiche**, loin d'« Enregistrer », comme « Supprimer la séance » ([design](design.md), § 11) ; après confirmation.
 - Le formulaire n'ouvre plus de fenêtre par-dessus : « Régler les phases » est dans la page Mon plan, sur un Objectif seulement (décidé le 11 novembre 2026, précisé le 12).
 
 ```
@@ -807,7 +807,7 @@ Résultats attendus, fiche d'une course (§ 3.8) :
 - Semi de San Sebastián ouvert par son adresse, ou touché dans la vue Année du Calendrier, ou depuis « Dernière course » sur l'accueil : sa consultation (section Résultat, ligne Temps) ; par son adresse, une seule course voisine (la plus récente n'a pas de « précédente ») ; la croix laisse la saison.
 - « + Ajouter une course » puis le retour du navigateur : sans saisie, la fiche se ferme et la saison reste ; après une saisie, « Abandonner les modifications ? » ; refusé, la fiche reste ; accepté, elle se ferme. « Annuler » retire aussi l'entrée d'historique de la fiche.
 - Site partagé en lecture seule : toucher une ligne ouvre la consultation, sans crayon ni « Importer un GPX ».
-- Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » à contour rouge, la poubelle seule, à gauche d'« Enregistrer » ; rien ne dépasse.
+- Téléphone (390 px) : édition en plein écran ; « Annuler » à gauche, « Enregistrer » à droite, visibles sans défiler ; « MODIFIER LA COURSE » en libellé dessous ; « Supprimer la course » seul en bas de la fiche; rien ne dépasse.
 
 Résultats attendus, remplir depuis la page de la course (§ 3.9) ; réponse de `lire-page-course` simulée par le banc (texte fictif « Trail des Hauts », type Trail, deux parcours : Le 25, 25 km, 900 m D+, 13 juin 2027 à 9 h ; Le 50, 50 km, 2 400 m D+, 12 juin 2027 à 6 h ; lieu Mont-Clair ; site officiel et site d'inscription en `https://` ; ouverture des inscriptions le 1er déc. 2026 ; 35 € et 60 €) :
 

@@ -6,7 +6,7 @@ Version 0.2 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de
 
 Un article de lecture qui explique comment MyRunTools construit un plan de préparation et calcule la nutrition : règles, valeurs, exemples chiffrés, sources et limites.
 
-- Page `guide.html` (module « Guide » du catalogue, `composants/donnees.js`, avec `adresse` et sans `page`) : **hors du menu** ; on y arrive par les liens d'action en bas de Mon plan (« Comment MyRunTools construit ton plan », vers `#saison`) et de Nutrition (« Comment MyRunTools calcule ton besoin », vers `#nutrition`) ; connexion requise ; `noindex`.
+- Page `guide.html` (module « Guide » du catalogue, `composants/donnees.js`, avec `adresse` et sans `page`) : **hors du menu** ; on y arrive par le rond « i » de la carte de Mon plan (« Comment MyRunTools construit ton plan », vers `#saison`) et par le lien d'action en bas de Nutrition (« Comment MyRunTools calcule ton besoin », vers `#nutrition`) ; connexion requise ; `noindex`.
 - Ton impersonnel (ni « tu », ni « vous »), style article ; vocabulaire du glossaire ([design](design.md), § 12).
 - **Rien d'inventé** : chaque règle, valeur ou source vient des spécifications [Préparation](module-preparation-specification.md) (§ 2 à 4, 3.5, 6), [Nutrition](module-nutrition-specification.md) (§ 2 et 3), [Mon profil](module-profil-specification.md) et [Calendrier](module-calendrier-specification.md) (§ 5.1, 5.4), ou du code (`preparation.js`, `besoin.js`). Une règle qui change là change ici.
 - Design commun seulement : cadres, `mrt-section`, `details.mrt-deroule`, liens, tableaux, échelle, couleurs des phases (`preparation.css`) ; `composants/guide.css` ne fait que la mise en page.

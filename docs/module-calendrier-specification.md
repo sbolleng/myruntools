@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.33 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : Allègement (ex-Deload), Décrassage, « Ressenti », « À noter » en lien d'action, case « Faite » à zone de toucher de 2 rem, phrase d'un Calendrier vide, « Ouverture des inscriptions » partout.
+Version 0.34 · 21 novembre 2026 · [Retour au sommaire](README.md) · « Phases » devient un rond à l'œil (bascule) ; liens des mois voisins et des ouvertures d'inscription soulignés (design, § 11).
 
 ## 1. Rôle
 
@@ -29,7 +29,7 @@ Le zoom « une course » n'est pas une vue du Calendrier : c'est la rubrique **P
 
 **Adresse** : `#semaines=AAAA-MM-JJ` (cette semaine en tête de liste ; sans adresse, la semaine en cours), `#mois=AAAA-MM`, `#annee=AAAA-MM` (premier mois affiché ; sans date, le mois en cours). Le bouton retour du navigateur ramène à la vue d'avant.
 
-**Bouton « Plan »** : éteint par défaut ; un toucher l'enfonce ou l'éteint ; un seul réglage pour les trois vues, retenu sur l'appareil (`mrt-calendrier-phases`). Éteint : un calendrier sans préparation. Enfoncé : le fond des jours à la couleur de la phase de leur semaine, le même pour tous ses jours (les trois vues), et la légende des phases. La phase d'une semaine est celle du **plan de préparation** ([Préparation](module-preparation-specification.md), § 4) : la phase de la saison de l'Objectif qui la couvre ; hors saison, **Récupération** après un Objectif (couleur à part) ou **Entretien**, sans fond. Seuls les Objectifs confirmés façonnent le plan ; une Préparatoire, une Plaisir ou une option ne change pas la phase d'une semaine.
+**Bouton « Phases »** : le rond commun à l'œil (bascule : œil barré éteint, œil ouvert et Accent enfoncé ; nom dans l'info-bulle, design § 11) ; éteint par défaut ; un toucher l'enfonce ou l'éteint ; un seul réglage pour les trois vues, retenu sur l'appareil (`mrt-calendrier-phases`). Éteint : un calendrier sans préparation. Enfoncé : le fond des jours à la couleur de la phase de leur semaine, le même pour tous ses jours (les trois vues), et la légende des phases. La phase d'une semaine est celle du **plan de préparation** ([Préparation](module-preparation-specification.md), § 4) : la phase de la saison de l'Objectif qui la couvre ; hors saison, **Récupération** après un Objectif (couleur à part) ou **Entretien**, sans fond. Seuls les Objectifs confirmés façonnent le plan ; une Préparatoire, une Plaisir ou une option ne change pas la phase d'une semaine.
 
 Les données viennent de la liste de courses de l'utilisateur, la même que pour Objectif ; les séances et les phases sont propres à la préparation (§ 7).
 
@@ -221,7 +221,7 @@ Téléphone : le libellé de la semaine (30) passe au-dessus de ses sept jours, 
 | N° | Élément | Exemple | Place |
 | --- | --- | --- | --- |
 | 25, 26, 22, 9, 18 | Comme le Mois (§ 4.1) ; « Aujourd'hui » : le mois en cours | « Mois V2 ⌄ » | Barre du haut, période |
-| 34 | « Exporter » : rond à contour, picto de téléchargement (§ 4.6) | ⤓ | Barre du haut, à droite, avant « Phases » |
+| 34 | « Exporter » : rond à contour, picto de téléchargement (§ 4.6) | ⤓ | Barre du haut, à droite, avant le rond « Phases » |
 | 33 | (retiré) Légende des liserés : aucune, à l'écran comme à l'export | | |
 | 30 | Libellé de la semaine : place dans la préparation (« Sem. 3 », en libellé, seulement dans une préparation), date du lundi, nom de la phase dans sa couleur, total (28) | « SEM. 3 · 30 nov. · Base · 1/4 séances » | Colonne de gauche |
 | 19 | Numéro du jour | « 20 » ; aujourd'hui dans un rond Accent | Coin haut gauche de la case |

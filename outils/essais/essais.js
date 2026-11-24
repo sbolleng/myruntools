@@ -216,6 +216,15 @@ async function ouvrir(navigateur, page, largeur, db, stockage = {}, opts = {}) {
   return { p, ctx, erreurs };
 }
 
+// Réglages du plan (Mon plan, design § 11) : rangés dans le menu « Réglages du plan ▾ » ; l'ouvrir s'il est fermé, puis toucher le réglage.
+async function reglage(p, sel) {
+  await p.waitForSelector('[data-reglages]');
+  // « Mon profil » n'est pas au menu quand le bandeau invite à le compléter (un seul accès) : le lien du bandeau.
+  if (!(await p.locator('#ps-reglages-menu ' + sel).count()) && (await p.locator('.ps-ia-aide ' + sel).count())) return p.click('.ps-ia-aide ' + sel);
+  if (await p.locator('#ps-reglages-menu').isHidden()) await p.click('[data-reglages]');
+  await p.click('#ps-reglages-menu ' + sel);
+}
+
 // Aucun saut au chargement : à l'instant où la page devient visible, le menu (et l'en-tête,
 // sur l'Accueil et la feuille de route) est déjà en place et le contenu de la page n'a plus à bouger.
 async function sansSaut(nav, db, page, w, nom, opts) {
@@ -524,14 +533,14 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'index.html', 390, d, {}, PARIS));
     await p.waitForSelector('.ac-decouverte');
     const lignesDec = () => p.evaluate(() => [...document.querySelectorAll('.ac-decouverte li')].map(l => l.querySelector('b').textContent + (l.querySelector('input').checked ? ' ✓' : '')));
-    pb.push(egal([['premiers', 'decouverte'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès ✓', 'Mes stats', 'Nutrition'], 'Options'],
+    pb.push(egal([['premiers', 'decouverte'], ['Les courses ✓', 'Ma saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Mon palmarès ✓', 'Mes stats', 'Ma nutrition'], 'Options'],
       [await blocs(p), await lignesDec(), await p.textContent('.ac-options')], 'découverte : sous les Premiers pas, sept modules dans l\'ordre, les options après, cases « Au menu »'));
     const onglets = () => p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(t => (t.getAttribute('aria-label') || t.textContent).trim()));
     await p.check('[data-menu="Nutrition"]');
-    await p.waitForFunction(() => [...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Nutrition'));
+    await p.waitForFunction(() => [...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Ma nutrition'));
     await p.uncheck('[data-menu="Palmarès"]');
-    await p.waitForFunction(() => ![...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Palmarès'));
-    pb.push(egal([['En un coup d\'œil', 'Saison', 'Calendrier', 'Nutrition', 'Courses', 'Mon profil'], ['Courses ✓', 'Saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Palmarès', 'Mes stats', 'Nutrition ✓']],
+    await p.waitForFunction(() => ![...document.querySelectorAll('.mrt-tab')].some(t => t.textContent.trim() === 'Mon palmarès'));
+    pb.push(egal([['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Ma nutrition', 'Mon profil'], ['Les courses ✓', 'Ma saison ✓', 'Mon profil ✓', 'Mon plan', 'Calendrier ✓', 'Mon palmarès', 'Mes stats', 'Ma nutrition ✓']],
       [await onglets(), await lignesDec()], 'découverte : Nutrition ajoutée au menu à sa place, Palmarès retiré'));
     await p.click('[data-compris]');
     await p.waitForFunction(() => !document.querySelector('.ac-decouverte'));
@@ -642,7 +651,7 @@ const CONTROLES = {
     pb.push(egal([0, ['En un coup d\'œil']], [await p.locator('.pref-modules input[type="radio"]').count(), await ouverture()], 'menu : pas de choix de démarrage, le premier module marqué « à l\'ouverture »'));
     await p.uncheck('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
-    pb.push(egal(['Saison'], await ouverture(), 'En un coup d\'œil décoché : Saison s\'ouvre en arrivant'));
+    pb.push(egal(['Les courses'], await ouverture(), 'En un coup d\'œil décoché : Les courses s\'ouvre en arrivant'));
     await p.check('.pref-modules label:has-text("En un coup") input');
     await p.waitForSelector('#bloc-menu .pref-msg:has-text("Enregistré")');
     pb.push(egal([['Prochaine course', 'Nutrition', 'D\'ici là', 'Dernière course'], 'Bientôt : Pense-bête.'], await p.evaluate(() => [[...document.querySelectorAll('.pref-blocs label')].map(l => l.textContent.trim()),
@@ -655,7 +664,7 @@ const CONTROLES = {
     {
       const neuf = jeuObjectif(db0).db; neuf.ecritures = [];
       const o = await ouvrir(nav, 'index.html', 1200, neuf, {}, PARIS);
-      pb.push(egal([['Mon plan', 'Nutrition', 'Mes stats'], ['Ajouter au menu', 'Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil']],
+      pb.push(egal([['Mon plan', 'Ma nutrition', 'Mes stats'], ['Ajouter au menu', 'Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.ac-decouvrir button')].map(b => b.textContent),
           document.querySelector('.ac-decouvrir .ac-titre').textContent, [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'Pour aller plus loin : une ligne et son bouton par module absent du menu'));
@@ -663,8 +672,8 @@ const CONTROLES = {
       await o.p.click('.ac-decouvrir [data-module="Préparation"]');
       await o.p.waitForSelector('.mrt-tab:has-text("Mon plan")');
       const e = neuf.ecritures.filter(x => x.table === 'preferences')[0];
-      pb.push(egal(['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Courses à surveiller', 'Palmarès', 'Profil', 'Cette semaine'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
-      pb.push(egal([['Nutrition', 'Mes stats'], ['En un coup d\'œil', 'Saison', 'Mon plan', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil']],
+      pb.push(egal(['En un coup d\'œil', 'Courses à surveiller', 'Objectif', 'Préparation', 'Calendrier', 'Palmarès', 'Profil'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
+      pb.push(egal([['Ma nutrition', 'Mes stats'], ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Mon plan', 'Calendrier', 'Mon palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'après l\'ajout : l\'onglet Mon plan apparaît, sa ligne disparaît'));
       pb.push(egal(['Mon plan', 'preparation.html'], await o.p.evaluate(() => { const l = document.querySelector('[data-bloc="dicila"] .ac-titre a'); return [l && l.textContent.trim(), l && l.getAttribute('href')]; }),
@@ -748,10 +757,10 @@ const CONTROLES = {
     // Menu
     pb.push(egal(["En un coup d'", true], await p.evaluate(() => [document.querySelector('.mrt-tab').textContent, !!document.querySelector('.mrt-tab .mrt-picto')]), 'menu : En un coup d\'œil en premier, « œil » en picto'));
     // Le menu ne montre que les modules construits ; les autres sont sur une ligne, « bientôt ».
-    const construits = ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil'];
+    const construits = ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil'];
     pb.push(egal(construits, await menu(), 'menu par défaut : les modules construits seulement'));
     pb.push(egal(6, await p.locator('.pref-modules input[type="checkbox"]:checked').count(), 'les six modules par défaut cochés, En un coup d\'œil et Mon profil compris, sauf Mon plan et Nutrition (à cocher)'));
-    pb.push(egal('Bientôt dans le menu : Cette semaine.', await p.textContent('#bloc-menu .pref-bientot'), 'modules non construits sur une ligne, sans case ni flèches'));
+    pb.push(egal(0, await p.locator('#bloc-menu .pref-bientot').count(), 'plus aucun module « bientôt » dans le menu (Cette semaine est fondue dans En un coup d\'œil)'));
     // Réglage rare : les flèches n'apparaissent qu'après « Réorganiser » (Menu et En un coup d'œil), qui devient « Terminé ».
     pb.push(egal([0, 0, 'Réorganiser', 'Réorganiser', 0], await p.evaluate(() => [document.querySelectorAll('.pref-fleches').length, document.querySelectorAll('[data-monter]').length,
       document.querySelector('#bloc-menu .pref-reorg').textContent, document.querySelector('#bloc-accueil .pref-reorg').textContent, document.querySelectorAll('.pref-defaut').length]), 'Préférences : ni flèches ni « Réinitialiser l\'ordre » tant qu\'on ne réorganise pas'));
@@ -761,7 +770,7 @@ const CONTROLES = {
     // Préparation (non cochée) est entre Saison et Calendrier dans la liste : deux clics pour passer devant Saison.
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
     await p.click('[aria-label="Monter Calendrier"]'); await attendre();
-    const monte = ['En un coup d\'œil', 'Calendrier', 'Saison', 'Courses', 'Palmarès', 'Mon profil'];
+    const monte = ['En un coup d\'œil', 'Les courses', 'Calendrier', 'Ma saison', 'Mon palmarès', 'Mon profil'];
     pb.push(egal(monte, await menu(), 'Calendrier monté, menu aussitôt'));
     await recharger();
     pb.push(egal(monte, await menu(), 'ordre conservé après rechargement'));
@@ -774,7 +783,7 @@ const CONTROLES = {
     pb.push(egal(['En un coup d\'œil'], await menu(), 'un seul module affiché'));
     pb.push(egal(true, await q('.pref-modules input[data-i]:checked', 'x.disabled'), 'dernière case non décochable'));
     // Les modules « bientôt » restent dans la liste enregistrée, à la fin : ils entreront dans le menu une fois construits.
-    pb.push(egal(['En un coup d\'œil', 'Cette semaine'], db.preferences[0].modules, 'modules « bientôt » gardés dans la liste enregistrée'));
+    pb.push(egal(['En un coup d\'œil'], db.preferences[0].modules, 'la liste enregistrée ne garde que le module affiché'));
     await p.click('#bloc-menu .pref-defaut'); await attendre();
 
     // Cap (Préparation, § 5.0) : seuls les Objectifs à venir se choisissent ; par défaut, le dernier. Le Trail du Lac devient un Objectif.
@@ -1286,7 +1295,7 @@ const CONTROLES = {
     const copie = () => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.persister = true; return d; };
     const titres = p => p.evaluate(() => [...document.querySelectorAll('.fc-fiche .fc-bloc-titre')].map(b => b.textContent.trim()));
     // Barre du haut (« Annuler », « Enregistrer »), puis le libellé du mode.
-    const barre = p => p.evaluate(() => [...document.querySelectorAll('.fc-barre button:not(.fc-supprimer)')].map(b => b.textContent.trim()).concat(document.querySelector('#fc-titre').textContent.trim()));
+    const barre = p => p.evaluate(() => [...document.querySelectorAll('.fc-barre button')].map(b => b.textContent.trim()).concat(document.querySelector('#fc-titre').textContent.trim()));
     const consultation = p => p.waitForSelector('.mc-panneau .pc-titre');
     // Consultation, puis crayon : la même feuille passe en édition.
     let d = copie();
@@ -1296,14 +1305,14 @@ const CONTROLES = {
     pb.push(egal({ barre: ['Annuler', 'Enregistrer', 'Modifier la course'], croix: 0, couches: 0, feuilles: 1, blocs: ['Course', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique', 'Résultat'], dossard: ['dossard', '1287'] },
       { barre: await barre(p), croix: await p.locator('.pc-fermer').count(), couches: await p.locator('.cal-voile').count(), feuilles: await p.locator('.mc-voile').count(), blocs: await titres(p),
         dossard: await p.evaluate(() => { const e = document.querySelector('#fc-dossard'); return [e.closest('.fc-grille').previousElementSibling.dataset.bloc, e.value]; }) }, 'crayon : édition dans la même feuille'));
-    // Libellé du mode en capitales discrètes ; « Supprimer la course » : bouton à contour rouge avec sa poubelle, en haut, à gauche d'« Enregistrer ».
-    pb.push(egal({ auxBords: true, libelle: 'uppercase', texte: ['', 'Supprimer la course'], poubelle: true, rouge: true, enHaut: true }, await p.evaluate(() => {
-      const b = document.querySelector('.fc-supprimer'), st = getComputedStyle(b), blocs = document.querySelectorAll('.fc-fiche .fc-bloc');
+    // Libellé du mode en capitales discrètes ; « Supprimer la course » : bouton danger (poubelle et texte), seul en bas de la fiche (design, § 11).
+    pb.push(egal({ auxBords: true, libelle: 'uppercase', texte: ['Supprimer la course', null], poubelle: true, rouge: true, enBas: true }, await p.evaluate(() => {
+      const b = document.querySelector('[data-fc="supprimer"]'), st = getComputedStyle(b), blocs = document.querySelectorAll('.fc-fiche .fc-bloc');
       const an = document.querySelector('.fc-barre [data-fc="annuler"]').getBoundingClientRect(), en = document.querySelector('.fc-barre .fc-plein').getBoundingClientRect(), br = document.querySelector('.fc-barre').getBoundingClientRect();
       return { auxBords: an.left - br.left < 40 && br.right - en.right < 40, libelle: getComputedStyle(document.querySelector('#fc-titre')).textTransform, texte: [b.textContent.trim(), b.getAttribute('aria-label')], poubelle: !!b.querySelector('svg'),
         rouge: st.borderTopColor === st.color && st.color === getComputedStyle(document.documentElement).getPropertyValue('--red').trim().replace(/^#(..)(..)(..)$/, (m, r, g, bl) => 'rgb(' + [r, g, bl].map(x => parseInt(x, 16)).join(', ') + ')'),
-        enHaut: !!b.closest('.fc-barre') && Math.abs(b.getBoundingClientRect().top - en.top) < 4 && b.getBoundingClientRect().right <= en.left && b.getBoundingClientRect().top < blocs[0].getBoundingClientRect().top };
-    }), 'Annuler à gauche, Enregistrer à droite ; libellé du mode ; Supprimer la course, à contour rouge, en haut à gauche d\'Enregistrer'));
+        enBas: !b.closest('.fc-barre') && b.getBoundingClientRect().top > blocs[blocs.length - 1].getBoundingClientRect().top };
+    }), 'Annuler à gauche, Enregistrer à droite ; libellé du mode ; Supprimer la course, à contour rouge, avec son texte, seul en bas'));
     // Annuler sans saisie : retour à la consultation, sans question.
     let questions = [];
     await surDialogue(p, q => { questions.push(q); return false; });
@@ -1509,7 +1518,7 @@ const CONTROLES = {
     ({ p, ctx, erreurs } = await ouvrir(nav, 'course.html?id=' + id(1), 1200, d, {}, PARIS));
     await p.click('[data-ob="marquer"]');
     await p.waitForSelector('.fc-fiche');
-    pb.push(egal([['Annuler', 'Enregistrer', 'Marquer comme courue'], 0, true], [await barre(p), await p.locator('.fc-supprimer').count(), (await titres(p)).includes('Résultat')], 'marquer : édition, état Courue, sans Supprimer'));
+    pb.push(egal([['Annuler', 'Enregistrer', 'Marquer comme courue'], 0, true], [await barre(p), await p.locator('[data-fc="supprimer"]').count(), (await titres(p)).includes('Résultat')], 'marquer : édition, état Courue, sans Supprimer'));
     await p.fill('#fc-temps', '2:40:00');
     await p.click('.fc-barre .fc-plein');
     await p.waitForSelector('.mc-voile', { state: 'detached' });
@@ -1984,12 +1993,12 @@ const CONTROLES = {
     // Supprimer
     o = await neuve(1200, COURSE(2)); ({ p, ctx } = o);
     await p.click('[data-ob="modifier"]'); await p.waitForSelector('.fc-fiche');
-    await p.click('.fc-supprimer');
+    await p.click('[data-fc="supprimer"]');
     pb.push(egal([true, 'Supprimer'], await p.evaluate(() => [document.querySelector('.mrt-dialogue-cadre').classList.contains('is-danger'), document.querySelector('.mrt-dialogue [data-r="oui"]').textContent]),
       'suppression : confirmation du site, encadré d\'Alerte, action « Supprimer »'));
     pb.push(egal('Supprimer cette course ? Cette action est définitive.', await repondre(p, false), 'suppression : confirmation'));
     pb.push(egal(0, o.copie.ecritures.length, 'suppression annulée : rien d\'écrit'));
-    await p.click('.fc-supprimer');
+    await p.click('[data-fc="supprimer"]');
     await repondre(p, true);
     await p.waitForSelector('.mc-voile', { state: 'detached' });
     pb.push(egal(['DELETE', '?id=eq.' + id(2)], [o.copie.ecritures[0].methode, o.copie.ecritures[0].filtres], 'suppression : ligne effacée, retour à la feuille de route'));
@@ -2012,7 +2021,7 @@ const CONTROLES = {
     pb.push(egal(1, await p.locator('[data-ob="marquer"]').count(), 'jour de la course : Marquer comme courue'));
     await p.click('[data-ob="marquer"]');
     pb.push(egal(['Marquer comme courue', ['Course', 'Résultat', 'Montre', 'Place dans le plan', 'Inscription', 'Parcours', 'Préparation', 'Logistique'], 0], [await p.textContent('#fc-titre'),
-      await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('.fc-supprimer').count()], 'marquer : fiche d\'une course courue, sans Supprimer'));
+      await p.locator('.fc-bloc-titre').allTextContents().then(t => t.map(x => x.trim())), await p.locator('[data-fc="supprimer"]').count()], 'marquer : fiche d\'une course courue, sans Supprimer'));
     pb.push(egal(['2026-10-20', 'Trail du Lac'], [await lire(p, '#fc-date'), await lire(p, '#fc-course')], 'marquer : pré-rempli'));
     await p.fill('#fc-temps', '2:40:00');
     await p.click('.fc-plein');
@@ -2354,9 +2363,9 @@ const CONTROLES = {
     // Export depuis Mon plan : de la semaine en cours à celle de l'Objectif, six semaines par page.
     {
       const { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await p.waitForSelector('.ps-reglages [data-exporter]');
+      await p.waitForSelector('[data-reglages]');
       await p.evaluate(() => { window.print = () => {}; });
-      await p.click('.ps-reglages [data-exporter]');
+      await reglage(p, '[data-exporter]');
       const x = await p.evaluate(() => ({ pages: document.querySelectorAll('.xp-page').length, titre: document.querySelector('.xp-titre').textContent,
         lignes: [...document.querySelectorAll('.xp-zone .cal-m2-ligne')].map(l => l.dataset.semaine), course: [...document.querySelectorAll('.xp-zone .cal-m2-course')].map(e => e.closest('[data-jour]').dataset.jour),
         phases: document.querySelectorAll('.xp-zone .cal-m2-ligne[class*="ph-"]').length }));
@@ -2712,14 +2721,14 @@ const CONTROLES = {
     await ctx.close();
 
     // Régler les phases, depuis Mon plan (rond de la frise, ou de l'Objectif dans « Courses du plan ») : durée de 20 semaines, une semaine en Base, puis recalcul
-    const plans = async (largeur = 1200) => { const o = await ouvrir(nav, 'preparation.html', largeur, d, {}, PARIS); await o.p.waitForSelector('.ps-reglages [data-preparer]'); await surDialogue(o.p, () => true); return o; };
-    const regler = async (q, idCourse) => { await q.p.click('.ps-reglages [data-preparer="' + idCourse + '"]'); await q.p.waitForSelector('.cal-preparer'); };
+    const plans = async (largeur = 1200) => { const o = await ouvrir(nav, 'preparation.html', largeur, d, {}, PARIS); await o.p.waitForSelector('[data-reglages]'); await surDialogue(o.p, () => true); return o; };
+    const regler = async (q, idCourse) => { await reglage(q.p, '[data-preparer="' + idCourse + '"]'); await q.p.waitForSelector('.cal-preparer'); };
     const fini = async q => { await q.p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause(); };
     d = copie();
     let q = await plans();
     pb.push(egal([[GORGES], 'Personnaliser'], await q.p.evaluate(() => [[...document.querySelectorAll('[data-preparer]')].map(b => b.dataset.preparer), document.querySelector('.ps-reglages [data-preparer]').textContent.trim()]),
       'Mon plan : « Personnaliser » (Régler les phases) dans la carte de l\'Objectif visé, seul réglage des phases de la page'));
-    await q.p.click('.ps-reglages [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
+    await reglage(q.p, '[data-preparer]'); await q.p.waitForSelector('.cal-preparer');
     await q.p.fill('.cal-prep [name="duree"]', '20'); await q.p.dispatchEvent('.cal-prep [name="duree"]', 'change');
     pb.push(egal('Début : lun. 19 oct. 2026 ; jour J : dim. 7 mars 2027 · durée du format : 16 sem.', await q.p.textContent('.cal-prep .cal-plan-dates'), 'Régler les phases : 20 semaines, début le 19 octobre'));
     await q.p.selectOption('.cal-prep [data-sem="2026-12-07"]', 'base');
@@ -2790,7 +2799,7 @@ const CONTROLES = {
       await p.screenshot({ path: path.join(__dirname, 'captures', 'course-preparation.png'), fullPage: true });
       await ctx.close();
       const o = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await o.p.waitForSelector('.ps-reglages [data-preparer]'); await o.p.click('.ps-reglages [data-preparer]');
+      await o.p.waitForSelector('[data-reglages]'); await reglage(o.p, '[data-preparer]');
       await o.p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-preparer.png') });
       await o.ctx.close();
     }
@@ -2812,7 +2821,7 @@ const CONTROLES = {
       const ph = l => { const e = sem.find(x => x.dataset.lundi === l); return e ? [...e.classList].find(c => c.startsWith('ph-')) : null; };
       return {
         titre: t('.ps-objectif .ps-titre'), sous: t('.ps-objectif .ps-sous'), j: t('.ps-objectif .ps-j'), court: t('.ps-court'),
-        reglages: [...document.querySelectorAll('.ps-reglages .mrt-btn, .ps-reglages [data-exporter]')].map(b => b.textContent.trim() || b.getAttribute('aria-label')),
+        reglages: [...document.querySelectorAll('#ps-reglages-menu .mrt-menu-l')].map(b => b.textContent.trim()), menuBas: !!document.querySelector('.ps-semaine + .ps-reglages [data-reglages]'),
         semaines: sem.length ? [sem[0].dataset.lundi, sem[sem.length - 1].dataset.lundi] : [], courante: (document.querySelector('.ps-sem.is-courante') || {}).dataset ? document.querySelector('.ps-sem.is-courante').dataset.lundi : null,
         phases: ['2026-11-09', '2026-11-16', '2026-11-30', '2027-03-08', '2027-04-12', '2027-04-19', '2027-05-03', '2027-05-10', '2027-08-16', '2027-08-30'].map(ph),
         marques: [...document.querySelectorAll('.ps-sem-c')].map(e => e.closest('.ps-sem').dataset.lundi + ' ' + e.textContent + ' ' + [...e.classList].filter(c => c !== 'ps-sem-c').join(' ')),
@@ -2823,6 +2832,9 @@ const CONTROLES = {
         reperes: [...document.querySelectorAll('.ps-semaine .cal-v-rep')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne + ' ' + e.textContent),
         repos: [...document.querySelectorAll('.ps-semaine .cal-repos')].map(e => e.closest('.cal-s-ligne').dataset.jourLigne),
         lien: (document.querySelector('.ps-semaine-tete a.ps-vers-cal') || { getAttribute: () => null }).getAttribute('href'),
+        texteLien: t('.ps-semaine-tete a.ps-vers-cal'), guideBas: document.querySelectorAll('.mrt-guide').length,
+        info: [...document.querySelectorAll('.ps-objectif .ps-droite > *, .ps-saison-droite > a')].map(e => (e.getAttribute('href') || e.textContent.trim()) + '|' + (e.getAttribute('aria-label') || '')),
+        libelleObjectif: document.querySelectorAll('.ps-objectif .ob-role, .ps-saison .ob-lib').length,
         plus: document.querySelectorAll('.ps-semaine [data-ajout]').length,
         ordre: [...document.querySelectorAll('.ps-vue > *')].map(e => e.className.split(' ').find(c => c.startsWith('ps-'))),
         debordement: document.documentElement.scrollWidth > innerWidth
@@ -2855,7 +2867,8 @@ const CONTROLES = {
     let { p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
     await p.waitForSelector('.ps-objectif');
     let r = await lire(p);
-    pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; picto du Calendrier à côté du titre'));
+    pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier à côté du titre'),
+        egal(['Calendrier', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » sur la ligne du nom, le rond « i » vers le Guide à droite de la ligne des courses ; plus de lien du Guide en bas ; « Calendrier › »'));
     pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
@@ -3206,7 +3219,7 @@ const CONTROLES = {
     await ctx.close();
     // Téléphone : la liste et la semaine type tiennent dans l'écran.
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 390, copie(), {}, PARIS));
-    await p.waitForSelector('[data-profil]'); await p.click('[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await reglage(p, '[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const deborde = () => p.evaluate(() => document.documentElement.scrollWidth > innerWidth || document.querySelector('.ps-profil').scrollWidth > document.querySelector('.ps-profil').clientWidth);
     const l1 = await deborde();
     await p.click('.ps-profil [data-q="semaine"]');
@@ -3325,8 +3338,8 @@ const CONTROLES = {
     // 2. Deux Objectifs : le Trail des Crêtes avancé au 2 mai chevauche le Trail des Gorges (récupération jusqu'au 17 avril). Profil complet : sauté.
     d = copie(x => { x.courses.find(c => c.id === id(7)).date = '2027-05-02'; x.profil_entrainement = [Object.assign({}, COMPLET)]; });
     ({ p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 390, d, {}, PARIS));
-    await p.waitForSelector('[data-parcours]'); await pause();
-    await p.click('[data-parcours]'); await vers(p, 'plan');
+    await p.waitForSelector('[data-reglages]'); await pause();
+    await reglage(p, '[data-parcours]'); await vers(p, 'plan');
     pb.push(egal(1, await p.locator('.pp [data-pp="fermer"]').count(), '« + Objectif » : le parcours, avec la croix'));
     await p.click('[data-plan="course"]'); await vers(p, 'course');
     await p.click('[data-course="' + id(7) + '"]'); await vers(p, 'conflit');
@@ -3374,7 +3387,7 @@ const CONTROLES = {
     for (let k = 0; k < 60 && !d.appels.length; k++) await pause();
     await p.waitForSelector('.ps-bandeau .ps-reco');
     const miseAJour = [d.appels.length > 0, (d.appels[0] || {}).motif, (d.appels[0] || {}).bloc];
-    await p.click('.ps-reglages [data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
+    await reglage(p, '[data-profil]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     const infoAvant = await p.locator('.ps-profil .ps-info').count();
     await p.click('.ps-profil [data-q="niveau"]'); await p.click('.ps-profil [data-val="expert"]'); await p.waitForSelector('.ps-profil .ps-ligne-q');
     pb.push(egal([0, [true, 'readaptation', '2026-10-19'], 0, 0],
@@ -3391,7 +3404,7 @@ const CONTROLES = {
     const moi = db.profils[0].id;
     const copie = f => { const d = JSON.parse(JSON.stringify(db)); d.ecritures = []; d.seances = []; d.propositions = []; d.profil_entrainement = []; if (f) f(d); return d; };
     const hiver = x => x.courses.push(Object.assign({}, x.courses.find(k => k.id === id(1)), { id: id(40), course: 'Trail de l\'Hiver', parcours: null, date: '2027-01-31', statut: 'a_surveiller', inscrit: false, dossard: null, role: null }));
-    const puces = p => p.evaluate(() => [...document.querySelectorAll('.ps-sc')].map(b => b.textContent.replace(/\s+/g, ' ').trim()));
+    const puces = p => p.evaluate(() => [...document.querySelectorAll('.ps-sc, .ps-sc-plus')].map(b => b.textContent.replace(/\s+/g, ' ').trim()));
     const majCourses = d => d.ecritures.filter(x => x.table === 'courses').map(x => x.filtres + ' ' + JSON.stringify(x.corps));
     const planMaj = d => d.ecritures.some(x => x.table === 'preferences' && x.corps && x.corps.plan_maj);
     // Le plan entier est déjà proposé après le premier bloc : seule la mise à jour d'office est à voir ; le relais note les appels.
@@ -3402,10 +3415,10 @@ const CONTROLES = {
     let d = copie(hiver);
     let { p, ctx, erreurs } = await ouvrir(nav, 'preparation.html', 1200, d, {}, PARIS);
     await p.waitForSelector('.ps-saison');
-    pb.push(egal([['Trail du Lac 15 nov. · Préparatoire', 'Corrida de Noël 13 déc. · Plaisir', 'Trail des Gorges 7 mars · Objectif'], 1,
+    pb.push(egal([['Trail du Lac', 'Corrida de Noël', 'Préparatoire'], 1,
       'Préparatoire conseillée : un trail de 21 à 30 km, sur un terrain proche, du dim. 24 janv. 2027 au dim. 7 févr. 2027. Ajouter une course'],
       [await puces(p), await p.locator('.ps-saison [data-prepa]').count(), (await p.textContent('.ps-sg-ligne')).replace(/\s+/g, ' ').trim()],
-      'carte : les Préparatoires et les Plaisirs avant l\'Objectif, puis lui, et « + Préparatoire » ; bandeau : la préparatoire conseillée'));
+      'carte : « Avant : » les Préparatoires et les Plaisirs avant l\'Objectif (sans lui), et « + Préparatoire » ; bandeau : la préparatoire conseillée'));
     // « Ajouter » : la fenêtre d'abord ; la course repérée, Conseillée, devient Préparatoire et Confirmée ; la saison a changé.
     await p.click('[data-prepa="fenetre"]'); await p.waitForSelector('.pp[data-ecran="prepa"]');
     await p.click('[data-filtre="toutes"]'); await pause();
@@ -3413,7 +3426,7 @@ const CONTROLES = {
     await p.click('[data-prepa-c="' + id(40) + '"]');
     await p.waitForSelector('.ps-sc[data-sc="' + id(40) + '"]');
     pb.push(egal(['Trail de l\'Hiver Conseillée', ['?id=eq.' + id(40) + ' {"role":"preparatoire","statut":"confirmee"}'], true, true],
-      [liste[0], majCourses(d), planMaj(d), (await puces(p)).includes('Trail de l\'Hiver 31 janv. · Préparatoire')],
+      [liste[0], majCourses(d), planMaj(d), (await puces(p)).includes('Trail de l\'Hiver')],
       'ajout : la course de la fenêtre en tête, Conseillée ; un toucher l\'ajoute en Préparatoire (Confirmée), la saison a changé'));
     pb.push(egal([], erreurs, 'ajout, erreurs JavaScript'));
     await ctx.close();
@@ -3440,7 +3453,7 @@ const CONTROLES = {
     await p.click('.ps-feuille-c [data-role="retirer"]');
     await p.waitForSelector('.ps-feuille-c', { state: 'detached' }); await pause();
     pb.push(egal([['Préparatoire', 'Trail du Lac', true, ['Passer en Plaisir', 'Voir la course', 'Retirer du plan']], ['?id=eq.' + id(1) + ' {"role":null}'], true, false],
-      [feuille, majCourses(d), planMaj(d), (await puces(p)).some(t => t.startsWith('Trail du Lac'))],
+      [feuille, majCourses(d), planMaj(d), (await puces(p)).includes('Trail du Lac')],
       'feuille : Préparatoire, son avis, ses actions ; « Retirer du plan » : rôle vide, la saison a changé, la course quitte la carte'));
     pb.push(egal([], erreurs, 'feuille d\'une course, erreurs JavaScript'));
     await ctx.close();
@@ -4047,14 +4060,15 @@ const CONTROLES = {
     pb.push(egal(['Semi de San Sebastián', 'Résultat'], [(await p.textContent('.pc-titre')).trim(), (await resultat(p)).sur], 'En un coup d\'œil, Dernière course : son nom ouvre son résultat'));
     await ctx.close();
 
-    // N3 : le menu, sans les modules « bientôt », tient dans l'écran d'un téléphone.
+    // N3 : sur téléphone, le menu défile et l'onglet de la page ouverte est ramené dans l'écran (23 nov. 2026).
     for (const w of [375, 390]) for (const pg of ['index.html', 'palmares.html']) {
       ({ p, ctx } = await ouvrir(nav, pg, w, copie(), {}, PARIS));
-      pb.push(egal({ onglets: ['En un coup d\'œil', 'Saison', 'Calendrier', 'Courses', 'Palmarès', 'Mon profil'], visibles: true }, await p.evaluate(() => {
-        const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')];
+      pb.push(egal({ onglets: ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil'], visibles: true }, await p.evaluate(async () => {
+        await new Promise(r => setTimeout(r, 300));
+        const bar = document.querySelector('.mrt-nav-inner'), t = [...document.querySelectorAll('.mrt-tab')], on = t.filter(x => x.classList.contains('is-on'));
         return { onglets: t.map(x => x.getAttribute('aria-label') || x.textContent),
-          visibles: t.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
-      }), 'menu à ' + w + ' px, ' + pg + ' : les modules construits, tous dans l\'écran'));
+          visibles: on.length === 1 && on.every(x => x.offsetLeft - bar.scrollLeft >= 0 && x.offsetLeft - bar.scrollLeft + x.offsetWidth <= bar.clientWidth) };
+      }), 'menu à ' + w + ' px, ' + pg + ' : les modules construits, l\'onglet ouvert est dans l\'écran'));
       await ctx.close();
     }
 
@@ -4171,7 +4185,7 @@ const CONTROLES = {
     await ctx.close();
     {
       const q = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, PARIS);
-      await q.p.waitForSelector('.ps-reglages [data-preparer]'); await q.p.click('.ps-reglages [data-preparer]'); await q.p.waitForSelector('.cal-preparer');
+      await q.p.waitForSelector('[data-reglages]'); await reglage(q.p, '[data-preparer]'); await q.p.waitForSelector('.cal-preparer');
       pb.push(egal(COMMUN, await champs(q.p), 'fenêtre « Régler les phases » : champs communs'));
       pb.push(egal({ barre: ['Annuler', 'Enregistrer *'], titre: 'uppercase Space Mono', voile: true, libelles: ['11.2px'] }, await fenetre(q.p), 'fenêtre « Régler les phases » : comme la fiche'));
       await q.ctx.close();
@@ -4838,14 +4852,14 @@ const CONTROLES = {
     // Nutrition n'est pas dans le menu par défaut ; une fois cochée dans les Préférences, elle a son onglet.
     d = copie(COMPLET); d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Nutrition'];
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, d));
-    pb.push(egal(['En un coup d\'œil', 'Saison', 'Nutrition'], await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent)), 'Nutrition cochée : onglet dans le menu'));
+    pb.push(egal(['En un coup d\'œil', 'Ma saison', 'Ma nutrition'], await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent)), 'Nutrition cochée : onglet dans le menu'));
     await ctx.close();
     // Menu par défaut : pas d'onglet Nutrition ailleurs ; sur la page Nutrition, son onglet s'ajoute au bout, actif, le temps de la visite.
     ({ p, ctx } = await ouvrir(nav, 'index.html', 390, copie(COMPLET)));
-    pb.push(egal(false, (await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent))).includes('Nutrition'), 'menu par défaut : pas d\'onglet Nutrition'));
+    pb.push(egal(false, (await p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].map(x => x.getAttribute('aria-label') || x.textContent))).includes('Ma nutrition'), 'menu par défaut : pas d\'onglet Nutrition'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'nutrition.html', 390, copie(COMPLET)));
-    pb.push(egal(['Nutrition', true], await p.evaluate(() => { const t = [...document.querySelectorAll('.mrt-tab')], on = document.querySelector('.mrt-tab.is-on'); return [on && on.textContent, t[t.length - 1] === on]; }), 'page Nutrition hors du menu : son onglet, actif, au bout'));
+    pb.push(egal(['Ma nutrition', true], await p.evaluate(() => { const t = [...document.querySelectorAll('.mrt-tab')], on = document.querySelector('.mrt-tab.is-on'); return [on && on.textContent, t[t.length - 1] === on]; }), 'page Nutrition hors du menu : son onglet, actif, au bout'));
     await ctx.close();
 
     // Site partagé en lecture seule : aucune donnée de nutrition.
@@ -4922,7 +4936,7 @@ const CONTROLES = {
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
       egal(['Séance', 'Repas', 0], [norm(await p.locator('.nu-tuile[data-act="activite"]').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"]').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'boutons Activité et Repas ; ajout et sport dans leurs feuilles'),
-      egal([true, true, true], await p.evaluate(() => { const ref = document.createElement('button'); ref.className = 'mrt-btn is-principal'; document.body.append(ref); const r0 = getComputedStyle(ref); const att = [r0.backgroundColor, r0.color, r0.borderRadius]; ref.remove(); return [...document.querySelectorAll('.nu-tuile')].map(t => { const c = getComputedStyle(t), ico = t.querySelectorAll('svg'), l = t.querySelector('.nu-tuile-l').getBoundingClientRect(); return [c.backgroundColor, c.color, c.borderRadius].join() === att.join() && ico.length === 2 && ico[0].getBoundingClientRect().right <= l.left && ico[1].getBoundingClientRect().left >= l.right; }).concat([document.querySelectorAll('.nu-tuile').length === 2]); }), 'boutons Activité et Repas : le bouton « + Ajouter une course » (Accent plein), « + » à gauche, picto à droite du libellé'),
+      egal([true, true, true, 'ajout-repas'], await p.evaluate(() => { const style = cl => { const ref = document.createElement('button'); ref.className = cl; document.body.append(ref); const r0 = getComputedStyle(ref), v = [r0.backgroundColor, r0.color, r0.borderRadius]; ref.remove(); return v; }; return [...document.querySelectorAll('.nu-tuile')].map(t => { const att = style(t.classList.contains('is-principal') ? 'mrt-btn is-principal' : 'mrt-btn'); const c = getComputedStyle(t), ico = t.querySelectorAll('svg'), l = t.querySelector('.nu-tuile-l').getBoundingClientRect(); return [c.backgroundColor, c.color, c.borderRadius].join() === att.join() && ico.length === 2 && ico[0].getBoundingClientRect().right <= l.left && ico[1].getBoundingClientRect().left >= l.right; }).concat([document.querySelectorAll('.nu-tuile').length === 2, (document.querySelector('.nu-tuile.is-principal') || {}).dataset.act]); }), 'boutons Repas et Séance : Repas seul principal (design, § 11), Séance en secondaire, « + » à gauche, picto à droite du libellé'),
       egal(0, await p.locator('.nu-mention, .nu-macros, .nu-editer').count(), 'page épurée : ni mention, ni fourchettes en texte, ni bouton « Modifier »'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
     await ouvrirRepas(p);
@@ -5396,7 +5410,7 @@ const CONTROLES = {
       return [...vu].sort();
     });
     for (const [page, quoi] of [['index.html', 'Accueil'], ['objectif.html', 'Objectif'], ['course.html?id=' + id(3), 'page d\'une course'], ['palmares.html', 'Palmarès'],
-      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats']]) {
+      ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'], ['calendrier.html#annee', 'Calendrier, Année'], ['courses-a-surveiller.html?vue=tout', 'Courses'], ['preferences.html', 'Préférences'], ['nutrition.html', 'Ma nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats']]) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);
         if (page.startsWith('course.html')) await o.p.waitForSelector('.mc-panneau .pc-titre');
@@ -5503,6 +5517,8 @@ const CONTROLES = {
       /^Dossard$/i, /^Cap$/, /Mes mesures/, /Mon profil de coureur/, /^Modifier$/, /Fermer la fiche/, /Plans des courses/, /dans Préparation/,
       // Courses (glossaire) : le statut s'appelle « Repérée », les vues « À surveiller » et « À venir » n'existent plus.
       /À surveiller/, /Courses à surveiller/, /^À venir( \d+)?$/,
+      // Menu de parcours (23 nov. 2026) : Les courses, Ma saison, Ma nutrition, Mon palmarès.
+      /Mes courses/, /\b(dans|de|vers|à|sur) (la )?Saison\b/,
       // Repasse de cohérence (21 nov. 2026) : la période vers un Objectif s'appelle « préparation » (Saison reste le nom de la page) ;
       // Allègement, Décrassage, Ressenti, Pourquoi cette course, Régler les phases, Séance (Nutrition), Espaces partagés, Préférences.
       /\bsaisons? de \d/, /Courses de la saison/, /\bhors saison\b/, /inter-saison/, /Préparer une saison/, /Deload/, /Paramétrer le plan/, /Rôle dans la préparation/,
@@ -5529,9 +5545,9 @@ const CONTROLES = {
       const trouves = (await textes(p)).filter(t => INTERDITS.some(r => (t[0] === '§' ? !SEULS_LIBELLES.includes(String(r)) && r.test(t.slice(1)) : r.test(t))));
       pb.push(egal([], trouves, quoi + ' : aucun ancien mot dans les textes affichés'));
     };
-    const PAGES = [['index.html', 'En un coup d\'œil'], ['objectif.html', 'Saison'], ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'],
-      ['courses-a-surveiller.html?vue=tout', 'Courses'], ['palmares.html', 'Palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Mon plan'], ['profil.html', 'Mon profil'],
-      ['nutrition.html', 'Nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats'], ['course.html?id=' + id(3), 'page d\'une course']];
+    const PAGES = [['index.html', 'En un coup d\'œil'], ['objectif.html', 'Ma saison'], ['calendrier.html', 'Calendrier'], ['calendrier.html#mois', 'Calendrier, Mois'],
+      ['courses-a-surveiller.html?vue=tout', 'Les courses'], ['palmares.html', 'Mon palmarès'], ['preferences.html', 'Préférences'], ['preparation.html', 'Mon plan'], ['profil.html', 'Mon profil'],
+      ['nutrition.html', 'Ma nutrition'], ['guide.html', 'Guide'], ['stats.html', 'Mes stats'], ['course.html?id=' + id(3), 'page d\'une course']];
     for (const [page, quoi] of PAGES) {
       for (const w of [1200, 390]) {
         const o = await ouvrir(nav, page, w, db, {}, PARIS);
@@ -5557,7 +5573,7 @@ const CONTROLES = {
       .map(b => ({ cls: b.className, t: b.textContent.replace(/\s+/g, ' ').trim(), a: b.getAttribute('aria-label') || '' })));
     const releves = [];
     for (const [page, action] of [['calendrier.html', p => p.click('[data-edit="se-v"]')], ['calendrier.html', p => p.click('[data-ajout]')],
-      ['preparation.html', p => p.click('[data-preparer]')], ['objectif.html', p => p.click('[data-ob="ajouter"]')], ['palmares.html', null], ['preferences.html', null], ['index.html', null]]) {
+      ['preparation.html', p => reglage(p, '[data-preparer]')], ['objectif.html', p => p.click('[data-ob="ajouter"]')], ['palmares.html', null], ['preferences.html', null], ['index.html', null]]) {
       const d = JSON.parse(JSON.stringify(db)); d.seances = [{ id: 'se-v', utilisateur: d.profils[0].id, date: '2026-10-20', type: 'run', libelle: 'Endurance', faite: false, course: null }];
       const q = await ouvrir(nav, page, 1200, d, {}, PARIS);
       if (action) { await action(q.p); await q.p.waitForTimeout(300); await interdits(q.p, page + ', feuille ouverte'); }
@@ -5580,6 +5596,61 @@ const CONTROLES = {
     await o.p.waitForSelector('.mrt-dialogue');
     pb.push(egal(['Continuer', 'Abandonner'], await o.p.locator('.mrt-dialogue-boutons button').allTextContents(), 'abandon d\'une saisie : « Continuer » / « Abandonner », jamais deux « Annuler »'));
     await o.ctx.close();
+    return pb;
+  },
+  // Panneau des boutons (design, § 11) : sept boutons, un sens chacun. Sur chaque page et ses feuilles : aucun bouton hors des classes
+  // communes (ou des éléments qui ne sont pas des boutons : cartes, cases, tuiles, titres repliables) ; un seul principal visible ;
+  // « Supprimer … » en danger, seul en bas de sa fenêtre ; une pastille ne mène nulle part ; le petit rond n'ajoute qu'une séance.
+  async boutons(nav, db0) {
+    const { db, id } = jeuObjectif(db0);
+    const pb = [];
+    const COMMUNS = /\bmrt-(btn|rond|lien|pastille|choix|tri|gear|barre-cap|tab|menu-l)\b/;
+    const AUTRES = /\b(mg-titre|mg-pt|fc-bloc-titre|cal-carte-txt|cal-m-se-txt|cal-se-txt|cal-m2-txt|cal-v-course|cal-v-rdv|cal-voisin|ob-carte|ps-sem|ps-choix|ps-ligne-q|is-precedente|is-suivante|ob-ins|pc-lieu|nu-ligne|nu-aliment|cal-info|cal-a-j|cal-m-num)\b/;
+    const releve = p => p.evaluate(([c, a]) => {
+      const COM = new RegExp(c), AUT = new RegExp(a);
+      const vis = e => { const r = e.getBoundingClientRect(), st = getComputedStyle(e); return r.width > 0 && r.height > 0 && st.visibility !== 'hidden' && st.opacity !== '0'; };
+      const dessus = e => { const r = e.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2; if (y < 0 || y > innerHeight) return true; const t = document.elementFromPoint(x, y); return !t || e.contains(t) || t.contains(e); };
+      const nom = e => (e.textContent.replace(/\s+/g, ' ').trim() || e.getAttribute('aria-label') || '').slice(0, 40);
+      const tous = [...document.querySelectorAll('button, a[class], [role=button]')].filter(e => vis(e) && !e.closest('.mrt-nav, .leaflet-container, [role=menu], .mrt-dialogue, header'));
+      const horsClasse = tous.filter(e => !COM.test(e.className) && !AUT.test(e.className) && !(e.tagName === 'A' && !e.className.trim())).map(e => e.tagName.toLowerCase() + '.' + e.className.trim().split(/\s+/).join('.') + ' « ' + nom(e) + ' »');
+      const principaux = tous.filter(e => /\bis-principal\b/.test(e.className) && dessus(e)).map(nom);
+      const dangers = tous.filter(e => /\bis-danger\b/.test(e.className) && /\bmrt-btn\b/.test(e.className)).map(e => {
+        const zone = e.closest('.mc-panneau, .cal-fenetre, .mrt-fenetre, form') || document.body, bas = e.getBoundingClientRect().top;
+        const apres = [...zone.querySelectorAll('button, a')].filter(x => x !== e && vis(x) && x.getBoundingClientRect().top > bas + 2 && !x.closest('.fc-bloc')).length;
+        return [nom(e), /^Supprimer\b/.test(nom(e)), apres === 0];
+      });
+      const pastillesLiens = tous.filter(e => e.tagName === 'A' && /\bmrt-pastille\b/.test(e.className)).map(nom);
+      const petits = tous.filter(e => /\bis-petit\b/.test(e.className) && !e.hasAttribute('data-ajout')).map(e => nom(e));
+      return { horsClasse: [...new Set(horsClasse)], principaux, dangers, pastillesLiens, petits };
+    }, [COMMUNS.source, AUTRES.source]);
+    const avec = d => { d = JSON.parse(JSON.stringify(d)); const moi = d.profils[0].id;
+      d.seances = [{ id: 'se-b', utilisateur: moi, date: '2026-10-20', type: 'run', libelle: 'Endurance', faite: false, course: null }];
+      d.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Préparation', 'Calendrier', 'Nutrition', 'Courses à surveiller', 'Palmarès', 'Profil']; return d; };
+    // Mes stats avec des séances faites : tableaux, tuiles et graphiques ; une analyse enregistrée.
+    const statsPleine = d => { const moi = d.profils[0].id; d.profils[0].fc_repos = 52; d.profil_entrainement = [{ utilisateur: moi, vma: 15, fc_max: 186 }];
+      d.seances.push({ id: 'se-f1', utilisateur: moi, date: '2026-09-12', type: 'run', libelle: 'Sortie longue', faite: true, distance_reelle_km: 20, duree_reelle_min: 130, denivele_reel_m: 600, fc_moyenne: 145 },
+        { id: 'se-f2', utilisateur: moi, date: '2026-10-15', type: 'run', libelle: 'Endurance', faite: true, distance_reelle_km: 12, duree_reelle_min: 60, denivele_reel_m: 60, fc_moyenne: 152 });
+      d.activites = [{ id: 'ac-1', utilisateur: moi, seance: 'se-f2', pratique: 'course', cadence: 170, meilleurs: { 1000: 300, 5000: 1500, 10000: 3000 }, date: '2026-10-15' }];
+      d.analyses_stats = [{ id: 'an-1', utilisateur: moi, cree: '2026-10-19T08:00:00Z', motif: 'import', texte: 'Analyse enregistrée.' }];
+      d.preferences[0].modules = d.preferences[0].modules.concat(['Stats']); return d; };
+    const ECRANS = [['index.html'], ['objectif.html'], ['objectif.html', p => p.click('[data-ob="ajouter"]'), 'fiche, ajout'], ['course.html?id=' + id(3)],
+      ['course.html?id=' + id(3), p => p.click('[data-ob="modifier"]'), 'fiche, modification'], ['calendrier.html'], ['calendrier.html#mois'], ['calendrier.html#annee'],
+      ['calendrier.html', p => p.click('[data-edit="se-b"]'), 'séance'], ['courses-a-surveiller.html'], ['palmares.html'], ['preferences.html'], ['preparation.html'],
+      ['preparation.html', p => reglage(p, '[data-preparer]'), 'phases'], ['profil.html'], ['nutrition.html'], ['guide.html'],
+      ['stats.html', null, 'vide'], ['stats.html', null, 'avec séances', statsPleine], ['stats.html', p => p.click('.st-haut [data-importer]'), 'import', statsPleine]];
+    for (const [page, action, quoi, prep] of ECRANS) for (const w of [1200, 390]) {
+      const o = await ouvrir(nav, page, w, prep ? prep(avec(db)) : avec(db), {}, Object.assign({}, PARIS, { mobile: w < 500 }));
+      if (/^course\.html/.test(page)) await o.p.waitForSelector('.mc-panneau .pc-titre');
+      if (action) { await action(o.p); await o.p.waitForTimeout(400); }
+      const r = await releve(o.p), nom = page + (quoi ? ' · ' + quoi : '') + ' (' + w + ' px)';
+      pb.push(egal([], r.horsClasse, nom + ' : aucun bouton hors du panneau'));
+      pb.push(egal(true, r.principaux.length <= 1, nom + ' : un seul bouton principal visible (' + r.principaux.join(', ') + ')'));
+      pb.push(egal([], r.dangers.filter(d => !d[1] || !d[2]).map(d => d[0]), nom + ' : « Supprimer … », seul en bas'));
+      pb.push(egal([], r.pastillesLiens, nom + ' : une pastille ne mène nulle part'));
+      pb.push(egal([], r.petits, nom + ' : le petit rond n\'ajoute qu\'une séance'));
+      pb.push(egal([], o.erreurs, nom + ' : erreurs JavaScript'));
+      await o.ctx.close();
+    }
     return pb;
   },
   async affichage(nav, db) {
@@ -5723,7 +5794,7 @@ const CONTROLES = {
     pb.push(egal(1, await o.p.locator('.ps-profil').count(), 'lien vers la feuille Mon profil'));
     await o.ctx.close();
 
-    // Analyse de l'IA (réponses simulées) : bornée, nettoyée ; plafond de « Actualiser » ; panne ; compte non pilote.
+    // Analyse de l'IA (réponses simulées) : bornée, nettoyée ; pas de bouton « Actualiser » ; panne après un import ; compte non pilote.
     const long = 'Ton volume monte bien depuis août. '.repeat(40) + 'Ta montre Garmin le confirme. Fin.';
     db = jeu(d => { d.relais = c => ({ status: 200, body: { texte: long, cree: '2026-10-20T08:00:00Z' } }); });
     o = await ouvrir(nav, 'stats.html', 1200, db, {}, PARIS);
@@ -5731,14 +5802,11 @@ const CONTROLES = {
     const aff = await o.p.textContent('.st-analyse .st-texte');
     pb.push(egal([true, true, false], [aff.length <= 1500, /\.$/.test(aff.trim()), /huawei|garmin|strava|montre|renforcement/i.test(aff)], 'analyse : 1 500 caractères au plus, phrase entière, sans appareil ni renforcement'));
     await o.ctx.close();
-    const auj = '2026-10-20T07:00:00Z';
-    db = jeu(d => { d.analyses_stats = [1, 2, 3].map(i => ({ id: 'a' + i, utilisateur: U, cree: auj, motif: 'actualiser', texte: 'Analyse ' + i + '.' })); d.relais = () => ({ status: 502, body: { code: 'ia' } }); });
-    o = await ouvrir(nav, 'stats.html', 1200, db, {}, PARIS);
-    pb.push(egal([true, 'Reviens demain.', 'Analyse 1.'], [await o.p.isDisabled('[data-actualiser]'), (await o.p.textContent('.st-demain')).trim(), (await o.p.textContent('.st-texte')).trim()], 'quatrième « Actualiser » du jour grisé'));
-    await o.ctx.close();
     db = jeu(d => { d.analyses_stats = [{ id: 'a1', utilisateur: U, cree: '2026-10-19T07:00:00Z', motif: 'import', texte: 'Analyse précédente.' }]; d.relais = () => ({ status: 502, body: { code: 'ia' } }); });
     o = await ouvrir(nav, 'stats.html', 1200, db, {}, PARIS);
-    await o.p.click('[data-actualiser]');
+    pb.push(egal([0, 'Analyse précédente.'], [await o.p.locator('.st-analyse button').count(), (await o.p.textContent('.st-texte')).trim()], 'bloc d\'analyse : le texte et sa date, sans bouton'));
+    await importer(o.p, ZIP);
+    await o.p.click('.st-import [data-importer]');
     await o.p.waitForSelector('.st-analyse .st-msg');
     pb.push(egal(['Analyse impossible pour l\'instant.', 'Analyse précédente.'], [(await o.p.textContent('.st-analyse .st-msg')).trim(), (await o.p.textContent('.st-texte')).trim()], 'panne de l\'IA : l\'analyse précédente reste'));
     await o.ctx.close();

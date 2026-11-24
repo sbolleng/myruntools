@@ -1,6 +1,6 @@
 # Spécification générale
 
-Version 0.45 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : l'onglet d'une page hors du menu s'ajoute le temps de la visite ; titre de l'accueil « En un coup d'œil » ; retour des pages légales vers la page quittée.
+Version 0.46 · 23 novembre 2026 · [Retour au sommaire](README.md) · Menu rangé selon le parcours du coureur : Les courses, Ma saison, Mon plan, Calendrier, Ma nutrition, Mon palmarès, Mes stats, Mon profil ; « Cette semaine » fondu dans En un coup d'œil.
 
 Ce document décrit ce qui est commun à toute l'application : sa structure, son en-tête, son menu, ses thèmes, le catalogue des modules, les préférences de l'utilisateur et la façon dont les données sont gérées. Chaque module a ensuite sa propre spécification ; l'apparence (couleurs, typographies, tailles) est décrite dans le [document de design](design.md).
 
@@ -201,20 +201,20 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 
 | Module | Rôle | Jalon |
 | --- | --- | --- |
-| Saison | Saison jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Saison » (le nom rangé dans les préférences reste « Objectif ») | 1 |
-| Calendrier | Saison en trois vues : semaine (par défaut), mois et année, au menu « Vue » ; bouton « Plan » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
+| Ma saison | Les courses choisies, rangées en saison jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Ma saison » (le nom rangé dans les préférences reste « Objectif ») | 1 |
+| Calendrier | Ta saison en trois vues : semaine (par défaut), mois et année, au menu « Vue » ; bouton « Plan » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
 | Préparation | Plan de préparation : une saison par Objectif, les autres courses insérées selon leur rôle (Préparatoire, Plaisir), récupération et alertes ; séances proposées par une IA à venir ([spécification](module-preparation-specification.md)) ; à cocher dans les Préférences | 1 |
-| Nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
-| Courses à surveiller | Toutes les courses en cartes (à surveiller, courues, à venir) : dates, ouverture des inscriptions avec heure ([spécification](module-courses-a-surveiller-specification.md)) ; dans le menu par défaut, après Calendrier ; index UTMB plus tard | 2 |
+| Ma nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
+| Les courses | Toutes les courses en cartes (repérées, en option, confirmées, courues) : on y choisit celles qui comptent : dates, ouverture des inscriptions avec heure ([spécification](module-courses-a-surveiller-specification.md)) ; dans le menu par défaut, en deuxième ; le nom rangé dans les préférences reste « Courses à surveiller » ; index UTMB plus tard | 2 |
 | Guide | Articles et fiches pratiques, publics ou privés | 2 |
-| Profil | Données du coureur : état civil, poids, taille, pointure, zones d'entraînement, records | 2 |
-| Palmarès | Historique des courses et des performances ([spécification](module-palmares-specification.md)) | 2 |
-| Cette semaine | Synthèse des sept prochains jours, assemblée à partir des autres modules | 2 |
+| Mon profil | Données du coureur : état civil, poids, taille, pointure, zones d'entraînement, records | 2 |
+| Mon palmarès | Historique des courses et des performances ([spécification](module-palmares-specification.md)) | 2 |
+| En un coup d'œil | Page d'accueil ; reprend la synthèse des sept prochains jours (ancien module « Cette semaine », fondu ici le 23 nov. 2026) | 2 |
 | Calculatrice | Allure, vitesse, temps de passage, VMA, km-effort, pente, ravitaillement | À positionner |
 | Logistique | Transport, hébergement, retrait des dossards, horaires | À positionner |
 | Matériel | Chaussures et leur usure, inventaire, matériel obligatoire, listes de sac | À positionner |
 
-Pour que Cette semaine fonctionne, chaque module devra pouvoir dire ce qui compte dans les sept prochains jours.
+Pour que la synthèse de la semaine fonctionne, chaque module devra pouvoir dire ce qui compte dans les sept prochains jours.
 
 ## 8. Préférences
 
@@ -398,11 +398,11 @@ Résultats attendus :
 - Chargement d'une page (accueil, Palmarès, Préférences, saison, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
 - En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac, compte à rebours en jours), D'ici là jusqu'au Trail des Crêtes en Accent, Dernière course, puis Pour aller plus loin (Préparation et Nutrition, « Ajouter au menu » : l'onglet apparaît, la ligne disparaît) ; aucun bloc « bientôt » ; pas de ligne « prochaine course » dans l'en-tête.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
-- Menu par défaut : En un coup d'œil, Saison, Calendrier, Courses (module Courses à surveiller), Palmarès (pas d'onglet pour Cette semaine, Profil, Guide ; Nutrition est construit mais se coche dans les Préférences : six onglets ne tiennent pas à 375 px) ; à 375 et 390 px de large, les cinq onglets tiennent dans l'écran, sur toutes les pages.
+- Menu, dans l'ordre du parcours (23 nov. 2026) : En un coup d'œil, Les courses (clé « Courses à surveiller »), Ma saison (clé « Objectif »), Mon plan (« Préparation », facultatif), Calendrier, Ma nutrition (facultatif), Mon palmarès, Mes stats (facultatif), Mon profil (pas d'onglet pour le Guide) ; par défaut : En un coup d'œil, Les courses, Ma saison, Calendrier, Mon palmarès, Mon profil ; les questions du profil se posent là où elles servent (inscription, Premiers pas, Ma nutrition, Mon plan), jamais d'un coup. Sur téléphone (375 et 390 px), le menu défile en largeur (les noms complets débordent de 48 px) et l'onglet de la page ouverte est ramené dans l'écran, sur toutes les pages (décision du 23 nov. 2026).
 - L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.
 - Retour du navigateur sur une fiche ouverte seule (« Ajouter une course ») : la fiche se ferme, la page reste ; après une saisie, « Abandonner les modifications ? » d'abord.
 - Objectif en tête du menu : ouvrir le site mène à la saison, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
-- En un coup d'œil masqué dans le menu (Cette semaine, Objectif, Palmarès) : ouvrir le site mène à Objectif, avec le grand en-tête ; le nom de l'application y mène aussi.
+- En un coup d'œil masqué dans le menu : ouvrir le site mène au premier module du menu (ici Ma saison), avec le grand en-tête ; le nom de l'application y mène aussi.
 - Mentions légales : la page s'ouvre sans être connecté ; aucun nom de personne ; contact, hébergeurs, crédits ; « Retour » mène à la connexion sans session, à l'accueil avec.
 - Pied de page « Mentions légales » en bas de chaque page, connexion comprise ; il ouvre la page des mentions.
 - Mentions légales : l'adresse de contact n'apparaît pas en clair dans le code de la page ; pas de défilement en largeur sur téléphone ; chaque page porte `noindex`.
