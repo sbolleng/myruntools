@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 24 novembre 2026 | Remise à zéro | La requête de remise à zéro d'un compte pilote supprime aussi les activités importées de Strava (Préparation 3.13, § 7.1) : sinon un nouvel import les voit « déjà importées ». |
 | 21 nov. 2026 | Fiche d'une course, Parcours et barre | Objectif 0.86 : ravitaillements en traits pointillés sur le profil (56) ; ligne « Tracé GPX » sans état (« Aucun tracé », « Tracé importé ») : « Importer un tracé », toujours là, remplace l'existant, et « Supprimer le tracé » en bouton commun ; « Supprimer la course » monte dans la barre du haut, à gauche d'« Enregistrer » (poubelle seule sur téléphone). |
 | 21 nov. 2026 | Consigne de l'IA, phases | `proposer-seances` : la consigne nomme la phase « allègement », comme le contexte envoyé par le site (plus « deload »). |
 | 21 nov. 2026 | Repasse de cohérence : glossaire | Glossaire du design (§ 12) complété ; un nom par notion pour tout texte affiché, les spécifications et le banc ; noms en base et identifiants internes inchangés. |

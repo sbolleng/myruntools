@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 3.12 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « préparation » pour la période vers un Objectif, Allègement, Décrassage, fenêtre « Régler les phases », compte à rebours « 138 j », carte de l'Objectif sans cadre dans le cadre, Exporter en rond, un seul accès au profil.
+Version 3.13 · 24 novembre 2026 · [Retour au sommaire](README.md) · La remise à zéro d'un compte pilote supprime aussi les activités importées de Strava.
 
 ## 1. Rôle
 
@@ -394,13 +394,15 @@ begin
   delete from propositions where utilisateur = u;
   delete from plan_semaines where utilisateur = u;
   delete from seances where utilisateur = u;
+  -- Activités importées de Strava (sans cela, un nouvel import les voit « déjà importées »)
+  delete from activites where utilisateur = u;
   -- Courses sans rôle ni durée de préparation ; date du dernier changement de saison et cap par défaut
   update courses set role = null, prepa_semaines = null where utilisateur = u;
   update preferences set plan_maj = null, course_cap = null where utilisateur = u;
 end $$;
 ```
 
-Irréversible : l'effort, les sensations, le réalisé et les analyses de l'IA partent avec les séances. À la demande « reset », Claude donne cette requête (règle de `CLAUDE.md`).
+Irréversible : l'effort, les sensations, le réalisé et les analyses de l'IA partent avec les séances ; les activités importées de Strava aussi (un nouvel import les recrée). À la demande « reset », Claude donne cette requête (règle de `CLAUDE.md`).
 
 ## 8. Lots de construction
 
