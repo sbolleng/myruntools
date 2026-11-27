@@ -228,7 +228,7 @@
     // La fenêtre de séance du Calendrier, ouverte depuis Nutrition ; après un enregistrement, les séances sont relues.
     const calendrier = { get seances() { return S.seances; }, courses: ctx.courses, semaines: ctx.semaines, id: ctx.id, actualiser: async () => {
       try { S.seances = (await window.mrtLirePlan(ctx.id)).seances; } catch (err) { console.warn('Nutrition : séances illisibles', err); }
-      chiffres(); dessinerJournal(); dessinerActivite();
+      chiffres(); dessinerJournal();
     } };
 
     // ----- Carte du besoin : le jour, le besoin, la phase, le profil du calcul, les jauges, puis Activité et Repas -----
@@ -250,12 +250,6 @@
         '<div class="nu-anneaux"></div>' +
         '<div class="nu-tuiles"><button type="button" class="nu-tuile mrt-btn is-principal" data-act="ajout-repas" title="Ajouter un repas">' + mrtIcone.plus + '<span class="nu-tuile-l">Repas</span>' + PICTO_ASSIETTE + '</button>' +
         '<button type="button" class="nu-tuile mrt-btn" data-act="activite" title="Ajouter une séance">' + mrtIcone.plus + '<span class="nu-tuile-l">Séance</span>' + PICTO_HALTERE + '</button></div>';
-    }
-    // Feuille Activité : les séances du jour (celles du Calendrier, sa fenêtre pour les ajouter ou les modifier).
-    function htmlActivite() {
-      const ss = seancesDuJour();
-      return '<p class="nu-sous-t">Séances</p>' + (ss.length ? '<ul class="nu-lignes nu-seances-f">' + ss.map(x => '<li><button type="button" class="nu-ligne" data-act="seance" data-id="' + x.id + '"><span class="nu-ligne-nom">' + esc(texteSeance(x)) + '</span></button></li>').join('') + '</ul>' : '') +
-        '<button type="button" class="mrt-btn nu-ajout-seance" data-act="ajout-seance">' + mrtIcone.plus + 'Ajouter une séance</button>';
     }
     function htmlJauges(r) {
       return jauge('kcal', 'Calories', total(S.lignes, 'kcal'), r.kcal, r.kcal * TOLERANCE_KCAL, 'kcal', n0(r.kcal)) +
@@ -395,27 +389,15 @@
       z.innerHTML = htmlAjout();
       barreFeuille('Ajouter un aliment', etape === 2);
     };
-    // Feuille Activité : la liste (les séances du jour), ou l'écran d'une séance (celui du Calendrier, dans la feuille).
-    const dessinerActivite = () => {
-      const z = zoneActivite();
-      if (!z || feuille.seance) return;
-      z.innerHTML = htmlActivite();
-      barreFeuille('Ajouter une séance', false);
-    };
+    // Feuille Activité : directement l'écran d'une séance (celui du Calendrier, dans la feuille) : « Ajouter une séance », ou « Modifier la séance »
+    // d'une séance du journal. Pas de liste : le journal du jour montre déjà les séances ; enregistrer ou supprimer ferme la feuille.
     function ecranSeance(opts) {
-      if (!feuille || feuille.type !== 'activite') ouvrirFeuille('activite'); else glisser('avant');
-      feuille.seance = opts;
-      barreFeuille(opts.seance ? 'Modifier la séance' : 'Ajouter une séance', true);
-      P.ouvrirSeance(calendrier, Object.assign({ dans: zoneActivite(), apres: () => retourActivite() }, opts));
-    }
-    function retourActivite() {
-      if (!feuille || !feuille.seance) return;
-      feuille.seance = null;
-      glisser('retour');
-      dessinerActivite();
+      ouvrirFeuille('activite');
+      barreFeuille(opts.seance ? 'Modifier la séance' : 'Ajouter une séance', false);
+      P.ouvrirSeance(calendrier, Object.assign({ dans: zoneActivite(), apres: () => fermerFeuille() }, opts));
     }
     const dessinerJournal = () => { carte('journal').innerHTML = htmlJournal(); };
-    function tout() { dessinerBesoin(); dessinerAjout(); dessinerActivite(); dessinerJournal(); }
+    function tout() { dessinerBesoin(); dessinerAjout(); dessinerJournal(); }
     function ouvrirFeuille(type) {
       fermerFeuille();
       const voile = document.createElement('div');
@@ -431,7 +413,7 @@
       brancher(voile);
       voile.addEventListener('mousedown', e => { if (e.target === voile) fermerFeuille(); });
       voile.addEventListener('input', e => { if (e.target.classList.contains('nu-qte')) majApercu(); });
-      if (type === 'repas') dessinerAjout(); else if (type === 'activite') dessinerActivite();
+      if (type === 'repas') dessinerAjout();
       voile.querySelector('.mc-panneau').focus();
     }
     function fermerFeuille() {
@@ -617,13 +599,12 @@
       // Mon profil : la feuille commune (composants/profil.js) ; ses mesures servent au calcul.
       if (act === 'profil') window.mrtProfil.feuille({ etat: { id: ctx.id, mesures: ctx.profil, courses: ctx.courses }, surMaj: e => redessiner(e.mesures) });
       else if (act === 'fermer') fermerFeuille();
-      else if (act === 'retour') { if (feuille && feuille.type === 'activite') retourActivite(); else { S.choix = null; S.msg = ''; dessinerAjout(); } }
-      else if (act === 'activite') ouvrirFeuille('activite');
+      else if (act === 'retour') { S.choix = null; S.msg = ''; dessinerAjout(); }
+      else if (act === 'activite') ecranSeance({ date: S.jour, type: 'run' });
       else if (act === 'ajout-repas') { S.repas = b.dataset.repas || repasDe(new Date()); ouvrirFeuille('repas'); }
       else if (act === 'veille') changerDeJour(decaler(S.jour, -1));
       else if (act === 'lendemain') changerDeJour(decaler(S.jour, 1));
       else if (act === 'aujourdhui') changerDeJour(aujourdhui);
-      else if (act === 'ajout-seance') ecranSeance({ date: S.jour, type: 'run' });
       else if (act === 'seance') { const x = S.seances.find(y => y.id === b.dataset.id); if (x) ecranSeance({ seance: x }); }
       else if (act === 'source') { S.source = b.dataset.source; S.msg = ''; dessinerAjout(); }
       else if (act === 'choisir') { const a = trouver(b.dataset.id); S.choix = { id: a.id, quantite: enGrammes(a) ? 100 : 1 }; S.msg = ''; dessinerAjout(); }
@@ -663,7 +644,7 @@
     brancher(el);
     tout();
     // Saisie rapide d'En un coup d'œil : la feuille demandée s'ouvre d'emblée (une seule fois).
-    if (ctx.ouvrir) { const type = ctx.ouvrir; ctx.ouvrir = null; ouvrirFeuille(type); }
+    if (ctx.ouvrir) { const type = ctx.ouvrir; ctx.ouvrir = null; if (type === 'activite') ecranSeance({ date: S.jour, type: 'run' }); else ouvrirFeuille(type); }
   };
 
   // ===================== Le bloc d'En un coup d'œil =====================

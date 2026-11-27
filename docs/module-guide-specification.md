@@ -1,6 +1,6 @@
 # Guide · spécification fonctionnelle
 
-Version 0.5 · 27 novembre 2026 · [Retour au sommaire](README.md) · Nutrition : natation, marche et crossfit sont des séances ; plus d'« autres sports ».
+Version 0.6 · 27 novembre 2026 · [Retour au sommaire](README.md) · Nutrition : le choix de séance en deux groupes (Course à pied, Autres sports).
 
 ## 1. Rôle
 
