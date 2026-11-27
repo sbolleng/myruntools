@@ -724,7 +724,10 @@
     // Le type s'en déduit ; Renforcement n'a ni distance ni dénivelé.
     const typeOuvert = s ? s.type : (opts.type && TYPES[opts.type] ? opts.type : 'run'); // type proposé par la page qui ouvre la fenêtre (Nutrition)
     const noms = () => NOMS.map(x => x.nom).concat(AUTRES.map(x => x.nom)).concat(s && lu.nom && !lu.def ? [lu.nom] : []);
-    f.nom.innerHTML = noms().map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+    // Deux groupes (intitulés non sélectionnables) : la course à pied, puis les autres sports ; un ancien nom libre rejoint le groupe de son type.
+    const option = n => '<option value="' + esc(n) + '">' + esc(n) + '</option>', libre = s && lu.nom && !lu.def ? lu.nom : null;
+    f.nom.innerHTML = '<optgroup label="Course à pied">' + NOMS.map(x => option(x.nom)).join('') + (libre && s.type === 'run' ? option(libre) : '') + '</optgroup>' +
+      '<optgroup label="Autres sports">' + AUTRES.map(x => option(x.nom)).join('') + (libre && s.type !== 'run' ? option(libre) : '') + '</optgroup>';
     f.nom.value = s && noms().includes(lu.nom) ? lu.nom : (nomsDuType(typeOuvert).find(x => x.type) || NOMS[0]).nom;
     const typeDe = () => { const a = AUTRES.find(x => x.nom === f.nom.value); return a ? a.type : s && !lu.def && f.nom.value === lu.nom ? s.type : 'run'; };
     const montrer = () => v.querySelector('form').querySelectorAll('.cal-seul-course').forEach(e => { e.hidden = sansDistance(typeDe()); });
