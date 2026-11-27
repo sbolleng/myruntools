@@ -110,7 +110,9 @@
 /* Nom de la course dans sa case, décalé des seules barres de ce jour-là. */
 .cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: 0.45rem; font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
 .cal-a-se { font-size: var(--t-micro); color: var(--text); }
+.cal-a-sn { padding-left: 0.2rem; margin-right: 0.3rem; border-left: 3px solid var(--l); }
 .cal-a-sn .n-court { display: none; }
+.cal-k-se { background: var(--l); }
 .cal-a-se.faite { color: var(--muted); text-decoration: line-through; }
 .cal-a-j.c-route-v { background: var(--route); }
 .cal-a-j.c-trail-v { background: var(--trail); }

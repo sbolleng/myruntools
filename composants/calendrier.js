@@ -26,6 +26,7 @@
   };
   const ranger = (cle, v) => { visite[cle] = v; try { localStorage.setItem(cle, v); } catch (e) { /* stockage indisponible */ } };
   const phasesVisibles = () => lire('mrt-calendrier-phases', v => v === '1' || v === '0', '0') === '1';
+  const legendeVisible = () => lire('mrt-calendrier-legende', v => v === '1' || v === '0', '0') === '1';
   const PERIODES = ['3', '6', '12'];
   const periode = () => Number(lire('mrt-calendrier-mois', v => PERIODES.includes(v), '6'));
 
@@ -213,6 +214,7 @@
           '<a href="#' + x[0] + (x[2] && depart ? '=' + depart : '') + '" data-vue="' + x[0] + '"' + (x[2] ? ' data-periode="' + x[2] + '"' : '') +
           (est(x) ? ' class="is-on" aria-current="true"' : '') + '>' + x[1] + '</a>').join('') + '</nav></div>' +
         '<div class="cal-options">' + window.mrtPleinEcran.bouton() + window.mrtExport.bouton() + '<button type="button" class="mrt-rond cal-plan" data-plan aria-pressed="' + plan + '" aria-label="Phases" title="' + (plan ? 'Masquer les phases de la préparation' : 'Afficher les phases de la préparation') + '">' + (plan ? window.mrtIcone.oeil : window.mrtIcone.oeilBarre) + '</button>' +
+        '<button type="button" class="mrt-rond cal-leg" data-legende aria-pressed="' + legendeVisible() + '" aria-label="Légende" title="' + (legendeVisible() ? 'Masquer la légende' : 'Afficher la légende') + '">' + window.mrtIcone.info + '</button>' +
         '<button type="button" class="mrt-btn cal-auj" data-auj>Aujourd\'hui</button></div></div>';
     };
     // Période (Année, Mois) : titre au centre, la période voisine et sa flèche de chaque côté.
@@ -221,6 +223,14 @@
       '<div class="cal-titre-bloc"><h2 class="cal-titre">' + titre + '</h2>' + (sous || '') + '</div>' +
       '<a class="cal-voisin is-suiv" href="' + apres[1] + '" aria-label="' + apres[2] + '"><span class="cal-voisin-txt">' + apres[0] + '</span><span class="mrt-rond">' + window.mrtIcone.droite + '</span></a></div>';
     const legendePhases = () => '<span class="cal-groupe"><b class="cal-libelle">Phases</b>' + PHASES.concat([['recuperation', NOM_PHASE.recuperation], ['entretien', NOM_PHASE.entretien]]).map(([k, nom]) => '<span><i class="cal-k ph-' + k + '"></i>' + nom + '</span>').join('') + '</span>';
+    // Légende : types de séances, courses (route, trail ; confirmée ou option), puis les phases quand elles sont affichées. Bouton « Légende » éteint : aucune légende nulle part.
+    const TYPES_LEG = [['l-sl', 'Sortie longue'], ['l-seuil', 'Seuil'], ['l-frac', 'Fractionné'], ['l-cotes', 'Côtes'], ['l-renfo', 'Renforcement'], ['l-neutre', 'Autre']];
+    const famille = (nom, f) => '<span class="cal-groupe"><b class="cal-libelle">' + nom + '</b><span><i class="cal-k c-' + f + '-v"></i>Confirmée</span><span><i class="cal-k c-' + f + '-n"></i>Option</span></span>';
+    const legende = phases => {
+      const h = (legendeVisible() ? '<span class="cal-groupe"><b class="cal-libelle">Séances</b>' + TYPES_LEG.map(([k, nom]) => '<span><i class="cal-k cal-k-se ' + k + '"></i>' + nom + '</span>').join('') + '</span>' +
+        famille('Route', 'route') + famille('Trail', 'trail') + '<span><i class="cal-k courue"></i>Courue</span><span><i class="cal-k cal-k-auj"></i>Aujourd\'hui</span>' : '') + (phases ? legendePhases() : '');
+      return h ? '<div class="cal-legende">' + h + '</div>' : '';
+    };
     // Phase d'un jour : celle de sa semaine dans le plan de saison (spécification Préparation, § 4) ; l'Entretien n'a pas de fond.
     const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
     const { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml } = contenus(ctx);
@@ -255,7 +265,7 @@
             const se = ctx.seances.filter(x => x.date === j);
             se.forEach(x => tip.push(TYPES[x.type] + ' ' + x.libelle + (x.faite ? ' (faite)' : '')));
             h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '"' + (c ? ' data-course="' + esc(c.id) + '"' : '') + ' title="' + esc(tip.join(' · ')) + '">' +
-              (c ? '<span class="cal-a-nom">' + esc(c.nom) + '</span>' : se.length ? '<span class="cal-a-nom cal-a-se' + (se.every(x => x.faite) ? ' faite' : '') + '">' + se.map(x => P.lireLibelle(x.libelle)).filter((l, i, a) => a.findIndex(y => y.nom === l.nom) === i).map(l => '<span class="cal-a-sn"><span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span></span>').join(' · ') + '</span>' : '') + '</span>';
+              (c ? '<span class="cal-a-nom">' + esc(c.nom) + '</span>' : se.length ? '<span class="cal-a-nom cal-a-se' + (se.every(x => x.faite) ? ' faite' : '') + '">' + se.map(x => ({ l: P.lireLibelle(x.libelle), k: P.lisere(x) })).filter((o, i, a) => a.findIndex(y => y.l.nom === o.l.nom) === i).map(o => '<span class="cal-a-sn ' + o.k + '"><span class="n-long">' + esc(o.l.nom) + '</span><span class="n-court">' + esc(o.l.abr) + '</span></span>').join('') + '</span>' : '') + '</span>';
           });
         }
         h += '</div>';
@@ -265,11 +275,9 @@
         if (court) return MOIS[rang(m)] + '–' + MOIS[rang(f)] + ' ' + String(an(f)).slice(2); // « avr.–sept. 27 » : l'année distingue les deux voisines
         return an(m) === an(f) ? cap(MOIS_LONG[rang(m)]) + ' – ' + MOIS_LONG[rang(f)] + ' ' + an(m) : cap(MOIS_LONG[rang(m)]) + ' ' + an(m) + ' – ' + MOIS_LONG[rang(f)] + ' ' + an(f);
       };
-      const famille = (nom, f) => '<span class="cal-groupe"><b class="cal-libelle">' + nom + '</b><span><i class="cal-k c-' + f + '-v"></i>Confirmée</span><span><i class="cal-k c-' + f + '-n"></i>Option</span></span>';
       return haut('annee', depart) + bande(titre(depart, nb), '', [titre(decaler(depart, -nb), nb, true), '#annee=' + decaler(depart, -nb), 'Période précédente'],
         [titre(decaler(depart, nb), nb, true), '#annee=' + decaler(depart, nb), 'Période suivante']) +
-        '<div class="cal-legende">' + famille('Route', 'route') + famille('Trail', 'trail') + '<span><i class="cal-k courue"></i>Courue</span><span><i class="cal-k cal-k-auj"></i>Aujourd\'hui</span>' +
-        (phases ? legendePhases() : '') + '</div><div class="cal-a-blocs">' + h + '</div>';
+        legende(phases) + '<div class="cal-a-blocs">' + h + '</div>';
     }
 
     // ----- Mois : la grille du mois, mois par mois (spécification § 4.1 et 4.2) -----
@@ -280,7 +288,7 @@
       const h = grilleMois(ctx, debut, fin, { ps: plans, mois: rang(m) });
       const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
       return haut('mois') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois=' + decaler(m, -1), 'Mois précédent'],
-        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + h;
+        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + legende(phases) + h;
     }
 
     // ----- Mois V2 : une ligne par semaine, une colonne par jour (spécification § 4.5) -----
@@ -288,7 +296,7 @@
       const phases = phasesVisibles(), debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
       const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
       return haut('mois2') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois2=' + decaler(m, -1), 'Mois précédent'],
-        [court(decaler(m, 1)), '#mois2=' + decaler(m, 1), 'Mois suivant']) + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') + grilleSemaines(ctx, debut, fin, { mois: rang(m), phases });
+        [court(decaler(m, 1)), '#mois2=' + decaler(m, 1), 'Mois suivant']) + legende(phases) + grilleSemaines(ctx, debut, fin, { mois: rang(m), phases });
     }
 
     // ----- Semaine : un jour par ligne ; les semaines suivantes au fil du défilement, les passées par un lien (spécification § 4.3 et 4.4) -----
@@ -313,7 +321,7 @@
     }
     function vueSemaine() {
       const phases = phasesVisibles(), plans = phases ? planSaison(ctx) : null;
-      let h = haut('semaines') + '<div class="cal-sep"></div>' + (phases ? '<div class="cal-legende">' + legendePhases() + '</div>' : '') +
+      let h = haut('semaines') + '<div class="cal-sep"></div>' + legende(phases) +
         '<button type="button" class="mrt-lien cal-passees" data-passees>' + window.mrtIcone.haut + 'Afficher les semaines passées</button>' +
         // Rien du tout (compte neuf) : une phrase pour dire quoi faire.
         (!ctx.lectureSeule && !(ctx.seances || []).length && !(ctx.courses || []).length ? '<p class="cal-vide">Touche « + » sur un jour pour ajouter une séance ; tes courses s\'y ajoutent d\'elles-mêmes.</p>' : '');
@@ -386,6 +394,7 @@
         return;
       }
       if (t.closest('[data-exporter]')) { exporter(); return; }
+      if (t.closest('[data-legende]')) { ranger('mrt-calendrier-legende', legendeVisible() ? '0' : '1'); dessiner(); return; }
       if (t.closest('[data-plan]')) { ranger('mrt-calendrier-phases', phasesVisibles() ? '0' : '1'); dessiner(); return; }
       if (t.closest('[data-passees]')) {
         // Quatre semaines passées de plus, au-dessus, sans que la semaine regardée ne bouge à l'écran.
