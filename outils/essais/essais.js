@@ -2223,9 +2223,9 @@ const CONTROLES = {
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, 0, false, LEGENDE], [r.nbPhases, r.barres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni fond de phase ni légende des phases'),
         egal([['Gainage 30 min', true], ['8×400 m · Gainage 20 min', false], null], r.seances, nom + ', nom des séances du jour (et non leur type) (barrées quand elles sont faites), rien un jour sans séance'),
-        egal([['2026-10-20'], 'M20'], [r.auj, r.aujN], nom + ', aujourd\'hui repéré : case cerclée, numéro dans un rond'),
-        egal([[['J1', false, false], ['S3', true, false], ['D4', true, true], ['L5', false, false]], ['oct. 26'], [true, true]], [r.jours10, r.moisCourant, r.fonds],
-          nom + ', chaque mois a ses jours (initiale, numéro), samedi et dimanche plus foncés, filet sous le dimanche, mois en cours repéré ; jour passé : même fond'),
+        egal([['2026-10-20'], '20'], [r.auj, r.aujN], nom + ', aujourd\'hui repéré : case cerclée, numéro dans un rond'),
+        egal([[['1', false, false], ['3', true, false], ['4', true, true], ['5', false, false]], ['oct. 26'], [true, true]], [r.jours10, r.moisCourant, r.fonds],
+          nom + ', une seule colonne de numéros pour le bloc, sans initiales, samedi et dimanche plus foncés, filet sous le dimanche, mois en cours repéré ; jour passé : même fond'),
         egal(false, /Cross des Collines|Trail des Sommets|Option passée/.test(r.texte), nom + ', abandonnée, à surveiller et option passée absentes'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));

@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | 3 et 6 mois plus légers | Une seule colonne de numéros (1 à 31) à gauche de chaque bloc, plus d'initiales ni de colonne de jours par mois ; le fond du week-end donne le repère ; spécification 0.39. |
 | 27 nov. 2026 | Une seule vue Mois | La grille « une ligne par semaine » (ex-Mois V2, puis « 4 semaines ») devient la seule vue Mois ; l'ancienne grille du mois (une case par jour) est retirée, code et styles compris ; l'adresse #mois2 mène au Mois ; spécification 0.37. |
 | 27 nov. 2026 | Plus de « Repos » | Un jour vide reste vide, partout (4 semaines, Cette semaine de Mon plan) ; les repères du plan (Allégé, Repos, Récupération) restent. |
 | 27 nov. 2026 | Calendrier, repères communs | Week-end plus foncé aussi en Semaine ; séances du Mois en carte comme ailleurs (bord de 1 px, liseré de 4 px) ; jours en tête de 4 semaines alignés à gauche comme le Mois. |

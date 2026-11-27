@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.38 · 27 novembre 2026 · [Retour au sommaire](README.md) · Une seule vue Mois (ex-Mois V2, l'ancienne grille retirée) ; plus de « À noter » sur la carte d'une séance (Préparation, § 6).
+Version 0.39 · 27 novembre 2026 · [Retour au sommaire](README.md) · 3 et 6 mois : une seule colonne de numéros par bloc, plus d'initiales.
 
 ## 1. Rôle
 
@@ -37,7 +37,7 @@ Les données viennent de la liste de courses de l'utilisateur, la même que pour
 
 ## 3. Vue Année
 
-La grille d'un calendrier mural : une colonne par mois, une ligne par jour ; chaque mois a ses jours (initiale et numéro), ce qui fait voir les fins de semaine. Plan enfoncé, chaque jour prend la couleur de la phase de sa semaine, avec un liseré à gauche : on voit les phases se succéder.
+La grille d'un calendrier mural : une colonne par mois, une ligne par jour ; une seule colonne de numéros à gauche, le fond de samedi et dimanche fait voir les fins de semaine. Plan enfoncé, chaque jour prend la couleur de la phase de sa semaine, avec un liseré à gauche : on voit les phases se succéder.
 
 ### 3.1 Plan de page
 
@@ -90,7 +90,7 @@ Retirés en 0.18 : les pastilles des vues (1), la case « Phases » (23) et la d
 - **Courses** : confirmées et options à venir (une option dont la date est passée disparaît), courues de la période ; ni « Repérée », ni abandonnées. La case de la course est remplie de la couleur de sa famille : pleine pour une course confirmée (statut Confirmée), atténuée et cadrée pour une option (statut Option), Texte discret pour une course courue ; son nom y est écrit, coupé s'il ne tient pas. Route ou trail : le type de la course, déduit de son format ; tout ce qui n'est pas trail est dans la famille route.
 - **Séances** (3 et 6 mois) : dans la case du jour, un liseré de 3 px à la couleur du type de séance devant chaque nom ; le type de chaque séance en toutes lettres (« Course à pied · Renforcement », un type une seule fois), atténué et barré quand toutes sont faites ; la case d'une course garde son nom ; infobulle : le type et le libellé de chaque séance. Ni case à cocher ni « + » ici : un toucher ouvre la vue Semaine du jour.
 - **Phase d'un jour** (Plan) : celle de sa semaine dans le plan de préparation (§ 2), phases modifiées à la main comprises ; fond de la couleur de la phase et liseré (7) ; une semaine en Entretien ou sans plan garde le fond ordinaire ; une case de course garde sa couleur, le liseré en plus. Pas de barres : les prépas qui se chevauchent ne sont pas montrées séparément (retiré le 6 novembre 2026, sur demande). Format sans durée de prépa : pas de plan.
-- **Jours** : chaque mois a sa colonne de jours, l'initiale et le numéro (« L 19 ») ; ses cases sont jointives et d'un même fond, jour passé compris ; samedi et dimanche ont un fond plus marqué ; un filet sous chaque dimanche ferme la semaine ; aujourd'hui : case cerclée, numéro dans un rond Accent ; l'onglet du mois en cours est en Accent.
+- **Jours** (3 et 6 mois) : une seule colonne de numéros (1 à 31), à gauche du bloc, commune à ses mois ; plus d'initiales, le fond plus marqué de samedi et dimanche suffit à repérer la semaine ; aujourd'hui : son numéro en pastille Accent et sa case encadrée. Les cases d'un mois sont jointives et d'un même fond, jour passé compris ; un filet sous chaque dimanche ; un petit espace entre deux mois.
 - **Toucher** une course ouvre sa page (rubrique Préparation ; une course courue, son résultat) ; un jour, la vue Semaine à partir du lundi de ce jour. Sur ordinateur, une infobulle donne la date, la course et la phase du jour (« Développement »).
 - **Date au mois seulement** : la course est au 1er du mois (le plan vise ce jour, § 5.1).
 

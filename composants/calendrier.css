@@ -81,14 +81,13 @@
 /* ----- Année : la grille (spécification § 3) ; chaque mois, sa colonne de jours (initiale et numéro) à gauche de ses cases ;
    cases jointives, samedi et dimanche plus foncés, filet sous chaque dimanche ; Plan : fond et liseré aux couleurs des phases ----- */
 .cal-a-blocs { display: flex; flex-direction: column; gap: 1.6rem; }
-.cal-a-bloc { display: grid; grid-template-columns: repeat(var(--n), 2.6rem minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: var(--ligne); }
+.cal-a-bloc { display: grid; grid-template-columns: 2rem repeat(var(--n), minmax(0, 1fr)); column-gap: 0.4rem; grid-template-rows: auto; grid-auto-rows: var(--ligne); }
 /* Onglet du mois, au-dessus de ses cases : Bordure, le mois en cours en Accent. */
 .cal-a-mois { padding: 0.3rem 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); background: var(--border); border-radius: 4px 4px 0 0; }
 .cal-a-mois.is-courant { color: var(--bg); background: var(--accent); }
 .cal-a-mois i { font-style: normal; }
 .cal-a-n { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; padding-right: 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); color: var(--muted); }
-.cal-a-n i { font-style: normal; opacity: 0.75; } /* initiale : la taille du numéro, plus discrète */
 .cal-a-n b { min-width: 1.35rem; font-family: 'Space Grotesk', sans-serif; font-weight: 600; line-height: 1.2rem; text-align: right; }
 .cal-a-n.auj b { padding: 0 0.2rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
 .cal-a-j { position: relative; display: block; background: var(--case); cursor: pointer; }
@@ -183,10 +182,9 @@
   .cal-voisin .cal-voisin-txt { display: none; }
   .cal-titre { font-size: var(--t-nom); }
   /* Année : trois mois par bloc ; le numéro seul (le fond de samedi et dimanche suffit à repérer la semaine). */
-  .cal-a-bloc { grid-template-columns: repeat(var(--n), 1.5rem minmax(0, 1fr)); }
+  .cal-a-bloc { grid-template-columns: 1.3rem repeat(var(--n), minmax(0, 1fr)); column-gap: 0.25rem; }
   .cal-a-mois { padding: 0.25rem 0.2rem; font-size: var(--t-micro); letter-spacing: 0.05em; }
   .cal-a-n { padding-right: 0.2rem; }
-  .cal-a-n i { display: none; }
   .cal-a-n b { min-width: 1.1rem; line-height: 1.05rem; }
   .cal-a-nom { font-size: var(--t-micro); }
   .cal-a-sn .n-long { display: none; }
