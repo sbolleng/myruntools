@@ -2,14 +2,13 @@
    docs/module-calendrier-specification.md, § 4 et 5 ; couleurs : docs/design.md, § 9 et 10.
    Partagé par le Calendrier (calendrier.html) et la page d'une course (course.html). */
 /* Couleurs fixes, les mêmes dans tous les thèmes ; l'encre : le texte écrit sur la couleur d'une course. */
-:root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --ph-entretien: #8c8c8c; --int-moy: #f0883e; }
-/* Liseré d'une séance selon son type (Calendrier, export ; Fractionné : Rouge ; les autres : Bordure). */
-:root { --l-sl: #6b8cff; --l-seuil: #e8c547; --l-cotes: #b48ef0; --l-renfo: #5fbf7a; }
-.t-blanc-orange { --l-sl: #2f5fc4; --l-seuil: #a57a00; --l-cotes: #7a4fc4; --l-renfo: #2e8a4a; }
-:is(.cal-m2-se, .cal-m-se, .cal-carte) { --l: var(--border); }
-:is(.cal-m2-se, .cal-m-se, .cal-carte).l-sl { --l: var(--l-sl); } :is(.cal-m2-se, .cal-m-se, .cal-carte).l-seuil { --l: var(--l-seuil); }
-:is(.cal-m2-se, .cal-m-se, .cal-carte).l-frac { --l: var(--red); } :is(.cal-m2-se, .cal-m-se, .cal-carte).l-cotes { --l: var(--l-cotes); }
-:is(.cal-m2-se, .cal-m-se, .cal-carte).l-renfo { --l: var(--l-renfo); }
+:root { --route: #2c8fd6; --trail: #d9582a; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --ph-entretien: #8c8c8c; --int-moy: #f0883e; }
+/* Liseré d'une séance selon son type (Calendrier, export) : couleurs moyennes, les mêmes dans tous les thèmes (contraste d'au moins 3:1 sur blanc comme sur noir) ; les autres : Bordure. */
+:root { --l-sl: #4a78e8; --l-seuil: #aa7f00; --l-cotes: #9060e0; --l-renfo: #2f9e55; --l-frac: #e0453f; }
+:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se) { --l: var(--border); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-sl { --l: var(--l-sl); } :is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-seuil { --l: var(--l-seuil); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-frac { --l: var(--l-frac); } :is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-cotes { --l: var(--l-cotes); }
+:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-renfo { --l: var(--l-renfo); }
 /* Fond blanc : des phases plus foncées, lisibles quand leur nom est écrit dans leur couleur. */
 .t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; --ph-entretien: #6b6b6b; }
 
@@ -48,8 +47,8 @@
 .cal-jr-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; color: var(--bg); text-decoration: none; border-radius: 3px; overflow-wrap: anywhere; }
 .cal-jr-course.c-route-v { background: var(--route); color: var(--encre); }
 .cal-jr-course.c-trail-v { background: var(--trail); color: var(--encre); }
-.cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
-.cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
+.cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
+.cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
 .cal-jr-course.courue { background: var(--muted); }
 .cal-rdv { font-size: var(--t-libelle); line-height: 1.35; color: var(--text); text-decoration: none; }
 .cal-se { display: flex; align-items: flex-start; gap: 0.3rem; font-size: var(--t-libelle); line-height: 1.35; }

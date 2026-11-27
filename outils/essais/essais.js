@@ -2211,7 +2211,7 @@ const CONTROLES = {
       };
     });
     const COURSES = [['Corrida de Noël', 'c-route-v'], ['Semi de San Sebastián', 'courue'], ['Trail des Gorges', 'c-trail-v'], ['Trail du Lac', 'c-trail-v']];
-    const LEGENDE = [['Route', 'Confirmée', 'Option'], ['Trail', 'Confirmée', 'Option'], 'Courue', 'Aujourd\'hui'];
+    const LEGENDE = []; // bouton « Légende » éteint par défaut : aucune légende
     for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#annee', w, db, {}, PARIS);
       const r = await lire(p), tel = w < 600;
@@ -2236,7 +2236,7 @@ const CONTROLES = {
       pb.push(
         egal([true, 136, 0, [null, null, null, 'ph-base', 'ph-developpement']], [r.plan, r.nbPhases, r.barres, [r.p1, r.p12, r.p20, r.p0116, r.p0208]],
           nom + ', bouton « Plan » enfoncé (retenu sur l\'appareil) : le fond de phase du plan de saison (Entretien sans fond jusqu\'au 15 novembre, saison du Trail des Gorges dès le 16), pas de barres'),
-        egal([['3px', 'rgb(143, 168, 201)'], ['3px', 'rgb(230, 184, 77)'], ['3px', 'rgb(180, 142, 240)'], 'rgb(255, 122, 69)', true],
+        egal([['3px', 'rgb(143, 168, 201)'], ['3px', 'rgb(230, 184, 77)'], ['3px', 'rgb(180, 142, 240)'], 'rgb(217, 88, 42)', true],
           [r.l12, r.l20, r.lGorges, r.gorges, r.titre20.endsWith('aujourd\'hui · Course à pied 8×400 m · Renforcement Gainage 20 min')], nom + ', liseré de 3 px de la couleur pleine de la phase (deload le 8 décembre, développement le 12 janvier, affûtage le 7 mars), une course garde sa couleur, infobulle : les séances (Entretien : pas de phase)'),
         egal(LEGENDE.concat([['Phases', 'Base', 'Développement', 'Affûtage', 'Allègement', 'Récupération', 'Entretien']]), r.legende, nom + ', légende des phases, Récupération et Entretien comprises'),
         egal(false, r.debordement, nom + ', Plan, débordement horizontal'));
@@ -2253,7 +2253,7 @@ const CONTROLES = {
     pb.push(egal(['#annee', 'Octobre 2026 – mars 2027'], [await p.evaluate(() => location.hash), (await lire(p)).titre], '« Aujourd\'hui » : la période du mois en cours'));
     await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="12"]'); await pause();
     r = await lire(p);
-    pb.push(egal([[6, 6], 'Octobre 2026 – septembre 2027', '12'], [r.blocs, r.titre, await p.evaluate(() => localStorage.getItem('mrt-calendrier-mois'))], '12 mois : deux blocs de six, retenu sur l\'appareil'));
+    pb.push(egal([12, 'Octobre 2026 – septembre 2027', '12'], [await p.locator('.cal-y-mois').count(), r.titre, await p.evaluate(() => localStorage.getItem('mrt-calendrier-mois'))], '12 mois : douze mini-grilles, retenu sur l\'appareil'));
     await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="3"]'); await pause();
     r = await lire(p);
     pb.push(egal([[3], 'Octobre – décembre 2026'], [r.blocs, r.titre], '3 mois : un bloc de trois'));
@@ -4153,10 +4153,10 @@ const CONTROLES = {
     await p.locator('.cal-s-titre').nth(2).click();
     pb.push(egal(true, (await vues())[1], 'toucher ailleurs : le menu se ferme'));
     await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="12"]'); await pause();
-    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-a-blocs').count(), await p.evaluate(() => location.hash)],
+    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-y').count(), await p.evaluate(() => location.hash)],
       'choisir « Année » : la vue Année, le menu refermé'));
     await p.click('[data-plan]'); await pause();
-    pb.push(egal(['true', '1', true], [await p.getAttribute('[data-plan]', 'aria-pressed'), await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases')), await p.locator('.cal-a-j[class*="ph-"]').count() > 0],
+    pb.push(egal(['true', '1', true], [await p.getAttribute('[data-plan]', 'aria-pressed'), await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases')), await p.locator('.cal-y-j[class*="ph-"]').count() > 0],
       'bouton « Plan » : enfoncé, les fonds de phase, retenu sur l\'appareil'));
     await p.click('[data-plan]'); await pause();
     await p.click('[data-menu]'); await p.click('.cal-menu [data-vue="mois"]'); await pause();
