@@ -2223,9 +2223,9 @@ const CONTROLES = {
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, 0, false, LEGENDE], [r.nbPhases, r.barres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni fond de phase ni légende des phases'),
         egal([['Gainage 30 min', true], ['8×400 m · Gainage 20 min', false], null], r.seances, nom + ', nom des séances du jour (et non leur type) (barrées quand elles sont faites), rien un jour sans séance'),
-        egal([['2026-10-20'], 'M20'], [r.auj, r.aujN], nom + ', aujourd\'hui repéré : case cerclée, numéro dans un rond'),
-        egal([[['J1', false, false], ['S3', true, false], ['D4', true, true], ['L5', false, false]], ['oct. 26'], [true, true]], [r.jours10, r.moisCourant, r.fonds],
-          nom + ', chaque mois a ses jours (initiale, numéro), samedi et dimanche plus foncés, filet sous le dimanche, mois en cours repéré ; jour passé : même fond'),
+        egal([['2026-10-20'], '20'], [r.auj, r.aujN], nom + ', aujourd\'hui repéré : case cerclée, numéro dans un rond'),
+        egal([[['1', false, false], ['3', true, false], ['4', true, true], ['5', false, false]], ['oct. 26'], [true, true]], [r.jours10, r.moisCourant, r.fonds],
+          nom + ', une seule colonne de numéros pour le bloc, sans initiales, samedi et dimanche plus foncés, filet sous le dimanche, mois en cours repéré ; jour passé : même fond'),
         egal(false, /Cross des Collines|Trail des Sommets|Option passée/.test(r.texte), nom + ', abandonnée, à surveiller et option passée absentes'),
         egal(false, r.debordement, nom + ', débordement horizontal'),
         egal([], erreurs, nom + ', erreurs JavaScript'));
@@ -3104,6 +3104,15 @@ const CONTROLES = {
     pb.push(egal({ type: 'velo', libelle: 'Vélo', faite: true, duree_min: 90, duree_reelle_min: 90, distance_km: 31.5, distance_reelle_km: 31.5, intensite: null, fc_moyenne: 130 },
       sv && { type: sv.type, libelle: sv.libelle, faite: sv.faite, duree_min: sv.duree_min, duree_reelle_min: sv.duree_reelle_min, distance_km: sv.distance_km, distance_reelle_km: sv.distance_reelle_km, intensite: sv.intensite, fc_moyenne: sv.fc_moyenne },
       'séance passée de vélo : le réalisé saisi une fois (faite, sans intensité prévue)'));
+    // Natation faite : l'intensité se demande (elle compte pour la dépense) ; le crossfit fait : non.
+    await p.click('[data-ajout="2026-10-22"]'); await p.waitForSelector('.cal-seance [data-quand]');
+    await p.fill('.cal-seance [name="date"]', '2026-10-16');
+    await p.selectOption('.cal-seance [name="nom"]', 'Natation');
+    pb.push(egal([true, true], [await p.locator('.cal-seance .cal-intensite').isVisible(), await p.locator('.cal-seance .cal-retour').isVisible()], 'natation faite : l\'intensité reste demandée, avec le réalisé'));
+    await p.selectOption('.cal-seance [name="nom"]', 'Crossfit');
+    pb.push(egal(false, await p.locator('.cal-seance .cal-intensite').isVisible(), 'crossfit fait : pas d\'intensité'));
+    await p.click('.cal-seance [data-act="annuler"]'); await p.click('.mrt-dialogue [data-r="oui"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile'));
     await p.click('[data-ajout="2026-10-22"]'); await p.waitForSelector('.cal-seance [data-quand]');
     await p.selectOption('.cal-seance [name="nom"]', 'Danse');
     pb.push(egal([0, true], [await p.locator('.cal-seance .cal-seul-course:visible').count(), await p.locator('.cal-seance [name="duree"]').isVisible()], 'danse : durée seulement, ni distance ni D+'));
@@ -4793,6 +4802,9 @@ const CONTROLES = {
       // Vélo et danse (27 nov. 2026) : vélo par palier de vitesse (5 / 7 / 10 MET) ou, sans distance, par l'intensité (7 sans rien) ; danse 5 MET.
       egal([5, 7, 10, 5, 10, 7, 5], [B.activiteSeance({ type: 'velo', duree_min: 60, distance_km: 15 }), B.activiteSeance({ type: 'velo', duree_min: 60, distance_km: 20 }), B.activiteSeance({ type: 'velo', duree_min: 60, distance_km: 25 }),
         B.activiteSeance({ type: 'velo', duree_min: 60, intensite: 'facile' }), B.activiteSeance({ type: 'velo', duree_min: 60, intensite: 'intense' }), B.activiteSeance({ type: 'velo', duree_min: 60 }), B.activiteSeance({ type: 'danse', duree_min: 60 })].map(x => x.met), 'vélo : MET selon la vitesse, sinon l\'intensité ; danse : 5 MET'),
+      // Natation, marche, crossfit (27 nov. 2026, les anciens « autres sports » devenus séances).
+      egal([6, 6, 9, 9, 3, 3, 4, 9], [B.activiteSeance({ type: 'natation', duree_min: 60 }), B.activiteSeance({ type: 'natation', duree_min: 60, intensite: 'facile' }), B.activiteSeance({ type: 'natation', duree_min: 60, intensite: 'moderee' }), B.activiteSeance({ type: 'natation', duree_min: 60, intensite: 'intense' }),
+        B.activiteSeance({ type: 'marche', duree_min: 60 }), B.activiteSeance({ type: 'marche', duree_min: 60, distance_km: 5 }), B.activiteSeance({ type: 'marche', duree_min: 60, distance_km: 5.5 }), B.activiteSeance({ type: 'crossfit', duree_min: 60 })].map(x => x.met), 'natation 6 (facile) ou 9 ; marche 3 sous 5,5 km/h, 4 au-dessus ; crossfit 9'),
       egal(['a', 'c'], B.seancesQuiComptent([{ id: 'a', date: '2026-10-20', faite: false, etat: 'acceptee' }, { id: 'b', date: '2026-10-20', etat: 'proposee' }, { id: 'c', date: '2026-10-19', faite: true }, { id: 'd', date: '2026-10-19', faite: false }], '2026-10-20', '2026-10-20').map(x => x.id).concat(B.seancesQuiComptent([{ id: 'c', date: '2026-10-19', faite: true }, { id: 'd', date: '2026-10-19', faite: false }], '2026-10-19', '2026-10-20').map(x => x.id)), 'qui compte : aujourd\'hui, faite ou non, sans les propositions de l\'IA ; un jour passé, faite seulement'));
     return pb;
   },
@@ -4943,7 +4955,7 @@ const CONTROLES = {
     const groupes = p => p.evaluate(() => [...document.querySelectorAll('.nu-repas')].filter(r => r.querySelector('li')).map(r => r.querySelector('.nu-repas-t').textContent.replace(/\s+/g, ' ').trim().replace(/^(Petit-déj|Midi|Encas|Soir)/, '$1 ')).map(x => x.replace(/\s+/g, ' ')));
     // Feuilles « Repas » et « Activité » : ouvertes par les cases (ou le « + » d'un repas), fermées par la croix.
     const ouvrirRepas = async (p, repas) => { await p.click(repas ? '.nu-journal [data-act="ajout-repas"][data-repas="' + repas + '"]' : '.nu-tuile[data-act="ajout-repas"]'); await p.waitForSelector('.nu-feuille .nu-sources'); };
-    const ouvrirActivite = async p => { await p.click('.nu-tuile[data-act="activite"]'); await p.waitForSelector('.nu-feuille .nu-sport-l'); };
+    const ouvrirActivite = async p => { await p.click('.nu-tuile[data-act="activite"]'); await p.waitForSelector('.nu-feuille .nu-ajout-seance'); };
     const fermerF = async p => { await p.click('.nu-feuille [data-act="fermer"]'); await p.waitForSelector('.nu-feuille', { state: 'detached' }); };
     const lignes = p => p.evaluate(() => [...document.querySelectorAll('.nu-ligne-nom')].map(x => x.textContent.replace(/\s+/g, ' ')));
     const liste = p => p.evaluate(() => [...document.querySelectorAll('.nu-source .nu-aliment, .nu-resultats .nu-aliment')].map(x => [...x.children].map(c => c.textContent.replace(/\s+/g, ' ')).join(' | ')));
@@ -4961,7 +4973,7 @@ const CONTROLES = {
       egal(['kcal | sous | 350 | Reste 1 767 kcal | Besoin 2 117 kcal', 'p | sous | 6 g | Reste 92 g | Besoin 98–140 g', 'g | sous | 76 g | Reste 189 g | Besoin 265–318 g', 'l | sous | 1 g | Reste 58 g | Besoin 59–82 g'], await jauges(p), 'anneaux : nom, valeur, reste, besoin'),
       egal(['Petit-déj 90 kcal', 'Midi 260 kcal'], await groupes(p), 'journal : un bloc par repas'),
       egal(['Banane', 'Riz cuit · 200 g'], await lignes(p), 'journal : grammes pour un aliment donné pour 100 g'),
-      egal(['Séance', 'Repas', 0], [norm(await p.locator('.nu-tuile[data-act="activite"]').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"]').textContent()), await p.locator('.nu-sources, .nu-sport-l').count()], 'boutons Activité et Repas ; ajout et sport dans leurs feuilles'),
+      egal(['Séance', 'Repas', 0], [norm(await p.locator('.nu-tuile[data-act="activite"]').textContent()), norm(await p.locator('.nu-tuile[data-act="ajout-repas"]').textContent()), await p.locator('.nu-sources, .nu-ajout-seance').count()], 'boutons Activité et Repas ; ajout et séances dans leurs feuilles'),
       egal([true, true, true, 'ajout-repas'], await p.evaluate(() => { const style = cl => { const ref = document.createElement('button'); ref.className = cl; document.body.append(ref); const r0 = getComputedStyle(ref), v = [r0.backgroundColor, r0.color, r0.borderRadius]; ref.remove(); return v; }; return [...document.querySelectorAll('.nu-tuile')].map(t => { const att = style(t.classList.contains('is-principal') ? 'mrt-btn is-principal' : 'mrt-btn'); const c = getComputedStyle(t), ico = t.querySelectorAll('svg'), l = t.querySelector('.nu-tuile-l').getBoundingClientRect(); return [c.backgroundColor, c.color, c.borderRadius].join() === att.join() && ico.length === 2 && ico[0].getBoundingClientRect().right <= l.left && ico[1].getBoundingClientRect().left >= l.right; }).concat([document.querySelectorAll('.nu-tuile').length === 2, (document.querySelector('.nu-tuile.is-principal') || {}).dataset.act]); }), 'boutons Repas et Séance : Repas seul principal (design, § 11), Séance en secondaire, « + » à gauche, picto à droite du libellé'),
       egal(0, await p.locator('.nu-mention, .nu-macros, .nu-editer').count(), 'page épurée : ni mention, ni fourchettes en texte, ni bouton « Modifier »'));
     if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'nutrition-telephone.png'), fullPage: true });
@@ -5178,31 +5190,19 @@ const CONTROLES = {
     pb.push(egal('Aucun aliment récent.', norm(await p.locator('.nu-source .nu-vide').textContent()), 'sans récent'));
     await ctx.close();
 
-    // Sport du jour : une ligne remplie en fait apparaître une autre ; besoin recalculé ; retenu sur l'appareil ; rien dans la base.
+    // Activité : les séances seulement (plus d'« Autres sports », 27 nov. 2026) ; Natation, Marche, Crossfit, Vélo et Danse se saisissent comme une séance.
     d = base();
     ({ p, ctx } = await ouvrirN(d));
-    const ligneS = i => p.locator('.nu-sport-l').nth(i);
     await ouvrirActivite(p);
-    pb.push(egal(['Ajouter une séance', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
-    pb.push(egal([false, false, false], await p.evaluate(() => { const o = [...document.querySelectorAll('.nu-feuille .nu-sport-l [name="type"] option')].map(x => x.value); return [o.includes('j95'), o.includes('muscu'), o.includes('v2')]; }), 'autres sports : ni course, ni renforcement, ni vélo (ils viennent du Calendrier)'));
-    await ligneS(0).locator('[name="type"]').selectOption('n1');
-    await ligneS(0).locator('[name="heures"]').fill('1');
-    pb.push(egal([2, '2 537 kcal', 'kcal | sous | 350 | Reste 2 187 kcal | Besoin 2 537 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p), (await jauges(p))[0]], 'sport : 1 h de natation, une 2e ligne, besoin et anneau recalculés'));
-    await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST');
-    pb.push(egal([['DELETE', 'sport_jour', '?utilisateur=eq.' + U + '&date=eq.2026-10-20'], ['POST', 'sport_jour', [{ date: '2026-10-20', type: 'n1', heures: 1 }]]], d.ecritures.slice(-2).map(e => e.methode === 'DELETE' ? [e.methode, e.table, e.filtres] : [e.methode, e.table, e.corps]), 'sport : rangé dans la base, jour par jour'));
-    await ligneS(1).locator('[name="type"]').selectOption('m');
-    await ligneS(1).locator('[name="heures"]').fill('30');
-    pb.push(egal('2 537 kcal', await kcal(p), 'sport : 30 heures ignorées'));
-    await ligneS(1).locator('[name="heures"]').fill('0,5');
-    pb.push(egal([3, '2 642 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
-    await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST' && e.corps.length === 2);
-    await fermerF(p);
-    pb.push(egal(['Natation récréative · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
-    await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); await p.waitForSelector('.nu-jauge');
-    await ouvrirActivite(p);
-    pb.push(egal([3, '2 642 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
-    await ligneS(0).locator('[name="type"]').selectOption('');
-    pb.push(egal('2 222 kcal', await kcal(p), 'sport : la natation retirée'));
+    pb.push(egal(['Ajouter une séance', 0, 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sports, .nu-sport-l').count(), await p.locator('.nu-feuille .nu-ajout-seance').count()], 'feuille Activité : les séances seulement, plus d\'« Autres sports »'));
+    await p.click('.nu-feuille [data-act="ajout-seance"]'); await p.waitForSelector('.nu-feuille [name="nom"]');
+    pb.push(egal(['Renforcement', 'Vélo', 'Danse', 'Natation', 'Marche', 'Crossfit'], await p.locator('.nu-feuille [name="nom"] option').allTextContents().then(l => l.slice(-6)), 'choix de séance : Renforcement, Vélo, Danse, Natation, Marche, Crossfit'));
+    await p.selectOption('.nu-feuille [name="nom"]', 'Natation'); await p.fill('.nu-feuille [name="duree"]', '60');
+    pb.push(egal([0, true], [await p.locator('.nu-feuille .cal-seul-course:visible').count(), await p.locator('.nu-feuille .cal-intensite').isVisible()], 'natation : durée et intensité, ni distance ni D+'));
+    await p.click('.nu-feuille button[type="submit"]');
+    await ecrit(d, e => e.table === 'seances' && e.methode === 'POST');
+    const sn = d.ecritures.filter(e => e.table === 'seances' && e.methode === 'POST').pop().corps;
+    pb.push(egal([{ type: 'natation', libelle: 'Natation', duree_min: 60, intensite: 'facile', faite: false }, '2 537 kcal'], [{ type: sn.type, libelle: sn.libelle, duree_min: sn.duree_min, intensite: sn.intensite, faite: sn.faite }, await kcal(p)], 'séance de natation : rangée dans le Calendrier, comptée dans le besoin (6 MET × 70 kg × 1 h)'));
     await ctx.close();
 
     // Toucher une ligne : Modifier (quantité, repas) ; Annuler ne range rien.
@@ -5222,17 +5222,10 @@ const CONTROLES = {
     pb.push(egal([['PATCH', 'repas_lignes', { repas: 'soir', quantite: 1, kcal: 130, proteines: 2.7, glucides: 28, lipides: 0.3 }, '?id=eq.' + ID(4)]], d.ecritures.map(e => [e.methode, e.table, e.corps, e.filtres]), 'Enregistrer : 100 g au soir, valeurs figées à la nouvelle quantité'),
       egal(['Petit-déj 90 kcal', 'Soir 130 kcal'], await groupes(p), 'journal : la ligne passée au soir'));
     await ctx.close();
-    // Une activité du journal : Modifier, Supprimer.
+    // Anciens « autres sports » restés dans sport_jour : ignorés (l'évolution 053 les convertit en séances).
     d = base(); d.sport_jour = [{ id: ID(8), utilisateur: U, date: '2026-10-20', type: 'v2', heures: 1 }, { id: ID(9), utilisateur: U, date: '2026-10-20', type: 'm', heures: 0.5 }];
     ({ p, ctx } = await ouvrirN(d));
-    pb.push(egal('2 712 kcal', await kcal(p), 'activités lues dans la base'));
-    await p.click('.nu-activites .nu-ligne:has-text("Marche")');
-    await p.click('.nu-modifier [data-act="supprimer"]');
-    pb.push(egal('Supprimer cette séance ?', norm(await p.locator('.mrt-dialogue p').textContent()), 'Supprimer une activité : la question du site'));
-    await p.click('.mrt-dialogue [data-r="oui"]');
-    await p.waitForSelector('.nu-modifier', { state: 'detached' });
-    await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST');
-    pb.push(egal(['2 607 kcal', ['Vélo (19 à 22 km/h) · 1 h'], [{ date: '2026-10-20', type: 'v2', heures: 1 }]], [await kcal(p), await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), d.ecritures.filter(e => e.table === 'sport_jour' && e.methode === 'POST').pop().corps], 'activité supprimée : besoin et journal à jour, rangé dans la base'));
+    pb.push(egal([ '2 117 kcal', 0 ], [await kcal(p), await p.locator('.nu-activites .nu-ligne').count()], 'sport_jour ignoré : ni besoin ni ligne du journal'));
     await ctx.close();
 
     // Sélecteur de jour : la veille, un repas oublié, puis retour à aujourd'hui.
@@ -5364,9 +5357,9 @@ const CONTROLES = {
     pb.push(egal('Complète ton profil sur la page Nutrition.', norm(await p.locator('[data-bloc="nutrition"] .ac-vide').textContent()), 'Accueil : profil incomplet'));
     await ctx.close();
     // Saisies rapides d'En un coup d'œil : ?ajout=repas ou ?ajout=activite ouvre la feuille d'emblée, l'adresse est nettoyée.
-    for (const [q, sel] of [['repas', '.nu-feuille .nu-source, .nu-feuille .nu-recherche'], ['activite', '.nu-feuille .nu-sport-l']]) {
+    for (const [q, sel] of [['repas', '.nu-feuille .nu-source, .nu-feuille .nu-recherche'], ['activite', '.nu-feuille .nu-ajout-seance']]) {
       const o = await ouvrir(nav, 'nutrition.html?ajout=' + q, 1200, base(), {}, {});
-      await o.p.waitForSelector('.nu-feuille ' + (q === 'repas' ? '.nu-ajout' : '.nu-sport-l'));
+      await o.p.waitForSelector('.nu-feuille ' + (q === 'repas' ? '.nu-ajout' : '.nu-ajout-seance'));
       pb.push(egal([1, false], [await o.p.locator('.nu-feuille').count(), /ajout=/.test(o.p.url())], '?ajout=' + q + ' : la feuille s\'ouvre aussitôt, adresse nettoyée'));
       await o.ctx.close();
     }

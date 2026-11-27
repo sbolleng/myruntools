@@ -4,8 +4,8 @@
 // en plus pour la page).
 //   renderNutrition(el, { profil, id, courses, semaines, seances })   la page
 //   renderNutritionAccueil(el, { profil, id, courses, semaines, lectureSeule })   le bloc d'En un coup d'œil
-// Données, dans Supabase : `aliments` (favoris, récents), `repas_lignes` (le journal, jour par jour), `sport_jour` (le
-// sport de chaque jour). Recherche : les aliments de l'utilisateur (pendant la frappe), puis Open Food Facts (valeurs pour
+// Données, dans Supabase : `aliments` (favoris, récents), `repas_lignes` (le journal, jour par jour) ; le sport vient des
+// séances du Calendrier. Recherche : les aliments de l'utilisateur (pendant la frappe), puis Open Food Facts (valeurs pour
 // 100 g) par le relais Supabase « recherche-aliments ».
 (function () {
   const pad = n => String(n).padStart(2, '0');
@@ -55,15 +55,11 @@
 
   // ----- Lectures et écritures -----
   const sb = () => window.mrtSupabase;
+  // Le journal du jour : les lignes de repas. Le sport vient des séances du Calendrier (les « autres sports » saisis ici sont devenus des séances : évolution 053).
   async function lireJour(id, jour) {
-    const [l, s] = await Promise.all([
-      sb().from('repas_lignes').select('*').eq('utilisateur', id).eq('date', jour),
-      sb().from('sport_jour').select('*').eq('utilisateur', id).eq('date', jour)
-    ]);
+    const l = await sb().from('repas_lignes').select('*').eq('utilisateur', id).eq('date', jour);
     if (l.error) throw l.error;
-    // Sport illisible (table absente tant que l'évolution 022 n'est pas passée) : le journal s'affiche quand même.
-    if (s.error) console.warn('Nutrition : sport du jour illisible', s.error);
-    return { lignes: l.data || [], sports: (s.error ? [] : s.data || []).filter(x => window.mrtBesoin.SPORTS[x.type]).map(x => ({ type: x.type, heures: Number(x.heures) })) };
+    return { lignes: l.data || [], sports: [] };
   }
   async function lireAliments(id) {
     const { data, error } = await sb().from('aliments').select('*').eq('utilisateur', id);
@@ -75,8 +71,8 @@
     try { const { data } = await sb().from('profil_entrainement').select('vma').eq('utilisateur', id).maybeSingle(); return data && Number(data.vma) > 0 ? Number(data.vma) : null; }
     catch (e) { return null; }
   }
-  // L'activité qui compte dans le besoin d'un jour : les séances du Calendrier (course à pied, renforcement), puis les
-  // autres sports, saisis dans Nutrition.
+  // L'activité qui compte dans le besoin d'un jour : les séances du Calendrier, saisies depuis Nutrition ou le Calendrier
+  // (le sport se saisit à un seul endroit : une séance).
   function activiteDuJour(autres, seances, jour, aujourdhui, vma) {
     const B = window.mrtBesoin;
     return B.seancesQuiComptent(seances, jour, aujourdhui).map(x => B.activiteSeance(x, vma)).filter(Boolean).concat(autres);
@@ -212,13 +208,12 @@
       window.mrtProfilEncart(el, { profil: ctx.profil, id: ctx.id, surEnregistre: redessiner });
       return;
     }
-    const S = { jour: aujourdhui, aliments: [], lignes: [], sports: [], lignesSport: [null], source: null, choix: null, repas: repasDe(new Date()), msg: '', msgSport: '',
+    const S = { jour: aujourdhui, aliments: [], lignes: [], sports: [], source: null, choix: null, repas: repasDe(new Date()), msg: '',
       erreurLecture: false, recherche: { texte: '', etat: null, mes: [], resultats: [] } };
     try {
       const [aliments, j, vma] = await Promise.all([lireAliments(ctx.id), lireJour(ctx.id, S.jour), lireVma(ctx.id, ctx.profil)]);
       S.aliments = aliments; S.lignes = j.lignes; S.sports = j.sports; S.vma = vma;
     } catch (err) { console.warn('Nutrition : lecture impossible', err); S.erreurLecture = true; }
-    S.lignesSport = S.sports.concat([null]);
     S.source = S.aliments.some(x => x.dernier_usage) ? 'recents' : S.aliments.some(x => x.favori) ? 'favoris' : 'libre';
 
     S.seances = (ctx.seances || []).slice();
@@ -242,9 +237,6 @@
       return [p.sexe === 'femme' ? 'F' : 'H', virgule(Number(p.poids)) + ' kg', p.taille + ' cm', act].join(' · ') + ' ›';
     }
 
-    const ligneSport = s => '<div class="nu-sport-l"><select class="mrt-champ" name="type" aria-label="Sport"><option value="">Sport…</option>' +
-      Object.entries(B.SPORTS).filter(x => !x[1].seance || (s && s.type === x[0])).map(x => '<option value="' + x[0] + '"' + (s && s.type === x[0] ? ' selected' : '') + '>' + esc(x[1].libelle) + '</option>').join('') + '</select>' +
-      '<span class="nu-unite"><input class="mrt-champ" name="heures" type="text" inputmode="decimal" aria-label="Durée en heures" value="' + (s && s.heures ? virgule(s.heures) : '') + '">h</span></div>';
     function htmlBesoin() {
       const estAuj = S.jour === aujourdhui;
       // « » » à droite de « › », un autre jour que le jour même ; une cale de même taille à gauche garde le jour centré.
@@ -257,15 +249,13 @@
         '<p class="nu-calcule"><button type="button" class="mrt-lien nu-profil-l" data-act="profil">Calculé pour ' + esc(htmlProfil()) + '</button></p>' +
         '<div class="nu-anneaux"></div>' +
         '<div class="nu-tuiles"><button type="button" class="nu-tuile mrt-btn is-principal" data-act="ajout-repas" title="Ajouter un repas">' + mrtIcone.plus + '<span class="nu-tuile-l">Repas</span>' + PICTO_ASSIETTE + '</button>' +
-        '<button type="button" class="nu-tuile mrt-btn" data-act="activite" title="Ajouter une séance">' + mrtIcone.plus + '<span class="nu-tuile-l">Séance</span>' + PICTO_HALTERE + '</button></div>' +
-        '<p class="nu-msg nu-msg-sport" role="alert">' + esc(S.msgSport) + '</p>';
+        '<button type="button" class="nu-tuile mrt-btn" data-act="activite" title="Ajouter une séance">' + mrtIcone.plus + '<span class="nu-tuile-l">Séance</span>' + PICTO_HALTERE + '</button></div>';
     }
-    // Feuille Activité : les séances du jour (celles du Calendrier, sa fenêtre pour les ajouter ou les modifier), puis les autres sports.
+    // Feuille Activité : les séances du jour (celles du Calendrier, sa fenêtre pour les ajouter ou les modifier).
     function htmlActivite() {
       const ss = seancesDuJour();
       return '<p class="nu-sous-t">Séances</p>' + (ss.length ? '<ul class="nu-lignes nu-seances-f">' + ss.map(x => '<li><button type="button" class="nu-ligne" data-act="seance" data-id="' + x.id + '"><span class="nu-ligne-nom">' + esc(texteSeance(x)) + '</span></button></li>').join('') + '</ul>' : '') +
-        '<button type="button" class="mrt-btn nu-ajout-seance" data-act="ajout-seance">' + mrtIcone.plus + 'Ajouter une séance</button>' +
-        '<p class="nu-sous-t">Autres sports</p><div class="nu-sports">' + S.lignesSport.map(ligneSport).join('') + '</div><p class="nu-msg" role="alert">' + esc(S.msgSport) + '</p>';
+        '<button type="button" class="mrt-btn nu-ajout-seance" data-act="ajout-seance">' + mrtIcone.plus + 'Ajouter une séance</button>';
     }
     function htmlJauges(r) {
       return jauge('kcal', 'Calories', total(S.lignes, 'kcal'), r.kcal, r.kcal * TOLERANCE_KCAL, 'kcal', n0(r.kcal)) +
@@ -352,7 +342,6 @@
     // ----- Carte 3 : journal du jour -----
     // Journal : les quatre repas, puis l'activité ; chaque ligne se touche pour la modifier ou la supprimer ; un « + » par section.
     const qteLigne = l => { const a = trouver(l.aliment); return a && enGrammes(a) ? n0(Number(l.quantite) * 100) + ' g' : Number(l.quantite) !== 1 ? virgule(Number(l.quantite)) + ' portions' : ''; };
-    const ligneSportTexte = x => B.SPORTS[x.type].libelle + ' · ' + duree(x.heures);
     function htmlJournal() {
       const tete = (nom, droite, plus) => '<p class="nu-repas-t"><span>' + nom + '</span><span class="nu-repas-d">' + droite + plus + '</span></p>';
       const plus = (act, repas, nom) => '<button type="button" class="mrt-rond is-petit" data-act="' + act + '"' + (repas ? ' data-repas="' + repas + '"' : '') + ' aria-label="Ajouter : ' + nom + '">' + mrtIcone.plus + '</button>';
@@ -365,13 +354,12 @@
       const ss = seancesDuJour();
       const lignesSeances = ss.map(x => '<li class="nu-seance-l' + (compte(x) ? '' : ' is-non-comptee') + '"><label class="nu-faite"><input type="checkbox" data-faite="' + x.id + '"' + (x.faite ? ' checked' : '') + ' aria-label="Faite : ' + esc(x.libelle) + '"></label>' +
         '<button type="button" class="nu-ligne" data-act="seance" data-id="' + x.id + '"><span class="nu-ligne-nom">' + esc(texteSeance(x)) + '</span>' + (compte(x) ? '' : '<span class="nu-ligne-k">non faite</span>') + '</button></li>').join('');
-      const lignesAutres = S.sports.map((x, i) => ligne('data-act="ligne-sport" data-i="' + i + '"', esc(ligneSportTexte(x)), '')).join('');
       const activite = '<div class="nu-repas nu-activites">' + tete('Séances', '', plus('activite', null, 'Séance')) +
-        (lignesSeances || lignesAutres ? '<ul class="nu-lignes">' + lignesSeances + lignesAutres + '</ul>' : '') + '</div>';
+        (lignesSeances ? '<ul class="nu-lignes">' + lignesSeances + '</ul>' : '') + '</div>';
       return '<h2 class="nu-titre">Journal du jour</h2>' + (S.erreurLecture ? '<p class="nu-msg" role="alert">Lecture impossible pour l\'instant.</p>' : '') + repas + activite;
     }
 
-    // Les cartes se redessinent chacune à leur tour : une saisie en cours (sport, recherche) garde sa place.
+    // Les cartes se redessinent chacune à leur tour : une saisie en cours (recherche) garde sa place.
     el.innerHTML = '<section class="card nu-carte nu-besoin"></section><section class="card nu-carte nu-journal"></section>';
     const carte = c => el.querySelector('.nu-' + c);
     // Feuilles « Repas » (ajouter un aliment) et « Activité » : la feuille d'une course (modale-course.css), plein écran sur
@@ -407,7 +395,7 @@
       z.innerHTML = htmlAjout();
       barreFeuille('Ajouter un aliment', etape === 2);
     };
-    // Feuille Activité : la liste (séances, autres sports), ou l'écran d'une séance (celui du Calendrier, dans la feuille).
+    // Feuille Activité : la liste (les séances du jour), ou l'écran d'une séance (celui du Calendrier, dans la feuille).
     const dessinerActivite = () => {
       const z = zoneActivite();
       if (!z || feuille.seance) return;
@@ -448,7 +436,6 @@
     }
     function fermerFeuille() {
       if (!feuille) return;
-      if (feuille.type === 'activite' && aRanger) enregistrerSport();
       feuille.voile.remove();
       document.documentElement.classList.remove('mc-ouvert');
       feuille = null;
@@ -466,12 +453,10 @@
     const lireQuantite = () => { const z = zoneAjout(), n = nombre(((z && z.querySelector('.nu-qte')) || {}).value); return Number.isFinite(n) ? n : NaN; };
     async function changerDeJour(jour) {
       if (jour > aujourdhui) return;
-      await enregistrerSport(); // ce qui est en cours de saisie est rangé avec son jour
       fermerFeuille();
-      S.jour = jour; S.choix = null; S.msg = ''; S.msgSport = '';
-      try { const j = await lireJour(ctx.id, jour); S.lignes = j.lignes; S.sports = j.sports; S.erreurLecture = false; range = JSON.stringify({ jour, sports: S.sports }); }
+      S.jour = jour; S.choix = null; S.msg = '';
+      try { const j = await lireJour(ctx.id, jour); S.lignes = j.lignes; S.sports = j.sports; S.erreurLecture = false; }
       catch (err) { console.warn('Nutrition : lecture impossible', err); S.lignes = []; S.sports = []; S.erreurLecture = true; }
-      S.lignesSport = S.sports.concat([null]);
       tout();
     }
     function pas(sens) {
@@ -624,61 +609,6 @@
         if (q) { const v = nombre(form.quantite.value), base = Number.isFinite(v) ? v : valeur; form.quantite.value = virgule(Math.max(pasQ, Math.round((base + Number(q.dataset.q) * pasQ) / pasQ) * pasQ)); }
       });
     }
-    function modifierSport(i) {
-      const x = S.sports[i];
-      if (!x) return;
-      const ranger = () => { aRanger = { jour: S.jour, sports: S.sports.slice() }; S.lignesSport = S.sports.concat([null]); chiffres(); dessinerJournal(); return enregistrerSport(); };
-      const corps = '<label class="cal-champ"><span>Sport</span><select class="mrt-champ" name="type">' +
-        Object.entries(B.SPORTS).filter(y => !y[1].seance || y[0] === x.type).map(y => '<option value="' + y[0] + '"' + (y[0] === x.type ? ' selected' : '') + '>' + esc(y[1].libelle) + '</option>').join('') + '</select></label>' +
-        '<label class="cal-champ"><span>Durée (h)</span><input class="mrt-champ" name="heures" type="text" inputmode="decimal" value="' + virgule(x.heures) + '"></label>';
-      fenetreModifier(B.SPORTS[x.type].libelle, corps, async f => {
-        const type = f.querySelector('[name="type"]').value, h = nombre(f.querySelector('[name="heures"]').value);
-        if (!B.SPORTS[type]) return 'Choisis le sport.';
-        if (!(h > 0 && h <= 24)) return 'La durée doit être comprise entre 0 et 24 heures.';
-        S.sports[i] = { type, heures: Math.round(h * 100) / 100 };
-        await ranger();
-      }, async () => {
-        S.sports.splice(i, 1);
-        await ranger();
-      }, 'Supprimer cette séance ?');
-    }
-
-    // ----- Sport du jour : rangé dans la base, jour par jour -----
-    // Une ligne remplie en fait apparaître une autre (cinq au plus). Le besoin suit la saisie ; l'enregistrement
-    // part peu après la dernière frappe (ou au changement de jour).
-    // rangé : ce qui est dans la base pour le jour affiché ; rien n'est réécrit quand rien n'a changé (fermer la feuille, changer de jour).
-    let minuteur = null, file = Promise.resolve(), aRanger = null, range = JSON.stringify({ jour: S.jour, sports: S.sports });
-    function lireSports() {
-      const z = zoneActivite();
-      if (!z) return;
-      const lignes = [...z.querySelectorAll('.nu-sport-l')];
-      S.lignesSport = lignes.map(l => ({ type: l.querySelector('[name="type"]').value, heures: nombre(l.querySelector('[name="heures"]').value) || '' }));
-      S.sports = S.lignesSport.filter(s => B.SPORTS[s.type] && s.heures > 0 && s.heures <= 24).map(s => ({ type: s.type, heures: Math.round(s.heures * 100) / 100 }));
-      const derniere = lignes[lignes.length - 1];
-      if (derniere.querySelector('[name="type"]').value && lignes.length < 5) {
-        z.querySelector('.nu-sports').insertAdjacentHTML('beforeend', ligneSport(null));
-        S.lignesSport.push(null);
-      }
-      chiffres(); dessinerJournal();
-      aRanger = { jour: S.jour, sports: S.sports.slice() };
-      clearTimeout(minuteur);
-      minuteur = setTimeout(enregistrerSport, 700);
-    }
-    function enregistrerSport() {
-      clearTimeout(minuteur);
-      const r = aRanger;
-      aRanger = null;
-      if (!r || JSON.stringify(r) === range) return file;
-      range = JSON.stringify(r);
-      file = file.then(async () => {
-        const d = await sb().from('sport_jour').delete().eq('utilisateur', ctx.id).eq('date', r.jour);
-        const i = d.error || !r.sports.length ? d : await sb().from('sport_jour').insert(r.sports.map(s => ({ date: r.jour, type: s.type, heures: s.heures })));
-        S.msgSport = d.error || i.error ? ERREUR : '';
-        if (d.error || i.error) console.warn('Nutrition : sport non rangé', d.error || i.error);
-        if (r.jour === S.jour) [zoneActivite(), carte('besoin').querySelector('.nu-msg-sport')].forEach(z => { const m = z && (z.classList.contains('nu-msg') ? z : z.querySelector('.nu-msg')); if (m) m.textContent = S.msgSport; });
-      });
-      return file;
-    }
     // ----- Branchements -----
     const clic = e => {
       const b = e.target.closest('[data-act]');
@@ -708,7 +638,6 @@
       else if (act === 'favori') basculerFavori();
       else if (act === 'ajouter') ajouter();
       else if (act === 'ligne') modifierLigne(b.dataset.id);
-      else if (act === 'ligne-sport') modifierSport(Number(b.dataset.i));
     };
     const soumettre = e => {
       e.preventDefault();
@@ -725,16 +654,13 @@
       if (x && faite && window.mrtPreparation && window.mrtPreparation.feuilleRetour) window.mrtPreparation.feuilleRetour(calendrier, Object.assign({}, x, { faite: true }));
     }
     const changer = e => {
-      if (e.target.closest('.nu-sport-l')) lireSports();
-      else if (e.target.dataset && e.target.dataset.faite) cocher(e.target.dataset.faite, e.target.checked);
+      if (e.target.dataset && e.target.dataset.faite) cocher(e.target.dataset.faite, e.target.checked);
     };
     const saisir = e => {
-      if (e.target.closest('.nu-sport-l') && e.target.name === 'heures') lireSports();
-      else if (e.target.closest('.nu-recherche') && e.target.name === 'q') taper(e.target.value);
+      if (e.target.closest('.nu-recherche') && e.target.name === 'q') taper(e.target.value);
     };
     function brancher(cible) { cible.onclick = clic; cible.onsubmit = soumettre; cible.onchange = changer; cible.oninput = saisir; }
     brancher(el);
-    window.addEventListener('pagehide', () => { if (aRanger) enregistrerSport(); });
     tout();
     // Saisie rapide d'En un coup d'œil : la feuille demandée s'ouvre d'emblée (une seule fois).
     if (ctx.ouvrir) { const type = ctx.ouvrir; ctx.ouvrir = null; ouvrirFeuille(type); }

@@ -15,10 +15,12 @@
   const PHASES = [['base', 'Base'], ['developpement', 'Développement'], ['affutage', 'Affûtage'], ['deload', 'Allègement']];
   const NOM_PHASE = Object.assign(Object.fromEntries(PHASES), { recuperation: 'Récupération', entretien: 'Entretien' });
 
-  // Types de séance, en toutes lettres : pour en ajouter un (tapis…), une ligne ici, son nom normalisé (AUTRES, plus bas) et une évolution SQL (valeur de `seance_type`) ; la fenêtre de saisie et les vues les reprennent seules.
-  const TYPES = { run: 'Course à pied', renfo: 'Renforcement', velo: 'Vélo', danse: 'Danse' };
-  // Sans distance ni dénivelé : le renforcement et la danse (le vélo a l'un et l'autre).
-  const sansDistance = t => t === 'renfo' || t === 'danse';
+  // Types de séance, en toutes lettres : pour en ajouter un, une ligne ici, son nom normalisé (AUTRES, plus bas) et une évolution SQL (valeur de `seance_type`) ; la fenêtre de saisie et les vues les reprennent seules.
+  const TYPES = { run: 'Course à pied', renfo: 'Renforcement', velo: 'Vélo', danse: 'Danse', natation: 'Natation', marche: 'Marche', crossfit: 'Crossfit' };
+  // Sans distance ni dénivelé : le renforcement, la danse, la natation et le crossfit (le vélo et la marche ont l'un et l'autre).
+  const sansDistance = t => ['renfo', 'danse', 'natation', 'crossfit'].includes(t);
+  // Types dont la dépense dépend de l'intensité : elle se demande aussi pour une séance faite (natation ; vélo sans distance).
+  const avecIntensite = t => t === 'natation' || t === 'velo';
   // Intensité d'une séance (facultative) : une séance facile est la seule permise pendant une récupération (spécification Préparation, § 3.3).
   const INTENSITES = { facile: 'Facile', moderee: 'Modérée', intense: 'Intense' };
   // Noms normalisés des séances de course (liste courte, d'après les usages courants) : le nom, son abréviation (Mois sur téléphone),
@@ -51,7 +53,10 @@
   const NOM_VELO = { nom: 'Vélo', abr: 'Vélo', titre: 'Sortie à vélo', intensite: '', type: 'velo' };
   const NOM_DANSE = { nom: 'Danse', abr: 'Danse', titre: 'Danse', intensite: '', type: 'danse' };
   // Les séances qui ne sont pas de la course à pied : un nom chacune, qui donne le type.
-  const AUTRES = [NOM_RENFO, NOM_VELO, NOM_DANSE];
+  const NOM_NATATION = { nom: 'Natation', abr: 'Nat.', titre: 'Natation', intensite: 'facile', type: 'natation' };
+  const NOM_MARCHE = { nom: 'Marche', abr: 'Marche', titre: 'Marche', intensite: '', type: 'marche' };
+  const NOM_CROSSFIT = { nom: 'Crossfit', abr: 'Crossfit', titre: 'Crossfit', intensite: '', type: 'crossfit' };
+  const AUTRES = [NOM_RENFO, NOM_VELO, NOM_DANSE, NOM_NATATION, NOM_MARCHE, NOM_CROSSFIT];
   // Liseré d'une séance (toutes les vues du Calendrier, export) : couleur du type de séance, d'après le nom de la liste ;
   // Sortie longue, Seuil, Fractionné, Côtes, Renforcement ; neutre (Bordure) pour Endurance, Décrassage et un nom libre. Pas de légende.
   const LISERES = { 'Sortie longue': 'l-sl', Seuil: 'l-seuil', 'Fractionné': 'l-frac', 'Côtes': 'l-cotes', Renforcement: 'l-renfo' };
@@ -698,8 +703,8 @@
     const champsPrevu = '<label class="cal-champ"><span>Description</span><textarea class="mrt-champ" name="description" maxlength="800" rows="4" placeholder="1. 20 min d\'échauffement&#10;2. 3 x 12 min à allure semi, 5 min de récupération&#10;3. 5 min de retour au calme">' + esc(s && s.description ? s.description : '') + '</textarea><small class="cal-compteur">' + (s && s.description ? s.description.length : 0) + '/800</small></label>' +
       '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree" inputmode="numeric" value="' + esc(s && s.duree_min != null ? s.duree_min : '') + '"></label>' +
       '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance" inputmode="decimal" value="' + esc(s && s.distance_km != null ? String(s.distance_km).replace('.', ',') : '') + '"></label>' +
-      '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele" inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>' +
-      '<label class="cal-champ"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>';
+      '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele" inputmode="numeric" value="' + esc(s && s.denivele_m != null ? s.denivele_m : '') + '"></label></div>';
+    const champIntensite = '<label class="cal-champ cal-intensite"><span>Intensité</span><select class="mrt-champ" name="intensite"><option value="">—</option>' + Object.keys(INTENSITES).map(k => '<option value="' + k + '"' + (s && s.intensite === k ? ' selected' : '') + '>' + INTENSITES[k] + '</option>').join('') + '</select></label>';
     // Séance de l'IA : un texte structuré (le nom, ses précisions, durée, distance, D+, intensité), pas des champs ; les champs existent mais restent cachés.
     // Description : une étape par ligne, numérotée en Accent (une numérotation déjà écrite est reprise telle quelle).
     const etapes = t => { const l = String(t || '').split(/\n+/).map(x => x.trim().replace(/^\d+[.)]\s*/, '')).filter(Boolean); return l.length ? '<ol class="cal-prevu-etapes">' + l.map(x => '<li>' + esc(x) + '</li>').join('') + '</ol>' : ''; };
@@ -711,10 +716,10 @@
         (course && Number(s.denivele_m) > 0 ? stat('D+', esc(s.denivele_m) + ' m') : '') + (s.intensite ? stat('Intensité', traits(s.intensite) + esc(INTENSITES[s.intensite] || '')) : '') + '</dl>' + etapes(s.description) + '</div>';
     };
     // Séance de l'IA : le prévu se lit sans se modifier ; seule la date se change (déplacer la séance) ; l'écart se dit dans le réalisé et le commentaire.
-    const champs = (verrou ? lecture() + '<div class="cal-date-ia">' + champDate + '</div><div class="cal-prevu-champs" hidden>' + champNom + champPrecisions + champsPrevu + '</div>'
+    const champs = (verrou ? lecture() + '<div class="cal-date-ia">' + champDate + '</div><div class="cal-prevu-champs" hidden>' + champNom + champPrecisions + champsPrevu + champIntensite + '</div>'
       // Ajout : « Faite » (séance passée : le réalisé seulement, saisi une fois) ou « À faire » (séance à venir : le prévu) ; présélectionné d'après la date. Modification : tout, comme avant.
       : (s ? '' : '<div class="cal-quand cal-pastilles" role="group" aria-label="Quand"><button type="button" class="mrt-pastille" data-quand="passee">Faite</button><button type="button" class="mrt-pastille" data-quand="avenir">À faire</button></div>') +
-        '<div class="cal-champs2">' + champDate + champNom + '</div>' + champPrecisions + (s ? champsPrevu : '<div class="cal-prevu-bloc">' + champsPrevu + '</div>')) +
+        '<div class="cal-champs2">' + champDate + champNom + '</div>' + champPrecisions + (s ? champsPrevu : '<div class="cal-prevu-bloc">' + champsPrevu + '</div>') + champIntensite) +
       retourHtml(s) +
       (s ? '<div class="cal-bas"><button type="button" class="mrt-btn is-danger" data-act="supprimer">' + POUBELLE + 'Supprimer la séance</button></div>' : '');
     let v;
@@ -737,7 +742,10 @@
     const montrer = () => v.querySelector('form').querySelectorAll('.cal-seul-course').forEach(e => { e.hidden = sansDistance(typeDe()); });
     // Un nom choisi propose son intensité (modifiable).
     const proposer = () => { const d = NOMS.concat(AUTRES).find(x => x.nom === f.nom.value); if (d) f.intensite.value = d.intensite; };
-    f.nom.addEventListener('change', () => { proposer(); montrer(); });
+    // Séance faite (ajout) : l'intensité ne se demande que si elle compte pour la dépense (natation, vélo) ; une séance à faire, ou modifiée, la garde toujours.
+    let quand = null, touchee = false;
+    const majIntensite = () => { const c = f.querySelector('.cal-intensite'); if (c) c.hidden = quand === 'passee' && !avecIntensite(typeDe()); };
+    f.nom.addEventListener('change', () => { proposer(); montrer(); majIntensite(); });
     if (!s) proposer();
     montrer();
     // Allure moyenne du réalisé (ou du prévu à défaut), mise à jour à la frappe.
@@ -750,7 +758,6 @@
     // Bascule Faite / À faire (ajout seulement) : faite = le réalisé seul ; à faire = le prévu seul. Présélectionnée d'après la date (avant aujourd'hui : faite),
     // elle suit la date tant qu'on n'y a pas touché.
     const aujourdhui = iso(new Date());
-    let quand = null, touchee = false;
     if (!s) {
       const defaut = () => (f.date.value && f.date.value < aujourdhui ? 'passee' : 'avenir');
       const regler = q => {
@@ -758,6 +765,7 @@
         f.querySelectorAll('[data-quand]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.quand === q)));
         f.querySelector('.cal-prevu-bloc').hidden = q === 'passee';
         f.querySelector('.cal-retour').hidden = q === 'avenir';
+        majIntensite();
         f.faite.checked = q === 'passee';
         f.faite.dispatchEvent(new Event('change'));
       };
@@ -814,9 +822,9 @@
       Object.keys(brut).forEach(k => { if (brut[k] !== null || (s && s[k] != null)) reelChamps[k] = brut[k]; });
       // Description : envoyée s'il y en a une (ou s'il y en avait une) : la base peut ne pas avoir sa colonne (évolution 043).
       const texte = f.description.value.trim(), descChamps = texte || (s && s.description) ? { description: texte || null } : {};
-      // Séance passée saisie d'un coup : le réalisé est aussi le chiffre de la séance (comme une séance importée, sans plan) ; pas d'intensité prévue.
+      // Séance passée saisie d'un coup : le réalisé est aussi le chiffre de la séance (comme une séance importée, sans plan) ; pas d'intensité (sauf natation et vélo).
       const dMin = passee ? dureeR : duree, dKm = passee ? distR : distance, dDen = passee ? denivR : deniv;
-      const champs = Object.assign({ date, type, libelle, duree_min: dMin, distance_km: sansDist || dKm === null ? null : Math.round(dKm * 10) / 10, intensite: passee ? null : f.intensite.value || null }, retour(),
+      const champs = Object.assign({ date, type, libelle, duree_min: dMin, distance_km: sansDist || dKm === null ? null : Math.round(dKm * 10) / 10, intensite: passee && !avecIntensite(type) ? null : f.intensite.value || null }, retour(),
         // Le dénivelé n'est envoyé que s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir sa colonne (évolution 039).
         !sansDist && dDen !== null ? { denivele_m: dDen } : (s && s.denivele_m != null ? { denivele_m: null } : {}), reelChamps, descChamps, degage ? { origine: 'saisie' } : {},
         s ? { date_prevue: date === s.date ? (s.date_prevue || null) : datePrevue(s, date) } : {});
@@ -941,7 +949,7 @@
     });
   }
 
-  window.mrtPreparation = { traits, lisere, reel, allure, deplacable, NOMS, NOM_RENFO, AUTRES, sansDistance, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
+  window.mrtPreparation = { traits, lisere, reel, allure, deplacable, NOMS, NOM_RENFO, AUTRES, sansDistance, avecIntensite, nomsDuType, lireLibelle, MOIS, JOURS, PHASES, NOM_PHASE, TYPES, INTENSITES, nombre, fenetre, barre, titreFenetre, iso, parse, addDays, lundiDe, jourCourt, dateCourte, longue, courte, esc, famille, lienCourse,
     ouvrirSeance, deplacer, conseils, feuilleRetour, SENSATIONS, DOULEURS, NIVEAUX_RESSENTI, niveauRessenti, charge, phasesRegle, planDe, modifsDe, confirmee, aPlan, tousLesPlans, visibles, phaseSemaine, roleDe, kmEffort, joursRecup, planSaison, phaseDe, reperesDuJour, plansDeLaSemaine, semaineHtml, frise, rubrique, brancher, ouvrirPreparer, REGLAGES,
     fenetreConseillee, minimumDe, texteAlerte, avisCourse, avisHtml, commentaireAvis, raisonAvis, sourcesHtml, suggestion, placeHtml, NIVEAUX };
 })();

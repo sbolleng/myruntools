@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.38 · 27 novembre 2026 · [Retour au sommaire](README.md) · Une seule vue Mois (ex-Mois V2, l'ancienne grille retirée) ; plus de « À noter » sur la carte d'une séance (Préparation, § 6).
+Version 0.40 · 27 novembre 2026 · [Retour au sommaire](README.md) · 3 et 6 mois : une seule colonne de numéros par bloc ; types Natation, Marche et Crossfit (les « autres sports » de Nutrition deviennent des séances) ; une seule vue Mois ; plus de « À noter » (Préparation, § 6).
 
 ## 1. Rôle
 
@@ -37,7 +37,7 @@ Les données viennent de la liste de courses de l'utilisateur, la même que pour
 
 ## 3. Vue Année
 
-La grille d'un calendrier mural : une colonne par mois, une ligne par jour ; chaque mois a ses jours (initiale et numéro), ce qui fait voir les fins de semaine. Plan enfoncé, chaque jour prend la couleur de la phase de sa semaine, avec un liseré à gauche : on voit les phases se succéder.
+La grille d'un calendrier mural : une colonne par mois, une ligne par jour ; une seule colonne de numéros à gauche, le fond de samedi et dimanche fait voir les fins de semaine. Plan enfoncé, chaque jour prend la couleur de la phase de sa semaine, avec un liseré à gauche : on voit les phases se succéder.
 
 ### 3.1 Plan de page
 
@@ -90,7 +90,7 @@ Retirés en 0.18 : les pastilles des vues (1), la case « Phases » (23) et la d
 - **Courses** : confirmées et options à venir (une option dont la date est passée disparaît), courues de la période ; ni « Repérée », ni abandonnées. La case de la course est remplie de la couleur de sa famille : pleine pour une course confirmée (statut Confirmée), atténuée et cadrée pour une option (statut Option), Texte discret pour une course courue ; son nom y est écrit, coupé s'il ne tient pas. Route ou trail : le type de la course, déduit de son format ; tout ce qui n'est pas trail est dans la famille route.
 - **Séances** (3 et 6 mois) : dans la case du jour, un liseré de 3 px à la couleur du type de séance devant chaque nom ; le type de chaque séance en toutes lettres (« Course à pied · Renforcement », un type une seule fois), atténué et barré quand toutes sont faites ; la case d'une course garde son nom ; infobulle : le type et le libellé de chaque séance. Ni case à cocher ni « + » ici : un toucher ouvre la vue Semaine du jour.
 - **Phase d'un jour** (Plan) : celle de sa semaine dans le plan de préparation (§ 2), phases modifiées à la main comprises ; fond de la couleur de la phase et liseré (7) ; une semaine en Entretien ou sans plan garde le fond ordinaire ; une case de course garde sa couleur, le liseré en plus. Pas de barres : les prépas qui se chevauchent ne sont pas montrées séparément (retiré le 6 novembre 2026, sur demande). Format sans durée de prépa : pas de plan.
-- **Jours** : chaque mois a sa colonne de jours, l'initiale et le numéro (« L 19 ») ; ses cases sont jointives et d'un même fond, jour passé compris ; samedi et dimanche ont un fond plus marqué ; un filet sous chaque dimanche ferme la semaine ; aujourd'hui : case cerclée, numéro dans un rond Accent ; l'onglet du mois en cours est en Accent.
+- **Jours** (3 et 6 mois) : une seule colonne de numéros (1 à 31), à gauche du bloc, commune à ses mois ; plus d'initiales, le fond plus marqué de samedi et dimanche suffit à repérer la semaine ; aujourd'hui : son numéro en pastille Accent et sa case encadrée. Les cases d'un mois sont jointives et d'un même fond, jour passé compris ; un filet sous chaque dimanche ; un petit espace entre deux mois.
 - **Toucher** une course ouvre sa page (rubrique Préparation ; une course courue, son résultat) ; un jour, la vue Semaine à partir du lundi de ce jour. Sur ordinateur, une infobulle donne la date, la course et la phase du jour (« Développement »).
 - **Date au mois seulement** : la course est au 1er du mois (le plan vise ce jour, § 5.1).
 
@@ -177,7 +177,7 @@ Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Ressenti » (fai
 - **Jours** : une ligne par jour, un même fond pour tous (passé compris ; seul le numéro d'un jour passé est atténué) ; le total de la semaine (28) ; le nom de la phase seulement dans la place de la semaine (29).
 - **Rendez-vous clés** : l'ouverture des inscriptions (`ouverture_inscriptions`) d'une course Confirmée ou Option.
 - **Toucher une course** (jour de course, rendez-vous clé) ouvre sa page, à la rubrique Préparation ; une course courue, son résultat.
-- **Séance** : un type (Course à pied, Renforcement, Vélo ou Danse, écrits en toutes lettres partout ; d'autres types, tapis…, s'ajouteront à la liste des types et à la base ; Vélo : durée, distance et D+ ; Danse : durée seulement, comme le Renforcement), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.
+- **Séance** : un type (Course à pied, Renforcement, Vélo, Danse, Natation, Marche ou Crossfit, écrits en toutes lettres partout ; d'autres s'ajouteront à la liste des types et à la base ; Vélo et Marche : durée, distance et D+ ; Danse, Natation, Crossfit : durée seulement, comme le Renforcement ; l'intensité se demande aussi pour une séance Faite de Natation ou de Vélo : elle compte pour la dépense, [Nutrition](module-nutrition-specification.md), § 3), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.
 - **Ajout d'une séance : Faite ou À faire** (27 nov. 2026). Le formulaire d'ajout s'ouvre sur une bascule à deux pastilles, **Faite** (séance passée) ou **À faire** (séance à venir), présélectionnée d'après la date du jour touché (avant aujourd'hui : Faite ; aujourd'hui et après : À faire) ; elle suit la date tant qu'on n'y a pas touché. **À faire** : date, séance, précisions, description, durée, distance, D+, intensité, sans « Ressenti ». **Faite** : date, séance, précisions, puis le réalisé (durée, distance, D+, FC moyenne et max), l'effort perçu, les sensations, la douleur, le commentaire : rien de prévu, rien saisi deux fois ; le réalisé est aussi le chiffre de la séance (comme une séance importée), sans intensité. Une séance Faite ne peut pas être datée dans le futur. La case « Faite » n'existe plus à l'ajout ; elle reste en modification d'une séance. Le bouton « + » reste dans la case du jour.
 - **Saisie d'une séance** : le « + » d'un jour ouvre une fenêtre (date, type, libellé de 100 caractères au plus ; puis, facultatifs, durée en minutes, distance en km et intensité : Facile, Modérée ou Intense), présentée comme la fiche d'une course : « Annuler » et « Enregistrer » en haut, le titre en libellé (« AJOUTER UNE SÉANCE »), les champs communs du site ; toucher une séance la modifie, ou la supprime par « Supprimer la séance » (à contour rouge, seul en bas, avec confirmation) ; sa case « faite » s'enregistre aussitôt. Une séance ajoutée depuis un plan est liée à sa course.
 
@@ -437,3 +437,4 @@ Résultats attendus, vue Mois (rendu) et export (§ 4.5, 4.6), séances d'essai 
 - Exporter (Calendrier, Mois d'octobre) : une page « Calendrier · Octobre 2026 », fond blanc, cinq semaines, ni case ni « + », la case du 19 dessinée pleine ; pied « MyRunTools » et « Exporté le 20 oct. 2026 » ; invisible à l'écran, seule à l'impression.
 - Exporter (Mon plan) : « Mon plan · Trail des Gorges », 20 semaines du 19 oct. 2026 au 1er mars 2027, quatre pages, fond de phase.
 - Ajout d'une séance au 21 oct. (à venir) : bascule « À faire », prévu seul, ni « Ressenti » ni case « Faite » ; date mise au 15 oct. : « Faite », réalisé seul ; un choix fait à la main n'est plus changé par la date. Faite, Vélo, 1 h 30, 31,5 km, FC 130 : séance de type vélo, faite, 90 min et 31,5 km, sans intensité, « Vitesse moyenne : 21 km/h ». Ajout au 22 oct., Danse, 60 min : ni distance ni D+ ; séance de type danse, à faire.
+- Ajout d'une séance au 16 oct. (faite), Natation : l'intensité reste demandée avec le réalisé ; Crossfit : pas d'intensité.
