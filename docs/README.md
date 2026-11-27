@@ -49,7 +49,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Guide](module-guide-specification.md) | Article de lecture, module facultatif en fin de menu : comment MyRunTools construit un plan de préparation et calcule la nutrition ; sources et limites | Version 0.3, construit |
 | [Module Préparation](module-preparation-specification.md) | Un plan de préparation qui combine toutes les courses selon leur rôle (Objectif, Préparatoire, Plaisir) ; règles d'affûtage et de récupération sourcées ; séances proposées par une IA, validées par l'utilisateur | Version 3.18, lots 1 à 4 construits (lot 3 réservé aux pilotes ; lot 4 : un seul plan, page « Mon plan ») |
 | [Mes stats](module-stats-specification.md) | Progression mois par mois (volume, D+, allure-effort, cadence, efficience cardiaque, écart de spécificité), meilleurs temps, temps estimés, allures, zones cardiaques ; analyse de l'IA ; import de l'export Strava | Version 0.4, construit (évolution 045 et fonction `analyser-stats` à passer dans Supabase) |
-| [Logistique d'une course](module-logistique-specification.md) | Bloc de la page d'une course : logement, transport, matos à cocher (catalogue mémorisé, pastille « Imposé », mode jour J), total de la course avec détail ; Mon matériel dans Mon profil | Version 0.1, à valider |
+| [Logistique d'une course](module-logistique-specification.md) | Bloc de la page d'une course : logement, transport, matos à cocher (catalogue mémorisé, pastille « Imposé », mode jour J), total de la course avec détail ; Mon matériel dans Mon profil | Version 0.5, à valider |
 
 Une spécification est rédigée pour chaque module au moment de le construire, pas avant.
 
@@ -81,7 +81,7 @@ Chaque module suit le même cycle : spécification, validation, modèle de donn�
 
 En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [todo.md](todo.md), même numéro.
 
-12. **Logistique** : construite ([spécification 0.4](module-logistique-specification.md)) ; évolutions 049 et 051 passées ; essai réel à faire ; ensuite message nutrition, kilomètres des chaussures (Palmarès, Strava), liste du règlement par l'IA.
+12. **Logistique** : construite ([spécification 0.5](module-logistique-specification.md)) ; évolutions 049 et 051 passées ; essai réel à faire ; ensuite message nutrition, kilomètres des chaussures (Palmarès, Strava), liste du règlement par l'IA.
 22. **Priorité : Mon plan et la fréquence cardiaque** : lier l'intensité du plan aux zones cardiaques (FC max, FC de repos).
 23. **Menu selon le parcours, suites** : onglets à 375 px (décision), pas à pas ludique, évolution 047 à passer, « Cette semaine » fondu dans En un coup d'œil.
 1. **Préparation, refonte de Mon plan** : ajouter le renforcement (section Renforcement de Ma semaine dans le parcours, séances de renforcement dans le plan) ; voir aussi le n° 13.
