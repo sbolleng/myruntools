@@ -418,6 +418,8 @@
     const autres = c.statut === 'option' && c.groupe_options ? suite.filter(x => x !== c && x.statut === 'option' && x.groupe_options === c.groupe_options) : [];
     const retenable = c.statut === 'option' && !!c.groupe_options;
     const marquable = c.statut === 'confirmee' && !!c.date && c.date <= aujourdhui();
+    // Passée sans résultat : le bandeau « À faire » (n° 40) tient lieu de « Départ dans · Course courue ».
+    const aFaire = !!edition && marquable && c.date < aujourdhui();
     // Site officiel (n° 30) en bas à droite de la fiche, sur la ligne d'« À propos de la course » ; « S'inscrire » (n° 29) en tête ; résultats en direct (n° 31) dans la fiche, le jour de la course seulement.
     const officiel = lienSur(c.lien) ? lienExterne(c.lien, 'Site officiel', 'pc-officiel') : '';
     const liensHaut = [lienSur(c.inscription) && !c.inscrit ? lienExterne(c.inscription, 'S\'inscrire', dossard(c).etat === 'ouvert' ? 'is-ouvert' : '') : ''].filter(Boolean);
@@ -435,7 +437,7 @@
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres options' : 'autre option') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (liensHaut.length ? '<p class="pc-liens-haut">' + liensHaut.join('') + '</p>' : '') +
-      (edition && marquable && c.date < aujourdhui() ? '<p class="pc-afaire"><b>À faire</b> · Saisis ton résultat : la course a eu lieu le ' + esc(dateCourte(c)) + '.</p>' : '') +
+      (aFaire ? '<p class="pc-afaire"><b>À faire</b> · Saisis ton résultat : la course a eu lieu le ' + esc(dateCourte(c)) + '.</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
         (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +
@@ -445,7 +447,7 @@
         (c.lieu ? ligne('Lieu', lieuHtml(c)) : '') +
         ligne('Date / heure', '<span class="pc-datelig"><span class="ob-val">' + esc([dateLongue(c, true), heureTxt(c)].filter(Boolean).join(' · ')) + '</span>' +
           (c.date && !c.date_approx ? '<button type="button" class="mrt-rond" data-ob="agenda" aria-label="Ajouter à l\'agenda" title="Ajouter à l\'agenda">' + AGENDA + '</button>' : '') + '</span>') +
-        (sansCompteur(c) ? '' : ligne('Départ dans', compteurHtml(c))) +
+        (sansCompteur(c) || aFaire ? '' : ligne('Départ dans', compteurHtml(c))) +
         (enDirect ? ligne('Résultats', lienExterne(c.lien_resultats, 'En direct', 'is-direct')) : '') +
         (distanceFiche(c) ? ligne('Distance', '<span class="ob-val">' + esc(distanceFiche(c)) + '</span>') : '') +
         (c.objectif ? ligne('Objectif', '<span class="ob-cible">' + esc(c.objectif) + '</span>' + precisions(c)) : '') +
