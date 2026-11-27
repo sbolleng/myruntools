@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Calendrier harmonisé (spécification 0.36) : Mois V2 renommée « 4 semaines » (avant Mois), bouton « Légende », Année en 12 mini-grilles, couleurs uniques des courses et des séances, repères communs (§ 4.7). Avant : retouches Logistique, aller-retour (évolution 051 passée) ; ajout d'une séance Faite / À faire, types Vélo et Danse (évolution 050 passée).
+- Dernier lot : effort obligatoire (fermer la feuille sans enregistrer décoche la séance ; plus de « À noter »). Avant : Calendrier harmonisé (0.36) : « 4 semaines », « Légende », Année en 12 mini-grilles, couleurs uniques ; ajout d'une séance Faite / À faire, Vélo et Danse (évolution 050 passée).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).

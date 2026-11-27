@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.36 · 27 novembre 2026 · [Retour au sommaire](README.md) · Mois V2 renommée « 4 semaines » (avant Mois au menu), bouton « Légende », Année en 12 mini-grilles, repères communs à toutes les vues (§ 4.7).
+Version 0.37 · 27 novembre 2026 · [Retour au sommaire](README.md) · Plus de « À noter » sur la carte d'une séance : l'effort est noté en cochant « faite » (Préparation, § 6).
 
 ## 1. Rôle
 
@@ -184,7 +184,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
                          (24) ↑ Afficher les semaines passées
 (4) SEMAINE DU 19 AU 25 OCT.                                         (28) 1/4 séances · 8/32 km
     ┌──────┬────────────────────────────────────────────────────────────────┐
-(3) │  19  │ (6, 27) ┌ Gainage 30 min  à noter ──────────────── ☑ ┐ (10) + │
+(3) │  19  │ (6, 27) ┌ Gainage 30 min ───────────────────────── ☑ ┐ (10) + │
     │ LUN. │         └ Renforcement · 30 min ─────────────────────┘        │
 (15)│ (20) │ (7)     ┌ ● 8×400 m ────────────────────────────── ☐ ┐      + │  ← cerclée
     │ MAR. │         └ Course à pied · 1 h · 11 km ───────────────┘        │
@@ -209,7 +209,7 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 | 15 | Aujourd'hui | numéro dans un rond Accent, ligne cerclée | Ligne du jour |
 | 17 | Course du jour | « Trail du Lac » | Ligne du jour |
 | 8 | Rendez-vous clé | « ◆ Ouverture des inscriptions · Corrida de Noël » | Ligne du jour |
-| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : liseré de 4 px à gauche, couleur du type de séance (§ 4.5, n° 31) ; le nom en gras (le libellé jusqu'aux deux-points) avec les trois traits de l'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; « À noter » ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
+| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : liseré de 4 px à gauche, couleur du type de séance (§ 4.5, n° 31) ; le nom en gras (le libellé jusqu'aux deux-points) avec les trois traits de l'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
 | 28 | Total de la semaine | « 1/4 séances · 8/32 km · 1 h 45/3 h 10 » : fait sur prévu pour la semaine en cours et les passées, le prévu seul pour les suivantes ; séances proposées en attente non comptées ; rien sans séance | À droite du titre 4 |
 | 29 | Place dans la préparation | « Semaine 3 sur 16 · Base » (la phase dans sa couleur), dates dessous ; seulement dans une préparation | À la place du titre 4 |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Bout de la ligne |

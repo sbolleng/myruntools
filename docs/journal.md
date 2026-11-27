@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Effort obligatoire | Pas de séance faite sans effort noté : « Enregistrer » refusé sans effort, fermer la feuille « Effort et sensations » sans enregistrer décoche la séance (sauf effort déjà noté), fenêtre de la séance idem ; repère « À noter » supprimé (les anciennes séances faites sans effort restent telles quelles). Préparation 3.18, Calendrier 0.37. |
 | 27 nov. 2026 | Noms des vues | Calendrier : « Mois V2 » devient « 4 semaines », placée avant « Mois » au menu ; « Mois » garde son nom (adresses #mois et #mois2 inchangées). |
 | 27 nov. 2026 | Calendrier harmonisé | Année en 12 mini-grilles (numéro discret, initiales, total du mois, point de séance) ; repères communs : week-end plus foncé dans toutes les grilles, aujourd'hui en pastille et cadre, coins de 4 px, course pleine (confirmée) ou à 50 % (option) partout, « + » d'une seule taille ; spécification 0.35. |
 | 27 nov. 2026 | Guide 0.4 | La section Nutrition du Guide dit les MET du Vélo (par vitesse, ou par intensité) et de la Danse (5), et retire le vélo des autres sports. |
