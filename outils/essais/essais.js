@@ -2458,8 +2458,9 @@ const CONTROLES = {
     const fondM = j => p.evaluate(x => getComputedStyle(document.querySelector('.cal-m-case[data-jour="' + x + '"]')).backgroundColor, j);
     pb.push(egal([35, 'ph-base', 'ph-deload', 'ph-developpement', true, true],
       [r.phases.length, (r.phases.find(x => x[0] === '2026-12-01') || [])[1], (r.phases.find(x => x[0] === '2026-12-07') || [])[1], (r.phases.find(x => x[0] === '2027-01-01') || [])[1],
-        await fondM('2026-12-01') === await fondM('2026-12-06'), await fondM('2026-12-29') === await fondM('2027-01-02')],
-      'Plan, décembre : fond de phase de la saison du Trail des Gorges (base, deload la semaine du 7, développement le 1er janvier), le même pour toute la semaine, jours voisins compris'));
+        await fondM('2026-12-01') === await fondM('2026-12-04') && await fondM('2026-12-05') === await fondM('2026-12-06') && await fondM('2026-12-04') !== await fondM('2026-12-05'),
+        await fondM('2026-12-29') === await fondM('2027-01-01')],
+      'Plan, décembre : fond de phase de la saison du Trail des Gorges (base, deload la semaine du 7, développement le 1er janvier), le même du lundi au vendredi, un cran de plus le week-end, jours voisins compris'));
     await ctx.close();
     // Navigation, case « faite », « + », séance touchée, jour touché, course et rendez-vous touchés.
     d = copie();
