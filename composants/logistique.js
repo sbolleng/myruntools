@@ -251,12 +251,12 @@
     const logC = S.logements.filter(confirme), logO = S.logements.filter(option), traC = S.trajets.filter(confirme), traO = S.trajets.filter(option);
     const vide = !logC.length && !logO.length && !traC.length && !traO.length && !S.matos.length && !c.logistique;
     const carte = (c.latitude != null || S.logements.some(l => l.latitude != null && !(l.statut === 'non_retenu'))) ? '<div class="lg-plan"></div>' : '';
-    const logements = logC.length || logO.length ? '<div class="lg-rubrique"><p class="pc-sous-titre">Logement</p>' + carte + logC.map(l => ligneLogement(l, c)).join('') + enOption(logO, 'logement', 'logements', x => x.nom) + '</div>' : '';
-    const trajets = traC.length || traO.length ? '<div class="lg-rubrique"><p class="pc-sous-titre">Transport</p>' + traC.map(ligneTrajet).join('') + enOption(traO, 'transport', 'transports', titreTrajet) + '</div>' : '';
+    const logements = logC.length || logO.length ? '<div class="lg-rubrique"><h4 class="lg-rub-titre">Logement</h4>' + logC.map(l => ligneLogement(l, c)).join('') + enOption(logO, 'logement', 'logements', x => x.nom) + carte + '</div>' : '';
+    const trajets = traC.length || traO.length ? '<div class="lg-rubrique"><h4 class="lg-rub-titre">Transport</h4>' + traC.map(ligneTrajet).join('') + enOption(traO, 'transport', 'transports', titreTrajet) + '</div>' : '';
     const articles = articlesDe(S), pris = articles.filter(a => a.pris).length;
-    const matos = articles.length ? '<div class="lg-rubrique"><p class="pc-sous-titre lg-titre">Matos <span class="lg-compte">' + pris + ' / ' + articles.length + ' pris</span>' +
-      '<span class="lg-actions"><button type="button" class="mrt-btn" data-lg-act="jour-j">Jour J</button></span></p>' + parGroupe(articles, a => ligneCoche(a, S, false)) + '</div>' : '';
-    const notes = c.logistique ? '<div class="lg-rubrique"><p class="pc-sous-titre">Notes</p><p>' + esc(c.logistique).replace(/\n/g, '<br>') + '</p></div>' : '';
+    const matos = articles.length ? '<div class="lg-rubrique"><h4 class="lg-rub-titre lg-titre">Matos <span class="lg-compte">' + pris + ' / ' + articles.length + ' pris</span>' +
+      '<span class="lg-actions"><button type="button" class="mrt-btn" data-lg-act="jour-j">Jour J</button></span></h4>' + parGroupe(articles, a => ligneCoche(a, S, false)) + '</div>' : '';
+    const notes = c.logistique ? '<div class="lg-rubrique"><h4 class="lg-rub-titre">Notes</h4><p>' + esc(c.logistique).replace(/\n/g, '<br>') + '</p></div>' : '';
     return totalHtml + logements + trajets + matos + notes + (vide ? '<p class="pc-vide">Rien de prévu : « Modifier la course » pour ajouter logement, transport et matos.</p>' : '');
   }
   function brancher(el, c) {
@@ -336,6 +336,11 @@
   const pastilles = (act, choix, v, extra) => '<span class="lg-pastilles">' + choix.map(([k, lib]) => '<button type="button" class="mrt-pastille' + (k === v ? ' is-on' : '') + '" aria-pressed="' + (k === v) + '" data-ed="' + act + '" data-v="' + k + '"' + (extra || '') + '>' + lib + '</button>').join('') + '</span>';
   const champE = (f, lib, v, type, extra, large) => '<div class="lg-champ' + (large ? ' lg-large' : '') + '"><label>' + lib + '</label><input class="mrt-champ" data-f="' + f + '" type="' + (type || 'text') + '" value="' + esc(v == null ? '' : v) + '"' + (extra || '') + '></div>';
   const quandE = (f, lib, v) => '<div class="lg-champ"><label>' + lib + '</label><span class="lg-duo"><input class="mrt-champ" type="date" data-f="' + f + ':d" value="' + esc(jourDe(v)) + '" aria-label="' + lib + ', jour"><input class="mrt-champ" type="time" data-f="' + f + ':h" value="' + esc(heureDe(v) === '00:00' ? '' : heureDe(v)) + '" aria-label="' + lib + ', heure"></span></div>';
+  // Réglages d'une carte : listes (Mode, État) et case Aller-retour, sur une ligne ; Replier et Supprimer en bas.
+  const choixE = (k, lib, options, v) => '<label class="lg-reglage"><span>' + lib + '</span><select class="mrt-champ" data-ed-sel="' + k + '">' +
+    options.map(([o, l]) => '<option value="' + o + '"' + (o === v ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></label>';
+  const piedE = (x, mot) => '<div class="lg-carte-pied">' + (x._nouveau ? '<span></span>' : '<button type="button" class="mrt-lien" data-ed="replier">Replier</button>') +
+    '<button type="button" class="mrt-lien is-danger" data-ed="supprimer">Supprimer ' + mot + '</button></div>';
   const etiquette = s => '<span class="lg-etat is-' + (s || 'confirme') + '">' + (STATUTS.find(x => x[0] === (s || 'confirme')) || [])[1] + '</span>';
 
   function edition(zone, c) {
@@ -360,13 +365,11 @@
           (l.adresse ? '<span class="lg-carte-l">' + esc(l.adresse) + (d ? ' · ' + d + ' du départ' : '') + '</span>' : '') +
           (l.arrivee || l.depart ? '<span class="lg-carte-l">' + fleches(esc([quand(l.arrivee), quand(l.depart)].filter(Boolean).join(' → '))) + '</span>' : '') + '</div></div>';
       }
-      return '<div class="' + cls + ' is-ouverte" data-k="' + l._k + '"><div class="lg-carte-h">' + pastilles('statut', STATUTS, l.statut || 'confirme') +
-        '<button type="button" class="mrt-lien is-danger" data-ed="supprimer">Supprimer</button></div>' +
+      return '<div class="' + cls + ' is-ouverte" data-k="' + l._k + '"><div class="lg-reglages">' + choixE('statut', 'État', STATUTS, l.statut || 'confirme') + '</div>' +
         '<div class="lg-grille">' + champE('nom', 'Nom', l.nom, 'text', ' maxlength="100"') + champE('url', 'Lien', l.url, 'url', ' maxlength="500" placeholder="https://"') +
         '<div class="lg-champ lg-large"><label>Adresse</label><div class="lg-auto"><input class="mrt-champ" data-f="adresse" type="text" value="' + esc(l.adresse || '') + '" maxlength="200" placeholder="Commence à taper l\'adresse"></div></div>' +
         quandE('arrivee', 'Arrivée', l.arrivee) + quandE('depart', 'Départ', l.depart) +
-        champE('prix', 'Prix (€)', l.prix != null ? String(l.prix).replace('.', ',') : '', 'text', ' inputmode="decimal"') + '</div>' +
-        (l._nouveau ? '' : '<button type="button" class="mrt-lien lg-replier" data-ed="replier">Replier</button>') + '</div>';
+        champE('prix', 'Prix (€)', l.prix != null ? String(l.prix).replace('.', ',') : '', 'text', ' inputmode="decimal"') + '</div>' + piedE(l, 'ce logement') + '</div>';
     }
     // --- Cartes de transport ---
     function carteTrajet(t) {
@@ -382,14 +385,12 @@
         (voiture ? '' : quandE(pre + 'depart', 'Départ', t[pre + 'depart'])) +
         '<div class="lg-champ"><label>À</label><input class="mrt-champ" data-f="' + pre + 'lieu_arrivee" value="' + esc(t[pre + 'lieu_arrivee'] || '') + '" maxlength="100"></div>' +
         (voiture ? '' : quandE(pre + 'arrivee', 'Arrivée', t[pre + 'arrivee'])) + '</div></div>';
-      return '<div class="' + cls + ' is-ouverte" data-k="' + t._k + '"><div class="lg-carte-h">' + pastilles('statut', STATUTS, t.statut || 'confirme') +
-        '<button type="button" class="mrt-lien is-danger" data-ed="supprimer">Supprimer</button></div>' +
-        '<div class="lg-ligne-p">' + pastilles('type', TYPES_TRAJET, t.type || 'train') + '</div>' +
-        '<div class="lg-ligne-p">' + pastilles('ar', [['simple', 'Aller simple'], ['ar', 'Aller-retour']], ar ? 'ar' : 'simple') + '</div>' +
+      return '<div class="' + cls + ' is-ouverte" data-k="' + t._k + '"><div class="lg-reglages">' + choixE('type', 'Mode', TYPES_TRAJET, t.type || 'train') +
+        '<label class="lg-reglage lg-bascule"><span class="mrt-coche"><input type="checkbox" data-ed-coche="ar"' + (ar ? ' checked' : '') + '></span>Aller-retour</label>' +
+        choixE('statut', 'État', STATUTS, t.statut || 'confirme') + '</div>' +
         sens('', ar ? 'Aller' : 'Trajet') + (ar ? sens('retour_', 'Retour') : '') +
         '<div class="lg-grille">' + champE('prix', ar ? 'Prix de l\'aller-retour (€)' : 'Prix (€)', t.prix != null ? String(t.prix).replace('.', ',') : '', 'text', ' inputmode="decimal"') +
-        champE('url', 'Lien de réservation', t.url, 'url', ' maxlength="500" placeholder="https://"') + '</div>' +
-        (t._nouveau ? '' : '<button type="button" class="mrt-lien lg-replier" data-ed="replier">Replier</button>') + '</div>';
+        champE('url', 'Lien de réservation', t.url, 'url', ' maxlength="500" placeholder="https://"') + '</div>' + piedE(t, 'ce transport') + '</div>';
     }
     function rubrique(r) {
       const box = zone.querySelector('.lg-cartes[data-r="' + r + '"]');
@@ -483,14 +484,6 @@
       if (!x) return;
       if (act === 'deplier') { E.ouverts.add(x._k); rubrique(r); return; }
       if (act === 'replier') { E.ouverts.delete(x._k); rubrique(r); return; }
-      if (act === 'statut') { x.statut = b.dataset.v; rubrique(r); return; }
-      if (act === 'type') { x.type = b.dataset.v; rubrique(r); return; }
-      if (act === 'ar') {
-        x.prix_aller_retour = b.dataset.v === 'ar';
-        // Retour présaisi à l'envers, tant qu'il est vide.
-        if (x.prix_aller_retour) { if (!x.retour_lieu_depart) x.retour_lieu_depart = x.lieu_arrivee || ''; if (!x.retour_lieu_arrivee) x.retour_lieu_arrivee = x.lieu_depart || ''; }
-        rubrique(r); return;
-      }
       if (act === 'supprimer') {
         if (!x._nouveau && !await window.mrtConfirmer({ texte: r === 'logement' ? 'Supprimer ce logement ?' : 'Supprimer ce transport ?', action: 'Supprimer', danger: true })) return;
         if (!x._nouveau) E.suppr[r].add(x.id);
@@ -510,6 +503,17 @@
       else x[f] = ev.target.value;
       if (f === 'adresse') { x.latitude = null; x.longitude = null; } // saisie à la main : coordonnées cherchées à l'enregistrement
       if (f === 'nom' || f === 'prix') zone.querySelector('.lg-somme[data-r="' + rubriqueDe(ev.target) + '"]').textContent = sommes(rubriqueDe(ev.target));
+    });
+    // Réglages d'une carte (Mode, État, Aller-retour) : la carte est redessinée (champs de la voiture, bloc Retour).
+    zone.addEventListener('change', ev => {
+      const t = ev.target, k = t.dataset.edSel || (t.dataset.edCoche === 'ar' ? 'ar' : null), x = k && element(t);
+      if (!x) return;
+      if (k === 'ar') {
+        x.prix_aller_retour = t.checked;
+        // Retour présaisi à l'envers, tant qu'il est vide.
+        if (x.prix_aller_retour) { if (!x.retour_lieu_depart) x.retour_lieu_depart = x.lieu_arrivee || ''; if (!x.retour_lieu_arrivee) x.retour_lieu_arrivee = x.lieu_depart || ''; }
+      } else x[k] = t.value;
+      rubrique(rubriqueDe(t));
     });
     zone.addEventListener('change', ev => {
       const art = ev.target.closest('[data-article]'), m = art && E.matos.find(y => y.article === art.dataset.article);

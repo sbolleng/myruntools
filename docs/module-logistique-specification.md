@@ -1,6 +1,6 @@
 # Logistique d'une course · spécification fonctionnelle
 
-Version 0.6 · 28 novembre 2026 · [Retour au sommaire](README.md) · La saisie passe dans la fiche « Modifier la course » (cartes Option, Confirmé, Non retenu ; autocomplétion des adresses et du matos ; carte des logements) ; la page de la course ne fait qu'afficher ; « Ta course approche » dans En un coup d'œil à J-5.
+Version 0.7 · 28 novembre 2026 · [Retour au sommaire](README.md) · Cartes d'édition : Mode et État en listes, Aller-retour en case à cocher, sur une ligne ; « Supprimer ce logement / ce transport » en bas ; page de la course : vrais titres de rubrique, filet entre elles, carte sous le logement.
 
 ## 1. Rôle
 
@@ -39,23 +39,23 @@ Un seul « Annuler · Enregistrer », celui de la fiche : rien ne s'enregistre d
   (27) ┌ Gîte des Crêtes            [CONFIRMÉ]   180 € ┐   carte enregistrée : repliée,
        │ 12 rue des Crêtes, Mont-Clair · à 1 km du départ │   un toucher la déplie
        └ ven. 5 mars · 17 h → dim. 7 mars · 10 h        ┘
-  (27) ┌ (47) (Option) (Confirmé) (Non retenu)      (28) Supprimer ┐  carte dépliée
+  (27) ┌                                   (55) État [Option ▾]  ┐  carte dépliée
        │ (29) Nom [        ]           (34) Lien [https://… ]      │
        │ (30) Adresse [quai du La|                             ]   │
        │ (31) ┌ 4 Quai du Lac, 42000 Mont-Clair   à 1,8 km du départ ┐
        │ (32) Arrivée [jour][heure]     Départ [jour][heure]        │
-       │ (33) Prix [  ] €                       (51) Replier         │
+       │ (33) Prix [  ] €                                             │
+       │ (51) Replier                    (56) Supprimer ce logement   │
   (48) Non retenus (1)
   (35) [Ajouter un logement]
 
   TRANSPORT                             Confirmé : 100 €
-  ┌ (47) (Option) (Confirmé) (Non retenu)              Supprimer ┐
-  │ (36) (Train) (Avion) (Voiture) (Bus) (Autre)                  │
-  │ (37) (Aller simple) (Aller-retour)                            │
+  ┌ (53) Mode [Train ▾]  (54) [x] Aller-retour   (55) État [Confirmé ▾] ┐
   │ (38) ALLER   De [      ] Départ [jour][heure]                 │
   │              À  [      ] Arrivée [jour][heure]                │
   │ (39) RETOUR  De [présaisi] …   À [présaisi] …                 │
   │ (40) Prix de l'aller-retour [  ] €   Lien de réservation [  ] │
+  │ (51) Replier                         (56) Supprimer ce transport │
   (41) [Ajouter un transport]
 
   MATOS
@@ -75,20 +75,23 @@ Sur téléphone : même ordre, une colonne ; les pastilles passent à la ligne.
 | N° | Élément | Rôle |
 | --- | --- | --- |
 | 27 | Carte (logement ou transport) | Enregistrée : repliée à l'ouverture de la fiche (résumé : nom ou mode, état, prix, adresse et distance, dates) ; un toucher la déplie. Nouvelle : dépliée. Option : contour en tirets. |
-| 28 | Supprimer | Lien en Alerte ; confirmation pour une carte enregistrée ; effectif à « Enregistrer ». |
+| 28 | (remplacé par 56) | |
 | 29–34 | Champs du logement | Nom, adresse, arrivée et départ (jour et heure), prix, lien. |
 | 30–31 | Adresse et autocomplétion | Propositions sous le champ pendant la frappe (dès 3 lettres) : Photon (OpenStreetMap), les plus proches du départ d'abord, avec la distance ; flèches, Entrée, Échap. Une adresse saisie à la main reçoit ses coordonnées à l'enregistrement (première proposition). |
 | 35, 41 | Ajouter un logement, Ajouter un transport | Bouton secondaire, sous la dernière carte ; la nouvelle carte est en Option. |
-| 36 | Mode | Pastilles. Voiture : De, À et prix seulement (pas de jours ni d'heures). |
-| 37 | Aller simple / Aller-retour | Pastilles, pour tous les modes. Aller-retour : bloc Retour (39), lieux présaisis à l'envers, **un seul prix** (40). Une seule ligne en base. |
+| 36, 37 | (remplacés par 53, 54) | |
 | 42 | Ajouter un article | Autocomplétion sur le catalogue de l'utilisateur ; « Ajouter « … » comme nouvel article » s'il n'existe pas. |
 | 43 | Groupe | Pastilles En course, Avant-après, Autres ; le groupe est celui de l'article (catalogue), donc le même d'une course à l'autre. Aucun rangement imposé : Autres par défaut. |
 | 44–46 | Imposé, équipement, retirer | L'équipement n'est proposé que si Mon matériel en a un du type évoqué par le nom (Chaussures, Frontale, Bâtons, Sac, Montre). |
-| 47 | État | Pastilles Option, Confirmé, Non retenu. |
+| 47 | (remplacé par 55) | |
 | 48 | Non retenus | Regroupés en une ligne « Non retenus (n) » ; un toucher les montre. |
 | 49 | Sommes de la rubrique | Confirmé et en option, à part. |
 | 50 | Carte des logements | Plan OpenStreetMap, centré sur le départ (ses coordonnées) ; repères : départ (Accent), confirmé (plein), option (vide) ; non retenus absents. Absente sans aucune coordonnée. |
 | 51 | Replier | Referme une carte enregistrée dépliée. |
+| 53 | Mode | Liste : Train, Avion, Voiture, Bus, Autre. Voiture : De, À et prix seulement (pas de jours ni d'heures). |
+| 54 | Aller-retour | Case à cocher, pour tous les modes : bloc Retour (39), lieux présaisis à l'envers, **un seul prix** (40). Une seule ligne en base. |
+| 55 | État | Liste : Option, Confirmé, Non retenu ; à droite de la ligne de réglages (seule sur la ligne pour un logement). |
+| 56 | Supprimer ce logement, Supprimer ce transport | Lien en Alerte, en bas à droite de la carte (« Replier » en bas à gauche) ; confirmation pour une carte enregistrée ; effectif à « Enregistrer ». Le bouton Danger reste réservé à « Supprimer la course », seul en bas de la fiche. |
 
 Contrôle avant d'enregistrer : chaque logement a un nom (« Indique le nom de chaque logement. », la fiche reste ouverte). Une carte neuve laissée vide est ignorée.
 
@@ -97,21 +100,24 @@ Contrôle avant d'enregistrer : chaque logement a un nom (« Indique le nom de c
 ```
 ⌄ Logistique                                          (1) 338 €
   (2) Total 338 € ▾ → Dossard 58 € / Logement 180 € / Transport 100 € / En option : 95 €
-  LOGEMENT
-  (50) carte
+  (57) Logement
   (5) Gîte des Crêtes (8) ↗                              (7) 180 €
   (6) 12 rue des Crêtes, Mont-Clair → menu (26) · à 1 km du départ
   (9) Arrivée : ven. 5 mars · 17 h
   (10) Départ : dim. 7 mars · 10 h
   (52) 1 logement en option (Gîte du Lac, 95 €)
-  TRANSPORT
+  (50) carte
+  ──────────────────────────────────────────── (58) filet
+  (57) Transport
   (14) Avion · aller-retour ↗                              100 €
   (15) Aller : Aéroport de Lyon 8 h 12 → Aéroport de Nice, sam. 6 mars
        Retour : Aéroport de Nice 18 h → Aéroport de Lyon, lun. 8 mars
-  MATOS (18) 1 / 2 pris                                 (19) [Jour J]
+  ────────────────────────────────────────────
+  (57) Matos (18) 1 / 2 pris                                 (19) [Jour J]
   EN COURSE   [x] Frontale  IMPOSÉ  Petzl Actik
   AUTRES      [ ] Gants
-  NOTES (25)
+  ────────────────────────────────────────────
+  (57) Notes (25)
 ```
 
 Aucun crayon, aucun « Ajouter » : on modifie par « Modifier la course ». Seuls les éléments confirmés sont détaillés ; les options tiennent en une ligne (52) ; les non retenus n'apparaissent pas. Rien de saisi : « Rien de prévu : « Modifier la course » pour ajouter logement, transport et matos. »
@@ -123,6 +129,8 @@ Aucun crayon, aucun « Ajouter » : on modifie par « Modifier la course ». Seu
 | 8 | Lien | Flèche juste à côté du nom (logement : l'annonce ; transport : la réservation). |
 | 18, 19, 21 | Matos | Cases « Pris » enregistrées aussitôt, par groupe (imposés d'abord) ; « Jour J » : la liste seule, plein écran, grandes cases. |
 | 52 | Options | « n logement(s) en option (nom, prix) », de même pour les transports. |
+| 57 | Titres de rubrique | Logement, Transport, Matos, Notes : titres de section (taille du texte courant, gras, Texte), plus de petit libellé en capitales. |
+| 58 | Filet | Un filet fin (Bordure) et un espace au-dessus de chaque rubrique, sauf la première ; la carte vient sous les lignes du logement. |
 
 ### 3.3 En un coup d'œil : « Ta course approche »
 
