@@ -500,8 +500,10 @@
   }
   // Feuille « Effort et sensations » : s'ouvre quand une séance est cochée « faite » (vues du Calendrier, grille de Mon plan,
   // En un coup d'œil, Nutrition). La petite feuille du site (hauteur du contenu ; feuille du bas sur téléphone) ; en tête, le type
-  // et le jour en libellé, puis le nom de la séance (avant « : ») et son détail (après) ; « Enregistrer » en bas ; la croix ferme.
-  function feuilleRetour(ctx, s) {
+  // et le jour en libellé, puis le nom de la séance (avant « : ») et son détail (après) ; « Enregistrer » en bas, l'effort obligatoire.
+  // Pas de séance faite sans effort noté : fermer sans enregistrer décoche la séance (sauf si son effort était déjà noté) ;
+  // annule() redessine la page appelante, ctx.actualiser à défaut.
+  function feuilleRetour(ctx, s, annule) {
     const lib = String(s.libelle || ''), k = lib.indexOf(' : ') >= 0 ? lib.indexOf(' : ') : lib.indexOf(': ');
     const nom = k > 0 ? lib.slice(0, k).trim() : lib, detail = k > 0 ? lib.slice(k + (lib[k] === ' ' ? 3 : 2)).trim() : '';
     const voile = document.createElement('div');
@@ -515,7 +517,14 @@
       '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form></div></div>';
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
-    const fermer = () => { voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', echap); };
+    let range = false;
+    const fermer = async () => {
+      voile.remove(); document.documentElement.classList.remove('mc-ouvert'); document.removeEventListener('keydown', echap);
+      if (range || s.ressenti) return;
+      const { error } = await window.mrtSupabase.from('seances').update({ faite: false }).eq('id', s.id);
+      if (error) console.warn(error);
+      if (annule) annule(); else if (ctx.actualiser) await ctx.actualiser();
+    };
     const echap = e => { if (e.key === 'Escape' && !document.querySelector('.mrt-dialogue')) fermer(); };
     document.addEventListener('keydown', echap);
     voile.addEventListener('mousedown', e => { if (e.target === voile) fermer(); });
@@ -545,8 +554,10 @@
       const brut = { duree_reelle_min: dureeR, distance_reelle_km: !renfo && distR !== null ? Math.round(distR * 10) / 10 : null, denivele_reel_m: renfo ? null : denivR, fc_moyenne: fcM, fc_max: fcX }, reelChamps = {};
       Object.keys(brut).forEach(k => { if (brut[k] !== null || s[k] != null) reelChamps[k] = brut[k]; });
       const champs = Object.assign(lire(), reelChamps);
+      if (!champs.ressenti) return void (m.textContent = 'Note ton effort perçu pour enregistrer la séance faite.');
       const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
       if (error) { const m = voile.querySelector('.cal-msg'); m.textContent = error.code === 'PGRST204' || /column/i.test(String(error.message || '')) ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.'; m.scrollIntoView({ block: 'nearest' }); console.warn(error); return; }
+      range = true;
       if (ctx.actualiser) await ctx.actualiser();
       // L'effort est noté : l'IA analyse la séance, dans cette même feuille (animation d'attente, puis le texte).
       if (analysable(s, champs)) analyseDans(voile, ctx, Object.assign({}, s, champs), fermer); else fermer();
@@ -743,6 +754,7 @@
       // Réalisé : seulement d'une séance faite ; envoyé s'il y en a un (ou s'il y en avait un) : la base peut ne pas avoir ses colonnes (évolution 042).
       const faiteCochee = f.faite.checked, dureeR = nombre(f.duree_reelle.value), distR = nombre(f.distance_reelle.value), denivR = nombre(f.denivele_reel.value), fcM = nombre(f.fc_moyenne.value), fcX = nombre(f.fc_max.value);
       if (faiteCochee) {
+        if (!(s && s.faite) && !retour().ressenti) return void (msg.textContent = 'Note ton effort perçu pour marquer la séance faite.');
         if (dureeR !== null && !(Number.isInteger(dureeR) && dureeR >= 1 && dureeR <= 1440)) return void (msg.textContent = 'La durée réalisée doit être un nombre de minutes entre 1 et 1 440.');
         if (!renfo && distR !== null && !(distR >= 0.1 && distR < 1000)) return void (msg.textContent = 'La distance réalisée doit être comprise entre 0,1 et 999 km.');
         if (!renfo && denivR !== null && !(Number.isInteger(denivR) && denivR >= 1 && denivR < 10000)) return void (msg.textContent = 'Le dénivelé réalisé doit être un nombre de mètres entre 1 et 9 999.');
@@ -859,10 +871,8 @@
     }
     root.addEventListener('click', e => {
       const ajout = e.target.closest('[data-ajout]'), edit = e.target.closest('[data-edit]'), prep = e.target.closest('[data-preparer]');
-      const noter = e.target.closest('[data-noter]');
-      if (noter) { const s = (ctx.seances || []).find(x => x.id === noter.dataset.noter); if (s) feuilleRetour(ctx, s); return; }
-      // Toute la carte d'une séance ouvre sa fenêtre, sauf la case « faite », « à noter » et les liens.
-      const carte = !edit && !ajout && !noter && !prep && e.target.closest('[data-carte]');
+      // Toute la carte d'une séance ouvre sa fenêtre, sauf la case « faite » et les liens.
+      const carte = !edit && !ajout && !prep && e.target.closest('[data-carte]');
       if (carte && !e.target.closest('input, button, a, label')) ouvrirSeance(ctx, { seance: ctx.seances.find(s => s.id === carte.dataset.carte) });
       else if (ajout) ouvrirSeance(ctx, { date: ajout.dataset.ajout, course: courseId || null });
       else if (edit) ouvrirSeance(ctx, { seance: ctx.seances.find(s => s.id === edit.dataset.edit) });
@@ -873,7 +883,7 @@
       if (!fait) return;
       const { error } = await window.mrtSupabase.from('seances').update({ faite: e.target.checked }).eq('id', fait);
       if (error) { e.target.checked = !e.target.checked; console.warn(error); return; }
-      // Cochée « faite » : la feuille « Effort et sensations » s'ouvre aussitôt (la croix ou « Plus tard » la ferment).
+      // Cochée « faite » : la feuille « Effort et sensations » s'ouvre aussitôt (la fermer sans enregistrer décoche la séance).
       const s = e.target.checked && (ctx.seances || []).find(x => x.id === fait);
       if (s) feuilleRetour(ctx, Object.assign({}, s, { faite: true }));
       ctx.actualiser();
