@@ -260,7 +260,6 @@
 .cal-carte[data-carte] { cursor: pointer; }
 .cal-carte[data-carte]:hover { border-color: var(--accent); }
 .cal-carte .cal-v-anoter { margin-left: 0; }
-.cal-repos { font-size: var(--t-second); color: var(--muted); }
 /* Légende des phases : l'Entretien en gris (ses jours gardent le fond ordinaire). */
 .cal-legende .cal-k.ph-entretien { background: var(--ph-entretien); }
 
@@ -283,7 +282,6 @@
 .cal-m2-num { align-self: flex-start; min-width: 1.35rem; padding: 0 0.3rem; font-size: var(--t-petit); font-weight: 600; line-height: 1.35rem; text-align: center; color: var(--text); border-radius: 999px; }
 .cal-m2-case.passe .cal-m2-num { color: var(--muted); }
 .cal-m2-num.auj, .cal-m2-case.passe .cal-m2-num.auj { color: var(--bg); background: var(--accent); }
-.cal-m2-case .cal-repos { align-self: center; margin: auto 0; font-size: var(--t-petit); }
 .cal-m2-case .cal-v-plus { right: 0.3rem; bottom: 0.3rem; }
 /* Carte d'une séance : liseré de 4 px à gauche, mesure en gras, nom dessous, détail discret ; case « faite » en haut à droite. */
 .cal-m2-se, .cal-m2-course { position: relative; display: flex; align-items: flex-start; gap: 0.2rem; min-width: 0; padding: 0.3rem 0.3rem 0.3rem 0.5rem; text-align: center;
@@ -333,7 +331,6 @@ b.cal-m2-nom { font-size: var(--t-second); }
   .cal-m2-int-tel { display: block; } .cal-m2-nom .cal-int { display: flex; width: max-content; height: 0.6rem; margin: 0.1rem auto 0.15rem; }
   .cal-m2-se, .cal-m2-course { padding: 0.15rem 0.1rem 0.15rem 0.2rem; border-left-width: 3px; }
   .cal-m2-nom, b.cal-m2-nom { font-size: var(--t-micro); }
-  .cal-m2-case .cal-repos { font-size: var(--t-micro); }
 }
 .cal-menu-btn { white-space: nowrap; }
 .cal-vide { margin: 0 0 1rem; text-align: center; font-size: var(--t-second); color: var(--muted); }

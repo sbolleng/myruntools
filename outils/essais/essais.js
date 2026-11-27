@@ -2322,7 +2322,7 @@ const CONTROLES = {
         egal([['2026-10-19', 'l-renfo', 'Renforcement', undefined, 'Gainage 30 min', true, 0], ['2026-10-20', 'l-frac', '1 h', 'Fractionné', '8×400 m', false, 3],
           ['2026-10-22', 'l-neutre', '7 km', 'Endurance', '', false, 1], ['2026-10-24', 'l-sl', '12,5 km', 'Sortie longue', '', false, 2]], r.cartes,
           nom + ', cartes : liseré du type de séance (Renforcement, Fractionné, Endurance neutre, Sortie longue), traits de l\'intensité, mesure en gras (distance, sinon durée, sinon le nom), nom, détail'),
-        egal(['2026-10-21', '2026-10-23', '2026-10-25'], r.repos, nom + ', « Repos » les jours vides d\'une semaine qui a des séances'),
+        egal([], r.repos, nom + ', plus de « Repos » : un jour vide reste vide'),
         egal([true, true], [r.libelles[3].includes('19 oct.'), r.libelles[3].includes('1/4 séances · 0/19,5 km')], nom + ', libellé de la semaine : date du lundi, total'),
         egal([w < 600 ? 0 : 4, w < 600 ? 0 : 35], [r.cases === 4 && w < 600 ? 0 : r.cases, w < 600 ? 0 : r.plus], nom + ', case « faite » et « + » (ordinateur ; masqués sur téléphone)'),
         egal([], r.legende, nom + ', pas de légende des liserés'),
@@ -2882,7 +2882,7 @@ const CONTROLES = {
     let r = await lire(p);
     pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier à côté du titre'),
         egal(['Calendrier', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » sur la ligne du nom, le rond « i » vers le Guide à droite de la ligne des courses ; plus de lien du Guide en bas ; « Calendrier › »'));
-    pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
+    pb.push(egal([], r.repos, 'jour sans séance : plus de « Repos », la ligne reste vide'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
     await p.waitForSelector('.ps-objectif');

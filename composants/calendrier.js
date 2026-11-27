@@ -101,7 +101,7 @@
     return x.saison ? 'Semaine ' + x.n + ' sur ' + x.saison.semaines.length + ' · ' + phase : phase;
   }
   window.mrtSemaineDuPlan = semaineDuPlan;
-  // « Cette semaine » de Mon plan : une ligne par jour, la course du jour (rôle, repère), les cartes des séances ou « Repos » et « + » ;
+  // « Cette semaine » de Mon plan : une ligne par jour, la course du jour (rôle, repère), les cartes des séances et « + » (un jour vide reste vide) ;
   // opts.plus(jour) : ce qui s'ajoute (repères, séances proposées en attente).
   window.mrtCetteSemaine = function (ctx, lundi, opts) {
     const o = opts || {}, auj = iso(new Date()), cc = contenus(ctx), courses = visibles(ctx.courses, lundi, addDays(lundi, 6), auj);
@@ -109,7 +109,7 @@
     for (let i = 0; i < 7; i++) {
       const j = addDays(lundi, i), d = parse(j), se = ctx.seances.filter(s => s.date === j && s.etat !== 'proposee'), cs = courses.filter(c => c.date === j), plus = o.plus ? o.plus(j) : '';
       h += '<div class="cal-s-ligne' + (j < auj ? ' passe' : '') + (j === auj ? ' auj' : '') + '" data-jour-ligne="' + j + '"><span class="cal-s-date"><b>' + d.getDate() + '</b><small>' + JOURS[d.getDay()] + '</small></span><span class="cal-s-contenu">' +
-        cs.map(cc.courseHtml).join('') + se.map(cc.carteHtml).join('') + plus + (!se.length && !cs.length && !plus ? '<span class="cal-repos">Repos</span>' : '') + '</span>' + cc.plusHtml(j) + '</div>';
+        cs.map(cc.courseHtml).join('') + se.map(cc.carteHtml).join('') + plus + '</span>' + cc.plusHtml(j) + '</div>';
     }
     return h + '</div>';
   };
@@ -142,7 +142,7 @@
   // ----- Mois V2 et export (spécification du Calendrier, § 4.5 et 4.6) : une ligne par semaine, son libellé à gauche (place dans
   // le plan, date du lundi, total), une colonne par jour ; chaque séance en carte à liseré (couleur du type de séance : Sortie longue,
   // Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), les trois traits de l'intensité devant la mesure en gras (distance, sinon durée),
-  // le nom dessous ; « Repos » les jours vides d'une semaine du plan ou qui a des séances. Pas de légende des liserés.
+  // le nom dessous ; un jour vide reste vide. Pas de légende des liserés.
   // opts.mois : rang du mois (jours voisins atténués) ; opts.phases : fond de phase ; opts.impression : sans « + » ni lien (export).
   const dureeTxt = m => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? String(m % 60).padStart(2, '0') : '') : m + ' min');
   function carteV2(ctx, s, imp) {
@@ -167,7 +167,6 @@
     let h = '<div class="cal-m2' + (imp ? ' is-imp' : '') + '"><div class="cal-m2-tete"><span></span>' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cal-libelle">' + j + '</span>').join('') + '</div>';
     for (let l = lundiDe(debut); l <= fin; l = addDays(l, 7)) {
       const x = phaseDe(ps, l), ph = o.phases && x && x.phase !== 'entretien' ? x.phase : null, d = parse(l);
-      const se7 = ctx.seances.filter(s => s.date >= l && s.date <= addDays(l, 6) && s.etat !== 'proposee'), repos = (x && x.saison) || se7.length;
       const total = totalSemaine(ctx, l);
       h += '<div class="cal-m2-ligne' + (ph ? ' ph-' + ph : '') + (l === lundiDe(auj) && !imp ? ' is-courante' : '') + '" data-semaine="' + l + '"><div class="cal-m2-sem">' +
         (x && x.saison ? '<b class="cal-libelle">Sem. ' + x.n + '</b>' : '') + '<span class="cal-m2-lundi">' + (d.getDate() === 1 ? '1er' : d.getDate()) + ' ' + MOIS[d.getMonth()] + '</span>' +
@@ -181,7 +180,7 @@
         const cs = courses.filter(c => c.date === j), rdv = imp ? [] : cc.rdvDuJour(j), se = ctx.seances.filter(s => s.date === j && s.etat !== 'proposee');
         h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cal-m2-num' + (j === auj && !imp ? ' auj' : '') + '">' + jd.getDate() + '</span>' +
           cs.map(c => courseV2(ctx, c, imp)).join('') + rdv.map(c => cc.rdvHtml(c, true)).join('') + se.map(s => carteV2(ctx, s, imp)).join('') +
-          (!cs.length && !se.length && !rdv.length && repos ? '<span class="cal-repos">Repos</span>' : '') + (imp ? '' : cc.plusHtml(j)) + '</div>';
+          (imp ? '' : cc.plusHtml(j)) + '</div>';
       }
       h += '</div>';
     }

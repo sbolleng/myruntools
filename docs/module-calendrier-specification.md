@@ -240,7 +240,7 @@ Version à comparer avec le Mois (§ 4.1), dans l'esprit d'un plan d'entraîneme
 (3)             LUN.       MAR.       MER.       JEU.       VEN.       SAM.       DIM.
 (30) SEM. 3   ┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐
      30 nov.  │ 30 (19) │ 1       │ 2       │ 3       │ 4       │ 5       │ 6       │
-     Base     │┃▂▄▆1 h ☐│ Repos   │┃ 7 km ☐ │ Repos   │ Repos   │┃12,5 km☐│▌ 24 km  │ (17)
+     Base     │┃▂▄▆1 h ☐│         │┃ 7 km ☐ │         │         │┃12,5 km☐│▌ 24 km  │ (17)
      (28) 1/4 │┃Fraction│  (32)   │┃Enduranc│         │         │┃Sortie l│▌Trail du│
      séances  │┃8×400 m │         │         │         │         │         │  Lac    │
               │      (+)│      (+)│      (+)│      (+)│      (+)│      (+)│      (+)│ (10)
@@ -259,7 +259,7 @@ Téléphone : le libellé de la semaine (30) passe au-dessus de ses sept jours, 
 | 19 | Numéro du jour | « 20 » ; aujourd'hui dans un rond Accent | Coin haut gauche de la case |
 | 31 | Carte d'une séance : liseré de 4 px à gauche, couleur du type de séance (nom de la liste) : Sortie longue bleu, Seuil jaune, Fractionné rouge, Côtes violet, Renforcement vert ; Endurance, Récupération et un nom libre en Bordure (neutre) ; les trois traits de l'intensité (comme le Mois, rien sans intensité) devant la mesure en gras (distance, sinon durée, sinon le nom), le nom dessous, le détail du libellé en discret ; case « faite » ; faite : barrée | « 7 km / Endurance » | Case du jour, une carte par séance |
 | 17 | Course : carte au liseré et au contour de sa famille (fond teinté si confirmée), sa distance en gras, son nom | « 24 km / Trail du Lac » | Case du jour |
-| 32 | « Repos » en discret : un jour sans rien d'une semaine de préparation ou qui a des séances | « Repos » | Case du jour, au milieu |
+| 32 | (retiré le 27 nov. 2026 : plus de « Repos », un jour vide reste vide) | | |
 | 21 | Jours des mois voisins : contenu atténué (proposition B, retenue le 20 nov. 2026) | 28, 29, 30 sept. | Ligne de la semaine |
 | 10, 8 | « + », rendez-vous clé : comme le Mois | | Case du jour |
 | 5 | Fond de phase (Phases) : toute la ligne, liseré de la phase sur le libellé | | Ligne de la semaine |
@@ -282,6 +282,7 @@ Le plan sur papier ou en PDF, à l'image d'un plan d'entraînement imprimé, dan
 - **Cases** : fond Case, coins de 4 px ; samedi et dimanche fond Bordure dans toutes les vues (Semaine, 4 semaines, Mois, 3 et 6 mois, Année) ; Plan : la couleur de la phase, un cran de plus le week-end.
 - **Courses** : pleines si confirmées (texte en encre), à 50 % si option, Texte discret si courue, dans toutes les vues.
 - **Séances** : en carte (fond Surface, bord de 1 px, liseré de 4 px à la couleur de leur type) en Semaine, 4 semaines et Mois ; liseré de 3 px en 3 et 6 mois, point dans l'Année, la même dans tous les thèmes (design, § 9).
+- **Jour vide** : rien d'écrit (plus de « Repos »), seulement le « + ».
 - **« + »** : une seule taille, le petit rond commun (1,5 rem).
 - **Total** : séances et km de la période, Texte discret (semaine, mois ; chaque mois de l'Année).
 
@@ -482,7 +483,7 @@ Résultats attendus, rubrique Préparation de la page d'une course :
 Résultats attendus, vue 4 semaines (#mois2) et export (§ 4.5, 4.6), séances d'essai du Mois avec durée et distance (Fractionné 1 h, Endurance 7 km, Sortie longue 12,5 km Modérée) :
 
 - `calendrier.html#mois2` : menu « 4 semaines » (choix : Semaine, 4 semaines, Mois, 3 mois, 6 mois, Année) ; « Octobre 2026 » ; cinq lignes (lundis 28 sept. à 26 oct.) ; 28, 29, 30 sept. et 1er nov. atténués ; le numéro dans chaque case.
-- Cartes : 19, Renforcement (liseré vert, sans traits, « Renforcement » en gras, « Gainage 30 min », barrée) ; 20, « 1 h / Fractionné / 8×400 m » (rouge, trois traits) ; 22, « 7 km / Endurance » (neutre, un trait) ; 24, « 12,5 km / Sortie longue » (bleu, deux traits). Pas de légende des liserés. « Repos » les 21, 23 et 25 ; libellé de la semaine du 19 : « 19 oct. », Entretien, « 1/4 séances · 0/19,5 km ». Ordinateur : 4 cases « faite », 35 « + » ; téléphone : ni l'un ni l'autre, noms abrégés ; aucun débordement.
+- Cartes : 19, Renforcement (liseré vert, sans traits, « Renforcement » en gras, « Gainage 30 min », barrée) ; 20, « 1 h / Fractionné / 8×400 m » (rouge, trois traits) ; 22, « 7 km / Endurance » (neutre, un trait) ; 24, « 12,5 km / Sortie longue » (bleu, deux traits). Pas de légende des liserés. les 21, 23 et 25 restent vides (plus de « Repos ») ; libellé de la semaine du 19 : « 19 oct. », Entretien, « 1/4 séances · 0/19,5 km ». Ordinateur : 4 cases « faite », 35 « + » ; téléphone : ni l'un ni l'autre, noms abrégés ; aucun débordement.
 - `#mois2=2026-12`, Phases enfoncé : chaque libellé commence par « Sem. n », la semaine du 7 déc. en Allègement (fond de phase) ; mois précédent : le Trail du Lac en carte le 15 nov. (« 24 km », trail) ; toucher le 18 nov. : `#semaines=2026-11-16`.
 - Exporter (Calendrier, 4 semaines d'octobre) : une page « Calendrier · Octobre 2026 », fond blanc, cinq semaines, ni case ni « + », la case du 19 dessinée pleine ; pied « MyRunTools » et « Exporté le 20 oct. 2026 » ; invisible à l'écran, seule à l'impression.
 - Exporter (Mon plan) : « Mon plan · Trail des Gorges », 20 semaines du 19 oct. 2026 au 1er mars 2027, quatre pages, fond de phase.
