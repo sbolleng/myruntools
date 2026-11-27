@@ -16,7 +16,7 @@
     tres: { libelle: 'Très actif · en mouvement toute la journée', coef: 1.6 }
   };
 
-  // Sports : dépense = MET × poids (kg) × heures. seance : course à pied ou renforcement, qui viennent des séances du
+  // Sports : dépense = MET × poids (kg) × heures. seance : course à pied, renforcement et vélo, qui viennent des séances du
   // Calendrier (plus proposés dans Nutrition ; gardés pour relire un sport du jour saisi avant).
   const SPORTS = {
     j8: { libelle: 'Jogging à 8 km/h (7 min/km)', met: 8, seance: true },
@@ -28,9 +28,9 @@
     m55: { libelle: 'Marche (+5,5 km/h)', met: 4 },
     muscu: { libelle: 'Renforcement', met: 3, seance: true },
     crossfit: { libelle: 'Crossfit', met: 9 },
-    v1: { libelle: 'Vélo (promenade)', met: 5 },
-    v2: { libelle: 'Vélo (19 à 22 km/h)', met: 7 },
-    v3: { libelle: 'Vélo (22 à 26 km/h)', met: 10 },
+    v1: { libelle: 'Vélo (promenade)', met: 5, seance: true },
+    v2: { libelle: 'Vélo (19 à 22 km/h)', met: 7, seance: true },
+    v3: { libelle: 'Vélo (22 à 26 km/h)', met: 10, seance: true },
     n1: { libelle: 'Natation récréative', met: 6 },
     n2: { libelle: 'Natation (intensité modérée à élevée)', met: 9 }
   };

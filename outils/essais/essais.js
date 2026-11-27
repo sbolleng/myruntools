@@ -5192,25 +5192,25 @@ const CONTROLES = {
     const ligneS = i => p.locator('.nu-sport-l').nth(i);
     await ouvrirActivite(p);
     pb.push(egal(['Ajouter une séance', 1], [norm(await p.locator('.nu-feuille .fc-libelle').textContent()), await p.locator('.nu-sport-l').count()], 'feuille Activité : une ligne vide au départ'));
-    pb.push(egal([false, false, true], await p.evaluate(() => { const o = [...document.querySelectorAll('.nu-feuille .nu-sport-l [name="type"] option')].map(x => x.value); return [o.includes('j95'), o.includes('muscu'), o.includes('v2')]; }), 'autres sports : ni course ni renforcement (ils viennent du Calendrier)'));
-    await ligneS(0).locator('[name="type"]').selectOption('v2');
+    pb.push(egal([false, false, false], await p.evaluate(() => { const o = [...document.querySelectorAll('.nu-feuille .nu-sport-l [name="type"] option')].map(x => x.value); return [o.includes('j95'), o.includes('muscu'), o.includes('v2')]; }), 'autres sports : ni course, ni renforcement, ni vélo (ils viennent du Calendrier)'));
+    await ligneS(0).locator('[name="type"]').selectOption('n1');
     await ligneS(0).locator('[name="heures"]').fill('1');
-    pb.push(egal([2, '2 607 kcal', 'kcal | sous | 350 | Reste 2 257 kcal | Besoin 2 607 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p), (await jauges(p))[0]], 'sport : 1 h de vélo, une 2e ligne, besoin et anneau recalculés'));
+    pb.push(egal([2, '2 537 kcal', 'kcal | sous | 350 | Reste 2 187 kcal | Besoin 2 537 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p), (await jauges(p))[0]], 'sport : 1 h de natation, une 2e ligne, besoin et anneau recalculés'));
     await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST');
-    pb.push(egal([['DELETE', 'sport_jour', '?utilisateur=eq.' + U + '&date=eq.2026-10-20'], ['POST', 'sport_jour', [{ date: '2026-10-20', type: 'v2', heures: 1 }]]], d.ecritures.slice(-2).map(e => e.methode === 'DELETE' ? [e.methode, e.table, e.filtres] : [e.methode, e.table, e.corps]), 'sport : rangé dans la base, jour par jour'));
+    pb.push(egal([['DELETE', 'sport_jour', '?utilisateur=eq.' + U + '&date=eq.2026-10-20'], ['POST', 'sport_jour', [{ date: '2026-10-20', type: 'n1', heures: 1 }]]], d.ecritures.slice(-2).map(e => e.methode === 'DELETE' ? [e.methode, e.table, e.filtres] : [e.methode, e.table, e.corps]), 'sport : rangé dans la base, jour par jour'));
     await ligneS(1).locator('[name="type"]').selectOption('m');
     await ligneS(1).locator('[name="heures"]').fill('30');
-    pb.push(egal('2 607 kcal', await kcal(p), 'sport : 30 heures ignorées'));
+    pb.push(egal('2 537 kcal', await kcal(p), 'sport : 30 heures ignorées'));
     await ligneS(1).locator('[name="heures"]').fill('0,5');
-    pb.push(egal([3, '2 712 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
+    pb.push(egal([3, '2 642 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : deux sports'));
     await p.clock.runFor(1000); await ecrit(d, e => e.table === 'sport_jour' && e.methode === 'POST' && e.corps.length === 2);
     await fermerF(p);
-    pb.push(egal(['Vélo (19 à 22 km/h) · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
+    pb.push(egal(['Natation récréative · 1 h', 'Marche · 30 min'], await p.locator('.nu-activites .nu-ligne-nom').allTextContents().then(l => l.map(norm)), 'journal : l\'activité en fin, sport et durée'));
     await p.reload(); await p.waitForSelector('html[data-mrt-donnees]'); await p.clock.runFor(1500); await p.waitForSelector('.nu-jauge');
     await ouvrirActivite(p);
-    pb.push(egal([3, '2 712 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
+    pb.push(egal([3, '2 642 kcal'], [await p.locator('.nu-sport-l').count(), await kcal(p)], 'sport : relu dans la base après rechargement'));
     await ligneS(0).locator('[name="type"]').selectOption('');
-    pb.push(egal('2 222 kcal', await kcal(p), 'sport : le vélo retiré'));
+    pb.push(egal('2 222 kcal', await kcal(p), 'sport : la natation retirée'));
     await ctx.close();
 
     // Toucher une ligne : Modifier (quantité, repas) ; Annuler ne range rien.
