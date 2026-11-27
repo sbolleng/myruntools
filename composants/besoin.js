@@ -16,7 +16,7 @@
     tres: { libelle: 'Très actif · en mouvement toute la journée', coef: 1.6 }
   };
 
-  // Sports : dépense = MET × poids (kg) × heures. seance : course à pied ou renforcement, qui viennent des séances du
+  // Sports : dépense = MET × poids (kg) × heures. seance : course à pied, renforcement et vélo, qui viennent des séances du
   // Calendrier (plus proposés dans Nutrition ; gardés pour relire un sport du jour saisi avant).
   const SPORTS = {
     j8: { libelle: 'Jogging à 8 km/h (7 min/km)', met: 8, seance: true },
@@ -28,9 +28,9 @@
     m55: { libelle: 'Marche (+5,5 km/h)', met: 4 },
     muscu: { libelle: 'Renforcement', met: 3, seance: true },
     crossfit: { libelle: 'Crossfit', met: 9 },
-    v1: { libelle: 'Vélo (promenade)', met: 5 },
-    v2: { libelle: 'Vélo (19 à 22 km/h)', met: 7 },
-    v3: { libelle: 'Vélo (22 à 26 km/h)', met: 10 },
+    v1: { libelle: 'Vélo (promenade)', met: 5, seance: true },
+    v2: { libelle: 'Vélo (19 à 22 km/h)', met: 7, seance: true },
+    v3: { libelle: 'Vélo (22 à 26 km/h)', met: 10, seance: true },
     n1: { libelle: 'Natation récréative', met: 6 },
     n2: { libelle: 'Natation (intensité modérée à élevée)', met: 9 }
   };
@@ -48,10 +48,14 @@
   // ----- Séances du Calendrier : la même échelle pour tous -----
   // Course à pied : équation de course de l'ACSM, MET = (0,2 × vitesse en m/min + 3,5) ÷ 3,5. La vitesse est celle de la
   // séance (distance ÷ durée) ; sans distance, la part de la VMA selon l'intensité ; sans VMA, 9,5 km/h.
-  // Renforcement : 3 MET.
+  // Renforcement : 3 MET. Danse : 5 MET (valeur unique, à valider). Vélo : les paliers de vitesse de la liste des sports (promenade 5,
+// 19 à 22 km/h 7, 22 km/h et plus 10) ; sans distance, selon l'intensité (facile 5, modérée 7, intense 10), sinon 7.
   const PART_VMA = { facile: 0.65, moderee: 0.75, intense: 0.85 };
   const VITESSE_PAR_DEFAUT = 9.5;
   const MET_RENFO = 3;
+  const MET_DANSE = 5;
+  const MET_VELO_INTENSITE = { facile: 5, moderee: 7, intense: 10 };
+  const metVelo = kmh => (kmh >= 22 ? 10 : kmh >= 19 ? 7 : 5);
   const metCourse = kmh => (0.2 * (kmh * 1000 / 60) + 3.5) / 3.5;
   // Une séance faite compte avec son réalisé quand il est saisi, sinon avec le prévu.
   const dureeDe = s => (s.faite && s.duree_reelle_min != null ? s.duree_reelle_min : s.duree_min);
@@ -66,7 +70,13 @@
   function activiteSeance(s, vma) {
     const heures = Number(dureeDe(s)) / 60;
     if (!(heures > 0)) return null;
-    return { met: s.type === 'renfo' ? MET_RENFO : metCourse(vitesseSeance(s, vma)), heures };
+    if (s.type === 'renfo') return { met: MET_RENFO, heures };
+    if (s.type === 'danse') return { met: MET_DANSE, heures };
+    if (s.type === 'velo') {
+      const d = Number(distanceDe(s));
+      return { met: d > 0 ? metVelo(d / heures) : MET_VELO_INTENSITE[s.intensite] || 7, heures };
+    }
+    return { met: metCourse(vitesseSeance(s, vma)), heures };
   }
   // Séances qui comptent un jour donné : pas les propositions de l'IA en attente ; un jour passé, les séances faites seulement.
   const seancesQuiComptent = (seances, jour, aujourdhui) => (seances || []).filter(s => s.date === jour && s.etat !== 'proposee' && (jour >= aujourdhui || s.faite));

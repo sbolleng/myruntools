@@ -13,7 +13,7 @@ create type etat_course   as enum ('a_venir', 'abandonnee', 'courue');
 create type theme         as enum ('bleu-orange', 'vert-rose', 'violet-turquoise', 'blanc-orange', 'noir-orange', 'auto');
 create type sexe          as enum ('femme', 'homme', 'non_precise');
 create type phase_plan    as enum ('base', 'developpement', 'affutage', 'deload');
-create type seance_type   as enum ('run', 'renfo');
+create type seance_type   as enum ('run', 'renfo', 'velo', 'danse');  -- velo, danse : évolution 050
 create type seance_intensite as enum ('facile', 'moderee', 'intense');
 create type seance_origine   as enum ('saisie', 'ia', 'import');  -- import : évolution 045
 create type seance_etat      as enum ('proposee', 'acceptee');
@@ -402,7 +402,7 @@ create table trajets (
   arrivee       timestamp,
   url           text check (char_length(url) <= 500),
   prix          numeric(8,2) check (prix >= 0),
-  prix_aller_retour boolean not null default false, -- le prix couvre aussi le retour (évolution 050)
+  prix_aller_retour boolean not null default false, -- le prix couvre aussi le retour (évolution 051)
   cree_le       timestamptz not null default now(),
   foreign key (utilisateur, course) references courses (utilisateur, id) on delete cascade
 );

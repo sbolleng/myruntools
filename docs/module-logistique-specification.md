@@ -1,6 +1,6 @@
 # Logistique d'une course · spécification fonctionnelle
 
-Version 0.3 · 27 novembre 2026 · [Retour au sommaire](README.md) · Adresse assistée (OpenStreetMap), liens Google Maps et Waze, dates « Arrivée : » et « Départ : » l'une sous l'autre, trajet : type puis sens, aller-retour en un seul prix (évolution 050 à passer).
+Version 0.3 · 27 novembre 2026 · [Retour au sommaire](README.md) · Adresse assistée (OpenStreetMap), liens Google Maps et Waze, dates « Arrivée : » et « Départ : » l'une sous l'autre, trajet : type puis sens, aller-retour en un seul prix (évolution 051).
 
 ## 1. Rôle
 
@@ -122,12 +122,12 @@ Aucun article n'est marqué « Imposé » au départ : l'utilisateur le pose cou
 
 ## 5. Données
 
-Évolutions 049 (passée le 27 nov. 2026) et 050 (prix d'un aller-retour ; détail dans [modèle de données](modele-donnees.md), § 4 ter).
+Évolutions 049 (passée le 27 nov. 2026) et 051 (prix d'un aller-retour ; détail dans [modèle de données](modele-donnees.md), § 4 ter).
 
 | Table | Contenu |
 | --- | --- |
 | `logements` | course, nom, adresse, url, prix, arrivée, départ |
-| `trajets` | course, sens, type, lieu et heure de départ, lieu et heure d'arrivée, url, prix, prix couvrant l'aller-retour (évolution 050) |
+| `trajets` | course, sens, type, lieu et heure de départ, lieu et heure d'arrivée, url, prix, prix couvrant l'aller-retour (évolution 051) |
 | `materiel_catalogue` | utilisateur, nom (unique par utilisateur), catégorie, ordre |
 | `course_materiel` | course, article, imposé, pris, équipement choisi (facultatif) |
 
