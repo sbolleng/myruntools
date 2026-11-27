@@ -1,6 +1,6 @@
 # Logistique d'une course · spécification fonctionnelle
 
-Version 0.3 · 27 novembre 2026 · [Retour au sommaire](README.md) · Adresse assistée (OpenStreetMap), liens Google Maps et Waze, dates « Arrivée : » et « Départ : » l'une sous l'autre, trajet : type puis sens, aller-retour en un seul prix (évolution 051).
+Version 0.4 · 27 novembre 2026 · [Retour au sommaire](README.md) · L'adresse du logement ouvre un menu d'itinéraires (Google Maps, Waze, application de l'appareil) ; « Ajouter » passe dans la modification, ouverte par un crayon sur chaque rubrique (Logement, Transport).
 
 ## 1. Rôle
 
@@ -30,13 +30,13 @@ Hors périmètre de cette version (décidé le 27 nov. 2026) : message de recomm
 │     Logement 180 €                                          │
 │     Transport 62 €                                          │
 │                                                             │
-│ (3) LOGEMENT                              (4) [Ajouter]     │
+│ (3) LOGEMENT                              (4) [crayon]      │
 │  (5) Gîte des Crêtes (8) ↗                  (7) 180 €       │
-│  (6) 12 rue … · (26) Google Maps ↗ · Waze ↗                 │
+│  (6) 12 rue … → (26) menu : Google Maps · Waze · appareil   │
 │  (9) Arrivée : ven. 5 mars · 17 h                           │
 │  (10) Départ : dim. 7 mars · 10 h                           │
 │                                                             │
-│ (11) TRANSPORT                            (12) [Ajouter]    │
+│ (11) TRANSPORT                            (12) [crayon]     │
 │  (14) Train · (13) Aller              (16) 62 €             │
 │  (15) Lyon 8 h 12 › Saint-Étienne 10 h 05                   │
 │  (17) Réservation ↗                                         │
@@ -61,15 +61,15 @@ Sur téléphone, même ordre, une rubrique sous l'autre ; la ligne du logement e
 | 1 | Total | 300 € | Droite du titre du bloc replié (Space Mono, accent), et en tête du bloc ouvert, cliquable | Taille 4, accent |
 | 2 | Détail du total | Dossard, Logement, Transport | Sous le titre, replié par défaut | Taille 3, gris |
 | 3 | Titre Logement | LOGEMENT | Capitales, taille 3 | Règles du design § 1 |
-| 4 | Ajouter un logement | + Ajouter | Droite du titre 3 | Bouton du panneau (§ 11) |
+| 4 | Modifier le logement | crayon | Droite du titre 3 | Rond (§ 11) ; ouvre la modification de la rubrique |
 | 5 | Nom du logement | Gîte des Crêtes | Début de ligne | Taille 4 |
-| 6 | Adresse | 12 rue … | Après le nom | Taille 3 |
+| 6 | Adresse | 12 rue … | Sous le nom ; cliquable (ouvre le menu 26) | Lien, taille 3 |
 | 7 | Prix | 180 € | Fin de ligne | Taille 4 |
 | 8 | Lien du logement | ↗ | Flèche juste à côté du nom (pas de texte « Annonce ») | Lien |
 | 9 | Arrivée | Arrivée : ven. 5 mars · 17 h | Ligne dessous | Taille 3 |
 | 10 | Départ | Départ : dim. 7 mars · 10 h | Sous le 9 | Taille 3 |
 | 11 | Titre Transport | TRANSPORT | Comme le 3 | |
-| 12 | Ajouter un trajet | + Ajouter | Comme le 4 | |
+| 12 | Modifier le transport | crayon | Comme le 4 | |
 | 14 | Type | Avion, Train, Voiture, Bus, Autre | Début de ligne (et premier champ du formulaire) | Taille 4 |
 | 13 | Sens | Aller · Retour · Aller-retour (formulaire) · Autre | Après le 14 (et second champ du formulaire) | Taille 4 |
 | 15 | Départ → arrivée | Lyon 08:12 → Saint-Étienne 10:05 | Milieu de ligne | Taille 4 |
@@ -83,7 +83,7 @@ Sur téléphone, même ordre, une rubrique sous l'autre ; la ligne du logement e
 | 23 | Catégorie Porté | Porté | Comme le 20 | |
 | 24 | Équipement lié | Chaussures · les rouges | Après l'article | Taille 3, gris |
 | 25 | Notes | Retrait des dossards… | Dernier texte du bloc | Taille 4 |
-| 26 | Itinéraire | Google Maps ↗ · Waze ↗ | Sous l'adresse (6), d'après l'adresse écrite | Liens |
+| 26 | Menu d'itinéraires | Google Maps · Waze · Plans (iPhone, iPad) / Application de cartes (Android) / OpenStreetMap (ordinateur) | Sous l'adresse (6), au toucher ; se referme au toucher ailleurs | Menu (`mrt-menu`) |
 
 Numéros stables : un nouvel élément prend le numéro suivant.
 
@@ -93,10 +93,10 @@ Bouton « Jour J » (19) : la liste du matos s'affiche seule, plein écran, une 
 
 ### 3.4 Édition
 
-- **Logement et trajet** : une feuille de saisie par élément (champs du tableau). Prix facultatif ; date et heure d'arrivée et de départ facultatives. Supprimer demande confirmation (design § 1).
+- **Logement et trajet** : le crayon (4, 12) ouvre la modification de la rubrique, sur place : une fiche par élément, titrée « Logement 1 », « Logement 2 »… (« Trajet 1 »…), chacune avec les champs du tableau ; une rubrique vide s'ouvre avec une fiche vide. « Ajouter un logement » (ou « Ajouter un trajet ») ajoute une fiche. Chaque fiche a un lien « Supprimer » (confirmation) ; les suppressions et les ajouts ne valent qu'à « Enregistrer » ; « Annuler » ferme sans rien changer. Une fiche neuve restée vide est ignorée. Prix, dates et heures facultatifs.
 - **Matos** : « Modifier la liste » ouvre la modification (le bouton devient « Terminer »). « Ajouter un article » propose d'abord les articles du catalogue de l'utilisateur (recherche à la frappe), sinon crée un nouvel article, mémorisé au catalogue dans la catégorie choisie. Chaque article de la course a une bascule **Imposé** et un bouton Retirer (retire de la course, pas du catalogue).
 - **Équipement lié** : un article dont le nom évoque un type d'équipement (Chaussures, Frontale, Bâtons, Sac, Montre) peut recevoir, pour cette course, un équipement de Mon matériel (liste « Équipement… », visible en modification s'il en existe un de ce type). Il s'affiche sur la ligne (24). Le champ « Chaussures » de la course n'est pas touché : l'usure des chaussures viendra avec le calcul des kilomètres.
-- **Adresse** : champ libre et bouton « Rechercher » (ou « Entrée »). La recherche interroge OpenStreetMap (Nominatim) et propose jusqu'à cinq adresses mises en forme (« 12 rue des Crêtes, 42000 Saint-Étienne ») ; un toucher en remplit le champ. Pas de recherche à chaque frappe (règle d'usage du service). Service indisponible : on saisit à la main. Les liens d'itinéraire (26) sont construits sur l'adresse écrite.
+- **Adresse** : champ libre et bouton « Rechercher » (ou « Entrée »). La recherche interroge OpenStreetMap (Nominatim) et propose jusqu'à cinq adresses mises en forme (« 12 rue des Crêtes, 42000 Saint-Étienne ») ; un toucher en remplit le champ. Pas de recherche à chaque frappe (règle d'usage du service). Service indisponible : on saisit à la main. L'adresse affichée (6) est cliquable : elle ouvre le menu d'itinéraires (26), construit sur l'adresse écrite, avec l'application de cartes propre à l'appareil.
 - **Trajet** : le type d'abord, puis le sens. Avec « Aller-retour » (formulaire d'un nouveau trajet seulement), un bloc « Retour » apparaît, ses lieux présaisis à l'envers (lieu d'arrivée de l'aller = départ du retour, et inversement ; modifiables) et **un seul prix**, celui de l'aller-retour. Deux lignes sont enregistrées (aller, retour) ; le prix est rangé sur l'aller, marqué « aller-retour », et compté une fois dans le total.
 - Le détail du total se calcule : dossard (prix de la course) + somme des prix des logements + somme des prix des trajets ; les prix vides comptent zéro et ne sont pas affichés.
 
@@ -137,10 +137,10 @@ Règles d'accès : chaque ligne appartient à l'utilisateur ; lecture et écritu
 
 Données fictives du banc d'essai : la course « Trail des Gorges » (dossard à 58 €) ; groupe `logistique`.
 
-1. Ajouter un logement « Gîte des Crêtes », 180 €, arrivée ven. 17:00, départ dim. 10:00 : la ligne s'affiche ; total 238 €.
-2. Ajouter un trajet Train, Aller, Lyon 08:12 → Saint-Étienne 10:05, 62 € : total 300 €.
+1. Crayon de Logement, puis fiche « Logement 1 » : « Gîte des Crêtes », 180 €, arrivée ven. 17:00, départ dim. 10:00 : la ligne s'affiche ; total 238 €.
+2. Crayon de Transport, puis fiche « Trajet 1 » : Train, Aller, Lyon 08:12 → Saint-Étienne 10:05, 62 € : total 300 €.
 3. Cliquer sur le total : le détail (58 / 180 / 62) s'ouvre ; un second clic le referme.
-4. Logement et trajet sans prix : le total ne change pas et aucun « 0 € » ne s'affiche.
+4. « Ajouter un logement » dans la modification ajoute « Logement 2 » ; un logement sans prix : le total ne change pas et aucun « 0 € » ne s'affiche.
 5. Matos : « Ajouter un article », taper « Fron » : « Frontale » du catalogue est proposée ; l'ajouter ; il n'est pas créé en double.
 6. Taper un article inconnu : il est créé, rangé dans la catégorie choisie, et proposé à la course suivante.
 7. Basculer « Imposé » sur la frontale : la pastille apparaît ; en mode jour J elle passe en tête de sa catégorie.
@@ -150,9 +150,10 @@ Données fictives du banc d'essai : la course « Trail des Gorges » (dossard à
 11. Mon profil, Mon matériel : les chaussures ont des kilomètres ; une montre ou une frontale n'en ont pas.
 12. Lien de partage en lecture seule : le bloc Logistique est absent.
 13. Un autre compte ne voit ni les logements, ni les trajets, ni le catalogue du premier (règles par ligne de la base : à vérifier dans Supabase, la base simulée du banc n'en a pas).
-14. Adresse du logement : saisir, « Entrée » : les propositions s'affichent mises en forme ; en choisir une remplit le champ ; la ligne du logement montre Google Maps et Waze, et la flèche à côté du nom ouvre le lien du logement.
-15. Aller-retour (avion) : lieux du retour présaisis à l'envers, un seul prix ; deux lignes enregistrées, total avec le prix compté une fois.
-16. Téléphone : aucun débordement horizontal ; en mode jour J, lignes d'au moins 44 px.
+14. Adresse du logement : saisir, « Entrée » : les propositions s'affichent mises en forme ; en choisir une remplit le champ ; sur la ligne du logement, l'adresse ouvre le menu Google Maps · Waze · appareil ; la flèche à côté du nom ouvre le lien du logement.
+15. Supprimer un logement : confirmation ; « Annuler » le garde ; « Enregistrer » le retire et renumérote.
+16. Aller-retour (avion) : lieux du retour présaisis à l'envers, un seul prix ; deux lignes enregistrées, total avec le prix compté une fois.
+17. Téléphone : aucun débordement horizontal ; en mode jour J, lignes d'au moins 44 px.
 
 ## 7. Questions ouvertes
 
