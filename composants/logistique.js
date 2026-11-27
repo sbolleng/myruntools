@@ -367,7 +367,7 @@
     const type = (TYPES_EQUIP.find(t => t[0] === e.type) || [])[1] || e.type;
     const km = e.type === 'chaussures' ? [Number(e.km_depart) ? 'départ ' + nombre(e.km_depart) + ' km' : '', e.km_limite ? 'limite ' + nombre(e.km_limite) + ' km' : ''].filter(Boolean).join(' · ') : '';
     return '<div class="st-connexion"><span>' + esc(nomEquip(e) || type) + '<small>' + esc([type, km, e.actif === false ? 'retiré' : ''].filter(Boolean).join(' · ')) + '</small></span>' +
-      '<button type="button" class="mrt-btn" data-mm-act="modifier" data-id="' + esc(e.id) + '">Modifier</button></div>';
+      '<button type="button" class="mrt-rond" data-mm-act="modifier" data-id="' + esc(e.id) + '" aria-label="Modifier l\'équipement" title="Modifier l\'équipement">' + window.mrtIcone.crayon + '</button></div>';
   }
   function formEquip(e) {
     e = e || {};
@@ -388,7 +388,7 @@
     const dessiner = () => {
       zone.innerHTML = '<h2 class="mrt-section-titre ps-section-t">Mon matériel</h2><div class="ps-groupe-l">' +
         (equipements.length ? equipements.map(e => equipHtml(e, mode)).join('') : '<p class="pc-vide lg-vide-eq">Aucun équipement.</p>') +
-        (mode === 'nouveau' ? formEquip(null) : '<div class="st-connexion"><span></span><button type="button" class="mrt-btn" data-mm-act="ajouter">Ajouter</button></div>') + '</div>';
+        (mode === 'nouveau' ? formEquip(null) : '<div class="st-connexion"><button type="button" class="mrt-btn" data-mm-act="ajouter">+ Ajouter un équipement</button></div>') + '</div>';
     };
     const recharger = async () => { equipements = await lire('equipements', null, 'marque'); dessiner(); };
     zone.addEventListener('click', async ev => {

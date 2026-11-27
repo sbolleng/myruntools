@@ -6021,6 +6021,7 @@ const CONTROLES = {
     o = await ouvrir(nav, 'profil.html', 1200, db, {}, PARIS);
     await o.p.waitForSelector('#materiel .st-connexion'); await pause();
     pb.push(egal(['Salomon Speedcross (les rouges)Chaussures · départ 120 km · limite 800 km', 'Petzl ActikFrontale'], (await texte(o.p, '#materiel .st-connexion span')).filter(Boolean).slice(0, 2), 'Mon matériel : kilomètres sur les chaussures seulement'));
+    pb.push(egal([true, '+ Ajouter un équipement'], await o.p.evaluate(() => [[...document.querySelectorAll('#materiel [data-mm-act="modifier"]')].every(b => b.classList.contains('mrt-rond') && b.getAttribute('aria-label') === "Modifier l'équipement"), document.querySelector('#materiel [data-mm-act="ajouter"]').textContent]), 'Mon matériel : crayon pour modifier, ajout nommé'));
     await o.p.click('[data-mm-act="ajouter"]');
     await o.p.selectOption('#materiel [name="type"]', 'batons');
     pb.push(egal(true, await o.p.evaluate(() => [...document.querySelectorAll('#materiel .lg-km')].every(x => x.hidden)), 'Mon matériel : pas de kilomètres pour des bâtons'));
