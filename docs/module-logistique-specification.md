@@ -1,6 +1,6 @@
 # Logistique d'une course · spécification fonctionnelle
 
-Version 0.4 · 27 novembre 2026 · [Retour au sommaire](README.md) · L'adresse du logement ouvre un menu d'itinéraires (Google Maps, Waze, application de l'appareil) ; « Ajouter » passe dans la modification, ouverte par un crayon sur chaque rubrique (Logement, Transport).
+Version 0.5 · 27 novembre 2026 · [Retour au sommaire](README.md) · Mon matériel : un crayon par équipement pour le modifier, « + Ajouter un équipement » à gauche sous la liste.
 
 ## 1. Rôle
 
@@ -102,7 +102,7 @@ Bouton « Jour J » (19) : la liste du matos s'affiche seule, plein écran, une 
 
 ### 3.5 Mon matériel (dans Mon profil)
 
-Une section de la page Mon profil : la liste des équipements durables, groupée par type (Chaussures, Bâtons, Sac, Frontale, Montre). Une ligne : marque, modèle, surnom, actif ou retiré. **Kilomètres : seulement pour les chaussures** (`km_depart`, `km_limite`) ; le cumul calculé depuis le Palmarès et Strava vient plus tard. Les autres éléments du matos (veste, sifflet, chargeurs…) restent de simples articles du catalogue, sans fiche.
+Une section de la page Mon profil : la liste des équipements durables, groupée par type (Chaussures, Bâtons, Sac, Frontale, Montre). Une ligne : marque, modèle, surnom, actif ou retiré. **Kilomètres : seulement pour les chaussures** (`km_depart`, `km_limite`). Chaque ligne a un crayon (rond) qui l'ouvre en modification ; sous la liste, à gauche, « + Ajouter un équipement » (bouton secondaire) ; le cumul calculé depuis le Palmarès et Strava vient plus tard. Les autres éléments du matos (veste, sifflet, chargeurs…) restent de simples articles du catalogue, sans fiche.
 
 ## 4. Catalogue de départ
 
