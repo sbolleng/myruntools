@@ -309,7 +309,7 @@
           '<section class="fc-bloc">' +
             '<button type="button" class="fc-bloc-titre" data-bloc="' + b + '" aria-expanded="' + ouvert(b) + '">' + CHEVRON + titre + '</button>' +
             '<div class="fc-grille' + (b === 'resultat' ? ' fc-grille-3' : '') + '"' + (ouvert(b) ? '' : ' hidden') + '>' +
-              (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && !['date_approx', 'ouverture_heure', 'ouverture_approx', 'dnf', 'allure'].includes(f[0])).map(champ).join('') + '</div>' +
+              (b === 'preparation' && preparation ? '<div class="fc-prep fc-large"></div>' : '') + (b === 'logistique' && window.mrtLogistique ? '<div class="fc-logistique fc-large"></div>' : '') + CHAMPS.filter(f => f[3] === b && !['date_approx', 'ouverture_heure', 'ouverture_approx', 'dnf', 'allure'].includes(f[0])).map(champ).join('') + '</div>' +
           '</section>').join('') +
         // « Supprimer la course » : seul en bas, loin d'« Enregistrer », comme « Supprimer la séance » (design, § 11).
         (existe && !marquer ? '<div class="fc-bas-actions"><button type="button" class="mrt-btn is-danger" data-fc="supprimer">' + POUBELLE + 'Supprimer la course</button></div>' : '') +
@@ -323,6 +323,8 @@
     const val = k => racine.querySelector('[data-k="' + k + '"]');
     const avant = document.activeElement;
     val('course').focus({ preventScroll: true });
+    // Logistique (spécification Logistique) : logements, transports, matos, saisis ici et enregistrés avec la course.
+    const lg = $('.fc-logistique') ? window.mrtLogistique.edition($('.fc-logistique'), c) : null;
 
     // Fin : la feuille à elle seule se ferme ; la feuille d'une course reprend la main (fin).
     let finie = false;
@@ -668,6 +670,10 @@
         if (faux) faux.scrollIntoView({ block: 'center' });
         return;
       }
+      if (lg) {
+        const manque = lg.valider();
+        if (manque) { $('.fc-msg').textContent = manque; return; }
+      }
       if (marquer) champs.etat = 'courue';
       const btn = $('.fc-plein');
       btn.disabled = true;
@@ -699,6 +705,7 @@
         const err = gpx.fichier ? await window.mrtTrace.ranger(cc, gpx.texte, { chiffres: false }) : await window.mrtTrace.retirer(cc);
         if (err) await window.mrtConfirmer({ texte: 'Course enregistrée, mais pas le tracé : ' + err, action: 'Fermer', seul: true });
       }
+      if (lg && !(await lg.enregistrer(id))) await window.mrtConfirmer({ texte: 'Course enregistrée, mais pas toute la logistique : réessaie dans un moment.', action: 'Fermer', seul: true });
       terminer('enregistre', id);
       if (apres) await apres();
       // Nouvelle course à venir, ajoutée depuis sa propre feuille : sa consultation, si elle est sur la feuille de route.

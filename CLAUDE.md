@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : plus d'« Autres sports » (Vélo, Danse, Natation, Marche, Crossfit sont des séances ; évolutions 052 et 053 passées) ; Calendrier (spécification 0.41) : 3 et 6 mois avec une seule colonne de numéros, l'initiale du jour dans chaque case, 1 px entre deux jours ; une seule vue Mois (ex-Mois V2, l'ancienne grille retirée), bouton « Légende », Année en 12 mini-grilles, couleurs uniques, plus de « Repos » ; Logistique, adresse cliquable et rubriques modifiables au crayon (évolutions 049 et 051 passées) ; effort obligatoire des séances ; feuille « Effort et sensations » aérée (séance prise d'avance faite aujourd'hui).
+- Dernier lot : Logistique 0.6, saisie dans la fiche « Modifier la course » (cartes Option, Confirmé, Non retenu ; autocomplétion Photon ; carte des logements ; « Ta course approche » à J-5 ; évolution 054 passée). Avant : plus d'« Autres sports » (évolutions 052, 053) ; Calendrier 0.41.
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).

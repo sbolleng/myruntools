@@ -167,9 +167,9 @@ Le plan d'une course est calculé à l'affichage ([spécification du Calendrier]
 
 Le module Matériel détaillera l'usage ; plus tard, les séances calculeront l'usure des chaussures.
 
-## 4 ter. Logistique (évolution 049)
+## 4 ter. Logistique (évolutions 049, 051, 054)
 
-Voir la [spécification Logistique](module-logistique-specification.md), § 5. Tables `logements`, `trajets`, `materiel_catalogue` et `course_materiel` : chaque ligne appartient à l'utilisateur, jamais lisible par le partage en lecture seule. `equipements` : types Chaussures, Bâtons, Sac, Frontale, Montre ; kilomètres seulement pour les chaussures.
+Voir la [spécification Logistique](module-logistique-specification.md), § 5. Tables `logements` (avec état `option`, `confirme`, `non_retenu`, latitude et longitude), `trajets` (état, aller-retour sur une ligne : `prix_aller_retour` et colonnes `retour_*`), `materiel_catalogue` (groupe `en_course`, `avant_apres`, `autres`) et `course_materiel` : chaque ligne appartient à l'utilisateur, jamais lisible par le partage en lecture seule. `equipements` : types Chaussures, Bâtons, Sac, Frontale, Montre ; kilomètres seulement pour les chaussures.
 
 ## 5 bis. Nutrition
 

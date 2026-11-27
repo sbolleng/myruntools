@@ -385,6 +385,9 @@ create table logements (
   prix        numeric(8,2) check (prix >= 0),
   arrivee     timestamp,
   depart      timestamp,
+  statut      text not null default 'confirme' check (statut in ('option', 'confirme', 'non_retenu')), -- évolution 054
+  latitude    double precision check (latitude between -90 and 90),
+  longitude   double precision check (longitude between -180 and 180),
   cree_le     timestamptz not null default now(),
   foreign key (utilisateur, course) references courses (utilisateur, id) on delete cascade
 );
@@ -402,7 +405,12 @@ create table trajets (
   arrivee       timestamp,
   url           text check (char_length(url) <= 500),
   prix          numeric(8,2) check (prix >= 0),
-  prix_aller_retour boolean not null default false, -- le prix couvre aussi le retour (évolution 051)
+  prix_aller_retour boolean not null default false, -- aller-retour : le prix le couvre, le retour est dans les colonnes retour_* (évolutions 051, 054)
+  retour_lieu_depart  text check (char_length(retour_lieu_depart) <= 100),
+  retour_depart       timestamp,
+  retour_lieu_arrivee text check (char_length(retour_lieu_arrivee) <= 100),
+  retour_arrivee      timestamp,
+  statut        text not null default 'confirme' check (statut in ('option', 'confirme', 'non_retenu')),
   cree_le       timestamptz not null default now(),
   foreign key (utilisateur, course) references courses (utilisateur, id) on delete cascade
 );
@@ -415,6 +423,7 @@ create table materiel_catalogue (
   categorie   text not null default 'Autre'
               check (categorie in ('Papiers', 'Sécurité', 'Vêtements', 'Porté', 'Nutrition', 'Électronique', 'Après-course', 'Autre')),
   ordre       integer not null default 0,
+  groupe      text not null default 'autres' check (groupe in ('en_course', 'avant_apres', 'autres')), -- évolution 054
   unique (utilisateur, id),
   unique (utilisateur, nom)
 );

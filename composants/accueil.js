@@ -21,12 +21,17 @@
   // Course confirmée dont la date est passée et dont le résultat n'est pas saisi (état À venir).
   const enRetard = c => c.etat === 'a_venir' && c.statut === 'confirmee' && !!c.date && c.date < jourIso();
 
+  // Jours entre aujourd'hui et une date ISO (0 : aujourd'hui).
+  const joursAvant = iso => { const [a, m, j] = String(iso).split('-').map(Number), d = new Date(); return Math.round((Date.UTC(a, m - 1, j) - Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5); };
+
   const BLOCS = {
     // La prochaine course confirmée de la feuille de route.
     prochaine: courses => {
       const c = window.mrtCoursesRoute(courses).find(x => x.statut === 'confirmee' && x.date >= jourIso());
-      return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Ma saison'],
-        c ? '<div class="ac-carte" data-course="' + esc(c.id) + '"></div>' : vide('Aucune course confirmée à venir.'));
+      // Cinq jours avant (Logistique) : « Ta course approche », avec logement, transport et matos sous la carte.
+      const proche = c && !c.date_approx && joursAvant(c.date) <= 5;
+      return bloc('prochaine', proche ? 'Ta course approche' : 'Prochaine course', ['objectif.html', 'Ma saison'],
+        c ? '<div class="ac-carte" data-course="' + esc(c.id) + '"></div>' + (proche ? '<div class="lg-approche" data-course="' + esc(c.id) + '"></div>' : '') : vide('Aucune course confirmée à venir.'));
     },
     pensebete: () => bloc('pensebete', 'Pense-bête', null, vide('Rappels tirés de tes courses (inscriptions, objectifs à fixer) et notes perso.'), true),
     // Le bilan du jour et l'ajout en une touche (nutrition.js, renderNutritionAccueil).
@@ -175,6 +180,12 @@
     }));
     const carte = el.querySelector('.ac-carte');
     if (carte) window.renderCarteCourse(carte, courses.find(c => c.id === carte.dataset.course));
+    const approche = el.querySelector('.lg-approche');
+    if (approche) {
+      // Jamais sur un espace partagé (la logistique ne se partage pas).
+      if (window.mrtLogistique && !(nutrition && nutrition.lectureSeule)) window.mrtLogistique.approche(approche, courses.find(c => c.id === approche.dataset.course));
+      else approche.remove();
+    }
     const nu = el.querySelector('.nu-accueil');
     if (nu && nutrition && window.renderNutritionAccueil) window.renderNutritionAccueil(nu, Object.assign({ courses }, nutrition));
   };

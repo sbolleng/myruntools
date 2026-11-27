@@ -20,7 +20,7 @@ Dossier `composants/` : chaque composant a son fichier `.js` et sa feuille de st
 | `plan-saison` | Page Mon plan (`preparation.html`) |
 | `plan-parcours` | Parcours « Construire mon plan » |
 | `seances-ia` | Séances proposées par l'IA |
-| `logistique` | Logistique d'une course (logements, trajets, matos à cocher, mode jour J, total) et section « Mon matériel » de Mon profil ; chargé avec `objectif.js` et `profil.js` |
+| `logistique` | Logistique d'une course : lecture sur la page de la course (`html`, `brancher`), saisie dans la fiche « Modifier la course » (`edition` : `valider`, `enregistrer`), « Ta course approche » d'En un coup d'œil (`approche`), « Mon matériel » de Mon profil (`materiel`) ; autocomplétion Photon, carte Leaflet |
 | `strategie` | « Proposer une stratégie » sur la page d'une course (Objectif, § 3.10) : contexte envoyé à l'IA, tronçons du tracé, bouton, proposition et « OK » ; chargé partout où s'ouvre la page d'une course |
 | `guide` | Guide (page `guide.html`, module facultatif en fin de menu : mise en page seulement) |
 | `profil` | Mon profil (page `profil.html`) et feuille commune de Mon plan et Nutrition |
