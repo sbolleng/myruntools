@@ -959,7 +959,7 @@ const CONTROLES = {
     pb.push(egal('Trail des Gorges · MyRunTools', r.titreDoc, 'page Trail des Gorges, titre de l\'onglet'));
     pb.push(egal([], err, 'page d\'une course, erreurs JavaScript'));
     [r] = await pageCourse(id(2));
-    pb.push(egal({ cellules: ['Inscription', 'Parcours', 'Préparation'], fiche: ['Lieu | Ville-Haute', 'Date / heure | dim. 13 déc. 2026 · 18 h 30', 'Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'], liens: ['Site officiel'] },
+    pb.push(egal({ cellules: ['Inscription', 'Parcours', 'Préparation', 'Logistique'], fiche: ['Lieu | Ville-Haute', 'Date / heure | dim. 13 déc. 2026 · 18 h 30', 'Distance | 10 km · 40 m D+', 'Objectif | Sub 45 min', 'Inscription | Ouvre le 1er nov. 2026'], liens: ['Site officiel'] },
       { cellules: r.cellules, fiche: r.fiche, liens: r.liens }, 'page Corrida de Noël : ni D−, ni prix ; Inscription toujours là ; Parcours pour importer un GPX'));
     [r] = await pageCourse(id(5));
     pb.push(egal({ liens: ['S\'inscrire', 'Site officiel'], insLien: 0, fiche: ['Lieu | Plaine-Neuve', 'Date / heure | sam. 26 juin 2027', 'Distance | 55 km · 2 800 m D+', 'Inscription | Inscription ouverte'] }, { liens: r.liens, insLien: r.insLien, fiche: r.fiche },
@@ -1396,7 +1396,7 @@ const CONTROLES = {
         actions: await p.locator('.pc-actions').count(), compteur: await p.locator('.ob-cpt').count(), plan: await p.locator('#preparation').count(), edition: await p.locator('.fc-fiche').count() }, 'Palmarès : toucher une ligne ouvre la consultation d\'une course courue'));
     pb.push(egal({ infos: ['dim. 4 oct. 2026', 'Semi-marathon', '21,1 km'], Résultat: ['Temps | 01:56:05', 'Place | 1 951e', 'Vitesse | 10,9 km/h', 'Allure | 5:30 /km'] }, await fiche(p),
       'consultation : date sans heure, format, distance ; Résultat (temps, place, vitesse tirée de l\'allure, allure) ; pas de section Montre sans montre'));
-    pb.push(egal([['Parcours'], 1, 0, 0], [await p.locator('.pc-cellule > summary').allTextContents(), await p.locator('[data-ob="importer"]').count(), await p.locator('.pc-fiche').count(), await p.locator('.pc-lien-res').count()],
+    pb.push(egal([['Parcours', 'Logistique'], 1, 0, 0], [await p.locator('.pc-cellule > summary').allTextContents(), await p.locator('[data-ob="importer"]').count(), await p.locator('.pc-fiche').count(), await p.locator('.pc-lien-res').count()],
       'consultation : sans texte saisi, seul Parcours (« Importer un GPX ») ; ni fiche encadrée, ni lien Résultats sans adresse'));
     // Crayon : édition dans la même feuille ; Annuler sans saisie revient à la consultation, sans question.
     await p.click('[data-ob="modifier"]');
@@ -1435,7 +1435,7 @@ const CONTROLES = {
     pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
     // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; course courue sans tracé : Parcours replié, même avec une stratégie.
-    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'POURQUOI CETTE COURSE Répétition.', 'Train.'], sous: true, plan: 0 },
+    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'POURQUOI CETTE COURSE Répétition.', 'Total 58 € LOGEMENT Ajouter TRANSPORT Ajouter MATOS Modifier la liste Aucun article. NOTES Train.'], sous: true, plan: 0 },
       await p.evaluate(() => { const cel = [...document.querySelectorAll('.pc-cellule')], t = e => e.innerText.trim().replace(/\s+/g, ' ');
         const ouv = cel.filter(d => d.open).map(d => d.querySelector('summary').textContent.trim());
         cel.forEach(d => { d.open = true; });
@@ -1510,7 +1510,7 @@ const CONTROLES = {
     await ligneSeb(p);
     await consultation(p);
     await p.waitForFunction(() => !document.getAnimations().length);
-    pb.push(egal({ haut: 0, debordement: false, cellules: 1 }, await p.evaluate(() => ({ haut: Math.round(document.querySelector('.mc-panneau').getBoundingClientRect().top),
+    pb.push(egal({ haut: 0, debordement: false, cellules: 2 }, await p.evaluate(() => ({ haut: Math.round(document.querySelector('.mc-panneau').getBoundingClientRect().top),
       debordement: document.documentElement.scrollWidth > innerWidth || document.querySelector('.mc-panneau').scrollWidth > document.querySelector('.mc-panneau').clientWidth, cellules: document.querySelectorAll('.pc-cellule').length })), 'téléphone : consultation en plein écran, rien ne dépasse'));
     await ctx.close();
 
@@ -3060,7 +3060,7 @@ const CONTROLES = {
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'profil.html', 1200, d, {}, PARIS));
     await p.waitForSelector('.mp-cadre .ps-ligne-q');
-    pb.push(egal([0, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Connexions'], 'Mon profil', 'Mon profil', 1],
+    pb.push(egal([0, ['Moi 3 sur 7', 'Mon niveau 0 sur 4', 'Ma semaine 0 sur 1', 'Santé', 'Mon matériel', 'Connexions'], 'Mon profil', 'Mon profil', 1],
       [await p.locator('.mp-etat, .ps-profil-etat, .mp-msg').count(), await sections(p), (await p.textContent('.mrt-tab.is-on')).trim(), await p.evaluate(() => document.title.split(' · ')[0]), await p.locator('.mp-cadre .mp-palmares').count()], 'page Mon profil : pas de ligne d\'état, sections, onglet et titre, repère du Palmarès'));
     await p.click('.mp-cadre [data-q="taille"]'); await p.waitForSelector('.ps-profil [name="valeur"]');
     pb.push(egal([0, 1, 'Taille'], [await p.locator('.ps-profil [data-q="liste"]').count(), await p.locator('.ps-profil [data-fermer]').count(), await p.textContent('.ps-profil .fc-libelle')], 'page : une question seule dans la feuille, croix sans « ‹ »'));
