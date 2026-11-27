@@ -5611,7 +5611,7 @@ const CONTROLES = {
     const { db, id } = jeuObjectif(db0);
     const pb = [];
     const COMMUNS = /\bmrt-(btn|rond|lien|pastille|choix|tri|gear|barre-cap|tab|menu-l)\b/;
-    const AUTRES = /\b(mg-titre|mg-pt|fc-bloc-titre|cal-carte-txt|cal-m-se-txt|cal-se-txt|cal-m2-txt|cal-v-course|cal-v-rdv|cal-voisin|ob-carte|ps-sem|ps-choix|ps-ligne-q|is-precedente|is-suivante|ob-ins|pc-lieu|nu-ligne|nu-aliment|cal-info|cal-a-j|cal-m-num)\b/;
+    const AUTRES = /\b(mg-titre|mg-pt|fc-bloc-titre|cal-carte-txt|cal-se-txt|cal-m2-txt|cal-m2-course|cal-v-course|cal-v-rdv|cal-voisin|ob-carte|ps-sem|ps-choix|ps-ligne-q|is-precedente|is-suivante|ob-ins|pc-lieu|nu-ligne|nu-aliment|cal-info|cal-a-j|cal-y-j)\b/;
     const releve = p => p.evaluate(([c, a]) => {
       const COM = new RegExp(c), AUT = new RegExp(a);
       const vis = e => { const r = e.getBoundingClientRect(), st = getComputedStyle(e); return r.width > 0 && r.height > 0 && st.visibility !== 'hidden' && st.opacity !== '0'; };
