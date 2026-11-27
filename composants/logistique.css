@@ -3,7 +3,8 @@
 .lg-cellule[data-total=""] > summary::after { content: none; }
 .lg-rubrique + .lg-rubrique { margin-top: 1rem; }
 .lg-titre { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
-.lg-titre .mrt-btn { margin-left: auto; text-transform: none; letter-spacing: normal; }
+.lg-titre > .mrt-rond { margin-left: auto; }
+.lg-titre .lg-actions .mrt-btn { text-transform: none; letter-spacing: normal; }
 .lg-titre .lg-actions { margin-left: auto; display: flex; gap: 0.4rem; }
 .lg-titre .lg-actions .mrt-btn { margin-left: 0; }
 .lg-compte { color: var(--text); }
@@ -55,7 +56,11 @@
 /* Logement : flèche du lien à côté du nom, itinéraires, adresse assistée ; trajet : aller-retour. */
 .lg-nom { flex: 0 1 auto; margin-right: auto; }
 .lg-lien-nom { display: inline-flex; vertical-align: middle; margin-left: 0.35rem; padding: 0.3rem; margin-top: -0.3rem; margin-bottom: -0.3rem; }
-.lg-plans { display: inline-flex; gap: 0.2rem 0.9rem; flex-wrap: wrap; }
+/* Adresse cliquable : un menu d'itinéraires (Google Maps, Waze, application de l'appareil). */
+.lg-adr { position: relative; }
+.lg-adr > .mrt-lien { text-align: left; }
+.lg-adr .mrt-menu { top: 100%; left: 0; min-width: 14rem; margin-top: 0.2rem; }
+.lg-adr .mrt-menu-l { text-decoration: none; }
 .lg-large { grid-column: 1 / -1; }
 .lg-sous-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 0.8rem; }
 .lg-sous-grille[hidden], .lg-retour[hidden] { display: none; }
@@ -68,3 +73,9 @@
 .lg-aide:empty { display: none; }
 .lg-prix small { font-size: var(--t-petit); color: var(--muted); }
 @media (max-width: 600px) { .lg-sous-grille { grid-template-columns: minmax(0, 1fr); } }
+
+/* Rubrique en modification : une fiche par logement ou trajet, « Ajouter » dessous, puis Annuler et Enregistrer. */
+.lg-edition { display: flex; flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+.lg-edition .lg-fiche { width: 100%; box-sizing: border-box; }
+.lg-edition .lg-pied { width: 100%; }
+.lg-fiche-titre { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }
