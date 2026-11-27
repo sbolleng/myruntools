@@ -1,6 +1,6 @@
 # Logistique d'une course · spécification fonctionnelle
 
-Version 0.1 · 27 novembre 2026 · [Retour au sommaire](README.md) · Première version : logement, transport, matos à cocher, total de la course, « Mon matériel » dans Mon profil.
+Version 0.2 · 27 novembre 2026 · [Retour au sommaire](README.md) · Construit : logement, transport, matos à cocher, total de la course, « Mon matériel » dans Mon profil (évolution 048 à passer).
 
 ## 1. Rôle
 
@@ -36,7 +36,7 @@ Hors périmètre de cette version (décidé le 27 nov. 2026) : message de recomm
 │  (13) Aller · (14) Train · (15) Lyon 08:12 → Saint-É. 10:05 │
 │  (16) 62 € · (17) lien de réservation                       │
 │                                                             │
-│ (18) MATOS  12 / 19 pris        (19) [Mode jour J] [Éditer] │
+│ (18) MATOS  12 / 19 pris        (19) [Jour J] [Modifier la liste] │
 │  (20) Sécurité                                              │
 │   [x] (21) Frontale  (22) IMPOSÉ                            │
 │   [ ] Couverture de survie  IMPOSÉ                          │
@@ -53,7 +53,7 @@ Sur téléphone, même ordre, une rubrique sous l'autre ; la ligne du logement e
 
 | N° | Nom | Exemple | Place | Style |
 | --- | --- | --- | --- | --- |
-| 1 | Total | 412 € | Droite du titre du bloc, cliquable | Taille 5, accent |
+| 1 | Total | 300 € | Droite du titre du bloc replié (Space Mono, accent), et en tête du bloc ouvert, cliquable | Taille 4, accent |
 | 2 | Détail du total | Dossard, Logement, Transport | Sous le titre, replié par défaut | Taille 3, gris |
 | 3 | Titre Logement | LOGEMENT | Capitales, taille 3 | Règles du design § 1 |
 | 4 | Ajouter un logement | + Ajouter | Droite du titre 3 | Bouton du panneau (§ 11) |
@@ -71,7 +71,7 @@ Sur téléphone, même ordre, une rubrique sous l'autre ; la ligne du logement e
 | 16 | Prix du trajet | 62 € | Fin de ligne | Taille 4 |
 | 17 | Lien de réservation | Réservation | Fin de ligne | Lien |
 | 18 | Titre Matos et compteur | MATOS · 12 / 19 pris | Comme le 3 | |
-| 19 | Mode jour J / Éditer | | Droite du titre 18 | Boutons du panneau |
+| 19 | Jour J / Modifier la liste | | Droite du titre 18 | Boutons secondaires du panneau |
 | 20 | Catégorie | Sécurité | Titre de groupe | Capitales, taille 3 |
 | 21 | Article avec case | Frontale | Une ligne par article | Taille 4 ; case ≥ 44 px (zones de toucher) |
 | 22 | Pastille « Imposé » | IMPOSÉ | Après le 21 | Pastille accent |
@@ -83,13 +83,13 @@ Numéros stables : un nouvel élément prend le numéro suivant.
 
 ### 3.3 Mode jour J
 
-Bouton (19) : la liste du matos s'affiche seule, plein écran, une ligne par article avec une grande case. Les articles imposés passent en tête de chaque catégorie. Cocher est enregistré aussitôt. Le compteur « x / n pris » reste en haut. Une croix referme.
+Bouton « Jour J » (19) : la liste du matos s'affiche seule, plein écran, une ligne par article avec une grande case. Les articles imposés passent en tête de chaque catégorie. Cocher est enregistré aussitôt. Le compteur « x / n pris » reste en haut. Une croix referme.
 
 ### 3.4 Édition
 
 - **Logement et trajet** : une feuille de saisie par élément (champs du tableau). Prix facultatif ; date et heure d'arrivée et de départ facultatives. Supprimer demande confirmation (design § 1).
-- **Matos** : « Éditer » ouvre la liste. « Ajouter un article » propose d'abord les articles du catalogue de l'utilisateur (recherche à la frappe), sinon crée un nouvel article, mémorisé au catalogue dans la catégorie choisie. Chaque article de la course a une bascule **Imposé** et un bouton Retirer (retire de la course, pas du catalogue).
-- **Équipement lié** : un article du catalogue peut être lié à un équipement de Mon matériel (chaussures, bâtons, sac, frontale, montre). Sur la course, l'équipement choisi s'affiche (24) ; pour les chaussures, ce choix remplace le champ « Chaussures » existant de la course.
+- **Matos** : « Modifier la liste » ouvre la modification (le bouton devient « Terminer »). « Ajouter un article » propose d'abord les articles du catalogue de l'utilisateur (recherche à la frappe), sinon crée un nouvel article, mémorisé au catalogue dans la catégorie choisie. Chaque article de la course a une bascule **Imposé** et un bouton Retirer (retire de la course, pas du catalogue).
+- **Équipement lié** : un article dont le nom évoque un type d'équipement (Chaussures, Frontale, Bâtons, Sac, Montre) peut recevoir, pour cette course, un équipement de Mon matériel (liste « Équipement… », visible en modification s'il en existe un de ce type). Il s'affiche sur la ligne (24). Le champ « Chaussures » de la course n'est pas touché : l'usure des chaussures viendra avec le calcul des kilomètres.
 - Le détail du total se calcule : dossard (prix de la course) + somme des prix des logements + somme des prix des trajets ; les prix vides comptent zéro et ne sont pas affichés.
 
 ### 3.5 Mon matériel (dans Mon profil)
@@ -120,29 +120,29 @@ Aucun article n'est marqué « Imposé » au départ : l'utilisateur le pose cou
 | --- | --- |
 | `logements` | course, nom, adresse, url, prix, arrivée, départ |
 | `trajets` | course, sens, type, lieu et heure de départ, lieu et heure d'arrivée, url, prix |
-| `materiel_catalogue` | utilisateur, nom, catégorie, équipement lié (facultatif), ordre |
-| `course_materiel` | course, article, imposé, pris |
+| `materiel_catalogue` | utilisateur, nom (unique par utilisateur), catégorie, ordre |
+| `course_materiel` | course, article, imposé, pris, équipement choisi (facultatif) |
 
 Règles d'accès : chaque ligne appartient à l'utilisateur ; lecture et écriture réservées à lui. **Le partage en lecture seule ne montre jamais la Logistique** (adresses, liens de réservation, prix). Le champ texte `logistique` de la course devient les Notes (25).
 
 ## 6. Jeu d'essai et résultats attendus
 
-Données fictives : la course « Trail des Gorges » avec dossard à 95 €.
+Données fictives du banc d'essai : la course « Trail des Gorges » (dossard à 58 €) ; groupe `logistique`.
 
-1. Ajouter un logement « Gîte des Crêtes », 180 €, arrivée ven. 17:00, départ dim. 10:00 : la ligne s'affiche ; total 275 €.
-2. Ajouter un trajet Train, Aller, Lyon 08:12 → Saint-Étienne 10:05, 62 € : total 337 €.
-3. Cliquer sur le total : le détail (95 / 180 / 62) s'ouvre ; un second clic le referme.
+1. Ajouter un logement « Gîte des Crêtes », 180 €, arrivée ven. 17:00, départ dim. 10:00 : la ligne s'affiche ; total 238 €.
+2. Ajouter un trajet Train, Aller, Lyon 08:12 → Saint-Étienne 10:05, 62 € : total 300 €.
+3. Cliquer sur le total : le détail (58 / 180 / 62) s'ouvre ; un second clic le referme.
 4. Logement et trajet sans prix : le total ne change pas et aucun « 0 € » ne s'affiche.
 5. Matos : « Ajouter un article », taper « Fron » : « Frontale » du catalogue est proposée ; l'ajouter ; il n'est pas créé en double.
 6. Taper un article inconnu : il est créé, rangé dans la catégorie choisie, et proposé à la course suivante.
 7. Basculer « Imposé » sur la frontale : la pastille apparaît ; en mode jour J elle passe en tête de sa catégorie.
-8. Cocher trois articles : le compteur passe à « 3 / n pris » ; recharger la page : les cases restent cochées.
+8. Cocher deux articles en mode jour J : le compteur passe à « 2 / 3 pris » ; recharger la page : les cases restent cochées.
 9. Retirer un article de la course : il disparaît de la course, reste au catalogue.
-10. Lier « Chaussures » à une paire de Mon matériel : l'équipement s'affiche (24).
+10. Choisir une frontale de Mon matériel pour l'article « Frontale » : l'équipement s'affiche (24).
 11. Mon profil, Mon matériel : les chaussures ont des kilomètres ; une montre ou une frontale n'en ont pas.
 12. Lien de partage en lecture seule : le bloc Logistique est absent.
-13. Un autre compte ne voit ni les logements, ni les trajets, ni le catalogue du premier.
-14. Téléphone (375 px) : aucun débordement horizontal, cases d'au moins 44 px.
+13. Un autre compte ne voit ni les logements, ni les trajets, ni le catalogue du premier (règles par ligne de la base : à vérifier dans Supabase, la base simulée du banc n'en a pas).
+14. Téléphone : aucun débordement horizontal ; en mode jour J, lignes d'au moins 44 px.
 
 ## 7. Questions ouvertes
 
