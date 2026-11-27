@@ -51,7 +51,7 @@
 .cal-k-auj { box-shadow: inset 0 0 0 2px var(--text); }
 
 /* ----- Course, rendez-vous clé, séance, « + » : communs au Mois et à la Semaine ----- */
-.cal-v-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; border-radius: 3px; }
+.cal-v-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; border-radius: 4px; }
 .cal-v-course.c-route-v { background: var(--route); color: var(--encre); }
 .cal-v-course.c-trail-v { background: var(--trail); color: var(--encre); }
 .cal-v-course.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
@@ -84,12 +84,12 @@
 .cal-a-bloc { display: grid; grid-template-columns: repeat(var(--n), 2.6rem minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: var(--ligne); }
 /* Onglet du mois, au-dessus de ses cases : Bordure, le mois en cours en Accent. */
 .cal-a-mois { padding: 0.3rem 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); background: var(--border); border-radius: 6px 6px 0 0; }
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); background: var(--border); border-radius: 4px 4px 0 0; }
 .cal-a-mois.is-courant { color: var(--bg); background: var(--accent); }
 .cal-a-mois i { font-style: normal; }
 .cal-a-n { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; padding-right: 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); color: var(--muted); }
 .cal-a-n i { font-style: normal; opacity: 0.75; } /* initiale : la taille du numéro, plus discrète */
-.cal-a-n b { min-width: 1.35rem; font-weight: 400; line-height: 1.2rem; text-align: right; }
+.cal-a-n b { min-width: 1.35rem; font-family: 'Space Grotesk', sans-serif; font-weight: 600; line-height: 1.2rem; text-align: right; }
 .cal-a-n.auj b { padding: 0 0.2rem; text-align: center; color: var(--bg); background: var(--accent); border-radius: 999px; }
 .cal-a-j { position: relative; display: block; background: var(--case); cursor: pointer; }
 .cal-a-j.we { background: var(--border); }
@@ -131,7 +131,7 @@
 
 /* ----- Mois : la grille du mois (spécification § 4.1 et 4.2) : cases jointives, un filet de 1 px, un seul fond ----- */
 .cal-m-jours, .cal-m-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; }
-.cal-m-grille { border-radius: 6px; overflow: hidden; }
+.cal-m-grille { border-radius: 4px; overflow: hidden; }
 .cal-m-jours span { padding-bottom: 0.35rem; }
 .cal-m-case { position: relative; display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; min-height: 6rem; padding: 0.3rem 0.35rem 2.2rem; background: var(--case); cursor: pointer; overflow: hidden; }
 /* Jours des mois voisins : le même fond, le contenu atténué. */
@@ -140,11 +140,10 @@
 .cal-m-case.passe .cal-m-num { color: var(--muted); }
 .cal-m-num.auj, .cal-m-case.passe .cal-m-num.auj { color: var(--bg); background: var(--accent); }
 .cal-m-txt { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
-.cal-m-case .cal-v-plus { right: 0.35rem; bottom: 0.35rem; width: 1.15rem; height: 1.15rem; }
-.cal-m-case .cal-v-plus .mrt-ico { width: 0.65rem; height: 0.65rem; }
+.cal-m-case .cal-v-plus { right: 0.35rem; bottom: 0.35rem; }
 .cal-m-case .cal-v-det { display: block; margin-left: 0; }
 .cal-m-points { display: none; }
-.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border-left: 3px solid var(--l); border-radius: 3px; }
+.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border-left: 3px solid var(--l); border-radius: 4px; }
 .cal-m-se[draggable="true"] { cursor: pointer; }
 .cal-m-se-txt { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
 .cal-m-se-txt::after { content: ''; position: absolute; inset: -0.2rem -0.1rem; } /* zone de toucher élargie (design, § 1) */
@@ -172,7 +171,7 @@
 .cal-s-contenu .cal-v-se { gap: 0.4rem; font-size: var(--t-texte); }
 .cal-s-contenu .cal-v-se input { width: 1rem; height: 1rem; }
 .cal-s-contenu .cal-v-se-txt b { font-size: var(--t-libelle); letter-spacing: 0.1em; }
-.cal-s-ligne .cal-v-plus { top: 50%; right: 0.5rem; margin-top: -0.75rem; }
+.cal-s-ligne .cal-v-plus { top: 50%; right: 0.5rem; margin-top: -0.75rem; } /* « + » : une seule taille partout (mrt-rond is-petit, 1,5 rem) */
 .cal-fin { height: 1px; }
 
 /* ----- Phases (Plan) : le fond à la couleur de la phase de la semaine, le même pour tous ses jours (passés et voisins compris), et un
@@ -285,11 +284,10 @@
 .cal-m2-case.passe .cal-m2-num { color: var(--muted); }
 .cal-m2-num.auj, .cal-m2-case.passe .cal-m2-num.auj { color: var(--bg); background: var(--accent); }
 .cal-m2-case .cal-repos { align-self: center; margin: auto 0; font-size: var(--t-petit); }
-.cal-m2-case .cal-v-plus { right: 0.3rem; bottom: 0.3rem; width: 1.15rem; height: 1.15rem; }
-.cal-m2-case .cal-v-plus .mrt-ico { width: 0.65rem; height: 0.65rem; }
+.cal-m2-case .cal-v-plus { right: 0.3rem; bottom: 0.3rem; }
 /* Carte d'une séance : liseré de 4 px à gauche, mesure en gras, nom dessous, détail discret ; case « faite » en haut à droite. */
 .cal-m2-se, .cal-m2-course { position: relative; display: flex; align-items: flex-start; gap: 0.2rem; min-width: 0; padding: 0.3rem 0.3rem 0.3rem 0.5rem; text-align: center;
-  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--l); border-radius: 5px; }
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--l); border-radius: 4px; }
 .cal-m2-mes .cal-int { height: 0.75rem; margin-right: 0.3rem; } .cal-m2-int-tel { display: none; }
 .cal-m2-txt { display: flex; flex: 1; flex-direction: column; align-items: center; min-width: 0; padding: 0; font: inherit; color: var(--text); background: none; border: 0; cursor: pointer; }
 .cal-m2-mes { max-width: 100%; overflow: hidden; font-size: var(--t-second); font-weight: 600; line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; }
@@ -300,13 +298,15 @@ b.cal-m2-nom { font-size: var(--t-second); }
 .cal-m2-se input { flex: none; width: 0.85rem; height: 0.85rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
 .cal-m2-se.faite .cal-m2-txt > * { color: var(--muted); text-decoration: line-through; }
 .cal-m2-se[draggable="true"] { cursor: grab; }
-/* Course : la carte à sa couleur (liseré plein ; confirmée : fond teinté). */
+/* Course : la carte à sa couleur, pleine si confirmée, à 50 % si option (comme dans toutes les vues). */
 .cal-m2-course { --l: var(--border); flex-direction: column; align-items: center; gap: 0; color: var(--text); text-decoration: none; }
 .cal-m2-course.c-route-v, .cal-m2-course.c-route-n { --l: var(--route); border-color: var(--route); }
 .cal-m2-course.c-trail-v, .cal-m2-course.c-trail-n { --l: var(--trail); border-color: var(--trail); }
-.cal-m2-course.c-route-v { background: color-mix(in srgb, var(--route) 22%, var(--surface)); }
-.cal-m2-course.c-trail-v { background: color-mix(in srgb, var(--trail) 22%, var(--surface)); }
-.cal-m2-course.courue { --l: var(--muted); color: var(--muted); }
+.cal-m2-course.c-route-v { background: var(--route); color: var(--encre); } .cal-m2-course.c-trail-v { background: var(--trail); color: var(--encre); }
+.cal-m2-course.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); } .cal-m2-course.c-trail-n { background: color-mix(in srgb, var(--trail) 50%, var(--border)); }
+.cal-m2-course:is(.c-route-v, .c-trail-v) :is(.cal-m2-nom, .cal-m2-mes, .cal-m2-det) { color: var(--encre); }
+.cal-m2-course.courue { --l: var(--muted); color: var(--bg); background: var(--muted); }
+.cal-m2-course.courue :is(.cal-m2-nom, .cal-m2-mes, .cal-m2-det) { color: var(--bg); }
 .cal-m2-course .cal-m2-nom { font-weight: 600; white-space: normal; }
 .cal-m2-case .cal-v-rdv { font-size: var(--t-micro); }
 /* Phases : le fond de la phase sur toute la ligne de la semaine, son liseré sur le libellé. */
@@ -338,23 +338,43 @@ b.cal-m2-nom { font-size: var(--t-second); }
 .cal-menu-btn { white-space: nowrap; }
 .cal-vide { margin: 0 0 1rem; text-align: center; font-size: var(--t-second); color: var(--muted); }
 
-/* ----- Année (12 mois) : mini-grilles ----- */
-.cal-y { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.4rem 1.2rem; }
+/* ----- Année (12 mois) : mini-grilles (spécification § 3.3) ; mêmes repères que les autres vues : fond Case, coins de 4 px,
+   samedi et dimanche plus foncés, numéro discret, aujourd'hui en pastille Accent et cadre, phase en fond, course pleine ----- */
+.cal-y { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem 1.4rem; }
 .cal-y-mois { min-width: 0; }
-.cal-y-mois .cal-a-mois { display: block; margin-bottom: 0.3rem; }
-.cal-y-grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-.cal-y-j { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; min-height: 1.1rem; border-radius: 3px; background: var(--surface); cursor: pointer; font-family: 'Space Mono', monospace; font-size: var(--t-micro); }
-.cal-y-j b { font-weight: 400; color: var(--bg); background: var(--accent); border-radius: 999px; padding: 0 0.2rem; }
+.cal-y-mois .cal-a-mois { display: block; }
+.cal-y-total { display: block; margin: 0.35rem 0 0.4rem; font-size: var(--t-micro); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.cal-y-tete, .cal-y-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; }
+.cal-y-tete span { padding-bottom: 0.2rem; font-size: var(--t-micro); text-align: center; }
+.cal-y-j { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1px; aspect-ratio: 1; min-width: 0; padding-top: 0.15rem; background: var(--case); border-radius: 4px; cursor: pointer; }
+.cal-y-j.we { background: var(--border); }
+.cal-y-num { min-width: 1.15rem; padding: 0 0.15rem; font-size: var(--t-micro); font-weight: 600; line-height: 1.15rem; text-align: center; color: var(--muted); opacity: 0.5; border-radius: 999px; }
 .cal-y-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
-.cal-y-j.ph-base { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
-.cal-y-j.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
-.cal-y-j.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
-.cal-y-j.ph-deload { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
-.cal-y-j.ph-recuperation { background: color-mix(in srgb, var(--ph-recuperation) 38%, var(--surface)); }
+.cal-y-j.auj .cal-y-num { color: var(--bg); background: var(--accent); opacity: 1; }
 .cal-y-j.c-route-v { background: var(--route); } .cal-y-j.c-trail-v { background: var(--trail); }
 .cal-y-j.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
 .cal-y-j.c-trail-n { background: color-mix(in srgb, var(--trail) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-y-j.courue { background: var(--muted); }
-.cal-y-pts { display: flex; gap: 1px; }
-.cal-y-pts i { display: block; width: 0.35rem; height: 0.35rem; border-radius: 50%; }
-@media (max-width: 700px) { .cal-y { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cal-y-j:is(.c-route-v, .c-trail-v) .cal-y-num { color: var(--encre); opacity: 0.85; }
+.cal-y-j:is(.c-route-n, .c-trail-n) .cal-y-num { color: var(--text); opacity: 0.85; }
+.cal-y-j.courue .cal-y-num { color: var(--bg); opacity: 0.85; }
+.cal-y-pts { display: flex; justify-content: center; gap: 2px; }
+.cal-y-pts i { display: block; width: 0.3rem; height: 0.3rem; border-radius: 50%; }
+@media (hover: hover) { .cal-y-j:not(.auj):hover { box-shadow: inset 0 0 0 1px var(--text); } }
+@media (max-width: 900px) { .cal-y { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .cal-y { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem 0.8rem; } }
+
+/* ----- Harmonisation des vues : week-end plus foncé et aujourd'hui encadré dans toutes les grilles (4 semaines, Mois, Année) ;
+   avec le plan, la phase garde un cran de plus le week-end (comme 3 et 6 mois). ----- */
+.cal-m-case.we, .cal-m2-case.we { background: var(--border); }
+.cal-m-case.auj, .cal-m2-case.auj { outline: 2px solid var(--text); outline-offset: -2px; }
+.cal-m-case.we.ph-base, .cal-m2-ligne.ph-base .cal-m2-case.we, .cal-y-j.we.ph-base:not([data-course]) { background: color-mix(in srgb, var(--ph-base) 52%, var(--surface)); }
+.cal-y-j.ph-base:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
+.cal-m-case.we.ph-developpement, .cal-m2-ligne.ph-developpement .cal-m2-case.we, .cal-y-j.we.ph-developpement:not([data-course]) { background: color-mix(in srgb, var(--ph-developpement) 52%, var(--surface)); }
+.cal-y-j.ph-developpement:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-developpement) 38%, var(--surface)); }
+.cal-m-case.we.ph-affutage, .cal-m2-ligne.ph-affutage .cal-m2-case.we, .cal-y-j.we.ph-affutage:not([data-course]) { background: color-mix(in srgb, var(--ph-affutage) 52%, var(--surface)); }
+.cal-y-j.ph-affutage:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-affutage) 38%, var(--surface)); }
+.cal-m-case.we.ph-deload, .cal-m2-ligne.ph-deload .cal-m2-case.we, .cal-y-j.we.ph-deload:not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 52%, var(--surface)); }
+.cal-y-j.ph-deload:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
+.cal-m-case.we.ph-recuperation, .cal-m2-ligne.ph-recuperation .cal-m2-case.we, .cal-y-j.we.ph-recuperation:not([data-course]) { background: color-mix(in srgb, var(--ph-recuperation) 52%, var(--surface)); }
+.cal-y-j.ph-recuperation:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-recuperation) 38%, var(--surface)); }
