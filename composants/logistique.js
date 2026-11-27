@@ -297,8 +297,8 @@
   // choisir(item) ; la liste s'affiche sous le champ pendant la frappe ; flèches, Entrée, Échap.
   function autocompletion(wrap, source, choisir, attente) {
     const champ = wrap.querySelector('input');
-    let liste = null, items = [], actif = -1, minuteur = null, ctrl = null;
-    const fermer = () => { if (liste) liste.remove(); liste = null; items = []; actif = -1; champ.setAttribute('aria-expanded', 'false'); };
+    let liste = null, items = [], actif = -1, minuteur = null, ctrl = null, pour = null; // pour : le texte des propositions affichées
+    const fermer = () => { if (liste) liste.remove(); liste = null; items = []; actif = -1; pour = null; champ.setAttribute('aria-expanded', 'false'); };
     const montrer = () => {
       if (!items.length) { fermer(); return; }
       if (!liste) { liste = document.createElement('div'); liste.className = 'lg-auto-liste'; liste.setAttribute('role', 'listbox'); wrap.appendChild(liste); }
@@ -311,13 +311,19 @@
       ctrl = window.AbortController ? new AbortController() : null;
       const r = await source(q, ctrl && ctrl.signal);
       if (r === undefined || champ.value.trim() !== q) return; // réponse dépassée
-      items = r || []; actif = items.length ? 0 : -1; montrer();
+      items = r || []; pour = q; actif = items.length ? 0 : -1; montrer();
     };
     champ.setAttribute('autocomplete', 'off');
     champ.setAttribute('aria-autocomplete', 'list');
     champ.addEventListener('input', () => { clearTimeout(minuteur); minuteur = setTimeout(chercher, attente || 0); });
     champ.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); if (liste && items[actif]) { const x = items[actif]; fermer(); choisir(x); } return; }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // Propositions d'une frappe précédente : relancer la recherche sur le texte actuel avant de choisir.
+        const choix = () => { if (liste && items[actif]) { const x = items[actif]; fermer(); choisir(x); } };
+        if (pour !== champ.value.trim()) { clearTimeout(minuteur); chercher().then(choix); } else choix();
+        return;
+      }
       if (!liste) return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); actif = (actif + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; montrer(); }
       if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); fermer(); }
