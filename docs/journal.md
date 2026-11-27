@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Plus de page-liste dans Nutrition | « Séance » (Nutrition, En un coup d'œil, « + » du journal) ouvre directement la saisie d'une séance ; plus de liste ni de « ‹ » : enregistrer ou supprimer ferme la feuille. Guide 0.6 (groupes du choix de séance), Nutrition 1.51. |
 | 27 nov. 2026 | 3 et 6 mois, repères | 1 px entre deux jours (comme le Mois) ; initiale du jour à droite de chaque case, en discret ; filet sous le dimanche plus marqué (2 px) ; spécification 0.41. |
 | 27 nov. 2026 | Feuille « Effort et sensations » aérée | Ressenti d'abord (effort obligatoire), puis réalisé (deux champs par ligne, FC repliée derrière « + Fréquence cardiaque »), puis commentaire, séparés d'un filet ; séance à venir cochée : « Faite » (Aujourd'hui) (son jour), aujourd'hui d'office, la séance se déplace en gardant son jour prévu. Plan E1 à E15. Préparation 3.19. |
 | 27 nov. 2026 | Mon matériel (boutons) | « Modifier » devient le rond crayon, comme ailleurs sur le site ; « Ajouter » devient « + Ajouter un équipement », à gauche sous la liste, pour ne plus le confondre avec les « Modifier ». |

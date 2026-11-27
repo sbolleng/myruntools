@@ -119,8 +119,6 @@
 .nu-faite input { width: 1.05rem; height: 1.05rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
 .nu-seance-l .nu-ligne { flex: 1; min-width: 0; }
 .nu-seance-l.is-non-comptee .nu-ligne { color: var(--muted); }
-.nu-ajout-seance { margin: 0.6rem 0 0.4rem; }
-.nu-seances-f { margin-bottom: 0.2rem; }
 
 /* Feuille d'ajout, étape 2 : « ‹ » à gauche de la barre, la croix à droite. */
 .nu-feuille .pc-barre .is-fermer { margin-left: auto; }
