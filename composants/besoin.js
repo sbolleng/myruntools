@@ -48,7 +48,7 @@
   // ----- Séances du Calendrier : la même échelle pour tous -----
   // Course à pied : équation de course de l'ACSM, MET = (0,2 × vitesse en m/min + 3,5) ÷ 3,5. La vitesse est celle de la
   // séance (distance ÷ durée) ; sans distance, la part de la VMA selon l'intensité ; sans VMA, 9,5 km/h.
-  // Renforcement : 3 MET. Danse : 5 MET (valeur unique, à valider). Vélo : les paliers de vitesse de la liste des sports (promenade 5,
+  // Renforcement : 3 MET. Danse : 5 MET (valeur unique, validée le 27 nov. 2026). Vélo : les paliers de vitesse de la liste des sports (promenade 5,
 // 19 à 22 km/h 7, 22 km/h et plus 10) ; sans distance, selon l'intensité (facile 5, modérée 7, intense 10), sinon 7.
   const PART_VMA = { facile: 0.65, moderee: 0.75, intense: 0.85 };
   const VITESSE_PAR_DEFAUT = 9.5;
