@@ -1,7 +1,7 @@
 // ===== Export du plan : une page à imprimer ou à enregistrer en PDF =====
 //
 // docs/module-calendrier-specification.md, § 4.6. Depuis le Calendrier (la période affichée) et Mon plan (de la semaine en cours
-// à l'Objectif) : A4 à l'horizontale, titre en haut (pas de légende des liserés), une ligne par semaine (la grille de Mois V2, calendrier.js),
+// à l'Objectif) : A4 à l'horizontale, titre en haut (pas de légende des liserés), une ligne par semaine (la grille du Mois, calendrier.js),
 // six semaines par page, en-tête répété ; fond blanc (thème blanc-orange), quel que soit le thème choisi. Le PDF se fait
 // avec « Imprimer → Enregistrer en PDF » du navigateur.
 //   mrtExport.bouton()                     le rond « Exporter » (data-exporter), à poser dans une barre

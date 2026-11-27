@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : plus d'« Autres sports » (Vélo, Danse, Natation, Marche, Crossfit sont des séances ; évolutions 052 puis 053 à passer) ; Logistique : adresse cliquable et rubriques modifiables au crayon (049 et 051 passées) ; effort obligatoire des séances. Avant : Calendrier harmonisé (0.36) ; ajout d'une séance Faite / À faire, Vélo et Danse (050 passée).
+- Dernier lot : plus d'« Autres sports » (Vélo, Danse, Natation, Marche, Crossfit sont des séances ; évolutions 052 puis 053 à passer) ; Calendrier (spécification 0.39) : une seule vue Mois (ex-Mois V2, l'ancienne grille retirée), bouton « Légende », Année en 12 mini-grilles, couleurs uniques, plus de « Repos » ; Logistique, adresse cliquable et rubriques modifiables au crayon (évolutions 049 et 051 passées) ; effort obligatoire des séances.
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).
