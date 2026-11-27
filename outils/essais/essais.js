@@ -2218,7 +2218,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#annee', w, db, {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['6 mois', ['Semaine', '4 semaines', 'Mois', '3 mois', '6 mois *', 'Année']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], null], [r.vue, r.titre, r.voisins, r.p20], nom + ', menu « Vue » sur 6 mois (par défaut), voisines ; Plan éteint : pas de fond de phase'),
+        egal([['6 mois', ['Semaine', 'Mois', '3 mois', '6 mois *', 'Année']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], null], [r.vue, r.titre, r.voisins, r.p20], nom + ', menu « Vue » sur 6 mois (par défaut), voisines ; Plan éteint : pas de fond de phase'),
         egal([tel ? [3, 3] : [6], ['oct. 26', 'nov.', 'déc.', 'janv. 27', 'févr.', 'mars']], [r.blocs, r.mois], nom + ', ' + (tel ? 'deux blocs de trois mois' : 'un bloc de six mois')),
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, 0, false, LEGENDE], [r.nbPhases, r.barres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni fond de phase ni légende des phases'),
@@ -2315,16 +2315,16 @@ const CONTROLES = {
       };
     }, zone);
     for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
-      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois2', w, copie(), {}, PARIS);
+      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
       const r = await lire(p, '.cal-cadre');
       pb.push(
-        egal(['4 semaines', ['Semaine', '4 semaines *', 'Mois', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
+        egal(['Mois', ['Semaine', 'Mois *', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
         egal([['', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'], ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26'], ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['28', '29', '30']],
           [r.tete, r.lignes, r.hors, r.nums], nom + ', une ligne par semaine (cinq), jours des mois voisins atténués, numéro du jour dans chaque case'),
         egal([['2026-10-19', 'l-renfo', 'Renforcement', undefined, 'Gainage 30 min', true, 0], ['2026-10-20', 'l-frac', '1 h', 'Fractionné', '8×400 m', false, 3],
           ['2026-10-22', 'l-neutre', '7 km', 'Endurance', '', false, 1], ['2026-10-24', 'l-sl', '12,5 km', 'Sortie longue', '', false, 2]], r.cartes,
           nom + ', cartes : liseré du type de séance (Renforcement, Fractionné, Endurance neutre, Sortie longue), traits de l\'intensité, mesure en gras (distance, sinon durée, sinon le nom), nom, détail'),
-        egal(['2026-10-21', '2026-10-23', '2026-10-25'], r.repos, nom + ', « Repos » les jours vides d\'une semaine qui a des séances'),
+        egal([], r.repos, nom + ', plus de « Repos » : un jour vide reste vide'),
         egal([true, true], [r.libelles[3].includes('19 oct.'), r.libelles[3].includes('1/4 séances · 0/19,5 km')], nom + ', libellé de la semaine : date du lundi, total'),
         egal([w < 600 ? 0 : 4, w < 600 ? 0 : 35], [r.cases === 4 && w < 600 ? 0 : r.cases, w < 600 ? 0 : r.plus], nom + ', case « faite » et « + » (ordinateur ; masqués sur téléphone)'),
         egal([], r.legende, nom + ', pas de légende des liserés'),
@@ -2334,24 +2334,24 @@ const CONTROLES = {
       await ctx.close();
     }
     // Le même liseré dans le Mois et la Semaine (Calendrier § 4.5) : type de séance, Endurance neutre.
-    for (const [vue, sel] of [['mois', '.cal-m-se'], ['semaines=2026-10-19', '.cal-carte']]) {
+    for (const [vue, sel] of [['mois', '.cal-m2-se'], ['semaines=2026-10-19', '.cal-carte']]) {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#' + vue, 1200, copie(), {}, PARIS);
       const l = await p.evaluate(q => [...document.querySelectorAll(q)].filter(e => e.closest('[data-jour], [data-jour-ligne]')).map(e => (j => [j.dataset.jour || j.dataset.jourLigne, [...e.classList].find(c => c.startsWith('l-')), getComputedStyle(e).borderLeftWidth])(e.closest('[data-jour], [data-jour-ligne]'))), sel);
-      const w = vue === 'mois' ? '3px' : '4px';
-      pb.push(egal([['2026-10-19', 'l-renfo', w], ['2026-10-20', 'l-frac', w], ['2026-10-22', 'l-neutre', w], ['2026-10-24', 'l-sl', w]], l, vue + ' : liseré selon le type de séance, comme Mois V2'));
+      const w = '4px'; // liseré de 4 px dans toutes les vues (harmonisation)
+      pb.push(egal([['2026-10-19', 'l-renfo', w], ['2026-10-20', 'l-frac', w], ['2026-10-22', 'l-neutre', w], ['2026-10-24', 'l-sl', w]], l, vue + ' : liseré selon le type de séance'));
       pb.push(egal([], erreurs, vue + ' : erreurs JavaScript'));
       await ctx.close();
     }
     // Plan : décembre, semaines de la saison du Trail des Gorges (numéro, phase), fond de phase ; Trail du Lac en carte (novembre).
     {
-      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois2=2026-12', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS);
+      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois=2026-12', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS);
       let r = await lire(p, '.cal-cadre');
       pb.push(egal([true, true, 'ph-deload', true], [r.libelles.every(l => /^Sem\. \d+ /i.test(l)), r.libelles[1].includes('Allègement'), (r.phases.find(x => x[0] === '2026-12-07') || [])[1], r.legende.includes('Base')],
         'Plan, décembre : « Sem. n », la phase dans le libellé, fond de phase sur la ligne'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-mois2-phases.png'), fullPage: true });
       await p.click('[aria-label="Mois précédent"]'); await pause();
       r = await lire(p, '.cal-cadre');
-      pb.push(egal(['#mois2=2026-11', [['2026-11-15', '24 kmTrail du Lac', 'c-trail-v']]], [await p.evaluate(() => location.hash), r.courses], 'mois précédent : novembre, le Trail du Lac en carte (distance, nom, couleur)'));
+      pb.push(egal(['#mois=2026-11', [['2026-11-15', '24 kmTrail du Lac', 'c-trail-v']]], [await p.evaluate(() => location.hash), r.courses], 'mois précédent : novembre, le Trail du Lac en carte (distance, nom, couleur)'));
       await p.click('.cal-m2-case[data-jour="2026-11-18"] .cal-m2-num');
       pb.push(egal('#semaines=2026-11-16', await p.evaluate(() => location.hash), 'jour touché : la vue Semaine'));
       pb.push(egal([], erreurs, 'Mois V2, Plan : erreurs JavaScript'));
@@ -2359,7 +2359,7 @@ const CONTROLES = {
     }
     // Export depuis le Calendrier : la période affichée, page imprimable sur fond blanc, ni case ni « + ».
     {
-      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois2', 1200, copie(), {}, PARIS);
+      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', 1200, copie(), {}, PARIS);
       await p.evaluate(() => { window.__imprime = 0; window.print = () => { window.__imprime++; }; });
       await p.click('.cal-haut [data-exporter]');
       const r = await lire(p, '.xp-zone');
@@ -2404,80 +2404,35 @@ const CONTROLES = {
       { id: 'se-4', utilisateur: moi, date: '2026-10-24', type: 'run', libelle: 'Sortie longue', intensite: 'facile', distance_km: 12, faite: false, course: null }];
     base.plan_semaines = [];
     const copie = () => { const d = JSON.parse(JSON.stringify(base)); d.ecritures = []; return d; };
+    // Vue Mois (une ligne par semaine, ex-4 semaines) : navigation et interactions ; son rendu est contrôlé par calendrierMois2.
     const lire = p => p.evaluate(() => {
       const t = s => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
-      const cases = [...document.querySelectorAll('.cal-m-case')], jourDe = e => e.closest('.cal-m-case').dataset.jour;
+      const jourDe = e => e.closest('.cal-m2-case').dataset.jour;
       return {
-        vue: [document.querySelector('[data-menu]').textContent.trim(), [...document.querySelectorAll('.cal-menu a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))],
         titre: t('.cal-titre'), voisins: [...document.querySelectorAll('.cal-voisin-txt')].map(e => e.textContent),
-        jours: [...document.querySelectorAll('.cal-m-jours span')].map(s => s.textContent),
-        nb: cases.length, hors: cases.filter(c => c.classList.contains('hors')).map(c => c.dataset.jour),
-        auj: [...document.querySelectorAll('.cal-m-num.auj')].map(jourDe),
-        courses: [...document.querySelectorAll('.cal-m-case .cal-v-course')].map(a => [jourDe(a), a.textContent, [...a.classList].find(c => /^c-|^courue$/.test(c))]),
-        rdv: [...document.querySelectorAll('.cal-m-case .cal-v-rdv')].map(a => [jourDe(a), a.textContent]),
-        seances: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => [jourDe(e), e.querySelector('.n-long').textContent, (t => t ? [...t.classList].find(c => /^i-/.test(c)) : 'i-aucune')(e.querySelector('.cal-int')), e.classList.contains('faite')]),
-        abreges: [...document.querySelectorAll('.cal-m-case .cal-m-se .n-court')].map(e => e.textContent),
-        lis: [...document.querySelectorAll('.cal-m-case .cal-m-se')].map(e => e.querySelectorAll('.cal-int .on').length),
-        abrege: (e => !!e && getComputedStyle(e).display !== 'none')(document.querySelector('.cal-m-se .n-court')),
-        plus: document.querySelectorAll('.cal-m-case [data-ajout]').length,
-        phases: cases.filter(c => /\bph-/.test(c.className)).map(c => [c.dataset.jour, [...c.classList].find(x => x.startsWith('ph-'))]),
-        legende: [...document.querySelectorAll('.cal-legende .cal-groupe > span')].map(x => x.textContent),
-        reperes: getComputedStyle(document.querySelector('.cal-m-points')).display !== 'none',
-        // Un seul fond : jour voisin (28 sept.) et jour du mois (7 oct.), jour passé (19) et à venir (21) ; « + » à contour Accent.
-        fonds: (f => [f('2026-09-28') === f('2026-10-07'), f('2026-10-19') === f('2026-10-21')])(j => (e => e && getComputedStyle(e).backgroundColor)(document.querySelector('.cal-m-case[data-jour="' + j + '"]'))),
-        plusAccent: (b => { const i = document.createElement('i'); i.style.color = 'var(--accent)'; document.body.append(i); const a = getComputedStyle(i).color; i.remove();
-          return !!b && getComputedStyle(b).borderTopColor === a && getComputedStyle(b).color === a; })(document.querySelector('.cal-m-case [data-ajout]')),
-        totaux: [...document.querySelectorAll('.cal-titre-bloc .cal-total')].map(e => e.textContent), totauxSemaine: document.querySelectorAll('.cal-m-total').length,
-        debordement: document.documentElement.scrollWidth > innerWidth
+        courses: [...document.querySelectorAll('.cal-m2-case .cal-m2-course')].map(a => [jourDe(a), a.querySelector('b.cal-m2-nom, .cal-m2-nom').textContent, [...a.classList].find(c => /^c-|^courue$/.test(c))]),
+        seances: [...document.querySelectorAll('.cal-m2-case .cal-m2-se')].map(e => jourDe(e))
       };
     });
-    const SEANCES = [['2026-10-19', 'Renforcement', 'i-aucune', true], ['2026-10-20', 'Fractionné', 'i-intense', false], ['2026-10-22', 'Endurance', 'i-facile', false], ['2026-10-24', 'Sortie longue', 'i-facile', false]];
-    for (const [nom, w] of [['ordinateur', 1200], ['téléphone', 390]]) {
-      const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
-      const r = await lire(p), tel = w < 600;
-      pb.push(
-        egal([['Mois', ['Semaine', '4 semaines', 'Mois *', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
-        egal([35, ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['2026-10-20']], [r.nb, r.hors, r.auj], nom + ', cinq semaines, jours des mois voisins atténués, aujourd\'hui'),
-        egal([[['2026-10-04', 'Semi de San Sebastián', 'courue']], [['2026-11-01', '◆ Ouverture des inscriptions · Corrida de Noël']]], [r.courses, r.rdv], nom + ', course courue et rendez-vous clé'),
-        egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances (nom normalisé, intensité, faite), un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
-        egal([0, 3, 1, 1], r.lis, nom + ', intensité en trois traits : aucun sans intensité, trois intense, un facile'),
-        egal(['Renf.', 'Frac.', 'End.', 'S. longue'], r.abreges, nom + ', abréviations des noms'),
-        ...(tel ? [] : [egal(true, r.plusAccent, nom + ', « + » à contour Accent')]),
-        egal([tel, tel], [r.abrege, r.reperes], nom + ', ' + (tel ? 'noms abrégés et barres de course' : 'noms en toutes lettres')),
-        egal([['1/4 séances · 0/19 km'], 0], [r.totaux, r.totauxSemaine], nom + ', un total pour le mois (séances et km, sans durée), plus de total par semaine'),
-        egal(false, r.debordement, nom + ', débordement horizontal'),
-        egal([], erreurs, nom + ', erreurs JavaScript'));
-      if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'calendrier-mois-' + nom.replace('é', 'e') + '.png'), fullPage: true });
-      await ctx.close();
-    }
-    // Plan : le fond de chaque jour à la couleur de la phase de sa semaine, le même pour tous ses jours, et la légende.
-    let d = copie();
-    let { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', 1200, d, { 'mrt-calendrier-phases': '1' }, PARIS);
-    let r = await lire(p);
-    pb.push(egal([0, ['Base', 'Développement', 'Affûtage', 'Allègement', 'Récupération', 'Entretien']], [r.phases.length, r.legende], 'Plan, octobre : Entretien (pas encore de saison), aucun fond de phase ; légende avec Récupération et Entretien'));
-    await p.goto(RACINE + 'calendrier.html#mois=2026-12'); await p.waitForSelector('.cal-m-grille');
-    r = await lire(p);
-    const fondM = j => p.evaluate(x => getComputedStyle(document.querySelector('.cal-m-case[data-jour="' + x + '"]')).backgroundColor, j);
-    pb.push(egal([35, 'ph-base', 'ph-deload', 'ph-developpement', true, true],
-      [r.phases.length, (r.phases.find(x => x[0] === '2026-12-01') || [])[1], (r.phases.find(x => x[0] === '2026-12-07') || [])[1], (r.phases.find(x => x[0] === '2027-01-01') || [])[1],
-        await fondM('2026-12-01') === await fondM('2026-12-04') && await fondM('2026-12-05') === await fondM('2026-12-06') && await fondM('2026-12-04') !== await fondM('2026-12-05'),
-        await fondM('2026-12-29') === await fondM('2027-01-01')],
-      'Plan, décembre : fond de phase de la saison du Trail des Gorges (base, deload la semaine du 7, développement le 1er janvier), le même du lundi au vendredi, un cran de plus le week-end, jours voisins compris'));
+    let d, p, ctx, erreurs, r;
+    // L'ancienne adresse #mois2 ouvre le Mois.
+    ({ p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', 1200, copie(), {}, PARIS));
+    pb.push(egal(['Mois', ['Semaine', 'Mois *', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [await p.textContent('[data-menu]').then(x => x.trim()), await p.evaluate(() => [...document.querySelectorAll('.cal-menu a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))), (await lire(p)).titre],
+      'ancienne adresse #mois2 : la vue Mois ; menu sans « 4 semaines »'));
     await ctx.close();
-    // Navigation, case « faite », « + », séance touchée, jour touché, course et rendez-vous touchés.
+    // Navigation, « + », séance touchée, jour touché, course et rendez-vous touchés.
     d = copie();
     ({ p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', 1200, d, {}, PARIS));
     await surDialogue(p, () => true);
     await p.click('[aria-label="Mois suivant"]'); await pause();
     r = await lire(p);
-    pb.push(egal(['#mois=2026-11', 'Novembre 2026', ['oct.', 'déc.'], true], [await p.evaluate(() => location.hash), r.titre, r.voisins, r.courses.some(c => c[0] === '2026-11-15' && c[1] === 'Trail du Lac' && c[2] === 'c-trail-v')],
+    pb.push(egal(['#mois=2026-11', 'Novembre 2026', ['oct.', 'déc.'], true], [await p.evaluate(() => location.hash), r.titre, r.voisins, r.courses.some(c => c[0] === '2026-11-15' && c[1].includes('Trail du Lac') && c[2] === 'c-trail-v')],
       'mois suivant : novembre, le Trail du Lac le 15'));
     await p.click('[aria-label="Mois suivant"]'); await pause(); await p.click('[aria-label="Mois suivant"]'); await pause();
     r = await lire(p);
     pb.push(egal(['Janvier 2027', ['déc. 26', 'févr.']], [r.titre, r.voisins], 'janvier 2027 : l\'année du mois voisin quand elle change'));
     await p.click('.cal-auj'); await pause();
     pb.push(egal(['#mois', 'Octobre 2026'], [await p.evaluate(() => location.hash), (await lire(p)).titre], '« Aujourd\'hui » : le mois en cours'));
-    pb.push(egal(0, await p.locator('.cal-m-case input[type="checkbox"]').count(), 'Mois : plus de case à cocher (on coche dans la vue Semaine)'));
     await p.click('[data-ajout="2026-10-21"]');
     await p.selectOption('.cal-seance [name="nom"]', 'Endurance');
     pb.push(egal('facile', await p.inputValue('.cal-seance [name="intensite"]'), 'nom choisi : son intensité proposée'));
@@ -2485,16 +2440,16 @@ const CONTROLES = {
     await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile')); await pause();
     pb.push(egal([{ date: '2026-10-21', type: 'run', libelle: 'Endurance : 30 min' }, true], [(({ date, type, libelle }) => ({ date, type, libelle }))(d.seances[d.seances.length - 1]),
-      (await lire(p)).seances.some(x => x[0] === '2026-10-21' && x[1] === 'Endurance')], '« + » d\'une case : séance ajoutée à ce jour'));
+      (await lire(p)).seances.includes('2026-10-21')], '« + » d\'une case : séance ajoutée à ce jour'));
     pb.push(egal('Courir 30 min en endurance\nPuis 5 min de marche', d.seances[d.seances.length - 1].description, 'séance saisie : description enregistrée'));
     await p.click('[data-edit="se-3"]');
     pb.push(egal(['Endurance', ''], [await p.inputValue('.cal-seance [name="nom"]'), await p.inputValue('.cal-seance [name="detail"]')], 'séance touchée : sa fenêtre, nom et détail'));
     await p.click('.cal-seance [data-act="annuler"]');
-    await p.click('.cal-m-case[data-jour="2026-10-23"] .cal-m-num');
+    await p.click('.cal-m2-case[data-jour="2026-10-23"] .cal-m2-num');
     pb.push(egal('#semaines=2026-10-19', await p.evaluate(() => location.hash), 'jour touché : la vue Semaine, depuis le lundi 19'));
-    await p.goto(RACINE + 'calendrier.html#mois=2026-11'); await p.waitForSelector('.cal-m-grille');
+    await p.goto(RACINE + 'calendrier.html#mois=2026-11'); await p.waitForSelector('.cal-m2');
     pb.push(egal('course.html?id=' + id(2) + '#preparation', await p.getAttribute('.cal-v-rdv', 'href'), 'rendez-vous clé : lien vers la page de la course'));
-    await p.click('.cal-v-course');
+    await p.click('.cal-m2-course');
     await p.waitForSelector('.mc-panneau .pc-titre');
     pb.push(egal(id(1), await p.evaluate(() => history.state && history.state.mrtCourse), 'course touchée : sa page en modale'));
     pb.push(egal([], erreurs, 'Mois : erreurs JavaScript'));
@@ -2542,7 +2497,7 @@ const CONTROLES = {
     partage.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
     partage.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#mois', 1200, partage, { 'mrt-vue': autre }, PARIS));
-    pb.push(egal([0, 0], [await p.locator('[data-ajout], [data-edit]').count(), await p.locator('.cal-m-case input').count()], 'lecture seule : ni « + » ni modification'));
+    pb.push(egal([0, 0], [await p.locator('[data-ajout], [data-edit]').count(), await p.locator('.cal-m2-case input:not([disabled])').count()], 'lecture seule : ni « + » ni modification (cases « faite » désactivées)'));
     await ctx.close();
     return pb;
   },
@@ -2588,7 +2543,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', w, copie(), {}, PARIS);
       const r = await lire(p);
       pb.push(
-        egal([['Semaine', ['Semaine *', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année']], true, 'Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Vue »), barre du haut sur une ligne, lien vers les semaines passées'),
+        egal([['Semaine', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], true, 'Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Vue »), barre du haut sur une ligne, lien vers les semaines passées'),
         egal([SEMAINES, 'Semaine du 19 au 25 oct.'], [r.semaines.slice(0, 3), r.courante], nom + ', la semaine en cours d\'abord, puis les suivantes'),
         egal([['19lun.', '20mar.', '21mer.', '22jeu.', '23ven.', '24sam.', '25dim.'], ['2026-10-20']], [r.dates, r.auj], nom + ', numéro et nom de chaque jour, aujourd\'hui mis en avant'),
         egal([[['2026-10-19', 'Renforcement Gainage 30 min', true], ['2026-10-20', 'Course à pied 8×400 m', false], ['2026-10-22', 'Course à pied Footing 45 min', false], ['2026-10-24', 'Course à pied Sortie 1 h 30', false]],
@@ -2885,7 +2840,7 @@ const CONTROLES = {
     let r = await lire(p);
     pb.push(egal([7, '2026-10-19', '2026-10-25', 7, 'calendrier.html'], [r.bloc.length, r.bloc[0], r.bloc[6], r.plus, r.lien], 'cette semaine : une ligne par jour, du 19 au 25 octobre, un « + » par jour ; lien vers le Calendrier à côté du titre'),
         egal(['Calendrier', 0, 0, ['138 j|', 'guide.html#saison|Comment MyRunTools construit ton plan']], [r.texteLien, r.guideBas, r.libelleObjectif, r.info], 'carte : plus de libellé « Objectif » ni de titre des courses ; « 138 j » sur la ligne du nom, le rond « i » vers le Guide à droite de la ligne des courses ; plus de lien du Guide en bas ; « Calendrier › »'));
-    pb.push(egal(['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], r.repos, 'jour sans séance : « Repos »'));
+    pb.push(egal([], r.repos, 'jour sans séance : plus de « Repos », la ligne reste vide'));
     await ctx.close();
     ({ p, ctx } = await ouvrir(nav, 'preparation.html', 1200, copie(), {}, { fuseau: 'Europe/Paris', maintenant: new Date('2026-11-09T10:00:00+01:00') }));
     await p.waitForSelector('.ps-objectif');
@@ -2934,10 +2889,10 @@ const CONTROLES = {
     await ctx.close();
     // Calendrier : la récupération d'un Objectif en rose (semaine du 8 mars), l'Entretien sans fond.
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html#mois=2027-03', 1200, copie(), { 'mrt-calendrier-phases': '1' }, PARIS));
-    await p.waitForSelector('.cal-m-grille');
+    await p.waitForSelector('.cal-m2');
     pb.push(egal(['ph-affutage', 'ph-recuperation', true], await p.evaluate(() => {
-      const cl = j => [...document.querySelector('.cal-m-case[data-jour="' + j + '"]').classList].find(c => c.startsWith('ph-')) || null;
-      return [cl('2027-03-02'), cl('2027-03-09'), getComputedStyle(document.querySelector('.cal-m-case[data-jour="2027-03-09"]')).backgroundColor !== getComputedStyle(document.querySelector('.cal-m-case[data-jour="2027-03-02"]')).backgroundColor];
+      const c = j => document.querySelector('.cal-m2-case[data-jour="' + j + '"]'), cl = j => [...c(j).closest('.cal-m2-ligne').classList].find(x => x.startsWith('ph-')) || null;
+      return [cl('2027-03-02'), cl('2027-03-09'), getComputedStyle(c('2027-03-09')).backgroundColor !== getComputedStyle(c('2027-03-02')).backgroundColor];
     }), 'Calendrier, mars 2027 : affûtage puis Récupération du Trail des Gorges, d\'une autre couleur'));
     await ctx.close();
     // Lecture seule : la vue s'affiche, sans réglages ni « + ».
@@ -4033,7 +3988,7 @@ const CONTROLES = {
       pb.push(egal({ classe: ['t-' + theme], fond, cadre, schema, encre: 'rgb(11, 18, 32)', retenu: theme }, await p.evaluate(() => ({
         classe: document.documentElement.className.split(' ').filter(c => c.startsWith('t-')), fond: getComputedStyle(document.body).backgroundColor,
         cadre: getComputedStyle(document.querySelector('.cal-cadre')).backgroundColor, schema: getComputedStyle(document.documentElement).colorScheme,
-        encre: getComputedStyle(document.querySelector('.cal-v-course.c-trail-v')).color, retenu: localStorage.getItem('mrt-theme') })), theme + ' : fond, cadre, contrôles, encre sur la couleur d\'une course, thème retenu'));
+        encre: getComputedStyle(document.querySelector('.cal-m2-course.c-trail-v')).color, retenu: localStorage.getItem('mrt-theme') })), theme + ' : fond, cadre, contrôles, encre sur la couleur d\'une course, thème retenu'));
       if (theme === 'blanc-orange') pb.push(egal('rgb(148, 98, 0)', await p.evaluate(() => getComputedStyle(document.querySelector('.cal-legende .cal-k.ph-developpement')).backgroundColor),
         'fond blanc : Développement plus foncé (légende des phases)'));
       await ctx.close();
@@ -4155,9 +4110,9 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), {}, PARIS));
     const vues = () => p.evaluate(() => { const b = document.querySelector('[data-menu]'), m = document.querySelector('.cal-menu');
       return [b.textContent.trim(), m.hidden, b.getAttribute('aria-expanded'), [...m.querySelectorAll('a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))]; });
-    pb.push(egal(['Semaine', true, 'false', ['Semaine *', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'Calendrier : menu « Vue » fermé, sur Semaine (vue par défaut)'));
+    pb.push(egal(['Semaine', true, 'false', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'Calendrier : menu « Vue » fermé, sur Semaine (vue par défaut)'));
     await p.click('[data-menu]');
-    pb.push(egal(['Semaine', false, 'true', ['Semaine *', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'un toucher sur son bouton : le menu s\'ouvre'));
+    pb.push(egal(['Semaine', false, 'true', ['Semaine *', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'un toucher sur son bouton : le menu s\'ouvre'));
     await p.keyboard.press('Escape');
     pb.push(egal([true, true], [(await vues())[1], await p.evaluate(() => document.activeElement === document.querySelector('[data-menu]'))], 'Échap : le menu se ferme, le bouton garde la main'));
     await p.keyboard.press('Enter');
@@ -4165,7 +4120,7 @@ const CONTROLES = {
     await p.locator('.cal-s-titre').nth(2).click();
     pb.push(egal(true, (await vues())[1], 'toucher ailleurs : le menu se ferme'));
     await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="12"]'); await pause();
-    pb.push(egal([['Année', true, 'false', ['Semaine', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-y').count(), await p.evaluate(() => location.hash)],
+    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-y').count(), await p.evaluate(() => location.hash)],
       'choisir « Année » : la vue Année, le menu refermé'));
     await p.click('[data-plan]'); await pause();
     pb.push(egal(['true', '1', true], [await p.getAttribute('[data-plan]', 'aria-pressed'), await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases')), await p.locator('.cal-y-j[class*="ph-"]').count() > 0],
@@ -5669,7 +5624,7 @@ const CONTROLES = {
     const { db, id } = jeuObjectif(db0);
     const pb = [];
     const COMMUNS = /\bmrt-(btn|rond|lien|pastille|choix|tri|gear|barre-cap|tab|menu-l)\b/;
-    const AUTRES = /\b(mg-titre|mg-pt|fc-bloc-titre|cal-carte-txt|cal-m-se-txt|cal-se-txt|cal-m2-txt|cal-v-course|cal-v-rdv|cal-voisin|ob-carte|ps-sem|ps-choix|ps-ligne-q|is-precedente|is-suivante|ob-ins|pc-lieu|nu-ligne|nu-aliment|cal-info|cal-a-j|cal-m-num)\b/;
+    const AUTRES = /\b(mg-titre|mg-pt|fc-bloc-titre|cal-carte-txt|cal-se-txt|cal-m2-txt|cal-m2-course|cal-v-course|cal-v-rdv|cal-voisin|ob-carte|ps-sem|ps-choix|ps-ligne-q|is-precedente|is-suivante|ob-ins|pc-lieu|nu-ligne|nu-aliment|cal-info|cal-a-j|cal-y-j)\b/;
     const releve = p => p.evaluate(([c, a]) => {
       const COM = new RegExp(c), AUT = new RegExp(a);
       const vis = e => { const r = e.getBoundingClientRect(), st = getComputedStyle(e); return r.width > 0 && r.height > 0 && st.visibility !== 'hidden' && st.opacity !== '0'; };

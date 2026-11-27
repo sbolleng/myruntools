@@ -6,6 +6,9 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Une seule vue Mois | La grille « une ligne par semaine » (ex-Mois V2, puis « 4 semaines ») devient la seule vue Mois ; l'ancienne grille du mois (une case par jour) est retirée, code et styles compris ; l'adresse #mois2 mène au Mois ; spécification 0.37. |
+| 27 nov. 2026 | Plus de « Repos » | Un jour vide reste vide, partout (4 semaines, Cette semaine de Mon plan) ; les repères du plan (Allégé, Repos, Récupération) restent. |
+| 27 nov. 2026 | Calendrier, repères communs | Week-end plus foncé aussi en Semaine ; séances du Mois en carte comme ailleurs (bord de 1 px, liseré de 4 px) ; jours en tête de 4 semaines alignés à gauche comme le Mois. |
 | 27 nov. 2026 | Effort obligatoire | Pas de séance faite sans effort noté : « Enregistrer » refusé sans effort, fermer la feuille « Effort et sensations » sans enregistrer décoche la séance (sauf effort déjà noté), fenêtre de la séance idem ; repère « À noter » supprimé (les anciennes séances faites sans effort restent telles quelles). Préparation 3.18, Calendrier 0.37. |
 | 27 nov. 2026 | Noms des vues | Calendrier : « Mois V2 » devient « 4 semaines », placée avant « Mois » au menu ; « Mois » garde son nom (adresses #mois et #mois2 inchangées). |
 | 27 nov. 2026 | Calendrier harmonisé | Année en 12 mini-grilles (numéro discret, initiales, total du mois, point de séance) ; repères communs : week-end plus foncé dans toutes les grilles, aujourd'hui en pastille et cadre, coins de 4 px, course pleine (confirmée) ou à 50 % (option) partout, « + » d'une seule taille ; spécification 0.35. |

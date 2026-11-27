@@ -12,7 +12,7 @@ Dossier `composants/` : chaque composant a son fichier `.js` et sa feuille de st
 | `palmares` | Palmarès |
 | `fiche-course` | Fiche d'une course |
 | `objectif`, `modale-course` | Page Saison et page d'une course en modale |
-| `calendrier` | Vues Semaine (par défaut), Mois, Mois V2 à l'essai et Année au menu « Vue » ; bouton « Phases » |
+| `calendrier` | Vues Semaine (par défaut), Mois (une ligne par semaine), 3 mois, 6 mois et Année au menu « Vue » ; bouton « Légende » ; bouton « Phases » |
 | `export-plan` | Export du plan en page à imprimer ou PDF (Calendrier et Mon plan) |
 | `trace` | Tracé GPX d'une course : import, carte Leaflet, profil, téléchargement |
 | `besoin`, `profil-champs`, `nutrition` | Besoin du jour de Nutrition |
