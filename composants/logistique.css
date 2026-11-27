@@ -3,7 +3,11 @@
 /* ----- Page de la course (lecture) ----- */
 .lg-cellule > summary::after { content: attr(data-total); margin-left: auto; font-family: 'Space Mono', monospace; font-size: var(--t-second); font-weight: 400; color: var(--accent); }
 .lg-cellule[data-total=""] > summary::after { content: none; }
-.lg-rubrique + .lg-rubrique { margin-top: 1rem; }
+.lg-corps .lg-rubrique + .lg-rubrique { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+/* Titre d'une rubrique (Logement, Transport, Matos, Notes) : titre de section, comme les titres repliables (design, § 3). */
+.lg-rub-titre { margin: 0 0 0.4rem; font-size: var(--t-texte); font-weight: 600; color: var(--text); }
+.lg-rub-titre .lg-compte { font-family: 'Space Mono', monospace; font-size: var(--t-second); font-weight: 400; color: var(--muted); }
+.lg-corps .lg-plan { margin: 0.6rem 0 0; }
 .lg-titre { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
 .lg-titre .lg-actions { margin-left: auto; display: flex; gap: 0.4rem; }
 .lg-titre .mrt-btn { text-transform: none; letter-spacing: normal; }
@@ -79,7 +83,11 @@
 .lg-sens { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0.4rem 0.6rem; margin-top: 0.7rem; }
 .lg-sens-t { padding-top: 1.2rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
 .lg-sens-l { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.8rem; }
-.lg-replier { display: inline-block; margin-top: 0.6rem; }
+.lg-reglages { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.2rem; }
+.lg-reglage { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--t-second); color: var(--muted); }
+.lg-reglage .mrt-champ { width: auto; }
+.lg-reglages .lg-reglage:last-child:not(.lg-bascule) { margin-left: auto; }
+.lg-carte-pied { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-top: 0.8rem; }
 .lg-replie { display: block; margin: 0.2rem 0 0.6rem; }
 .lg-ajouter { margin-top: 0.2rem; }
 .lg-outils { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.3rem 0.8rem; flex: 1 1 18rem; min-width: 0; margin-left: auto; font-size: var(--t-second); }

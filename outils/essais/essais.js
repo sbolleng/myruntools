@@ -1447,7 +1447,7 @@ const CONTROLES = {
     pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
     // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; course courue sans tracé : Parcours replié, même avec une stratégie.
-    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'POURQUOI CETTE COURSE Répétition.', 'Total 58 € NOTES Train.'], sous: true, plan: 0 },
+    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'POURQUOI CETTE COURSE Répétition.', 'Total 58 € Notes Train.'], sous: true, plan: 0 },
       await p.evaluate(() => { const cel = [...document.querySelectorAll('.pc-cellule')], t = e => e.innerText.trim().replace(/\s+/g, ' ');
         const ouv = cel.filter(d => d.open).map(d => d.querySelector('summary').textContent.trim());
         cel.forEach(d => { d.open = true; });
@@ -5911,7 +5911,7 @@ const CONTROLES = {
 
     // 3. Logement confirmé, adresse par autocomplétion (les plus proches du départ d'abord, avec la distance).
     await o.p.click(Z + '.lg-cartes[data-r="logement"] [data-ed="ajouter"]');
-    pb.push(egal(['Option'], await o.p.$$eval(Z + '.lg-carte.is-ouverte .mrt-pastille.is-on', l => l.map(x => x.textContent)), 'nouveau logement : en Option par défaut'));
+    pb.push(egal(['option', 'État', 'Supprimer ce logement'], [await o.p.inputValue(Z + '.lg-carte.is-ouverte [data-ed-sel="statut"]'), (await o.p.textContent(Z + '.lg-carte.is-ouverte .lg-reglage span')).trim(), (await o.p.textContent(Z + '.lg-carte.is-ouverte .lg-carte-pied [data-ed="supprimer"]')).trim()], 'nouveau logement : État en liste (Option par défaut), « Supprimer ce logement » en bas'));
     await carte(o.p, 0).locator('[data-f="nom"]').fill('Gîte des Crêtes');
     await carte(o.p, 0).locator('[data-f="adresse"]').pressSequentially('rue des Crê');
     await o.p.waitForSelector(Z + '.lg-auto-liste');
@@ -5922,7 +5922,7 @@ const CONTROLES = {
     await carte(o.p, 0).locator('[data-f="arrivee:d"]').fill('2027-03-05'); await carte(o.p, 0).locator('[data-f="arrivee:h"]').fill('17:00');
     await carte(o.p, 0).locator('[data-f="depart:d"]').fill('2027-03-07'); await carte(o.p, 0).locator('[data-f="depart:h"]').fill('10:00');
     await carte(o.p, 0).locator('[data-f="prix"]').fill('180'); await carte(o.p, 0).locator('[data-f="url"]').fill('https://example.org/gite');
-    await carte(o.p, 0).locator('[data-ed="statut"][data-v="confirme"]').click();
+    await carte(o.p, 0).locator('[data-ed-sel="statut"]').selectOption('confirme');
     // 4. Logement en option, adresse saisie à la main : coordonnées cherchées à l'enregistrement.
     await o.p.click(Z + '.lg-cartes[data-r="logement"] [data-ed="ajouter"]');
     await carte(o.p, 1).locator('[data-f="nom"]').fill('Gîte du Lac');
@@ -5933,22 +5933,23 @@ const CONTROLES = {
     // 5. Transport : avion aller-retour, retour présaisi à l'envers, un seul prix ; voiture : sans heures.
     await o.p.click(Z + '.lg-cartes[data-r="trajet"] [data-ed="ajouter"]');
     const tr = () => o.p.locator(Z + '.lg-cartes[data-r="trajet"] .lg-carte.is-ouverte').nth(0);
-    await tr().locator('[data-ed="type"][data-v="avion"]').click();
+    await tr().locator('[data-ed-sel="type"]').selectOption('avion');
+    pb.push(egal(['Mode', 'Aller-retour', 'État'], await tr().locator('.lg-reglages .lg-reglage').evaluateAll(l => l.map(x => x.textContent.replace(/(Train|Avion|Voiture|Bus|Autre|Option|Confirmé|Non retenu)/g, '').trim())), 'transport : Mode, Aller-retour et État sur une ligne'));
     await tr().locator('[data-f="lieu_depart"]').fill('Aéroport de Lyon'); await tr().locator('[data-f="lieu_arrivee"]').fill('Aéroport de Nice');
     await tr().locator('[data-f="depart:d"]').fill('2027-03-06'); await tr().locator('[data-f="depart:h"]').fill('08:12');
-    await tr().locator('[data-ed="ar"][data-v="ar"]').click();
+    await tr().locator('[data-ed-coche="ar"]').check();
     pb.push(egal(['Aéroport de Nice', 'Aéroport de Lyon', 'Prix de l\'aller-retour (€)'], [await tr().locator('[data-f="retour_lieu_depart"]').inputValue(), await tr().locator('[data-f="retour_lieu_arrivee"]').inputValue(),
       (await tr().locator('.lg-grille .lg-champ label').first().textContent()).trim()], 'aller-retour (avion) : retour présaisi à l\'envers, un seul prix'));
     await tr().locator('[data-f="retour_depart:d"]').fill('2027-03-08'); await tr().locator('[data-f="retour_depart:h"]').fill('18:00');
-    await tr().locator('[data-f="prix"]').fill('100'); await tr().locator('[data-ed="statut"][data-v="confirme"]').click();
+    await tr().locator('[data-f="prix"]').fill('100'); await tr().locator('[data-ed-sel="statut"]').selectOption('confirme');
     await o.p.click(Z + '.lg-cartes[data-r="trajet"] [data-ed="ajouter"]');
     const tr2 = () => o.p.locator(Z + '.lg-cartes[data-r="trajet"] .lg-carte.is-ouverte').nth(1);
-    await tr2().locator('[data-ed="type"][data-v="voiture"]').click();
+    await tr2().locator('[data-ed-sel="type"]').selectOption('voiture');
     pb.push(egal([0, 2], [await tr2().locator('input[type="date"], input[type="time"]').count(), await tr2().locator('[data-f="lieu_depart"], [data-f="lieu_arrivee"]').count()], 'voiture : De, À et prix, sans heures'));
 
     // 6. Matos : autocomplétion sur le catalogue, nouvel article, groupe, imposé, équipement.
     const mat = Z + '.lg-auto-matos input';
-    await o.p.locator(mat).pressSequentially('fron'); await o.p.waitForSelector(Z + '.lg-auto-matos .lg-auto-liste');
+    await o.p.locator(mat).pressSequentially('fron'); for (let i = 0; i < 20 && !(await o.p.evaluate(() => /« fron »/.test((document.querySelector('.fc-logistique .lg-auto-matos .lg-auto-liste') || {}).textContent || ''))); i++) await pause();
     pb.push(egal(['Frontale|déjà dans ton matos', 'Ajouter « fron » comme nouvel article|Entrée'], await o.p.$$eval(Z + '.lg-auto-matos .lg-auto-l', l => l.map(x => x.querySelector('span').textContent + '|' + x.querySelector('small').textContent)), 'matos : autocomplétion sur le catalogue'));
     await o.p.locator(mat).press('Enter');
     await o.p.locator(mat).pressSequentially('Gants'); await o.p.waitForSelector(Z + '.lg-auto-matos .lg-auto-liste'); await o.p.locator(mat).press('Enter');
@@ -5976,6 +5977,7 @@ const CONTROLES = {
     // 8. Page de la course : confirmés seulement, options en une ligne, total, carte.
     await o.p.click('#logistique > summary'); await o.p.waitForSelector('#logistique .lg-ligne');
     pb.push(egal('338 €', await attr(o.p), 'total : dossard + confirmés (58 + 180 + 100)'));
+    pb.push(egal([['Logement', 'Transport', 'Matos 0 / 2 prisJour J', 'Notes'], true], [await texte(o.p, '#logistique .lg-rub-titre'), await o.p.evaluate(() => { const r = document.querySelector('#logistique .lg-rubrique'); return r.lastElementChild.classList.contains('lg-plan') && getComputedStyle(r.nextElementSibling).borderTopStyle === 'solid'; })], 'page : vrais titres de rubrique, filet entre elles, carte sous le logement'));
     await o.p.click('[data-lg-act="detail"]');
     pb.push(egal(['Dossard 58 €', 'Logement 180 €', 'Transport 100 €', 'En option : 95 €'], await texte(o.p, '.lg-detail span'), 'détail du total : une ligne par poste, options à part'));
     pb.push(egal(['Gîte des Crêtes180 €', 'Avion · aller-retour100 €'], await texte(o.p, '#logistique .lg-ligne .lg-haut'), 'lignes confirmées'));
@@ -6014,7 +6016,7 @@ const CONTROLES = {
     await fiche(o.p);
     pb.push(egal([2, 0], [await o.p.locator(Z + '.lg-cartes[data-r="logement"] .lg-resume').count(), await o.p.locator(Z + '.lg-carte.is-ouverte').count()], 'fiche : cartes enregistrées repliées à l\'ouverture'));
     await o.p.click(Z + '.lg-cartes[data-r="logement"] .lg-carte:nth-child(2) .lg-resume');
-    await o.p.click(Z + '.lg-carte.is-ouverte [data-ed="statut"][data-v="non_retenu"]');
+    await o.p.selectOption(Z + '.lg-carte.is-ouverte [data-ed-sel="statut"]', 'non_retenu');
     await o.p.click(Z + '.lg-carte.is-ouverte [data-ed="replier"]');
     pb.push(egal(['Non retenus (1)'], await texte(o.p, Z + '.lg-replie'), 'fiche : non retenus regroupés'));
     await o.p.click(Z + '.lg-cartes[data-r="logement"] [data-ed="ajouter"]');

@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Logistique 0.6, saisie dans la fiche « Modifier la course » (cartes Option, Confirmé, Non retenu ; autocomplétion Photon ; carte des logements ; « Ta course approche » à J-5 ; évolution 054 passée). Avant : plus d'« Autres sports » (évolutions 052, 053) ; Calendrier 0.41.
+- Dernier lot : Logistique 0.7, lisibilité (réglages des cartes en listes sur une ligne, « Supprimer ce… » en bas ; titres et filets sur la page). Avant : Logistique 0.6, saisie dans la fiche « Modifier la course » (évolution 054 passée) ; plus d'« Autres sports » (052, 053).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).
