@@ -50,10 +50,14 @@
   // séance (distance ÷ durée) ; sans distance, la part de la VMA selon l'intensité ; sans VMA, 9,5 km/h.
   // Renforcement : 3 MET. Danse : 5 MET (valeur unique, validée le 27 nov. 2026). Vélo : les paliers de vitesse de la liste des sports (promenade 5,
 // 19 à 22 km/h 7, 22 km/h et plus 10) ; sans distance, selon l'intensité (facile 5, modérée 7, intense 10), sinon 7.
+// Crossfit : 9 MET. Natation : facile 6, modérée ou intense 9, sinon 6. Marche : moins de 5,5 km/h 3, au-dessus 4, sans distance 3.
   const PART_VMA = { facile: 0.65, moderee: 0.75, intense: 0.85 };
   const VITESSE_PAR_DEFAUT = 9.5;
   const MET_RENFO = 3;
   const MET_DANSE = 5;
+  const MET_CROSSFIT = 9;
+  const metNatation = i => (i === 'moderee' || i === 'intense' ? 9 : 6);
+  const metMarche = kmh => (kmh >= 5.5 ? 4 : 3);
   const MET_VELO_INTENSITE = { facile: 5, moderee: 7, intense: 10 };
   const metVelo = kmh => (kmh >= 22 ? 10 : kmh >= 19 ? 7 : 5);
   const metCourse = kmh => (0.2 * (kmh * 1000 / 60) + 3.5) / 3.5;
@@ -72,6 +76,9 @@
     if (!(heures > 0)) return null;
     if (s.type === 'renfo') return { met: MET_RENFO, heures };
     if (s.type === 'danse') return { met: MET_DANSE, heures };
+    if (s.type === 'crossfit') return { met: MET_CROSSFIT, heures };
+    if (s.type === 'natation') return { met: metNatation(s.intensite), heures };
+    if (s.type === 'marche') { const d = Number(distanceDe(s)); return { met: d > 0 ? metMarche(d / heures) : 3, heures }; }
     if (s.type === 'velo') {
       const d = Number(distanceDe(s));
       return { met: d > 0 ? metVelo(d / heures) : MET_VELO_INTENSITE[s.intensite] || 7, heures };

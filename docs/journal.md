@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Plus d'« Autres sports » | Une seule saisie : le sport est une séance. Natation (6 MET facile, 9 modérée ou intense), Marche (3 sous 5,5 km/h ou sans distance, 4 au-dessus) et Crossfit (9) deviennent des types de séance, comme Vélo et Danse ; la feuille Activité de Nutrition ne garde que les séances. Évolution 051 (types, à coller seule) puis 052 (les sports saisis passent en séances faites, `sport_jour` vidée et plus lue). Intensité demandée aussi pour une natation ou un vélo faits. Calendrier 0.37, Nutrition 1.50, Guide 0.5. |
 | 27 nov. 2026 | Noms des vues | Calendrier : « Mois V2 » devient « 4 semaines », placée avant « Mois » au menu ; « Mois » garde son nom (adresses #mois et #mois2 inchangées). |
 | 27 nov. 2026 | Calendrier harmonisé | Année en 12 mini-grilles (numéro discret, initiales, total du mois, point de séance) ; repères communs : week-end plus foncé dans toutes les grilles, aujourd'hui en pastille et cadre, coins de 4 px, course pleine (confirmée) ou à 50 % (option) partout, « + » d'une seule taille ; spécification 0.35. |
 | 27 nov. 2026 | Guide 0.4 | La section Nutrition du Guide dit les MET du Vélo (par vitesse, ou par intensité) et de la Danse (5), et retire le vélo des autres sports. |
