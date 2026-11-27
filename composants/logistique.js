@@ -426,7 +426,7 @@
           '<button type="button" class="mrt-lien is-danger" data-ed="retirer">Retirer</button></span></div>';
       };
       box.innerHTML = '<div class="lg-auto lg-auto-matos"><input class="mrt-champ" type="text" maxlength="80" placeholder="Ajouter un article : frontale, veste…" aria-label="Ajouter un article"></div>' +
-        (articles.length ? parGroupe(articles, ligne) : '<p class="pc-vide">Aucun article pour cette course.</p>');
+        parGroupe(articles, ligne);
       const dans = new Set(E.matos.map(m => m.article));
       autocompletion(box.querySelector('.lg-auto'), async q => {
         if (!q) return [];
