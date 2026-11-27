@@ -1447,7 +1447,7 @@ const CONTROLES = {
     pb.push(egal([['Résultat', 'Montre'], 'https://example.org/resultats', 'Classement complet', 0], [await p.locator('.pc-intertitre > span').allTextContents(), await p.locator('.pc-lien-res').getAttribute('href'),
       (await p.locator('.pc-lien-res').textContent()).trim(), await p.locator('.pc-liens').count()], 'consultation : deux sections, lien Résultats dans l\'intertitre, plus de bloc Liens'));
     // Rien de saisi n'est caché : sous la Montre, les textes repliés, comme pour une course à venir ; course courue sans tracé : Parcours replié, même avec une stratégie.
-    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'POURQUOI CETTE COURSE Répétition.', 'Total 58 € LOGEMENT Ajouter TRANSPORT Ajouter MATOS Modifier la liste Aucun article. NOTES Train.'], sous: true, plan: 0 },
+    pb.push(egal({ cellules: ['À propos de la course', 'Parcours', 'Préparation', 'Logistique'], ouvertes: [], textes: ['Semi.', 'STRATÉGIE DE COURSE Partir prudemment.', 'POURQUOI CETTE COURSE Répétition.', 'Total 58 € LOGEMENT TRANSPORT MATOS Modifier la liste Aucun article. NOTES Train.'], sous: true, plan: 0 },
       await p.evaluate(() => { const cel = [...document.querySelectorAll('.pc-cellule')], t = e => e.innerText.trim().replace(/\s+/g, ' ');
         const ouv = cel.filter(d => d.open).map(d => d.querySelector('summary').textContent.trim());
         cel.forEach(d => { d.open = true; });
@@ -5252,7 +5252,7 @@ const CONTROLES = {
     pb.push(egal([['PATCH', 'repas_lignes', { repas: 'soir', quantite: 1, kcal: 130, proteines: 2.7, glucides: 28, lipides: 0.3 }, '?id=eq.' + ID(4)]], d.ecritures.map(e => [e.methode, e.table, e.corps, e.filtres]), 'Enregistrer : 100 g au soir, valeurs figées à la nouvelle quantité'),
       egal(['Petit-déj 90 kcal', 'Soir 130 kcal'], await groupes(p), 'journal : la ligne passée au soir'));
     await ctx.close();
-    // Anciens « autres sports » restés dans sport_jour : ignorés (l'évolution 052 les convertit en séances).
+    // Anciens « autres sports » restés dans sport_jour : ignorés (l'évolution 053 les convertit en séances).
     d = base(); d.sport_jour = [{ id: ID(8), utilisateur: U, date: '2026-10-20', type: 'v2', heures: 1 }, { id: ID(9), utilisateur: U, date: '2026-10-20', type: 'm', heures: 0.5 }];
     ({ p, ctx } = await ouvrirN(d));
     pb.push(egal([ '2 117 kcal', 0 ], [await kcal(p), await p.locator('.nu-activites .nu-ligne').count()], 'sport_jour ignoré : ni besoin ni ligne du journal'));
@@ -5916,40 +5916,47 @@ const CONTROLES = {
 
     let o = await ouvrir(nav, 'course.html?id=' + GORGES, 1200, db, {}, PARIS);
     await o.p.click('#logistique > summary');
-    pb.push(egal(['Logement Ajouter', 'Transport Ajouter'], (await texte(o.p, '#logistique .lg-titre')).slice(0, 2), 'bloc Logistique : rubriques Logement et Transport'));
+    pb.push(egal(['Logement', 'Transport'], (await texte(o.p, '#logistique .lg-titre')).slice(0, 2), 'bloc Logistique : rubriques Logement et Transport'));
     pb.push(egal('58 €', await attr(o.p), 'sans logement ni trajet : le total est le prix du dossard'));
     pb.push(egal('Navette depuis le stade à 6 h 30.', (await texte(o.p, '#logistique .lg-rubrique:last-child p:not(.pc-sous-titre)'))[0], 'le texte libre devient les Notes'));
 
-    // 1. Logement.
+    // 1. Logement : le crayon ouvre la modification (une fiche « Logement 1 » vide d'office) ; « Ajouter un logement » y ajoute une fiche.
     // Recherche d'adresse (OpenStreetMap simulé) : proposée au bouton ou à « Entrée », mise en forme, choisie d'un toucher.
     const demandes = [];
     await o.ctx.route(/nominatim\.openstreetmap\.org/, rt => { demandes.push(new URL(rt.request().url()).searchParams.get('q'));
       rt.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([{ display_name: 'x', address: { house_number: '12', road: 'rue des Crêtes', postcode: '42000', city: 'Saint-Étienne' } }, { display_name: 'Autre lieu, France', address: {} }]) }); });
-    await o.p.click('[data-lg-act="ajouter-logement"]');
-    await o.p.fill('.lg-form [name="nom"]', 'Gîte des Crêtes');
-    await o.p.fill('.lg-form [name="adresse"]', 'rue des Crêtes Saint-Étienne'); await o.p.press('.lg-form [name="adresse"]', 'Enter'); await o.p.waitForSelector('.lg-suggestions:not([hidden])');
+    const champ = (n, nom) => o.p.locator('.lg-edition .lg-fiche').nth(n).locator('[name="' + nom + '"]');
+    pb.push(egal([0, 2], [await o.p.locator('[data-lg-act="ajouter-logement"], [data-lg-act="ajouter-trajet"]').count(), await o.p.locator('[data-lg-act="editer"]').count()], 'plus de bouton « Ajouter » dans la consultation : un crayon par rubrique'));
+    await o.p.click('[data-lg-act="editer"][data-sorte="logement"]');
+    pb.push(egal([['Logement 1'], ['Ajouter un logement']], [await o.p.$$eval('.lg-edition .lg-fiche-n', l => l.map(x => x.textContent)), await o.p.$$eval('.lg-edition [data-lg-act="ajouter-fiche"]', l => l.map(x => x.textContent))], 'modification : une fiche « Logement 1 » et « Ajouter un logement »'));
+    await champ(0, 'nom').fill('Gîte des Crêtes');
+    await champ(0, 'adresse').fill('rue des Crêtes Saint-Étienne'); await champ(0, 'adresse').press('Enter'); await o.p.waitForSelector('.lg-suggestions:not([hidden])');
     pb.push(egal([['rue des Crêtes Saint-Étienne'], ['12 rue des Crêtes, 42000 Saint-Étienne', 'Autre lieu, France']], [demandes, await o.p.$$eval('.lg-suggestions .mrt-menu-l', l => l.map(x => x.textContent))], 'adresse : recherche à « Entrée », propositions mises en forme'));
     await o.p.click('.lg-suggestions .mrt-menu-l >> nth=0');
-    pb.push(egal(['12 rue des Crêtes, 42000 Saint-Étienne', true], [await o.p.inputValue('.lg-form [name="adresse"]'), await o.p.evaluate(() => document.querySelector('.lg-suggestions').hidden)], 'adresse : la proposition choisie remplit le champ'));
-    await o.p.fill('.lg-form [name="prix"]', '180');
-    await o.p.fill('.lg-form [name="url"]', 'https://example.org/gite');
-    await o.p.fill('.lg-form [name="arrivee"]', '2027-03-05T17:00');
-    await o.p.fill('.lg-form [name="depart"]', '2027-03-07T10:00');
-    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
+    pb.push(egal(['12 rue des Crêtes, 42000 Saint-Étienne', true], [await champ(0, 'adresse').inputValue(), await o.p.evaluate(() => document.querySelector('.lg-suggestions').hidden)], 'adresse : la proposition choisie remplit le champ'));
+    await champ(0, 'prix').fill('180'); await champ(0, 'url').fill('https://example.org/gite');
+    await champ(0, 'arrivee').fill('2027-03-05T17:00'); await champ(0, 'depart').fill('2027-03-07T10:00');
+    await o.p.click('.lg-edition [type="submit"]'); await attendre(o.p);
     const ligneTxt = (i, sel) => o.p.evaluate(([n, q]) => [...document.querySelectorAll('.lg-ligne')[n].querySelectorAll(q)].map(e => e.textContent.replace(/\s+/g, ' ').trim()), [i, sel]);
-    pb.push(egal(['Gîte des Crêtes180 €', ['12 rue des Crêtes, 42000 Saint-Étienne', 'Google Maps Waze', 'Arrivée : ven. 5 mars · 17 h', 'Départ : dim. 7 mars · 10 h']], [(await ligneTxt(0, '.lg-haut'))[0], await ligneTxt(0, '.lg-bas')], 'logement : adresse, itinéraires, « Arrivée : » puis « Départ : » l\'un sous l\'autre'));
-    pb.push(egal([['https://www.google.com/maps/search/?api=1&query=12%20rue%20des%20Cr%C3%AAtes%2C%2042000%20Saint-%C3%89tienne', 'https://waze.com/ul?q=12%20rue%20des%20Cr%C3%AAtes%2C%2042000%20Saint-%C3%89tienne&navigate=yes'], 'https://example.org/gite', 0], [await o.p.$$eval('.lg-plans a', l => l.map(a => a.href)), await o.p.getAttribute('.lg-nom .lg-lien-nom', 'href'), await o.p.locator('.lg-ligne', { hasText: 'Annonce' }).count()],
-      'logement : liens Google Maps et Waze ; la flèche à côté du nom ouvre le lien, plus de « Annonce »'));
+    pb.push(egal(['Gîte des Crêtes180 €', '12 rue des Crêtes, 42000 Saint-Étienne', ['Arrivée : ven. 5 mars · 17 h', 'Départ : dim. 7 mars · 10 h']], [(await ligneTxt(0, '.lg-haut'))[0], (await ligneTxt(0, '.lg-adr > .mrt-lien'))[0], await ligneTxt(0, '.lg-bas:not(.lg-adr)')], 'logement : adresse cliquable, « Arrivée : » puis « Départ : » l\'un sous l\'autre'));
+    // L'adresse ouvre un menu : Google Maps, Waze, application de l'appareil (OpenStreetMap sur ordinateur).
+    pb.push(egal([true, 1], [await o.p.evaluate(() => document.querySelector('.lg-adr .mrt-menu').hidden), await o.p.locator('.lg-ligne .lg-adr').count()], 'adresse : menu d\'itinéraires fermé au départ'));
+    await o.p.click('.lg-adr > .mrt-lien');
+    pb.push(egal([false, ['Google Maps', 'Waze', 'OpenStreetMap'], ['https://www.google.com/maps/search/?api=1&query=12%20rue%20des%20Cr%C3%AAtes%2C%2042000%20Saint-%C3%89tienne', 'https://waze.com/ul?q=12%20rue%20des%20Cr%C3%AAtes%2C%2042000%20Saint-%C3%89tienne&navigate=yes', 'https://www.openstreetmap.org/search?query=12%20rue%20des%20Cr%C3%AAtes%2C%2042000%20Saint-%C3%89tienne']],
+      [await o.p.evaluate(() => document.querySelector('.lg-adr .mrt-menu').hidden), await o.p.$$eval('.lg-adr .mrt-menu-l', l => l.map(a => a.textContent)), await o.p.$$eval('.lg-adr .mrt-menu-l', l => l.map(a => a.href))], 'adresse cliquable : Google Maps, Waze et l\'appareil'));
+    await o.p.click('.lg-nom');
+    pb.push(egal(true, await o.p.evaluate(() => document.querySelector('.lg-adr .mrt-menu').hidden), 'adresse : un toucher ailleurs referme le menu'));
+    pb.push(egal(['https://example.org/gite', 0], [await o.p.getAttribute('.lg-nom .lg-lien-nom', 'href'), await o.p.locator('.lg-ligne', { hasText: 'Annonce' }).count()], 'logement : la flèche à côté du nom ouvre le lien, plus de « Annonce »'));
     pb.push(egal('238 €', await attr(o.p), 'logement à 180 € : total 238 €'));
 
     // 2. Trajet.
-    await o.p.click('[data-lg-act="ajouter-trajet"]');
-    pb.push(egal(['Type', 'Sens'], await o.p.$$eval('.lg-form .lg-champ label', l => l.map(x => x.textContent).slice(0, 2)), 'trajet : le type d\'abord, puis le sens'));
-    await o.p.selectOption('.lg-form [name="type"]', 'train');
-    await o.p.fill('.lg-form [name="lieu_depart"]', 'Lyon'); await o.p.fill('.lg-form [name="depart"]', '2027-03-06T08:12');
-    await o.p.fill('.lg-form [name="lieu_arrivee"]', 'Saint-Étienne'); await o.p.fill('.lg-form [name="arrivee"]', '2027-03-06T10:05');
-    await o.p.fill('.lg-form [name="prix"]', '62');
-    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
+    await o.p.click('[data-lg-act="editer"][data-sorte="trajet"]');
+    pb.push(egal(['Type', 'Sens'], await o.p.$$eval('.lg-edition .lg-champ label', l => l.map(x => x.textContent).slice(0, 2)), 'trajet : le type d\'abord, puis le sens'));
+    await champ(0, 'type').selectOption('train');
+    await champ(0, 'lieu_depart').fill('Lyon'); await champ(0, 'depart').fill('2027-03-06T08:12');
+    await champ(0, 'lieu_arrivee').fill('Saint-Étienne'); await champ(0, 'arrivee').fill('2027-03-06T10:05');
+    await champ(0, 'prix').fill('62');
+    await o.p.click('.lg-edition [type="submit"]'); await attendre(o.p);
     pb.push(egal(['Train · Aller62 €', ['Lyon sam. 6 mars · 8 h 12 Saint-Étienne sam. 6 mars · 10 h 05']], [(await ligneTxt(1, '.lg-haut'))[0], await ligneTxt(1, '.lg-bas')], 'trajet : la ligne (type puis sens) et ses horaires'));
     pb.push(egal('300 €', await attr(o.p), 'trajet à 62 € : total 300 €'));
 
@@ -5960,25 +5967,35 @@ const CONTROLES = {
     await o.p.click('[data-lg-act="detail"]');
     pb.push(egal(0, await o.p.locator('.lg-detail').count(), 'second clic : le détail se referme'));
 
-    // 4. Sans prix : le total ne change pas, aucun « 0 € ».
-    await o.p.click('[data-lg-act="ajouter-logement"]');
-    await o.p.fill('.lg-form [name="nom"]', 'Chez des amis');
-    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
-    pb.push(egal(['300 €', false], [await attr(o.p), /(^|\D)0\s€/.test((await texte(o.p, '#logistique .lg-corps'))[0])], 'logement sans prix : total inchangé, pas de « 0 € »'));
+    // 4. Sans prix : « Ajouter un logement » dans la modification ; le total ne change pas, aucun « 0 € ».
+    await o.p.click('[data-lg-act="editer"][data-sorte="logement"]');
+    await o.p.click('.lg-edition [data-lg-act="ajouter-fiche"]');
+    pb.push(egal(['Logement 1', 'Logement 2'], await o.p.$$eval('.lg-edition .lg-fiche-n', l => l.map(x => x.textContent)), 'modification : « Ajouter un logement » ajoute la fiche « Logement 2 »'));
+    await champ(1, 'nom').fill('Chez des amis');
+    await o.p.click('.lg-edition [type="submit"]'); await attendre(o.p);
+    pb.push(egal(['300 €', false, 2], [await attr(o.p), /(^|\D)0\s€/.test((await texte(o.p, '#logistique .lg-corps'))[0]), db.logements.length], 'logement sans prix : total inchangé, pas de « 0 € »'));
 
-    // 5. Modifier un logement puis le supprimer (confirmation).
-    await o.p.click('[data-lg-act="modifier-logement"] >> nth=1');
-    await o.p.click('[data-lg-act="supprimer"]');
-    await o.p.click('.mrt-dialogue [data-r="oui"]'); await attendre(o.p);
-    pb.push(egal(1, db.logements.length, 'supprimer un logement demande confirmation puis le retire'));
+    // 5. Supprimer un logement (confirmation, effectif à « Enregistrer »), Annuler ne change rien.
+    await o.p.click('[data-lg-act="editer"][data-sorte="logement"]');
+    await o.p.locator('.lg-edition .lg-fiche').nth(1).locator('[data-lg-act="supprimer-fiche"]').click();
+    await o.p.click('.mrt-dialogue [data-r="oui"]');
+    await o.p.click('.lg-edition [data-lg-act="annuler"]'); await attendre(o.p);
+    pb.push(egal(2, db.logements.length, 'supprimer puis Annuler : le logement reste'));
+    await o.p.click('[data-lg-act="editer"][data-sorte="logement"]');
+    await o.p.locator('.lg-edition .lg-fiche').nth(1).locator('[data-lg-act="supprimer-fiche"]').click();
+    await o.p.click('.mrt-dialogue [data-r="oui"]');
+    pb.push(egal(['Logement 1'], await o.p.$$eval('.lg-edition .lg-fiche-n', l => l.map(x => x.textContent)), 'supprimer une fiche : les autres sont renumérotées'));
+    await o.p.click('.lg-edition [type="submit"]'); await attendre(o.p);
+    pb.push(egal(1, db.logements.length, 'supprimer un logement demande confirmation, puis « Enregistrer » le retire'));
 
     // 5 bis. Aller-retour : un seul prix, retour présaisi à l'envers, deux lignes enregistrées.
-    await o.p.click('[data-lg-act="ajouter-trajet"]');
-    await o.p.selectOption('.lg-form [name="type"]', 'avion'); await o.p.selectOption('.lg-form [name="sens"]', 'aller_retour');
-    await o.p.fill('.lg-form [name="lieu_depart"]', 'Aéroport de Lyon'); await o.p.fill('.lg-form [name="lieu_arrivee"]', 'Aéroport de Nice');
-    pb.push(egal(['Aéroport de Nice', 'Aéroport de Lyon', 'Prix de l\'aller-retour (€)'], [await o.p.inputValue('.lg-form [name="r_lieu_depart"]'), await o.p.inputValue('.lg-form [name="r_lieu_arrivee"]'), (await o.p.textContent('.lg-form [name="prix"] >> xpath=ancestor::div[contains(@class,"lg-champ")]/label')).trim()], 'aller-retour : lieux du retour présaisis, un seul prix'));
-    await o.p.fill('.lg-form [name="r_depart"]', '2027-03-08T18:00'); await o.p.fill('.lg-form [name="prix"]', '100');
-    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
+    await o.p.click('[data-lg-act="editer"][data-sorte="trajet"]');
+    await o.p.click('.lg-edition [data-lg-act="ajouter-fiche"]');
+    await champ(1, 'type').selectOption('avion'); await champ(1, 'sens').selectOption('aller_retour');
+    await champ(1, 'lieu_depart').fill('Aéroport de Lyon'); await champ(1, 'lieu_arrivee').fill('Aéroport de Nice');
+    pb.push(egal(['Aéroport de Nice', 'Aéroport de Lyon', 'Prix de l\'aller-retour (€)'], [await champ(1, 'r_lieu_depart').inputValue(), await champ(1, 'r_lieu_arrivee').inputValue(), (await o.p.locator('.lg-edition .lg-fiche').nth(1).locator('[name="prix"]').locator('xpath=ancestor::div[contains(@class,"lg-champ")]/label').textContent()).trim()], 'aller-retour : lieux du retour présaisis, un seul prix'));
+    await champ(1, 'r_depart').fill('2027-03-08T18:00'); await champ(1, 'prix').fill('100');
+    await o.p.click('.lg-edition [type="submit"]'); await attendre(o.p);
     pb.push(egal([['aller', 100, true, 'avion'], ['retour', null, undefined, 'avion']], db.trajets.slice(-2).map(t => [t.sens, t.prix, t.prix_aller_retour, t.type]), 'aller-retour : deux lignes, le prix sur l\'aller seulement'));
     pb.push(egal(['Avion · Aller100 € aller-retour', 'Avion · Retour', '400 €'], [(await texte(o.p, '.lg-ligne .lg-haut'))[2], (await texte(o.p, '.lg-ligne .lg-haut'))[3], await attr(o.p)], 'aller-retour : affichage et total (prix compté une fois)'));
 
@@ -6026,7 +6043,7 @@ const CONTROLES = {
 
     // Téléphone : pas de débordement ; bloc ouvert.
     o = await ouvrir(nav, 'course.html?id=' + GORGES, 390, db, {}, PARIS);
-    await o.p.click('#logistique > summary'); await o.p.click('[data-lg-act="ajouter-trajet"]');
+    await o.p.click('#logistique > summary'); await o.p.click('[data-lg-act="editer"][data-sorte="trajet"]'); await o.p.click('.lg-edition [data-lg-act="ajouter-fiche"]');
     pb.push(egal(false, await o.p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement'));
     await o.ctx.close();
 

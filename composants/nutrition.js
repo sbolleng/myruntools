@@ -55,7 +55,7 @@
 
   // ----- Lectures et écritures -----
   const sb = () => window.mrtSupabase;
-  // Le journal du jour : les lignes de repas. Le sport vient des séances du Calendrier (les « autres sports » saisis ici sont devenus des séances : évolution 052).
+  // Le journal du jour : les lignes de repas. Le sport vient des séances du Calendrier (les « autres sports » saisis ici sont devenus des séances : évolution 053).
   async function lireJour(id, jour) {
     const l = await sb().from('repas_lignes').select('*').eq('utilisateur', id).eq('date', jour);
     if (l.error) throw l.error;

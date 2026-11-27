@@ -1,5 +1,5 @@
--- Évolution 052 · 27 novembre 2026 · Les « autres sports » de Nutrition deviennent des séances du Calendrier (faites)
--- À coller APRÈS la 051 (dans une requête séparée). Vélo, natation, marche et crossfit saisis dans sport_jour deviennent des séances faites,
+-- Évolution 053 · 27 novembre 2026 · Les « autres sports » de Nutrition deviennent des séances du Calendrier (faites)
+-- À coller APRÈS la 052 (dans une requête séparée). Vélo, natation, marche et crossfit saisis dans sport_jour deviennent des séances faites,
 -- puis quittent sport_jour. Durée = heures × 60. Intensité : vélo promenade facile, 19 à 22 km/h modérée, 22 à 26 km/h intense ;
 -- natation récréative facile, natation modérée à élevée intense ; la marche n'a pas d'intensité.
 -- Ne doit être collée qu'une fois : les lignes déplacées sont supprimées de sport_jour, une seconde collée ne trouve plus rien.

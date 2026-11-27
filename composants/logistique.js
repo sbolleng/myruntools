@@ -47,9 +47,20 @@
       return liste.filter((v, i) => liste.indexOf(v) === i);
     } catch (e) { return null; }
   }
-  // Itinéraire : Google Maps et Waze, d'après l'adresse écrite.
-  const itineraires = adresse => (adresse ? '<span class="lg-plans"><a class="mrt-lien pc-ext" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(adresse) + '" target="_blank" rel="noopener">Google Maps ' + FLECHE + '</a>' +
-    '<a class="mrt-lien pc-ext" href="https://waze.com/ul?q=' + encodeURIComponent(adresse) + '&navigate=yes" target="_blank" rel="noopener">Waze ' + FLECHE + '</a></span>' : '');
+  // Adresse cliquable : un menu propose Google Maps, Waze et l'application de cartes de l'appareil
+  // (Plans sur iPhone et iPad, l'application au choix d'Android, OpenStreetMap sur ordinateur).
+  const appareil = adresse => {
+    const q = encodeURIComponent(adresse), ua = navigator.userAgent || '';
+    if (/iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return ['Plans', 'https://maps.apple.com/?q=' + q, true];
+    if (/Android/i.test(ua)) return ['Application de cartes', 'geo:0,0?q=' + q, false];
+    return ['OpenStreetMap', 'https://www.openstreetmap.org/search?query=' + q, true];
+  };
+  const adresseCliquable = adresse => {
+    const q = encodeURIComponent(adresse), a = appareil(adresse);
+    const choix = [['Google Maps', 'https://www.google.com/maps/search/?api=1&query=' + q, true], ['Waze', 'https://waze.com/ul?q=' + q + '&navigate=yes', true], a];
+    return '<button type="button" class="mrt-lien" data-lg-act="plans" aria-haspopup="true" aria-expanded="false" title="Ouvrir dans une application de cartes">' + esc(adresse) + '</button>' +
+      '<div class="mrt-menu" hidden>' + choix.map(c => '<a class="mrt-menu-l" href="' + esc(c[1]) + '"' + (c[2] ? ' target="_blank" rel="noopener"' : '') + '>' + c[0] + '</a>').join('') + '</div>';
+  };
 
   // ----- Lecture / écriture -----
   async function lire(table, filtre, ordre) {
@@ -73,12 +84,14 @@
     if (!cellule) return;
     const corps = cellule.querySelector('.lg-corps');
     const S = cache[c.id] || (cache[c.id] = { logements: [], trajets: [], catalogue: [], matos: [], equipements: [], charge: false });
-    S.mode = null;          // null | { sorte: 'logement' | 'trajet', id }
+    S.editLogement = false; S.editTrajet = false; // rubrique en modification (le crayon)
+    S.suppr = { logement: new Set(), trajet: new Set() }; // fiches retirées, supprimées à « Enregistrer »
     S.edition = false;      // liste du matos en modification
     S.detail = false;       // détail du total ouvert
     S.message = '';
     const dessiner = () => {
       corps.innerHTML = corpsHtml(c, S);
+      corps.querySelectorAll('.lg-edition').forEach(renumeroter);
       cellule.dataset.total = totalDe(c, S) ? euros(totalDe(c, S)) : '';
     };
     const recharger = async () => {
@@ -95,24 +108,34 @@
       if (!b) return;
       const act = b.dataset.lgAct, id = b.dataset.id || null;
       if (act === 'detail') { S.detail = !S.detail; dessiner(); return; }
-      if (act === 'ajouter-logement') { S.mode = { sorte: 'logement', id: null }; dessiner(); return; }
-      if (act === 'ajouter-trajet') { S.mode = { sorte: 'trajet', id: null }; dessiner(); return; }
-      if (act === 'modifier-logement') { S.mode = { sorte: 'logement', id }; dessiner(); return; }
-      if (act === 'modifier-trajet') { S.mode = { sorte: 'trajet', id }; dessiner(); return; }
-      if (act === 'annuler') { S.mode = null; dessiner(); return; }
-      if (act === 'chercher') { await chercher(); return; }
+      if (act === 'editer') { S['edit' + (b.dataset.sorte === 'logement' ? 'Logement' : 'Trajet')] = true; dessiner(); return; }
+      if (act === 'annuler') { S.editLogement = S.editTrajet = false; S.suppr = { logement: new Set(), trajet: new Set() }; dessiner(); return; }
+      if (act === 'chercher') { await chercher(b.closest('.lg-fiche')); return; }
       if (act === 'choisir-adresse') {
-        corps.querySelector('[name="adresse"]').value = b.dataset.valeur;
-        corps.querySelector('.lg-suggestions').hidden = true; corps.querySelector('.lg-aide').textContent = ''; return;
+        const fiche = b.closest('.lg-fiche');
+        fiche.querySelector('[name="adresse"]').value = b.dataset.valeur;
+        fiche.querySelector('.lg-suggestions').hidden = true; fiche.querySelector('.lg-aide').textContent = ''; return;
+      }
+      if (act === 'ajouter-fiche') {
+        const form = b.closest('form'), logement = form.dataset.sorte === 'logement';
+        b.insertAdjacentHTML('beforebegin', logement ? ficheLogement(null) : ficheTrajet(null));
+        renumeroter(form);
+        const fiches = form.querySelectorAll('.lg-fiche'), derniere = fiches[fiches.length - 1];
+        derniere.querySelector('[name]').focus(); return;
+      }
+      if (act === 'supprimer-fiche') {
+        const fiche = b.closest('.lg-fiche'), form = b.closest('form'), sorte = form.dataset.sorte;
+        if (fiche.dataset.id && !await window.mrtConfirmer({ texte: sorte === 'logement' ? 'Supprimer ce logement ?' : 'Supprimer ce trajet ?', action: 'Supprimer', danger: true })) return;
+        if (fiche.dataset.id) S.suppr[sorte].add(fiche.dataset.id);
+        fiche.remove(); renumeroter(form); return;
+      }
+      if (act === 'plans') {
+        const menu = b.parentElement.querySelector('.mrt-menu'), ouvrir = menu.hidden;
+        corps.querySelectorAll('.lg-adr .mrt-menu').forEach(m => { m.hidden = true; });
+        menu.hidden = !ouvrir; b.setAttribute('aria-expanded', String(ouvrir)); return;
       }
       if (act === 'liste') { S.edition = !S.edition; dessiner(); return; }
       if (act === 'jour-j') { jourJ(c, S, dessiner); return; }
-      if (act === 'supprimer') {
-        const sorte = S.mode.sorte, table = sorte === 'logement' ? 'logements' : 'trajets';
-        if (!await window.mrtConfirmer({ texte: sorte === 'logement' ? 'Supprimer ce logement ?' : 'Supprimer ce trajet ?', action: 'Supprimer', danger: true })) return;
-        const ok = await ecrire(sb().from(table).delete().eq('id', S.mode.id));
-        S.mode = null; await apres(ok); return;
-      }
       if (act === 'retirer') {
         const ok = await ecrire(sb().from('course_materiel').delete().eq('course', c.id).eq('article', id));
         await apres(ok); return;
@@ -128,8 +151,8 @@
         await apres(ok); return;
       }
     });
-    const chercher = async () => {
-      const champ = corps.querySelector('[name="adresse"]'), menu = corps.querySelector('.lg-suggestions'), aide = corps.querySelector('.lg-aide'), q = champ.value.trim();
+    const chercher = async fiche => {
+      const champ = fiche.querySelector('[name="adresse"]'), menu = fiche.querySelector('.lg-suggestions'), aide = fiche.querySelector('.lg-aide'), q = champ.value.trim();
       if (q.length < 3) { aide.textContent = 'Saisis au moins trois lettres.'; return; }
       aide.textContent = 'Recherche…'; menu.hidden = true;
       const liste = await chercherAdresses(q);
@@ -139,39 +162,51 @@
       menu.innerHTML = liste.map(v => '<button type="button" class="mrt-menu-l" data-lg-act="choisir-adresse" data-valeur="' + esc(v) + '">' + esc(v) + '</button>').join('');
       menu.hidden = false;
     };
-    corps.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.name === 'adresse') { ev.preventDefault(); chercher(); } });
+    corps.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.name === 'adresse') { ev.preventDefault(); chercher(ev.target.closest('.lg-fiche')); } });
+    // Un toucher sur un choix d'itinéraire referme le menu (le lien s'ouvre).
+    corps.addEventListener('click', ev => { if (ev.target.closest('.lg-adr .mrt-menu-l')) ev.target.closest('.mrt-menu').hidden = true; });
     // Aller-retour : le bloc Retour apparaît, lieux déjà saisis à l'envers (modifiables tant qu'on n'y a pas touché).
     const retour = f => {
-      const aller = f.elements.sens.value === 'aller_retour';
+      const aller = f.querySelector('[name="sens"]').value === 'aller_retour';
       f.querySelectorAll('.lg-retour').forEach(x => { x.hidden = !aller; });
       f.querySelector('[name="prix"]').closest('.lg-champ').querySelector('label').textContent = aller ? 'Prix de l\'aller-retour (€)' : 'Prix (€)';
     };
-    corps.addEventListener('change', ev => { if (ev.target.name === 'sens' && ev.target.form) retour(ev.target.form); });
+    corps.addEventListener('change', ev => { if (ev.target.name === 'sens') retour(ev.target.closest('.lg-fiche')); });
     corps.addEventListener('input', ev => {
-      const f = ev.target.form, n = ev.target.name;
-      if (!f || !f.classList.contains('lg-form-trajet')) return;
+      const f = ev.target.closest('.lg-fiche'), n = ev.target.name;
+      if (!f || f.dataset.sorte !== 'trajet') return;
       if (n === 'r_lieu_depart' || n === 'r_lieu_arrivee') { ev.target.dataset.manuel = '1'; return; }
       const miroir = { lieu_arrivee: 'r_lieu_depart', lieu_depart: 'r_lieu_arrivee' }[n];
-      if (miroir && f.elements.sens.value === 'aller_retour' && !f.elements[miroir].dataset.manuel) f.elements[miroir].value = ev.target.value;
+      if (miroir && f.querySelector('[name="sens"]').value === 'aller_retour' && !f.querySelector('[name="' + miroir + '"]').dataset.manuel) f.querySelector('[name="' + miroir + '"]').value = ev.target.value;
     });
     corps.addEventListener('submit', async ev => {
       ev.preventDefault();
-      const f = ev.target, d = Object.fromEntries(new FormData(f));
-      const vide = v => (String(v || '').trim() || null);
-      let ok;
-      if (S.mode.sorte === 'logement') {
-        const ligne = { nom: String(d.nom || '').trim(), adresse: vide(d.adresse), url: vide(d.url), prix: num(d.prix), arrivee: vide(d.arrivee), depart: vide(d.depart) };
-        if (!ligne.nom) { f.querySelector('[name="nom"]').focus(); return; }
-        ok = await ecrire(S.mode.id ? sb().from('logements').update(ligne).eq('id', S.mode.id) : sb().from('logements').insert(Object.assign({ course: c.id }, ligne)));
-      } else {
-        const ligne = { sens: d.sens === 'aller_retour' ? 'aller' : d.sens, type: d.type, lieu_depart: vide(d.lieu_depart), depart: vide(d.depart), lieu_arrivee: vide(d.lieu_arrivee), arrivee: vide(d.arrivee), url: vide(d.url), prix: num(d.prix) };
-        if (d.sens === 'aller_retour' && !S.mode.id) {
-          // Un seul prix, rangé sur l'aller (« aller-retour ») ; le retour est une seconde ligne sans prix.
-          const retour = { sens: 'retour', type: d.type, lieu_depart: vide(d.r_lieu_depart), depart: vide(d.r_depart), lieu_arrivee: vide(d.r_lieu_arrivee), arrivee: vide(d.r_arrivee), url: vide(d.url), prix: null };
-          ok = await ecrire(sb().from('trajets').insert([Object.assign({ course: c.id, prix_aller_retour: ligne.prix != null }, ligne), Object.assign({ course: c.id }, retour)]));
-        } else ok = await ecrire(S.mode.id ? sb().from('trajets').update(ligne).eq('id', S.mode.id) : sb().from('trajets').insert(Object.assign({ course: c.id }, ligne)));
+      const form = ev.target, sorte = form.dataset.sorte, vide = v => (String(v || '').trim() || null);
+      if (!form.classList.contains('lg-edition')) return;
+      const val = (f, n) => (f.querySelector('[name="' + n + '"]') || {}).value;
+      const ops = [];
+      for (const f of form.querySelectorAll('.lg-fiche')) {
+        const id = f.dataset.id || null;
+        if (sorte === 'logement') {
+          const ligne = { nom: String(val(f, 'nom') || '').trim(), adresse: vide(val(f, 'adresse')), url: vide(val(f, 'url')), prix: num(val(f, 'prix')), arrivee: vide(val(f, 'arrivee')), depart: vide(val(f, 'depart')) };
+          if (!ligne.nom) { if (id) { f.querySelector('[name="nom"]').focus(); return; } continue; } // fiche neuve restée vide : ignorée
+          ops.push(id ? sb().from('logements').update(ligne).eq('id', id) : sb().from('logements').insert(Object.assign({ course: c.id }, ligne)));
+        } else {
+          const sens = val(f, 'sens'), ligne = { sens: sens === 'aller_retour' ? 'aller' : sens, type: val(f, 'type'), lieu_depart: vide(val(f, 'lieu_depart')), depart: vide(val(f, 'depart')), lieu_arrivee: vide(val(f, 'lieu_arrivee')), arrivee: vide(val(f, 'arrivee')), url: vide(val(f, 'url')), prix: num(val(f, 'prix')) };
+          if (!id && !ligne.lieu_depart && !ligne.lieu_arrivee && ligne.prix == null && !ligne.url) continue; // fiche neuve restée vide : ignorée
+          if (sens === 'aller_retour' && !id) {
+            // Un seul prix, rangé sur l'aller (« aller-retour ») ; le retour est une seconde ligne sans prix.
+            const ret = { sens: 'retour', type: ligne.type, lieu_depart: vide(val(f, 'r_lieu_depart')), depart: vide(val(f, 'r_depart')), lieu_arrivee: vide(val(f, 'r_lieu_arrivee')), arrivee: vide(val(f, 'r_arrivee')), url: ligne.url, prix: null };
+            ops.push(sb().from('trajets').insert([Object.assign({ course: c.id, prix_aller_retour: ligne.prix != null }, ligne), Object.assign({ course: c.id }, ret)]));
+          } else ops.push(id ? sb().from('trajets').update(ligne).eq('id', id) : sb().from('trajets').insert(Object.assign({ course: c.id }, ligne)));
+        }
       }
-      S.mode = null; await apres(ok);
+      let ok = true;
+      for (const id of S.suppr[sorte]) ok = (await ecrire(sb().from(sorte === 'logement' ? 'logements' : 'trajets').delete().eq('id', id))) && ok;
+      for (const op of ops) ok = (await ecrire(op)) && ok;
+      S.suppr[sorte] = new Set();
+      if (sorte === 'logement') S.editLogement = false; else S.editTrajet = false;
+      await apres(ok);
     });
     corps.addEventListener('change', async ev => {
       const t = ev.target, a = t.dataset.article;
@@ -188,6 +223,7 @@
       await apres(await ecrire(sb().from('course_materiel').update(patch).eq('course', c.id).eq('article', a)));
     });
 
+    if (!window.__lgMenus) { window.__lgMenus = true; document.addEventListener('click', e => { if (!e.target.closest('.lg-adr')) document.querySelectorAll('.lg-adr .mrt-menu').forEach(m => { m.hidden = true; }); }); }
     if (S.charge) dessiner();
     recharger();
   }
@@ -198,7 +234,6 @@
   // ----- Affichage -----
   const libelle = t => '<span class="ob-lib">' + t + '</span>';
   const lien = (url, txt) => (lienSur(url) ? '<a class="mrt-lien pc-ext" href="' + esc(url) + '" target="_blank" rel="noopener">' + txt + ' ' + FLECHE + '</a>' : '');
-  const crayon = (act, id) => '<button type="button" class="mrt-rond" data-lg-act="' + act + '" data-id="' + esc(id) + '" aria-label="Modifier" title="Modifier">' + window.mrtIcone.crayon + '</button>';
 
   function corpsHtml(c, S) {
     if (!S.charge) return '<p class="pc-vide">Chargement…</p>';
@@ -207,20 +242,23 @@
     const totalHtml = total > 0
       ? '<div class="lg-total"><button type="button" class="mrt-lien" data-lg-act="detail" aria-expanded="' + S.detail + '">Total ' + euros(total) + '</button>' +
         (S.detail ? '<div class="lg-detail">' + parties.map(p => '<span>' + p[0] + ' ' + euros(p[1]) + '</span>').join('') + '</div>' : '') + '</div>' : '';
-    const logements = '<div class="lg-rubrique"><p class="pc-sous-titre lg-titre">Logement <button type="button" class="mrt-btn" data-lg-act="ajouter-logement">Ajouter</button></p>' +
-      S.logements.map(l => S.mode && S.mode.sorte === 'logement' && S.mode.id === l.id ? formLogement(l) : ligneLogement(l)).join('') +
-      (S.mode && S.mode.sorte === 'logement' && !S.mode.id ? formLogement(null) : '') + '</div>';
-    const trajets = '<div class="lg-rubrique"><p class="pc-sous-titre lg-titre">Transport <button type="button" class="mrt-btn" data-lg-act="ajouter-trajet">Ajouter</button></p>' +
-      S.trajets.map(t => S.mode && S.mode.sorte === 'trajet' && S.mode.id === t.id ? formTrajet(t) : ligneTrajet(t)).join('') +
-      (S.mode && S.mode.sorte === 'trajet' && !S.mode.id ? formTrajet(null) : '') + '</div>';
+    const rubrique = (sorte, titre, items, ligne, fiche, ajout, edition) => '<div class="lg-rubrique"><p class="pc-sous-titre lg-titre">' + titre +
+      (edition ? '' : '<button type="button" class="mrt-rond" data-lg-act="editer" data-sorte="' + sorte + '" aria-label="Modifier ' + (sorte === 'logement' ? 'le logement' : 'le transport') + '" title="Modifier ' + (sorte === 'logement' ? 'le logement' : 'le transport') + '">' + window.mrtIcone.crayon + '</button>') + '</p>' +
+      (edition
+        ? '<form class="lg-edition" data-sorte="' + sorte + '" autocomplete="off">' + (items.length ? items : [null]).map(fiche).join('') +
+          '<button type="button" class="mrt-btn" data-lg-act="ajouter-fiche">' + ajout + '</button>' +
+          '<div class="lg-pied"><button type="button" class="mrt-btn" data-lg-act="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form>'
+        : items.map(ligne).join('')) + '</div>';
+    const logements = rubrique('logement', 'Logement', S.logements, ligneLogement, ficheLogement, 'Ajouter un logement', S.editLogement);
+    const trajets = rubrique('trajet', 'Transport', S.trajets, ligneTrajet, ficheTrajet, 'Ajouter un trajet', S.editTrajet);
     const notes = c.logistique ? '<div class="lg-rubrique"><p class="pc-sous-titre">Notes</p><p>' + esc(c.logistique).replace(/\n/g, '<br>') + '</p></div>' : '';
     return totalHtml + logements + trajets + matosHtml(S) + notes + (S.message ? '<p class="lg-msg" role="status">' + esc(S.message) + '</p>' : '');
   }
 
   function ligneLogement(l) {
     const fleche = lienSur(l.url) ? '<a class="lg-lien-nom mrt-lien" href="' + esc(l.url) + '" target="_blank" rel="noopener" aria-label="Ouvrir le lien du logement" title="Ouvrir le lien du logement">' + FLECHE + '</a>' : '';
-    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc(l.nom) + fleche + '</span>' + (l.prix != null ? '<span class="lg-prix">' + euros(l.prix) + '</span>' : '') + crayon('modifier-logement', l.id) + '</div>' +
-      (l.adresse ? '<div class="lg-bas"><span>' + esc(l.adresse) + '</span></div><div class="lg-bas">' + itineraires(l.adresse) + '</div>' : '') +
+    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc(l.nom) + fleche + '</span>' + (l.prix != null ? '<span class="lg-prix">' + euros(l.prix) + '</span>' : '') + '</div>' +
+      (l.adresse ? '<div class="lg-bas lg-adr">' + adresseCliquable(l.adresse) + '</div>' : '') +
       (l.arrivee ? '<div class="lg-bas"><span>Arrivée : ' + esc(quand(l.arrivee)) + '</span></div>' : '') +
       (l.depart ? '<div class="lg-bas"><span>Départ : ' + esc(quand(l.depart)) + '</span></div>' : '') + '</div>';
   }
@@ -228,7 +266,7 @@
     const sens = (SENS.find(x => x[0] === t.sens) || [])[1], type = (TYPES_TRAJET.find(x => x[0] === t.type) || [])[1];
     const de = [t.lieu_depart, t.depart ? quand(t.depart) : ''].filter(Boolean).join(' ');
     const a = [t.lieu_arrivee, t.arrivee ? quand(t.arrivee) : ''].filter(Boolean).join(' ');
-    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc([type, sens].filter(Boolean).join(' · ')) + '</span>' + (t.prix != null ? '<span class="lg-prix">' + euros(t.prix) + (t.prix_aller_retour ? ' <small>aller-retour</small>' : '') + '</span>' : '') + crayon('modifier-trajet', t.id) + '</div>' +
+    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc([type, sens].filter(Boolean).join(' · ')) + '</span>' + (t.prix != null ? '<span class="lg-prix">' + euros(t.prix) + (t.prix_aller_retour ? ' <small>aller-retour</small>' : '') + '</span>' : '') + '</div>' +
       (de || a ? '<div class="lg-bas"><span>' + esc(de) + (de && a ? ' ' : '') + (de && a ? window.mrtIcone.droite : '') + (de && a ? ' ' : '') + esc(a) + '</span></div>' : '') +
       (lienSur(t.url) ? '<div class="lg-bas">' + lien(t.url, 'Réservation') + '</div>' : '') + '</div>';
   }
@@ -237,25 +275,26 @@
   const champ = (nom, lib, valeur, type, extra) => '<div class="lg-champ"><label>' + lib + '</label><input class="mrt-champ" name="' + nom + '" type="' + (type || 'text') + '" value="' + esc(valeur) + '"' + (extra || '') + '></div>';
   const liste = (nom, lib, options, valeur) => '<div class="lg-champ"><label>' + lib + '</label><select class="mrt-champ" name="' + nom + '">' +
     options.map(o => '<option value="' + o[0] + '"' + (o[0] === valeur ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select></div>';
-  const pied = existe => '<div class="lg-pied"><button type="button" class="mrt-btn" data-lg-act="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div>' +
-    (existe ? '<div class="lg-bas-seul"><button type="button" class="mrt-btn is-danger" data-lg-act="supprimer">' + POUBELLE + 'Supprimer</button></div>' : '');
   // Adresse : champ libre, plus « Rechercher » (OpenStreetMap) qui propose des adresses mises en forme.
   const adresseChamp = v => '<div class="lg-champ lg-large lg-adresse"><label>Adresse</label><div class="lg-recherche"><input class="mrt-champ" name="adresse" type="text" value="' + esc(v) + '" maxlength="200" placeholder="Saisir, puis Rechercher">' +
     '<button type="button" class="mrt-btn" data-lg-act="chercher">Rechercher</button></div><div class="mrt-menu lg-suggestions" hidden></div><p class="lg-aide" aria-live="polite"></p></div>';
-  function formLogement(l) {
+  // Une fiche par logement ou trajet dans la rubrique en modification : « Logement 1 », « Logement 2 »… ; Supprimer ne vaut qu'à « Enregistrer ».
+  const enteteFiche = lib => '<div class="lg-fiche-titre pc-sous-titre"><span class="lg-fiche-n">' + lib + '</span><button type="button" class="mrt-lien is-danger" data-lg-act="supprimer-fiche">Supprimer</button></div>';
+  function renumeroter(form) { form.querySelectorAll('.lg-fiche').forEach((f, i) => { f.querySelector('.lg-fiche-n').textContent = (form.dataset.sorte === 'logement' ? 'Logement ' : 'Trajet ') + (i + 1); }); }
+  function ficheLogement(l) {
     l = l || {};
-    return '<form class="lg-form" autocomplete="off">' + champ('nom', 'Nom', l.nom, 'text', ' maxlength="100" required') + adresseChamp(l.adresse) +
+    return '<div class="lg-form lg-fiche" data-sorte="logement"' + (l.id ? ' data-id="' + esc(l.id) + '"' : '') + '>' + enteteFiche('Logement') + champ('nom', 'Nom', l.nom, 'text', ' maxlength="100"') + adresseChamp(l.adresse) +
       champ('prix', 'Prix (€)', l.prix, 'text', ' inputmode="decimal"') + champ('url', 'Lien', l.url, 'url', ' maxlength="500" placeholder="https://"') +
-      champ('arrivee', 'Arrivée', pourChamp(l.arrivee), 'datetime-local') + champ('depart', 'Départ', pourChamp(l.depart), 'datetime-local') + pied(!!l.id) + '</form>';
+      champ('arrivee', 'Arrivée', pourChamp(l.arrivee), 'datetime-local') + champ('depart', 'Départ', pourChamp(l.depart), 'datetime-local') + '</div>';
   }
-  function formTrajet(t) {
+  function ficheTrajet(t) {
     t = t || {};
-    const bloc = (pref, lib, v) => champ(pref + 'lieu_depart', 'Lieu de départ' + lib, v.lieu_depart, 'text', ' maxlength="100"') + champ(pref + 'depart', 'Départ' + lib, pourChamp(v.depart), 'datetime-local') +
-      champ(pref + 'lieu_arrivee', 'Lieu d\'arrivée' + lib, v.lieu_arrivee, 'text', ' maxlength="100"') + champ(pref + 'arrivee', 'Arrivée' + lib, pourChamp(v.arrivee), 'datetime-local');
-    return '<form class="lg-form lg-form-trajet" autocomplete="off">' + liste('type', 'Type', TYPES_TRAJET, t.type || 'train') + liste('sens', 'Sens', t.id ? SENS : SENS_NOUVEAU, t.sens || 'aller') +
-      bloc('', '', t) + '<p class="pc-sous-titre lg-large lg-retour" hidden>Retour</p>' +
-      '<div class="lg-retour lg-large lg-sous-grille" hidden>' + bloc('r_', '', {}) + '</div>' +
-      champ('prix', 'Prix (€)', t.prix, 'text', ' inputmode="decimal"') + champ('url', 'Lien de réservation', t.url, 'url', ' maxlength="500" placeholder="https://"') + pied(!!t.id) + '</form>';
+    const bloc = (pref, v) => champ(pref + 'lieu_depart', 'Lieu de départ', v.lieu_depart, 'text', ' maxlength="100"') + champ(pref + 'depart', 'Départ', pourChamp(v.depart), 'datetime-local') +
+      champ(pref + 'lieu_arrivee', 'Lieu d\'arrivée', v.lieu_arrivee, 'text', ' maxlength="100"') + champ(pref + 'arrivee', 'Arrivée', pourChamp(v.arrivee), 'datetime-local');
+    return '<div class="lg-form lg-fiche" data-sorte="trajet"' + (t.id ? ' data-id="' + esc(t.id) + '"' : '') + '>' + enteteFiche('Trajet') + liste('type', 'Type', TYPES_TRAJET, t.type || 'train') + liste('sens', 'Sens', t.id ? SENS : SENS_NOUVEAU, t.sens || 'aller') +
+      bloc('', t) + '<p class="pc-sous-titre lg-large lg-retour" hidden>Retour</p>' +
+      '<div class="lg-retour lg-large lg-sous-grille" hidden>' + bloc('r_', {}) + '</div>' +
+      champ('prix', 'Prix (€)', t.prix, 'text', ' inputmode="decimal"') + champ('url', 'Lien de réservation', t.url, 'url', ' maxlength="500" placeholder="https://"') + '</div>';
   }
 
   // ----- Matos -----
