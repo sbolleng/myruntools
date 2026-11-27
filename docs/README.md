@@ -81,7 +81,7 @@ Chaque module suit le même cycle : spécification, validation, modèle de donn�
 
 En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [todo.md](todo.md), même numéro.
 
-12. **Logistique** : construite ([spécification 0.2](module-logistique-specification.md)) ; évolution 049 passée ; essai réel à faire ; ensuite message nutrition, kilomètres des chaussures (Palmarès, Strava), liste du règlement par l'IA.
+12. **Logistique** : construite ([spécification 0.3](module-logistique-specification.md)) ; évolutions 049 et 050 passées ; essai réel à faire ; ensuite message nutrition, kilomètres des chaussures (Palmarès, Strava), liste du règlement par l'IA.
 22. **Priorité : Mon plan et la fréquence cardiaque** : lier l'intensité du plan aux zones cardiaques (FC max, FC de repos).
 23. **Menu selon le parcours, suites** : onglets à 375 px (décision), pas à pas ludique, évolution 047 à passer, « Cette semaine » fondu dans En un coup d'œil.
 1. **Préparation, refonte de Mon plan** : ajouter le renforcement (section Renforcement de Ma semaine dans le parcours, séances de renforcement dans le plan) ; voir aussi le n° 13.

@@ -5882,29 +5882,42 @@ const CONTROLES = {
     pb.push(egal('Navette depuis le stade à 6 h 30.', (await texte(o.p, '#logistique .lg-rubrique:last-child p:not(.pc-sous-titre)'))[0], 'le texte libre devient les Notes'));
 
     // 1. Logement.
+    // Recherche d'adresse (OpenStreetMap simulé) : proposée au bouton ou à « Entrée », mise en forme, choisie d'un toucher.
+    const demandes = [];
+    await o.ctx.route(/nominatim\.openstreetmap\.org/, rt => { demandes.push(new URL(rt.request().url()).searchParams.get('q'));
+      rt.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([{ display_name: 'x', address: { house_number: '12', road: 'rue des Crêtes', postcode: '42000', city: 'Saint-Étienne' } }, { display_name: 'Autre lieu, France', address: {} }]) }); });
     await o.p.click('[data-lg-act="ajouter-logement"]');
     await o.p.fill('.lg-form [name="nom"]', 'Gîte des Crêtes');
+    await o.p.fill('.lg-form [name="adresse"]', 'rue des Crêtes Saint-Étienne'); await o.p.press('.lg-form [name="adresse"]', 'Enter'); await o.p.waitForSelector('.lg-suggestions:not([hidden])');
+    pb.push(egal([['rue des Crêtes Saint-Étienne'], ['12 rue des Crêtes, 42000 Saint-Étienne', 'Autre lieu, France']], [demandes, await o.p.$$eval('.lg-suggestions .mrt-menu-l', l => l.map(x => x.textContent))], 'adresse : recherche à « Entrée », propositions mises en forme'));
+    await o.p.click('.lg-suggestions .mrt-menu-l >> nth=0');
+    pb.push(egal(['12 rue des Crêtes, 42000 Saint-Étienne', true], [await o.p.inputValue('.lg-form [name="adresse"]'), await o.p.evaluate(() => document.querySelector('.lg-suggestions').hidden)], 'adresse : la proposition choisie remplit le champ'));
     await o.p.fill('.lg-form [name="prix"]', '180');
     await o.p.fill('.lg-form [name="url"]', 'https://example.org/gite');
     await o.p.fill('.lg-form [name="arrivee"]', '2027-03-05T17:00');
     await o.p.fill('.lg-form [name="depart"]', '2027-03-07T10:00');
     await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
-    pb.push(egal(['Gîte des Crêtes180 €', 'Arrivée ven. 5 mars · 17 h · Départ dim. 7 mars · 10 h'], [(await texte(o.p, '.lg-ligne .lg-haut'))[0], (await texte(o.p, '.lg-ligne .lg-bas'))[1]], 'logement : la ligne et ses dates'));
+    const ligneTxt = (i, sel) => o.p.evaluate(([n, q]) => [...document.querySelectorAll('.lg-ligne')[n].querySelectorAll(q)].map(e => e.textContent.replace(/\s+/g, ' ').trim()), [i, sel]);
+    pb.push(egal(['Gîte des Crêtes180 €', ['12 rue des Crêtes, 42000 Saint-Étienne', 'Google Maps Waze', 'Arrivée : ven. 5 mars · 17 h', 'Départ : dim. 7 mars · 10 h']], [(await ligneTxt(0, '.lg-haut'))[0], await ligneTxt(0, '.lg-bas')], 'logement : adresse, itinéraires, « Arrivée : » puis « Départ : » l\'un sous l\'autre'));
+    pb.push(egal([['https://www.google.com/maps/search/?api=1&query=12%20rue%20des%20Cr%C3%AAtes%2C%2042000%20Saint-%C3%89tienne', 'https://waze.com/ul?q=12%20rue%20des%20Cr%C3%AAtes%2C%2042000%20Saint-%C3%89tienne&navigate=yes'], 'https://example.org/gite', 0], [await o.p.$$eval('.lg-plans a', l => l.map(a => a.href)), await o.p.getAttribute('.lg-nom .lg-lien-nom', 'href'), await o.p.locator('.lg-ligne', { hasText: 'Annonce' }).count()],
+      'logement : liens Google Maps et Waze ; la flèche à côté du nom ouvre le lien, plus de « Annonce »'));
     pb.push(egal('238 €', await attr(o.p), 'logement à 180 € : total 238 €'));
 
     // 2. Trajet.
     await o.p.click('[data-lg-act="ajouter-trajet"]');
+    pb.push(egal(['Type', 'Sens'], await o.p.$$eval('.lg-form .lg-champ label', l => l.map(x => x.textContent).slice(0, 2)), 'trajet : le type d\'abord, puis le sens'));
     await o.p.selectOption('.lg-form [name="type"]', 'train');
     await o.p.fill('.lg-form [name="lieu_depart"]', 'Lyon'); await o.p.fill('.lg-form [name="depart"]', '2027-03-06T08:12');
     await o.p.fill('.lg-form [name="lieu_arrivee"]', 'Saint-Étienne'); await o.p.fill('.lg-form [name="arrivee"]', '2027-03-06T10:05');
     await o.p.fill('.lg-form [name="prix"]', '62');
     await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
-    pb.push(egal(['Aller · Train62 €', 'Lyon sam. 6 mars · 8 h 12 Saint-Étienne sam. 6 mars · 10 h 05'], [(await texte(o.p, '.lg-ligne .lg-haut'))[1], (await texte(o.p, '.lg-ligne .lg-bas'))[2]], 'trajet : la ligne et ses horaires'));
+    pb.push(egal(['Train · Aller62 €', ['Lyon sam. 6 mars · 8 h 12 Saint-Étienne sam. 6 mars · 10 h 05']], [(await ligneTxt(1, '.lg-haut'))[0], await ligneTxt(1, '.lg-bas')], 'trajet : la ligne (type puis sens) et ses horaires'));
     pb.push(egal('300 €', await attr(o.p), 'trajet à 62 € : total 300 €'));
 
     // 3. Détail du total, un clic l'ouvre, un second le ferme.
     await o.p.click('[data-lg-act="detail"]');
     pb.push(egal('Dossard 58 €Logement 180 €Transport 62 €', (await texte(o.p, '.lg-detail'))[0], 'détail du total'));
+    pb.push(egal([3, true], await o.p.evaluate(() => { const l = [...document.querySelectorAll('.lg-detail span')], t = l.map(x => Math.round(x.getBoundingClientRect().top)); return [l.length, t[0] < t[1] && t[1] < t[2]]; }), 'détail du total : une ligne sous l\'autre'));
     await o.p.click('[data-lg-act="detail"]');
     pb.push(egal(0, await o.p.locator('.lg-detail').count(), 'second clic : le détail se referme'));
 
@@ -5919,6 +5932,16 @@ const CONTROLES = {
     await o.p.click('[data-lg-act="supprimer"]');
     await o.p.click('.mrt-dialogue [data-r="oui"]'); await attendre(o.p);
     pb.push(egal(1, db.logements.length, 'supprimer un logement demande confirmation puis le retire'));
+
+    // 5 bis. Aller-retour : un seul prix, retour présaisi à l'envers, deux lignes enregistrées.
+    await o.p.click('[data-lg-act="ajouter-trajet"]');
+    await o.p.selectOption('.lg-form [name="type"]', 'avion'); await o.p.selectOption('.lg-form [name="sens"]', 'aller_retour');
+    await o.p.fill('.lg-form [name="lieu_depart"]', 'Aéroport de Lyon'); await o.p.fill('.lg-form [name="lieu_arrivee"]', 'Aéroport de Nice');
+    pb.push(egal(['Aéroport de Nice', 'Aéroport de Lyon', 'Prix de l\'aller-retour (€)'], [await o.p.inputValue('.lg-form [name="r_lieu_depart"]'), await o.p.inputValue('.lg-form [name="r_lieu_arrivee"]'), (await o.p.textContent('.lg-form [name="prix"] >> xpath=ancestor::div[contains(@class,"lg-champ")]/label')).trim()], 'aller-retour : lieux du retour présaisis, un seul prix'));
+    await o.p.fill('.lg-form [name="r_depart"]', '2027-03-08T18:00'); await o.p.fill('.lg-form [name="prix"]', '100');
+    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
+    pb.push(egal([['aller', 100, true, 'avion'], ['retour', null, undefined, 'avion']], db.trajets.slice(-2).map(t => [t.sens, t.prix, t.prix_aller_retour, t.type]), 'aller-retour : deux lignes, le prix sur l\'aller seulement'));
+    pb.push(egal(['Avion · Aller100 € aller-retour', 'Avion · Retour', '400 €'], [(await texte(o.p, '.lg-ligne .lg-haut'))[2], (await texte(o.p, '.lg-ligne .lg-haut'))[3], await attr(o.p)], 'aller-retour : affichage et total (prix compté une fois)'));
 
     // 6. Matos : le catalogue est proposé, rien n'est dupliqué.
     await o.p.click('[data-lg-act="liste"]');

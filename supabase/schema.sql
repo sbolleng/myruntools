@@ -402,6 +402,7 @@ create table trajets (
   arrivee       timestamp,
   url           text check (char_length(url) <= 500),
   prix          numeric(8,2) check (prix >= 0),
+  prix_aller_retour boolean not null default false, -- le prix couvre aussi le retour (évolution 050)
   cree_le       timestamptz not null default now(),
   foreign key (utilisateur, course) references courses (utilisateur, id) on delete cascade
 );
