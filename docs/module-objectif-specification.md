@@ -1,6 +1,6 @@
 # Objectif · spécification fonctionnelle
 
-Version 0.87 · 21 novembre 2026 · [Retour au sommaire](README.md) · « Supprimer la course » seul en bas de la fiche, avec son texte (panneau des boutons du design, § 11).
+Version 0.88 · 27 novembre 2026 · [Retour au sommaire](README.md) · Une course passée sans résultat : à faire dans « Aujourd'hui » (case qui ouvre la fiche du résultat), bandeau « À faire » sur sa page, plus « Prochaine course ».
 
 ## 1. Rôle
 
@@ -89,7 +89,7 @@ Plan de page d'une carte (ordinateur) :
 
 ### 3.3 Statut, rôle et état d'une étape
 
-La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1), datées du jour ou plus tard : les mêmes que celles de l'en-tête. S'y ajoutent les courses Confirmées dont la date est passée sans qu'elles soient marquées courues : elles restent en tête de la saison, compteur « Course courue », jusqu'à ce qu'on saisisse leur résultat (« Marquer comme courue ») ; elles ne comptent pas pour l'en-tête. Une course sans date, une Option passée ou une course À surveiller n'y figure pas.
+La page montre les courses au statut Option ou Confirmée, à l'état À venir ([modèle de données](modele-donnees.md), § 4.1), datées du jour ou plus tard : les mêmes que celles de l'en-tête. S'y ajoutent les courses Confirmées dont la date est passée sans qu'elles soient marquées courues : elles restent en tête de la saison, compteur « Course courue », jusqu'à ce qu'on saisisse leur résultat (« Marquer comme courue ») ; elles ne comptent pas pour l'en-tête. Sur la page d'une telle course (date passée, pas celle du jour), un bandeau « À faire · Saisis ton résultat : la course a eu lieu le … » (n° 40, texte Alerte, filet à gauche) précède le bouton « Marquer comme courue » (n° 8). Sur l'accueil, elle n'est ni « Prochaine course » ni une étape de « D'ici là » : elle attend dans « Aujourd'hui » (specification-generale, § 5 bis), jusqu'à l'enregistrement du résultat (décidé le 27 nov. 2026). Une course sans date, une Option passée ou une course À surveiller n'y figure pas.
 
 | Cas | Signification | Rendu |
 | --- | --- | --- |
@@ -791,6 +791,7 @@ Résultats attendus, formulaire en détail (écritures relues par le banc d'essa
 - Téléphone : la fiche ne déborde pas.
 - Site partagé en lecture seule : ni « + », ni « Modifier », ni « Retenir ».
 - Trail du Lac passé (10 octobre 2026, Confirmée, À venir, jamais marquée courue) : première étape de la saison, compteur « Course courue », bouton « Marquer comme courue » sur sa page ; l'en-tête garde « Cap sur Trail des Crêtes » et « 5 courses ». Une Option passée n'apparaît pas.
+- Même cas, sur l'accueil : « Prochaine course » montre la Corrida de Noël, « D'ici là » commence par la Corrida de Noël ; « Aujourd'hui » porte une ligne « Course · Trail du Lac · en retard · 10 oct. 2026 · saisis ton résultat » ; cocher sa case ouvre la fiche « Marquer comme courue » et la case reste vide. Sur sa page, le bandeau « À faire » précède le bouton.
 
 Résultats attendus, fiche d'une course (§ 3.8) :
 

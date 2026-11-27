@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Guide au menu, facultatif, en toute fin (**évolution 048 à passer**). Avant : menu selon le parcours (évolution 047 passée), menu défilant sur téléphone.
+- Dernier lot : course passée sans résultat à faire dans « Aujourd'hui » (toujours affiché). Avant : Guide au menu, facultatif (**évolution 048 à passer**).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).

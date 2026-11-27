@@ -435,6 +435,7 @@
       (autres.length ? '<p class="pc-groupe">' + esc(c.groupe_options) + ' · ' + (autres.length > 1 ? 'autres options' : 'autre option') + ' : ' +
         autres.map(x => '<a href="' + pageCourse(x) + '">' + esc(nom(x)) + '</a>').join(', ') + '</p>' : '') +
       (liensHaut.length ? '<p class="pc-liens-haut">' + liensHaut.join('') + '</p>' : '') +
+      (edition && marquable && c.date < aujourdhui() ? '<p class="pc-afaire"><b>À faire</b> · Saisis ton résultat : la course a eu lieu le ' + esc(dateCourte(c)) + '.</p>' : '') +
       (edition && (retenable || marquable) ? '<div class="pc-actions">' +
         (retenable ? '<button type="button" class="mrt-btn" data-ob="retenir">Retenir cette course</button>' : '') +
         (marquable ? '<button type="button" class="mrt-btn" data-ob="marquer">Marquer comme courue</button>' : '') + '</div>' : '') +

@@ -589,7 +589,7 @@ const CONTROLES = {
   },
 
   async accueil(nav, db0) {
-    const { db } = jeuObjectif(db0);
+    const { db, id } = jeuObjectif(db0);
     const pb = [];
     // Premiers pas (profil express du compte fictif incomplet) : contrôlés à part, groupe « premiers ».
     const blocs = p => p.evaluate(() => [...document.querySelectorAll('.ac-bloc:not([data-bloc="premiers"])')].map(b => b.dataset.bloc + (b.classList.contains('is-bientot') ? ' (bientôt)' : '')));
@@ -620,6 +620,16 @@ const CONTROLES = {
     await p.check('[data-faite="se-a"]'); await p.waitForTimeout(300);
     pb.push(egal(1, await p.locator('.cal-feuille-retour').count(), 'Aujourd\'hui : cocher « faite » ouvre la feuille « Effort et sensations »'));
     pb.push(egal(true, jourJ.ecritures.length > 0 && jourJ.ecritures[0].corps && jourJ.ecritures[0].corps.faite === true, 'Aujourd\'hui : la case « faite » est rangée'));
+    await ctx.close();
+    // Course passée non saisie : à faire dans « Aujourd'hui » tant que le résultat n'est pas enregistré ; plus « Prochaine course ».
+    const retard = JSON.parse(JSON.stringify(db)); retard.courses.find(c => c.id === id(1)).date = '2026-10-10';
+    retard.preferences[0].accueil_blocs = ['prochaine', 'dicila']; retard.ecritures = [];
+    ({ p, ctx } = await ouvrir(nav, 'index.html', 1200, retard, {}, PARIS));
+    await p.waitForSelector('.ac-jour-ligne');
+    pb.push(egal(['COURSE Trail du Lac · Le Tour du Lac en retard · 10 oct. 2026 · saisis ton résultat'], await p.evaluate(() => [...document.querySelectorAll('.ac-jour-ligne')].map(l => l.innerText.replace(/[  ]/g, ' ').replace(/\s+/g, ' ').trim())), 'Aujourd\'hui : la course passée à saisir, avec son retard'));
+    pb.push(egal(['Corrida de Noël', 'Trail des Gorges'], [(await p.textContent('[data-bloc="prochaine"] .ob-nom')).replace(/[  ]/g, ' ').trim(), (await p.locator('[data-bloc="dicila"] .ac-etape').nth(1).textContent())].slice(0, 1).concat((await p.locator('[data-bloc="dicila"] .ac-etape').nth(1).textContent())), 'Prochaine course : la suivante ; D\'ici là : sans la course passée'));
+    await p.click('[data-course-faite]'); await p.waitForSelector('.fc-fiche');
+    pb.push(egal([false, 'Marquer comme courue'], [await p.isChecked('[data-course-faite]'), (await p.textContent('#fc-titre')).trim()], 'cocher : la fiche du résultat s\'ouvre, la case reste vide'));
     await ctx.close();
     // Page de démarrage : la feuille de route. En arrivant sur l'Accueil, on y est renvoyé ; elle seule a le grand en-tête.
     const dem = JSON.parse(JSON.stringify(db)); dem.preferences[0].modules = ['Objectif', 'En un coup d\'œil', 'Calendrier', 'Palmarès'];

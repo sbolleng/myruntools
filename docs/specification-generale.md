@@ -177,11 +177,12 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 - **Page de démarrage** : le premier module construit du menu, dans l'ordre choisi dans les Préférences ; rien d'autre à choisir. Par défaut En un coup d'œil. En arrivant sur le site (adresse tapée, nouvel onglet, retour du lien de connexion), on y arrive directement, avec le grand en-tête ; l'onglet En un coup d'œil, touché depuis le site, ouvre bien cette page.
 - **Grand en-tête** sur la page de démarrage seulement ; partout ailleurs, la barre fine (« Cap sur … » et l'engrenage). La page d'une course a toujours la barre fine.
 - **Passage** : en quittant la page de démarrage, le grand en-tête se réduit en barre fine (0,45 s) ; en y revenant, il se déplie. Rien au premier affichage, ni quand l'utilisateur a demandé à réduire les animations.
+- **Aujourd'hui** : toujours affiché, en tête (décidé le 27 nov. 2026), même sans Nutrition au menu ; sur un site partagé en lecture seule, sans case ni saisie. Il liste d'abord les courses confirmées **passées sans résultat** (case vide, « Course », nom en lien, « en retard · date · saisis ton résultat » en Alerte, la plus ancienne en premier) : cocher la case ouvre la fiche « Marquer comme courue » ; la case reste vide, et la ligne affichée, tant que le résultat n'est pas enregistré. Puis la course du jour et les séances du jour (case « faite »), puis les saisies rapides (Nutrition au menu).
 - **En un coup d'œil** : des blocs, deux colonnes sur ordinateur, une sur téléphone, choisis et rangés dans les Préférences. Sans aucune course (compte neuf), les Premiers pas et Découvrir MyRunTools sont seuls sur la page ; tous les autres blocs viennent avec la première course :
 
 | Bloc | Contenu | Par défaut |
 | --- | --- | --- |
-| Prochaine course | La carte de la prochaine course confirmée, comme sur la saison ; lien vers la saison | Affiché |
+| Prochaine course | La carte de la prochaine course confirmée datée d'aujourd'hui ou plus tard (une course passée sans résultat attend dans Aujourd'hui), comme sur la saison ; lien vers la saison | Affiché |
 | Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt : jamais affiché avant d'être construit | — |
 | Nutrition | Bilan du jour (mangé / besoin) et ajout en une touche des favoris et récents ([Nutrition](module-nutrition-specification.md), § 4.7) ; seulement quand le module Nutrition est au menu | Affiché |
 | D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent ; lien « Préparation → » quand ce module est au menu | Affiché |
