@@ -3207,6 +3207,13 @@ const CONTROLES = {
       await q.p.waitForSelector('[data-drag="se-n"]');
       pb.push(egal(0, await q.p.locator('[data-noter], .cal-v-anoter').count(), 'plus de « à noter », même sur une séance faite sans effort noté'));
       await q.p.check('[data-fait="se-p"]'); await q.p.waitForSelector('.cal-feuille-retour');
+      pb.push(egal([['Aujourd\'hui', 'Ven. 23 oct.'], 'Aujourd\'hui', true, 1, ['Effort perçu', 'Réalisé', 'Commentaire']],
+        [await q.p.evaluate(() => [...document.querySelectorAll('[data-groupe="jour_fait"] [data-val]')].map(b => b.textContent.replace(/\u00a0/g, ' '))), await q.p.textContent('[data-groupe="jour_fait"] [aria-pressed="true"]'),
+          await q.p.evaluate(() => document.querySelector('.cal-feuille-retour .cal-fc').hidden), await q.p.locator('.cal-feuille-retour [data-fc]').count(),
+          await q.p.evaluate(() => [...document.querySelectorAll('.cal-feuille-retour .cal-bloc')].map(b => b.querySelector('.cal-titre-info, .cal-realise-titre, .cal-champ > span').textContent.trim()))],
+        'feuille, séance à venir : « Faite » (Aujourd\'hui) (son jour), aujourd\'hui d\'office ; trois blocs (effort, réalisé, commentaire) ; FC repliée'));
+      await q.p.click('.cal-feuille-retour [data-fc]');
+      pb.push(egal([false, 0], [await q.p.evaluate(() => document.querySelector('.cal-feuille-retour .cal-fc').hidden), await q.p.locator('.cal-feuille-retour [data-fc]:visible').count()], '« + Fréquence cardiaque » déplie FC moyenne et FC max'));
       await q.p.click('.cal-feuille-retour .mc-pied .is-principal');
       pb.push(egal('Note ton effort perçu pour enregistrer la séance faite.', await q.p.textContent('.cal-feuille-retour .cal-msg'), 'feuille : « Enregistrer » refusé sans effort noté'));
       dn.ecritures = [];
@@ -3216,6 +3223,14 @@ const CONTROLES = {
       await q.p.click('[data-edit="se-p"]'); await q.p.waitForSelector('.cal-seance');
       await q.p.check('.cal-seance [name="faite"]'); await q.p.click('.cal-seance button[type="submit"]');
       pb.push(egal('Note ton effort perçu pour marquer la séance faite.', await q.p.textContent('.cal-seance .cal-msg'), 'fenêtre : cocher « faite » sans effort noté, refusé'));
+      await q.p.keyboard.press('Escape'); await q.p.waitForSelector('.cal-seance', { state: 'detached' });
+      dn.ecritures = [];
+      await q.p.check('[data-fait="se-p"]'); await q.p.waitForSelector('.cal-feuille-retour');
+      await q.p.fill('.cal-feuille-retour .cal-curseur', '5'); await q.p.click('.cal-feuille-retour .mc-pied .is-principal');
+      await q.p.waitForFunction(() => !document.querySelector('.cal-feuille-retour form'));
+      const ep = (dn.ecritures.filter(e => e.table === 'seances' && 'ressenti' in (e.corps || {})).pop() || {}).corps || {};
+      pb.push(egal(['2026-10-20', '2026-10-23', 5], [ep.date, ep.date_prevue, ep.ressenti], 'séance prise d\'avance : faite aujourd\'hui, son jour prévu gardé'));
+      if (await q.p.locator('.cal-feuille-retour').count()) { await q.p.click('.cal-feuille-retour [data-fermer]'); await q.p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); }
       pb.push(egal([], q.erreurs, 'séance faite sans effort : erreurs JavaScript'));
       await q.ctx.close();
     }
@@ -6006,6 +6021,7 @@ const CONTROLES = {
     o = await ouvrir(nav, 'profil.html', 1200, db, {}, PARIS);
     await o.p.waitForSelector('#materiel .st-connexion'); await pause();
     pb.push(egal(['Salomon Speedcross (les rouges)Chaussures · départ 120 km · limite 800 km', 'Petzl ActikFrontale'], (await texte(o.p, '#materiel .st-connexion span')).filter(Boolean).slice(0, 2), 'Mon matériel : kilomètres sur les chaussures seulement'));
+    pb.push(egal([true, '+ Ajouter un équipement'], await o.p.evaluate(() => [[...document.querySelectorAll('#materiel [data-mm-act="modifier"]')].every(b => b.classList.contains('mrt-rond') && b.getAttribute('aria-label') === "Modifier l'équipement"), document.querySelector('#materiel [data-mm-act="ajouter"]').textContent]), 'Mon matériel : crayon pour modifier, ajout nommé'));
     await o.p.click('[data-mm-act="ajouter"]');
     await o.p.selectOption('#materiel [name="type"]', 'batons');
     pb.push(egal(true, await o.p.evaluate(() => [...document.querySelectorAll('#materiel .lg-km')].every(x => x.hidden)), 'Mon matériel : pas de kilomètres pour des bâtons'));
