@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Vue Année | « Année » (12 mois) devient une vue d'ensemble : 12 mini-grilles de mois (lundi à dimanche), sans noms ni numéros sauf aujourd'hui ; couleurs seules (phase en fond, point de la couleur de la séance, case pleine route/trail) ; 3 et 6 mois gardent la grille détaillée. |
 | 27 nov. 2026 | Couleurs uniques | Courses et séances : une seule palette de tons moyens (contraste ≥ 3:1 sur blanc et noir), la même dans tous les thèmes. Calendrier : bouton rond « Légende » (séances, route/trail, confirmée/option), éteint par défaut ; liseré des séances dans les vues Année, 3 mois et 6 mois. |
 | 27 nov. 2026 | Couleurs route/trail | Blanc-orange : route `#0b63b0`, trail `#c2410c`, encre blanche ; vert-rose : trail ambre `#ffb03d` ; course non confirmée à 50 % de la couleur. |
 | 27 nov. 2026 | Guide au menu | Le Guide devient un module comme les autres : facultatif, en toute fin du menu (Préférences, « Pour aller plus loin »). Évolution 048 : ajouté au bout du menu des comptes existants (les deux pilotes). Guide 0.3. |

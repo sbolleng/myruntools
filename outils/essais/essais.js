@@ -4114,10 +4114,10 @@ const CONTROLES = {
     await p.locator('.cal-s-titre').nth(2).click();
     pb.push(egal(true, (await vues())[1], 'toucher ailleurs : le menu se ferme'));
     await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="12"]'); await pause();
-    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-a-blocs').count(), await p.evaluate(() => location.hash)],
+    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-y').count(), await p.evaluate(() => location.hash)],
       'choisir « Année » : la vue Année, le menu refermé'));
     await p.click('[data-plan]'); await pause();
-    pb.push(egal(['true', '1', true], [await p.getAttribute('[data-plan]', 'aria-pressed'), await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases')), await p.locator('.cal-a-j[class*="ph-"]').count() > 0],
+    pb.push(egal(['true', '1', true], [await p.getAttribute('[data-plan]', 'aria-pressed'), await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases')), await p.locator('.cal-y-j[class*="ph-"]').count() > 0],
       'bouton « Plan » : enfoncé, les fonds de phase, retenu sur l\'appareil'));
     await p.click('[data-plan]'); await pause();
     await p.click('[data-menu]'); await p.click('.cal-menu [data-vue="mois"]'); await pause();

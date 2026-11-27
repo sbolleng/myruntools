@@ -235,6 +235,28 @@
     const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
     const { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml } = contenus(ctx);
 
+    // Les 12 mois en petit : chaque mois en 7 colonnes (lundi à dimanche) ; un jour touché ouvre sa semaine.
+    function miniMois(mois, courses, plans, auj) {
+      return '<div class="cal-y">' + mois.map(m => {
+        const premier = (m.getDay() + 6) % 7, nbj = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+        let g = '<span class="cal-y-vide"></span>'.repeat(premier);
+        for (let d = 1; d <= nbj; d++) {
+          const j = iso(new Date(m.getFullYear(), m.getMonth(), d)), c = courses.find(x => x.date === j), cls = ['cal-y-j'], tip = [longue(j)];
+          if (j === auj) { cls.push('auj'); tip.push('aujourd\'hui'); }
+          if (c) { cls.push(couleur(c)); tip.push(c.nom + ' · ' + (c.courue ? 'courue' : c.validee ? 'confirmée' : 'en option')); }
+          const ph = phaseDuJour(plans, j);
+          if (ph) { cls.push('ph-' + ph); tip.push(NOM_PHASE[ph]); }
+          const se = ctx.seances.filter(x => x.date === j);
+          se.forEach(x => tip.push(TYPES[x.type] + ' ' + x.libelle + (x.faite ? ' (faite)' : '')));
+          const types = se.map(x => P.lisere(x)).filter((k, i, a) => a.indexOf(k) === i);
+          g += '<span class="' + cls.join(' ') + '" data-jour="' + j + '"' + (c ? ' data-course="' + esc(c.id) + '"' : '') + ' title="' + esc(tip.join(' · ')) + '">' +
+            (j === auj ? '<b>' + d + '</b>' : '') + (!c && types.length ? '<span class="cal-y-pts">' + types.map(k => '<i class="cal-k-se ' + k + '"></i>').join('') + '</span>' : '') + '</span>';
+        }
+        return '<section class="cal-y-mois"><b class="cal-a-mois' + (iso(m).slice(0, 7) === auj.slice(0, 7) ? ' is-courant' : '') + '">' + MOIS[m.getMonth()] + (m.getMonth() === 0 || m.getTime() === mois[0].getTime() ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>' +
+          '<div class="cal-y-grille">' + g + '</div></section>';
+      }).join('') + '</div>';
+    }
+
     // ----- Année : la grille, jours en lignes et mois en colonnes, sur 3, 6 ou 12 mois (spécification § 3) ;
     // chaque mois a ses jours (initiale et numéro), samedi et dimanche plus foncés, un filet sous chaque dimanche. -----
     function vueAnnee(depart, nb) {
@@ -244,8 +266,9 @@
       const ensuite = visibles(ctx.courses, debut, '9999-12-31', auj), liste = ensuite.filter(c => c.date <= fin);
       const plans = phases ? planSaison(ctx) : null; // fond de chaque jour : la phase de sa semaine dans le plan de saison
       const taille = mobile.matches ? 3 : Math.min(6, nb);
-      let h = '';
-      for (let i = 0; i < nb; i += taille) {
+      // Année (12 mois) : une mini-grille par mois, sans noms ni numéros (sauf aujourd'hui) ; les couleurs seules (plan : phase, séance : point, course : case pleine).
+      let h = nb === 12 ? miniMois(mois, liste, plans, auj) : '';
+      for (let i = 0; nb !== 12 && i < nb; i += taille) {
         const cols = mois.slice(i, i + taille);
         // En tête de chaque mois, son onglet (le mois en cours en Accent), au-dessus de ses cases ; la colonne des jours à sa gauche.
         h += '<div class="cal-a-bloc" style="--n:' + cols.length + '">' + cols.map(m => '<span></span><b class="cal-a-mois' + (iso(m).slice(0, 7) === auj.slice(0, 7) ? ' is-courant' : '') + '">' + MOIS[m.getMonth()] +
