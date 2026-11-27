@@ -81,7 +81,7 @@
 /* ----- Année : la grille (spécification § 3) ; chaque mois, sa colonne de jours (initiale et numéro) à gauche de ses cases ;
    cases jointives, samedi et dimanche plus foncés, filet sous chaque dimanche ; Plan : fond et liseré aux couleurs des phases ----- */
 .cal-a-blocs { display: flex; flex-direction: column; gap: 1.6rem; }
-.cal-a-bloc { display: grid; grid-template-columns: 2rem repeat(var(--n), minmax(0, 1fr)); column-gap: 0.4rem; grid-template-rows: auto; grid-auto-rows: var(--ligne); }
+.cal-a-bloc { display: grid; grid-template-columns: 2rem repeat(var(--n), minmax(0, 1fr)); column-gap: 0.4rem; row-gap: 1px; grid-template-rows: auto; grid-auto-rows: var(--ligne); } /* 1 px entre deux jours : le fond du cadre fait un fin liseré, comme dans le Mois */
 /* Onglet du mois, au-dessus de ses cases : Bordure, le mois en cours en Accent. */
 .cal-a-mois { padding: 0.3rem 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); background: var(--border); border-radius: 4px 4px 0 0; }
