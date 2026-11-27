@@ -1,6 +1,6 @@
 # Logistique d'une course · spécification fonctionnelle
 
-Version 0.2 · 27 novembre 2026 · [Retour au sommaire](README.md) · Construit : logement, transport, matos à cocher, total de la course, « Mon matériel » dans Mon profil (évolution 049 passée).
+Version 0.3 · 27 novembre 2026 · [Retour au sommaire](README.md) · Adresse assistée (OpenStreetMap), liens Google Maps et Waze, dates « Arrivée : » et « Départ : » l'une sous l'autre, trajet : type puis sens, aller-retour en un seul prix (évolution 050 à passer).
 
 ## 1. Rôle
 
@@ -25,16 +25,21 @@ Hors périmètre de cette version (décidé le 27 nov. 2026) : message de recomm
 
 ```
 ┌─ LOGISTIQUE ───────────────────────────── (1) Total 412 € ▾ ┐
-│ (2) Détail du total (replié) :                              │
-│     Dossard 95 € · Logement 180 € · Transport 137 €         │
+│ (2) Détail du total (replié), une ligne par poste :         │
+│     Dossard 58 €                                            │
+│     Logement 180 €                                          │
+│     Transport 62 €                                          │
 │                                                             │
-│ (3) LOGEMENT                              (4) [+ Ajouter]   │
-│  (5) Gîte des Crêtes · (6) 12 rue … · (7) 180 € · (8) lien  │
-│  (9) Arrivée ven. 12/03 17:00 → (10) Départ dim. 14/03 10:00│
+│ (3) LOGEMENT                              (4) [Ajouter]     │
+│  (5) Gîte des Crêtes (8) ↗                  (7) 180 €       │
+│  (6) 12 rue … · (26) Google Maps ↗ · Waze ↗                 │
+│  (9) Arrivée : ven. 5 mars · 17 h                           │
+│  (10) Départ : dim. 7 mars · 10 h                           │
 │                                                             │
-│ (11) TRANSPORT                            (12) [+ Ajouter]  │
-│  (13) Aller · (14) Train · (15) Lyon 08:12 → Saint-É. 10:05 │
-│  (16) 62 € · (17) lien de réservation                       │
+│ (11) TRANSPORT                            (12) [Ajouter]    │
+│  (14) Train · (13) Aller              (16) 62 €             │
+│  (15) Lyon 8 h 12 › Saint-Étienne 10 h 05                   │
+│  (17) Réservation ↗                                         │
 │                                                             │
 │ (18) MATOS  12 / 19 pris        (19) [Jour J] [Modifier la liste] │
 │  (20) Sécurité                                              │
@@ -60,13 +65,13 @@ Sur téléphone, même ordre, une rubrique sous l'autre ; la ligne du logement e
 | 5 | Nom du logement | Gîte des Crêtes | Début de ligne | Taille 4 |
 | 6 | Adresse | 12 rue … | Après le nom | Taille 3 |
 | 7 | Prix | 180 € | Fin de ligne | Taille 4 |
-| 8 | Lien du logement | Annonce | Fin de ligne | Lien |
-| 9 | Arrivée | ven. 12/03 17:00 | Ligne dessous | Taille 3 |
-| 10 | Départ | dim. 14/03 10:00 | Après le 9 | Taille 3 |
+| 8 | Lien du logement | ↗ | Flèche juste à côté du nom (pas de texte « Annonce ») | Lien |
+| 9 | Arrivée | Arrivée : ven. 5 mars · 17 h | Ligne dessous | Taille 3 |
+| 10 | Départ | Départ : dim. 7 mars · 10 h | Sous le 9 | Taille 3 |
 | 11 | Titre Transport | TRANSPORT | Comme le 3 | |
 | 12 | Ajouter un trajet | + Ajouter | Comme le 4 | |
-| 13 | Sens | Aller · Retour · Autre | Début de ligne | Pastille |
-| 14 | Type | Avion, Train, Voiture, Bus, Autre | Après le 13 | Pastille |
+| 14 | Type | Avion, Train, Voiture, Bus, Autre | Début de ligne (et premier champ du formulaire) | Taille 4 |
+| 13 | Sens | Aller · Retour · Aller-retour (formulaire) · Autre | Après le 14 (et second champ du formulaire) | Taille 4 |
 | 15 | Départ → arrivée | Lyon 08:12 → Saint-Étienne 10:05 | Milieu de ligne | Taille 4 |
 | 16 | Prix du trajet | 62 € | Fin de ligne | Taille 4 |
 | 17 | Lien de réservation | Réservation | Fin de ligne | Lien |
@@ -78,6 +83,7 @@ Sur téléphone, même ordre, une rubrique sous l'autre ; la ligne du logement e
 | 23 | Catégorie Porté | Porté | Comme le 20 | |
 | 24 | Équipement lié | Chaussures · les rouges | Après l'article | Taille 3, gris |
 | 25 | Notes | Retrait des dossards… | Dernier texte du bloc | Taille 4 |
+| 26 | Itinéraire | Google Maps ↗ · Waze ↗ | Sous l'adresse (6), d'après l'adresse écrite | Liens |
 
 Numéros stables : un nouvel élément prend le numéro suivant.
 
@@ -90,6 +96,8 @@ Bouton « Jour J » (19) : la liste du matos s'affiche seule, plein écran, une 
 - **Logement et trajet** : une feuille de saisie par élément (champs du tableau). Prix facultatif ; date et heure d'arrivée et de départ facultatives. Supprimer demande confirmation (design § 1).
 - **Matos** : « Modifier la liste » ouvre la modification (le bouton devient « Terminer »). « Ajouter un article » propose d'abord les articles du catalogue de l'utilisateur (recherche à la frappe), sinon crée un nouvel article, mémorisé au catalogue dans la catégorie choisie. Chaque article de la course a une bascule **Imposé** et un bouton Retirer (retire de la course, pas du catalogue).
 - **Équipement lié** : un article dont le nom évoque un type d'équipement (Chaussures, Frontale, Bâtons, Sac, Montre) peut recevoir, pour cette course, un équipement de Mon matériel (liste « Équipement… », visible en modification s'il en existe un de ce type). Il s'affiche sur la ligne (24). Le champ « Chaussures » de la course n'est pas touché : l'usure des chaussures viendra avec le calcul des kilomètres.
+- **Adresse** : champ libre et bouton « Rechercher » (ou « Entrée »). La recherche interroge OpenStreetMap (Nominatim) et propose jusqu'à cinq adresses mises en forme (« 12 rue des Crêtes, 42000 Saint-Étienne ») ; un toucher en remplit le champ. Pas de recherche à chaque frappe (règle d'usage du service). Service indisponible : on saisit à la main. Les liens d'itinéraire (26) sont construits sur l'adresse écrite.
+- **Trajet** : le type d'abord, puis le sens. Avec « Aller-retour » (formulaire d'un nouveau trajet seulement), un bloc « Retour » apparaît, ses lieux présaisis à l'envers (lieu d'arrivée de l'aller = départ du retour, et inversement ; modifiables) et **un seul prix**, celui de l'aller-retour. Deux lignes sont enregistrées (aller, retour) ; le prix est rangé sur l'aller, marqué « aller-retour », et compté une fois dans le total.
 - Le détail du total se calcule : dossard (prix de la course) + somme des prix des logements + somme des prix des trajets ; les prix vides comptent zéro et ne sont pas affichés.
 
 ### 3.5 Mon matériel (dans Mon profil)
@@ -114,12 +122,12 @@ Aucun article n'est marqué « Imposé » au départ : l'utilisateur le pose cou
 
 ## 5. Données
 
-Évolution 049 (passée le 27 nov. 2026 ; détail dans [modèle de données](modele-donnees.md), § 4 ter).
+Évolutions 049 (passée le 27 nov. 2026) et 050 (prix d'un aller-retour ; détail dans [modèle de données](modele-donnees.md), § 4 ter).
 
 | Table | Contenu |
 | --- | --- |
 | `logements` | course, nom, adresse, url, prix, arrivée, départ |
-| `trajets` | course, sens, type, lieu et heure de départ, lieu et heure d'arrivée, url, prix |
+| `trajets` | course, sens, type, lieu et heure de départ, lieu et heure d'arrivée, url, prix, prix couvrant l'aller-retour (évolution 050) |
 | `materiel_catalogue` | utilisateur, nom (unique par utilisateur), catégorie, ordre |
 | `course_materiel` | course, article, imposé, pris, équipement choisi (facultatif) |
 
@@ -142,7 +150,9 @@ Données fictives du banc d'essai : la course « Trail des Gorges » (dossard à
 11. Mon profil, Mon matériel : les chaussures ont des kilomètres ; une montre ou une frontale n'en ont pas.
 12. Lien de partage en lecture seule : le bloc Logistique est absent.
 13. Un autre compte ne voit ni les logements, ni les trajets, ni le catalogue du premier (règles par ligne de la base : à vérifier dans Supabase, la base simulée du banc n'en a pas).
-14. Téléphone : aucun débordement horizontal ; en mode jour J, lignes d'au moins 44 px.
+14. Adresse du logement : saisir, « Entrée » : les propositions s'affichent mises en forme ; en choisir une remplit le champ ; la ligne du logement montre Google Maps et Waze, et la flèche à côté du nom ouvre le lien du logement.
+15. Aller-retour (avion) : lieux du retour présaisis à l'envers, un seul prix ; deux lignes enregistrées, total avec le prix compté une fois.
+16. Téléphone : aucun débordement horizontal ; en mode jour J, lignes d'au moins 44 px.
 
 ## 7. Questions ouvertes
 

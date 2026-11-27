@@ -13,6 +13,7 @@
   const CATEGORIES = ['Papiers', 'Sécurité', 'Vêtements', 'Porté', 'Nutrition', 'Électronique', 'Après-course', 'Autre'];
   const TYPES_TRAJET = [['avion', 'Avion'], ['train', 'Train'], ['voiture', 'Voiture'], ['bus', 'Bus'], ['autre', 'Autre']];
   const SENS = [['aller', 'Aller'], ['retour', 'Retour'], ['autre', 'Autre']];
+  const SENS_NOUVEAU = [['aller', 'Aller'], ['retour', 'Retour'], ['aller_retour', 'Aller-retour'], ['autre', 'Autre']];
   const TYPES_EQUIP = [['chaussures', 'Chaussures'], ['batons', 'Bâtons'], ['sac', 'Sac'], ['frontale', 'Frontale'], ['montre', 'Montre']];
   const MSG = { panne: 'Enregistrement impossible. Réessaie dans un moment.' };
   const nombre = n => F().nombre(Math.round(Number(n) * 100) / 100);
@@ -30,6 +31,25 @@
   // Équipement d'un type, selon le nom de l'article : « Frontale » → frontale, « Bâtons Leki » → batons.
   const typeDe = nom => { const n = sans(nom); return (TYPES_EQUIP.find(t => n.includes(sans(t[1]).replace(/s$/, ''))) || [])[0] || null; };
   const nomEquip = e => [e.marque, e.modele].filter(Boolean).join(' ') + (e.surnom ? ' (' + e.surnom + ')' : '');
+
+  // Adresse mise en forme d'après une réponse d'OpenStreetMap (Nominatim) : « 12 rue des Crêtes, 42000 Saint-Étienne ».
+  const formater = x => {
+    const a = x.address || {}, rue = [a.house_number, a.road].filter(Boolean).join(' ');
+    const ville = [a.postcode, a.city || a.town || a.village || a.municipality || a.hamlet].filter(Boolean).join(' ');
+    return [rue, ville].filter(Boolean).join(', ') || x.display_name || '';
+  };
+  // Recherche déclenchée par le bouton ou « Entrée » (pas à chaque frappe : la règle d'usage du service l'interdit). null : service indisponible.
+  async function chercherAdresses(q) {
+    try {
+      const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&accept-language=fr&q=' + encodeURIComponent(q));
+      if (!r.ok) return null;
+      const liste = (await r.json()).map(formater).filter(Boolean);
+      return liste.filter((v, i) => liste.indexOf(v) === i);
+    } catch (e) { return null; }
+  }
+  // Itinéraire : Google Maps et Waze, d'après l'adresse écrite.
+  const itineraires = adresse => (adresse ? '<span class="lg-plans"><a class="mrt-lien pc-ext" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(adresse) + '" target="_blank" rel="noopener">Google Maps ' + FLECHE + '</a>' +
+    '<a class="mrt-lien pc-ext" href="https://waze.com/ul?q=' + encodeURIComponent(adresse) + '&navigate=yes" target="_blank" rel="noopener">Waze ' + FLECHE + '</a></span>' : '');
 
   // ----- Lecture / écriture -----
   async function lire(table, filtre, ordre) {
@@ -80,6 +100,11 @@
       if (act === 'modifier-logement') { S.mode = { sorte: 'logement', id }; dessiner(); return; }
       if (act === 'modifier-trajet') { S.mode = { sorte: 'trajet', id }; dessiner(); return; }
       if (act === 'annuler') { S.mode = null; dessiner(); return; }
+      if (act === 'chercher') { await chercher(); return; }
+      if (act === 'choisir-adresse') {
+        corps.querySelector('[name="adresse"]').value = b.dataset.valeur;
+        corps.querySelector('.lg-suggestions').hidden = true; corps.querySelector('.lg-aide').textContent = ''; return;
+      }
       if (act === 'liste') { S.edition = !S.edition; dessiner(); return; }
       if (act === 'jour-j') { jourJ(c, S, dessiner); return; }
       if (act === 'supprimer') {
@@ -103,6 +128,32 @@
         await apres(ok); return;
       }
     });
+    const chercher = async () => {
+      const champ = corps.querySelector('[name="adresse"]'), menu = corps.querySelector('.lg-suggestions'), aide = corps.querySelector('.lg-aide'), q = champ.value.trim();
+      if (q.length < 3) { aide.textContent = 'Saisis au moins trois lettres.'; return; }
+      aide.textContent = 'Recherche…'; menu.hidden = true;
+      const liste = await chercherAdresses(q);
+      if (liste === null) { aide.textContent = 'Recherche impossible pour l\'instant : saisis l\'adresse à la main.'; return; }
+      if (!liste.length) { aide.textContent = 'Aucune adresse trouvée : garde ta saisie ou précise-la.'; return; }
+      aide.textContent = '';
+      menu.innerHTML = liste.map(v => '<button type="button" class="mrt-menu-l" data-lg-act="choisir-adresse" data-valeur="' + esc(v) + '">' + esc(v) + '</button>').join('');
+      menu.hidden = false;
+    };
+    corps.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.name === 'adresse') { ev.preventDefault(); chercher(); } });
+    // Aller-retour : le bloc Retour apparaît, lieux déjà saisis à l'envers (modifiables tant qu'on n'y a pas touché).
+    const retour = f => {
+      const aller = f.elements.sens.value === 'aller_retour';
+      f.querySelectorAll('.lg-retour').forEach(x => { x.hidden = !aller; });
+      f.querySelector('[name="prix"]').closest('.lg-champ').querySelector('label').textContent = aller ? 'Prix de l\'aller-retour (€)' : 'Prix (€)';
+    };
+    corps.addEventListener('change', ev => { if (ev.target.name === 'sens' && ev.target.form) retour(ev.target.form); });
+    corps.addEventListener('input', ev => {
+      const f = ev.target.form, n = ev.target.name;
+      if (!f || !f.classList.contains('lg-form-trajet')) return;
+      if (n === 'r_lieu_depart' || n === 'r_lieu_arrivee') { ev.target.dataset.manuel = '1'; return; }
+      const miroir = { lieu_arrivee: 'r_lieu_depart', lieu_depart: 'r_lieu_arrivee' }[n];
+      if (miroir && f.elements.sens.value === 'aller_retour' && !f.elements[miroir].dataset.manuel) f.elements[miroir].value = ev.target.value;
+    });
     corps.addEventListener('submit', async ev => {
       ev.preventDefault();
       const f = ev.target, d = Object.fromEntries(new FormData(f));
@@ -113,8 +164,12 @@
         if (!ligne.nom) { f.querySelector('[name="nom"]').focus(); return; }
         ok = await ecrire(S.mode.id ? sb().from('logements').update(ligne).eq('id', S.mode.id) : sb().from('logements').insert(Object.assign({ course: c.id }, ligne)));
       } else {
-        const ligne = { sens: d.sens, type: d.type, lieu_depart: vide(d.lieu_depart), depart: vide(d.depart), lieu_arrivee: vide(d.lieu_arrivee), arrivee: vide(d.arrivee), url: vide(d.url), prix: num(d.prix) };
-        ok = await ecrire(S.mode.id ? sb().from('trajets').update(ligne).eq('id', S.mode.id) : sb().from('trajets').insert(Object.assign({ course: c.id }, ligne)));
+        const ligne = { sens: d.sens === 'aller_retour' ? 'aller' : d.sens, type: d.type, lieu_depart: vide(d.lieu_depart), depart: vide(d.depart), lieu_arrivee: vide(d.lieu_arrivee), arrivee: vide(d.arrivee), url: vide(d.url), prix: num(d.prix) };
+        if (d.sens === 'aller_retour' && !S.mode.id) {
+          // Un seul prix, rangé sur l'aller (« aller-retour ») ; le retour est une seconde ligne sans prix.
+          const retour = { sens: 'retour', type: d.type, lieu_depart: vide(d.r_lieu_depart), depart: vide(d.r_depart), lieu_arrivee: vide(d.r_lieu_arrivee), arrivee: vide(d.r_arrivee), url: vide(d.url), prix: null };
+          ok = await ecrire(sb().from('trajets').insert([Object.assign({ course: c.id, prix_aller_retour: ligne.prix != null }, ligne), Object.assign({ course: c.id }, retour)]));
+        } else ok = await ecrire(S.mode.id ? sb().from('trajets').update(ligne).eq('id', S.mode.id) : sb().from('trajets').insert(Object.assign({ course: c.id }, ligne)));
       }
       S.mode = null; await apres(ok);
     });
@@ -163,16 +218,17 @@
   }
 
   function ligneLogement(l) {
-    const dates = [l.arrivee ? 'Arrivée ' + quand(l.arrivee) : '', l.depart ? 'Départ ' + quand(l.depart) : ''].filter(Boolean).join(' · ');
-    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc(l.nom) + '</span>' + (l.prix != null ? '<span class="lg-prix">' + euros(l.prix) + '</span>' : '') + crayon('modifier-logement', l.id) + '</div>' +
-      (l.adresse || lienSur(l.url) ? '<div class="lg-bas">' + (l.adresse ? '<span>' + esc(l.adresse) + '</span>' : '') + lien(l.url, 'Annonce') + '</div>' : '') +
-      (dates ? '<div class="lg-bas"><span>' + esc(dates) + '</span></div>' : '') + '</div>';
+    const fleche = lienSur(l.url) ? '<a class="lg-lien-nom mrt-lien" href="' + esc(l.url) + '" target="_blank" rel="noopener" aria-label="Ouvrir le lien du logement" title="Ouvrir le lien du logement">' + FLECHE + '</a>' : '';
+    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc(l.nom) + fleche + '</span>' + (l.prix != null ? '<span class="lg-prix">' + euros(l.prix) + '</span>' : '') + crayon('modifier-logement', l.id) + '</div>' +
+      (l.adresse ? '<div class="lg-bas"><span>' + esc(l.adresse) + '</span></div><div class="lg-bas">' + itineraires(l.adresse) + '</div>' : '') +
+      (l.arrivee ? '<div class="lg-bas"><span>Arrivée : ' + esc(quand(l.arrivee)) + '</span></div>' : '') +
+      (l.depart ? '<div class="lg-bas"><span>Départ : ' + esc(quand(l.depart)) + '</span></div>' : '') + '</div>';
   }
   function ligneTrajet(t) {
     const sens = (SENS.find(x => x[0] === t.sens) || [])[1], type = (TYPES_TRAJET.find(x => x[0] === t.type) || [])[1];
     const de = [t.lieu_depart, t.depart ? quand(t.depart) : ''].filter(Boolean).join(' ');
     const a = [t.lieu_arrivee, t.arrivee ? quand(t.arrivee) : ''].filter(Boolean).join(' ');
-    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc([sens, type].filter(Boolean).join(' · ')) + '</span>' + (t.prix != null ? '<span class="lg-prix">' + euros(t.prix) + '</span>' : '') + crayon('modifier-trajet', t.id) + '</div>' +
+    return '<div class="lg-ligne"><div class="lg-haut"><span class="lg-nom">' + esc([type, sens].filter(Boolean).join(' · ')) + '</span>' + (t.prix != null ? '<span class="lg-prix">' + euros(t.prix) + (t.prix_aller_retour ? ' <small>aller-retour</small>' : '') + '</span>' : '') + crayon('modifier-trajet', t.id) + '</div>' +
       (de || a ? '<div class="lg-bas"><span>' + esc(de) + (de && a ? ' ' : '') + (de && a ? window.mrtIcone.droite : '') + (de && a ? ' ' : '') + esc(a) + '</span></div>' : '') +
       (lienSur(t.url) ? '<div class="lg-bas">' + lien(t.url, 'Réservation') + '</div>' : '') + '</div>';
   }
@@ -183,17 +239,22 @@
     options.map(o => '<option value="' + o[0] + '"' + (o[0] === valeur ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select></div>';
   const pied = existe => '<div class="lg-pied"><button type="button" class="mrt-btn" data-lg-act="annuler">Annuler</button><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div>' +
     (existe ? '<div class="lg-bas-seul"><button type="button" class="mrt-btn is-danger" data-lg-act="supprimer">' + POUBELLE + 'Supprimer</button></div>' : '');
+  // Adresse : champ libre, plus « Rechercher » (OpenStreetMap) qui propose des adresses mises en forme.
+  const adresseChamp = v => '<div class="lg-champ lg-large lg-adresse"><label>Adresse</label><div class="lg-recherche"><input class="mrt-champ" name="adresse" type="text" value="' + esc(v) + '" maxlength="200" placeholder="Saisir, puis Rechercher">' +
+    '<button type="button" class="mrt-btn" data-lg-act="chercher">Rechercher</button></div><div class="mrt-menu lg-suggestions" hidden></div><p class="lg-aide" aria-live="polite"></p></div>';
   function formLogement(l) {
     l = l || {};
-    return '<form class="lg-form" autocomplete="off">' + champ('nom', 'Nom', l.nom, 'text', ' maxlength="100" required') + champ('adresse', 'Adresse', l.adresse, 'text', ' maxlength="200"') +
+    return '<form class="lg-form" autocomplete="off">' + champ('nom', 'Nom', l.nom, 'text', ' maxlength="100" required') + adresseChamp(l.adresse) +
       champ('prix', 'Prix (€)', l.prix, 'text', ' inputmode="decimal"') + champ('url', 'Lien', l.url, 'url', ' maxlength="500" placeholder="https://"') +
       champ('arrivee', 'Arrivée', pourChamp(l.arrivee), 'datetime-local') + champ('depart', 'Départ', pourChamp(l.depart), 'datetime-local') + pied(!!l.id) + '</form>';
   }
   function formTrajet(t) {
     t = t || {};
-    return '<form class="lg-form" autocomplete="off">' + liste('sens', 'Sens', SENS, t.sens || 'aller') + liste('type', 'Type', TYPES_TRAJET, t.type || 'train') +
-      champ('lieu_depart', 'Lieu de départ', t.lieu_depart, 'text', ' maxlength="100"') + champ('depart', 'Départ', pourChamp(t.depart), 'datetime-local') +
-      champ('lieu_arrivee', 'Lieu d\'arrivée', t.lieu_arrivee, 'text', ' maxlength="100"') + champ('arrivee', 'Arrivée', pourChamp(t.arrivee), 'datetime-local') +
+    const bloc = (pref, lib, v) => champ(pref + 'lieu_depart', 'Lieu de départ' + lib, v.lieu_depart, 'text', ' maxlength="100"') + champ(pref + 'depart', 'Départ' + lib, pourChamp(v.depart), 'datetime-local') +
+      champ(pref + 'lieu_arrivee', 'Lieu d\'arrivée' + lib, v.lieu_arrivee, 'text', ' maxlength="100"') + champ(pref + 'arrivee', 'Arrivée' + lib, pourChamp(v.arrivee), 'datetime-local');
+    return '<form class="lg-form lg-form-trajet" autocomplete="off">' + liste('type', 'Type', TYPES_TRAJET, t.type || 'train') + liste('sens', 'Sens', t.id ? SENS : SENS_NOUVEAU, t.sens || 'aller') +
+      bloc('', '', t) + '<p class="pc-sous-titre lg-large lg-retour" hidden>Retour</p>' +
+      '<div class="lg-retour lg-large lg-sous-grille" hidden>' + bloc('r_', '', {}) + '</div>' +
       champ('prix', 'Prix (€)', t.prix, 'text', ' inputmode="decimal"') + champ('url', 'Lien de réservation', t.url, 'url', ' maxlength="500" placeholder="https://"') + pied(!!t.id) + '</form>';
   }
 

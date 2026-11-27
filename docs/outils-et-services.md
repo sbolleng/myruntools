@@ -25,6 +25,8 @@ La liste de tous les outils et services de MyRunTools : à quoi chacun sert, où
 | Open Food Facts | `world.openfoodfacts.org`, `search.openfoodfacts.org` | Recherche de produits dans Nutrition, par le relais Supabase `recherche-aliments` | Utilisé |
 | OpenTopoMap | `opentopomap.org` (tuiles `*.tile.opentopomap.org`) | Fond de carte du tracé GPX | Utilisé |
 | OpenStreetMap | `openstreetmap.org` | Lien vers le lieu d'une course ; données de la carte | Utilisé |
+| Nominatim (OpenStreetMap) | `nominatim.openstreetmap.org` | Recherche d'adresse d'un logement (Logistique), à la demande de l'utilisateur seulement : le texte saisi dans le champ Adresse est envoyé ; pas de recherche à chaque frappe | Utilisé |
+| Google Maps, Waze | `google.com/maps`, `waze.com` | Liens d'itinéraire vers l'adresse d'un logement (Logistique) ; rien n'est envoyé avant le toucher | Utilisé |
 | Google Fonts | `fonts.googleapis.com`, `fonts.gstatic.com` | Polices Space Grotesk et Space Mono | Utilisé |
 | jsDelivr | `cdn.jsdelivr.net` | Bibliothèque `supabase-js` (version 2.45.4) | Utilisé |
 | cdnjs | `cdnjs.cloudflare.com` | Leaflet 1.9.4 (carte) | Utilisé |

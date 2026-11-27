@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Logistique d'une course (logements, trajets, matos à cocher, jour J, total) et « Mon matériel » dans Mon profil (évolution 049 passée) ; Guide au menu (évolution 048 passée). Avant : menu selon le parcours (047).
+- Dernier lot : Logistique d'une course (logements, trajets, matos à cocher, jour J, total) et « Mon matériel » dans Mon profil (évolution 049 passée) ; Guide au menu (évolution 048 passée) ; retouches Logistique (évolution 050 à passer). Avant : menu selon le parcours (047).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).

@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Logistique, retouches | Spécification 0.3 : détail du total une ligne par poste ; logement : flèche du lien à côté du nom, « Arrivée : » et « Départ : » l'une sous l'autre, adresse assistée par OpenStreetMap (Nominatim, au bouton) et liens Google Maps et Waze ; trajet : type puis sens, « Aller-retour » en un seul prix (deux lignes, évolution 050). |
 | 27 nov. 2026 | Logistique d'une course | Construit (0.2, évolution 049, composant `logistique`) ; spécification 0.1 : logements et trajets multiples avec prix, matos en catalogue mémorisé (case « Pris » par course, pastille « Imposé » posée à la main, mode jour J), total de la course (dossard + logements + trajets) avec détail au clic, « Mon matériel » dans Mon profil (kilomètres seulement pour les chaussures) ; Logistique jamais montrée au partage en lecture seule. Reportés : message nutrition, km depuis Palmarès et Strava, liste du règlement par l'IA. |
 | 27 nov. 2026 | Guide au menu | Le Guide devient un module comme les autres : facultatif, en toute fin du menu (Préférences, « Pour aller plus loin »). Évolution 048 : ajouté au bout du menu des comptes existants (les deux pilotes). Guide 0.3. |
 | 24 nov. 2026 | Remise à zéro | La requête de remise à zéro d'un compte pilote supprime aussi les activités importées de Strava (Préparation 3.17, § 7.1) : sinon un nouvel import les voit « déjà importées ». |
