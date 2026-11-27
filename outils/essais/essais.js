@@ -2216,7 +2216,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#annee', w, db, {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['6 mois', ['Semaine', 'Mois', 'Mois V2', '3 mois', '6 mois *', 'Année']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], null], [r.vue, r.titre, r.voisins, r.p20], nom + ', menu « Vue » sur 6 mois (par défaut), voisines ; Plan éteint : pas de fond de phase'),
+        egal([['6 mois', ['Semaine', '4 semaines', 'Mois', '3 mois', '6 mois *', 'Année']], 'Octobre 2026 – mars 2027', ['avr.–sept. 26', 'avr.–sept. 27'], null], [r.vue, r.titre, r.voisins, r.p20], nom + ', menu « Vue » sur 6 mois (par défaut), voisines ; Plan éteint : pas de fond de phase'),
         egal([tel ? [3, 3] : [6], ['oct. 26', 'nov.', 'déc.', 'janv. 27', 'févr.', 'mars']], [r.blocs, r.mois], nom + ', ' + (tel ? 'deux blocs de trois mois' : 'un bloc de six mois')),
         egal(COURSES, r.courses, nom + ', courses écrites dans leur case, à leur couleur'),
         egal([0, 0, false, LEGENDE], [r.nbPhases, r.barres, r.plan, r.legende], nom + ', bouton « Plan » éteint par défaut : ni fond de phase ni légende des phases'),
@@ -2316,7 +2316,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois2', w, copie(), {}, PARIS);
       const r = await lire(p, '.cal-cadre');
       pb.push(
-        egal(['Mois V2', ['Semaine', 'Mois', 'Mois V2 *', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
+        egal(['Mois', ['Semaine', '4 semaines', 'Mois *', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
         egal([['', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'], ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26'], ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['28', '29', '30']],
           [r.tete, r.lignes, r.hors, r.nums], nom + ', une ligne par semaine (cinq), jours des mois voisins atténués, numéro du jour dans chaque case'),
         egal([['2026-10-19', 'l-renfo', 'Renforcement', undefined, 'Gainage 30 min', true, 0], ['2026-10-20', 'l-frac', '1 h', 'Fractionné', '8×400 m', false, 3],
@@ -2434,7 +2434,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['Mois', ['Semaine', 'Mois *', 'Mois V2', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
+        egal([['4 semaines', ['Semaine', '4 semaines *', 'Mois', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
         egal([35, ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['2026-10-20']], [r.nb, r.hors, r.auj], nom + ', cinq semaines, jours des mois voisins atténués, aujourd\'hui'),
         egal([[['2026-10-04', 'Semi de San Sebastián', 'courue']], [['2026-11-01', '◆ Ouverture des inscriptions · Corrida de Noël']]], [r.courses, r.rdv], nom + ', course courue et rendez-vous clé'),
         egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances (nom normalisé, intensité, faite), un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
@@ -2458,8 +2458,9 @@ const CONTROLES = {
     const fondM = j => p.evaluate(x => getComputedStyle(document.querySelector('.cal-m-case[data-jour="' + x + '"]')).backgroundColor, j);
     pb.push(egal([35, 'ph-base', 'ph-deload', 'ph-developpement', true, true],
       [r.phases.length, (r.phases.find(x => x[0] === '2026-12-01') || [])[1], (r.phases.find(x => x[0] === '2026-12-07') || [])[1], (r.phases.find(x => x[0] === '2027-01-01') || [])[1],
-        await fondM('2026-12-01') === await fondM('2026-12-06'), await fondM('2026-12-29') === await fondM('2027-01-02')],
-      'Plan, décembre : fond de phase de la saison du Trail des Gorges (base, deload la semaine du 7, développement le 1er janvier), le même pour toute la semaine, jours voisins compris'));
+        await fondM('2026-12-01') === await fondM('2026-12-04') && await fondM('2026-12-05') === await fondM('2026-12-06') && await fondM('2026-12-04') !== await fondM('2026-12-05'),
+        await fondM('2026-12-29') === await fondM('2027-01-01')],
+      'Plan, décembre : fond de phase de la saison du Trail des Gorges (base, deload la semaine du 7, développement le 1er janvier), le même du lundi au vendredi, un cran de plus le week-end, jours voisins compris'));
     await ctx.close();
     // Navigation, case « faite », « + », séance touchée, jour touché, course et rendez-vous touchés.
     d = copie();
@@ -2584,7 +2585,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html', w, copie(), {}, PARIS);
       const r = await lire(p);
       pb.push(
-        egal([['Semaine', ['Semaine *', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année']], true, 'Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Vue »), barre du haut sur une ligne, lien vers les semaines passées'),
+        egal([['Semaine', ['Semaine *', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année']], true, 'Afficher les semaines passées'], [r.vue, r.uneLigne, r.passees], nom + ', vue Semaine par défaut (menu « Vue »), barre du haut sur une ligne, lien vers les semaines passées'),
         egal([SEMAINES, 'Semaine du 19 au 25 oct.'], [r.semaines.slice(0, 3), r.courante], nom + ', la semaine en cours d\'abord, puis les suivantes'),
         egal([['19lun.', '20mar.', '21mer.', '22jeu.', '23ven.', '24sam.', '25dim.'], ['2026-10-20']], [r.dates, r.auj], nom + ', numéro et nom de chaque jour, aujourd\'hui mis en avant'),
         egal([[['2026-10-19', 'Renforcement Gainage 30 min', true], ['2026-10-20', 'Course à pied 8×400 m', false], ['2026-10-22', 'Course à pied Footing 45 min', false], ['2026-10-24', 'Course à pied Sortie 1 h 30', false]],
@@ -4143,9 +4144,9 @@ const CONTROLES = {
     ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, copie(), {}, PARIS));
     const vues = () => p.evaluate(() => { const b = document.querySelector('[data-menu]'), m = document.querySelector('.cal-menu');
       return [b.textContent.trim(), m.hidden, b.getAttribute('aria-expanded'), [...m.querySelectorAll('a')].map(a => a.textContent + (a.classList.contains('is-on') ? ' *' : ''))]; });
-    pb.push(egal(['Semaine', true, 'false', ['Semaine *', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année']], await vues(), 'Calendrier : menu « Vue » fermé, sur Semaine (vue par défaut)'));
+    pb.push(egal(['Semaine', true, 'false', ['Semaine *', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'Calendrier : menu « Vue » fermé, sur Semaine (vue par défaut)'));
     await p.click('[data-menu]');
-    pb.push(egal(['Semaine', false, 'true', ['Semaine *', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année']], await vues(), 'un toucher sur son bouton : le menu s\'ouvre'));
+    pb.push(egal(['Semaine', false, 'true', ['Semaine *', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année']], await vues(), 'un toucher sur son bouton : le menu s\'ouvre'));
     await p.keyboard.press('Escape');
     pb.push(egal([true, true], [(await vues())[1], await p.evaluate(() => document.activeElement === document.querySelector('[data-menu]'))], 'Échap : le menu se ferme, le bouton garde la main'));
     await p.keyboard.press('Enter');
@@ -4153,7 +4154,7 @@ const CONTROLES = {
     await p.locator('.cal-s-titre').nth(2).click();
     pb.push(egal(true, (await vues())[1], 'toucher ailleurs : le menu se ferme'));
     await p.click('[data-menu]'); await p.click('.cal-menu [data-periode="12"]'); await pause();
-    pb.push(egal([['Année', true, 'false', ['Semaine', 'Mois', 'Mois V2', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-y').count(), await p.evaluate(() => location.hash)],
+    pb.push(egal([['Année', true, 'false', ['Semaine', '4 semaines', 'Mois', '3 mois', '6 mois', 'Année *']], 1, '#annee'], [await vues(), await p.locator('.cal-y').count(), await p.evaluate(() => location.hash)],
       'choisir « Année » : la vue Année, le menu refermé'));
     await p.click('[data-plan]'); await pause();
     pb.push(egal(['true', '1', true], [await p.getAttribute('[data-plan]', 'aria-pressed'), await p.evaluate(() => localStorage.getItem('mrt-calendrier-phases')), await p.locator('.cal-y-j[class*="ph-"]').count() > 0],
@@ -4163,7 +4164,7 @@ const CONTROLES = {
     await p.click('[aria-label="Mois suivant"]'); await pause(); await p.click('[aria-label="Mois suivant"]'); await pause();
     const loin = await p.textContent('.cal-titre');
     await p.click('.cal-auj'); await pause();
-    pb.push(egal(['Décembre 2026', 'Octobre 2026', 'Mois', 'false'], [loin, await p.textContent('.cal-titre'), (await vues())[0], await p.getAttribute('[data-plan]', 'aria-pressed')],
+    pb.push(egal(['Décembre 2026', 'Octobre 2026', '4 semaines', 'false'], [loin, await p.textContent('.cal-titre'), (await vues())[0], await p.getAttribute('[data-plan]', 'aria-pressed')],
       '« Aujourd\'hui » ramène au mois en cours'));
     await ctx.close();
 
