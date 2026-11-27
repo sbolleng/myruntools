@@ -242,7 +242,6 @@
   .cal-s-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
 }
 /* Séance faite sans effort noté : « à noter », en Accent, qui rouvre la feuille « Effort et sensations ». */
-.cal-v-anoter { flex: none; margin-left: 0.3rem; } /* « À noter » : lien d'action commun (mrt-lien) */
 
 /* ----- Refonte (Préparation 1.6) : titre de semaine avec sa place dans le plan, total de la semaine, cartes de séance ----- */
 .cal-s-tete { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1rem; }
@@ -259,7 +258,6 @@
 .cal-carte.faite .cal-carte-nom { color: var(--muted); text-decoration: line-through; }
 .cal-carte[data-carte] { cursor: pointer; }
 .cal-carte[data-carte]:hover { border-color: var(--accent); }
-.cal-carte .cal-v-anoter { margin-left: 0; }
 .cal-repos { font-size: var(--t-second); color: var(--muted); }
 /* Légende des phases : l'Entretien en gris (ses jours gardent le fond ordinaire). */
 .cal-legende .cal-k.ph-entretien { background: var(--ph-entretien); }
