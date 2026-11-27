@@ -2316,7 +2316,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois2', w, copie(), {}, PARIS);
       const r = await lire(p, '.cal-cadre');
       pb.push(
-        egal(['Mois', ['Semaine', '4 semaines', 'Mois *', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
+        egal(['4 semaines', ['Semaine', '4 semaines *', 'Mois', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
         egal([['', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'], ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26'], ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['28', '29', '30']],
           [r.tete, r.lignes, r.hors, r.nums], nom + ', une ligne par semaine (cinq), jours des mois voisins atténués, numéro du jour dans chaque case'),
         egal([['2026-10-19', 'l-renfo', 'Renforcement', undefined, 'Gainage 30 min', true, 0], ['2026-10-20', 'l-frac', '1 h', 'Fractionné', '8×400 m', false, 3],
@@ -2434,7 +2434,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['4 semaines', ['Semaine', '4 semaines *', 'Mois', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
+        egal([['Mois', ['Semaine', '4 semaines', 'Mois *', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
         egal([35, ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['2026-10-20']], [r.nb, r.hors, r.auj], nom + ', cinq semaines, jours des mois voisins atténués, aujourd\'hui'),
         egal([[['2026-10-04', 'Semi de San Sebastián', 'courue']], [['2026-11-01', '◆ Ouverture des inscriptions · Corrida de Noël']]], [r.courses, r.rdv], nom + ', course courue et rendez-vous clé'),
         egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances (nom normalisé, intensité, faite), un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
@@ -4164,7 +4164,7 @@ const CONTROLES = {
     await p.click('[aria-label="Mois suivant"]'); await pause(); await p.click('[aria-label="Mois suivant"]'); await pause();
     const loin = await p.textContent('.cal-titre');
     await p.click('.cal-auj'); await pause();
-    pb.push(egal(['Décembre 2026', 'Octobre 2026', '4 semaines', 'false'], [loin, await p.textContent('.cal-titre'), (await vues())[0], await p.getAttribute('[data-plan]', 'aria-pressed')],
+    pb.push(egal(['Décembre 2026', 'Octobre 2026', 'Mois', 'false'], [loin, await p.textContent('.cal-titre'), (await vues())[0], await p.getAttribute('[data-plan]', 'aria-pressed')],
       '« Aujourd\'hui » ramène au mois en cours'));
     await ctx.close();
 
