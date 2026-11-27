@@ -124,6 +124,8 @@
     for (let j = debut; j <= fin; j = addDays(j, 1)) {
       const d = parse(j), cls = ['cal-m-case'], ph = phaseDuJour(j);
       if (j < auj) cls.push('passe');
+      if (j === auj) cls.push('auj');
+      if (d.getDay() === 0 || d.getDay() === 6) cls.push('we');
       if (o.mois != null && d.getMonth() !== o.mois) cls.push('hors');
       if (ph) cls.push('ph-' + ph);
       const cs = courses.filter(c => c.date === j), rdv = cc.rdvDuJour(j), se = ctx.seances.filter(s => s.date === j);
@@ -173,6 +175,8 @@
       for (let i = 0; i < 7; i++) {
         const j = addDays(l, i), jd = parse(j), cls = ['cal-m2-case'];
         if (j < auj && !imp) cls.push('passe');
+        if (j === auj && !imp) cls.push('auj');
+        if (jd.getDay() === 0 || jd.getDay() === 6) cls.push('we');
         if (o.mois != null && jd.getMonth() !== o.mois) cls.push('hors');
         const cs = courses.filter(c => c.date === j), rdv = imp ? [] : cc.rdvDuJour(j), se = ctx.seances.filter(s => s.date === j && s.etat !== 'proposee');
         h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cal-m2-num' + (j === auj && !imp ? ' auj' : '') + '">' + jd.getDate() + '</span>' +
@@ -235,13 +239,17 @@
     const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
     const { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml } = contenus(ctx);
 
-    // Les 12 mois en petit : chaque mois en 7 colonnes (lundi à dimanche) ; un jour touché ouvre sa semaine.
+    // Les 12 mois en petit (spécification § 3.3) : l'onglet du mois, son total, les initiales des jours, puis une case par jour (lundi à dimanche) ;
+    // numéro discret, samedi et dimanche plus foncés, phase en fond, un point par type de séance, course en case pleine ; un jour touché ouvre sa semaine.
     function miniMois(mois, courses, plans, auj) {
+      const tete = ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => '<span class="cal-libelle">' + x + '</span>').join('');
       return '<div class="cal-y">' + mois.map(m => {
-        const premier = (m.getDay() + 6) % 7, nbj = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+        const premier = (m.getDay() + 6) % 7, nbj = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate(), cle = iso(m).slice(0, 7), total = totalMois(ctx, cle);
         let g = '<span class="cal-y-vide"></span>'.repeat(premier);
         for (let d = 1; d <= nbj; d++) {
-          const j = iso(new Date(m.getFullYear(), m.getMonth(), d)), c = courses.find(x => x.date === j), cls = ['cal-y-j'], tip = [longue(j)];
+          const date = new Date(m.getFullYear(), m.getMonth(), d), sj = date.getDay(), j = iso(date), c = courses.find(x => x.date === j), cls = ['cal-y-j'], tip = [longue(j)];
+          if (sj === 0 || sj === 6) cls.push('we');
+          if (j < auj) cls.push('passe');
           if (j === auj) { cls.push('auj'); tip.push('aujourd\'hui'); }
           if (c) { cls.push(couleur(c)); tip.push(c.nom + ' · ' + (c.courue ? 'courue' : c.validee ? 'confirmée' : 'en option')); }
           const ph = phaseDuJour(plans, j);
@@ -250,10 +258,10 @@
           se.forEach(x => tip.push(TYPES[x.type] + ' ' + x.libelle + (x.faite ? ' (faite)' : '')));
           const types = se.map(x => P.lisere(x)).filter((k, i, a) => a.indexOf(k) === i);
           g += '<span class="' + cls.join(' ') + '" data-jour="' + j + '"' + (c ? ' data-course="' + esc(c.id) + '"' : '') + ' title="' + esc(tip.join(' · ')) + '">' +
-            (j === auj ? '<b>' + d + '</b>' : '') + (!c && types.length ? '<span class="cal-y-pts">' + types.map(k => '<i class="cal-k-se ' + k + '"></i>').join('') + '</span>' : '') + '</span>';
+            '<b class="cal-y-num">' + d + '</b>' + (!c && types.length ? '<span class="cal-y-pts">' + types.map(k => '<i class="cal-k-se ' + k + '"></i>').join('') + '</span>' : '') + '</span>';
         }
-        return '<section class="cal-y-mois"><b class="cal-a-mois' + (iso(m).slice(0, 7) === auj.slice(0, 7) ? ' is-courant' : '') + '">' + MOIS[m.getMonth()] + (m.getMonth() === 0 || m.getTime() === mois[0].getTime() ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>' +
-          '<div class="cal-y-grille">' + g + '</div></section>';
+        return '<section class="cal-y-mois"><b class="cal-a-mois' + (cle === auj.slice(0, 7) ? ' is-courant' : '') + '">' + MOIS[m.getMonth()] + (m.getMonth() === 0 || m.getTime() === mois[0].getTime() ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>' +
+          '<span class="cal-y-total">' + (total || '&nbsp;') + '</span><div class="cal-y-tete">' + tete + '</div><div class="cal-y-grille">' + g + '</div></section>';
       }).join('') + '</div>';
     }
 

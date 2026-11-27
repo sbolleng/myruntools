@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Calendrier harmonisé | Année en 12 mini-grilles (numéro discret, initiales, total du mois, point de séance) ; repères communs : week-end plus foncé dans toutes les grilles, aujourd'hui en pastille et cadre, coins de 4 px, course pleine (confirmée) ou à 50 % (option) partout, « + » d'une seule taille ; spécification 0.35. |
 | 27 nov. 2026 | Noms des vues | Calendrier : « Mois » devient « 4 semaines », « Mois V2 » devient « Mois » (adresses #mois et #mois2 inchangées). |
 | 27 nov. 2026 | Course passée sans résultat | Elle reste à faire dans « Aujourd'hui » (case qui ouvre la fiche « Marquer comme courue », ligne affichée tant que rien n'est enregistré), bandeau « À faire » sur sa page ; elle n'est plus « Prochaine course » ni étape de « D'ici là » ; « Aujourd'hui » toujours affiché. Objectif 0.88. |
 | 27 nov. 2026 | Logistique d'une course | Construit (0.2, évolution 049, composant `logistique`) ; spécification 0.1 : logements et trajets multiples avec prix, matos en catalogue mémorisé (case « Pris » par course, pastille « Imposé » posée à la main, mode jour J), total de la course (dossard + logements + trajets) avec détail au clic, « Mon matériel » dans Mon profil (kilomètres seulement pour les chaussures) ; Logistique jamais montrée au partage en lecture seule. Reportés : message nutrition, km depuis Palmarès et Strava, liste du règlement par l'IA. |

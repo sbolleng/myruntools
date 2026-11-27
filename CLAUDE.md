@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Calendrier, couleurs uniques des courses et des séances (mêmes dans tous les thèmes), bouton « Légende », vue Année en 12 mini-grilles ; vues renommées « 4 semaines » (ex-Mois) et « Mois » (ex-Mois V2).
+- Dernier lot : Calendrier harmonisé (spécification 0.35) : vues « 4 semaines » et « Mois », bouton « Légende », Année en 12 mini-grilles, couleurs uniques des courses et des séances, repères communs (§ 4.7).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
-- Prochaine étape : harmonisation des vues du Calendrier (proposée, à valider) ; puis priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).
+- Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).
