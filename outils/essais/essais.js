@@ -3142,6 +3142,8 @@ const CONTROLES = {
     await p.fill('.cal-seance [name="duree_reelle"]', '90'); await p.fill('.cal-seance [name="distance_reelle"]', '31,5'); await p.fill('.cal-seance [name="fc_moyenne"]', '130');
     pb.push(egal('Vitesse moyenne : 21 km/h', await p.textContent('.cal-allure'), 'vélo : vitesse moyenne du réalisé'));
     await p.click('.cal-seance button[type="submit"]');
+    pb.push(egal('Note ton effort perçu pour marquer la séance faite.', await p.textContent('.cal-seance .cal-msg'), 'ajout d\'une séance faite : l\'effort est obligatoire'));
+    await p.fill('.cal-seance .cal-curseur', '4'); await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile'));
     const sv = d.seances[d.seances.length - 1];
     pb.push(egal({ type: 'velo', libelle: 'Vélo', faite: true, duree_min: 90, duree_reelle_min: 90, distance_km: 31.5, distance_reelle_km: 31.5, intensite: null, fc_moyenne: 130 },
