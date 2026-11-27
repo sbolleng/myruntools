@@ -358,7 +358,8 @@
     if (etat.lectureSeule) { el.innerHTML = '<div class="mp-cadre"><p class="mp-vide">Le profil n\'est pas partagé.</p></div>'; return; }
     await lireEntrainement(etat);
     const dessiner = () => {
-      el.innerHTML = '<div class="mp-cadre">' + listeHtml(etat) + connexionsHtml() + '</div>';
+      el.innerHTML = '<div class="mp-cadre">' + listeHtml(etat) + (window.mrtLogistique ? '<section class="mrt-section" id="materiel"></section>' : '') + connexionsHtml() + '</div>';
+      if (window.mrtLogistique) window.mrtLogistique.materiel(el.querySelector('#materiel'));
     };
     // Connexions (Mes stats, § 6) : l'import de l'export Strava, la même feuille que sur Mes stats.
     let dernier = null;

@@ -1,0 +1,53 @@
+/* Logistique d'une course et Mon matériel (docs/module-logistique-specification.md) : éléments et variables communs, aucune taille hors de l'échelle. */
+.lg-cellule > summary::after { content: attr(data-total); margin-left: auto; font-family: 'Space Mono', monospace; font-size: var(--t-second); font-weight: 400; color: var(--accent); }
+.lg-cellule[data-total=""] > summary::after { content: none; }
+.lg-rubrique + .lg-rubrique { margin-top: 1rem; }
+.lg-titre { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
+.lg-titre .mrt-btn { margin-left: auto; text-transform: none; letter-spacing: normal; }
+.lg-titre .lg-actions { margin-left: auto; display: flex; gap: 0.4rem; }
+.lg-titre .lg-actions .mrt-btn { margin-left: 0; }
+.lg-compte { color: var(--text); }
+.lg-total { margin-bottom: 0.8rem; }
+.lg-detail { display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; margin-top: 0.3rem; font-size: var(--t-second); color: var(--muted); }
+
+.lg-ligne { padding: 0.5rem 0; border-top: 1px solid var(--border); }
+.lg-ligne:first-of-type { border-top: 0; }
+.lg-haut { display: flex; align-items: center; gap: 0.6rem; }
+.lg-nom { flex: 1; min-width: 0; font-weight: 600; color: var(--text); }
+.lg-prix { font-family: 'Space Mono', monospace; color: var(--text); }
+.lg-bas { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.8rem; font-size: var(--t-second); color: var(--muted); }
+.lg-bas .mrt-ico { width: 0.8em; height: 0.8em; vertical-align: -0.1em; }
+
+.lg-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 0.8rem; margin: 0.5rem 0; padding: 0.8rem; background: var(--case); border-radius: 8px; }
+.lg-champ { min-width: 0; }
+.lg-champ label { display: block; margin-bottom: 0.2rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.lg-champ .mrt-champ { display: block; width: 100%; }
+.lg-champ[hidden] { display: none; }
+.lg-pied { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 0.6rem; }
+.lg-bas-seul { grid-column: 1 / -1; display: flex; justify-content: center; }
+.lg-actif { grid-column: 1 / -1; }
+@media (max-width: 600px) { .lg-form { grid-template-columns: minmax(0, 1fr); } }
+
+.lg-cat { margin: 0.8rem 0 0.2rem; }
+.lg-art { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.7rem; min-height: 2rem; padding: 0.15rem 0; }
+.lg-art-l { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+.lg-art-nom { color: var(--text); }
+.lg-impose { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.lg-equip { font-size: var(--t-second); color: var(--muted); }
+.lg-outils { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.8rem; margin-left: auto; font-size: var(--t-second); }
+.lg-outils .mrt-champ { width: auto; max-width: 12rem; }
+.lg-bascule { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
+.lg-ajout { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+.lg-ajout input { flex: 1 1 10rem; min-width: 0; }
+.lg-msg { margin-top: 0.6rem; font-size: var(--t-petit); color: var(--red); }
+.lg-vide-eq { padding: 0.4rem 0.6rem; color: var(--muted); }
+
+/* Mode jour J : la liste seule, plein écran, grandes cases. */
+.lg-jourj { position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
+.lg-jourj-haut { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); }
+.lg-jourj-titre { font-size: var(--t-nom); font-weight: 600; }
+.lg-jourj-liste { flex: 1; overflow-y: auto; padding: 0.5rem 1rem 2rem; }
+.lg-art.is-grand { min-height: 3rem; border-bottom: 1px solid var(--border); font-size: var(--t-nom); }
+.lg-art.is-grand .mrt-coche input { width: 1.4rem; height: 1.4rem; }
+.lg-art.is-grand .lg-art-l { flex: 1; min-width: 0; }
+@media (hover: hover) { .lg-art-l:hover .lg-art-nom { color: var(--accent); } }

@@ -118,7 +118,7 @@ function simulerBase(ctx, db) {
       const filtresEq = [...u.searchParams].filter(([k, v]) => /^eq\./.test(v) && k !== 'select');
       const filtresIn = [...u.searchParams].filter(([k, v]) => /^in\.\(/.test(v));
       const correspond = x => filtresEq.every(([k, v]) => String(x[k]) === v.slice(3)) && filtresIn.every(([k, v]) => v.slice(4, -1).split(',').includes(String(x[k])));
-      if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour', 'propositions', 'activites', 'analyses_stats'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).every(k => ['prepa_semaines', 'statut', 'role', 'groupe_options'].includes(k)))) {
+      if (['seances', 'plan_semaines', 'aliments', 'repas_lignes', 'sport_jour', 'propositions', 'activites', 'analyses_stats', 'logements', 'trajets', 'materiel_catalogue', 'course_materiel', 'equipements'].includes(tab) || (tab === 'courses' && req.method() === 'PATCH' && Object.keys(req.postDataJSON()).every(k => ['prepa_semaines', 'statut', 'role', 'groupe_options'].includes(k)))) {
         if (!db[tab]) db[tab] = [];
         if (req.method() === 'POST') [].concat(req.postDataJSON()).forEach((l, i) => db[tab].push(Object.assign({ id: 'nouveau-' + db[tab].length + '-' + i, utilisateur: db.profils[0].id }, l)));
         else if (req.method() === 'PATCH') db[tab].filter(correspond).forEach(x => Object.assign(x, req.postDataJSON()));
@@ -5847,6 +5847,138 @@ const CONTROLES = {
     await o.p.waitForFunction(() => /ajout/.test(document.querySelector('#connexions small').textContent));
     pb.push(egal(true, (await o.p.textContent('#connexions small')).includes('4 séances ajoutées, 1 rattachée.'), 'Mon profil : import depuis Connexions'));
     pb.push(egal([], o.erreurs, 'Mon profil : erreurs JavaScript'));
+    await o.ctx.close();
+    return pb;
+  },
+  // Logistique d'une course (module-logistique-specification.md, § 6) : logement, transport, total, matos, jour J, Mon matériel, partage.
+  async logistique(nav, db0) {
+    const pb = [];
+    const { db, id } = jeuObjectif(db0);
+    const moi = db.profils[0].id, GORGES = id(3);
+    // Catalogue de départ (en base fictive) et deux équipements.
+    const art = (n, nom, categorie) => ({ id: 'art-' + n, utilisateur: moi, nom, categorie, ordre: n });
+    db.materiel_catalogue = [art(1, 'Frontale', 'Sécurité'), art(2, 'Sifflet', 'Sécurité'), art(3, 'Veste pluie', 'Vêtements'), art(4, 'Chaussures', 'Porté'), art(5, 'Save bank', 'Électronique')];
+    db.equipements = [{ id: 'eq-ch', utilisateur: moi, type: 'chaussures', marque: 'Salomon', modele: 'Speedcross', surnom: 'les rouges', km_depart: 120, km_limite: 800, actif: true },
+      { id: 'eq-fr', utilisateur: moi, type: 'frontale', marque: 'Petzl', modele: 'Actik', surnom: null, km_depart: 0, km_limite: null, actif: true }];
+    db.logements = []; db.trajets = []; db.course_materiel = [];
+    const attr = p => p.evaluate(() => document.querySelector('#logistique').getAttribute('data-total'));
+    const texte = (p, sel) => p.evaluate(s => [...document.querySelectorAll(s)].map(e => e.textContent.replace(/\s+/g, ' ').trim()), sel);
+    const attendre = async p => { await pause(); };
+
+    let o = await ouvrir(nav, 'course.html?id=' + GORGES, 1200, db, {}, PARIS);
+    await o.p.click('#logistique > summary');
+    pb.push(egal(['Logement Ajouter', 'Transport Ajouter'], (await texte(o.p, '#logistique .lg-titre')).slice(0, 2), 'bloc Logistique : rubriques Logement et Transport'));
+    pb.push(egal('58 €', await attr(o.p), 'sans logement ni trajet : le total est le prix du dossard'));
+    pb.push(egal('Navette depuis le stade à 6 h 30.', (await texte(o.p, '#logistique .lg-rubrique:last-child p:not(.pc-sous-titre)'))[0], 'le texte libre devient les Notes'));
+
+    // 1. Logement.
+    await o.p.click('[data-lg-act="ajouter-logement"]');
+    await o.p.fill('.lg-form [name="nom"]', 'Gîte des Crêtes');
+    await o.p.fill('.lg-form [name="prix"]', '180');
+    await o.p.fill('.lg-form [name="url"]', 'https://example.org/gite');
+    await o.p.fill('.lg-form [name="arrivee"]', '2027-03-05T17:00');
+    await o.p.fill('.lg-form [name="depart"]', '2027-03-07T10:00');
+    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
+    pb.push(egal(['Gîte des Crêtes180 €', 'Arrivée ven. 5 mars · 17 h · Départ dim. 7 mars · 10 h'], [(await texte(o.p, '.lg-ligne .lg-haut'))[0], (await texte(o.p, '.lg-ligne .lg-bas'))[1]], 'logement : la ligne et ses dates'));
+    pb.push(egal('238 €', await attr(o.p), 'logement à 180 € : total 238 €'));
+
+    // 2. Trajet.
+    await o.p.click('[data-lg-act="ajouter-trajet"]');
+    await o.p.selectOption('.lg-form [name="type"]', 'train');
+    await o.p.fill('.lg-form [name="lieu_depart"]', 'Lyon'); await o.p.fill('.lg-form [name="depart"]', '2027-03-06T08:12');
+    await o.p.fill('.lg-form [name="lieu_arrivee"]', 'Saint-Étienne'); await o.p.fill('.lg-form [name="arrivee"]', '2027-03-06T10:05');
+    await o.p.fill('.lg-form [name="prix"]', '62');
+    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
+    pb.push(egal(['Aller · Train62 €', 'Lyon sam. 6 mars · 8 h 12 Saint-Étienne sam. 6 mars · 10 h 05'], [(await texte(o.p, '.lg-ligne .lg-haut'))[1], (await texte(o.p, '.lg-ligne .lg-bas'))[2]], 'trajet : la ligne et ses horaires'));
+    pb.push(egal('300 €', await attr(o.p), 'trajet à 62 € : total 300 €'));
+
+    // 3. Détail du total, un clic l'ouvre, un second le ferme.
+    await o.p.click('[data-lg-act="detail"]');
+    pb.push(egal('Dossard 58 €Logement 180 €Transport 62 €', (await texte(o.p, '.lg-detail'))[0], 'détail du total'));
+    await o.p.click('[data-lg-act="detail"]');
+    pb.push(egal(0, await o.p.locator('.lg-detail').count(), 'second clic : le détail se referme'));
+
+    // 4. Sans prix : le total ne change pas, aucun « 0 € ».
+    await o.p.click('[data-lg-act="ajouter-logement"]');
+    await o.p.fill('.lg-form [name="nom"]', 'Chez des amis');
+    await o.p.click('.lg-form [type="submit"]'); await attendre(o.p);
+    pb.push(egal(['300 €', false], [await attr(o.p), /(^|\D)0\s€/.test((await texte(o.p, '#logistique .lg-corps'))[0])], 'logement sans prix : total inchangé, pas de « 0 € »'));
+
+    // 5. Modifier un logement puis le supprimer (confirmation).
+    await o.p.click('[data-lg-act="modifier-logement"] >> nth=1');
+    await o.p.click('[data-lg-act="supprimer"]');
+    await o.p.click('.mrt-dialogue [data-r="oui"]'); await attendre(o.p);
+    pb.push(egal(1, db.logements.length, 'supprimer un logement demande confirmation puis le retire'));
+
+    // 6. Matos : le catalogue est proposé, rien n'est dupliqué.
+    await o.p.click('[data-lg-act="liste"]');
+    pb.push(egal(['Frontale', 'Sifflet', 'Veste pluie', 'Chaussures', 'Save bank'], await o.p.$$eval('#lg-catalogue option', l => l.map(x => x.value)), 'liste d\'ajout : les articles du catalogue'));
+    await o.p.fill('[name="article"]', 'Sifflet'); await o.p.click('[data-lg-act="ajouter-article"]'); await attendre(o.p);
+    await o.p.fill('[name="article"]', 'Frontale'); await o.p.click('[data-lg-act="ajouter-article"]'); await attendre(o.p);
+    await o.p.fill('[name="article"]', 'frontale'); await o.p.click('[data-lg-act="ajouter-article"]'); await attendre(o.p);
+    pb.push(egal([2, 5], [db.course_materiel.length, db.materiel_catalogue.length], 'article déjà au catalogue : ajouté une fois, catalogue inchangé'));
+    // 7. Article inconnu : créé, rangé, mémorisé.
+    await o.p.fill('[name="article"]', 'Gants'); await o.p.selectOption('[name="categorie"]', 'Vêtements'); await o.p.click('[data-lg-act="ajouter-article"]'); await attendre(o.p);
+    pb.push(egal(['Vêtements', 6], [(db.materiel_catalogue.find(a => a.nom === 'Gants') || {}).categorie, db.materiel_catalogue.length], 'article inconnu : créé au catalogue dans sa catégorie'));
+    pb.push(egal(['Gants'], await o.p.$$eval('.lg-cat', l => l.filter(x => x.textContent === 'Vêtements').map(x => x.nextElementSibling.textContent.replace(/Imposé|Retirer/g, '').trim())), 'article inconnu : rangé sous sa catégorie'));
+
+    // 8. Imposé : la pastille, et l'ordre (imposés d'abord).
+    await o.p.check('[data-champ="impose"][data-article="art-1"]'); await attendre(o.p);
+    pb.push(egal([true, 'Imposé'], [db.course_materiel.find(m => m.article === 'art-1').impose, (await texte(o.p, '.lg-impose'))[0]], 'bascule « Imposé » : enregistrée, pastille affichée'));
+    pb.push(egal(['Frontale', 'Sifflet'], await o.p.$$eval('.lg-art-nom', l => l.map(x => x.textContent).slice(0, 2)), 'imposé en tête de sa catégorie'));
+
+    // 9. Équipement choisi pour la course.
+    await o.p.selectOption('select[data-article="art-1"]', 'eq-fr'); await attendre(o.p);
+    pb.push(egal('eq-fr', db.course_materiel.find(m => m.article === 'art-1').equipement, 'équipement lié enregistré'));
+    await o.p.click('[data-lg-act="liste"]');
+    pb.push(egal(['Petzl Actik'], await texte(o.p, '.lg-equip'), 'équipement affiché sur la ligne de l\'article'));
+
+    // 10. Mode jour J : les cases s'enregistrent, le compteur suit.
+    await o.p.click('[data-lg-act="jour-j"]');
+    pb.push(egal(['Frontale', 'Sifflet', 'Gants'], await o.p.$$eval('.lg-jourj .lg-art-nom', l => l.map(x => x.textContent)), 'jour J : la liste seule, imposé en tête'));
+    pb.push(egal(true, await o.p.evaluate(() => document.querySelector('.lg-jourj .lg-art').getBoundingClientRect().height >= 44), 'jour J : lignes assez hautes pour le doigt'));
+    await o.p.check('.lg-jourj [data-article="art-1"]'); await o.p.check('.lg-jourj [data-article="art-2"]'); await pause();
+    pb.push(egal('2 / 3 pris', (await texte(o.p, '.lg-jourj .lg-compte'))[0], 'jour J : compteur'));
+    await o.p.click('.lg-jourj [data-jj="fermer"]');
+    pb.push(egal(['2 / 3 pris', [true, true, false]], [(await texte(o.p, '#logistique .lg-compte'))[0], db.course_materiel.map(m => m.pris)], 'cocher est enregistré, le compteur du bloc suit'));
+    await o.ctx.close();
+    // Recharger : les cases restent cochées.
+    o = await ouvrir(nav, 'course.html?id=' + GORGES, 1200, db, {}, PARIS);
+    await o.p.click('#logistique > summary'); await pause();
+    pb.push(egal([2, '2 / 3 pris'], [await o.p.locator('#logistique .lg-art input[data-champ="pris"]:checked').count(), (await texte(o.p, '#logistique .lg-compte'))[0]], 'page rechargée : les cases cochées restent cochées'));
+    // 11. Retirer : sorti de la course, resté au catalogue.
+    await o.p.click('[data-lg-act="liste"]'); await o.p.click('[data-lg-act="retirer"][data-id="art-2"]'); await pause();
+    pb.push(egal([2, true], [db.course_materiel.length, db.materiel_catalogue.some(a => a.id === 'art-2')], 'retirer : sorti de la course, gardé au catalogue'));
+    pb.push(egal([], o.erreurs, 'Logistique : erreurs JavaScript'));
+    await o.ctx.close();
+
+    // Téléphone : pas de débordement ; bloc ouvert.
+    o = await ouvrir(nav, 'course.html?id=' + GORGES, 390, db, {}, PARIS);
+    await o.p.click('#logistique > summary'); await o.p.click('[data-lg-act="ajouter-trajet"]');
+    pb.push(egal(false, await o.p.evaluate(() => document.documentElement.scrollWidth > innerWidth), 'téléphone : pas de débordement'));
+    await o.ctx.close();
+
+    // Mon matériel (Mon profil) : kilomètres seulement pour les chaussures ; ajout.
+    o = await ouvrir(nav, 'profil.html', 1200, db, {}, PARIS);
+    await o.p.waitForSelector('#materiel .st-connexion'); await pause();
+    pb.push(egal(['Salomon Speedcross (les rouges)Chaussures · départ 120 km · limite 800 km', 'Petzl ActikFrontale'], (await texte(o.p, '#materiel .st-connexion span')).filter(Boolean).slice(0, 2), 'Mon matériel : kilomètres sur les chaussures seulement'));
+    await o.p.click('[data-mm-act="ajouter"]');
+    await o.p.selectOption('#materiel [name="type"]', 'batons');
+    pb.push(egal(true, await o.p.evaluate(() => [...document.querySelectorAll('#materiel .lg-km')].every(x => x.hidden)), 'Mon matériel : pas de kilomètres pour des bâtons'));
+    await o.p.fill('#materiel [name="marque"]', 'Leki'); await o.p.fill('#materiel [name="modele"]', 'Micro Vario');
+    await o.p.click('#materiel [type="submit"]'); await pause();
+    pb.push(egal(['batons', 'Leki', 0], (({ type, marque, km_depart }) => [type, marque, km_depart])(db.equipements[2] || {}), 'Mon matériel : un équipement ajouté'));
+    pb.push(egal([], o.erreurs, 'Mon matériel : erreurs JavaScript'));
+    await o.ctx.close();
+
+    // Partage en lecture seule : jamais de Logistique.
+    const autre = '00000000-0000-0000-0000-00000000000b', COURSE_AUTRE = id(98);
+    const d2 = JSON.parse(JSON.stringify(db));
+    d2.rpc = { partages_avec_moi: [{ id: autre, prenom: 'Autre', nom: 'Essai' }] };
+    d2.preferences.push({ utilisateur: autre, theme: 'bleu-orange', course_cap: null, modules: null, palmares_groupe: false });
+    d2.courses.push(Object.assign({}, d2.courses.find(c => c.id === GORGES), { id: COURSE_AUTRE, utilisateur: autre, course: 'Course partagée' }));
+    o = await ouvrir(nav, 'course.html?id=' + COURSE_AUTRE, 1200, d2, { 'mrt-vue': autre }, PARIS);
+    pb.push(egal([1, 0], [await o.p.locator('.pc-titre').count(), await o.p.locator('#logistique').count()], 'site partagé : la course s\'affiche sans Logistique'));
     await o.ctx.close();
     return pb;
   }

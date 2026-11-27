@@ -318,6 +318,9 @@
   // Distance (n° 9) : « 45 km · 2 100 m D+ · 2 100 m D− » ; le D− seulement s'il est connu.
   const distanceFiche = c => [distance(c), c.dmoins != null ? nombre(c.dmoins) + ' m D−' : ''].filter(Boolean).join(' · ').replace(/ (m D|km)/g, '\u00a0$1');
 
+  // Logistique (spécification Logistique) : logements, trajets, matos, total ; jamais en lecture seule (partage). Sans le composant : le texte seul.
+  const logistiqueHtml = (c, edition) => (!edition ? '' : window.mrtLogistique ? window.mrtLogistique.html(c) : cellule('Logistique', texte(c.logistique)));
+
   let parcoursOuvert = null;
   // Parcours (n° 25), à venir comme courue : carte et profil du GPX (26, 32), téléchargement (27), puis la stratégie (16) ;
   // sans GPX, « Importer un GPX » (28), sauf en lecture seule.
@@ -427,7 +430,7 @@
     const preparation = (c.pourquoi ? '<div class="pc-role">' + sousTitre('Pourquoi cette course') + texte(c.pourquoi) + '</div>' : '') +
       (ctx && window.mrtPreparation.aPlan(c) ? '<div class="cal-lignes">' + window.mrtPreparation.rubrique(ctx, c) + '</div>' : '');
     // Textes, dans un seul cadre : Inscription (toujours là), Parcours, Préparation, Logistique.
-    const bas = inscriptionHtml(c) + parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + cellule('Logistique', texte(c.logistique));
+    const bas = inscriptionHtml(c) + parcoursHtml(c, edition) + cellule('Préparation', preparation, 'preparation') + logistiqueHtml(c, edition);
     el.innerHTML = barre(true) +
       '<p class="pc-sur"><span class="ob-role ' + classeRole(c) + '">' + libelle(c) + '</span>' + (rang ? ' <span class="ob-lib">· Étape ' + rang + ' sur ' + etapes.length + '</span>' : '') + '</p>' +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + '</h2></div>' +
@@ -462,6 +465,7 @@
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
     el.dataset.pcId = id;
     brancherParcours(el, c, ctx);
+    if (edition && window.mrtLogistique) window.mrtLogistique.brancher(el, c);
     toutOuvrir(el, ctx, premier);
     if (ctx && !el.__prepBranche) { el.__prepBranche = true; window.mrtPreparation.brancher(el, ctx, c.id); }
     // Adresse en #preparation : la rubrique s'ouvre et se place en haut de l'écran, une seule fois.
@@ -533,7 +537,7 @@
     // À propos, Parcours (carte, stratégie), Préparation (son rôle ; pas de plan : il n'est pas rangé), Logistique.
     const bas = cellule('À propos de la course', texte(c.description)) + parcoursHtml(c, edition) +
       cellule('Préparation', c.pourquoi ? '<div class="pc-role"><p class="pc-sous-titre">Pourquoi cette course</p>' + texte(c.pourquoi) + '</div>' : '', 'preparation') +
-      cellule('Logistique', texte(c.logistique));
+      logistiqueHtml(c, edition);
     el.innerHTML = barre +
       '<div class="pc-haut"><h2 class="pc-titre">' + nomHtml(c) + lienOfficiel(c) + '</h2></div>' +
       infos.map(t => '<p class="pc-info">' + esc(t) + '</p>').join('') +
@@ -553,6 +557,7 @@
     el.querySelectorAll('.pc-cellule').forEach(d => { if (ouverts.includes(d.querySelector('summary').textContent.trim())) d.open = true; });
     el.dataset.pcId = id;
     brancherParcours(el, c, ctx);
+    if (edition && window.mrtLogistique) window.mrtLogistique.brancher(el, c);
     toutOuvrir(el, ctx, premier);
     couperNoms();
     return c;
