@@ -184,6 +184,14 @@
 .cal-feuille-retour .fc-libelle { margin-bottom: 0.15rem; }
 .cal-feuille-retour .cal-retour-nom { margin-top: 0; }
 .cal-feuille-retour .cal-ecran { margin-top: 1.1rem; }
+/* Feuille aérée : trois blocs (ressenti, réalisé, commentaire) séparés d'un filet ; réalisé sur deux colonnes ; FC repliée. */
+.cal-feuille-retour .cal-bloc { padding: 1.1rem 0 0.3rem; border-top: 1px solid var(--border); }
+.cal-feuille-retour .cal-bloc .cal-champ { margin-bottom: 1rem; }
+.cal-feuille-retour .cal-champs3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cal-feuille-retour .cal-jour-fait { margin-bottom: 1.1rem; }
+.cal-feuille-retour .cal-allure { margin: -0.4rem 0 0.6rem; }
+.cal-fc-ouvrir { display: block; margin: 0 0 1rem; }
+.cal-fc[hidden], .cal-fc-ouvrir[hidden] { display: none; }
 
 /* ----- Analyse de la séance faite par l'IA : attente (trois traits qui s'allument), texte, retour de l'adaptation ----- */
 .cal-attente { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; padding: 1.6rem 0 1.2rem; color: var(--muted); font-size: var(--t-texte); }
