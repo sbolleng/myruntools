@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Choix de séance en groupes | La liste « Séance » se range en deux groupes : « Course à pied » puis « Autres sports » (intitulés non sélectionnables). |
 | 27 nov. 2026 | 3 et 6 mois plus légers | Une seule colonne de numéros (1 à 31) à gauche de chaque bloc, plus d'initiales ni de colonne de jours par mois ; le fond du week-end donne le repère ; spécification 0.39. |
 | 27 nov. 2026 | Plus d'« Autres sports » | Une seule saisie : le sport est une séance. Natation (6 MET facile, 9 modérée ou intense), Marche (3 sous 5,5 km/h ou sans distance, 4 au-dessus) et Crossfit (9) deviennent des types de séance, comme Vélo et Danse ; la feuille Activité de Nutrition ne garde que les séances. Évolution 052 (types, à coller seule) puis 053 (les sports saisis passent en séances faites, `sport_jour` vidée et plus lue). Intensité demandée aussi pour une natation ou un vélo faits. Calendrier 0.39, Nutrition 1.50, Guide 0.5. |
 | 27 nov. 2026 | Une seule vue Mois | La grille « une ligne par semaine » (ex-Mois V2, puis « 4 semaines ») devient la seule vue Mois ; l'ancienne grille du mois (une case par jour) est retirée, code et styles compris ; l'adresse #mois2 mène au Mois ; spécification 0.37. |

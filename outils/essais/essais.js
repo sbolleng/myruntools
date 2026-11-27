@@ -3090,6 +3090,7 @@ const CONTROLES = {
     pb.push(egal({ choix: 'À faire', prevu: true, retour: false, case: false }, await etatAjout(), 'ajout un jour à venir : « À faire », le prévu seul, ni ressenti ni case « Faite »'));
     await p.fill('.cal-seance [name="date"]', '2026-10-15');
     pb.push(egal({ choix: 'Faite', prevu: false, retour: true, case: false }, await etatAjout(), 'ajout : la date passée bascule sur « Faite » (le réalisé seul)'));
+    pb.push(egal(['Course à pied', 'Autres sports'], await p.locator('.cal-seance [name="nom"] optgroup').evaluateAll(l => l.map(g => g.label)), 'choix de séance : deux groupes, Course à pied puis Autres sports'));
     await p.click('.cal-quand [data-quand="avenir"]'); await p.fill('.cal-seance [name="date"]', '2026-10-14');
     pb.push(egal('À faire', (await etatAjout()).choix, 'ajout : un choix fait à la main n\'est plus changé par la date'));
     await p.click('.cal-quand [data-quand="passee"]');
