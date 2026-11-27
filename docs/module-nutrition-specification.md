@@ -1,6 +1,6 @@
 # Nutrition · spécification fonctionnelle
 
-Version 1.51 · 27 novembre 2026 · [Retour au sommaire](README.md) · Plus de page-liste : « Séance » ouvre directement la saisie d'une séance.
+Version 1.52 · 27 novembre 2026 · [Retour au sommaire](README.md) · Mise en cohérence : le sport du jour vient des séances du Calendrier, lignes d'essai périmées remplacées.
 
 ## 1. Rôle
 
@@ -13,7 +13,7 @@ Le module Nutrition dit au coureur **combien il doit manger aujourd'hui** (calor
 ## 2. Principe : un profil, une calculatrice, une saisie
 
 1. **Le profil** (module Profil) donne sexe, date de naissance, poids, taille et niveau d'activité hors sport. Une donnée ne se saisit qu'à un seul endroit.
-2. **La calculatrice** transforme le profil, le sport du jour (saisi à la main) et la phase de préparation en besoin du jour.
+2. **La calculatrice** transforme le profil, les séances du jour (celles du Calendrier) et la phase de préparation en besoin du jour.
 3. **La saisie rapide** note les aliments et compare au besoin.
 
 **Premier usage** : si une donnée du profil manque, la page affiche un encart « Pour calculer ton besoin, complète ton profil » avec seulement les champs manquants ; la validation les range dans le profil. Ensuite, un lien « Modifier mon profil » est affiché sous le résultat. À l'inscription, on ne demande rien de plus que le prénom et le nom.
@@ -39,7 +39,7 @@ Fonction pure, sans accès à la base : profil + jour → besoin. Elle est dans 
 | Veille de course | J-1 | 55 à 65 % | 15 à 25 % |
 
 - **La phase se déduit seule** : « Entraînement » tous les jours ; de J-3 à J-2 avant la course confirmée la plus proche, « Carbo-loading » ; à J-1, « Veille de course » ; ces deux phases changent les parts du tableau ci-dessus, jamais le total de calories. La phase du plan (Base, Développement, Affûtage…) ne change rien au calcul : elle n'est pas affichée dans Nutrition.
-- **Le sport du jour est saisi à la main** (type de sport et durée), retenu sur l'appareil ; sans saisie, c'est un jour de repos. Les séances du Calendrier n'ont pas encore de durée : quand elles en auront une (import des séances, [todo](todo.md)), elles rempliront le sport du jour d'elles-mêmes. Les MET par type de sport sont repris de la calculette d'origine (jogging 8 km/h : 8 ; 9,5 km/h : 10 ; 13 km/h : 13,5 ; marche : 3 ; musculation : 3 ; vélo : 5 à 10 ; natation : 6 à 9, etc.).
+- **Le sport du jour vient des séances du Calendrier** (type, durée, distance, intensité) ; sans séance, c'est un jour de repos. Les MET par type de séance sont ceux du § 3 (course à pied : équation de l'ACSM ; renforcement 3 ; vélo 5 à 10 ; danse 5 ; natation 6 ou 9 ; marche 3 ou 4 ; crossfit 9), repris du *Compendium of Physical Activities* et de la calculette d'origine.
 - **Chevauchement** : la veille de course (J-1) l'emporte sur le carbo-loading (J-3 à J-1) ; la phase affichée est « Veille de course ».
 - **Profil incomplet** : pas de calcul, l'encart du § 2 s'affiche. Le coefficient du métabolisme de base n'existe que pour « femme » et « homme » : un sexe « non précisé » compte comme manquant, et l'encart demande de choisir l'un des deux pour le calcul.
 - **Source de référence** : la calculette « DEJ » (fichier Excel, versions journée et semaine), [lien de téléchargement](https://bonus-liv.re/a/tFHEPC) (il renvoie vers le fichier `qrcode1-calculettedej.xlsx`). Concordance vérifiée le 16 nov. 2026 : même formule de Black et al., mêmes coefficients d'activité (1,2 · 1,3 · 1,45 · 1,6), même dépense MET × poids × heures, mêmes MET pour les 14 sports repris. La calculette ne donne que la dépense totale : protéines, glucides, lipides et phases viennent d'ailleurs ; elle compte la course avec ses MET fixes, Nutrition avec l'équation de l'ACSM (§ ci-dessus).
@@ -85,7 +85,7 @@ Deux cartes : le besoin du jour, le journal ; l'ajout d'un aliment et le sport d
 │      Banane                            90 kcal          │  ← toucher : Modifier (51)
 │      MIDI · ENCAS · SOIR (idem, chacun avec son +)      │
 │ (49) ACTIVITÉ                                      (+) │
-│ (50) Jogging à 8 km/h · 1 h                             │  ← toucher : Modifier (51)
+│ (50) Footing · Course à pied · 1 h · 10 km              │  ← toucher : Modifier la séance (51)
 └─────────────────────────────────────────────────────────┘
 
 (47) Feuille « Ajouter un aliment » (ou « Ajouter une séance »), sans la date (celle de la page) : la feuille d'une course,
@@ -107,12 +107,12 @@ Numéros stables : 1 à 19 ceux de la première version (6 à 13 et 2 retirés),
 | 33 | Retour à aujourd'hui | Rond « » » | À droite de « › », sur un autre jour seulement (une cale à gauche garde le jour centré) | `mrt-rond` |
 | 34 | Séances du Calendrier | « Au calendrier : Gainage 30 min · Footing 1 h 15 · Reprendre » | Sous le 23, s'il y a des séances ce jour-là | Texte discret, `mrt-lien` |
 | 35 | Mes aliments | Aliments de l'utilisateur qui répondent à la recherche | Au-dessus des produits (31) | Comme une ligne d'aliment ; sous-titres « Mes aliments » et « Produits » en libellé |
-| 45 | Bouton Séance | « + Séance » et l'haltère (toujours, comme le bouton Repas ; le sport saisi est dans le journal) | Sous les anneaux, à droite du 46 | Le bouton secondaire (`mrt-btn`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
+| 45 | Bouton Séance | « + Séance » et l'haltère (toujours, comme le bouton Repas ; la séance saisie est dans le journal) | Sous les anneaux, à droite du 46 | Le bouton secondaire (`mrt-btn`), marges serrées et contenu plus gros, picto à droite du libellé ; ouvre la feuille Activité |
 | 46 | Bouton Repas | « + Repas » et l'assiette | Sous les anneaux, à gauche | Le bouton principal (`mrt-btn is-principal`), un seul par écran (design, § 11) ; ouvre la feuille d'ajout, repas d'après l'heure |
 | 47 | Feuilles | « Ajouter un aliment », « Ajouter une séance » | Par-dessus la page | Feuille de saisie rapide (design) : 30 × 40 rem sur ordinateur, plein écran sur téléphone, de la même taille d'un écran à l'autre, contenu qui glisse ; croix ronde, « ‹ » sur un deuxième écran, titre en libellé ; bouton qui valide collé en bas ; jamais de bouton « Fermer » |
 | 49 | Section Activité | « ACTIVITÉ » et son « + » | En fin de journal, après Soir, détachée des repas (un espace et un filet plein de 2 px avant elle) | Le « + » ouvre la saisie d'une séance (feuille) |
-| 50 | Ligne d'activité | « Jogging à 8 km/h · 1 h » | Section 49 | Sport et durée, sans dépense ; se touche (Modifier, 51) |
-| 51 | Feuille Modifier | « Riz cuit » | Par-dessus la page | La feuille de saisie rapide (comme 47) : titre = nom de la ligne, croix ; quantité (−, champ, +) et repas en liste à choix unique (aliment) ou sport et durée (activité) ; « Supprimer » à contour Alerte, poubelle, en fin de contenu ; « Enregistrer » collé en bas ; question « Supprimer cette ligne ? » (« … activité ? ») |
+| 50 | Ligne de séance | « Footing · Course à pied · 1 h · 10 km » | Section 49 | Une séance du jour, avec sa case « faite » ; se touche (Modifier la séance, 51) |
+| 51 | Feuille Modifier | « Riz cuit » | Par-dessus la page | La feuille de saisie rapide (comme 47) : titre = nom de la ligne, croix ; quantité (−, champ, +) et repas en liste à choix unique (aliment), ou, pour une séance, l'écran de séance du Calendrier ; « Supprimer » à contour Alerte, poubelle, en fin de contenu ; « Enregistrer » collé en bas ; question « Supprimer cette ligne ? » (« … cette séance ? ») |
 | 48 | « + » d'un repas | Rond à droite de PETIT-DÉJ, MIDI, ENCAS, SOIR | Journal | Petit rond commun ; ouvre la feuille d'ajout sur ce repas |
 | 20 | Modifier le profil (retiré le 10 nov. 2026) | « Modifier » | En haut à droite de la carte 1 | `mrt-btn` ; ouvre la fenêtre du profil (§ 4.5) |
 | 21 | Profil du calcul | « Calculé pour F · 59 kg · 163 cm · sédentaire › » (H pour un homme) | Sous la phase, centré | Lien d'action (0,8 rem) ; ouvre la fenêtre du profil (§ 4.5) |
@@ -273,10 +273,7 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Heure de la page : 7 h, 20 h | Repas proposé : petit-déj, soir |
 | Journal à 2 200 kcal, 100 g, 300 g, 90 g de lipides ; puis 3 000 kcal, 150 g, 400 g, 60 g | « Dans la cible » ×3, lipides « Dépassé de 8 g » ; puis « Dépassé de 671 kcal », « de 10 g », « de 82 g », lipides « Dans la cible » |
 | Aucun aliment ni ligne | Feuille d'ajout : « + Aliment libre » d'office ; « Aucun favori. » ; « Aucun aliment récent. » |
-| Sport : une ligne vide ; jogging à 9,5 km/h, 1 h | Une 2e ligne apparaît ; « 2 817 kcal aujourd'hui » ; anneau 350, Reste 2 467 kcal ; rien d'écrit dans la base |
-| Sport : marche 30 h, puis 0,5 h ; rechargement ; jogging retiré | 30 h ignorées ; 2 922 kcal, trois lignes ; retenu après rechargement ; 2 222 kcal |
 | Sélecteur : aujourd'hui (20 oct.), puis (‹) | Pas de jour suivant ni de rond « » » ; « Lundi 19 octobre » : journal vide, calories 0, Reste 2 117 kcal, (›) et « » » proposés ; banane ajoutée : ligne du 19 octobre ; « » » : retour au journal du 20 |
-| Sport 1 h de jogging, puis 0,5 h de marche | Rangé dans la base : effacement du sport du 20 octobre puis la ligne (j95, 1 h) ; puis les deux sports ; relus après rechargement |
 | Recherche « oeufs » | « Mes aliments » : « Œuf · 1 pièce · 140 kcal » ; recherche « riz » : « Riz cuit » au-dessus des produits |
 | Séances du 20 octobre : Renfo « Gainage 30 min », Run « Footing 1 h 15 » | « Au calendrier : Gainage 30 min · Footing 1 h 15 Reprendre » ; « Reprendre » : musculation 0,5 h (comptée : 2 222 kcal), footing 1,25 h sans allure (non compté) ; seule la musculation est rangée |
 | Accueil, Nutrition au menu | Deuxième bloc ; « 350 / 2 117 kcal » ; anneaux « 6 g · Reste 92 g », « 76 g · Reste 189 g », « 1 g · Reste 58 g », sur une ligne à 390 px ; « Détail → », lien de titre commun ; pas de débordement |
@@ -290,10 +287,10 @@ Date figée au 20 octobre 2026. Profils fictifs.
 | Page, profil A | « Calculé pour H · 70 kg · 175 cm · peu actif › » ; boutons « + Séance » et « + Repas » ; ni recherche ni sport sur la page ; pas de bouton « Modifier » |
 | Case Repas | Feuille « Ajouter un aliment · Mardi 20 octobre » ; banane ajoutée : la feuille reste ouverte, sans message |
 | Journal vide ; « + » du soir | Les quatre repas, chacun avec son « + » ; la feuille d'ajout s'ouvre |
-| Feuille Activité : 1 h de jogging et 0,5 h de marche, puis la croix | « Activité · Mardi 20 octobre » ; case « 1 h · Jogging à 9,5 km/h (6 min/km) ; 30 min · Marche » ; rien n'est réécrit à la fermeture quand rien n'a changé |
+| Bouton « Séance », puis la croix | « Ajouter une séance · Mardi 20 octobre » s'ouvre d'emblée ; la croix la ferme, rien n'est écrit |
 | Journal : toucher « Banane », Supprimer | Question « Supprimer cette ligne ? », rien d'écrit avant la réponse ; « Supprimer » : la ligne effacée, la fenêtre fermée ; aucun rond au bout des lignes |
 | Toucher « Riz cuit · 200 g » (midi) | Fenêtre de séance du Calendrier « Riz cuit », 200, Midi en liste ; Annuler : rien d'écrit ; 100 g au soir puis Enregistrer : la ligne à 1 portion, 130 kcal, 2,7 g, 28 g, 0,3 g, au soir |
-| Activités du jour : jogging 1 h, marche 0,5 h ; toucher la marche, Supprimer | 2 922 kcal ; « Supprimer cette séance ? » ; 2 817 kcal, la ligne du jogging seule, rangée dans la base |
+| Anciens sports restés dans `sport_jour` (vélo 1 h, marche 0,5 h) | Ignorés : 2 117 kcal, aucune ligne dans le journal |
 | Journal vide | Petit-déj, Midi, Encas, Soir, Activité, chacun avec son « + » |
 | Séances du 20 oct. : footing 10 km en 1 h, gainage 30 min, une proposition de l'IA | 2 959 kcal ; journal « Footing · Course à pied · 1 h · 10 km », « Gainage · Renforcement · 30 min » ; pas la proposition |
 | Bouton « Séance », puis Fractionné, 40 min, 8 km | La feuille s'ouvre d'emblée sur « Ajouter une séance » (sans « ‹ »), au 20 octobre, Course à pied ; séance rangée, feuille fermée, la séance au journal ; 3 539 kcal |
