@@ -14,7 +14,6 @@
   const { MOIS_LONG } = window.mrtFormat;
   // Choix du menu « Périodicité » : [vue, nom, durée de l'Année en mois].
   const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
-  const INITIALE = ['D', 'L', 'M', 'M', 'J', 'V', 'S']; // initiale du jour, de dimanche à samedi (Année)
   const CHEVRON = '<svg class="cal-menu-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   // ----- Réglages retenus sur l'appareil (à défaut de stockage, le temps de la visite) -----
@@ -241,14 +240,15 @@
       let h = nb === 12 ? miniMois(mois, liste, plans, auj) : '';
       for (let i = 0; nb !== 12 && i < nb; i += taille) {
         const cols = mois.slice(i, i + taille);
-        // En tête de chaque mois, son onglet (le mois en cours en Accent), au-dessus de ses cases ; la colonne des jours à sa gauche.
-        h += '<div class="cal-a-bloc" style="--n:' + cols.length + '">' + cols.map(m => '<span></span><b class="cal-a-mois' + (iso(m).slice(0, 7) === auj.slice(0, 7) ? ' is-courant' : '') + '">' + MOIS[m.getMonth()] +
+        // En tête de chaque mois, son onglet (le mois en cours en Accent), au-dessus de ses cases ; une seule colonne de numéros (1 à 31), à gauche du bloc.
+        h += '<div class="cal-a-bloc" style="--n:' + cols.length + '"><span></span>' + cols.map(m => '<b class="cal-a-mois' + (iso(m).slice(0, 7) === auj.slice(0, 7) ? ' is-courant' : '') + '">' + MOIS[m.getMonth()] +
           (m.getMonth() === 0 || m.getTime() === mois[0].getTime() ? ' <i>' + String(m.getFullYear()).slice(2) + '</i>' : '') + '</b>').join('');
         for (let d = 1; d <= 31; d++) {
+          // Numéro du jour, commun aux mois du bloc ; en pastille Accent quand aujourd'hui est ce jour-là dans un des mois.
+          h += '<span class="cal-a-n' + (cols.some(m => iso(new Date(m.getFullYear(), m.getMonth(), d)) === auj) ? ' auj' : '') + '"><b>' + d + '</b></span>';
           cols.forEach(m => {
-            if (d > new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate()) { h += '<span class="cal-a-n"></span><span class="cal-a-j vide"></span>'; return; }
+            if (d > new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate()) { h += '<span class="cal-a-j vide"></span>'; return; }
             const date = new Date(m.getFullYear(), m.getMonth(), d), sj = date.getDay(), j = iso(date), c = liste.find(x => x.date === j), cls = ['cal-a-j'], tip = [longue(j)];
-            h += '<span class="cal-a-n' + (j === auj ? ' auj' : '') + '"><i>' + INITIALE[sj] + '</i><b>' + d + '</b></span>';
             if (sj === 0 || sj === 6) cls.push('we');
             if (sj === 0) cls.push('dim');
             if (j === auj) { cls.push('auj'); tip.push('aujourd\'hui'); }
