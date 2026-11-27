@@ -58,3 +58,4 @@
 .ac-options { margin: 1rem 0 0.6rem; }
 /* Case « faite » : celle du site (Calendrier, Nutrition), en Accent. */
 .ac-jour-ligne input[type="checkbox"] { flex: none; width: 1.05rem; height: 1.05rem; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.ac-retard { font-size: var(--t-petit); color: var(--red); }

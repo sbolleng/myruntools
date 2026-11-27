@@ -147,6 +147,8 @@
       const saisieObjectif = window.mrtEdition(page, () => (ctx ? ctx.courses : opts.courses()), () => ctx && ctx.actualiser());
       edition = saisieObjectif && { retenir: saisieObjectif.retenir, modifier: () => editer({ mode: courue ? 'courue' : 'a_venir' }), marquer: () => editer({ mode: 'courue', marquer: true }) };
       afficher(i, ancre);
+      // Ouverte depuis la case « Aujourd'hui » de l'accueil : directement la fiche du résultat.
+      if (o.marquer && edition && edition.marquer) edition.marquer();
     }
 
     // Liens vers une course : la modale, sauf clic modifié (nouvel onglet) ou autre bouton que le principal.

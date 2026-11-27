@@ -16,10 +16,15 @@
     '<h2 class="ac-titre"><span>' + esc(titre) + (bientot ? ' · bientôt' : '') + '</span>' + (lien ? '<a class="mrt-lien" href="' + lien[0] + '">' + esc(lien[1]) + window.mrtIcone.droite + '</a>' : '') + '</h2>' + corps + '</section>';
   const vide = t => '<p class="ac-vide">' + esc(t) + '</p>';
 
+  const pad = n => String(n).padStart(2, '0');
+  const jourIso = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  // Course confirmée dont la date est passée et dont le résultat n'est pas saisi (état À venir).
+  const enRetard = c => c.etat === 'a_venir' && c.statut === 'confirmee' && !!c.date && c.date < jourIso();
+
   const BLOCS = {
     // La prochaine course confirmée de la feuille de route.
     prochaine: courses => {
-      const c = window.mrtCoursesRoute(courses).find(x => x.statut === 'confirmee');
+      const c = window.mrtCoursesRoute(courses).find(x => x.statut === 'confirmee' && x.date >= jourIso());
       return bloc('prochaine', 'Prochaine course', ['objectif.html', 'Ma saison'],
         c ? '<div class="ac-carte" data-course="' + esc(c.id) + '"></div>' : vide('Aucune course confirmée à venir.'));
     },
@@ -29,8 +34,10 @@
     nutrition: () => '<section class="ac-bloc" data-bloc="nutrition"><h2 class="ac-titre"><span>Nutrition</span><a class="mrt-lien" href="nutrition.html">Détail' + window.mrtIcone.droite + '</a></h2><div class="nu-accueil"></div></section>',
     // Les étapes de la feuille de route jusqu'au cap compris.
     dicila: (courses, prefs) => {
-      const cap = window.mrtCap(courses, prefs), etapes = [];
-      for (const e of window.mrtEtapes(courses)) {
+      // Une course passée non saisie n'est plus une étape : elle attend dans « Aujourd'hui ».
+      const avenir = courses.filter(c => !enRetard(c));
+      const cap = window.mrtCap(avenir, prefs), etapes = [];
+      for (const e of window.mrtEtapes(avenir)) {
         const avecCap = e.course ? e.course === cap : e.candidats.includes(cap);
         // Une ligne par étape : le nom en lien vers la course (une pastille sert à choisir, pas à naviguer : design, § 11) ; l'Objectif principal en Accent.
         etapes.push('<li>' + (e.course
@@ -52,17 +59,19 @@
   };
 
   // ----- Aujourd'hui : en tête de page, les séances et la course du jour, puis trois saisies rapides -----
-  const pad = n => String(n).padStart(2, '0');
-  const jourIso = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
   function aujourdhui(courses, nutrition, prefs) {
-    if (!nutrition || nutrition.lectureSeule) return '';
+    // Toujours affiché (décidé le 27 nov. 2026) ; en lecture seule, sans case ni saisie.
+    const nu = nutrition || {}, lecture = !nutrition || !!nutrition.lectureSeule;
     const jour = jourIso(), P = window.mrtPreparation;
-    const seances = (nutrition.seances || []).filter(x => x.date === jour && x.etat !== 'proposee');
+    const retard = courses.filter(enRetard).sort((a, b) => (a.date < b.date ? -1 : 1));
+    const seances = lecture ? [] : (nu.seances || []).filter(x => x.date === jour && x.etat !== 'proposee');
     const courseDuJour = courses.filter(c => c.etat === 'a_venir' && c.date === jour && !c.date_approx && c.statut !== 'a_surveiller');
-    const lignes = courseDuJour.map(c => '<li class="ac-jour-ligne"><span class="ac-jour-type">Course</span><a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a></li>').concat(seances.map(x =>
+    const lignesRetard = retard.map(c => '<li class="ac-jour-ligne">' + (lecture ? '' : '<input type="checkbox" data-course-faite="' + esc(c.id) + '" aria-label="Marquer comme courue">') +
+      '<span class="ac-jour-type">Course</span><a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a><span class="ac-retard">en retard · ' + esc(dateCourte(c.date)) + ' · saisis ton résultat</span></li>');
+    const lignes = lignesRetard.concat(courseDuJour.map(c => '<li class="ac-jour-ligne"><span class="ac-jour-type">Course</span><a href="' + pageCourse(c) + '">' + esc(window.mrtNomCourse(c)) + '</a></li>').concat(seances.map(x =>
       '<li class="ac-jour-ligne"><label><input type="checkbox" data-faite="' + esc(x.id) + '"' + (x.faite ? ' checked' : '') + '> <span class="ac-jour-type">' + esc((P && P.TYPES && P.TYPES[x.type]) || x.type) + '</span> ' +
-      esc(x.libelle || '') + (x.duree_min ? ' · ' + esc(x.duree_min >= 60 ? Math.floor(x.duree_min / 60) + ' h' + (x.duree_min % 60 ? pad(x.duree_min % 60) : '') : x.duree_min + ' min') : '') + '</label></li>'));
-    const avecNutrition = window.mrtModulesAffiches(prefs).some(m => m.nom === 'Nutrition');
+      esc(x.libelle || '') + (x.duree_min ? ' · ' + esc(x.duree_min >= 60 ? Math.floor(x.duree_min / 60) + ' h' + (x.duree_min % 60 ? pad(x.duree_min % 60) : '') : x.duree_min + ' min') : '') + '</label></li>')));
+    const avecNutrition = !lecture && window.mrtModulesAffiches(prefs).some(m => m.nom === 'Nutrition');
     const plus = window.mrtIcone.plus;
     // Comme les boutons « Repas » et « Séance » de la page Nutrition : un seul principal (repas), la séance en secondaire (design, § 11).
     const N = window.mrtNutrition || {};
@@ -150,6 +159,11 @@
     el.querySelectorAll('[data-rapide]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.rapide;
       location.href = 'nutrition.html?ajout=' + k;
+    }));
+    // Course passée : cocher ouvre la fiche du résultat ; la case reste vide tant que rien n'est enregistré.
+    el.querySelectorAll('[data-course-faite]').forEach(c => c.addEventListener('change', () => {
+      c.checked = false;
+      if (window.mrtOuvrirCourse) window.mrtOuvrirCourse(c.dataset.courseFaite, '', { marquer: true });
     }));
     el.querySelectorAll('[data-faite]').forEach(c => c.addEventListener('change', async () => {
       const { error } = await window.mrtSupabase.from('seances').update({ faite: c.checked }).eq('id', c.dataset.faite);
