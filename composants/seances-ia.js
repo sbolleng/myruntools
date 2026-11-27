@@ -45,7 +45,7 @@
     const r = P.reel(s), o = Object.fromEntries(Object.entries({ duree_min: s.duree_reelle_min, distance_km: s.distance_reelle_km == null ? null : Number(s.distance_reelle_km), denivele_m: s.denivele_reel_m,
       fc_moyenne: s.fc_moyenne, fc_max: s.fc_max }).filter(([, v]) => v != null));
     if (!Object.keys(o).length) return {};
-    if (s.type !== 'renfo' && P.allure(r.duree_min, Number(r.distance_km))) o.allure = P.allure(r.duree_min, Number(r.distance_km));
+    if (s.type === 'run' && P.allure(r.duree_min, Number(r.distance_km))) o.allure = P.allure(r.duree_min, Number(r.distance_km));
     return { realise: o };
   };
   function contexte(ctx, lundi) {

@@ -3113,6 +3113,35 @@ const CONTROLES = {
     pb.push(egal({ libelle: 'Endurance', duree_min: 45, distance_km: 8.5, intensite: 'facile' }, s && { libelle: s.libelle, duree_min: s.duree_min, distance_km: s.distance_km, intensite: s.intensite },
       'séance : durée, distance (virgule acceptée) et intensité enregistrées'));
     await ctx.close();
+    // Ajout d'une séance (27 nov. 2026) : bascule Faite / À faire d'après la date ; faite = le réalisé saisi une fois, sans prévu.
+    d = copie();
+    ({ p, ctx } = await ouvrir(nav, 'calendrier.html', 1200, d, {}, PARIS));
+    await p.click('[data-ajout="2026-10-21"]'); await p.waitForSelector('.cal-seance [data-quand]');
+    const etatAjout = () => p.evaluate(() => ({ choix: document.querySelector('.cal-quand [aria-pressed="true"]').textContent, prevu: !document.querySelector('.cal-prevu-bloc').hidden, retour: !document.querySelector('.cal-seance .cal-retour').hidden, case: !!document.querySelector('.cal-faite') }));
+    pb.push(egal({ choix: 'À faire', prevu: true, retour: false, case: false }, await etatAjout(), 'ajout un jour à venir : « À faire », le prévu seul, ni ressenti ni case « Faite »'));
+    await p.fill('.cal-seance [name="date"]', '2026-10-15');
+    pb.push(egal({ choix: 'Faite', prevu: false, retour: true, case: false }, await etatAjout(), 'ajout : la date passée bascule sur « Faite » (le réalisé seul)'));
+    await p.click('.cal-quand [data-quand="avenir"]'); await p.fill('.cal-seance [name="date"]', '2026-10-14');
+    pb.push(egal('À faire', (await etatAjout()).choix, 'ajout : un choix fait à la main n\'est plus changé par la date'));
+    await p.click('.cal-quand [data-quand="passee"]');
+    await p.selectOption('.cal-seance [name="nom"]', 'Vélo');
+    await p.fill('.cal-seance [name="duree_reelle"]', '90'); await p.fill('.cal-seance [name="distance_reelle"]', '31,5'); await p.fill('.cal-seance [name="fc_moyenne"]', '130');
+    pb.push(egal('Vitesse moyenne : 21 km/h', await p.textContent('.cal-allure'), 'vélo : vitesse moyenne du réalisé'));
+    await p.click('.cal-seance button[type="submit"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile'));
+    const sv = d.seances[d.seances.length - 1];
+    pb.push(egal({ type: 'velo', libelle: 'Vélo', faite: true, duree_min: 90, duree_reelle_min: 90, distance_km: 31.5, distance_reelle_km: 31.5, intensite: null, fc_moyenne: 130 },
+      sv && { type: sv.type, libelle: sv.libelle, faite: sv.faite, duree_min: sv.duree_min, duree_reelle_min: sv.duree_reelle_min, distance_km: sv.distance_km, distance_reelle_km: sv.distance_reelle_km, intensite: sv.intensite, fc_moyenne: sv.fc_moyenne },
+      'séance passée de vélo : le réalisé saisi une fois (faite, sans intensité prévue)'));
+    await p.click('[data-ajout="2026-10-22"]'); await p.waitForSelector('.cal-seance [data-quand]');
+    await p.selectOption('.cal-seance [name="nom"]', 'Danse');
+    pb.push(egal([0, true], [await p.locator('.cal-seance .cal-seul-course:visible').count(), await p.locator('.cal-seance [name="duree"]').isVisible()], 'danse : durée seulement, ni distance ni D+'));
+    await p.fill('.cal-seance [name="duree"]', '60');
+    await p.click('.cal-seance button[type="submit"]');
+    await p.waitForFunction(() => !document.querySelector('.cal-voile'));
+    const sd = d.seances[d.seances.length - 1];
+    pb.push(egal({ type: 'danse', libelle: 'Danse', faite: false, duree_min: 60, distance_km: null }, sd && { type: sd.type, libelle: sd.libelle, faite: sd.faite, duree_min: sd.duree_min, distance_km: sd.distance_km }, 'séance de danse à venir : type danse, 60 min'));
+    await ctx.close();
     // Retour sur une séance (lot 6a) : faite, ressenti, douleur (et où), fatigue, commentaire ; durée et distance dans la vue, picto du commentaire.
     d = copie(x => { x.seances = [{ id: 'se-r', utilisateur: x.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Seuil', faite: false, course: null, duree_min: 60, distance_km: 11, intensite: 'intense', origine: 'saisie', etat: 'acceptee' },
       { id: 'se-f', utilisateur: x.profils[0].id, date: '2026-10-28', type: 'run', libelle: 'Endurance', faite: false, course: null, duree_min: 45, distance_km: 8, intensite: 'facile', origine: 'saisie', etat: 'acceptee' }]; });
@@ -4769,6 +4798,9 @@ const CONTROLES = {
       egal(['10.52', '12.43'], [B.metCourse(10).toFixed(2), B.metCourse(12).toFixed(2)], 'ACSM : 10,5 MET à 10 km/h, 12,4 à 12 km/h'),
       egal([10, 9.75, 9.5], [B.vitesseSeance({ duree_min: 60, distance_km: 10 }, 15), B.vitesseSeance({ duree_min: 45, intensite: 'facile' }, 15), B.vitesseSeance({ duree_min: 45, intensite: 'facile' }, null)], 'vitesse : distance ÷ durée ; sinon 65 % de la VMA (facile) ; sinon 9,5 km/h'),
       egal([{ met: 3, heures: 0.5 }, null], [B.activiteSeance({ type: 'renfo', duree_min: 30 }), B.activiteSeance({ type: 'run', distance_km: 10 })], 'renforcement : 3 MET ; séance sans durée : rien'),
+      // Vélo et danse (27 nov. 2026) : vélo par palier de vitesse (5 / 7 / 10 MET) ou, sans distance, par l'intensité (7 sans rien) ; danse 5 MET.
+      egal([5, 7, 10, 5, 10, 7, 5], [B.activiteSeance({ type: 'velo', duree_min: 60, distance_km: 15 }), B.activiteSeance({ type: 'velo', duree_min: 60, distance_km: 20 }), B.activiteSeance({ type: 'velo', duree_min: 60, distance_km: 25 }),
+        B.activiteSeance({ type: 'velo', duree_min: 60, intensite: 'facile' }), B.activiteSeance({ type: 'velo', duree_min: 60, intensite: 'intense' }), B.activiteSeance({ type: 'velo', duree_min: 60 }), B.activiteSeance({ type: 'danse', duree_min: 60 })].map(x => x.met), 'vélo : MET selon la vitesse, sinon l\'intensité ; danse : 5 MET'),
       egal(['a', 'c'], B.seancesQuiComptent([{ id: 'a', date: '2026-10-20', faite: false, etat: 'acceptee' }, { id: 'b', date: '2026-10-20', etat: 'proposee' }, { id: 'c', date: '2026-10-19', faite: true }, { id: 'd', date: '2026-10-19', faite: false }], '2026-10-20', '2026-10-20').map(x => x.id).concat(B.seancesQuiComptent([{ id: 'c', date: '2026-10-19', faite: true }, { id: 'd', date: '2026-10-19', faite: false }], '2026-10-19', '2026-10-20').map(x => x.id)), 'qui compte : aujourd\'hui, faite ou non, sans les propositions de l\'IA ; un jour passé, faite seulement'));
     return pb;
   },

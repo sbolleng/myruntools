@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.34 · 21 novembre 2026 · [Retour au sommaire](README.md) · « Phases » devient un rond à l'œil (bascule) ; liens des mois voisins et des ouvertures d'inscription soulignés (design, § 11).
+Version 0.35 · 27 novembre 2026 · [Retour au sommaire](README.md) · Ajout d'une séance : bascule Faite / À faire, le réalisé saisi une seule fois ; types Vélo et Danse.
 
 ## 1. Rôle
 
@@ -194,7 +194,8 @@ Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Ressenti » (fai
 - **Jours** : une ligne par jour, un même fond pour tous (passé compris ; seul le numéro d'un jour passé est atténué) ; le total de la semaine (28) ; le nom de la phase seulement dans la place de la semaine (29).
 - **Rendez-vous clés** : l'ouverture des inscriptions (`ouverture_inscriptions`) d'une course Confirmée ou Option.
 - **Toucher une course** (jour de course, rendez-vous clé) ouvre sa page, à la rubrique Préparation ; une course courue, son résultat.
-- **Séance** : un type (Course à pied ou Renforcement, écrits en toutes lettres partout ; d'autres types, vélo, tapis…, s'ajouteront à la liste des types et à la base), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.
+- **Séance** : un type (Course à pied, Renforcement, Vélo ou Danse, écrits en toutes lettres partout ; d'autres types, tapis…, s'ajouteront à la liste des types et à la base ; Vélo : durée, distance et D+ ; Danse : durée seulement, comme le Renforcement), un libellé libre, une case « faite ». Elle se saisit à la main (§ 7) ; l'import depuis une application viendra plus tard.
+- **Ajout d'une séance : Faite ou À faire** (27 nov. 2026). Le formulaire d'ajout s'ouvre sur une bascule à deux pastilles, **Faite** (séance passée) ou **À faire** (séance à venir), présélectionnée d'après la date du jour touché (avant aujourd'hui : Faite ; aujourd'hui et après : À faire) ; elle suit la date tant qu'on n'y a pas touché. **À faire** : date, séance, précisions, description, durée, distance, D+, intensité, sans « Ressenti ». **Faite** : date, séance, précisions, puis le réalisé (durée, distance, D+, FC moyenne et max), l'effort perçu, les sensations, la douleur, le commentaire : rien de prévu, rien saisi deux fois ; le réalisé est aussi le chiffre de la séance (comme une séance importée), sans intensité. Une séance Faite ne peut pas être datée dans le futur. La case « Faite » n'existe plus à l'ajout ; elle reste en modification d'une séance. Le bouton « + » reste dans la case du jour.
 - **Saisie d'une séance** : le « + » d'un jour ouvre une fenêtre (date, type, libellé de 100 caractères au plus ; puis, facultatifs, durée en minutes, distance en km et intensité : Facile, Modérée ou Intense), présentée comme la fiche d'une course : « Annuler » et « Enregistrer » en haut, le titre en libellé (« AJOUTER UNE SÉANCE »), les champs communs du site ; toucher une séance la modifie, ou la supprime par « Supprimer la séance » (à contour rouge, seul en bas, avec confirmation) ; sa case « faite » s'enregistre aussitôt. Une séance ajoutée depuis un plan est liée à sa course.
 
 ### 4.5 Vue Mois V2 (à l'essai) : plan de page
@@ -443,3 +444,4 @@ Résultats attendus, vue Mois V2 et export (§ 4.5, 4.6), séances d'essai du Mo
 - `#mois2=2026-12`, Phases enfoncé : chaque libellé commence par « Sem. n », la semaine du 7 déc. en Allègement (fond de phase) ; mois précédent : le Trail du Lac en carte le 15 nov. (« 24 km », trail) ; toucher le 18 nov. : `#semaines=2026-11-16`.
 - Exporter (Calendrier, Mois V2 d'octobre) : une page « Calendrier · Octobre 2026 », fond blanc, cinq semaines, ni case ni « + », la case du 19 dessinée pleine ; pied « MyRunTools » et « Exporté le 20 oct. 2026 » ; invisible à l'écran, seule à l'impression.
 - Exporter (Mon plan) : « Mon plan · Trail des Gorges », 20 semaines du 19 oct. 2026 au 1er mars 2027, quatre pages, fond de phase.
+- Ajout d'une séance au 21 oct. (à venir) : bascule « À faire », prévu seul, ni « Ressenti » ni case « Faite » ; date mise au 15 oct. : « Faite », réalisé seul ; un choix fait à la main n'est plus changé par la date. Faite, Vélo, 1 h 30, 31,5 km, FC 130 : séance de type vélo, faite, 90 min et 31,5 km, sans intensité, « Vitesse moyenne : 21 km/h ». Ajout au 22 oct., Danse, 60 min : ni distance ni D+ ; séance de type danse, à faire.
