@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : retouches Logistique, aller-retour (évolution 051 passée) ; ajout d'une séance Faite / À faire, types Vélo et Danse (évolution 050 passée). Avant : course passée sans résultat à faire dans « Aujourd'hui » ; Logistique d'une course et « Mon matériel » (049 passée) ; Guide au menu (048 passée).
+- Dernier lot : Logistique, adresse cliquable (menu d'itinéraires) et rubriques modifiables au crayon ; aller-retour (évolution 051 passée) ; ajout d'une séance Faite / À faire, types Vélo et Danse (évolution 050 passée). Avant : course passée sans résultat à faire dans « Aujourd'hui » ; Logistique d'une course et « Mon matériel » (049 passée) ; Guide au menu (048 passée).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).
