@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr" class="t-blanc-orange">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Maquette Logistique · édition, consultation, En un coup d'œil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="../../composants/en-tete.css">
+<style>
+/* Maquette seulement : éléments communs de en-tete.css (mrt-btn, mrt-pastille, mrt-champ, mrt-lien, mrt-coche), rôles de couleur, échelle de tailles. */
+body { background: var(--bg); color: var(--text); }
+main { max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+.mq-titre { margin: 2.5rem 0 0.4rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.mq-aide { margin-bottom: 0.8rem; font-size: var(--t-second); color: var(--muted); }
+.cadre { padding: var(--pad-cadre); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.n { display: inline-block; min-width: 1.3rem; margin-right: 0.3rem; padding: 0 0.25rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); text-align: center; color: var(--bg); background: var(--muted); border-radius: 4px; vertical-align: 0.1em; }
+.lib { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.val { font-family: 'Space Mono', monospace; }
+.disc { color: var(--muted); font-size: var(--t-second); }
+
+/* Fiche d'édition : barre du haut */
+.fc-barre { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding-bottom: 0.8rem; margin-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+.fc-mode { font-family: 'Space Mono', monospace; font-size: var(--t-petit); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.bloc-t { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 0; font-size: var(--t-texte); font-weight: 600; border-top: 1px solid var(--border); }
+.bloc-t.ferme { color: var(--text); }
+.bloc-t .chev { color: var(--muted); }
+.rub { margin: 0.4rem 0 1.4rem; }
+.rub-t { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.5rem; }
+
+/* Carte (logement, transport) */
+.carte { margin-bottom: 0.6rem; padding: 0.7rem 0.8rem; background: var(--case); border-radius: 8px; }
+.carte.is-option { background: none; border: 1px dashed var(--bord-champ); }
+.carte-h { display: flex; align-items: center; gap: 0.6rem; }
+.carte-nom { flex: 1; min-width: 0; font-weight: 600; }
+.carte-l { margin-top: 0.15rem; font-size: var(--t-second); color: var(--muted); }
+.etat { font-family: 'Space Mono', monospace; font-size: var(--t-micro); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 4px; }
+.etat.is-confirme { color: var(--bg); background: var(--accent); }
+.etat.is-option { color: var(--text); border: 1px dashed var(--bord-champ); }
+.etat.is-non { color: var(--muted); border: 1px solid var(--border); }
+.pastilles { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 0.8rem; margin-top: 0.7rem; }
+.grille .large { grid-column: 1 / -1; }
+.champ label { display: block; margin-bottom: 0.2rem; }
+.champ .mrt-champ { display: block; width: 100%; box-sizing: border-box; }
+.duo { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.4rem; }
+.trajet { display: grid; grid-template-columns: 4.2rem 1fr; gap: 0.4rem 0.6rem; align-items: center; margin-top: 0.6rem; }
+.trajet .lib { align-self: center; }
+.trajet-l { display: grid; grid-template-columns: 1.2fr 1fr 0.6fr; gap: 0.4rem; }
+.presaisi { font-style: italic; }
+.supprimer { color: var(--red); }
+.replie { margin-top: 0.6rem; font-size: var(--t-second); color: var(--muted); }
+.replie b { color: var(--text); font-weight: 600; }
+
+/* Autocomplétion (adresse, matos) */
+.auto { position: relative; }
+.auto-liste { margin-top: 0.25rem; padding: 0.3rem 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+.auto-l { display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.5rem 0.9rem; font-size: var(--t-texte); }
+.auto-l.is-on { background: var(--case); }
+.auto-l small { color: var(--muted); font-size: var(--t-petit); white-space: nowrap; }
+.auto-l b { font-weight: 600; }
+
+/* Carte des logements (dessin) */
+.plan { position: relative; height: 220px; margin: 0.2rem 0 0.8rem; border-radius: 8px; overflow: hidden; background: var(--case); border: 1px solid var(--border); }
+.plan svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.plan-leg { position: absolute; left: 0.6rem; bottom: 0.5rem; display: flex; gap: 0.8rem; padding: 0.2rem 0.5rem; font-size: var(--t-petit); color: var(--muted); background: var(--surface); border-radius: 4px; }
+
+/* Matos */
+.art { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.8rem; min-height: 2rem; padding: 0.2rem 0; border-top: 1px solid var(--border); }
+.art:first-of-type { border-top: 0; }
+.art-nom { flex: 1; min-width: 8rem; }
+.art-outils { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.8rem; font-size: var(--t-second); color: var(--muted); }
+.art select { width: auto; }
+.imp { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.groupe-t { margin: 0.9rem 0 0.2rem; }
+
+/* Consultation */
+.ligne { padding: 0.5rem 0; border-top: 1px solid var(--border); }
+.ligne:first-of-type { border-top: 0; }
+.ligne-h { display: flex; gap: 0.6rem; align-items: baseline; }
+.ligne-h .carte-nom { font-weight: 600; }
+
+/* En un coup d'œil */
+.oeil { display: grid; gap: 0.8rem; }
+.oeil-carte { padding: 0.9rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.oeil-h { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; margin-bottom: 0.4rem; font-weight: 600; }
+.jauge { height: 6px; margin: 0.5rem 0; background: var(--case); border-radius: 3px; overflow: hidden; }
+.jauge i { display: block; height: 100%; width: 63%; background: var(--accent); }
+table.options { width: 100%; border-collapse: collapse; font-size: var(--t-second); }
+table.options th, table.options td { padding: 0.4rem 0.5rem; text-align: left; vertical-align: top; border-top: 1px solid var(--border); }
+table.options th { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+
+@media (max-width: 600px) {
+  .grille { grid-template-columns: minmax(0, 1fr); }
+  .trajet { grid-template-columns: minmax(0, 1fr); }
+  .trajet-l { grid-template-columns: 1fr 1fr; }
+  .trajet-l .mrt-champ:first-child { grid-column: 1 / -1; }
+  .plan { height: 180px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <p class="disc">Maquette, données fictives. Les numéros (<span class="n">27</span>) renvoient au tableau des éléments de la spécification.</p>
+
+  <!-- ================= A. ÉDITION ================= -->
+  <p class="mq-titre">A · Fiche d'édition de la course · bloc Logistique</p>
+  <p class="mq-aide">Un seul « Annuler · Enregistrer », celui de la fiche. Rien ne s'enregistre dans le bloc.</p>
+  <div class="cadre">
+    <div class="fc-barre"><button class="mrt-btn">Annuler</button><span class="fc-mode">Modifier la course</span><button class="mrt-btn is-principal">Enregistrer</button></div>
+    <div class="bloc-t ferme"><span class="chev">›</span>Course</div>
+    <div class="bloc-t ferme"><span class="chev">›</span>Inscription</div>
+    <div class="bloc-t ferme"><span class="chev">›</span>Parcours</div>
+    <div class="bloc-t"><span class="chev">⌄</span>Logistique</div>
+
+    <!-- Logement -->
+    <div class="rub">
+      <div class="rub-t"><span class="lib">Logement</span><span class="disc">Confirmé : <span class="val">73 €</span> · en option : <span class="val">95 €</span></span></div>
+
+      <div class="plan" aria-label="Carte des logements">
+        <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M0 150 C120 120 200 170 320 140 S560 90 800 120" fill="none" stroke="var(--border)" stroke-width="10"/>
+          <path d="M380 0 C390 60 360 120 400 220" fill="none" stroke="var(--border)" stroke-width="6"/>
+          <path d="M0 60 L800 80" fill="none" stroke="var(--border)" stroke-width="3"/>
+          <path d="M560 0 L520 220" fill="none" stroke="var(--border)" stroke-width="3"/>
+          <circle cx="400" cy="120" r="70" fill="none" stroke="var(--accent)" stroke-dasharray="4 5" stroke-width="1.5"/>
+          <path d="M400 92 l-9 -16 a10 10 0 1 1 18 0 z" fill="var(--accent)"/>
+          <text x="414" y="82" font-family="Space Mono" font-size="12" fill="var(--text)">Départ de la course</text>
+          <circle cx="352" cy="146" r="8" fill="var(--text)"/><text x="364" y="150" font-family="Space Grotesk" font-size="12" fill="var(--text)">Gîte des Crêtes · 73 €</text>
+          <circle cx="470" cy="60" r="7" fill="var(--surface)" stroke="var(--text)" stroke-width="2"/><text x="482" y="64" font-family="Space Grotesk" font-size="12" fill="var(--text)">Gîte du Lac · 95 €</text>
+        </svg>
+        <div class="plan-leg"><span>● confirmé</span><span>○ option</span><span>cercle : 2 km autour du départ</span></div>
+      </div>
+
+      <div class="carte">
+        <div class="carte-h"><span class="n">27</span><span class="carte-nom">Gîte des Crêtes</span><span class="etat is-confirme">Confirmé</span><span class="val">73 €</span></div>
+        <div class="carte-l">12 rue des Crêtes, 42000 Mont-Clair · à 1,2 km du départ</div>
+        <div class="carte-l">ven. 4 déc. · 15 h → dim. 6 déc. · 11 h</div>
+      </div>
+
+      <div class="carte is-option">
+        <div class="carte-h"><span class="n">27</span><span class="carte-nom">Gîte du Lac</span>
+          <span class="pastilles"><span class="n">47</span><button class="mrt-pastille is-on">Option</button><button class="mrt-pastille">Confirmé</button><button class="mrt-pastille">Non retenu</button></span>
+          <a class="mrt-lien supprimer" href="#">Supprimer</a><span class="n">28</span></div>
+        <div class="grille">
+          <div class="champ"><label class="lib"><span class="n">29</span>Nom</label><input class="mrt-champ" value="Gîte du Lac"></div>
+          <div class="champ"><label class="lib"><span class="n">34</span>Lien</label><input class="mrt-champ" value="https://example.org/gite-du-lac"></div>
+          <div class="champ large auto"><label class="lib"><span class="n">30</span>Adresse</label><input class="mrt-champ" value="4 quai Mon|">
+            <div class="auto-liste"><span class="n" style="margin-left:.6rem">31</span>
+              <div class="auto-l is-on"><span><b>4 Quai Mon</b>tclar, 42000 Mont-Clair</span><small>à 1,8 km du départ</small></div>
+              <div class="auto-l"><span><b>4 Quai Mon</b>tmurat, 42000 Mont-Clair</span><small>à 2,4 km</small></div>
+              <div class="auto-l"><span><b>4 Quai Mon</b>tebello, 69000 Ville-Haute</span><small>à 48 km</small></div>
+            </div></div>
+          <div class="champ"><label class="lib"><span class="n">32</span>Arrivée</label><div class="duo"><input class="mrt-champ" type="date"><input class="mrt-champ" type="time"></div></div>
+          <div class="champ"><label class="lib">Départ</label><div class="duo"><input class="mrt-champ" type="date"><input class="mrt-champ" type="time"></div></div>
+          <div class="champ"><label class="lib"><span class="n">33</span>Prix (€)</label><input class="mrt-champ" value="95"></div>
+        </div>
+      </div>
+      <p class="replie"><b>Non retenus (2)</b> › Hôtel de la Gare, Camping des Berges <span class="n">48</span></p>
+      <button class="mrt-btn"><span class="n">35</span>Ajouter un logement</button>
+    </div>
+
+    <!-- Transport -->
+    <div class="rub">
+      <div class="rub-t"><span class="lib">Transport</span><span class="disc">Confirmé : <span class="val">120 €</span></span></div>
+      <div class="carte">
+        <div class="carte-h"><span class="carte-nom">Train · aller-retour</span><span class="etat is-confirme">Confirmé</span><span class="val">120 €</span></div>
+        <div class="carte-l">Aller : Paris Gare de Lyon 8 h 12 → Mont-Clair 13 h 05, ven. 4 déc.</div>
+        <div class="carte-l">Retour : Mont-Clair 16 h 40 → Paris Gare de Lyon 21 h 30, dim. 6 déc.</div>
+      </div>
+      <div class="carte is-option">
+        <div class="carte-h"><span class="pastilles"><span class="n">47</span><button class="mrt-pastille is-on">Option</button><button class="mrt-pastille">Confirmé</button><button class="mrt-pastille">Non retenu</button></span><span style="flex:1"></span><a class="mrt-lien supprimer" href="#">Supprimer</a></div>
+        <div class="pastilles" style="margin-top:.7rem"><span class="n">36</span><button class="mrt-pastille">Train</button><button class="mrt-pastille is-on">Avion</button><button class="mrt-pastille">Voiture</button><button class="mrt-pastille">Bus</button><button class="mrt-pastille">Autre</button></div>
+        <div class="pastilles" style="margin-top:.5rem"><span class="n">37</span><button class="mrt-pastille">Aller simple</button><button class="mrt-pastille is-on">Aller-retour</button></div>
+        <div class="trajet"><span class="lib"><span class="n">38</span>Aller</span>
+          <div class="trajet-l"><input class="mrt-champ" value="Aéroport de Paris-Orly"><input class="mrt-champ" type="date"><input class="mrt-champ" type="time"></div>
+          <span></span>
+          <div class="trajet-l"><input class="mrt-champ" value="Aéroport de Ville-Haute"><input class="mrt-champ" type="date"><input class="mrt-champ" type="time"></div>
+          <span class="lib"><span class="n">39</span>Retour</span>
+          <div class="trajet-l"><input class="mrt-champ presaisi" value="Aéroport de Ville-Haute"><input class="mrt-champ" type="date"><input class="mrt-champ" type="time"></div>
+          <span></span>
+          <div class="trajet-l"><input class="mrt-champ presaisi" value="Aéroport de Paris-Orly"><input class="mrt-champ" type="date"><input class="mrt-champ" type="time"></div>
+        </div>
+        <div class="grille">
+          <div class="champ"><label class="lib"><span class="n">40</span>Prix de l'aller-retour (€)</label><input class="mrt-champ" value="145"></div>
+          <div class="champ"><label class="lib">Lien de réservation</label><input class="mrt-champ" placeholder="https://"></div>
+        </div>
+      </div>
+      <p class="disc">Voiture : seulement « De », « À » et le prix (pas d'heures).</p>
+      <button class="mrt-btn" style="margin-top:.5rem"><span class="n">41</span>Ajouter un transport</button>
+    </div>
+
+    <!-- Matos -->
+    <div class="rub">
+      <div class="rub-t"><span class="lib">Matos</span><span class="disc">3 articles</span></div>
+      <div class="auto"><span class="n">42</span><input class="mrt-champ" style="width:100%;box-sizing:border-box" value="fron|">
+        <div class="auto-liste">
+          <div class="auto-l is-on"><span><b>Fron</b>tale</span><small>déjà dans ton matos</small></div>
+          <div class="auto-l"><span>Ajouter « fron » comme nouvel article</span><small>Entrée</small></div>
+        </div></div>
+      <p class="lib groupe-t">En course <span class="n">43</span></p>
+      <div class="art"><span class="art-nom">Frontale</span><span class="art-outils"><span class="pastilles"><button class="mrt-pastille is-on">En course</button><button class="mrt-pastille">Avant-après</button><button class="mrt-pastille">Autres</button></span><label class="mrt-coche"><input type="checkbox" checked></label>Imposé <span class="n">44</span><select class="mrt-champ"><option>Petzl Actik</option></select><span class="n">45</span><a class="mrt-lien supprimer" href="#">Retirer</a><span class="n">46</span></span></div>
+      <div class="art"><span class="art-nom">Couverture de survie</span><span class="art-outils"><span class="pastilles"><button class="mrt-pastille is-on">En course</button><button class="mrt-pastille">Avant-après</button><button class="mrt-pastille">Autres</button></span><label class="mrt-coche"><input type="checkbox" checked></label>Imposé<a class="mrt-lien supprimer" href="#">Retirer</a></span></div>
+      <p class="lib groupe-t">Avant-après course</p>
+      <div class="art"><span class="art-nom">Pièce d'identité</span><span class="art-outils"><span class="pastilles"><button class="mrt-pastille">En course</button><button class="mrt-pastille is-on">Avant-après</button><button class="mrt-pastille">Autres</button></span><label class="mrt-coche"><input type="checkbox"></label>Imposé<a class="mrt-lien supprimer" href="#">Retirer</a></span></div>
+    </div>
+    <div class="champ"><label class="lib"><span class="n">25</span>Notes</label><textarea class="mrt-champ" rows="2">Départ original depuis l'intérieur des caves : arriver tôt.</textarea></div>
+  </div>
+
+  <!-- ================= B. CONSULTATION ================= -->
+  <p class="mq-titre">B · Page de la course · bloc Logistique (lecture, cases à cocher)</p>
+  <p class="mq-aide">Aucun crayon, aucun « Ajouter » : on modifie par « Modifier la course ». Seuls les éléments confirmés sont détaillés ; les options sont rappelées en une ligne.</p>
+  <div class="cadre">
+    <div class="bloc-t" style="border-top:0"><span class="chev">⌄</span>Logistique<span style="flex:1"></span><span class="val" style="color:var(--accent)">Total 251 €</span></div>
+    <p class="lib">Logement</p>
+    <div class="ligne"><div class="ligne-h"><span class="carte-nom">Gîte des Crêtes ↗</span><span style="flex:1"></span><span class="val">73 €</span></div>
+      <div class="carte-l"><a class="mrt-lien" href="#">12 rue des Crêtes, 42000 Mont-Clair</a> · à 1,2 km du départ</div>
+      <div class="carte-l">Arrivée : ven. 4 déc. · 15 h</div><div class="carte-l">Départ : dim. 6 déc. · 11 h</div></div>
+    <p class="carte-l">1 logement en option (Gîte du Lac, 95 €)</p>
+    <p class="lib" style="margin-top:1rem">Transport</p>
+    <div class="ligne"><div class="ligne-h"><span class="carte-nom">Train · aller-retour</span><span style="flex:1"></span><span class="val">120 €</span></div>
+      <div class="carte-l">Aller : Paris Gare de Lyon 8 h 12 → Mont-Clair 13 h 05</div><div class="carte-l">Retour : Mont-Clair 16 h 40 → Paris Gare de Lyon 21 h 30</div></div>
+    <div class="rub-t" style="margin-top:1rem"><span class="lib">Matos · <span style="color:var(--text)">2 / 3 pris</span></span><button class="mrt-btn">Jour J</button></div>
+    <div class="art"><label class="mrt-coche"><input type="checkbox" checked></label><span class="art-nom">Frontale <span class="imp">Imposé</span> <span class="disc">Petzl Actik</span></span></div>
+    <div class="art"><label class="mrt-coche"><input type="checkbox" checked></label><span class="art-nom">Couverture de survie <span class="imp">Imposé</span></span></div>
+    <div class="art"><label class="mrt-coche"><input type="checkbox"></label><span class="art-nom">Pièce d'identité</span></div>
+  </div>
+
+  <!-- ================= C. EN UN COUP D'ŒIL ================= -->
+  <p class="mq-titre">C · En un coup d'œil · 5 jours avant la course</p>
+  <p class="mq-aide">Trois propositions ; une seule sera retenue.</p>
+  <div class="oeil">
+    <div class="oeil-carte">
+      <div class="oeil-h"><span>1 · Bloc « Ta course approche »</span><span class="val" style="color:var(--accent)">5 j</span></div>
+      <p>Trail des Gorges · sam. 7 mars</p>
+      <p class="carte-l">Logement : Gîte des Crêtes · arrivée ven. 15 h</p>
+      <p class="carte-l">Train : ven. 8 h 12, Paris Gare de Lyon</p>
+      <div class="jauge"><i></i></div>
+      <div class="rub-t"><span class="carte-l">Matos : 12 / 19 pris</span><button class="mrt-btn">Jour J</button></div>
+    </div>
+    <div class="oeil-carte">
+      <div class="oeil-h"><span>2 · Une ligne dans « Aujourd'hui »</span></div>
+      <div class="art" style="border:0"><label class="mrt-coche"><input type="checkbox"></label><span class="art-nom">Préparer ton sac pour le Trail des Gorges · 12 / 19 pris ›</span></div>
+    </div>
+    <div class="oeil-carte">
+      <div class="oeil-h"><span>3 · Un lien sous la prochaine course</span></div>
+      <p class="carte-l">Trail des Gorges dans 5 j · <a class="mrt-lien" href="#">Logistique et matos ›</a></p>
+    </div>
+    <table class="options">
+      <tr><th>Proposition</th><th>Ce qu'on y gagne</th><th>Limite</th></tr>
+      <tr><td>1 · Bloc dédié</td><td>Tout le voyage d'un coup d'œil, avec la jauge du matos et « Jour J »</td><td>Un bloc de plus pendant 5 jours</td></tr>
+      <tr><td>2 · Ligne « Aujourd'hui »</td><td>Rappel discret, dans la liste des choses à faire</td><td>Ne montre ni logement ni trajet</td></tr>
+      <tr><td>3 · Simple lien</td><td>Aucun encombrement</td><td>Facile à manquer</td></tr>
+    </table>
+    <p class="disc">Recommandation : 1, le bloc dédié, affiché de J-5 au jour de la course, à la place du bloc de la prochaine course.</p>
+  </div>
+</main>
+</body>
+</html>
