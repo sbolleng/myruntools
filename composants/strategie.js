@@ -71,7 +71,7 @@
   // Entraînement des 12 dernières semaines (séances de course faites) : volume, D+, plus longue sortie, par mois.
   function entrainement(seances) {
     const P = window.mrtPreparation;
-    const faites = (seances || []).filter(s => s.faite && s.type !== 'renfo' && s.date >= ilYa(84) && s.date <= iso(new Date())).map(s => (P ? P.reel(s) : s));
+    const faites = (seances || []).filter(s => s.faite && s.type === 'run' && s.date >= ilYa(84) && s.date <= iso(new Date())).map(s => (P ? P.reel(s) : s));
     if (!faites.length) return null;
     const mois = {};
     let longue = null;
