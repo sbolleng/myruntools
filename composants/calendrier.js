@@ -26,6 +26,7 @@
   const ranger = (cle, v) => { visite[cle] = v; try { localStorage.setItem(cle, v); } catch (e) { /* stockage indisponible */ } };
   const phasesVisibles = () => lire('mrt-calendrier-phases', v => v === '1' || v === '0', '0') === '1';
   const legendeVisible = () => lire('mrt-calendrier-legende', v => v === '1' || v === '0', '0') === '1';
+  const INITIALE = ['D', 'L', 'M', 'M', 'J', 'V', 'S']; // initiale du jour, de dimanche à samedi (3 et 6 mois)
   const PERIODES = ['3', '6', '12'];
   const periode = () => Number(lire('mrt-calendrier-mois', v => PERIODES.includes(v), '6'));
 
@@ -258,7 +259,7 @@
             // Séances du jour : leur type en toutes lettres (« Course à pied · Renforcement »), atténué et barré quand elles sont faites ; une course l'emporte sur la case.
             const se = ctx.seances.filter(x => x.date === j);
             se.forEach(x => tip.push(TYPES[x.type] + ' ' + x.libelle + (x.faite ? ' (faite)' : '')));
-            h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '"' + (c ? ' data-course="' + esc(c.id) + '"' : '') + ' title="' + esc(tip.join(' · ')) + '">' +
+            h += '<span class="' + cls.join(' ') + '" data-jour="' + j + '"' + (c ? ' data-course="' + esc(c.id) + '"' : '') + ' title="' + esc(tip.join(' · ')) + '"><i class="cal-a-ini" aria-hidden="true">' + INITIALE[sj] + '</i>' +
               (c ? '<span class="cal-a-nom">' + esc(c.nom) + '</span>' : se.length ? '<span class="cal-a-nom cal-a-se' + (se.every(x => x.faite) ? ' faite' : '') + '">' + se.map(x => ({ l: P.lireLibelle(x.libelle), k: P.lisere(x) })).filter((o, i, a) => a.findIndex(y => y.l.nom === o.l.nom) === i).map(o => '<span class="cal-a-sn ' + o.k + '"><span class="n-long">' + esc(o.l.nom) + '</span><span class="n-court">' + esc(o.l.abr) + '</span></span>').join('') + '</span>' : '') + '</span>';
           });
         }

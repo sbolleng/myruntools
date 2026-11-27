@@ -103,11 +103,14 @@
 .cal-a-j.we.ph-affutage:not([data-course]) { background: color-mix(in srgb, var(--ph-affutage) 52%, var(--surface)); }
 .cal-a-j.we.ph-deload:not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 52%, var(--surface)); }
 .cal-a-j.we.ph-recuperation:not([data-course]) { background: color-mix(in srgb, var(--ph-recuperation) 52%, var(--surface)); }
-.cal-a-j.dim::after { content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--muted); opacity: 0.7; pointer-events: none; }
+.cal-a-j.dim::after { content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 2px; background: var(--muted); opacity: 0.9; pointer-events: none; } /* fin de semaine bien marquée */
+/* Initiale du jour, à droite de la case, en discret ; le nom s'arrête avant elle. */
+.cal-a-ini { position: absolute; top: 0; right: 0.3rem; font-family: 'Space Mono', monospace; font-size: var(--t-micro); font-style: normal; line-height: var(--ligne); color: var(--muted); opacity: 0.4; pointer-events: none; }
+.cal-a-j:is(.c-route-v, .c-trail-v) .cal-a-ini { color: var(--encre); opacity: 0.55; } .cal-a-j.courue .cal-a-ini { color: var(--bg); opacity: 0.55; }
 .cal-a-j.vide { visibility: hidden; }
 .cal-a-j.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 /* Nom de la course dans sa case, décalé des seules barres de ce jour-là. */
-.cal-a-nom { position: absolute; top: 0; right: 0.3rem; left: 0.45rem; font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.cal-a-nom { position: absolute; top: 0; right: 1.1rem; left: 0.45rem; font-size: var(--t-petit); line-height: var(--ligne); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
 .cal-a-se { font-size: var(--t-micro); color: var(--text); }
 .cal-a-sn { padding-left: 0.2rem; margin-right: 0.3rem; border-left: 3px solid var(--l); }
 .cal-a-sn .n-court { display: none; }
@@ -186,7 +189,8 @@
   .cal-a-mois { padding: 0.25rem 0.2rem; font-size: var(--t-micro); letter-spacing: 0.05em; }
   .cal-a-n { padding-right: 0.2rem; }
   .cal-a-n b { min-width: 1.1rem; line-height: 1.05rem; }
-  .cal-a-nom { font-size: var(--t-micro); }
+  .cal-a-nom { right: 0.85rem; font-size: var(--t-micro); }
+  .cal-a-ini { right: 0.15rem; }
   .cal-a-sn .n-long { display: none; }
   .cal-a-sn .n-court { display: inline; }
   .cal-s-ligne { grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.6rem; padding-right: 2.4rem; }
