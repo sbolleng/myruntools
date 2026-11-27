@@ -143,7 +143,7 @@
 .cal-m-case .cal-v-plus { right: 0.35rem; bottom: 0.35rem; }
 .cal-m-case .cal-v-det { display: block; margin-left: 0; }
 .cal-m-points { display: none; }
-.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border-left: 3px solid var(--l); border-radius: 4px; }
+.cal-m-se { display: block; min-width: 0; padding: 0.15rem 0.3rem 0.1rem; font-size: var(--t-libelle); line-height: 1.3; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--l); border-radius: 4px; }
 .cal-m-se[draggable="true"] { cursor: pointer; }
 .cal-m-se-txt { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 0; font: inherit; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
 .cal-m-se-txt::after { content: ''; position: absolute; inset: -0.2rem -0.1rem; } /* zone de toucher élargie (design, § 1) */
@@ -270,7 +270,7 @@
    (couleurs et classes l-* : preparation.css, communes à toutes les vues) */
 .cal-m2 { display: flex; flex-direction: column; gap: 1px; }
 .cal-m2-tete, .cal-m2-ligne { display: grid; grid-template-columns: 5.6rem repeat(7, minmax(0, 1fr)); gap: 1px; }
-.cal-m2-tete span { padding-bottom: 0.35rem; text-align: center; }
+.cal-m2-tete span { padding: 0 0 0.35rem 0.3rem; }
 .cal-m2-ligne { border-radius: 4px; overflow: hidden; }
 .cal-m2-sem { display: flex; flex-direction: column; justify-content: center; gap: 0.1rem; padding: 0.35rem 0.5rem 0.35rem 0.2rem; }
 .cal-m2-sem .cal-libelle { color: var(--text); }
@@ -366,7 +366,7 @@ b.cal-m2-nom { font-size: var(--t-second); }
 
 /* ----- Harmonisation des vues : week-end plus foncé et aujourd'hui encadré dans toutes les grilles (4 semaines, Mois, Année) ;
    avec le plan, la phase garde un cran de plus le week-end (comme 3 et 6 mois). ----- */
-.cal-m-case.we, .cal-m2-case.we { background: var(--border); }
+.cal-m-case.we, .cal-m2-case.we, .cal-s-ligne.we { background: var(--border); }
 .cal-m-case.auj, .cal-m2-case.auj { outline: 2px solid var(--text); outline-offset: -2px; }
 .cal-m-case.we.ph-base, .cal-m2-ligne.ph-base .cal-m2-case.we, .cal-y-j.we.ph-base:not([data-course]) { background: color-mix(in srgb, var(--ph-base) 52%, var(--surface)); }
 .cal-y-j.ph-base:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-base) 38%, var(--surface)); }
@@ -378,3 +378,8 @@ b.cal-m2-nom { font-size: var(--t-second); }
 .cal-y-j.ph-deload:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-deload) 38%, var(--surface)); }
 .cal-m-case.we.ph-recuperation, .cal-m2-ligne.ph-recuperation .cal-m2-case.we, .cal-y-j.we.ph-recuperation:not([data-course]) { background: color-mix(in srgb, var(--ph-recuperation) 52%, var(--surface)); }
 .cal-y-j.ph-recuperation:not(.we):not([data-course]) { background: color-mix(in srgb, var(--ph-recuperation) 38%, var(--surface)); }
+.cal-s-ligne.we.ph-base { background: color-mix(in srgb, var(--ph-base) 52%, var(--surface)); }
+.cal-s-ligne.we.ph-developpement { background: color-mix(in srgb, var(--ph-developpement) 52%, var(--surface)); }
+.cal-s-ligne.we.ph-affutage { background: color-mix(in srgb, var(--ph-affutage) 52%, var(--surface)); }
+.cal-s-ligne.we.ph-deload { background: color-mix(in srgb, var(--ph-deload) 52%, var(--surface)); }
+.cal-s-ligne.we.ph-recuperation { background: color-mix(in srgb, var(--ph-recuperation) 52%, var(--surface)); }

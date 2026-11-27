@@ -342,6 +342,7 @@
       for (let i = 0; i < 7; i++) {
         const j = addDays(l, i), d = parse(j), cls = ['cal-s-ligne'];
         if (j < auj) cls.push('passe');
+        if (d.getDay() === 0 || d.getDay() === 6) cls.push('we');
         if (ph) cls.push('ph-' + ph);
         if (j === auj) cls.push('auj');
         h += '<div class="' + cls.join(' ') + '" data-jour-ligne="' + j + '"><span class="cal-s-date"><b>' + d.getDate() + '</b><small>' + JOURS[d.getDay()] + '</small></span><span class="cal-s-contenu">' +

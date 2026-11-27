@@ -78,6 +78,8 @@ const PAGES = {
   'calendrier-phases': { url: 'calendrier.html', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   'calendrier-mois-phases': { url: 'calendrier.html#mois', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   'calendrier-annee-phases': { url: 'calendrier.html#annee', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
+  'calendrier-annee12': { url: 'calendrier.html#annee', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1', 'mrt-calendrier-mois': '12' } },
+  'calendrier-4semaines': { url: 'calendrier.html#mois2', donnees: SEANCES, stockage: { 'mrt-calendrier-phases': '1' } },
   preparation: { url: 'preparation.html', donnees: SEANCES },
   // Une proposition de l'IA en attente (bloc du 19 octobre), le profil complet.
   'preparation-ia': { url: 'preparation.html', hauteur: { tel: 1900, ordi: 1300 }, donnees: d => {

@@ -277,10 +277,11 @@ Le plan sur papier ou en PDF, à l'image d'un plan d'entraînement imprimé, dan
 
 ### 4.7 Repères communs à toutes les vues
 
+- **Jours de la semaine** (en-tête de 4 semaines et Mois) : alignés à gauche, sur le numéro.
 - **Numéro du jour** : police du texte, gras ; seule la taille change selon la vue ; aujourd'hui en pastille Accent, et la case (ou la ligne) encadrée de 2 px Texte.
-- **Cases** : fond Case, coins de 4 px ; samedi et dimanche fond Bordure dans les vues en grille (4 semaines, Mois, 3 et 6 mois, Année) ; Plan : la couleur de la phase, un cran de plus le week-end.
+- **Cases** : fond Case, coins de 4 px ; samedi et dimanche fond Bordure dans toutes les vues (Semaine, 4 semaines, Mois, 3 et 6 mois, Année) ; Plan : la couleur de la phase, un cran de plus le week-end.
 - **Courses** : pleines si confirmées (texte en encre), à 50 % si option, Texte discret si courue, dans toutes les vues.
-- **Séances** : la couleur de leur type (liseré, ou point dans l'Année), la même dans tous les thèmes (design, § 9).
+- **Séances** : en carte (fond Surface, bord de 1 px, liseré de 4 px à la couleur de leur type) en Semaine, 4 semaines et Mois ; liseré de 3 px en 3 et 6 mois, point dans l'Année, la même dans tous les thèmes (design, § 9).
 - **« + »** : une seule taille, le petit rond commun (1,5 rem).
 - **Total** : séances et km de la période, Texte discret (semaine, mois ; chaque mois de l'Année).
 
