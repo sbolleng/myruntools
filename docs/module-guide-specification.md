@@ -1,6 +1,6 @@
 # Guide · spécification fonctionnelle
 
-Version 0.4 · 27 novembre 2026 · [Retour au sommaire](README.md) · Nutrition : le Vélo (par vitesse) et la Danse (5 MET) rejoignent les séances du calcul.
+Version 0.5 · 27 novembre 2026 · [Retour au sommaire](README.md) · Nutrition : natation, marche et crossfit sont des séances ; plus d'« autres sports ».
 
 ## 1. Rôle
 
