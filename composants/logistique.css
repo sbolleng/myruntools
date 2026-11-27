@@ -1,49 +1,46 @@
 /* Logistique d'une course et Mon matériel (docs/module-logistique-specification.md) : éléments et variables communs, aucune taille hors de l'échelle. */
+
+/* ----- Page de la course (lecture) ----- */
 .lg-cellule > summary::after { content: attr(data-total); margin-left: auto; font-family: 'Space Mono', monospace; font-size: var(--t-second); font-weight: 400; color: var(--accent); }
 .lg-cellule[data-total=""] > summary::after { content: none; }
 .lg-rubrique + .lg-rubrique { margin-top: 1rem; }
 .lg-titre { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
-.lg-titre > .mrt-rond { margin-left: auto; }
-.lg-titre .lg-actions .mrt-btn { text-transform: none; letter-spacing: normal; }
 .lg-titre .lg-actions { margin-left: auto; display: flex; gap: 0.4rem; }
-.lg-titre .lg-actions .mrt-btn { margin-left: 0; }
+.lg-titre .mrt-btn { text-transform: none; letter-spacing: normal; }
 .lg-compte { color: var(--text); }
 .lg-total { margin-bottom: 0.8rem; }
 .lg-detail { display: flex; flex-direction: column; gap: 0.1rem; margin-top: 0.3rem; font-size: var(--t-second); color: var(--muted); }
-
+.lg-options { margin-top: 0.3rem; font-size: var(--t-second); color: var(--muted); }
 .lg-ligne { padding: 0.5rem 0; border-top: 1px solid var(--border); }
 .lg-ligne:first-of-type { border-top: 0; }
 .lg-haut { display: flex; align-items: center; gap: 0.6rem; }
-.lg-nom { flex: 1; min-width: 0; font-weight: 600; color: var(--text); }
-.lg-prix { font-family: 'Space Mono', monospace; color: var(--text); }
+.lg-nom { flex: 0 1 auto; margin-right: auto; min-width: 0; font-weight: 600; color: var(--text); }
+.lg-lien-nom { display: inline-flex; vertical-align: middle; margin: -0.3rem 0 -0.3rem 0.35rem; padding: 0.3rem; }
+.lg-prix { font-family: 'Space Mono', monospace; color: var(--text); white-space: nowrap; }
+.lg-bas .mrt-ico, .lg-carte-l .mrt-ico { width: 0.8em; height: 0.8em; vertical-align: -0.1em; }
 .lg-bas { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.8rem; font-size: var(--t-second); color: var(--muted); }
-.lg-bas .mrt-ico { width: 0.8em; height: 0.8em; vertical-align: -0.1em; }
 
-.lg-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 0.8rem; margin: 0.5rem 0; padding: 0.8rem; background: var(--case); border-radius: 8px; }
-.lg-champ { min-width: 0; }
-.lg-champ label { display: block; margin-bottom: 0.2rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.lg-champ .mrt-champ { display: block; width: 100%; }
-.lg-champ[hidden] { display: none; }
-.lg-pied { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 0.6rem; }
-.lg-bas-seul { grid-column: 1 / -1; display: flex; justify-content: center; }
-.lg-actif { grid-column: 1 / -1; }
-@media (max-width: 600px) { .lg-form { grid-template-columns: minmax(0, 1fr); } }
+/* Adresse cliquable : menu d'itinéraires (Google Maps, Waze, application de l'appareil). */
+.lg-adr { position: relative; display: inline-block; }
+.lg-adr > .mrt-lien { text-align: left; }
+.lg-adr .mrt-menu { top: 100%; left: 0; min-width: 14rem; margin-top: 0.2rem; }
+.lg-adr .mrt-menu-l { text-decoration: none; }
 
+/* Carte des logements (plan OpenStreetMap), centrée sur le départ. */
+.lg-plan { height: 220px; margin: 0.3rem 0 0.8rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--case); }
+.lg-plan[hidden] { display: none; }
+@media (max-width: 600px) { .lg-plan { height: 180px; } }
+
+/* Matos à cocher */
 .lg-cat { margin: 0.8rem 0 0.2rem; }
 .lg-art { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.7rem; min-height: 2rem; padding: 0.15rem 0; }
 .lg-art-l { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
 .lg-art-nom { color: var(--text); }
 .lg-impose { font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
 .lg-equip { font-size: var(--t-second); color: var(--muted); }
-.lg-outils { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.8rem; margin-left: auto; font-size: var(--t-second); }
-.lg-outils .mrt-champ { width: auto; max-width: 12rem; }
-.lg-bascule { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
-.lg-ajout { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
-.lg-ajout input { flex: 1 1 10rem; min-width: 0; }
-.lg-msg { margin-top: 0.6rem; font-size: var(--t-petit); color: var(--red); }
-.lg-vide-eq { padding: 0.4rem 0.6rem; color: var(--muted); }
+@media (hover: hover) { .lg-art-l:hover .lg-art-nom { color: var(--accent); } }
 
-/* Mode jour J : la liste seule, plein écran, grandes cases. */
+/* Mode jour J : la liste seule, plein écran, grandes cases (au-dessus de la feuille d'une course, sous les confirmations). */
 .lg-jourj { position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
 .lg-jourj-haut { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); }
 .lg-jourj-titre { font-size: var(--t-nom); font-weight: 600; }
@@ -51,31 +48,74 @@
 .lg-art.is-grand { min-height: 3rem; border-bottom: 1px solid var(--border); font-size: var(--t-nom); }
 .lg-art.is-grand .mrt-coche input { width: 1.4rem; height: 1.4rem; }
 .lg-art.is-grand .lg-art-l { flex: 1; min-width: 0; }
-@media (hover: hover) { .lg-art-l:hover .lg-art-nom { color: var(--accent); } }
 
-/* Logement : flèche du lien à côté du nom, itinéraires, adresse assistée ; trajet : aller-retour. */
-.lg-nom { flex: 0 1 auto; margin-right: auto; }
-.lg-lien-nom { display: inline-flex; vertical-align: middle; margin-left: 0.35rem; padding: 0.3rem; margin-top: -0.3rem; margin-bottom: -0.3rem; }
-/* Adresse cliquable : un menu d'itinéraires (Google Maps, Waze, application de l'appareil). */
-.lg-adr { position: relative; }
-.lg-adr > .mrt-lien { text-align: left; }
-.lg-adr .mrt-menu { top: 100%; left: 0; min-width: 14rem; margin-top: 0.2rem; }
-.lg-adr .mrt-menu-l { text-decoration: none; }
+/* ----- Fiche « Modifier la course », bloc Logistique ----- */
+.lg-ed .lg-rubrique + .lg-rubrique { margin-top: 1.4rem; }
+.lg-rub-t { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.5rem; }
+.lg-somme { font-size: var(--t-second); color: var(--muted); }
+.lg-carte { margin-bottom: 0.6rem; padding: 0.7rem 0.8rem; background: var(--case); border: 1px solid transparent; border-radius: 8px; }
+.lg-carte.is-option { background: none; border: 1px dashed var(--bord-champ); }
+.lg-carte.is-non { opacity: 0.7; }
+.lg-resume { display: flex; flex-direction: column; gap: 0.15rem; cursor: pointer; }
+.lg-resume:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.lg-carte-h { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.6rem; }
+.lg-carte-h > .mrt-lien.is-danger { margin-left: auto; }
+.lg-carte-nom { flex: 1; min-width: 0; font-weight: 600; color: var(--text); }
+.lg-carte-l { font-size: var(--t-second); color: var(--muted); }
+.lg-etat { font-family: 'Space Mono', monospace; font-size: var(--t-micro); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 4px; white-space: nowrap; }
+.lg-etat.is-confirme { color: var(--bg); background: var(--accent); }
+.lg-etat.is-option { color: var(--text); border: 1px dashed var(--bord-champ); }
+.lg-etat.is-non_retenu { color: var(--muted); border: 1px solid var(--border); }
+@media (hover: hover) { .lg-resume:hover .lg-carte-nom { color: var(--accent); } }
+.lg-pastilles { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.lg-ligne-p { margin-top: 0.6rem; }
+.lg-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 0.8rem; margin-top: 0.7rem; }
 .lg-large { grid-column: 1 / -1; }
-.lg-sous-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 0.8rem; }
-.lg-sous-grille[hidden], .lg-retour[hidden] { display: none; }
-.lg-adresse { position: relative; }
-.lg-recherche { display: flex; gap: 0.5rem; }
-.lg-recherche .mrt-champ { flex: 1; min-width: 0; }
-.lg-adresse .mrt-menu { left: 0; right: 0; min-width: 0; }
-.lg-adresse .mrt-menu-l { text-align: left; }
-.lg-aide { margin-top: 0.3rem; font-size: var(--t-petit); color: var(--muted); }
-.lg-aide:empty { display: none; }
-.lg-prix small { font-size: var(--t-petit); color: var(--muted); }
-@media (max-width: 600px) { .lg-sous-grille { grid-template-columns: minmax(0, 1fr); } }
+.lg-champ { min-width: 0; }
+.lg-champ label { display: block; margin-bottom: 0.2rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.lg-champ .mrt-champ { display: block; width: 100%; box-sizing: border-box; }
+.lg-champ[hidden] { display: none; }
+.lg-duo { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.4rem; }
+.lg-sens { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0.4rem 0.6rem; margin-top: 0.7rem; }
+.lg-sens-t { padding-top: 1.2rem; font-family: 'Space Mono', monospace; font-size: var(--t-libelle); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+.lg-sens-l { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.8rem; }
+.lg-replier { display: inline-block; margin-top: 0.6rem; }
+.lg-replie { display: block; margin: 0.2rem 0 0.6rem; }
+.lg-ajouter { margin-top: 0.2rem; }
+.lg-outils { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.3rem 0.8rem; flex: 1 1 18rem; min-width: 0; margin-left: auto; font-size: var(--t-second); }
+.lg-ed .lg-art-nom { flex: 0 1 10rem; min-width: 0; }
+.lg-outils .mrt-champ { width: auto; max-width: 12rem; }
+.lg-ed .lg-art { border-top: 1px solid var(--border); padding: 0.35rem 0; }
+.lg-ed .lg-cat + .lg-art { border-top: 0; }
+.lg-bascule { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
+@media (max-width: 600px) {
+  .lg-grille, .lg-sens-l { grid-template-columns: minmax(0, 1fr); }
+  .lg-sens { grid-template-columns: minmax(0, 1fr); }
+  .lg-sens-t { padding-top: 0; }
+  .lg-outils { margin-left: 0; }
+}
 
-/* Rubrique en modification : une fiche par logement ou trajet, « Ajouter » dessous, puis Annuler et Enregistrer. */
-.lg-edition { display: flex; flex-direction: column; align-items: flex-start; gap: 0.8rem; }
-.lg-edition .lg-fiche { width: 100%; box-sizing: border-box; }
-.lg-edition .lg-pied { width: 100%; }
-.lg-fiche-titre { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }
+/* Autocomplétion : la liste sous le champ, pendant la frappe. */
+.lg-auto { position: relative; }
+.lg-auto > input { display: block; width: 100%; box-sizing: border-box; }
+.lg-auto-liste { position: absolute; z-index: 30; left: 0; right: 0; top: 100%; margin-top: 0.2rem; padding: 0.3rem 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.lg-auto-l { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; padding: 0.55rem 0.9rem; font-size: var(--t-texte); color: var(--text); cursor: pointer; }
+.lg-auto-l.is-on { background: var(--case); }
+.lg-auto-l small { font-size: var(--t-petit); color: var(--muted); white-space: nowrap; }
+.lg-auto-matos { margin-bottom: 0.4rem; }
+
+/* ----- En un coup d'œil : « Ta course approche » ----- */
+.lg-approche { margin-top: 0.8rem; }
+.lg-approche[hidden] { display: none; }
+.lg-approche-l { font-size: var(--t-second); color: var(--muted); }
+.lg-jauge { height: 6px; margin: 0.6rem 0 0.4rem; background: var(--case); border-radius: 3px; overflow: hidden; }
+.lg-jauge i { display: block; height: 100%; background: var(--accent); }
+.lg-approche-b { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; font-size: var(--t-second); color: var(--muted); }
+
+/* ----- Mon matériel (Mon profil) ----- */
+.lg-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 0.8rem; margin: 0.5rem 0; padding: 0.8rem; background: var(--case); border-radius: 8px; }
+.lg-pied { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 0.6rem; }
+.lg-bas-seul { grid-column: 1 / -1; display: flex; justify-content: center; }
+.lg-actif { grid-column: 1 / -1; }
+.lg-vide-eq { padding: 0.4rem 0.6rem; color: var(--muted); }
+@media (max-width: 600px) { .lg-form { grid-template-columns: minmax(0, 1fr); } }
