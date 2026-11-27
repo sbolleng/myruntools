@@ -13,7 +13,7 @@
   const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, planSaison, phaseDe, lienCourse } = P;
   const { MOIS_LONG } = window.mrtFormat;
   // Choix du menu « Périodicité » : [vue, nom, durée de l'Année en mois].
-  const VUES = [['semaines', 'Semaine'], ['mois2', '4 semaines'], ['mois', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
+  const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
   const INITIALE = ['D', 'L', 'M', 'M', 'J', 'V', 'S']; // initiale du jour, de dimanche à samedi (Année)
   const CHEVRON = '<svg class="cal-menu-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -49,18 +49,8 @@
     const detail = s => { const r = P.reel(s); return [r.duree_min ? (r.duree_min >= 60 ? Math.floor(r.duree_min / 60) + ' h' + (r.duree_min % 60 ? String(r.duree_min % 60).padStart(2, '0') : '') : r.duree_min + ' min') : '',
       Number(r.distance_km) > 0 ? String(r.distance_km).replace('.', ',') + ' km' : '', Number(r.denivele_m) > 0 ? r.denivele_m + ' m D+' : ''].filter(Boolean).join(' · '); };
     const COMMENTAIRE = '<svg class="cal-v-com" viewBox="0 0 16 16" aria-label="Commentaire" role="img"><path d="M3 3.5h10v7H7l-3 2.5v-2.5H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
-    // La séance dans une case du Mois : son nom (l'abréviation sur téléphone) et sa distance, un liseré à gauche à la couleur de son type (P.lisere) ;
-    // glissable (ordinateur) ; toucher le nom ouvre sa fenêtre. On coche dans la vue Semaine.
     // Intensité : trois traits (comme un signal), un, deux ou trois allumés, du gris au rouge en passant par l'orange ; rien sans intensité.
     const traitsHtml = P.traits;
-    const seanceHtml = s => {
-      const l = P.lireLibelle(s.libelle), km = Number(P.reel(s).distance_km) > 0 ? String(P.reel(s).distance_km).replace('.', ',') + ' km' : '';
-      const tit = esc(s.libelle) + (s.intensite ? ' · ' + (P.INTENSITES[s.intensite] || '') : '');
-      return '<span class="cal-m-se ' + P.lisere(s) + (s.faite ? ' faite' : '') + '"' + (!ctx.lectureSeule && P.deplacable(s) ? ' draggable="true" data-drag="' + esc(s.id) + '"' : '') + ' title="' + tit + '">' +
-        (!ctx.lectureSeule ? '<button type="button" class="cal-m-se-txt" data-edit="' + esc(s.id) + '">' : '<span class="cal-m-se-txt">') +
-        '<span class="cal-m-se-nom">' + traitsHtml(s.intensite) + '<span class="n-long">' + esc(l.nom) + '</span><span class="n-court">' + esc(l.abr) + '</span></span>' + (km ? '<small>' + km + '</small>' : '') +
-        (!ctx.lectureSeule ? '</button>' : '</span>') + '</span>';
-    };
     const plusHtml = jour => (!ctx.lectureSeule ? '<button type="button" class="mrt-rond is-petit cal-v-plus" data-ajout="' + jour + '" aria-label="Ajouter une séance le ' + longue(jour) + '">' + window.mrtIcone.plus + '</button>' : '');
     // Carte d'une séance (vue Semaine du Calendrier, « Cette semaine » de Mon plan) : liseré à gauche (type de séance, P.lisere), traits de l'intensité et nom (le libellé avant « : »),
     // puis type, durée, distance et picto du commentaire ; la case « faite » à droite ; « à noter » ; toucher la carte ouvre sa fenêtre.
@@ -74,7 +64,7 @@
         (s.faite && !s.ressenti && !ctx.lectureSeule ? '<button type="button" class="mrt-lien cal-v-anoter" data-noter="' + esc(s.id) + '">À noter</button>' : '') +
         '<label class="mrt-coche">' + '<input type="checkbox" data-fait="' + esc(s.id) + '"' + (s.faite ? ' checked' : '') + (!ctx.lectureSeule ? '' : ' disabled') + ' aria-label="Faite"></label></div>';
     };
-    return { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml, detail };
+    return { rdvDuJour, rdvHtml, courseHtml, plusHtml, carteHtml, detail };
   }
 
   // Total d'une période (une semaine, un mois ; Calendrier, Mon plan) : séances et km, sans la durée ; « fait sur prévu » pour la période
@@ -114,32 +104,7 @@
     return h + '</div>';
   };
 
-  // Grille du mois (spécification du Calendrier, § 4.1), du lundi debut au dimanche fin : une case par jour, ses courses, rendez-vous,
-  // séances et « + » ; opts.ps : le plan de saison (fond de phase) ; opts.mois : rang du mois (jours voisins atténués) ;
-  // opts.plus(jour) : ce qui s'ajoute dans la case (page Préparation : repères et séances proposées).
-  function grilleMois(ctx, debut, fin, opts) {
-    const o = opts || {}, auj = iso(new Date()), cc = contenus(ctx), courses = visibles(ctx.courses, debut, fin, auj);
-    const phaseDuJour = j => { const x = o.ps && phaseDe(o.ps, lundiDe(j)); return x && x.phase !== 'entretien' ? x.phase : null; };
-    let h = '<div class="cal-m-jours">' + ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map(j => '<span class="cal-libelle">' + j + '</span>').join('') + '</div><div class="cal-m-grille">';
-    for (let j = debut; j <= fin; j = addDays(j, 1)) {
-      const d = parse(j), cls = ['cal-m-case'], ph = phaseDuJour(j);
-      if (j < auj) cls.push('passe');
-      if (j === auj) cls.push('auj');
-      if (d.getDay() === 0 || d.getDay() === 6) cls.push('we');
-      if (o.mois != null && d.getMonth() !== o.mois) cls.push('hors');
-      if (ph) cls.push('ph-' + ph);
-      const cs = courses.filter(c => c.date === j), rdv = cc.rdvDuJour(j), se = ctx.seances.filter(s => s.date === j);
-      h += '<div class="' + cls.join(' ') + '" data-jour="' + j + '"><span class="cal-m-num' + (j === auj ? ' auj' : '') + '">' + d.getDate() + '</span>' +
-        '<span class="cal-m-txt">' + cs.map(cc.courseHtml).join('') + rdv.map(c => cc.rdvHtml(c, true)).join('') + se.map(cc.seanceHtml).join('') + (o.plus ? o.plus(j) : '') + '</span>' +
-        // Téléphone : des repères à la place du texte (barre de la course, point par séance, losange du rendez-vous).
-        '<span class="cal-m-points" aria-hidden="true">' + cs.map(c => '<i class="barre ' + couleur(c) + '"></i>').join('') +
-        se.map(s => '<i class="pt' + (s.faite ? ' faite' : '') + '"></i>').join('') + rdv.map(() => '<i class="rdv">◆</i>').join('') + '</span>' + cc.plusHtml(j) + '</div>';
-    }
-    return h + '</div>';
-  }
-  window.mrtGrilleMois = grilleMois;
-
-  // ----- Mois V2 et export (spécification du Calendrier, § 4.5 et 4.6) : une ligne par semaine, son libellé à gauche (place dans
+  // ----- Mois et export (spécification du Calendrier, § 4.5 et 4.6) : une ligne par semaine, son libellé à gauche (place dans
   // le plan, date du lundi, total), une colonne par jour ; chaque séance en carte à liseré (couleur du type de séance : Sortie longue,
   // Seuil, Fractionné, Côtes, Renforcement ; neutre sinon), les trois traits de l'intensité devant la mesure en gras (distance, sinon durée),
   // le nom dessous ; un jour vide reste vide. Pas de légende des liserés.
@@ -195,7 +160,7 @@
     // Vue de l'adresse ; sans adresse, la semaine en cours (vue par défaut).
     function lireHash() {
       const [k, v] = location.hash.replace(/^#/, '').split('=');
-      if (k === 'annee' || k === 'mois' || k === 'mois2') return { v: k, mois: /^\d{4}-\d\d$/.test(v || '') ? v : moisCourant() };
+      if (k === 'annee' || k === 'mois' || k === 'mois2') return { v: k === 'mois2' ? 'mois' : k, mois: /^\d{4}-\d\d$/.test(v || '') ? v : moisCourant() };
       return { v: 'semaines', lundi: lundiDe(/^\d{4}-\d\d-\d\d$/.test(v || '') ? v : iso(new Date())) };
     }
 
@@ -236,7 +201,7 @@
     };
     // Phase d'un jour : celle de sa semaine dans le plan de saison (spécification Préparation, § 4) ; l'Entretien n'a pas de fond.
     const phaseDuJour = (ps, jour) => { const x = ps && phaseDe(ps, lundiDe(jour)); return x && x.phase !== 'entretien' ? x.phase : null; };
-    const { rdvDuJour, rdvHtml, courseHtml, seanceHtml, plusHtml, carteHtml } = contenus(ctx);
+    const { rdvDuJour, rdvHtml, courseHtml, plusHtml, carteHtml } = contenus(ctx);
 
     // Les 12 mois en petit (spécification § 3.3) : l'onglet du mois, son total, les initiales des jours, puis une case par jour (lundi à dimanche) ;
     // numéro discret, samedi et dimanche plus foncés, phase en fond, un point par type de séance, course en case pleine ; un jour touché ouvre sa semaine.
@@ -310,23 +275,12 @@
         legende(phases) + '<div class="cal-a-blocs">' + h + '</div>';
     }
 
-    // ----- Mois : la grille du mois, mois par mois (spécification § 4.1 et 4.2) -----
+    // ----- Mois : une ligne par semaine, une colonne par jour (spécification § 4.5) -----
     function vueMois(m) {
-      const auj = iso(new Date()), phases = phasesVisibles();
-      const debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
-      const courses = visibles(ctx.courses, debut, fin, auj), plans = phases ? planSaison(ctx) : null;
-      const h = grilleMois(ctx, debut, fin, { ps: plans, mois: rang(m) });
-      const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
-      return haut('mois') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois=' + decaler(m, -1), 'Mois précédent'],
-        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + legende(phases) + h;
-    }
-
-    // ----- Mois V2 : une ligne par semaine, une colonne par jour (spécification § 4.5) -----
-    function vueMois2(m) {
       const phases = phasesVisibles(), debut = lundiDe(m + '-01'), fin = addDays(lundiDe(iso(new Date(an(m), rang(m) + 1, 0))), 6);
       const court = x => MOIS[rang(x)] + (an(x) !== an(m) ? ' ' + String(an(x)).slice(2) : '');
-      return haut('mois2') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois2=' + decaler(m, -1), 'Mois précédent'],
-        [court(decaler(m, 1)), '#mois2=' + decaler(m, 1), 'Mois suivant']) + legende(phases) + grilleSemaines(ctx, debut, fin, { mois: rang(m), phases });
+      return haut('mois') + bande(cap(MOIS_LONG[rang(m)]) + ' ' + an(m), totalMois(ctx, m) ? '<span class="cal-total">' + totalMois(ctx, m) + '</span>' : '', [court(decaler(m, -1)), '#mois=' + decaler(m, -1), 'Mois précédent'],
+        [court(decaler(m, 1)), '#mois=' + decaler(m, 1), 'Mois suivant']) + legende(phases) + grilleSemaines(ctx, debut, fin, { mois: rang(m), phases });
     }
 
     // ----- Semaine : un jour par ligne ; les semaines suivantes au fil du défilement, les passées par un lien (spécification § 4.3 et 4.4) -----
@@ -361,7 +315,7 @@
     }
 
     // Export (spécification § 4.6) : la période affichée, une ligne par semaine. Semaine : les semaines de la liste ;
-    // Mois et Mois V2 : les semaines du mois ; Année : sa période.
+    // Mois : les semaines du mois ; Année : sa période.
     function exporter() {
       const vue = lireHash(), auj = iso(new Date());
       let debut, fin, titre;
@@ -378,7 +332,6 @@
       let h;
       if (vue.v === 'annee') h = vueAnnee(vue.mois, periode());
       else if (vue.v === 'mois') h = vueMois(vue.mois);
-      else if (vue.v === 'mois2') h = vueMois2(vue.mois);
       else {
         if (liste.cle !== vue.lundi) { liste.cle = vue.lundi; liste.debut = vue.lundi; liste.nb = 3; }
         h = vueSemaine();

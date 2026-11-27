@@ -211,10 +211,7 @@ Mêmes couleurs dans tous les thèmes (tons moyens, contraste ≥ 3:1 sur blanc 
 - **Séances** (Année) : type en toutes lettres dans la case, 0,65 rem, Texte (Texte discret et barré quand faites). Mois : type en Space Mono capitales sur sa ligne, libellé dessous, chacun coupé s'il ne tient pas.
 - **Liseré de phase** (Plan enfoncé) : 3 px à gauche de la case, couleur pleine de la phase (sur une case de course aussi) ; plus de barres de prépa.
 
-**Vue Mois** (spécification § 4.1)
-
-- Jours de la semaine en Space Mono 0,7 rem, capitales, Texte discret, une seule fois ; cases de 6 rem de haut au moins, jointives, séparées d'un filet de 1 px (le fond du cadre), la grille aux coins de 6 px ; numéro en 0,75 rem, 600 ; courses, rendez-vous et séances en 0,68 rem, une ligne chacun, coupés s'ils ne tiennent pas ; « + » de 1,5 rem dans le coin bas droit.
-- Téléphone : cases de 3,4 rem ; le numéro (0,7 rem) et des repères : barre de 4 px de la couleur de la course, point de 5 px par séance (Texte ; faite : Texte discret), « ◆ » du rendez-vous.
+**Vue Mois** (spécification § 4.5) : une ligne par semaine, son libellé à gauche, une colonne par jour ; séances en cartes (fond Surface, bord de 1 px, liseré de 4 px). L'ancienne grille d'une case par jour est retirée (27 nov. 2026).
 
 **Vue Semaine** (spécification § 4.3)
 

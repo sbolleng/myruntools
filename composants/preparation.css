@@ -5,10 +5,10 @@
 :root { --route: #2c8fd6; --trail: #d9582a; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --ph-entretien: #8c8c8c; --int-moy: #f0883e; }
 /* Liseré d'une séance selon son type (Calendrier, export) : couleurs moyennes, les mêmes dans tous les thèmes (contraste d'au moins 3:1 sur blanc comme sur noir) ; les autres : Bordure. */
 :root { --l-sl: #4a78e8; --l-seuil: #aa7f00; --l-cotes: #9060e0; --l-renfo: #2f9e55; --l-frac: #e0453f; }
-:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se) { --l: var(--border); }
-:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-sl { --l: var(--l-sl); } :is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-seuil { --l: var(--l-seuil); }
-:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-frac { --l: var(--l-frac); } :is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-cotes { --l: var(--l-cotes); }
-:is(.cal-m2-se, .cal-m-se, .cal-carte, .cal-a-sn, .cal-k-se).l-renfo { --l: var(--l-renfo); }
+:is(.cal-m2-se, .cal-carte, .cal-a-sn, .cal-k-se) { --l: var(--border); }
+:is(.cal-m2-se, .cal-carte, .cal-a-sn, .cal-k-se).l-sl { --l: var(--l-sl); } :is(.cal-m2-se, .cal-carte, .cal-a-sn, .cal-k-se).l-seuil { --l: var(--l-seuil); }
+:is(.cal-m2-se, .cal-carte, .cal-a-sn, .cal-k-se).l-frac { --l: var(--l-frac); } :is(.cal-m2-se, .cal-carte, .cal-a-sn, .cal-k-se).l-cotes { --l: var(--l-cotes); }
+:is(.cal-m2-se, .cal-carte, .cal-a-sn, .cal-k-se).l-renfo { --l: var(--l-renfo); }
 /* Fond blanc : des phases plus foncées, lisibles quand leur nom est écrit dans leur couleur. */
 .t-blanc-orange { --int-moy: #d9650f; --ph-base: #2f7d69; --ph-developpement: #946200; --ph-affutage: #7a4fc4; --ph-deload: #52698a; --ph-recuperation: #a14d78; --ph-entretien: #6b6b6b; }
 

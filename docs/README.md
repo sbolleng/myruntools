@@ -86,7 +86,7 @@ En bref, dans l'ordre ; le détail de chaque ligne (et toutes les autres) : [tod
 23. **Menu selon le parcours, suites** : onglets à 375 px (décision), pas à pas ludique, évolution 047 à passer, « Cette semaine » fondu dans En un coup d'œil.
 1. **Préparation, refonte de Mon plan** : ajouter le renforcement (section Renforcement de Ma semaine dans le parcours, séances de renforcement dans le plan) ; voir aussi le n° 13.
 2. **Objectif** : essai réel du GPX à plusieurs tracés ; cap de l'en-tête depuis la page d'une course ; « Proposer une stratégie » construit (0.83, § 3.10) : évolution 044 et fonction `proposer-strategie` à passer dans Supabase.
-4. **Calendrier** : Mois V2 à comparer avec Mois, puis n'en garder qu'une.
+4. **Calendrier** : tranché le 27 nov. 2026 : une seule vue Mois (ex-Mois V2).
 6. **Ouverture à tous, suites** : plafond de l'IA à remettre, essai d'un compte non pilote, droits RGPD dans les Préférences, polices hébergées.
 21. **Mes stats** : construit ([spécification 0.4](module-stats-specification.md)) ; passer l'évolution 045 et créer la fonction `analyser-stats` ; essai réel avec une archive Strava (colonnes, cadence).
 15. **Nutrition** : vue Semaine ; choix de l'unité dans la feuille d'ajout (en attente de décision) ; Ciqual.
