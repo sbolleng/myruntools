@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Noms des vues | Calendrier : « Mois » devient « 4 semaines », « Mois V2 » devient « Mois » (adresses #mois et #mois2 inchangées). |
 | 27 nov. 2026 | Course passée sans résultat | Elle reste à faire dans « Aujourd'hui » (case qui ouvre la fiche « Marquer comme courue », ligne affichée tant que rien n'est enregistré), bandeau « À faire » sur sa page ; elle n'est plus « Prochaine course » ni étape de « D'ici là » ; « Aujourd'hui » toujours affiché. Objectif 0.88. |
 | 27 nov. 2026 | Logistique d'une course | Construit (0.2, évolution 049, composant `logistique`) ; spécification 0.1 : logements et trajets multiples avec prix, matos en catalogue mémorisé (case « Pris » par course, pastille « Imposé » posée à la main, mode jour J), total de la course (dossard + logements + trajets) avec détail au clic, « Mon matériel » dans Mon profil (kilomètres seulement pour les chaussures) ; Logistique jamais montrée au partage en lecture seule. Reportés : message nutrition, km depuis Palmarès et Strava, liste du règlement par l'IA. |
 | 27 nov. 2026 | Vue Année | « Année » (12 mois) devient une vue d'ensemble : 12 mini-grilles de mois (lundi à dimanche), sans noms ni numéros sauf aujourd'hui ; couleurs seules (phase en fond, point de la couleur de la séance, case pleine route/trail) ; 3 et 6 mois gardent la grille détaillée. |

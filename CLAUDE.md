@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : course passée sans résultat à faire dans « Aujourd'hui » (toujours affiché). Avant : Logistique d'une course (logements, trajets, matos à cocher, jour J, total) et « Mon matériel » dans Mon profil (évolution 049 passée) ; Guide au menu (évolution 048 passée). Avant : menu selon le parcours (047).
+- Dernier lot : Calendrier, couleurs uniques des courses et des séances (mêmes dans tous les thèmes), bouton « Légende », vue Année en 12 mini-grilles ; vues renommées « 4 semaines » (ex-Mois) et « Mois » (ex-Mois V2).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
-- Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).
+- Prochaine étape : harmonisation des vues du Calendrier (proposée, à valider) ; puis priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).

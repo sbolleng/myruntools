@@ -13,7 +13,7 @@
   const { MOIS, JOURS, PHASES, NOM_PHASE, TYPES, iso, parse, addDays, lundiDe, longue, esc, aPlan, visibles, planSaison, phaseDe, lienCourse } = P;
   const { MOIS_LONG } = window.mrtFormat;
   // Choix du menu « Périodicité » : [vue, nom, durée de l'Année en mois].
-  const VUES = [['semaines', 'Semaine'], ['mois', 'Mois'], ['mois2', 'Mois V2'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
+  const VUES = [['semaines', 'Semaine'], ['mois', '4 semaines'], ['mois2', 'Mois'], ['annee', '3 mois', '3'], ['annee', '6 mois', '6'], ['annee', 'Année', '12']];
   const INITIALE = ['D', 'L', 'M', 'M', 'J', 'V', 'S']; // initiale du jour, de dimanche à samedi (Année)
   const CHEVRON = '<svg class="cal-menu-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
