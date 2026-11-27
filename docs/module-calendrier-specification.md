@@ -1,6 +1,6 @@
 # Calendrier · spécification fonctionnelle
 
-Version 0.36 · 27 novembre 2026 · [Retour au sommaire](README.md) · Vues renommées (« 4 semaines », « Mois »), bouton « Légende », Année en 12 mini-grilles, repères communs à toutes les vues (§ 4.7).
+Version 0.37 · 27 novembre 2026 · [Retour au sommaire](README.md) · Plus de « À noter » sur la carte d'une séance : l'effort est noté en cochant « faite » (Préparation, § 6).
 
 ## 1. Rôle
 
@@ -16,8 +16,8 @@ Le Calendrier montre la saison à trois échelles : l'année, le mois et la sema
 | Vue | Échelle | Comment on l'ouvre |
 | --- | --- | --- |
 | **Semaine** | Un jour par ligne, une semaine après l'autre | Vue par défaut ; menu « Vue » ; toucher un jour de l'Année ou du Mois |
-| **4 semaines** (adresse `#mois`) | La grille du mois, une case par jour (§ 4.1) | Menu « Vue » |
-| **Mois** (adresse `#mois2`) | Le mois, une ligne par semaine, son libellé à gauche (§ 4.5) | Menu « Vue », sous 4 semaines |
+| **4 semaines** (adresse `#mois2`) | Le mois, une ligne par semaine, son libellé à gauche (§ 4.5) | Menu « Vue », sous Semaine |
+| **Mois** (adresse `#mois`) | La grille du mois, une case par jour (§ 4.1) | Menu « Vue », sous 4 semaines |
 | **3 mois**, **6 mois** | La grille de 3 ou 6 mois (6 par défaut) : jours en lignes, mois en colonnes (§ 3.1) | Menu « Vue » |
 | **Année** | Les 12 mois en mini-grilles, vue d'ensemble (§ 3.3) | Menu « Vue » |
 
@@ -123,14 +123,14 @@ Vue d'ensemble de l'année : les couleurs plutôt que les textes. Quatre mois pa
 
 Toucher un jour ouvre la vue Semaine ; une course, sa page. L'infobulle donne la date, la course, les séances et la phase.
 
-## 4. Vues 4 semaines, Mois et Semaine
+## 4. Vues Mois, 4 semaines et Semaine
 
-### 4.1 Vue 4 semaines : plan de page
+### 4.1 Vue Mois : plan de page
 
 La grille du mois, comme sur les calendriers du web.
 
 ```
-(25) [Mois ⌄]                                             (26) [Plan]   (22) [Aujourd'hui]
+(25) [Mois ⌄]                                               (26) [Plan]   (22) [Aujourd'hui]
 (9) ‹ sept.                    (18) Octobre 2026                        nov. ›
 (3)  LUN.      MAR.      MER.      JEU.      VEN.      SAM.      DIM.
     ┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐
@@ -168,7 +168,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
 | 21 | Jours des mois voisins | 28, 29, 30 sept. ; 1er nov. | Le fond des autres jours, numéro et contenu atténués |
 | 5 | Fond de phase (Plan) | développement | Toute la case |
 
-### 4.2 Vue 4 semaines : règles
+### 4.2 Vue Mois : règles
 
 - **Mois** : du lundi de la semaine du 1er au dimanche de la semaine du dernier jour ; flèches : le mois précédent ou suivant ; « Aujourd'hui » : le mois en cours.
 - **Jours** : cases jointives, séparées d'un filet, d'un même fond pour toutes, passé et mois voisins compris (seuls le numéro d'un jour passé et le contenu d'un jour voisin sont atténués) ; aujourd'hui : son numéro dans un rond Accent.
@@ -184,7 +184,7 @@ Téléphone : les cases sont trop étroites pour du texte : le numéro et des re
                          (24) ↑ Afficher les semaines passées
 (4) SEMAINE DU 19 AU 25 OCT.                                         (28) 1/4 séances · 8/32 km
     ┌──────┬────────────────────────────────────────────────────────────────┐
-(3) │  19  │ (6, 27) ┌ Gainage 30 min  à noter ──────────────── ☑ ┐ (10) + │
+(3) │  19  │ (6, 27) ┌ Gainage 30 min ───────────────────────── ☑ ┐ (10) + │
     │ LUN. │         └ Renforcement · 30 min ─────────────────────┘        │
 (15)│ (20) │ (7)     ┌ ● 8×400 m ────────────────────────────── ☐ ┐      + │  ← cerclée
     │ MAR. │         └ Course à pied · 1 h · 11 km ───────────────┘        │
@@ -209,7 +209,7 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 | 15 | Aujourd'hui | numéro dans un rond Accent, ligne cerclée | Ligne du jour |
 | 17 | Course du jour | « Trail du Lac » | Ligne du jour |
 | 8 | Rendez-vous clé | « ◆ Ouverture des inscriptions · Corrida de Noël » | Ligne du jour |
-| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : liseré de 4 px à gauche, couleur du type de séance (§ 4.5, n° 31) ; le nom en gras (le libellé jusqu'aux deux-points) avec les trois traits de l'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; « À noter » ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
+| 6, 7, 27 | Séance en **carte** (fond de surface, contour, coins arrondis) : liseré de 4 px à gauche, couleur du type de séance (§ 4.5, n° 31) ; le nom en gras (le libellé jusqu'aux deux-points) avec les trois traits de l'intensité ; dessous, type, durée, distance (Texte discret) et le picto du commentaire ; la case « faite » à droite ; toucher la carte : sa fenêtre ; glisser sur ordinateur | « 8×400 m / Course à pied · 1 h · 11 km » | Ligne du jour |
 | 28 | Total de la semaine | « 1/4 séances · 8/32 km · 1 h 45/3 h 10 » : fait sur prévu pour la semaine en cours et les passées, le prévu seul pour les suivantes ; séances proposées en attente non comptées ; rien sans séance | À droite du titre 4 |
 | 29 | Place dans la préparation | « Semaine 3 sur 16 · Base » (la phase dans sa couleur), dates dessous ; seulement dans une préparation | À la place du titre 4 |
 | 10 | « + » : ajouter une séance ce jour-là ; rond à contour Accent, plein au survol | (+) | Bout de la ligne |
@@ -229,12 +229,12 @@ Fenêtre d'une séance : depuis le 12 nov. 2026, une section « Ressenti » (fai
 - **Ajout d'une séance : Faite ou À faire** (27 nov. 2026). Le formulaire d'ajout s'ouvre sur une bascule à deux pastilles, **Faite** (séance passée) ou **À faire** (séance à venir), présélectionnée d'après la date du jour touché (avant aujourd'hui : Faite ; aujourd'hui et après : À faire) ; elle suit la date tant qu'on n'y a pas touché. **À faire** : date, séance, précisions, description, durée, distance, D+, intensité, sans « Ressenti ». **Faite** : date, séance, précisions, puis le réalisé (durée, distance, D+, FC moyenne et max), l'effort perçu, les sensations, la douleur, le commentaire : rien de prévu, rien saisi deux fois ; le réalisé est aussi le chiffre de la séance (comme une séance importée), sans intensité. Une séance Faite ne peut pas être datée dans le futur. La case « Faite » n'existe plus à l'ajout ; elle reste en modification d'une séance. Le bouton « + » reste dans la case du jour.
 - **Saisie d'une séance** : le « + » d'un jour ouvre une fenêtre (date, type, libellé de 100 caractères au plus ; puis, facultatifs, durée en minutes, distance en km et intensité : Facile, Modérée ou Intense), présentée comme la fiche d'une course : « Annuler » et « Enregistrer » en haut, le titre en libellé (« AJOUTER UNE SÉANCE »), les champs communs du site ; toucher une séance la modifie, ou la supprime par « Supprimer la séance » (à contour rouge, seul en bas, avec confirmation) ; sa case « faite » s'enregistre aussitôt. Une séance ajoutée depuis un plan est liée à sa course.
 
-### 4.5 Vue Mois : plan de page
+### 4.5 Vue 4 semaines : plan de page
 
 Version à comparer avec le Mois (§ 4.1), dans l'esprit d'un plan d'entraînement imprimé : une ligne par semaine, son libellé dans une colonne à gauche, une colonne par jour ; chaque séance en carte, un liseré à gauche de la couleur de son type de séance, l'intensité en trois traits comme dans le Mois. Les deux vues restent au menu jusqu'au choix.
 
 ```
-(25) [Mois ⌄]                                    (34) [⤓] (26) [Phases] (22) [Aujourd'hui]
+(25) [4 semaines ⌄]                             (34) [⤓] (26) [Phases] (22) [Aujourd'hui]
 (9) ‹ sept.                    (18) Octobre 2026                        nov. ›
 (2) PHASES … (Phases ; pas de légende des liserés)
 (3)             LUN.       MAR.       MER.       JEU.       VEN.       SAM.       DIM.
@@ -252,7 +252,7 @@ Téléphone : le libellé de la semaine (30) passe au-dessus de ses sept jours, 
 
 | N° | Élément | Exemple | Place |
 | --- | --- | --- | --- |
-| 25, 26, 22, 9, 18 | Comme 4 semaines (§ 4.1) ; « Aujourd'hui » : le mois en cours | « Mois ⌄ » | Barre du haut, période |
+| 25, 26, 22, 9, 18 | Comme le Mois (§ 4.1) ; « Aujourd'hui » : le mois en cours | « 4 semaines ⌄ » | Barre du haut, période |
 | 34 | « Exporter » : rond à contour, picto de téléchargement (§ 4.6) | ⤓ | Barre du haut, à droite, avant le rond « Phases » |
 | 33 | (retiré) Légende des liserés : aucune, à l'écran comme à l'export | | |
 | 30 | Libellé de la semaine : place dans la préparation (« Sem. 3 », en libellé, seulement dans une préparation), date du lundi, nom de la phase dans sa couleur, total (28) | « SEM. 3 · 30 nov. · Base · 1/4 séances » | Colonne de gauche |
@@ -271,7 +271,7 @@ Règles : du lundi de la semaine du 1er au dimanche de la semaine du dernier jou
 Le plan sur papier ou en PDF, à l'image d'un plan d'entraînement imprimé, dans le style de MyRunTools.
 
 - **Où** : le rond « Exporter » (34) de la barre du Calendrier, dans toutes les vues ; le bouton « Exporter » de Mon plan, avec les réglages du plan (Préparation, § 5.1, n° 29 ; aussi sur le site partagé).
-- **Quoi** : Calendrier, la période affichée (Semaine : les semaines de la liste ; 4 semaines et Mois : les semaines du mois ; Année : sa période) ; Mon plan, de la semaine en cours à celle de l'Objectif.
+- **Quoi** : Calendrier, la période affichée (Semaine : les semaines de la liste ; Mois et 4 semaines : les semaines du mois ; Année : sa période) ; Mon plan, de la semaine en cours à celle de l'Objectif.
 - **Page** : A4 à l'horizontale, fond blanc (couleurs du thème Blanc et orange, quel que soit le thème) ; en haut, le titre (« Calendrier · Octobre 2026 », « Mon plan · Trail des Gorges »), sans légende, un filet Accent dessous ; la grille de Mois V2 (§ 4.5) sans « + » ni rendez-vous, la case « faite » dessinée (pleine si faite), le fond de phase (Calendrier : si Phases est enfoncé ; Mon plan : toujours) ; six semaines par page, l'en-tête répété ; en pied, « MyRunTools » et « Exporté le 20 oct. 2026 · page 1 sur 4 ».
 - **Comment** : la fenêtre d'impression du navigateur s'ouvre ; « Enregistrer en PDF » donne le fichier. Seule la page exportée s'imprime ; rien ne change à l'écran.
 
@@ -376,7 +376,7 @@ Le [modèle de données](modele-donnees.md) (§ 4.4) décrit ces champs et table
 9. **Durée dans le menu, fond de phase dans l'Année** (6 novembre 2026) : « 3 mois », « 6 mois », « Année » rejoignent le menu ; Plan enfoncé, les jours de l'Année prennent le fond de leur phase.
 8. **Menu « Vue » et bouton « Plan »** (5 novembre 2026), d'après un plan de page en texte (sans maquette) : les pastilles et la case laissent place au menu et au bouton ; Année : chaque mois a ses jours (initiale et numéro), samedi et dimanche marqués, filet de fin de semaine, onglet du mois en cours en Accent, jour passé avec son fond ; Mois : cases jointives d'un seul fond, « + » à contour Accent (aussi dans la Semaine) ; Mois et Semaine : un seul fond par phase.
 
-12. **Harmonisation** (27 novembre 2026, 0.36) : vues renommées « 4 semaines » (ex-Mois) et « Mois » (ex-Mois V2) ; bouton « Légende » ; Année en 12 mini-grilles (§ 3.3) ; repères communs (§ 4.7) ; couleurs uniques des courses et des séances.
+12. **Harmonisation** (27 novembre 2026, 0.36) : Mois V2 renommée « 4 semaines », placée avant Mois dans le menu ; bouton « Légende » ; Année en 12 mini-grilles (§ 3.3) ; repères communs (§ 4.7) ; couleurs uniques des courses et des séances.
 11. **Mois V2 et export** (20 novembre 2026), d'après un plan de page en texte : vue Mois V2 au menu, à côté de Mois (§ 4.5) ; « Exporter » dans le Calendrier et Mon plan (§ 4.6, `composants/export-plan.js` et `.css`).
 
 Le prototype `composants/planning.js` a été remplacé par la première vue Année (lot 1).
@@ -478,11 +478,11 @@ Résultats attendus, rubrique Préparation de la page d'une course :
 - Site partagé en lecture seule : la rubrique s'affiche, sans lien de réglage, ni « + », ni modification de séance.
 - Téléphone : la rubrique ne déborde pas.
 
-Résultats attendus, vue Mois (#mois2) et export (§ 4.5, 4.6), séances d'essai du Mois avec durée et distance (Fractionné 1 h, Endurance 7 km, Sortie longue 12,5 km Modérée) :
+Résultats attendus, vue 4 semaines (#mois2) et export (§ 4.5, 4.6), séances d'essai du Mois avec durée et distance (Fractionné 1 h, Endurance 7 km, Sortie longue 12,5 km Modérée) :
 
-- `calendrier.html#mois2` : menu « Mois » (choix : Semaine, 4 semaines, Mois, 3 mois, 6 mois, Année) ; « Octobre 2026 » ; cinq lignes (lundis 28 sept. à 26 oct.) ; 28, 29, 30 sept. et 1er nov. atténués ; le numéro dans chaque case.
+- `calendrier.html#mois2` : menu « 4 semaines » (choix : Semaine, 4 semaines, Mois, 3 mois, 6 mois, Année) ; « Octobre 2026 » ; cinq lignes (lundis 28 sept. à 26 oct.) ; 28, 29, 30 sept. et 1er nov. atténués ; le numéro dans chaque case.
 - Cartes : 19, Renforcement (liseré vert, sans traits, « Renforcement » en gras, « Gainage 30 min », barrée) ; 20, « 1 h / Fractionné / 8×400 m » (rouge, trois traits) ; 22, « 7 km / Endurance » (neutre, un trait) ; 24, « 12,5 km / Sortie longue » (bleu, deux traits). Pas de légende des liserés. « Repos » les 21, 23 et 25 ; libellé de la semaine du 19 : « 19 oct. », Entretien, « 1/4 séances · 0/19,5 km ». Ordinateur : 4 cases « faite », 35 « + » ; téléphone : ni l'un ni l'autre, noms abrégés ; aucun débordement.
 - `#mois2=2026-12`, Phases enfoncé : chaque libellé commence par « Sem. n », la semaine du 7 déc. en Allègement (fond de phase) ; mois précédent : le Trail du Lac en carte le 15 nov. (« 24 km », trail) ; toucher le 18 nov. : `#semaines=2026-11-16`.
-- Exporter (Calendrier, Mois d'octobre) : une page « Calendrier · Octobre 2026 », fond blanc, cinq semaines, ni case ni « + », la case du 19 dessinée pleine ; pied « MyRunTools » et « Exporté le 20 oct. 2026 » ; invisible à l'écran, seule à l'impression.
+- Exporter (Calendrier, 4 semaines d'octobre) : une page « Calendrier · Octobre 2026 », fond blanc, cinq semaines, ni case ni « + », la case du 19 dessinée pleine ; pied « MyRunTools » et « Exporté le 20 oct. 2026 » ; invisible à l'écran, seule à l'impression.
 - Exporter (Mon plan) : « Mon plan · Trail des Gorges », 20 semaines du 19 oct. 2026 au 1er mars 2027, quatre pages, fond de phase.
 - Ajout d'une séance au 21 oct. (à venir) : bascule « À faire », prévu seul, ni « Ressenti » ni case « Faite » ; date mise au 15 oct. : « Faite », réalisé seul ; un choix fait à la main n'est plus changé par la date. Faite, Vélo, 1 h 30, 31,5 km, FC 130 : séance de type vélo, faite, 90 min et 31,5 km, sans intensité, « Vitesse moyenne : 21 km/h ». Ajout au 22 oct., Danse, 60 min : ni distance ni D+ ; séance de type danse, à faire.

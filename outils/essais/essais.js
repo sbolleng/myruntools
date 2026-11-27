@@ -620,6 +620,8 @@ const CONTROLES = {
     await p.check('[data-faite="se-a"]'); await p.waitForTimeout(300);
     pb.push(egal(1, await p.locator('.cal-feuille-retour').count(), 'Aujourd\'hui : cocher « faite » ouvre la feuille « Effort et sensations »'));
     pb.push(egal(true, jourJ.ecritures.length > 0 && jourJ.ecritures[0].corps && jourJ.ecritures[0].corps.faite === true, 'Aujourd\'hui : la case « faite » est rangée'));
+    await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForFunction(() => !document.querySelector('[data-faite="se-a"]').checked);
+    pb.push(egal({ faite: false }, (jourJ.ecritures[jourJ.ecritures.length - 1] || {}).corps, 'Aujourd\'hui : la croix sans effort noté décoche la séance'));
     await ctx.close();
     // Course passée non saisie : à faire dans « Aujourd'hui » tant que le résultat n'est pas enregistré ; plus « Prochaine course ».
     const retard = JSON.parse(JSON.stringify(db)); retard.courses.find(c => c.id === id(1)).date = '2026-10-10';
@@ -2316,7 +2318,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois2', w, copie(), {}, PARIS);
       const r = await lire(p, '.cal-cadre');
       pb.push(
-        egal(['Mois', ['Semaine', '4 semaines', 'Mois *', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
+        egal(['4 semaines', ['Semaine', '4 semaines *', 'Mois', '3 mois', '6 mois', 'Année'], 'Octobre 2026'], [r.vue, r.menu, r.titre], nom + ', menu « Vue » : Mois V2 à côté de Mois, mois en cours'),
         egal([['', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'], ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26'], ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['28', '29', '30']],
           [r.tete, r.lignes, r.hors, r.nums], nom + ', une ligne par semaine (cinq), jours des mois voisins atténués, numéro du jour dans chaque case'),
         egal([['2026-10-19', 'l-renfo', 'Renforcement', undefined, 'Gainage 30 min', true, 0], ['2026-10-20', 'l-frac', '1 h', 'Fractionné', '8×400 m', false, 3],
@@ -2434,7 +2436,7 @@ const CONTROLES = {
       const { p, ctx, erreurs } = await ouvrir(nav, 'calendrier.html#mois', w, copie(), {}, PARIS);
       const r = await lire(p), tel = w < 600;
       pb.push(
-        egal([['4 semaines', ['Semaine', '4 semaines *', 'Mois', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
+        egal([['Mois', ['Semaine', '4 semaines', 'Mois *', '3 mois', '6 mois', 'Année']], 'Octobre 2026', ['sept.', 'nov.'], ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']], [r.vue, r.titre, r.voisins, r.jours], nom + ', menu « Vue » sur Mois, mois en cours et ses voisins, jours de la semaine'),
         egal([35, ['2026-09-28', '2026-09-29', '2026-09-30', '2026-11-01'], ['2026-10-20']], [r.nb, r.hors, r.auj], nom + ', cinq semaines, jours des mois voisins atténués, aujourd\'hui'),
         egal([[['2026-10-04', 'Semi de San Sebastián', 'courue']], [['2026-11-01', '◆ Ouverture des inscriptions · Corrida de Noël']]], [r.courses, r.rdv], nom + ', course courue et rendez-vous clé'),
         egal([SEANCES, 35, [], [], [true, true]], [r.seances, r.plus, r.phases, r.legende, r.fonds], nom + ', séances (nom normalisé, intensité, faite), un « + » par case, ni phases ni légende ; un seul fond pour toutes les cases'),
@@ -2512,6 +2514,7 @@ const CONTROLES = {
         'séance de l\'IA : la date se voit (la séance se déplace), description en étapes numérotées, pas de titre « Modifier la séance » en haut'));
       pb.push(egal([0, 0], [await o.p.locator('.cal-prevu-lecture .fc-libelle').count(), await o.p.locator('[data-act="modifier"]').count()], 'séance de l\'IA : ni « Proposée par MyRunTools », ni « Modifier cette séance »'));
       await o.p.check('.cal-seance [name="faite"]');
+      await o.p.fill('.cal-seance .cal-curseur', '5');
       pb.push(egal([true, '55', '10'], [await o.p.isVisible('.cal-seance [name="duree_reelle"]'), await o.p.getAttribute('.cal-seance [name="duree_reelle"]', 'placeholder'), await o.p.getAttribute('.cal-seance [name="distance_reelle"]', 'placeholder')], 'séance faite : bloc « Réalisé », le prévu en repère'));
       await o.p.fill('.cal-seance [name="duree_reelle"]', '50'); await o.p.fill('.cal-seance [name="distance_reelle"]', '8,2'); await o.p.fill('.cal-seance [name="denivele_reel"]', '95');
       await o.p.fill('.cal-seance [name="fc_moyenne"]', '152'); await o.p.fill('.cal-seance [name="fc_max"]', '171');
@@ -2616,7 +2619,7 @@ const CONTROLES = {
     for (let i = 0; i < 20 && !d.ecritures.some(e => e.table === 'seances'); i++) await p.clock.runFor(100);
     pb.push(egal({ methode: 'PATCH', corps: { faite: true } }, (({ methode, corps }) => ({ methode, corps }))(d.ecritures.find(e => e.table === 'seances')), 'case « faite » : écriture'));
     for (let i = 0; i < 20 && !(await p.locator('.cal-feuille-retour').count()); i++) await p.clock.runFor(100);
-    if (await p.locator('.cal-feuille-retour').count()) { await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); }
+    if (await p.locator('.cal-feuille-retour').count()) { await p.fill('.cal-feuille-retour .cal-curseur', '4'); await p.click('.cal-feuille-retour .mc-pied .is-principal'); for (let i = 0; i < 20 && (await p.locator('.cal-feuille-retour form').count()); i++) await p.clock.runFor(100); if (await p.locator('.cal-feuille-retour').count()) { await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); } }
     await p.click('[data-ajout="2026-10-21"]');
     await p.selectOption('.cal-seance [name="nom"]', 'Endurance'); await p.fill('.cal-seance [name="detail"]', '30 min');
     await p.click('.cal-seance button[type="submit"]');
@@ -3139,6 +3142,8 @@ const CONTROLES = {
     await p.fill('.cal-seance [name="duree_reelle"]', '90'); await p.fill('.cal-seance [name="distance_reelle"]', '31,5'); await p.fill('.cal-seance [name="fc_moyenne"]', '130');
     pb.push(egal('Vitesse moyenne : 21 km/h', await p.textContent('.cal-allure'), 'vélo : vitesse moyenne du réalisé'));
     await p.click('.cal-seance button[type="submit"]');
+    pb.push(egal('Note ton effort perçu pour marquer la séance faite.', await p.textContent('.cal-seance .cal-msg'), 'ajout d\'une séance faite : l\'effort est obligatoire'));
+    await p.fill('.cal-seance .cal-curseur', '4'); await p.click('.cal-seance button[type="submit"]');
     await p.waitForFunction(() => !document.querySelector('.cal-voile'));
     const sv = d.seances[d.seances.length - 1];
     pb.push(egal({ type: 'velo', libelle: 'Vélo', faite: true, duree_min: 90, duree_reelle_min: 90, distance_km: 31.5, distance_reelle_km: 31.5, intensite: null, fc_moyenne: 130 },
@@ -3199,7 +3204,7 @@ const CONTROLES = {
     d.ecritures = [];
     await p.dragAndDrop('[data-drag="se-r"]', '[data-jour-ligne="2026-10-27"]'); await pause();
     pb.push(egal(0, ecrit().length, 'glisser hors de la semaine en cours : refusé, aucune écriture'));
-    // Cocher « faite » dans la vue : la feuille « Effort et sensations » ; « Plus tard » la ferme sans rien ranger ; puis effort et sensations enregistrés.
+    // Cocher « faite » dans la vue : la feuille « Effort et sensations » ; l'effort déjà noté, la croix laisse la séance faite ; puis effort et sensations enregistrés.
     await p.evaluate(() => { const c = document.querySelector('[data-fait="se-r"]'); if (c.checked) { c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); } }); await pause();
     d.ecritures = [];
     await p.check('[data-fait="se-r"]'); await p.waitForSelector('.cal-feuille-retour');
@@ -3208,7 +3213,7 @@ const CONTROLES = {
     pb.push(egal([0, 0, 5, 1], [await p.locator('.cal-feuille-retour .cal-plus-tard, .cal-feuille-retour .cal-sans-note').count(), await p.locator('.cal-feuille-retour [data-groupe="fatigue"]').count(),
       await p.locator('.cal-feuille-retour [name="duree_reelle"], .cal-feuille-retour [name="distance_reelle"], .cal-feuille-retour [name="denivele_reel"], .cal-feuille-retour [name="fc_moyenne"], .cal-feuille-retour [name="fc_max"]').count(), await p.evaluate(() => [...document.querySelectorAll('.cal-feuille-retour [data-groupe="douleur"] [aria-pressed="true"]')].map(b => b.textContent).join() === 'Légère' && !document.querySelector('.cal-feuille-retour .cal-douleur-ou').hidden ? 1 : 0)], 'feuille : ni « Plus tard », ni « Ne pas noter », ni fatigue ; le bloc « Réalisé » (durée, distance, D+, FC moyenne et max) comme dans la fenêtre de la séance ; douleur déjà notée reprise, avec « Où »'));
     await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); await pause();
-    pb.push(egal([{ faite: true }], ecrit(), 'la croix : seule la case « faite » est rangée'));
+    pb.push(egal([{ faite: true }], ecrit(), 'la croix, effort déjà noté : seule la case « faite » est rangée, la séance reste faite'));
     await p.evaluate(() => { const c = document.querySelector('[data-fait="se-r"]'); c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); }); await pause();
     d.ecritures = [];
     await p.check('[data-fait="se-r"]'); await p.waitForSelector('.cal-feuille-retour');
@@ -3229,19 +3234,25 @@ const CONTROLES = {
     await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' });
     pb.push(egal([], erreurs, 'retour sur une séance : erreurs JavaScript'));
     await ctx.close();
-    // Faite sans effort noté : « à noter » dans la vue (pas sur une séance notée ni non faite) ; le toucher rouvre la feuille.
+    // Pas de séance faite sans effort noté : plus de « à noter » ; « Enregistrer » refusé sans effort ; la croix décoche la séance.
     {
       const dn = copie(x => { x.seances = [
         { id: 'se-n', utilisateur: x.profils[0].id, date: '2026-10-21', type: 'run', libelle: 'Footing', faite: true, ressenti: null, course: null, origine: 'saisie', etat: 'acceptee' },
-        { id: 'se-o', utilisateur: x.profils[0].id, date: '2026-10-22', type: 'run', libelle: 'Seuil', faite: true, ressenti: 6, course: null, origine: 'saisie', etat: 'acceptee' },
         { id: 'se-p', utilisateur: x.profils[0].id, date: '2026-10-23', type: 'run', libelle: 'Côtes', faite: false, course: null, origine: 'saisie', etat: 'acceptee' }]; });
       const q = await ouvrir(nav, 'calendrier.html', 1200, dn, {}, PARIS);
       await q.p.waitForSelector('[data-drag="se-n"]');
-      pb.push(egal(['se-n'], await q.p.evaluate(() => [...document.querySelectorAll('[data-noter]')].map(b => b.dataset.noter)), '« à noter » : seulement sur la séance faite sans effort noté'));
-      await q.p.click('[data-noter="se-n"]'); await q.p.waitForSelector('.cal-feuille-retour');
-      pb.push(egal(['Footing', 'Aucune', true], [await q.p.textContent('.cal-retour-nom'), await q.p.evaluate(() => document.querySelector('.cal-feuille-retour [data-groupe="douleur"] [aria-pressed="true"]').textContent), await q.p.evaluate(() => document.querySelector('.cal-feuille-retour .cal-douleur-ou').hidden)],
-      '« à noter » rouvre la feuille de la séance ; douleur « Aucune » d\'office, sans « Où »'));
-      pb.push(egal([], q.erreurs, '« à noter » : erreurs JavaScript'));
+      pb.push(egal(0, await q.p.locator('[data-noter], .cal-v-anoter').count(), 'plus de « à noter », même sur une séance faite sans effort noté'));
+      await q.p.check('[data-fait="se-p"]'); await q.p.waitForSelector('.cal-feuille-retour');
+      await q.p.click('.cal-feuille-retour .mc-pied .is-principal');
+      pb.push(egal('Note ton effort perçu pour enregistrer la séance faite.', await q.p.textContent('.cal-feuille-retour .cal-msg'), 'feuille : « Enregistrer » refusé sans effort noté'));
+      dn.ecritures = [];
+      await q.p.click('.cal-feuille-retour [data-fermer]'); await q.p.waitForSelector('.cal-feuille-retour', { state: 'detached' });
+      await q.p.waitForFunction(() => !document.querySelector('[data-fait="se-p"]').checked);
+      pb.push(egal([{ faite: false }], dn.ecritures.filter(e => e.table === 'seances').map(e => e.corps), 'la croix sans effort noté : la séance est décochée'));
+      await q.p.click('[data-edit="se-p"]'); await q.p.waitForSelector('.cal-seance');
+      await q.p.check('.cal-seance [name="faite"]'); await q.p.click('.cal-seance button[type="submit"]');
+      pb.push(egal('Note ton effort perçu pour marquer la séance faite.', await q.p.textContent('.cal-seance .cal-msg'), 'fenêtre : cocher « faite » sans effort noté, refusé'));
+      pb.push(egal([], q.erreurs, 'séance faite sans effort : erreurs JavaScript'));
       await q.ctx.close();
     }
     // Site partagé : ni bouton ni état du profil.
@@ -4164,7 +4175,7 @@ const CONTROLES = {
     await p.click('[aria-label="Mois suivant"]'); await pause(); await p.click('[aria-label="Mois suivant"]'); await pause();
     const loin = await p.textContent('.cal-titre');
     await p.click('.cal-auj'); await pause();
-    pb.push(egal(['Décembre 2026', 'Octobre 2026', '4 semaines', 'false'], [loin, await p.textContent('.cal-titre'), (await vues())[0], await p.getAttribute('[data-plan]', 'aria-pressed')],
+    pb.push(egal(['Décembre 2026', 'Octobre 2026', 'Mois', 'false'], [loin, await p.textContent('.cal-titre'), (await vues())[0], await p.getAttribute('[data-plan]', 'aria-pressed')],
       '« Aujourd\'hui » ramène au mois en cours'));
     await ctx.close();
 
@@ -5344,7 +5355,9 @@ const CONTROLES = {
     pb.push(egal(['2 117 kcal', ['Sortie oubliée · Course à pied · 1 h · 10 km'], 'non faite'], [await kcal(p), await activites(), norm(await p.locator('.nu-activites .nu-ligne-k').textContent())], 'la veille : la séance non faite ne compte pas'));
     d.ecritures.length = 0;
     await p.click('.nu-activites .nu-faite');
-    await p.waitForSelector('.cal-feuille-retour'); await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' });
+    await p.waitForSelector('.cal-feuille-retour'); await p.fill('.cal-feuille-retour .cal-curseur', '4'); await p.click('.cal-feuille-retour .mc-pied .is-principal');
+    await p.waitForFunction(() => !document.querySelector('.cal-feuille-retour form'));
+    if (await p.locator('.cal-feuille-retour').count()) { await p.click('.cal-feuille-retour [data-fermer]'); await p.waitForSelector('.cal-feuille-retour', { state: 'detached' }); }
     await p.waitForFunction(() => /2\s854/.test(document.querySelector('.nu-kcal').textContent));
     pb.push(egal([['PATCH', 'seances', { faite: true }, '?id=eq.seance-19'], '2 854 kcal'], [[d.ecritures[0].methode, d.ecritures[0].table, d.ecritures[0].corps, d.ecritures[0].filtres], await kcal(p)], 'cochée « faite » : rangée dans le Calendrier, elle compte'));
     // Sans distance : la vitesse vient de l'intensité et de la VMA ; sans VMA, 9,5 km/h.

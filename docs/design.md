@@ -254,7 +254,7 @@ Mêmes couleurs dans tous les thèmes (tons moyens, contraste ≥ 3:1 sur blanc 
 | Danger | `mrt-btn is-danger` | Pilule à contour Alerte, poubelle **et texte** « Supprimer … » ; plein Alerte au survol | Supprimer ; **toujours seul, en bas** de la fenêtre, loin d'« Enregistrer » | Supprimer la course, Supprimer la séance |
 | Rond | `mrt-rond` (`is-fermer` pour la croix ; `aria-pressed` pour une bascule) | Cercle de 2 rem, icône dessinée (`mrtIcone`) en Texte discret ; Accent quand il est actif ou enfoncé | Une action connue par son icône ; nom dans `aria-label` et `title` | Fermer, Modifier la course (crayon, Palmarès compris), Filtres, Colonnes, Grouper, Réduire, Exporter, Plein écran, Ajouter à l'agenda, ‹ ›, Phases (œil, bascule) |
 | Petit rond + | `mrt-rond is-petit` | Cercle de 1,5 rem, « + » dessiné, zone de toucher de 2 rem | Ajouter une séance dans la case d'un jour, **rien d'autre** | Calendrier, Cette semaine de Mon plan |
-| Lien | `mrt-lien` (`is-danger` en Alerte) | Souligné, Texte discret, 0,8 rem, sans cadre ; chevron › (`mrtIcone.droite`) pour aller à une page du site, flèche ↗ pour un site extérieur | Aller ailleurs, ou une action mineure | Calendrier ›, Voir dans Mon plan ›, Site officiel ↗, Se déconnecter, Réorganiser, Compléter mon profil, À noter, Revenir aux règles générales, une course de « D'ici là » ou de « Courses de la préparation » |
+| Lien | `mrt-lien` (`is-danger` en Alerte) | Souligné, Texte discret, 0,8 rem, sans cadre ; chevron › (`mrtIcone.droite`) pour aller à une page du site, flèche ↗ pour un site extérieur | Aller ailleurs, ou une action mineure | Calendrier ›, Voir dans Mon plan ›, Site officiel ↗, Se déconnecter, Réorganiser, Compléter mon profil, Revenir aux règles générales, une course de « D'ici là » ou de « Courses de la préparation » |
 
 **Pas des boutons**, à garder distincts :
 
@@ -289,7 +289,7 @@ Une notion, un mot : ces noms valent pour tout texte affiché (libellés, bouton
 | Phase d'allègement (semaine plus légère dans le développement) | **Allègement** (valeur stockée `deload`) | Deload |
 | Texte libre d'une course : pourquoi on la court | **Pourquoi cette course** | Rôle dans la préparation |
 | Légende des points du graphique de Ma saison | **Course** (point plein), **Option** (point vide), **Objectif** (losange) | Course de préparation, Course en option |
-| Section du ressenti d'une séance faite | **Ressenti** ; bouton **À noter** sur la carte d'une séance faite | Retour sur la séance, « à noter » |
+| Section du ressenti d'une séance faite | **Ressenti** | Retour sur la séance, « à noter » |
 | Type de séance très facile entre deux séances dures | **Décrassage** (abrégé « Décras. ») ; la phase garde le nom **Récupération** | Récupération (pour une séance) |
 | Compte à rebours | « 138 j » (pages), « 311 jours » (en-tête) | J-138 |
 | Préférences | **Préférences** (page, engrenage, infobulle) | Préférences utilisateur, Réglages |
