@@ -1,6 +1,6 @@
 # Guide · spécification fonctionnelle
 
-Version 0.3 · 27 novembre 2026 · [Retour au sommaire](README.md) · Le Guide devient un module facultatif, en toute fin du menu.
+Version 0.4 · 27 novembre 2026 · [Retour au sommaire](README.md) · Nutrition : le Vélo (par vitesse) et la Danse (5 MET) rejoignent les séances du calcul.
 
 ## 1. Rôle
 
