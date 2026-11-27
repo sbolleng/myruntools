@@ -1,6 +1,6 @@
 # Préparation · spécification fonctionnelle
 
-Version 3.19 · 27 novembre 2026 · [Retour au sommaire](README.md) · Pas de séance faite sans effort noté (plus de « À noter ») ; plus de « Repos » sur un jour vide de Cette semaine.
+Version 3.19 · 27 novembre 2026 · [Retour au sommaire](README.md) · Feuille « Effort et sensations » aérée (ressenti d'abord, réalisé, commentaire ; FC repliée) ; une séance prise d'avance se marque faite aujourd'hui.
 
 ## 1. Rôle
 
@@ -318,6 +318,40 @@ La rubrique Préparation de la page d'une course ([Objectif](module-objectif-spe
 - **Effort perçu** (8) : un curseur de 1 à 10 ; sans note tant qu'il n'a pas bougé (poignée estompée) ; « Ne pas noter » retire la note. **Sensations** (16) : cinq visages, indépendantes de l'effort (`sensations`, 1 très bien à 5 très mal, évolution 036) ; la fatigue du jour reste à part. Ronds « i » (14, 17) : une phrase d'explication dans la confirmation du site.
 - Une pastille ou un visage par groupe ; un second toucher le retire ; décocher « Faite » efface effort, sensations, douleur et fatigue.
 - **Feuille « Effort et sensations »** (allégée le 14 nov. 2026) : cocher « faite » dans une vue (Mois, Semaine, grille de Mon plan), dans le bloc « Aujourd'hui » d'En un coup d'œil ou dans Nutrition ouvre la petite feuille du site (hauteur du contenu, sans barre de défilement ; feuille du bas sur téléphone). En tête : le type et le jour en libellé (« Course à pied · ven. 13 nov. »), puis le nom de la séance (son libellé avant « : ») et, dessous, son détail (après « : »). Ce bloc (type et jour, nom, détail) est serré ; un espace le sépare de la notation. Puis l'effort (sa description seulement une fois noté), les sensations, la douleur (trois pastilles, « Aucune » choisie d'office ; « Où » pour Légère ou Forte), le commentaire ; « Enregistrer » collé en bas. **L'effort est obligatoire** (27 nov. 2026) : pas de séance faite sans effort noté. « Enregistrer » sans effort affiche « Note ton effort perçu pour enregistrer la séance faite. » ; fermer la feuille sans enregistrer (croix, Échap, toucher à côté) décoche la séance, sauf si son effort était déjà noté. Dans la fenêtre d'une séance, cocher « Faite » sans effort est refusé de même (« Note ton effort perçu pour marquer la séance faite. ») ; une séance déjà faite (ancien import) se modifie sans cette exigence. Plus de repère « À noter » sur les cartes : les anciennes séances faites sans effort le restent. Le « i » est un petit picto sans cadre, collé au titre. **Plus de fatigue du jour** à saisir (la colonne reste en base) ; plus de « Ne pas noter » ni de « Plus tard ». La fenêtre d'une séance reprend les mêmes champs.
+- **Plan de la feuille** (27 nov. 2026) :
+
+```
+                                              (E1) ✕
+(E2) COURSE À PIED · SAM. 28 NOV.
+(E3) Endurance
+(E4) Footing facile 50 min
+(E5) FAITE  (Aujourd'hui) (Sam. 28 nov.)        seulement si la séance est à venir
+──────────────────────────────────────
+(E6) EFFORT PERÇU ⓘ   ●━━━━━━━━━━━━━━━━
+(E7) libellé du niveau et charge
+(E8) SENSATIONS ⓘ  (😊)(🙂)(😐)(😕)(😣)
+(E9) DOULEUR  (Aucune)(Légère)(Forte)
+──────────────────────────────────────
+(E10) RÉALISÉ
+(E11) Durée (min) [  ]   Distance (km) [  ]
+      D+ (m) [  ]
+(E12) Allure moyenne : 6'15"/km
+(E13) + Fréquence cardiaque                     replié, sauf si déjà remplie
+──────────────────────────────────────
+(E14) COMMENTAIRE [            ] 0/300
+(E15) [ Enregistrer ]
+```
+
+| N° | Élément | Règle |
+| --- | --- | --- |
+| E1 à E4 | Fermer, type et jour, nom, détail | inchangés |
+| E5 | Jour de la séance faite | seulement pour une séance à venir (prise d'avance) : pastilles « Aujourd'hui » (choisie d'office) et son jour ; enregistrée aujourd'hui, elle se déplace en gardant son jour prévu (comme un glissement) |
+| E6 à E9 | Ressenti | en premier, puisque l'effort est obligatoire |
+| E10 à E12 | Réalisé | deux champs par ligne ; l'allure calculée |
+| E13 | Fréquence cardiaque | lien d'action qui déplie FC moyenne et FC max |
+| E14, E15 | Commentaire, Enregistrer | inchangés |
+
+Trois blocs (ressenti, réalisé, commentaire) séparés d'un filet.
 - **Ressenti** : effort perçu, échelle de Borg modifiée de 1 à 10 ([Runmotion](https://run-motion.com/rpe-mesure-perception-effort-ressenti-running/)) ; sous les pastilles, le libellé du niveau choisi, et avant tout choix « À noter 15 à 30 minutes après la séance. » :
 
   | Niveau | Libellé | Repère |
