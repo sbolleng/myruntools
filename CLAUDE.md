@@ -58,6 +58,6 @@ Spécification → validation → modèle de données si besoin → construction
 
 À tenir à jour à la fin de chaque lot : trois lignes au plus, remplacées à chaque fois (l'historique est dans le journal).
 
-- Dernier lot : Calendrier (spécification 0.38) : une seule vue Mois (ex-Mois V2, l'ancienne grille retirée), bouton « Légende », Année en 12 mini-grilles, couleurs uniques, plus de « Repos » ; Logistique, adresse cliquable et rubriques modifiables au crayon (évolutions 049 et 051 passées) ; effort obligatoire des séances.
+- Dernier lot : Calendrier (spécification 0.38) : une seule vue Mois (ex-Mois V2, l'ancienne grille retirée), bouton « Légende », Année en 12 mini-grilles, couleurs uniques, plus de « Repos » ; Logistique, adresse cliquable et rubriques modifiables au crayon (évolutions 049 et 051 passées) ; effort obligatoire des séances, feuille « Effort et sensations » aérée (séance prise d'avance faite aujourd'hui).
 - En suspens : plafond de l'IA, droits RGPD, polices (`docs/todo.md`, n° 6).
 - Prochaine étape : priorité n° 22 (FC et plan), puis pas à pas ludique (n° 23) ; renforcement dans Mon plan (`docs/README.md`).

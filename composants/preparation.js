@@ -465,14 +465,19 @@
       '<label class="cal-champ cal-douleur-ou"' + (dou === 'aucune' ? ' hidden' : '') + '><span>Où</span><input class="mrt-champ" name="douleur_ou" maxlength="100" placeholder="ex. genou droit" value="' + esc(x.douleur_ou || '') + '"></label>';
   }
   const champCommentaire = x => '<label class="cal-champ"><span>Commentaire</span><textarea class="mrt-champ" name="commentaire" maxlength="300" rows="2" placeholder="ex. genou sensible, pas disponible jeudi">' + esc(x.commentaire || '') + '</textarea><small class="cal-compteur">' + (x.commentaire || '').length + '/300</small></label>';
-  // Réalisé d'une séance faite : durée, distance, dénivelé (le prévu en repère), fréquence cardiaque moyenne et maximale ; l'allure se calcule.
-  const realiseHtml = x => '<p class="fc-libelle cal-realise-titre">Réalisé</p>' +
+  // Réalisé d'une séance faite : durée, distance, dénivelé (le prévu en repère), l'allure calculée, fréquence cardiaque moyenne et maximale
+  // (repliée derrière « + Fréquence cardiaque » dans la feuille, sauf si elle est déjà remplie).
+  function realiseHtml(x, replier) {
+    const fcRemplie = x.fc_moyenne != null || x.fc_max != null;
+    return '<p class="fc-libelle cal-realise-titre">Réalisé</p>' +
     '<div class="cal-champs3"><label class="cal-champ"><span>Durée (min)</span><input class="mrt-champ" name="duree_reelle" inputmode="numeric" placeholder="' + esc(x.duree_min != null ? x.duree_min : '') + '" value="' + esc(x.duree_reelle_min != null ? x.duree_reelle_min : '') + '"></label>' +
     '<label class="cal-champ cal-seul-course"><span>Distance (km)</span><input class="mrt-champ" name="distance_reelle" inputmode="decimal" placeholder="' + esc(x.distance_km != null ? String(x.distance_km).replace('.', ',') : '') + '" value="' + esc(x.distance_reelle_km != null ? String(x.distance_reelle_km).replace('.', ',') : '') + '"></label>' +
     '<label class="cal-champ cal-seul-course"><span>D+ (m)</span><input class="mrt-champ" name="denivele_reel" inputmode="numeric" placeholder="' + esc(x.denivele_m != null ? x.denivele_m : '') + '" value="' + esc(x.denivele_reel_m != null ? x.denivele_reel_m : '') + '"></label></div>' +
-    '<div class="cal-champs2"><label class="cal-champ"><span>FC moyenne (bpm)</span><input class="mrt-champ" name="fc_moyenne" inputmode="numeric" value="' + esc(x.fc_moyenne != null ? x.fc_moyenne : '') + '"></label>' +
-    '<label class="cal-champ"><span>FC max (bpm)</span><input class="mrt-champ" name="fc_max" inputmode="numeric" value="' + esc(x.fc_max != null ? x.fc_max : '') + '"></label></div>' +
-    '<p class="cal-allure" aria-live="polite"></p>';
+    '<p class="cal-allure" aria-live="polite"></p>' +
+    (replier ? '<button type="button" class="mrt-lien cal-fc-ouvrir" data-fc' + (fcRemplie ? ' hidden' : '') + '>+ Fréquence cardiaque</button>' : '') +
+    '<div class="cal-champs2 cal-fc"' + (replier && !fcRemplie ? ' hidden' : '') + '><label class="cal-champ"><span>FC moyenne (bpm)</span><input class="mrt-champ" name="fc_moyenne" inputmode="numeric" value="' + esc(x.fc_moyenne != null ? x.fc_moyenne : '') + '"></label>' +
+    '<label class="cal-champ"><span>FC max (bpm)</span><input class="mrt-champ" name="fc_max" inputmode="numeric" value="' + esc(x.fc_max != null ? x.fc_max : '') + '"></label></div>';
+  }
   // En ajout (s vide), la bascule Faite / À faire tient lieu de case « Faite » : la case reste, cachée, pilotée par la bascule.
   function retourHtml(s) {
     const x = s || {}, faite = !!x.faite;
@@ -519,14 +524,18 @@
   function feuilleRetour(ctx, s, annule) {
     const lib = String(s.libelle || ''), k = lib.indexOf(' : ') >= 0 ? lib.indexOf(' : ') : lib.indexOf(': ');
     const nom = k > 0 ? lib.slice(0, k).trim() : lib, detail = k > 0 ? lib.slice(k + (lib[k] === ' ' ? 3 : 2)).trim() : '';
+    // Séance à venir cochée « faite » (prise d'avance) : « Faite » (Aujourd'hui) (son jour), « Aujourd'hui » d'office ; elle se déplace, son jour prévu gardé.
+    const aujourdhui = iso(new Date()), aVenir = !!s.date && s.date > aujourdhui, jourPrevu = F.date(s.date, { semaine: true, annee: false });
     const voile = document.createElement('div');
     voile.className = 'mc-voile';
     voile.innerHTML = '<div class="mc-panneau mc-etroit mc-court cal-feuille-retour" role="dialog" aria-modal="true" aria-labelledby="cal-retour-nom" tabindex="-1"><div class="mc-corps">' +
       '<div class="pc-barre"><span></span><button type="button" class="mrt-rond is-fermer" data-fermer aria-label="Fermer" title="Fermer">' + window.mrtIcone.fermer + '</button></div>' +
-      '<p class="fc-libelle">' + esc(TYPES[s.type] || '') + ' · ' + esc(F.date(s.date, { semaine: true, annee: false })) + '</p>' +
+      '<p class="fc-libelle">' + esc(TYPES[s.type] || '') + ' · ' + esc(jourPrevu) + '</p>' +
       '<h2 class="cal-retour-nom" id="cal-retour-nom">' + esc(nom.charAt(0).toUpperCase() + nom.slice(1)) + '</h2>' +
       (detail ? '<p class="cal-retour-detail">' + esc(detail.charAt(0).toUpperCase() + detail.slice(1)) + '</p>' : '') + '<p class="cal-msg" role="alert"></p>' +
-      '<form class="cal-ecran" novalidate>' + realiseHtml(s) + champsRetour(s) + champCommentaire(s) +
+      '<form class="cal-ecran" novalidate>' + (aVenir ? '<div class="cal-champ cal-jour-fait"><span>Faite</span>' +
+        pastilles('jour_fait', [[aujourdhui, 'Aujourd\'hui'], [s.date, jourPrevu.charAt(0).toUpperCase() + jourPrevu.slice(1)]], aujourdhui).replace('data-groupe="jour_fait"', 'data-groupe="jour_fait" data-requis') + '</div>' : '') +
+        '<div class="cal-bloc">' + champsRetour(s) + '</div><div class="cal-bloc">' + realiseHtml(s, true) + '</div><div class="cal-bloc">' + champCommentaire(s) + '</div>' +
       '<div class="mc-pied"><button type="submit" class="mrt-btn is-principal">Enregistrer</button></div></form></div></div>';
     document.body.appendChild(voile);
     document.documentElement.classList.add('mc-ouvert');
@@ -546,6 +555,7 @@
     const dureeCh = () => (nombre(f.duree_reelle.value) != null ? nombre(f.duree_reelle.value) : (s.duree_min || null));
     const lire = brancherRetour(f, () => dureeCh() || (reel(s).duree_min || null));
     if (sansDist) f.querySelectorAll('.cal-seul-course').forEach(x => { x.hidden = true; });
+    f.querySelector('[data-fc]').addEventListener('click', e => { e.currentTarget.hidden = true; f.querySelector('.cal-fc').hidden = false; f.fc_moyenne.focus(); });
     // Allure moyenne du réalisé (ou du prévu à défaut), mise à jour à la frappe.
     const majAllure = () => {
       const k = nombre(f.distance_reelle.value) != null ? nombre(f.distance_reelle.value) : (s.distance_km != null ? Number(s.distance_km) : null);
@@ -568,6 +578,8 @@
       Object.keys(brut).forEach(k => { if (brut[k] !== null || s[k] != null) reelChamps[k] = brut[k]; });
       const champs = Object.assign(lire(), reelChamps);
       if (!champs.ressenti) return void (m.textContent = 'Note ton effort perçu pour enregistrer la séance faite.');
+      const jf = f.querySelector('[data-groupe="jour_fait"] [aria-pressed="true"]');
+      if (jf && jf.dataset.val !== s.date) Object.assign(champs, { date: jf.dataset.val, date_prevue: datePrevue(s, jf.dataset.val) });
       const { error } = await window.mrtSupabase.from('seances').update(champs).eq('id', s.id);
       if (error) { const m = voile.querySelector('.cal-msg'); m.textContent = error.code === 'PGRST204' || /column/i.test(String(error.message || '')) ? 'Enregistrement impossible : la base n\'est pas à jour (une évolution SQL reste à passer).' : 'Enregistrement impossible pour l\'instant.'; m.scrollIntoView({ block: 'nearest' }); console.warn(error); return; }
       range = true;
