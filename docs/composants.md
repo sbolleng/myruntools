@@ -21,7 +21,7 @@ Dossier `composants/` : chaque composant a son fichier `.js` et sa feuille de st
 | `plan-parcours` | Parcours « Construire mon plan » |
 | `seances-ia` | Séances proposées par l'IA |
 | `strategie` | « Proposer une stratégie » sur la page d'une course (Objectif, § 3.10) : contexte envoyé à l'IA, tronçons du tracé, bouton, proposition et « OK » ; chargé partout où s'ouvre la page d'une course |
-| `guide` | Guide (page `guide.html`, hors du menu : mise en page seulement) |
+| `guide` | Guide (page `guide.html`, module facultatif en fin de menu : mise en page seulement) |
 | `profil` | Mon profil (page `profil.html`) et feuille commune de Mon plan et Nutrition |
 | `courses` | Cartes de toutes les courses avec filtres (Statut dont Repérée, Ouvertes, Année) |
 | `graphique` | Graphiques dans le temps : difficulté d'Objectif, progression du Palmarès |
