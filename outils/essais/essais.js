@@ -497,7 +497,7 @@ const CONTROLES = {
     await p.click('.ps-choix[data-val="femme"]');
     await p.waitForFunction(() => /2 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     pb.push(egal([3, 0], await p.evaluate(() => [document.querySelectorAll('.ps-valeur .mrt-date3 .mrt-champ').length, document.querySelectorAll('.ps-valeur [type="date"]').length]), 'profil express : date de naissance en trois champs (Jour, Mois, Année), sans calendrier'));
-    pb.push(egal(['Continuer', 'flex-end'], await p.evaluate(() => { const b = document.querySelector('.ps-valeur button[type="submit"]'); return [b.textContent, getComputedStyle(b.parentElement).justifyContent]; }), 'profil express : « Continuer » en bas à droite (pas « Enregistrer »)'));
+    pb.push(egal(['Continuer', 'flex-end'], await p.evaluate(() => { const b = document.querySelector('.ps-valeur button[type="submit"]'); const r = b.getBoundingClientRect(), pr = b.parentElement.getBoundingClientRect(); return [b.textContent, Math.abs(pr.right - r.right) <= 1 ? 'flex-end' : 'ailleurs']; }), 'profil express : « Continuer » en bas à droite (pas « Enregistrer »)'));
     await dateTrois(p, '.ps-valeur', 'valeur', '1990-05-12'); await p.click('.ps-valeur button[type="submit"]');
     await p.waitForFunction(() => /3 sur 4/.test(document.getElementById('ps-titre').textContent)); titres.push(await titreFeuille(p));
     await p.fill('.ps-valeur [name="valeur"]', '62'); await p.click('.ps-valeur button[type="submit"]');
