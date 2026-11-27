@@ -185,7 +185,9 @@ Les couleurs des courses ne changent pas d'un thème à l'autre : la même famil
 | --- | --- | --- |
 | Route | `#4db8ff` | Course sur route (tout ce qui n'est pas trail) |
 | Trail | `#ff7a45` | Course de trail |
-| Encre | `#0b1220` | Texte écrit sur la couleur pleine d'une course, lisible sur fond blanc comme sur fond sombre |
+| Encre | `#0b1220` | Texte écrit sur la couleur pleine d'une course |
+
+Exceptions par thème (contraste) : **blanc-orange** Route `#0b63b0`, Trail `#c2410c`, encre blanche ; **vert-rose** Trail `#ffb03d` (ambre, distinct de l'accent rose). Course non confirmée : fond à 50 % de la couleur.
 
 **Liseré d'une séance** (toutes les vues du Calendrier, export, « Cette semaine » de Mon plan ; pas de légende ; variables dans `preparation.css`) : Sortie longue `#6b8cff`, Seuil `#e8c547`, Fractionné Rouge, Côtes `#b48ef0`, Renforcement `#5fbf7a` ; sur fond blanc `#2f5fc4`, `#a57a00`, Rouge, `#7a4fc4`, `#2e8a4a` ; Endurance, Récupération et nom libre : Bordure. L'intensité : les trois traits.
 

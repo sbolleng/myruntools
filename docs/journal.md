@@ -6,6 +6,7 @@ La plus récente en haut. Les décisions d'octobre 2026 sont dans l'[archive du 
 
 | Date | Sujet | Décision |
 | --- | --- | --- |
+| 27 nov. 2026 | Couleurs route/trail | Blanc-orange : route `#0b63b0`, trail `#c2410c`, encre blanche ; vert-rose : trail ambre `#ffb03d` ; course non confirmée à 50 % de la couleur. |
 | 27 nov. 2026 | Guide au menu | Le Guide devient un module comme les autres : facultatif, en toute fin du menu (Préférences, « Pour aller plus loin »). Évolution 048 : ajouté au bout du menu des comptes existants (les deux pilotes). Guide 0.3. |
 | 24 nov. 2026 | Remise à zéro | La requête de remise à zéro d'un compte pilote supprime aussi les activités importées de Strava (Préparation 3.17, § 7.1) : sinon un nouvel import les voit « déjà importées ». |
 | 23 nov. 2026 | Menu selon le parcours | Ordre : En un coup d'œil, Les courses, Ma saison, Mon plan, Calendrier, Ma nutrition, Mon palmarès, Mes stats, Mon profil ; Mon plan, Ma nutrition et Mes stats facultatifs, Calendrier par défaut (il sert aussi aux inscriptions et à la logistique) ; « Cette semaine » fondu dans En un coup d'œil ; clés des préférences inchangées ; évolution 047 (ordre de chaque compte, ses choix gardés) ; le profil se demande là où il sert (pas de formulaire d'un coup) ; à reprendre : pas à pas ludique à la place de « Premiers pas » et « Découvrir » (évolution 037). Onglets à 375 px : le menu défile et l'onglet ouvert est ramené dans l'écran (option B, noms complets gardés). |

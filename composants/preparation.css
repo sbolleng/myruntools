@@ -3,6 +3,9 @@
    Partagé par le Calendrier (calendrier.html) et la page d'une course (course.html). */
 /* Couleurs fixes, les mêmes dans tous les thèmes ; l'encre : le texte écrit sur la couleur d'une course. */
 :root { --route: #4db8ff; --trail: #ff7a45; --encre: #0b1220; --ph-base: #5fb49c; --ph-developpement: #e6b84d; --ph-affutage: #b48ef0; --ph-deload: #8fa8c9; --ph-recuperation: #d98bb0; --ph-entretien: #8c8c8c; --int-moy: #f0883e; }
+/* Route et trail par thème : fond blanc = couleurs foncées + texte blanc ; vert-rose = trail ambre, distinct de l'accent rose. */
+.t-blanc-orange { --route: #0b63b0; --trail: #c2410c; --encre: #ffffff; }
+.t-vert-rose { --trail: #ffb03d; }
 /* Liseré d'une séance selon son type (Calendrier, export ; Fractionné : Rouge ; les autres : Bordure). */
 :root { --l-sl: #6b8cff; --l-seuil: #e8c547; --l-cotes: #b48ef0; --l-renfo: #5fbf7a; }
 .t-blanc-orange { --l-sl: #2f5fc4; --l-seuil: #a57a00; --l-cotes: #7a4fc4; --l-renfo: #2e8a4a; }
@@ -48,8 +51,8 @@
 .cal-jr-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; color: var(--bg); text-decoration: none; border-radius: 3px; overflow-wrap: anywhere; }
 .cal-jr-course.c-route-v { background: var(--route); color: var(--encre); }
 .cal-jr-course.c-trail-v { background: var(--trail); color: var(--encre); }
-.cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
-.cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
+.cal-jr-course.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); color: var(--text); }
+.cal-jr-course.c-trail-n { background: color-mix(in srgb, var(--trail) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); color: var(--text); }
 .cal-jr-course.courue { background: var(--muted); }
 .cal-rdv { font-size: var(--t-libelle); line-height: 1.35; color: var(--text); text-decoration: none; }
 .cal-se { display: flex; align-items: flex-start; gap: 0.3rem; font-size: var(--t-libelle); line-height: 1.35; }

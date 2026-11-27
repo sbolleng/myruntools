@@ -45,8 +45,8 @@
 .cal-k { display: inline-block; width: 1.1rem; height: 0.75rem; border-radius: 2px; background: var(--border); }
 .cal-k.c-route-v { background: var(--route); }
 .cal-k.c-trail-v { background: var(--trail); }
-.cal-k.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
-.cal-k.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
+.cal-k.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
+.cal-k.c-trail-n { background: color-mix(in srgb, var(--trail) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-k.courue { background: var(--muted); }
 .cal-k-auj { box-shadow: inset 0 0 0 2px var(--text); }
 
@@ -54,8 +54,8 @@
 .cal-v-course { display: block; padding: 0.05rem 0.3rem; font-size: var(--t-libelle); font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; border-radius: 3px; }
 .cal-v-course.c-route-v { background: var(--route); color: var(--encre); }
 .cal-v-course.c-trail-v { background: var(--trail); color: var(--encre); }
-.cal-v-course.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
-.cal-v-course.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
+.cal-v-course.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
+.cal-v-course.c-trail-n { background: color-mix(in srgb, var(--trail) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-v-course.courue { background: var(--muted); color: var(--bg); }
 .cal-v-rdv { display: block; min-width: 0; font-size: var(--t-libelle); line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; } /* lien (design, § 11) */
 .cal-v-se { display: flex; align-items: center; gap: 0.3rem; min-width: 0; font-size: var(--t-libelle); line-height: 1.35; color: var(--text); }
@@ -114,8 +114,8 @@
 .cal-a-se.faite { color: var(--muted); text-decoration: line-through; }
 .cal-a-j.c-route-v { background: var(--route); }
 .cal-a-j.c-trail-v { background: var(--trail); }
-.cal-a-j.c-route-n { background: color-mix(in srgb, var(--route) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
-.cal-a-j.c-trail-n { background: color-mix(in srgb, var(--trail) 35%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
+.cal-a-j.c-route-n { background: color-mix(in srgb, var(--route) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--route); }
+.cal-a-j.c-trail-n { background: color-mix(in srgb, var(--trail) 50%, var(--border)); box-shadow: inset 0 0 0 1px var(--trail); }
 .cal-a-j.c-route-v .cal-a-nom, .cal-a-j.c-trail-v .cal-a-nom { font-weight: 600; color: var(--encre); }
 .cal-a-j.courue { background: var(--muted); }
 .cal-a-j.courue .cal-a-nom { color: var(--bg); }
