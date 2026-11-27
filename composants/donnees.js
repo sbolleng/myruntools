@@ -19,7 +19,7 @@
     { nom: 'Palmarès', libelle: 'Mon palmarès', page: 'palmares.html' },
     { nom: 'Stats', libelle: 'Mes stats', page: 'stats.html', defaut: false, aide: 'Ta progression mois par mois, tes meilleurs temps et une analyse.' }, // facultatif
     { nom: 'Profil', libelle: 'Mon profil', page: 'profil.html' }, // tout ce qui décrit le coureur ; dernier du menu : ses questions se posent au fil du parcours, quand on en a besoin
-    { nom: 'Guide', adresse: 'guide.html' } // article de lecture, hors du menu : accessible par son adresse seulement (pas de « page », qui le mettrait au menu)
+    { nom: 'Guide', page: 'guide.html', defaut: false, aide: 'Comment MyRunTools construit ton plan et calcule ta nutrition, avec ses sources.' } // facultatif, en toute fin du menu
   ];
   const PLAN = new Set(['option', 'confirmee']); // statuts de la page Objectif
   window.mrtModules = MODULES;
@@ -49,15 +49,15 @@
   // précédent déjà affiché ; les modules « bientôt » restent en fin de liste, comme dans les Préférences.
   window.mrtModulesAvec = (prefs, nom) => {
     const noms = modulesAffiches(prefs).map(m => m.nom);
-    if (noms.includes(nom)) return noms.concat(MODULES.filter(m => !m.page && !m.adresse).map(m => m.nom));
+    if (noms.includes(nom)) return noms.concat(MODULES.filter(m => !m.page).map(m => m.nom));
     const i = MODULES.findIndex(m => m.nom === nom);
     const avant = MODULES.slice(0, i).map(m => m.nom).filter(n => noms.includes(n));
     const pos = avant.length ? noms.indexOf(avant[avant.length - 1]) + 1 : 0;
     noms.splice(pos, 0, nom);
-    return noms.concat(MODULES.filter(m => !m.page && !m.adresse).map(m => m.nom));
+    return noms.concat(MODULES.filter(m => !m.page).map(m => m.nom));
   };
   // Liste à enregistrer pour retirer un module du menu (bloc Découvrir d'En un coup d'œil).
-  window.mrtModulesSans = (prefs, nom) => modulesAffiches(prefs).map(m => m.nom).filter(n => n !== nom).concat(MODULES.filter(m => !m.page && !m.adresse).map(m => m.nom));
+  window.mrtModulesSans = (prefs, nom) => modulesAffiches(prefs).map(m => m.nom).filter(n => n !== nom).concat(MODULES.filter(m => !m.page).map(m => m.nom));
   // Page de démarrage : celle qui s'ouvre en arrivant sur le site, la seule avec le grand en-tête :
   // le premier module construit du menu (par défaut En un coup d'œil).
   window.mrtDemarrage = prefs => {

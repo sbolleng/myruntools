@@ -664,7 +664,7 @@ const CONTROLES = {
     {
       const neuf = jeuObjectif(db0).db; neuf.ecritures = [];
       const o = await ouvrir(nav, 'index.html', 1200, neuf, {}, PARIS);
-      pb.push(egal([['Mon plan', 'Ma nutrition', 'Mes stats'], ['Ajouter au menu', 'Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil']],
+      pb.push(egal([['Mon plan', 'Ma nutrition', 'Mes stats', 'Guide'], ['Ajouter au menu', 'Ajouter au menu', 'Ajouter au menu', 'Ajouter au menu'], 'Pour aller plus loin', ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Calendrier', 'Mon palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.ac-decouvrir button')].map(b => b.textContent),
           document.querySelector('.ac-decouvrir .ac-titre').textContent, [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'Pour aller plus loin : une ligne et son bouton par module absent du menu'));
@@ -673,7 +673,7 @@ const CONTROLES = {
       await o.p.waitForSelector('.mrt-tab:has-text("Mon plan")');
       const e = neuf.ecritures.filter(x => x.table === 'preferences')[0];
       pb.push(egal(['En un coup d\'œil', 'Courses à surveiller', 'Objectif', 'Préparation', 'Calendrier', 'Palmarès', 'Profil'], e && e.corps.modules, 'Ajouter Préparation : à sa place du menu, les modules « bientôt » gardés'));
-      pb.push(egal([['Ma nutrition', 'Mes stats'], ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Mon plan', 'Calendrier', 'Mon palmarès', 'Mon profil']],
+      pb.push(egal([['Ma nutrition', 'Mes stats', 'Guide'], ['En un coup d\'œil', 'Les courses', 'Ma saison', 'Mon plan', 'Calendrier', 'Mon palmarès', 'Mon profil']],
         await o.p.evaluate(() => [[...document.querySelectorAll('.ac-decouvrir .ac-module b')].map(b => b.textContent), [...document.querySelectorAll('.mrt-tab')].map(t => t.getAttribute('aria-label') || t.textContent)]),
         'après l\'ajout : l\'onglet Mon plan apparaît, sa ligne disparaît'));
       pb.push(egal(['Mon plan', 'preparation.html'], await o.p.evaluate(() => { const l = document.querySelector('[data-bloc="dicila"] .ac-titre a'); return [l && l.textContent.trim(), l && l.getAttribute('href')]; }),
@@ -681,6 +681,8 @@ const CONTROLES = {
       await o.p.click('.ac-decouvrir [data-module="Nutrition"]');
       await o.p.waitForSelector('.mrt-tab:has-text("Nutrition")');
       await o.p.click('.ac-decouvrir [data-module="Stats"]');
+      await o.p.waitForSelector('.mrt-tab:has-text("Mes stats")');
+      await o.p.click('.ac-decouvrir [data-module="Guide"]');
       await o.p.waitForSelector('.ac-decouvrir', { state: 'detached' });
       pb.push(egal([], o.erreurs, 'Pour aller plus loin : erreurs JavaScript'));
       await o.ctx.close();
@@ -5344,10 +5346,10 @@ const CONTROLES = {
     }
     return pb;
   },
-  // Guide (module-guide-specification.md, § 4) : l'article de lecture, hors du menu, connexion requise.
+  // Guide (module-guide-specification.md, § 4) : l'article de lecture, module facultatif en toute fin du menu, connexion requise.
   async guide(nav, db0) {
     const pb = [];
-    // Même avec « Guide » dans le menu enregistré, aucun onglet : le module n'a pas de page de menu.
+    // Coché (menu enregistré) : le dernier onglet, actif sur sa page.
     const db = JSON.parse(JSON.stringify(db0)); db.preferences[0].modules = ['En un coup d\'œil', 'Objectif', 'Calendrier', 'Palmarès', 'Guide'];
     for (const w of [1200, 375]) {
       const { p, ctx, erreurs } = await ouvrir(nav, 'guide.html', w, db, {}, PARIS);
@@ -5360,7 +5362,7 @@ const CONTROLES = {
           visible: (document.querySelector('.gd-titre') || {}).textContent,
           parties: [...document.querySelectorAll('.gd-partie-titre')].map(h => h.textContent.trim()),
           menu: !!document.querySelector('.mrt-nav'), onglet: [...document.querySelectorAll('.mrt-tab')].filter(t => /guide/i.test(t.textContent + (t.getAttribute('href') || ''))).length,
-          ongletActif: document.querySelectorAll('.mrt-tab.is-on').length,
+          ongletActif: document.querySelectorAll('.mrt-tab.is-on').length, dernier: ([...document.querySelectorAll('.mrt-tab')].pop() || {}).textContent,
           frises: [...document.querySelectorAll('.gd-frise')].map(f => f.children.length), jours: [...document.querySelectorAll('.gd-jours')].map(f => f.children.length),
           deroules: document.querySelectorAll('.gd-partie details.mrt-deroule').length, ouverts: document.querySelectorAll('.gd-partie details[open]').length,
           tuVous: /(?<![\p{L}-])(tu|toi|ton|ta|tes|vous|votre|vos)(?![\p{L}-])/iu.test(document.querySelector('main').textContent),
@@ -5369,7 +5371,7 @@ const CONTROLES = {
         };
       });
       pb.push(egal({ masquee: false, titre: 'Guide · MyRunTools', robots: 'noindex', h1: ['Guide'], h1Invisible: true, visible: 'Du plan à l\'assiette',
-        parties: ['Construire le plan', 'Bien manger pour courir', 'Nos sources et leurs limites'], menu: true, onglet: 0, ongletActif: 0,
+        parties: ['Construire le plan', 'Bien manger pour courir', 'Nos sources et leurs limites'], menu: true, onglet: 1, ongletActif: 1, dernier: 'Guide',
         frises: [27, 16], jours: [6, 41], deroules: 3, ouverts: 0, tuVous: false, sources: true, debordement: false }, r, 'guide (' + w + ' px)'));
       pb.push(egal([], erreurs, 'guide (' + w + ' px) : erreurs JavaScript'));
       if (CAPTURES) await p.screenshot({ path: path.join(__dirname, 'captures', 'guide-' + w + '.png'), fullPage: true });
@@ -5381,6 +5383,12 @@ const CONTROLES = {
           'guide (375 px) : déroulé ouvert, sans débordement'));
       }
       await ctx.close();
+    }
+    // Menu par défaut (rien d'enregistré) : facultatif, pas d'onglet ; « Pour aller plus loin » le propose.
+    {
+      const o = await ouvrir(nav, 'calendrier.html', 1200, db0, {}, PARIS);
+      pb.push(egal(0, await o.p.evaluate(() => [...document.querySelectorAll('.mrt-tab')].filter(t => /guide/i.test(t.getAttribute('href') || '')).length), 'guide : facultatif, absent du menu par défaut'));
+      await o.ctx.close();
     }
     // Sans session : renvoi vers la connexion.
     const ctx = await nav.newContext();

@@ -1,12 +1,12 @@
 # Guide · spécification fonctionnelle
 
-Version 0.2 · 21 novembre 2026 · [Retour au sommaire](README.md) · Repasse de cohérence : « Construire le plan », « préparation » pour la période vers un Objectif, Allègement ; lien depuis Mon plan et Nutrition.
+Version 0.3 · 27 novembre 2026 · [Retour au sommaire](README.md) · Le Guide devient un module facultatif, en toute fin du menu.
 
 ## 1. Rôle
 
 Un article de lecture qui explique comment MyRunTools construit un plan de préparation et calcule la nutrition : règles, valeurs, exemples chiffrés, sources et limites.
 
-- Page `guide.html` (module « Guide » du catalogue, `composants/donnees.js`, avec `adresse` et sans `page`) : **hors du menu** ; on y arrive par le rond « i » de la carte de Mon plan (« Comment MyRunTools construit ton plan », vers `#saison`) et par le lien d'action en bas de Nutrition (« Comment MyRunTools calcule ton besoin », vers `#nutrition`) ; connexion requise ; `noindex`.
+- Page `guide.html` (module « Guide » du catalogue, `composants/donnees.js`) : **module facultatif, en toute fin du menu**, comme Mon plan, Ma nutrition et Mes stats : à cocher dans les Préférences, ou « Ajouter au menu » dans « Pour aller plus loin » d'En un coup d'œil ; les comptes existants le reçoivent au bout de leur menu (évolution 048). On y arrive aussi par le rond « i » de la carte de Mon plan (« Comment MyRunTools construit ton plan », vers `#saison`) et par le lien d'action en bas de Nutrition (« Comment MyRunTools calcule ton besoin », vers `#nutrition`) ; connexion requise ; `noindex`.
 - Ton impersonnel (ni « tu », ni « vous »), style article ; vocabulaire du glossaire ([design](design.md), § 12).
 - **Rien d'inventé** : chaque règle, valeur ou source vient des spécifications [Préparation](module-preparation-specification.md) (§ 2 à 4, 3.5, 6), [Nutrition](module-nutrition-specification.md) (§ 2 et 3), [Mon profil](module-profil-specification.md) et [Calendrier](module-calendrier-specification.md) (§ 5.1, 5.4), ou du code (`preparation.js`, `besoin.js`). Une règle qui change là change ici.
 - Design commun seulement : cadres, `mrt-section`, `details.mrt-deroule`, liens, tableaux, échelle, couleurs des phases (`preparation.css`) ; `composants/guide.css` ne fait que la mise en page.
@@ -67,7 +67,7 @@ Téléphone : même ordre ; frises et jauges en largeur de l'écran, tableaux qu
 Banc d'essai, groupe `guide` (et `uniformite`, `vocabulaire`, `affichage`) :
 
 - À 1 200 et 375 px : page affichée, sans erreur ; titre « Guide · MyRunTools » ; `noindex` ; un seul h1, « Guide », invisible ; titre visible « Du plan à l'assiette » ; trois parties dans l'ordre ; frises de 27 et 16 semaines ; 6 et 41 jours de récupération ; trois déroulés fermés ; ni « tu » ni « vous » ; liens des sources dans un nouvel onglet ; aucun débordement, déroulé ouvert compris (375 px).
-- Menu présent, aucun onglet Guide ni onglet actif, même avec « Guide » dans le menu enregistré.
+- Guide coché : le dernier onglet du menu, actif sur sa page. Menu par défaut : pas d'onglet Guide (facultatif) ; « Pour aller plus loin » propose Mon plan, Ma nutrition, Mes stats et Guide.
 - Sans session : renvoi vers la connexion.
 - Mon plan et Nutrition : un lien d'action vers la partie du Guide qui les explique, en bas de page.
 - Tailles de l'échelle seulement (titre de l'article hors échelle permis) ; aucun ancien mot du glossaire ; page affichée sans saut.
