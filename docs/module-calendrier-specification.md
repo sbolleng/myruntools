@@ -4,7 +4,7 @@ Version 0.42 · 27 novembre 2026 · [Retour au sommaire](README.md) · Choix de 
 
 ## 1. Rôle
 
-Le Calendrier montre la saison à trois échelles : l'année, le mois et la semaine. C'est d'abord un calendrier classique (courses, séances, ouvertures d'inscriptions) ; un bouton « Plan » ajoute la préparation des courses, à la couleur de ses phases. La préparation détaillée d'une course vit sur la **page de la course** ([Objectif](module-objectif-specification.md), § 3.4) : toucher une course dans le Calendrier y mène directement. Il répond à trois questions : quoi faire cette semaine, quand courir, où sont les semaines sans objectif et à quelle phase on en est.
+Le Calendrier montre la saison à trois échelles : l'année, le mois et la semaine. C'est d'abord un calendrier classique (courses, séances, ouvertures d'inscriptions) ; un bouton « Phases » ajoute la préparation des courses, à la couleur de ses phases. La préparation détaillée d'une course vit sur la **page de la course** ([Objectif](module-objectif-specification.md), § 3.4) : toucher une course dans le Calendrier y mène directement. Il répond à trois questions : quoi faire cette semaine, quand courir, où sont les semaines sans objectif et à quelle phase on en est.
 
 - **Hors périmètre** : la saisie des courses (elle reste dans [Objectif](module-objectif-specification.md)) ; l'apparence détaillée (couleurs, tailles : [design](design.md)) ; l'import des séances depuis une application et la génération d'un plan par intelligence artificielle ([todo](todo.md)).
 - **Aucun calcul par intelligence artificielle** : les phases d'un plan se déduisent de règles générales de la course à pied et du trail (§ 5).
@@ -25,7 +25,7 @@ Le zoom « une course » n'est pas une vue du Calendrier : c'est la rubrique **P
 **Barre du haut**, la même sur les trois vues, sur une ligne (téléphone compris) :
 
 - **Menu « Vue »** (25), à gauche : un bouton qui porte le nom de la vue ouverte (« Semaine ⌄ ») ; touché, il déroule la liste « Semaine », « Mois » (§ 4.5), « 3 mois », « 6 mois », « Année » (12 mois) sous le libellé « PÉRIODICITÉ », le choix en cours repéré. La liste se ferme au choix, en touchant ailleurs ou par Échap (la main revient au bouton) ; ouverte au clavier, la main va au choix en cours. Chaque choix change l'adresse : le retour du navigateur ramène à la vue d'avant. « 3 mois », « 6 mois » et « Année » ouvrent la grille de l'Année sur cette durée, retenue sur l'appareil, à partir du mois en cours (ou du premier mois déjà affiché).
-- **Bouton « Plan »** (26) et bouton **« Aujourd'hui »** (22, à contour), à droite ; « Aujourd'hui » ramène au mois en cours (Année, Mois) ou à la semaine en cours (Semaine). À leur gauche, sur ordinateur seulement, le rond **« plein écran »** (élément commun, [design](design.md)) : le Calendrier prend tout l'écran avec sa barre ; Échap ou le même rond pour sortir.
+- **Bouton « Phases »** (26) et bouton **« Aujourd'hui »** (22, à contour), à droite ; « Aujourd'hui » ramène au mois en cours (Année, Mois) ou à la semaine en cours (Semaine). À leur gauche, sur ordinateur seulement, le rond **« plein écran »** (élément commun, [design](design.md)) : le Calendrier prend tout l'écran avec sa barre ; Échap ou le même rond pour sortir.
 
 **Adresse** : `#semaines=AAAA-MM-JJ` (cette semaine en tête de liste ; sans adresse, la semaine en cours), `#mois=AAAA-MM`, `#annee=AAAA-MM` (premier mois affiché ; sans date, le mois en cours). Le bouton retour du navigateur ramène à la vue d'avant.
 
@@ -66,7 +66,7 @@ Téléphone : trois mois par bloc (6 mois : deux blocs, octobre-décembre puis j
 | N° | Élément | Exemple | Place |
 | --- | --- | --- | --- |
 | 25 | Menu « Vue » (§ 2) : la durée de l'Année est un de ses choix | « 6 mois ⌄ » | Barre du haut, à gauche |
-| 26 | Bouton « Plan » (§ 2) | éteint | Barre du haut, à droite |
+| 26 | Bouton « Phases » (§ 2) | éteint | Barre du haut, à droite |
 | 22 | « Aujourd'hui » : la période du mois en cours | | Barre du haut, à droite |
 | 18 | Titre de la période | « Octobre 2026 – mars 2027 » | Au centre, entre deux filets |
 | 14 | Flèches, avec la période voisine | « ‹ avr.–sept. 26 » | De chaque côté du titre |
@@ -82,7 +82,7 @@ Téléphone : trois mois par bloc (6 mois : deux blocs, octobre-décembre puis j
 | 8 | Bloc suivant | janv. à mars | Sous le premier (12 mois ; téléphone) |
 | 11 | Aujourd'hui : case cerclée, numéro dans un rond Accent | « 20 » | Grille |
 
-Retirés en 0.18 : les pastilles des vues (1), la case « Phases » (23) et la durée sous le titre (13), remplacées par le menu (25) et le bouton (26). Plan enfoncé, le fond des jours prend la phase de leur semaine (30), samedi et dimanche un cran plus marqués. Pas de numéro de semaine (« s45 ») : il se confondrait avec la semaine du plan (« semaine 9 sur 16 »).
+Retirés en 0.18 : les pastilles des vues (1), la case « Phases » (23) et la durée sous le titre (13), remplacées par le menu (25) et le bouton (26). Phases enfoncé, le fond des jours prend la phase de leur semaine (30), samedi et dimanche un cran plus marqués. Pas de numéro de semaine (« s45 ») : il se confondrait avec la semaine du plan (« semaine 9 sur 16 »).
 
 ### 3.2 Règles
 
@@ -153,7 +153,7 @@ Téléphone : même ordre ; la barre du haut sur une ligne.
 
 | N° | Élément | Exemple | Place |
 | --- | --- | --- | --- |
-| 25, 26, 22 | Menu « Vue », bouton « Plan », « Aujourd'hui » (la semaine en cours, en tête) | « Semaine ⌄ » | Barre du haut |
+| 25, 26, 22 | Menu « Vue », bouton « Phases », « Aujourd'hui » (la semaine en cours, en tête) | « Semaine ⌄ » | Barre du haut |
 | 24 | Lien « Afficher les semaines passées » | ↑ Afficher les semaines passées | Tête de liste |
 | 2 | Légende des phases (Plan) | | Tête de liste |
 | 4 | Titre de la semaine (la semaine en cours en Texte) | « Semaine du 19 au 25 oct. » | Au-dessus de ses sept jours |
@@ -304,7 +304,7 @@ Les sources donnent des fourchettes, souvent pour un public précis (débutant o
 
 ## 6. Téléphone
 
-Barre du haut sur une ligne : le menu « Vue », « Plan » et « Aujourd'hui », boutons resserrés ; les périodes voisines réduites à leurs flèches. Année : trois mois par bloc, le numéro du jour sans son initiale, barres de 10 px. Mois : le libellé de la semaine au-dessus de ses jours, le numéro et le nom abrégé dans chaque case (§ 4.5). Semaine et rubrique Préparation : un jour par ligne. Rien ne déborde de l'écran.
+Barre du haut sur une ligne : le menu « Vue », « Phases » et « Aujourd'hui », boutons resserrés ; les périodes voisines réduites à leurs flèches. Année : trois mois par bloc, le numéro du jour sans son initiale, barres de 10 px. Mois : le libellé de la semaine au-dessus de ses jours, le numéro et le nom abrégé dans chaque case (§ 4.5). Semaine et rubrique Préparation : un jour par ligne. Rien ne déborde de l'écran.
 
 ## 7. Données
 
@@ -339,7 +339,7 @@ Le prototype `composants/planning.js` a été remplacé par la première vue Ann
 ## 9. Questions ouvertes
 
 - [x] **Vue Année** : retouchée le 5 novembre 2026 (§ 3), dans l'esprit d'un calendrier en colonnes : jours de chaque mois, fins de semaine marquées ; numéros de semaine non repris.
-- [x] **Barre du haut** : menu « Vue » (Semaine, Mois, Année ; la durée de l'Année reste sous son titre) et bouton « Plan » à la place des pastilles et de la case (retenu le 5 novembre 2026).
+- [x] **Barre du haut** : menu « Vue » (Semaine, Mois, Année ; la durée de l'Année reste sous son titre) et bouton « Phases » à la place des pastilles et de la case (retenu le 5 novembre 2026).
 - [x] **Durée de l'Année** et **fond de phase dans l'Année** : 3 mois, 6 mois et Année passent dans le menu ; Plan enfoncé, les jours de l'Année prennent le fond de leur phase, avec un liseré à gauche, sans barres (retenu le 6 novembre 2026, option B).
 - [ ] **Fonds de phase** (Mois, Semaine, Année) : un seul fond par phase depuis le 5 novembre 2026 ; lisibilité à vérifier à l'usage, notamment sur le thème Blanc et orange.
 - [x] **Essai** (frise, grilles, vue 4 semaines, jours en colonnes) : tranché le 2 novembre 2026 : trois vues (§ 2 à 4), case « Phases ».
@@ -369,7 +369,7 @@ Résultats attendus, vue Année (`calendrier.html#annee`) :
 - Menu « Vue » sur « 6 mois » (choix : Semaine, Mois, 3 mois, 6 mois, Année) ; « Octobre 2026 – mars 2027 », voisines « avr.–sept. 26 » et « avr.–sept. 27 » ; un bloc de six mois (téléphone : deux de trois) ; mois « oct. 26 » … « janv. 27 » … « mars ».
 - Courses dans leur case : Semi de San Sebastián (courue), Trail du Lac, Corrida de Noël (route), Trail des Gorges ; ni Cross des Collines (abandonnée), ni Trail des Sommets (repérée), ni l'option passée du 10 octobre ; aujourd'hui (20 octobre) cerclé, « M 20 » dans un rond.
 - Jours d'octobre : « J 1 », « S 3 » et « D 4 » (samedi et dimanche marqués, filet sous le dimanche), « L 5 » ; onglet « oct. 26 » en Accent ; un jour passé (jeudi 15) a le fond d'un jour à venir (jeudi 22), un samedi un fond plus marqué.
-- Bouton « Plan » éteint : ni fond de phase ni légende des phases ; légende « Route confirmée, option », « Trail confirmée, option », courue, aujourd'hui.
+- Bouton « Phases » éteint : ni fond de phase ni légende des phases ; légende « Route confirmée, option », « Trail confirmée, option », courue, aujourd'hui.
 - Séances d'essai (Renforcement le 19, cochée ; Course à pied et Renforcement le 20) : « Renforcement » barré le 19, « Course à pied · Renforcement » le 20, rien le 21 ; infobulle du 20 : les deux séances avec leur libellé.
 - Plan enfoncé (retenu sur l'appareil) : légende des phases (Récupération et Entretien, en gris, comprises), fond de phase de chaque jour, sans barres : 1er, 12 et 20 octobre en Entretien, sans fond (le Trail du Lac est une Préparatoire) ; 16 novembre, base (saison du Trail des Gorges) ; 8 février, développement. Liseré de 3 px à gauche de la case : allègement (8 décembre), développement (12 janvier), affûtage (7 mars) ; le Trail des Gorges (7 mars) garde sa couleur ; infobulle du 20 octobre : la date, « aujourd'hui » et les séances, sans phase.
 - Période suivante : `#annee=2027-04`, « Avril – septembre 2027 » : Trail des Cimes, Ultra du Plateau, Trail de la Forêt (options), Trail des Crêtes ; pas d'aujourd'hui. « Aujourd'hui » : de nouveau octobre. Menu, « Année » : deux blocs de six, « Octobre 2026 – septembre 2027 », retenu ; « 3 mois » : « Octobre – décembre 2026 ».
@@ -396,7 +396,7 @@ Résultats attendus, vue Semaine (`calendrier.html`, vue par défaut, séances d
 Résultats attendus, barre du haut (repasse) :
 
 - Au départ : menu fermé, son bouton « Semaine » ; un toucher l'ouvre (« Semaine », « Mois », « Année », Semaine repérée) ; Échap le ferme et rend la main au bouton ; ouvert au clavier, la main va à « Semaine » ; toucher ailleurs le ferme.
-- Choisir « Année » : la vue Année sur 12 mois, `#annee`, le menu refermé, son bouton « Année ». « Plan » : enfoncé, les fonds de phase, `mrt-calendrier-phases` à 1 ; retouché : éteint.
+- Choisir « Année » : la vue Année sur 12 mois, `#annee`, le menu refermé, son bouton « Année ». « Phases » : enfoncé, les fonds de phase, `mrt-calendrier-phases` à 1 ; retouché : éteint.
 - Menu, « Mois », deux mois plus loin (décembre 2026), « Aujourd'hui » : de nouveau octobre 2026.
 
 Résultats attendus, plan d'une course :

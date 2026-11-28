@@ -50,13 +50,13 @@ L'en-tête et le menu forment un bloc commun, écrit une seule fois et repris pa
 | L1, L2 | Adresse e-mail, mot de passe | Le navigateur peut les mémoriser ; le collage est permis |
 | L3 | Œil | Affiche ou masque le mot de passe |
 | L4 | « Mot de passe oublié ? » | Envoie le lien de réinitialisation à l'adresse saisie en L1 (message « Saisis ton adresse e-mail » si le champ est vide) ; la réponse est toujours « Si un compte existe pour cette adresse, un e-mail vient d'être envoyé. », que l'adresse existe ou non |
-| L5 | « Se connecter » | Désactivé pendant l'envoi ; connecté, direction l'accueil |
+| L5 | « Se connecter » | Désactivé pendant l'envoi ; connecté, direction En un coup d'œil |
 | L6 | Message | Une seule erreur pour tout échec : « Adresse ou mot de passe incorrect. » (on ne dit jamais lequel) ; « Trop de tentatives, réessaie dans quelques minutes. » en cas de limitation ; « Contrôle anti-robot non validé : réessaie. » quand le contrôle est refusé (connexion comme « Mot de passe oublié ? ») |
 | L7 | « Créer un compte » | Lien vers la page de création d'un compte ; absent tant que l'inscription n'est pas ouverte |
 
 **Règles du mot de passe** : 14 caractères au moins, aucune règle de composition (une phrase de passe longue protège mieux) ; refusé s'il est identique à l'adresse e-mail. Il est haché par Supabase ; il ne figure jamais dans le dépôt et n'est jamais affiché en dehors de l'œil (L3).
 
-**Nouveau mot de passe** : le lien reçu par e-mail ouvre une page du même gabarit que la connexion, avec « Nouveau mot de passe » (L10), « Confirmation » (L11) et « Enregistrer » (L12) ; les deux saisies doivent être identiques. Enregistré, l'utilisateur est connecté et arrive sur l'accueil. Le lien ne sert qu'une fois et expire au bout d'une heure ; périmé ou déjà utilisé : « Lien expiré : demande-en un nouveau. » avec retour à la page de connexion.
+**Nouveau mot de passe** : le lien reçu par e-mail ouvre une page du même gabarit que la connexion, avec « Nouveau mot de passe » (L10), « Confirmation » (L11) et « Enregistrer » (L12) ; les deux saisies doivent être identiques. Enregistré, l'utilisateur est connecté et arrive sur En un coup d'œil. Le lien ne sert qu'une fois et expire au bout d'une heure ; périmé ou déjà utilisé : « Lien expiré : demande-en un nouveau. » avec retour à la page de connexion.
 
 **Premier accès** : les comptes existants n'ont pas encore de mot de passe ; on le choisit par « Mot de passe oublié ? ».
 
@@ -185,7 +185,7 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Prochaine course | La carte de la prochaine course confirmée datée d'aujourd'hui ou plus tard (une course passée sans résultat attend dans Aujourd'hui), comme sur la saison ; lien vers la saison | Affiché |
 | Pense-bête | Rappels tirés des courses (inscriptions, objectifs à fixer…) et notes perso · bientôt : jamais affiché avant d'être construit | — |
 | Nutrition | Bilan du jour (mangé / besoin) et ajout en une touche des favoris et récents ([Nutrition](module-nutrition-specification.md), § 4.7) ; seulement quand le module Nutrition est au menu | Affiché |
-| D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent ; lien « Préparation → » quand ce module est au menu | Affiché |
+| D'ici là | Les étapes de la saison jusqu'au cap compris, le cap en Accent ; lien « Mon plan → » quand ce module est au menu | Affiché |
 | Dernière course | Nom, date, temps (hh:mm:ss) et allure de la dernière course courue ; son nom ouvre son résultat (page de la course, en modale) ; lien vers le Palmarès | Affiché |
 | Premiers pas | Pour un compte neuf, en tête de page, sur toute la largeur, cadre en Accent. Deux étapes numérotées : « Mon profil » (« Compléter » : le profil express, [Mon profil](module-profil-specification.md), § 1) et « Ma première course » (« Ajouter » : la fiche d'ajout d'une course). Une étape faite est cochée ✓, « Fait », sans bouton ; le profil est fait quand le profil express est rempli, la course dès qu'il y a une course (à venir, repérée ou courue). Le bloc disparaît quand les deux étapes sont faites ; ni choisi ni rangé dans les Préférences ; absent d'un site partagé | Affiché tant qu'une étape manque |
 | Découvrir MyRunTools | Pour un compte neuf, sous les Premiers pas, sur toute la largeur : chaque module dans l'ordre où il sert, son nom, une phrase et sa case « Au menu » (cochée : au menu ; la toucher ajoute le module à sa place du menu ou l'en retire, aussitôt). Courses (« Toutes les courses qui t'intéressent : repérées, en option, confirmées ou déjà courues. »), Saison (« Le chemin vers ta course principale, ton cap : les courses à venir, dans l'ordre. »), Mon profil (« Qui tu es, comment tu t'entraînes : il règle Mon plan et Nutrition. »), Mon plan (« Ta préparation en phases, et des séances proposées. »), Calendrier (« Tes séances et tes courses, jour par jour. ») ; puis, sous « Options », Palmarès (« Tes résultats et ta progression. ») et Nutrition (« Ton besoin du jour et ton journal des repas. »). « J'ai compris » le range pour de bon (retenu dans les préférences) ; « Revoir la découverte » (Préférences, En un coup d'œil) le ramène. Tant qu'il est là, il tient lieu de « Pour aller plus loin » ; absent d'un site partagé | Affiché pour un compte neuf, jusqu'à « J'ai compris » |
@@ -203,14 +203,14 @@ L'en-tête présente le **cap** de l'utilisateur : une course choisie dans les P
 | Module | Rôle | Jalon |
 | --- | --- | --- |
 | Ma saison | Les courses choisies, rangées en saison jusqu'à la course objectif ([spécification](module-objectif-specification.md)) ; libellé du menu « Ma saison » (le nom rangé dans les préférences reste « Objectif ») | 1 |
-| Calendrier | Ta saison en trois vues : semaine (par défaut), mois et année, au menu « Vue » ; bouton « Plan » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
+| Calendrier | Ta saison en trois vues : semaine (par défaut), mois et année, au menu « Vue » ; bouton « Phases » ; la préparation d'une course est sur sa page ([spécification](module-calendrier-specification.md)) | 1 |
 | Préparation | Plan de préparation : une saison par Objectif, les autres courses insérées selon leur rôle (Préparatoire, Plaisir), récupération et alertes ; séances proposées par une IA à venir ([spécification](module-preparation-specification.md)) ; à cocher dans les Préférences | 1 |
 | Ma nutrition | Journal alimentaire, cibles du jour, calcul du besoin, conseils | 1 |
 | Les courses | Toutes les courses en cartes (repérées, en option, confirmées, courues) : on y choisit celles qui comptent : dates, ouverture des inscriptions avec heure ([spécification](module-courses-a-surveiller-specification.md)) ; dans le menu par défaut, en deuxième ; le nom rangé dans les préférences reste « Courses à surveiller » ; index UTMB plus tard | 2 |
 | Guide | Articles et fiches pratiques, publics ou privés | 2 |
 | Mon profil | Données du coureur : état civil, poids, taille, pointure, zones d'entraînement, records | 2 |
 | Mon palmarès | Historique des courses et des performances ([spécification](module-palmares-specification.md)) | 2 |
-| En un coup d'œil | Page d'accueil ; reprend la synthèse des sept prochains jours (ancien module « Cette semaine », fondu ici le 23 nov. 2026) | 2 |
+| En un coup d'œil | Page de démarrage par défaut ; reprend la synthèse des sept prochains jours (ancien module « Cette semaine », fondu ici le 23 nov. 2026) | 2 |
 | Calculatrice | Allure, vitesse, temps de passage, VMA, km-effort, pente, ravitaillement | À positionner |
 | Logistique | Transport, hébergement, retrait des dossards, horaires | À positionner |
 | Matériel | Chaussures et leur usure, inventaire, matériel obligatoire, listes de sac | À positionner |
@@ -303,7 +303,7 @@ Page publique `mentions-legales.html` : visible sans être connecté, non index�
 | M8 | Crédits | Polices Space Grotesk et Space Mono (Google Fonts, licence SIL OFL) ; bibliothèque Supabase (licence MIT) ; Leaflet (licence BSD), fond OpenTopoMap (CC-BY-SA), données OpenStreetMap (ODbL), pour la carte des tracés ; anti-robot Cloudflare Turnstile une fois activé ; icônes dessinées pour le site |
 | M9 | Données personnelles | Une phrase et le lien vers la politique de confidentialité (§ 11 ter) |
 | M10 | Mise à jour | Date de la dernière modification |
-| M11 | Retour | Vers l'accueil si connecté, sinon vers la page de connexion |
+| M11 | Retour | Vers En un coup d'œil si connecté, sinon vers la page de connexion |
 | M12 | Pied de page | « Mentions légales · Confidentialité », petit, en Texte discret, en bas de **toutes** les pages, page de connexion comprise ; sur l'une de ces deux pages, son nom en texte simple |
 
 ## 11 ter. Confidentialité
@@ -323,7 +323,7 @@ Page publique `confidentialite.html` (lot RGPD, 20 nov. 2026), au gabarit des me
 | P9 | Droits | Consulter, corriger, exporter, supprimer, retirer l'accord santé : dans Mon profil et la fenêtre d'une séance, ou par e-mail au contact (réponse sous un mois) ; réclamation à la CNIL |
 | P10 | Sur l'appareil | Ni cookie publicitaire ni mesure d'audience ; session et réglages d'affichage seulement |
 | P11 | Mise à jour | Date de la dernière modification |
-| P12 | Retour | Vers l'accueil si connecté, sinon vers la connexion |
+| P12 | Retour | Vers En un coup d'œil si connecté, sinon vers la connexion |
 
 Tout changement de prestataire ou de donnée recueillie met la page à jour (P7, P4, P11).
 
@@ -377,13 +377,13 @@ Résultats attendus :
 - Blanc et orange : fond blanc, cadres `#f3f5f8`, contrôles du navigateur en clair ; le nom d'une course pleine en Encre ; Développement en `#946200`. Noir et orange : fond noir, cadres `#121212`.
 - Automatique : appareil en mode sombre, Noir et orange ; passé en mode clair, Blanc et orange, sans recharger ; la page suivante s'affiche d'emblée dans le bon thème.
 - L'engrenage (en-tête, ou barre fine) ouvre la page des Préférences ; le menu ne montre que les modules choisis, dans l'ordre choisi. Mon plan ouvert sans être au menu : un onglet « Mon plan », actif, au bout de la barre.
-- Par défaut, l'en-tête figure sur En un coup d'œil seulement ; la saison, le Palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
+- Par défaut, l'en-tête figure sur En un coup d'œil seulement ; Ma saison, Mon palmarès, les Préférences et la page d'une course ont la barre fine « Cap sur Trail des Crêtes » et l'engrenage.
 - Téléphone : le compte à rebours juste sous le nom de la course, au-dessus des indicateurs ; la prochaine course à part, sous les indicateurs.
-- Sans connexion, ouvrir l'accueil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
+- Sans connexion, ouvrir En un coup d'œil, le Palmarès ou les Préférences renvoie vers la page de connexion, sans afficher leur contenu.
 - Page de connexion : ni en-tête ni menu ; adresse, mot de passe, œil, « Mot de passe oublié ? ».
-- Bon mot de passe : connecté, direction l'accueil. Mauvais mot de passe ou adresse inconnue : le même message « Adresse ou mot de passe incorrect. ».
+- Bon mot de passe : connecté, direction En un coup d'œil. Mauvais mot de passe ou adresse inconnue : le même message « Adresse ou mot de passe incorrect. ».
 - « Mot de passe oublié ? » : même réponse pour une adresse connue et pour une inconnue ; champ vide : « Saisis ton adresse e-mail ».
-- Nouveau mot de passe : 13 caractères refusés, deux saisies différentes refusées, 14 caractères identiques acceptés ; enregistré, connecté sur l'accueil ; lien périmé : « Lien expiré : demande-en un nouveau. ».
+- Nouveau mot de passe : 13 caractères refusés, deux saisies différentes refusées, 14 caractères identiques acceptés ; enregistré, connecté sur En un coup d'œil ; lien périmé : « Lien expiré : demande-en un nouveau. ».
 - L'œil affiche puis masque le mot de passe.
 - Inscription fermée : pas de « Créer un compte » sur la connexion ; la page « Créer un compte » dit « Les inscriptions ne sont pas encore ouvertes. », sans formulaire.
 - Inscription ouverte : le lien mène à la page ; cinq champs obligatoires, prénom et nom côte à côte à 390 px, deux yeux, pas de case de confidentialité sans politique.
@@ -396,13 +396,13 @@ Résultats attendus :
 - Dans ce mode, B ne peut rien ajouter, modifier ni supprimer, même en interrogeant directement la base ; il ne lit ni le poids ni la VMA de A.
 - A retire le partage : à sa visite suivante, B revient sur son propre site et A disparaît de sa liste.
 - Partager avec une adresse sans compte : « Aucun compte avec cette adresse ».
-- Chargement d'une page (accueil, Palmarès, Préférences, saison, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
+- Chargement d'une page (En un coup d'œil, Mon palmarès, Préférences, Ma saison, page d'une course ; ordinateur, tablette, téléphone) : à l'instant où elle devient visible, le menu (et l'en-tête) est en place et le contenu n'a plus à bouger.
 - En un coup d'œil par défaut : grand en-tête, son onglet en premier, « œil » en picto ; blocs Prochaine course (Trail du Lac, compte à rebours en jours), D'ici là jusqu'au Trail des Crêtes en Accent, Dernière course, puis Pour aller plus loin (Préparation et Nutrition, « Ajouter au menu » : l'onglet apparaît, la ligne disparaît) ; aucun bloc « bientôt » ; pas de ligne « prochaine course » dans l'en-tête.
 - Blocs choisis « Dernière course, Prochaine course » : dans cet ordre ; la dernière course montre son temps en hh:mm:ss ; toucher son nom ouvre son résultat par-dessus la page.
 - Menu, dans l'ordre du parcours (23 nov. 2026) : En un coup d'œil, Les courses (clé « Courses à surveiller »), Ma saison (clé « Objectif »), Mon plan (« Préparation », facultatif), Calendrier, Ma nutrition (facultatif), Mon palmarès, Mes stats (facultatif), Mon profil (pas d'onglet pour le Guide) ; par défaut : En un coup d'œil, Les courses, Ma saison, Calendrier, Mon palmarès, Mon profil ; les questions du profil se posent là où elles servent (inscription, Premiers pas, Ma nutrition, Mon plan), jamais d'un coup. Sur téléphone (375 et 390 px), le menu défile en largeur (les noms complets débordent de 48 px) et l'onglet de la page ouverte est ramené dans l'écran, sur toutes les pages (décision du 23 nov. 2026).
 - L'engrenage est dessiné (pas d'emoji) ; en Accent sur les Préférences, en Texte discret ailleurs.
 - Retour du navigateur sur une fiche ouverte seule (« Ajouter une course ») : la fiche se ferme, la page reste ; après une saisie, « Abandonner les modifications ? » d'abord.
-- Objectif en tête du menu : ouvrir le site mène à la saison, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
+- Objectif en tête du menu : ouvrir le site mène à Ma saison, avec le grand en-tête ; toucher Palmarès : barre fine, l'en-tête se réduit ; toucher En un coup d'œil : cette page, en barre fine ; revenir à Objectif : l'en-tête se déplie.
 - En un coup d'œil masqué dans le menu : ouvrir le site mène au premier module du menu (ici Ma saison), avec le grand en-tête ; le nom de l'application y mène aussi.
 - Mentions légales : la page s'ouvre sans être connecté ; aucun nom de personne ; contact, hébergeurs, crédits ; « Retour » mène à la connexion sans session, à l'accueil avec.
 - Pied de page « Mentions légales » en bas de chaque page, connexion comprise ; il ouvre la page des mentions.
