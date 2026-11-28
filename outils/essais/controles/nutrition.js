@@ -4,7 +4,7 @@ const { chromium, fs, path, RACINE, PROJET, AUJOURDHUI, LIB, CAPTURES, TUILE, GP
 module.exports = {
   // Nutrition : calculatrice du besoin du jour (module-nutrition-specification.md, § 3 et 10). Fonctions pures, sans navigateur.
   async besoin() {
-    const B = require('../../composants/besoin.js');
+    const B = require('../../../composants/besoin.js');
     const pb = [];
     const A = { sexe: 'homme', naissance: '1986-03-15', poids: 70, taille: 175, activite: 'peu' };
     const F = { sexe: 'femme', naissance: '1990-08-02', poids: 58, taille: 165, activite: 'peu' };
