@@ -41,6 +41,7 @@ Une discussion par lot ; en ouvrir une nouvelle plutôt que de compacter une lon
 | [Préférences](module-preferences-specification.md) | Thème, modules du menu et leur ordre, cap de l'en-tête, partage, compte | Version 1.17 |
 | [Module Palmarès](module-palmares-specification.md) | Courses courues : colonnes, types et formats, records, tri, filtres, regroupement par type, édition, téléphone, graphique de progression | Version 1.35 |
 | [Réglages Supabase de la connexion](reglages-supabase-connexion.md) | Liste des réglages à faire dans le tableau de bord pour la connexion par mot de passe | Version 1.1 |
+| [Vocabulaire](vocabulaire.md) | Lexique de référence pour les prompts : parties du site, pages, zones d'une page, feuilles, boutons, mots du métier | Version 0.1 |
 | [Outils et services](outils-et-services.md) | Tous les outils et services (GitHub, OVH, Supabase, Resend, Cloudflare Turnstile, API Anthropic, Open Food Facts, cartes, polices…) : adresse, rôle, état | Version 0.1 |
 | [Module Courses à surveiller](module-courses-a-surveiller-specification.md) | Toutes les courses en cartes chronologiques regroupées par mois : toutes les courses au départ, filtres Statut (Confirmée, Option, Repérée, Courue), Ouvertes et Année ; tri par ouverture des inscriptions ; ouverture avec heure et mois seul ; bouton Finishers | Version 0.11, construit |
 | [Module Nutrition](module-nutrition-specification.md) | Besoin du jour (calculatrice), jauges calories et macros, saisie rapide sur téléphone : favoris, récents, quantité | Version 1.47, construit (reste Ciqual) |
