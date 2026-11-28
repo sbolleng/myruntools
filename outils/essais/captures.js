@@ -22,9 +22,7 @@ const [filtre, racineArg, sortieArg] = process.argv.slice(2);
 const racine = path.resolve(racineArg || path.join(__dirname, '../..')) + '/';
 const sortie = path.resolve(sortieArg || path.join(__dirname, 'captures/pages'));
 const LIB = fs.readFileSync(E + 'node_modules/@supabase/supabase-js/dist/umd/supabase.js', 'utf8');
-const src = fs.readFileSync(E + 'essais.js', 'utf8');
-const a = src.indexOf('function jeuObjectif(db0) {'), b = src.indexOf('\n}\n', a) + 2;
-const jeuObjectif = eval('(' + src.slice(a, b) + ')');
+const { jeuObjectif, GPX } = require('./commun');
 const { db: db0, id } = jeuObjectif(JSON.parse(fs.readFileSync(E + 'donnees-fictives.json', 'utf8')));
 // VIERGE=1 : un compte neuf, tel que la base le crée (évolution 015) : prénom et nom seuls, préférences vides, aucune donnée.
 if (process.env.VIERGE) {
@@ -43,7 +41,6 @@ const PROJET = 'https://gifrpodrwesuhtgkxbuc.supabase.co';
 const voir = (p, bloc) => p.evaluate(b => { const t = document.querySelector('[data-bloc="' + b + '"]'), pan = document.querySelector('.mc-panneau');
   pan.scrollTop += t.getBoundingClientRect().top - pan.getBoundingClientRect().top - document.querySelector('.fc-barre').offsetHeight - 16; }, bloc);
 // Tracé fictif (le même que le banc d'essai) pour la capture « parcours ».
-const GPX = eval('(' + src.slice(src.indexOf("const GPX = ") + 12, src.indexOf("'</trkseg></trk></gpx>';") + 23) + ')');
 // Séances d'essai du Calendrier (spécification § 10) ; stockage : réglages posés sur l'appareil avant d'ouvrir la page (boutons d'essai).
 const SEANCES = d => { const moi = d.profils[0].id; d.seances = [['se-1', '2026-10-19', 'renfo', 'Gainage 30 min', true], ['se-2', '2026-10-20', 'run', '8×400 m', false],
   ['se-3', '2026-10-22', 'run', 'Footing 45 min', false], ['se-4', '2026-10-24', 'run', 'Sortie 1 h 30', false]]

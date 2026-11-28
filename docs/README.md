@@ -17,7 +17,7 @@ Règles du projet : `CLAUDE.md` (toujours chargé, inutile de les répéter ici)
 | Todo | Ce fichier, « Prochaines étapes » (en bref) ; [todo.md](todo.md) (en détail) | Prochaines étapes dans l'ordre ; détail, questions ouvertes et idées dans `todo.md`, à lire seulement pour l'étape traitée |
 | Journal | [journal.md](journal.md) | Une ligne par décision, la plus récente en haut ; à lire seulement au besoin |
 | Spécifications | Sommaire ci-dessous | Une par module, avec plan de page, jeu d'essai et résultats attendus |
-| Banc d'essai | `outils/essais/` | `node essais.js` (dépendances installées au démarrage de la discussion) : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; `node essais.js repasse calendrier` : seulement les groupes nommés ; le Chromium de la session est pris d'office |
+| Banc d'essai | `outils/essais/` (contrôles par module dans `controles/`, outils communs dans `commun.js`) | `node essais.js` (dépendances installées au démarrage de la discussion) : rejoue tous les jeux d'essai (données fictives, date figée au 20 oct. 2026) ; `node essais.js repasse calendrier` : seulement les groupes nommés ; le Chromium de la session est pris d'office |
 | Captures | `outils/essais/captures.js` | Images des pages, téléphone et ordinateur, données fictives : la façon économique de faire une maquette (avant/après avec une copie du site en ligne ; `THEME=vert-rose` pour un autre thème) |
 
 **Modèle conseillé**
