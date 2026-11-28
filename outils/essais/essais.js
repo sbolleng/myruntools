@@ -12,7 +12,7 @@
 // Contrôles : un fichier par module dans controles/ (outils communs : commun.js).
 // Ajouter un module : écrire controles/<module>.js et l'ajouter à FICHIERS.
 const { chromium, fs, path, CAPTURES, SEULS, SANS_CAPTCHA, navigateur } = require('./commun');
-const FICHIERS = ["general", "palmares", "objectif", "fiche", "calendrier", "preparation", "design", "graphiques", "courses", "nutrition", "stats", "logistique"];
+const FICHIERS = ["general", "palmares", "objectif", "objectif-strategie", "objectif-saisie", "fiche", "calendrier", "preparation", "preparation-profil", "preparation-ia", "design", "graphiques", "courses", "nutrition", "stats", "logistique"];
 const CONTROLES = Object.assign({}, ...FICHIERS.map(f => require('./controles/' + f)));
 (async () => {
   if (CAPTURES) fs.mkdirSync(path.join(__dirname, 'captures'), { recursive: true });
